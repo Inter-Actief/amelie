@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Inter-Actief/amelie.png?label=ready&title=Ready)](https://waffle.io/Inter-Actief/amelie)
 # Amelie
 The source code of the website of Inter-/Actief/
 
