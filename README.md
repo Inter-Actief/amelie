@@ -1,5 +1,5 @@
 # Amelie
-De sourcecode van de website van Inter-/Actief/
+The sourc ecode of the website of Inter-/Actief/
 
-# Geen code?
-Op dit moment zijn we hard bezig met het opschonen van de code voor een publieke release, deze repository heeft tot nu toe voornamelijk issues ;).
+# No code?
+We are currently working on fixing the source code so that it is ready for its open source release. This repository serves as an issue tracker for now :).
