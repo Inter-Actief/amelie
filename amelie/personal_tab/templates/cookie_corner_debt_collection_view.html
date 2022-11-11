@@ -1,0 +1,150 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'direct withdrawal-task' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'direct withdrawal-task' %}</h2>
+        <div class="content">
+            <table>
+                <tbody>
+                    <tr>
+                        <th>{% trans 'File identification' %}</th>
+                        <td>{{ assignment.file_identification }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Created on' %}</th>
+                        <td class="align-right">{{ assignment.created_on|date:"d F Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Description' %}</th>
+                        <td>{{ assignment.description }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Number of transactions' %}</th>
+                        <td class="align-right">{{ assignment.number_of_transactions }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Total reversed' %}</th>
+                        <td class="align-right">{{ assignment.reversed_sum }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Total cost' %}</th>
+                        <td class="align-right">{{ assignment.control_sum }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <form action="{% url 'personal_tab:debt_collection_view' assignment.id %}" method="post">
+                {% csrf_token %}
+                {% include 'gdpr_export_notice.html' %}
+                {{ export_form }}
+                <input class="icon icon-disk" type="submit" value="{% trans 'Export direct withdrawal-file' %}" name="cookie_corner_sepa_export">
+            </form>
+
+            <p><a href="{% url 'personal_tab:debt_collection_mailing' assignment.id %}" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a></p>
+        </div>
+    </div></div>
+    {% for batch in assignment.batches.all %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{{ batch.reference_number }}</h2>
+            <div class="content">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>{% trans 'Number of reference' %}</th>
+                            <td>{{ batch.reference_number }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Date of execution' %}</th>
+                            <td class="align-right">{{ batch.execution_date|date:"d F Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Sequence type' %}</th>
+                            <td>{{ batch.get_sequence_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Number of transactions' %}</th>
+                            <td class="align-right">{{ batch.number_of_transactions }}</td>
+                        </tr>
+                        <tr>
+                        <th>{% trans 'Total reversed' %}</th>
+                            <td class="align-right">{{ batch.reversed_sum }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Total cost' %}</th>
+                            <td class="align-right">{{ batch.control_sum }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Status' %}</th>
+                            <td>{{ batch.get_status_display }} <a href="{% url 'personal_tab:process_batch' batch.id %}" class="icon icon-page_edit"></a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% if batch.instructions.all %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Reference' %}</th>
+                                    <th>{% trans 'Person' %}</th>
+                                    <th>{% trans 'Mandate' %}</th>
+                                    <th>{% trans 'end-to-end-id' %}</th>
+                                    <th>{% trans 'Amendment' %}</th>
+                                    <th class="align-right">{% trans 'Price' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for instruction in batch.instructions.all.select_related %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ instruction.get_absolute_url }}">
+                                                {{ instruction.debt_collection_reference }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if instruction.authorization.person %}
+                                                <a href="{{ instruction.authorization.person.get_absolute_url }}">
+                                                    {{ instruction.authorization.person }}
+                                                </a>
+                                            {% else %}
+                                                &mdash;
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ instruction.authorization.get_absolute_url }}">
+                                                {{ instruction.authorization }}
+                                            </a>
+                                        </td>
+                                        <td>{{ instruction.end_to_end_id }}</td>
+                                        <td>
+                                            {% if instruction.amendment %}
+                                                {{ instruction.amendment.date }}
+                                            {% else %}
+                                                &mdash;
+                                            {% endif %}
+                                        </td>
+                                        <td class="align-right">{{ instruction.amount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6">{{ instruction.description }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="icon warning">{% trans 'No instructions have been found.' %}</p>
+                {% endif %}
+            </div>
+        </div></div>
+    {% empty %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'No batches' %}</h2>
+            <div class="content">
+                <p class="icon warning">{% trans 'No batches have been found.' %}</p>
+            </div>
+        </div></div>
+    {% endfor %}
+{% endblock content %}

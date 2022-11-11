@@ -1,0 +1,25 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Confirmation of payment' %} {{ obj.event }}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'Confirmation payment' %} {{ obj }}</h2>
+        <div class="content">
+            <p>
+            {% blocktrans with event=obj.event person=obj.person %}
+                Are you sure you want to register a cash payment for {{ person }} for {{ event }}?
+            {% endblocktrans %}
+            </p>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <p>
+                    <input type="submit" name="yes" value="{% trans 'Yes' %}"/>
+                    <input type="submit" name="no" value="{% trans 'No' %}"/>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

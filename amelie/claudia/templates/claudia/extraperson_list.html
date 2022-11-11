@@ -1,0 +1,40 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Extra AD people' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Extra AD users' %}</h2>
+        <div class="content">
+            <p class="icon icon-add">
+                <a href="{% url 'claudia:extraperson_add' %}">{% trans 'Create extra AD user' %}</a>
+            </p>
+
+            {% include "paginator.html" with page=page_obj %}
+
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'E-mail address' %}</th>
+                    <th>{% trans 'AD name' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'Active' %}</th>
+                </tr>
+                {% for person in page_obj %}
+                <tr class="{% if not person.active %}claudia-inactive{% endif %}">
+                    <td>{{ person|clau_link }}</td>
+                    <td>{{ person.email|clau_link }}</td>
+                    <td>{{ person.adname|clau_account }}</td>
+                    <td>{{ person.description }}</td>
+                    <td>{{ person.active|yesno }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

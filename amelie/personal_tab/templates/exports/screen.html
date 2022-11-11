@@ -1,0 +1,92 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Result' %}</h2>
+    <div class="content">
+        <table>
+            <tbody>
+                <tr>
+                    <th>{% trans 'Start date' %}</th>
+                    <td class="align-right">{{ start|date:"DATETIME_FORMAT" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'End date (till)' %}</th>
+                    <td class="align-right">{{ end|date:"DATETIME_FORMAT" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Number negative balance' %}</th>
+                    <td class="align-right">{{ rows.negative|length }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Number exported:' %}</th>
+                    <td class="align-right">{{ rows.good|length }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Total costs' %}</th>
+                    <td class="align-right">{{ total }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="buttons">
+            <a class="looks-like-a-button" href="{% url 'personal_tab:statistics' start_url end_url 'sackgot' %}">{% trans 'Statistics' %}</a>
+            <a class="looks-like-a-button" href="{% url 'personal_tab:export_csv' start_url end_url %}">{% trans 'Export to CSV' %}</a>
+        </div>
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Negative balance' %}</h2>
+    <div class="content">
+        {% if rows.negative %}
+            <ul class="icon">
+                {% for row in rows.negative %}
+                <li class="exclamation">
+                    <a href="{{ row.person.get_absolute_url }}">{{ row.person }}</a> {% blocktrans %}has a negative balance{% endblocktrans %} ({{ row.sumf }}).
+                </li>
+                {% endfor %}
+            </ul>
+            <p class="icon error">
+                {% trans 'People with a negative balnce will NOT be exported.' %}
+            </p>
+        {% else %}
+            <p class="icon done">
+                {% trans 'No people with a negative balance.' %}
+            </p>
+        {% endif %}
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Data' %}</h2>
+    <div class="content">
+        {% if rows.good %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'City' %}</th>
+                            <th class="align-right">{% trans 'Price' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows.good %}
+                            <tr>
+                                <td><a href="{{ row.person.get_absolute_url }}">{{ row.person }}</a></td>
+                                <td>{{ row.person.city }}</td>
+                                <td class="align-right">{{ row.sum }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td>{% trans 'Total' %}</td>
+                            <td class="align-right">{{ total }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="icon warning">{% trans 'No transactions' %}</p>
+        {% endif %}
+    </div>
+</div></div>

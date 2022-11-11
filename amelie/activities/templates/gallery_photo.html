@@ -1,0 +1,49 @@
+{% extends "basis.html" %}
+{% load i18n picture_tags %}
+
+{% block titel %}{% trans 'Photos' %} {{ obj }}{% endblock titel %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dragndrop.js"></script>
+{% endblock head %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2 class="h2-with-buttons">
+			{% trans "Photos" %} {{ obj }} ({{ position }} / {{ total }})
+
+			<a class="looks-like-a-button" href="{{ obj.get_photo_url }}">{% trans 'All photos' %}</a>
+		</h2>
+
+    <div class="content">
+  		{% include 'includes/gallery_photo_paginator.html' %}
+
+  		<div class="photo-container">
+              <a href="{% if next %}{% picture_url obj next %}#photo-full{% else %}{{ obj.get_photo_url }}{% endif %}">
+                  <img id="photo-full" src="{{ photo.thumb_file_large.url }}" alt="{{ photo }}" data-sizes="{{ photo.thumb_file_large.width }},{{ photo.thumb_file_large.height }}" class="img-responsive" />
+  		    </a>
+
+  		    <p>
+  		    	{% trans 'Photographer:' %} {{ photo.owner }}
+  		    </p>
+			<p>{% trans 'If you want to have this photo removed, please contact the board' %}</p>
+  		</div>
+
+  		<p>
+  		    <a href="{{ photo.file.url }}">{% trans 'Original' %}</a>
+  		    &mdash;
+  		    <a href="{{ photo.thumb_small.url }}">{% trans 'Small' %} ({{ photo.thumb_small.width }}x{{ photo.thumb_small.height }})</a>
+
+  		    {% if photo.thumb_medium %}
+  		    	&mdash;
+  		    	<a href="{{ photo.thumb_medium.url }}">{% trans 'Medium' %} ({{ photo.thumb_medium.width }}x{{ photo.thumb_medium.height }})</a>
+  		    {% endif %}
+
+  		    {% if photo.thumb_large %}
+  		    	&mdash;
+  		    	<a href="{{ photo.thumb_large.url }}">{% trans 'Large' %} ({{ photo.thumb_large.width }}x{{ photo.thumb_large.height }})</a>
+  		    {% endif %}
+  		</p>
+    </div>
+	</div></div>
+{% endblock content %}

@@ -1,0 +1,22 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Terminate memberships' %}</h3>
+
+    <form action="{% url 'members:person_membership_end' obj.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+        {% for error in form.non_field_errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+
+        {% csrf_token %}
+        {{ form.ended.errors }}
+        {{ form.ended }}
+
+        <div class="buttons">
+            <a href="{% url 'members:person_membership' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input type="submit" name="end" value="{% trans 'Save' %}" />
+        </div>
+    </form>
+</div>

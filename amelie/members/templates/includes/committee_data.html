@@ -1,0 +1,53 @@
+{% load i18n hide_email md claudia_tags %}
+
+{% if obj.logo %}
+	<div class="col-xs-12 col-md-4">
+		<img class="committee-img" src="{{ MEDIA_URL}}{{ obj.logo }}"/>
+	</div>
+{% endif %}
+
+<div class="{{ obj.logo|yesno:"col-xs-12 col-md-8,col-xs-12" }}">
+    <div class="col-sm-12">
+        {{ obj.information|markdown }}
+        {% if obj.group_picture %}
+            <strong>{% trans 'Current committee' %}</strong><br />
+            <img src="{{ MEDIA_URL}}{{ obj.group_picture }}"/>
+        {% endif %}
+    </div>
+
+    <dl class="dl-horizontal dl-text-align-left">
+    {% if request.is_board %}
+        <dt><strong>{% trans 'Parent committee' %}</strong></dt>
+        <dd>
+            {% for parent_committee in obj.parent_committees.all %}
+                {{ parent_committee }}<br />
+            {% empty %}
+                &mdash;
+            {% endfor %}
+        </dd>
+    {% endif %}
+
+    {% if request.is_board or not obj.private_email %}
+        <dt><strong>{% trans 'E-mail address' %}</strong></dt>
+        <dd>{% if obj.email %}{% hide_email obj.email %}{% else %}&mdash;{% endif %}</dd>
+    {% endif %}
+
+    {% if obj.website %}
+        <dt><strong>{% trans 'Web site' %}</strong></dt>
+        <dd><a href="{{ obj.website }}">{{ obj.website }}</a></dd>
+    {% endif %}
+
+    <dt><strong>{% trans 'Founded' %}</strong></dt>
+    <dd>{{ obj.founded|timesince }} {% trans 'ago' %}</dd>
+    </dl>
+
+	<div class="clearfix"></div>
+</div>
+<div class="clearfix"></div>
+
+{% if is_board %}
+	<div class="buttons">
+	    <a class="looks-like-a-button" href="{% url 'members:committee_edit' obj.id obj.slug %}">{% trans 'Edit' %}</a>
+	</div>
+	<p>{{ obj|clau_mapping:"Claudia" }}</p>
+{% endif %}

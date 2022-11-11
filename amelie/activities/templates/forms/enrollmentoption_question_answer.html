@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<p>
+	<!-- Errors -->
+	{% if form.non_field_errors %}
+		<span>
+			{{ form.non_field_errors }}
+		</span>
+	{% endif %}
+
+	<!-- Title -->
+	<h3>
+		{{ form.enrollmentoption.title }}
+
+		{% if form.enrollmentoption.required %}
+			({% trans 'required' %})
+		{% endif %}
+	</h3>
+
+	<!-- Veld -->
+	<span>
+		{{ form.answer }}
+	</span>
+
+	<!-- Rest -->
+	{% for field in form.hidden_fields %}
+		{{ field }}
+	{% endfor %}
+</p>

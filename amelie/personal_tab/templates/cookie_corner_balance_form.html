@@ -1,0 +1,29 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Personal tab balance' %}{% endblock titel %}
+
+{% block content %}
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Personal tab balance' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'Select a period and click Balance.' %}
+            </p>
+
+            <form class="big" action="{% url 'personal_tab:balance' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+
+                <div class="buttons">
+                    <input type="submit" value="{% trans 'Balance' %}" />
+                </div>
+            </form>
+        </div>
+    </div></div>
+
+    {% if dt %}
+        {% include 'cookie_corner_balance.html' %}
+    {% endif %}
+{% endblock content %}

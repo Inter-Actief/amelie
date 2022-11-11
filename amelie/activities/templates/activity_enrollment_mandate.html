@@ -1,0 +1,35 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% blocktrans with name=obj.summary %}
+		Enroll for {{ name }}
+	{% endblocktrans %}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2>
+			{% blocktrans with name=obj.summary %}
+				Enroll for {{ name }}
+			{% endblocktrans %}
+		</h2>
+
+		<div class="content">
+			<p>
+				{% blocktrans %}
+				 	Unfortunately, you cannot enroll for this activity, because it has an entrance fee, and you have
+                    not signed a direct debit mandate for consumptions and activities. Without this authorization, we
+                    can not withdraw money from your account. Please ask the board for a mandate form.
+				{% endblocktrans %}
+			</p>
+
+			<p>
+		    {% blocktrans %}
+		        Would you prefer not to sign a direct debit mandate? Please contact the board or organizing committee
+                and pay in cash.
+		    {% endblocktrans %}
+	    </p>
+		</div>
+	</div></div>
+{% endblock content %}

@@ -1,0 +1,42 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Contacts' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Contacts' %}</h2>
+        <div class="content">
+            <p class="icon icon-add">
+                <a href="{% url 'claudia:contact_add' %}">{% trans 'Create contact' %}</a>
+            </p>
+
+            {% include "paginator.html" with page=page_obj %}
+
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'E-mail address' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'Active' %}</th>
+                </tr>
+                {% for contact in page_obj %}
+                <tr class="{% if not contact.active %}claudia-inactive{% endif %}">
+                    <td>{{ contact|clau_link }}</td>
+                    <td>{{ contact.email|clau_link }}</td>
+                    <td>{{ contact.description }}</td>
+                    <td>{{ contact.active|yesno }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">{% trans "There are no contacts yet." %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

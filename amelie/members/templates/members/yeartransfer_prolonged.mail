@@ -1,0 +1,25 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans %}[Inter-Actief] Membership renewal{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans %}On the first of July your membership will be automatically renewed.{% endblocktrans %}
+
+{% trans 'Membership type:' %} {{ type }}
+{% trans 'Membership fee:' %} {% if price %}{% blocktrans %}€ {{ price }} annually{% endblocktrans %}{% else %}{% trans 'free' %}{% endif %}
+
+{% if iban and price %}{% blocktrans %}The contribution will be withdrawn by direct debit from you bank account {{ iban }} at the end of July.{% endblocktrans %}
+
+{% endif %}{% blocktrans %}Currently, we have the following information about you in our administration:{% endblocktrans %}
+
+{% endhtmlify %}{% onlyhtml %}{% include "members/datablock_html.mail" %}{% endonlyhtml %}{% onlyplain %}{% include "members/datablock_plain.mail" %}{% endonlyplain %}{% htmlify %}
+
+{% blocktrans %}In case you want to end your membership, you can do so by replying to the email before the first of July.{% endblocktrans %}
+
+{% onlyhtml %}{% blocktrans %}In case the above information is faulty, you can edit it at <a href="https://www.inter-actief.utwente.nl/profile/edit">https://www.inter-actief.utwente.nl/profile/edit</a> or by replying to this email. For questions you can also contact the board.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}{% blocktrans %}In case the above information is faulty, you can edit it at https://www.inter-actief.utwente.nl/profile/edit or by replying to this email. For questions you can also contact the board.{% endblocktrans %}{% endonlyplain %}
+
+{% blocktrans %}Kind regards,
+
+The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transactions' %} {{ event }}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>
+            {% trans 'Transactions' %}
+
+            {{ event }}
+        </h2>
+
+        <div class="content">
+            {% if event.activity %}
+                <p class="icon icon-information"><a href="{{ event.activity.get_absolute_url }}">{{ event }}</a></p>
+            {% endif %}
+
+            {% include "lists/activity_transactions.html" with transactions=transactions totals=totals %}
+        </div>
+    </div></div>
+{% endblock content %}

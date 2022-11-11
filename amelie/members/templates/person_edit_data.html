@@ -1,0 +1,25 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Change profile ' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Change profile ' %}</h2>
+
+        <div class="content">
+          <form method="post" enctype="multipart/form-data" class="big">
+              {% csrf_token %}
+              {{ form }}
+
+              <div class="buttons">
+                  <a href="{{ person.get_absolute_url }}" class="looks-like-a-button">
+                      {% trans 'Cancel' %}
+                  </a>
+
+                  <input type="submit" value="{% trans 'Save' %}">
+              </div>
+          </form>
+        </div>
+    </div></div>
+{% endblock %}

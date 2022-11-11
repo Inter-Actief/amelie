@@ -1,0 +1,17 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only attach humanize %}
+{% block subject %}{% blocktrans %}[Inter-Actief] Happy Birthday!{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans with first_name=recipient.first_name age=age|ordinal %}Dear {{ first_name }},
+
+The board of Inter-Actief congratulates you with your {{ age }} birthday!
+If you find yourself near Inter-Actief today, please come by the Inter-Actief room so we can congratulate you in person.
+
+Also if you would like to get a nice present, when you come to out next afternoon drink and show you had your birthday you will receive a large glass filled with beer or soda, free of charge!
+
+We wish you a very happy day!
+
+Kind regards,
+The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}
+{% onlyhtml %}<img src="{% attach_static "img/board_happy_birthday.jpg" %}" alt="Happy Birthday!" style="width: 600px; height: 300px;"/>{% endonlyhtml %}
+{% endblock %}

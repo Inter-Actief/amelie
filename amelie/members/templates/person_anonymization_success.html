@@ -1,0 +1,16 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Person has been anonymized'%}{% endblock titel %}
+
+{% block content %}
+    <div class="container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2>{% trans 'Person has been anonymized' %}</h2>
+            <div class="content">
+                <p>{% blocktrans with name=person.incomplete_name %}The personal data of {{ name }} has been anonymized.{% endblocktrans %}</p>
+                <p><a class="looks-like-a-button" href="{% url 'members:person_view' id=person.id slug=person.slug %}">{% trans 'Return to this person.' %}</a></p>
+            </div>
+        </div></div>
+    </div>
+{% endblock content %}

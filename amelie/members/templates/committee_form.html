@@ -1,0 +1,58 @@
+{% extends "basis.html" %}
+{% load i18n extend fieldsets %}
+
+{% block titel %}
+	{% if is_new %}
+		{% trans 'Add committee' %}
+	{% else %}
+		{% trans 'Change committee' %}
+	{% endif %}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia committee">
+            <h2>
+                {% if is_new %}
+                    {% trans 'Add committee' %}
+                {% else %}
+                    {% trans 'Change committee' %}
+                {% endif %}
+            </h2>
+
+            <div class="content">
+
+                <form method="POST" action="" class="big" enctype="multipart/form-data">
+                    {% for error in form.non_field_errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+
+                    {% csrf_token %}
+                    {% fieldset name,abbreviation as form_preinformation from form %}
+                    {{ form_preinformation }}
+
+                    {% if form.information_nl.errors or form.information_en.errors %}
+                        {% for error in form.information_nl.errors|extend:form.information_en.errors %}
+                            <div class="error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active"> NL </li>
+                            <li> EN </li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.information_nl }}</div>
+                            <div>{{ form.information_en }}</div>
+                        </div>
+                    </div>
+                    {% fieldset logo,group_picture,category,parent_committees,email,private_email,website,gitlab,superuser,abolished,ledger_account_number as form_general from form %}
+                    {{ form_general }}
+                    <div class="buttons">
+                        <input type="submit" value="{% if is_new %}{% trans 'Add committee' %}{% else %}{% trans 'Change committee' %}{% endif %}" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

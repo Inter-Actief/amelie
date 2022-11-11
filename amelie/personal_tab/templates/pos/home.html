@@ -1,0 +1,154 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block content %}
+    <div id="container">
+        <div id="header">
+            <div id="header-logo"></div>
+            <div id="header-login-button">
+                <a href="{% url 'personal_tab:pos_generate_qr' type="login" %}">
+                    <span id="scan-header">{% trans 'Scan your card' %}</span>
+                    <span id="scan-subtext">{% trans 'Or press here to log in' %}</span>
+                </a>
+                <form id="rfid-form" method="post" action="{% url 'personal_tab:pos_process' %}">
+                    {% csrf_token %}
+                    <input name="tags" id="rfid-form-tags" type="hidden" value="">
+                </form>
+            </div>
+            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+            {% if messages %}
+                <div id="messages">
+                    <ul>
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <div id="content">
+            <div id="content-left">
+                <div id="activities">
+                    <div id="activities-header"><h1>{% trans 'Upcoming Activities' %}</h1></div>
+                    <div id="activities-picker">
+                        <span id="activities-picker-previous"><i class="fa fa-caret-left"></i></span><div id="activities-picker-buttons">
+                            {% for activity in upcoming_activities %}
+                                <span class="activities-picker-button{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}"><i class="far {% if forloop.first %}fa-dot-circle{% else %}fa-circle{% endif %}"></i></span>
+                            {% empty %}
+                                <span class="activities-picker-button active" data-index="0"><i class="far fa-dot-circle"></i></span>
+                            {% endfor %}
+                        </div><span id="activities-picker-next"><i class="fa fa-caret-right"></i></span>
+                    </div>
+                    <div id="activities-timer"><div id="activities-progressbar"></div></div>
+                    <div id="activities-content">
+                        <div id="activities-fadeout"></div>
+                        {% for activity in upcoming_activities %}
+                            <div class="activities-content-pane{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                <div class="activity-datename">
+                                    <div class="activity-date">
+                                        <div class="activity-day">{{ activity.begin|date:'d' }}</div>
+                                        <div class="activity-month">{{ activity.begin|date:'M' }}</div>
+                                    </div>
+                                    <div class="activity-title">{{ activity.summary }}</div>
+                                </div>
+                                <div class="activity-locationtime">
+                                    <div class="activity-location"><i class="fas fa-map-marked-alt"></i> {{ activity.location }}</div>
+                                    <div class="activity-time">
+                                        <i class="fa fa-clock"></i> {{ activity.begin|date:'H:i' }} - {{ activity.end|date:'H:i' }}
+                                    </div>
+                                    <div class="activity-enrollment">
+                                        <i class="fas fa-file-signature"></i>&nbsp;
+                                        {% if activity.enrollment %}
+                                            {% if activity.enrollment_open %}
+                                                {% if activity.enrollment_full %}
+                                                    {% trans 'Full' %}
+                                                {% elif activity.enrollment_almost_full %}
+                                                    {% blocktrans with places=activity.enrollment.places_available maximum=activity.maximum %}{{ places }} left{% endblocktrans %}
+                                                {% else %}
+                                                    {% trans '10+ left' %}
+                                                {% endif %}
+                                            {% elif activity.enrollment_closed %}
+                                                {% trans 'Closed' %}
+                                            {% else %}
+                                                {% blocktrans with open_date=activity.enrollment_begin|date:"d M H:i" %}{{ open_date }}{% endblocktrans %}
+                                            {% endif %}
+                                        {% else %}
+                                            {% trans 'Unlimited' %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="activity-description">
+                                    {{ activity.description|markdown:"remove_urls" }}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="activities-content-pane active" data-index="0">
+                                <div class="activity-datename">
+                                    <div class="activity-date">
+                                        <div class="activity-day"></div><div class="activity-month"></div>
+                                    </div>
+                                    <div class="activity-title">{% trans 'No upcoming activities' %}</div>
+                                </div>
+                                <div class="activity-locationtime no-activities">
+                                    <div class="activity-location"></div><div class="activity-time"></div><div class="activity-enrollment"></div>
+                                </div>
+                                <div class="activity-description no-activities">
+                                    {% trans 'There are no upcoming activities! Happy holidays?' %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div id="content-right">
+                <div id="past-activities">
+                    <div id="past-activities-header"><h1>{% trans 'Past Activities' %}</h1></div>
+                    <div id="past-activities-content">
+                        {% for activity in past_activities %}
+                            <div class="past-activities-title{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}">{{ activity.summary }}</div>
+                            <div class="past-activities-image{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                <img src="{{ activity.random_public_photo.thumb_medium.url }}" />
+                            </div>
+                        {% empty %}
+                            <div class="past-activities-title active" data-index="0">{% trans 'No pictures of past activities found!' %}</div>
+                            <div class="past-activities-image active" data-index="0"><img src="" /></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="weather">
+                    <div id="weather-header"><h1>{% trans 'Weather' %}</h1></div>
+                    <div id="weather-content">
+                        <!-- BUIENRADAR PICTURE -->
+                        <div id="weather-buienradar">
+                            <img height="267" border="0" width="267" alt="Buienradar.nl" src="//api.buienradar.nl/image/1.0/RadarMapNL?w=256&h=256">
+                        </div>
+                        <!-- WEATHER WIDGET -->
+                        <div id="weather-widget">
+                            <div class="weather-overlay"></div>
+                            <div class="weather-widget">
+                                <div id="cont_be83c43587ff27f7e6101cc546d17e99">
+                                  <span id="h_be83c43587ff27f7e6101cc546d17e99">{%  trans 'Weather'%} <a id="a_be83c43587ff27f7e6101cc546d17e99" href="//www.tameteo.nl/enschede.htm" target="_blank" style="color:#808080;font-family:5;font-size:14px;">{% trans 'Enschede' %}</a></span>
+                                  <script type="text/javascript" async src="//www.tameteo.nl/wid_loader/be83c43587ff27f7e6101cc546d17e99"></script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        var numActivities = {{ upcoming_activities|length }};
+        var numPictures = {{ past_activities|length }};
+        $(document).ready(function(){
+           setupPosHome();
+        });
+
+        setTimeout(function(){
+            $('#messages').fadeOut(2000);
+        }, 6000);
+    </script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {{ obj }} {% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{{ obj }}</h2>
+        <div class="content">
+            <p>{{ obj|clau_link }}</p>
+            <p>{% trans 'There is no mapping for this object.' %}</p>
+            <form method="post" action="">
+                {% csrf_token %}
+                <p><input type="submit" name="create_mapping" value="{% trans 'Create new mapping' %}" /></p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

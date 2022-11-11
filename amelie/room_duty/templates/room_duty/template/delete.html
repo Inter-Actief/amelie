@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% blocktrans %}Delete office duty schedule template {{ template }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>
+            {% blocktrans %}Delete office duty schedule template {{ template }}{% endblocktrans %}
+        </h2>
+        <div class="content">
+            <p>{% blocktrans %}
+                Are you sure you want to remove the office duty schedule template {{ template }}?
+            {% endblocktrans %}</p>
+
+            <a href="{% url 'room_duty:templates' %}" class="looks-like-a-button">{% trans "Cancel" %}</a>
+
+            <form method="post" class="inline">
+                {% csrf_token %}
+                <input type="submit" value="{% trans 'Delete' %}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

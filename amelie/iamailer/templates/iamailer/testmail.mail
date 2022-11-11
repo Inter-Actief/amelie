@@ -1,0 +1,19 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load only htmlify attach %}
+{% block subject %}This is a test!{% endblock %}
+
+{% block content %}{% htmlify %}Dear recipient,
+
+This is a test!
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse feugiat interdum lectus, quis venenatis velit. Donec posuere quis lectus vel maximus. Nullam volutpat egestas mi, nec tempus purus ullamcorper a. Ut auctor iaculis justo, egestas lacinia mi rutrum ac.
+
+Vivamus ac iaculis odio. Aenean rhoncus, massa vel lacinia sodales, dolor quam pharetra erat, nec posuere orci quam ut mauris. Vestibulum erat odio, gravida in pulvinar in, fermentum sit amet justo. Ut tortor orci, porta sed gravida aliquet, ullamcorper nec lacus. Vivamus viverra laoreet nunc. Mauris sed eros condimentum, lacinia nibh ac, vehicula lorem.
+
+Vivamus cursus scelerisque neque, id suscipit nunc eleifend ac. Morbi rhoncus nisl a eros scelerisque euismod. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse viverra dolor ut purus mattis pulvinar. Integer aliquet lectus ac nisl aliquam malesuada.
+
+Etiam sed magna tempor lacus efficitur tincidunt. Aenean bibendum, lorem vel ultrices commodo, turpis dui convallis arcu, et iaculis purus nibh eu dolor. In in rutrum ipsum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Maecenas dictum lacus id metus placerat porttitor. Aliquam vulputate lacinia dui, eget posuere erat volutpat sed. Curabitur feugiat vestibulum venenatis. Sed massa purus, malesuada nec fermentum et, gravida sit amet quam.
+
+Kind regards,
+
+The iamailer-test-script.{% endhtmlify %}{% endblock %}

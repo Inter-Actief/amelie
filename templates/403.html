@@ -1,0 +1,20 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'No access'%}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'No access' %}</h2>
+
+        <div class="content">
+          <p class="icon exclamation">
+              {% trans 'You do not have access to the requested page.' %}
+          </p>
+
+          {% if reason %}<p>{{ reason }}</p>{% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

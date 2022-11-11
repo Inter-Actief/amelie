@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_mandate">
+    <h3>{% trans 'Mandate' %}</h3>
+
+    {% fieldset mandates,mandate,iban as form_mandate from form %}
+    {{ form_mandate }}
+</div>

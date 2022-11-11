@@ -1,0 +1,57 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Register an RFID card' %}{% endblock titel %}
+
+{% block head %}
+    <script type="text/javascript">
+        Settings = {
+            onopen: function (event) {
+                console.log('Connected with websocket!');
+                Display.set('{% trans 'Please scan your card now...' %}');
+            },
+            onerror: function (event) {
+                console.log('Failed to connect with websocket, warning user.');
+                Display.set('{% trans 'Connection with NFC-reader failed.' %}');
+            },
+            onmessage: function (event) {
+                var rfid = JSON.parse(event.data);
+                Settings.action(rfid);
+            },
+            action: function (rfid) {
+                console.log('Received action!');
+                try {
+                    rfid_string = rfid_to_identifier(rfid);
+
+                    Display.set('{% trans 'Scanned card, please wait...' %}');
+                    sumbit_form(rfid_string);
+                } catch (err) {
+                    if (err.message === "atqa/sak combination unknown"){
+                        Display.set('{% trans 'Card type is unknown. Please use normal RFID cards like your college card or public transport card.' %}');
+                    }else {
+                        Display.set('{% trans 'Error, could not scan card.' %}');
+                    }
+                    console.log("Error: "+err.message);
+                }
+            }
+        }
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/juliana_rfid.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Register an RFID card' %}</h2>
+        <div class="content">
+            <h3 id="display">{% trans 'Connecting to card reader...' %}</h3>
+
+            <form id="rfid-form" action="" class="user-register active" method="POST">
+                {% csrf_token %}
+
+                <input name="tag" id="rfid-form-tag" type="hidden" value="">
+            </form>
+
+            <p><a class="looks-like-a-button" href="{% url "personal_tab:register_index" %}">{% trans 'Go back' %}</a></p>
+        </div>
+    </div></div>
+{% endblock content %}

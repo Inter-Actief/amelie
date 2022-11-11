@@ -1,0 +1,34 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'Information pages' %}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>{% trans 'Information about the association' %}</h2>
+
+		<div class="content">
+			<p>
+				{% blocktrans %}
+				    Information about I.C.T.S.V. Inter-<em>Actief</em>, her members and activities can be found here.
+				{% endblocktrans %}
+			</p>
+
+			<ul class="icon">
+				{% for page in pages %}
+					<li class="pagina">
+						<a href="{{ page.get_absolute_url }}">{{ page }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+			<br />
+			{% if request.is_board %}
+				<div class="buttons">
+				    <a class="looks-like-a-button addmargin" href="{% url 'about:page_new' %}">{% trans 'Add page' %}</a>
+				</div>
+			{% endif %}
+		</div>
+	</div></div>
+{% endblock content %}

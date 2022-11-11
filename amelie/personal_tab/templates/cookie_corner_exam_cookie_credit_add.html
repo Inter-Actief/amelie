@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Add credit for exams' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="edu">
+        <h2>
+            {% blocktrans with person=person %}
+                Add credit for {{ person }}.
+            {% endblocktrans %}
+        </h2>
+
+        <div class="content">
+            <form action="" method="POST" class="big">
+                {% csrf_token %}
+                {{ form }}
+
+                <div class="buttons">
+                    <input type="submit" value="{% trans 'Add' %}">
+                </div>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

@@ -1,0 +1,58 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans "Publications" %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2 class="h2-with-buttons">
+		    {% trans "Publications" %}
+
+		    {% if page_obj.has_other_pages %}
+		    	({{ page_obj.start_index }} - {{ page_obj.end_index }} / {{ paginator.count }})
+		    {% else %}
+		    	({{ paginator.count }})
+		    {% endif %}
+
+            {% if can_create %}
+                <a class="looks-like-a-button" href="{% url 'publications:new_publication' %}">{% trans 'Add publication' %}</a>
+            {% endif %}
+		</h2>
+
+    <div class="content">
+  		<p>
+  			{% blocktrans %}Below you can find the different publications of Inter-<i>Actief</i>, as they have been published over the years.{% endblocktrans %}
+  		</p>
+
+		{% if login_voor_meer %}
+        <p class="icon icon-information">
+            {% url 'login' as login_url %}
+            {% trans "More publications are available if you" %} <a href="{{ login_url }}?next={% url 'publications:list_publications' pk %}">{% trans 'logged in.' %}</a>.
+        </p>
+        {% endif %}
+
+  		{% if page_obj.has_other_pages %}
+  			{% include "publications/includes/publications_paginator.html" %}
+  		{% endif %}
+
+  		<div class="row publications-list">
+  			{% for pub in page_obj.object_list %}
+  				<div class="col-xs-12 col-sm-4 col-md-2 col-lg-2 publication-item">
+                    <div class="col-xs-12 thumbnail-container">
+                        <a href="{{ pub.file.url }}">
+                            <h3>{{ pub.name }}</h3>
+                            <div class="thumbnail" style="background-image: url({{ pub.get_thumbnail }})"></div>
+                        </a>
+                    </div>
+  				</div>
+  			{% endfor %}
+  		</div>
+
+  		<div class="clear"></div>
+
+  		{% if page_obj.has_other_pages %}
+  			{% include "publications/includes/publications_paginator.html" %}
+  		{% endif %}
+    </div>
+	</div></div>
+{% endblock content %}

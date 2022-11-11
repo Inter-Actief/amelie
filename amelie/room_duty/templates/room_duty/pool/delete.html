@@ -1,0 +1,46 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% blocktrans %}Delete office duty pool {{ pool }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>
+            {% blocktrans %}Delete office duty pool {{ pool }}{% endblocktrans %}
+        </h2>
+        <div class="content">
+            <p>{% blocktrans %}
+                Are you sure you want to remove office duty pool {{ pool }}?
+            {% endblocktrans %}</p>
+
+            {% if pool.persons %}
+                <p>{% trans 'This office duty pool consists of the following persons:' %}</p>
+
+                <ul>
+                    {% for person in pool.persons %}
+                        <li>{{ person }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if pool.room_duty_tables.all %}
+                <p class="icon error">{% trans "This action will <em>remove</em> the following office duty schedules:" %}</p>
+
+                <ul>
+                    {% for table in pool.room_duty_tables.all %}
+                        <li>{{ table }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <a href="{% url 'room_duty:pools' %}" class="looks-like-a-button">{% trans 'Cancel' %}</a>
+
+            <form method="post" class="inline">
+                {% csrf_token %}
+                <input type="submit" value="{% trans 'Delete' %}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

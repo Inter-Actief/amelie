@@ -1,0 +1,80 @@
+# Contributors
+
+Before this project was open-sourced, a lot of people have contributed to it. To thank them for their contributions, we list them here. For an up-to-date list of all newer contributors, please check the [full contributors list](https://github.com/Inter-Actief/amelie/graphs/contributors).
+
+ - Kevin Alberts
+ - Wessel Ammerlaan
+ - Jeffrey Bakker
+ - Sander Bakkum
+ - Jochem Bleeker
+ - Sebastiaan den Boer
+ - Jasper Boot
+ - Pieter Bos
+ - Jelle van den Brink
+ - Michel Brinkhuis
+ - Ralph Broenink
+ - Thomas Brus
+ - Lennart Buit
+ - Twan Coenraad
+ - Bram van Dartel
+ - Joost van Doorn
+ - Cas Ebbers
+ - Erik Gaal
+ - Tom Grooters
+ - Pieter van Heijningen
+ - Rien Heuver
+ - Martijn Hoogesteger
+ - Daniëlle Huisman
+ - Daniel Jonker
+ - Edwin Keijl
+ - Karel van Klink
+ - Wouter Kobes
+ - Floris Kruisselbrink
+ - Rembrand van Lakwijk
+ - Sophie Lathouwers
+ - Jarmo van Lenthe
+ - Joost Loohuis
+ - Matthias van de Meent
+ - Maarten Meijer
+ - Tom Meulenkamp
+ - Frank van Mourik
+ - Floris van Nee
+ - Martijn Noorlander
+ - Dre van Oorschot
+ - Erik Oosting
+ - Yoeri Otten
+ - Tom Palsma
+ - Leonardo Pasquarelli
+ - Bas Peschier
+ - Julien Robert
+ - Niels Rotmensen
+ - Laurens Rouw
+ - Eli Saado
+ - Caz Saaltink
+ - Julian van Santen
+ - Nick Schot
+ - Gilian Schrijver
+ - Daniele Sluijters
+ - Casper Smits
+ - Tim Sonderen
+ - Jotte Sonneveld
+ - Pieter Staal
+ - Bas Stottelaar
+ - Nick ten Veen
+ - Roy van der Veen
+ - Antoine Veenstra
+ - Marck van der Vegt
+ - Mathijs Vogelezang
+ - Jeroen Vollenbrock
+ - Jeroen van Vroonhoven
+ - Jeroen Waals
+ - Jeroen Weener
+ - Bernard van der Wees
+ - Frank Wibbelink
+ - Kevin Witlox
+ - Niels Witte
+ - Chris Witteveen
+ - Joaz Wolters
+ - Jelte Zeilstra
+
+*If you would like to be removed from the list above, please send an e-mail to [the WWW Superusers](mailto:www-super@inter-actief.net), or create a pull request.*

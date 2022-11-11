@@ -1,0 +1,29 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'End inactive mandates' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'End inactive mandates' %}</h2>
+            <div class="content">
+                <p>
+                    {% trans 'The following mandates are no longer actively used and can be ended.' %}
+                </p>
+
+                <p>{% trans 'Number of mandates' %}: {{ authorizations|length }}</p>
+
+                <form action="" method="post">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    {% include "lists/authorization_select.html" %}
+
+                    <p><input type="submit" value="{% trans "End mandates" %}"/></p>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

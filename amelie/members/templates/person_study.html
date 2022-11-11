@@ -1,0 +1,52 @@
+{% load i18n %}
+<div class="content">
+{% if obj.student %}
+    <div class="table-responsive">
+        <table class="table person_table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Student data' %}</th>
+                    <th>{% trans 'Study/studies' %}</th>
+                    <th>{% trans 'Period(s)' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for studyperiod in obj.student.studyperiod_set.all %}
+            <tr>
+                <td>{{ obj.student.student_number }}</td>
+                <td>{{ studyperiod.study }} <span class="small">{{ studyperiod.study.type }}</span>
+                    <br>
+                    <span class="small">{% if studyperiod.dogroup %}{{ studyperiod.dogroup }}{% else %}{% trans 'No doegroep registered' %}{% endif %}</span>
+                </td>
+                <td>{{ studyperiod.begin|date:"j b Y" }} &mdash; {% if studyperiod.end %}{{ studyperiod.end|date:"j b Y" }}{% else %}{% trans 'Current' %}{% endif %}
+                    <br>
+                    {% if studyperiod.end %}
+                        <span class="small">{{ studyperiod.end|timeuntil:studyperiod.begin }}</span>
+                    {% else %}
+                        <span class="small">{{ studyperiod.begin|timesince }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            <tfooter></tfooter>
+        </table>
+    </div>
+
+    <div class="buttons">
+        <a href="{% url 'members:person_study' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_study">
+            {% trans 'Edit' %}
+        </a>
+     </div>
+{% else %}
+    <p>
+        {% blocktrans %}
+            {{ obj }} is not a student.
+        {% endblocktrans %}
+
+        <a href="{% url 'members:person_study' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_study">
+            {% trans 'Configure' %}
+        </a>
+    </p>
+{% endif %}
+</div>

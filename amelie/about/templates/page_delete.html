@@ -1,0 +1,19 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{{ obj }}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>{{ obj }}</h2>
+		<div class="content">
+		<form method="post" action="">
+			{% csrf_token %}
+			<p>
+			    {% trans 'Are you sure you want to remove this message?' %}
+			</p>
+			<input type="submit" value="{% trans 'Remove page' %} &raquo;" />
+		</form>
+		</div>
+	</div></div>
+{% endblock content %}

@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'Remove alias' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans %}Remove alias{% endblocktrans %}</h2>
+        <div class="content">
+            <form action="" method="post">{% csrf_token %}
+                <p>
+                    {% blocktrans %}
+                        Are you sure you want to remove the alias {{ object }}?
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    <input type="submit" value="{% trans 'Delete' %}" />
+                    <a href="{% url "claudia:personal_alias" object.mapping.pk %}">
+                        {% trans 'Cancel' %}
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock %}

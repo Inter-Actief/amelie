@@ -1,0 +1,14 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans %}[Inter-Actief] Important information regarding your membership{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans %}During the previous academic year, you were enrolled at Inter-Actief via ENIAC. Every year, your membership as ENIAC member is reset.{% endblocktrans %}
+
+{% blocktrans %}If you are still a member of ENIAC, you can respond to this email with the request to prolong your 'membership' at Inter-Actief. This is only necessary if you plan on joining activities of Inter-Actief or if you plan on using the cookie corner of Inter-Actief. If not, you don't have to do anything. Of course, you can always reactivate your membership at Inter-Actief at a later moment if needed.{% endblocktrans %}
+
+{% blocktrans %}Kind regards,
+
+The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}{% endblock %}

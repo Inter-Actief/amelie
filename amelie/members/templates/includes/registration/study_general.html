@@ -1,0 +1,60 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'What are you studying?' %}</h2>
+        <div class="content">
+
+            <!-- Study/Studies -->
+            <div class="form-group">
+                {{ wizard.form.study.errors }}
+                <label for="{{ wizard.form.study.auto_id }}" class="col-sm-3 col-md-2 control-label">{% trans 'Study/studies' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        <select id="{{ wizard.form.study.auto_id }}" class="chosen-select"
+                                name="{{ wizard.steps.step0 }}-{{ wizard.form.study.name }}" multiple="multiple" required=""
+                                data-placeholder="{% trans 'Choose one (or more) study/studies...' %}">
+                            {% for option in wizard.form.study.field.choices %}
+                                <option value="{{ option.0 }}" {% if option.0|stringformat:'d' in wizard.form.study.value %}selected="selected"{% endif %}>{{ option.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Which study/studies you are currently following.' %}</small>
+                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            jQuery("#{{ wizard.form.study.auto_id }}").chosen();
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Student number -->
+            <div class="form-group">
+                {{ wizard.form.student_number.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Student number' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.student_number|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your student number, without the "s" (e.g. <b>0123456</b>").' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Generation -->
+            <div class="form-group">
+                {{ wizard.form.generation.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Freshman year' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.generation|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'In which year you started with this study/these studies. (In the format <b>yyyy</b>)' %}</small>
+                </div>
+            </div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block head %}
+    <script src="{{ STATIC_URL }}js/autocomplete.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block titel %}
+    {{ committee }}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans "Edit members" %}</h2>
+            <br>
+            <div class="content">
+                <p>{% blocktrans %}
+                    This page is only for editing currently active committee members, and for adding new members.<br />
+                    To edit old members, use the <i class="icon icon-pencil"></i>&nbsp;icon next to the member in the old members table on the committee page.
+                {% endblocktrans %}</p>
+                <form action="{% url 'members:committee_members_edit' id slug %}" method="post">
+
+
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+
+                    {{ error }}
+
+                    <table>
+                        <tr>
+                            <th>{% trans 'Person' %}</th>
+                            <th>{% trans 'Position' %}</th>
+                            <th>{% trans 'Starts on' %}</th>
+                            <th>{% trans 'Ends on' %}</th>
+                        </tr>
+                        {% for form in formset.forms %}
+                            {{ form.id }}
+                            {% if form.non_field_errors %}
+                            <tr>
+                                <td colspan="4">
+                                    <ul class="errorlist">
+                                        {% for error in form.non_field_errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td>
+                                    {{ form.person.errors }}
+                                    {{ form.person }}
+                                </td>
+                                <td>
+                                    {{ form.function.errors }}
+                                    {{ form.function }}
+                                </td>
+                                <td>
+                                    {{ form.begin.errors }}
+                                    {{ form.begin }}
+                                </td>
+                                <td>
+                                    {{ form.end.errors }}
+                                    {{ form.end }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="buttons">
+                        <a href="{% url 'members:committee' id slug %}" class="looks-like-a-button">
+                            {% trans "Cancel" %}
+                        </a>
+
+                        <input type="submit" value="{% trans 'Save' %}"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="application/javascript">
+        enable_autocomplete();
+    </script>
+{% endblock content %}

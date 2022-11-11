@@ -1,0 +1,210 @@
+{% load i18n %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-table.min.css" media="all"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-table.min.js"></script>
+
+    <script>
+    function htmlSorter(a, b) {
+        var a = $(a).text();
+        var b = $(b).text();
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+    }
+    </script>
+{% endblock head %}
+
+{% if not request.is_board and not deanonymise %}
+    <p class="icon icon-error"> {% trans 'For privacy reasons, this page only shows anonymized enrollment data. For more detailed information please export or print it.' %}</p>
+{% endif %}
+
+<p>
+    {% trans 'Number of total participants including waiting list' %}: {{ number_participants }}
+</p>
+
+<p>{% trans 'Number of confirmed participants' %}: {{ number_confirmed_participants }}</p>
+<div class="table-responsive">
+    <table class="table" data-toggle="table" data-sort-name="order">
+        <thead>
+            <tr>
+                    {% if request.is_board or deanonymise %}
+                        <th data-sortable="true" data-field="order">
+                            {% trans 'Sequence' %}
+                        </th>
+                        <th data-sortable="true" data-field="name">
+                            {% trans 'Name' %}
+                        </th>
+                    {% else %}
+                        <th data-sortable="true" data-field="order">
+                            {% trans 'Enrollment #' %}
+                        </th>
+                    {% endif %}
+
+                {% for enrollmentoption in obj.enrollmentoption_set.all %}
+                    <th>{{ enrollmentoption.title }}</th>
+                {% endfor %}
+
+                <th>{% trans 'Payment' %}</th>
+
+                {% if request.is_board or deanonymise %}
+                    <th></th>
+                    <th></th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for participation in confirmed_participation_set %}
+                <tr>
+                    {% if request.is_board or deanonymise %}
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+                        <td>
+                            {% if request.is_board %}<a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
+                                {% else %}{{ participation.person.incomplete_name }}{% endif %}
+                        </td>
+                    {% else %}
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+                    {% endif %}
+                    {% for answer in participation.enrollmentoptionanswer_set.all %}
+                        <td>{{ answer.display_answer }}</td>
+                    {% endfor %}
+                    {% if request.is_board %}
+                        <td>{% if participation.has_paid %}<p class="icon pos">{{ participation.get_payment_method_display }}{% else %}<p class="icon icon-cancel"><a title="{% trans "By clicking here, you confirm to have received the full amount of money." %}" href="{% url 'calendar:pay_participation' participation.pk %}">{% trans "Register cash payment" %}</a>{% endif %}</p></td>
+                    {% else %}
+                        <td>{{ participation.get_payment_method_display }}</td>
+                    {% endif %}
+                    {% if request.is_board or deanonymise %}
+                        <td>
+                            <a href="{% url 'activities:editenrollment_other' obj.id participation.person.id %}">
+                                {% trans 'Edit enrollment' %}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'activities:unenrollment' obj.id participation.person.id %}">
+                                {% trans 'Deregister' %}
+                            </a>
+                            {% if participation.remark %}
+                                <img src="{{ STATIC_URL }}img/icons/information.png" title="{{ participation.remark }}" />
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if restaurants %}
+<h3>{% trans 'Order totals' %}</h3>
+<div class="table-responsive">
+    <table class="table">
+        <tr><th>{% trans 'Dish' %}</th><th>{% trans 'Price' %}</th><th>{% trans 'Amount' %}</th><th>{% trans 'Total price' %}</th></tr>
+    {% for restaurant in restaurants %}
+        {% for dish in restaurant.dishes %}
+            <tr><td>{{ dish.dish }}</td><td>{{ dish.price }} euro</td><td>{{ dish.amount }}</td><td>{{ dish.total_price }} euro</td></tr>
+        {% endfor %}
+        {% if restaurants|length > 1 %}
+            <tr><th>{{ restaurant }} {% trans 'Total' %}</th><th>-</th><th>{{ restaurant.amount }}</th><th>{{ restaurant.total_price }} euro</th></tr>
+        {% endif %}
+    {% endfor %}
+        <tr><th>{% trans 'Grand Total' %}</th><th>-</th><th>{{ total_amount }}</th><th>{{ total_price }} euro</th></tr>
+    </table>
+</div>
+{% endif %}
+
+<p>
+    <a href="{% url 'activities:enrollment_person_search' obj.id %}" class="looks-like-a-button">
+        {% trans 'Enroll people' %}
+    </a>
+
+    {% if number_participants %}
+        <a href="{% url 'activities:mailing' obj.id %}" class="looks-like-a-button">
+            {% trans 'Send mailing' %}
+        </a>
+    {% endif %}
+
+    {% if request.is_board %}
+        <a href="{% url 'personal_tab:event' obj.id %}" class="looks-like-a-button">{% trans 'View transactions' %}</a>
+    {% endif %}
+</p>
+
+{% if number_waiting_participants > 0 %}
+<hr>
+<div class="current">
+    <h2 class="expand" data-target="waiting_list">{% blocktrans with n=number_waiting_participants %}Waiting list ({{ n }} members){% endblocktrans %} {% if obj.waiting_list_locked %} - {% trans 'Locked' %} {% endif %}</h2>
+    <div class="table-responsive" id="waiting_list" hidden>
+    <br>
+        <table class="table" data-toggle="table" data-sort-name="order">
+            <thead>
+                <tr>
+                        {% if request.is_board or deanonymise %}
+                            <th data-sortable="true" data-field="order">
+                                {% trans 'Sequence' %}
+                            </th>
+                            <th data-sortable="true" data-field="name">
+                                {% trans 'Name' %}
+                            </th>
+                        {% else %}
+                            <th data-sortable="true" data-field="order">
+                                {% trans 'Enrollment #' %}
+                            </th>
+                        {% endif %}
+
+                    {% for enrollmentoption in obj.enrollmentoption_set.all %}
+                        <th>{{ enrollmentoption.title }}</th>
+                    {% endfor %}
+
+                    <th>{% trans 'Method of payment' %}</th>
+
+                    {% if request.is_board or deanonymise %}
+                        <th></th>
+                        <th></th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for participation in waiting_participation_set %}
+                    <tr>
+                        {% if request.is_board or deanonymise %}
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+                            <td>
+                                {% if request.is_board %}<a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
+                                {% else %}{{ participation.person.incomplete_name }}{% endif %}
+                            </td>
+                        {% else %}
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+                        {% endif %}
+                        {% for answer in participation.enrollmentoptionanswer_set.all %}
+                            <td>{{ answer.display_answer }}</td>
+                        {% endfor %}
+                        <td>{{ participation.get_payment_method_display }}</td>
+                        {% if request.is_board or deanonymise %}
+                            <td>
+                                <a href="{% url 'activities:editenrollment_other' obj.id participation.person.id %}">
+                                    {% trans 'Edit enrollment' %}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'activities:unenrollment' obj.id participation.person.id %}">
+                                    {% trans 'Deregister' %}
+                                </a>
+                                {% if participation.remark %}
+                                    <img src="{{ STATIC_URL }}img/icons/information.png" title="{{ participation.remark }}" />
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,66 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Mandates' %}</h2>
+
+    <div class="content">
+        {% if person.authorization_set.all %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Reference' %}</th>
+                            <th>{% trans 'Sort' %}</th>
+                            <th>{% trans 'IBAN/BIC' %}</th>
+                            <th>{% trans 'Account holder' %}</th>
+                            <th>{% trans 'Starts on' %}</th>
+                            <th>{% trans 'Ends on' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for authorization in person.authorization_set.all %}
+                            <tr>
+                                <td>
+                                    <span class="icon {% if authorization.is_signed and not authorization.end_date %}icon-tick{% else %}icon-cross{% endif %}">
+                                        {{ authorization.authorization_reference }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div>{{ authorization.authorization_type.name }}</div>
+                                </td>
+                                <td>
+                                    <b>{{ authorization.iban|default:"&mdash;" }}</b> <br />
+                                    <font style="font-size:0.7em">{{ authorization.bic|default:"&mdash;" }}</font>
+                                </td>
+                                <td>
+                                    {{ authorization.account_holder_name|default:"&mdash;" }}
+                                </td>
+                                <td>
+                                    {% if not authorization.is_signed %}
+                                        <i>{% trans '(not yet) active' %}</i>
+                                    {% elif authorization.start_date == date_old_authorizations %}
+                                        <i>{% trans 'before September 2013' %}</i>
+                                    {% else %}
+                                        {{ authorization.start_date }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ authorization.end_date|default_if_none:"&mdash;" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="icon icon-information">{% trans 'To change or end your direct debit mandate, please contact the board.' %}</p>
+        {% else %}
+            <p class="icon cross">{% trans 'You have not yet signed a direct debit mandate. You can ask the board for one.' %}</p>
+        {% endif %}
+
+        {% if request.is_board %}
+            <a href="{{ person.get_absolute_url }}" class="looks-like-a-button">
+                {% trans 'Edit' %}
+            </a>
+        {% endif %}
+    </div>
+</div></div>

@@ -1,0 +1,6 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n only %}
+
+{% block subject %}{% blocktrans %}[Inter-Actief] Yearly checkup member administration{% endblocktrans %}{% endblock %}
+
+{% block content %}{% onlyhtml %}{% include "members/datamail_html.mail" %}{% endonlyhtml %}{% onlyplain %}{% include "members/datamail_plain.mail" %}{% endonlyplain %}{% endblock %}

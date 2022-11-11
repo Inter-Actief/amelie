@@ -1,0 +1,61 @@
+{% load i18n %}
+
+{{ form.authorizations.errors }}
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>{% trans 'Reference' %}</th>
+            <th>{% trans 'Sort' %}</th>
+            <th>{% trans 'Person/account holder' %}</th>
+            <th>{% trans 'Starts on' %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for authorization in authorizations %}
+            <tr>
+                <td>
+                    <input name="authorizations" value="{{ authorization.pk }}" type="checkbox"
+                           {% if authorization.pk in form.authorizations.value or authorization.pk|cut:"" in form.authorizations.value %}checked="checked"{% endif %}
+                           title="{{ authorization.authorization_reference }}"/>
+                </td>
+                <td>
+                    <a href="{{ authorization.get_absolute_url }}"
+                       class="icon {% if authorization.is_signed and not authorization.end_date %}icon-tick{% else %}icon-cross{% endif %}">
+                        {{ authorization.authorization_reference }}
+                    </a>
+                </td>
+                <td>
+                    {{ authorization.authorization_type.name }}
+                </td>
+                <td>
+                    {% if authorization.person %}
+                        <a href="{{ authorization.person.get_absolute_url }}">
+                            {{ authorization.person }}
+                        </a>
+                    {% else %}
+                        &mdash;
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not authorization.is_signed %}
+                        <i>{% trans '(not yet) active' %}</i>
+                    {% elif authorization.start_date == date_old_authorizations %}
+                        <i>{% trans 'before September 2013' %}</i>
+                    {% else %}
+                        {{ authorization.start_date }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">
+                    <i>{% trans 'No mandates have been found.' %}</i>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

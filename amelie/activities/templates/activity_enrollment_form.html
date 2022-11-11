@@ -1,0 +1,170 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'Enroll for' %} {{ activity.summary }}
+{% endblock titel %}
+
+{% block content %}
+	<form method="post" action="" class="big">
+		{% csrf_token %}
+		<div class="col-xs-12"><div class="current">
+            <h2>
+				{% if indirect %}
+			    	{{ person }} {% trans 'enroll for' %} {{ activity.summary }}
+			    {% else %}
+			    	{% trans 'Enroll for' %} {{ activity.summary }}
+			    {% endif %}
+			</h2>
+
+			<div class="content">
+				<p>
+					{% if indirect %}
+						{% blocktrans with name=person.first_name %}
+						 	With this form, you will enroll {{ name }} for the activity.
+						{% endblocktrans %}
+					{% else %}
+						{% blocktrans %}
+						 	Click "Enroll" below this form to confirm your enrollment.
+						{% endblocktrans %}
+					{% endif %}
+
+					{% if activity.price != 0 %}
+						{% trans 'The enrollment fee is' %} <b>{{ activity.price }} euro</b>.
+					{% endif %}
+				</p>
+
+				{% if activity_full and not person in obj.confirmed_participants %}
+					<p class="icon attention">
+						{% trans 'Unfortunately, there are no more openings. You will be enrolled on the waiting list.' %}
+					</p>
+				{% endif %}
+			</div>
+        </div></div>
+
+		{% if activity.has_enrollmentoptions %}
+			<div class="col-xs-12"><div class="current">
+                <h2>{% trans 'Enrollment options' %}</h2>
+
+                <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            The activity has a few enrollment options. Please fill these out before you enroll.
+						    <b> Warning:</b> some of these options may cost extra!
+                        {% endblocktrans %}
+                    </p>
+
+                    {% for form in enrollmentoptions_forms %}
+                        {% if form.enrollmentoption_type == 'EnrollmentoptionQuestion' %}
+                            {% include "forms/enrollmentoption_question_answer.html" with form=form %}
+                        {% endif %}
+
+                        {% if form.enrollmentoption_type == 'EnrollmentoptionCheckbox' %}
+                            {% include "forms/enrollmentoption_checkbox_answer.html" with form=form %}
+                        {% endif %}
+
+                        {% if form.enrollmentoption_type == 'EnrollmentoptionNumeric' %}
+                            {% include "forms/enrollmentoption_numeric_answer.html" with form=form %}
+                        {% endif %}
+
+                        {% if form.enrollmentoption_type == 'EnrollmentoptionFood' %}
+                            {% include "forms/enrollmentoption_foodquestion_answer.html" with form=form %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+			</div></div>
+		{% endif %}
+
+		<div class="col-xs-12"><div class="current">
+            <h2>{% trans 'Costs' %}</h2>
+
+            <div class="content">
+                {% if indirect %}
+                    <p>
+                        {% blocktrans with name=person.first_name %}
+                            It is assumed that {{ name }} has given their permission to be enrolled.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {{ form_payment }}
+                    </p>
+                {% else %}
+                    <p>
+                        {% blocktrans %}
+                            By pressing the sign-up-button, I declare to be aware that any enrollment costs will be
+                            taken from my bank account through direct debit by Inter-<i>Actief</i> in accordance with
+                            the authorization I granted for consumptions and activities.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+
+                <p>
+                    <b>{% trans 'Total' %}:</b>&nbsp;<span id="totalprice">{{ activity.price }}</span> euro
+                </p>
+
+                <div class="buttons">
+                    <input type="submit" name="submit" value="{% if update %}{% trans 'Update' %}{% else %}{% trans 'Enroll' %}{% endif %}" />
+                    <a href="{{ activity.get_absolute_url }}" class="looks-like-a-button">{% trans 'Cancel' %}</a>
+                </div>
+			</div>
+        </div></div>
+	</form>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var price = parseFloat('{{ activity.price|stringformat:".2f" }}');
+
+			// Calculate new price
+			var calculatePrice = (function() {
+				var newPrice = parseFloat(price);
+
+				$("form span[data-price_extra]").each(function() {
+					// Checkboxes
+					if ($(this).find("input[type=checkbox]").is(":checked")) {
+						var priceExtra = String($(this).data("price_extra"));
+                        priceExtra = priceExtra.replace(",", ".");
+                        priceExtra = parseFloat(priceExtra);
+                        newPrice += priceExtra;
+					}
+
+					// Numeric
+					if ($(this).find("input[type=number]")) {
+						var priceExtra = String($(this).data("price_extra"));
+                        priceExtra = priceExtra.replace(",", ".");
+                        priceExtra = parseFloat(priceExtra);
+                        var count = $(this).find("input[type=number]").val()
+                        if (count > 0) {
+                            var priceCounted = count * priceExtra;
+                            newPrice += priceCounted;
+                        }
+					}
+				});
+
+                $("form option[data-price_extra]").each(function() {
+					// Options
+					if ($(this).is(":selected")) {
+						var priceExtra = String($(this).data("price_extra"));
+						priceExtra = priceExtra.replace(",", ".");
+						priceExtra = parseFloat(priceExtra);
+						newPrice += priceExtra;
+					}
+				});
+
+				$("span#totalprice").text(newPrice.toFixed(2));
+			});
+
+			// Execute on form change
+			$("form span[data-price_extra]").each(function() {
+				$(this).find("input").change(calculatePrice);
+				{#$(this).find("input").click(calculatePrice);#}
+			});
+
+            $("select").each(function() {
+				$(this).change(calculatePrice);
+			});
+
+			// Init
+			calculatePrice();
+		});
+	</script>
+{% endblock content %}

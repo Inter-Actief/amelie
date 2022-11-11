@@ -1,0 +1,464 @@
+{% extends 'cookie_corner_statistics_form.html' %}
+{% load humanize %}
+{% load i18n %}
+{% block content %}
+    {% with ' no-print' as print %}
+        {{ block.super }}
+    {% endwith %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>
+                {% trans 'Result' %}
+            </h2>
+
+            <div class="content">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>{% trans 'Start date' %}</th>
+                        <td>{{ start|date:"DATETIME_FORMAT" }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>{% trans 'End date (till)' %}</th>
+                        <td>{{ end|date:"DATETIME_FORMAT" }}</td>
+                    </tr>
+                    {% if tables.t %}
+                        {% for row in tables.t.rows %}
+                            <tr>
+                                <th>{{ row.0 }}</th>
+                                <td class="align-right">{{ row.1|intcomma }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        <tr>
+                            <th>{% trans 'Total costs' %}</th>
+                            <td class="align-right">{{ tables.t.sum|intcomma }}</td>
+                        </tr>
+                    {% endif %}
+                    </thead>
+                </table>
+
+                <p><a class="looks-like-a-button"
+                      href="{% url 'personal_tab:export' start_url end_url %}">{% trans 'Export list of direct withdrawals' %}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% if tables %}
+        {% if tables.u %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Personal tab statistics' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>{% trans 'Category' %}</th>
+                                    <th>{% trans 'Article' %}</th>
+                                    <th>{% trans 'General ledger account' %}</th>
+                                    <th class="align-right">{% trans 'Amount' %}</th>
+                                    <th class="align-right">{% trans 'discount' %}</th>
+                                    <th class="align-right">{% trans 'Total cost' %}</th>
+                                    <th class="align-right">{% trans 'Total costs' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for category in tables.u.rows %}
+                                    <tr class="important">
+                                        <td>{{ category.category }}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td class="align-right">{{ category.count }}</td>
+                                        <td class="align-right">{{ category.discount|stringformat:".2f" }}</td>
+                                        <td class="align-right">{{ category.sum|stringformat:".2f" }}</td>
+                                        <td class="align-right">{{ category.total|stringformat:".2f" }}</td>
+                                    </tr>
+                                    {% for article in category.articles %}
+                                        <tr>
+                                            <td></td>
+                                            <td>{{ article.article }}</td>
+                                            <td>{{ article.article.ledger_account|default:"&mdash;" }}</td>
+                                            <td class="align-right">{{ article.count }}</td>
+                                            <td class="align-right">{{ article.discount|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ article.sum|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ article.total|stringformat:".2f" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if tables.s %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Personal tab balance' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans 'General ledger account' %}</th>
+                                        <th class="align-right">{% trans 'Amount' %}</th>
+                                        <th class="align-right">{% trans 'discount' %}</th>
+                                        <th class="align-right">{% trans 'Total cost' %}</th>
+                                        <th class="align-right">{% trans 'Total costs' %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in tables.s.rows %}
+                                        <tr class="important">
+                                            <td>{{ row.0|default:"&mdash;" }}</td>
+                                            <td class="align-right">{{ row.1 }}</td>
+                                            <td class="align-right">{{ row.2|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ row.3|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ row.4|stringformat:".2f" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr class="important">
+                                        <td>{% trans 'Total' %}</td>
+                                        <td class="align-right">{{ tables.s.totals.0 }}</td>
+                                        <td class="align-right">{{ tables.s.totals.1 }}</td>
+                                        <td class="align-right">{{ tables.s.totals.2 }}</td>
+                                        <td class="align-right">{{ tables.s.totals.3 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% for name, table in tables.items %}
+            {% if name|first == 'l' %}
+                <div class="col-xs-12">
+                    <div class="ia">
+                        <h2>{{ table.title }}</h2>
+                        <div class="content">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>{% trans 'Article' %}</th>
+                                        <th class="align-right">{% trans 'Amount' %}</th>
+                                        <th class="align-right">{% trans 'discount' %}</th>
+                                        <th class="align-right">{% trans 'Total cost' %}</th>
+                                        <th class="align-right">{% trans 'Total costs' %}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for article in table.rows %}
+                                        <tr>
+                                            <td>{{ article.article }}</td>
+                                            <td class="align-right">{{ article.count }}</td>
+                                            <td class="align-right">{{ article.discount|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ article.sum|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ article.total|stringformat:".2f" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                        <tr class="important">
+                                            <td>{% trans 'Total' %}</td>
+                                            <td class="align-right">{{ table.total.count }}</td>
+                                            <td class="align-right">{{ table.total.discount|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ table.total.sum|stringformat:".2f" }}</td>
+                                            <td class="align-right">{{ table.total.total|stringformat:".2f" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        {% if tables.a %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Activities' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans 'Date' %}</th>
+                                        <th>{% trans 'Time' %}</th>
+                                        <th>{% trans 'Activities' %}</th>
+                                        <th class="align-right">{% trans 'Transactions' %}</th>
+                                        <th class="align-right">{% trans 'Enrollments' %}</th>
+                                        <th class="align-right">{% trans 'Price' %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in tables.a.rows %}
+                                        <tr class="important">
+                                            <td>{{ row.event.begin|date:"d F Y" }}</td>
+                                            <td>{{ row.event.begin|date:"G:i"}}</td>
+                                            <td>
+                                                {% if row.event %}
+                                                    {% if request.is_board %}
+                                                        <a href="{% url 'personal_tab:event' event_id=row.event.id %}">{{ row.event.summary }}</a>
+                                                    {% else %}
+                                                        {{ row.event.summary }}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% trans 'Deleted event' %}
+                                                {% endif %}
+                                            </td>
+                                            <td class="align-right">{{ row.count }}</td>
+                                            <td class="align-right">{{ row.active_count }}</td>
+                                            <td class="align-right">{{ row.sum }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr class="important">
+                                        <td></td>
+                                        <td></td>
+                                        <td>{% trans 'Total' %}</td>
+                                        <td class="align-right">{{ tables.a.count }}</td>
+                                        <td class="align-right">{{ tables.a.active_count }}</td>
+                                        <td class="align-right">{{ tables.a.sum }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if tables.x %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Alexia transactions' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        {% trans 'Date' %}
+                                    </th>
+                                    <th>
+                                        {% trans 'Drink' %}
+                                    </th>
+                                    <th class="align-right">
+                                        {% trans 'Price' %}
+                                    </th>
+                                </tr>
+                                </thead>
+                                {% for row in tables.x.rows %}
+                                    <tr>
+                                        <td>
+                                            {{ row.day|date:"d F Y" }}
+                                        </td>
+                                        <td>
+                                            {{ row.description }}
+                                        </td>
+                                        <td class="align-right">
+                                            {{ row.price__sum }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        {% trans 'Total' %}
+                                    </td>
+                                    <td class="align-right">
+                                        {{ tables.x.sum }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if tables.c %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Membership fee' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>{% trans 'Membership type' %}</th>
+                                    <th class="align-right">{% trans 'Amount' %}</th>
+                                    <th class="align-right">{% trans 'Price' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in tables.c.rows %}
+                                    <tr class="important">
+                                        <td>{{ row.membership_type }}</td>
+                                        <td class="align-right">{{ row.amount }}</td>
+                                        <td class="align-right">{{ row.total }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr class="important">
+                                    <td>{% trans 'Total' %}</td>
+                                    <td class="align-right"></td>
+                                    <td class="align-right">{{ tables.c.sum }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if tables.o %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Other' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>{% trans 'Date' %}</th>
+                                    <th>{% trans 'Time' %}</th>
+                                    <th>{% trans 'Person' %}</th>
+                                    <th>{% trans 'Description' %}</th>
+                                    <th class="align-right">{% trans 'Price' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in tables.o.rows %}
+                                    <tr>
+                                        <td>{{ row.date|date:"d F Y" }}</td>
+                                        <td>{{ row.date|date:"G:i"}}</td>
+                                        <td>
+                                            {% if row.person %}
+                                                {% if request.is_board %}
+                                                    <a href="{% url 'personal_tab:dashboard' row.person.pk row.person.slug %}">{{ row.person }}</a>
+                                                {% else %}
+                                                    {{ row.person }}
+                                                {% endif %}
+                                            {% else %}
+                                                &mdash;
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ row.get_absolute_url }}">
+                                                {{ row.description }}
+                                            </a>
+                                        </td>
+                                        <td class="align-right">{{ row.price|stringformat:".2f" }}</td>
+                                    </tr>
+                                {% endfor %}
+                                {% if total %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>{% trans 'Total' %} ({{ tables.o.count }})</td>
+                                        <td class="align-right">{{ tables.o.sum|stringformat:".2f" }}</td>
+                                    </tr>
+                                {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if tables.g %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Discount balances' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>{% trans 'Discount offer' %}</th>
+                                    <th class="align-right">{% trans 'Amount' %}</th>
+                                    <th class="align-right">{% trans 'Price' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for row in tables.g.rows %}
+                                    <tr>
+                                        <td>{{ row.discount_period }}</td>
+                                        <td class="align-right">{{ row.count }}</td>
+                                        <td class="align-right">{{ row.sum|stringformat:".2f" }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>{% trans 'Total' %}</td>
+                                    <td class="align-right">{{ tables.g.count }}</td>
+                                    <td class="align-right">{{ tables.g.sum|stringformat:".2f" }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if tables.k %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Discount offers' %}</h2>
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        {% trans 'Discount offer' %}
+                                    </th>
+                                    <th class="align-right">
+                                        {% trans 'Amount' %}
+                                    </th>
+                                    <th class="align-right">
+                                        {% trans 'Price' %}
+                                    </th>
+                                </tr>
+                                </thead>
+                                {% for row in tables.k.rows %}
+                                    <tr>
+                                        <td>
+                                            {{ row.discount_period }}
+                                        </td>
+                                        <td class="align-right">
+                                            {{ row.count }}
+                                        </td>
+                                        <td class="align-right">
+                                            {{ row.sum }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>
+                                        {% trans 'Total' %}
+                                    </td>
+                                    <td></td>
+                                    <td class="align-right">
+                                        {{ tables.k.sum }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="col-xs-12">
+            <div class="ia">
+                <h2>
+                    {% trans 'Statistics' %}
+                </h2>
+                <div class="content">
+                    {% trans 'There are statistics to be shown.' %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}

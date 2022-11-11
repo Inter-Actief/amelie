@@ -1,0 +1,196 @@
+{% load i18n md claudia_tags %}
+
+<div class="table-responsive">
+    <table class="table">
+        <tbody>
+            <tr>
+                <td class="profile_picture">
+                    {% if obj.picture %}
+                        <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                    {% else %}
+                        <p class="icon icon-user">
+                            {% blocktrans %}
+                                {{ obj }} doesn't have a profile picture.
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+                </td>
+                <td>
+                    <ul class="members_detail no-bullets">
+                        <li title="{% trans "Full name" %}">
+                            {{ obj.full_name }}
+                        </li>
+                        <li title="{% trans 'Birth date' %}" class="icon icon-cake">
+                            {{ obj.date_of_birth|date:"j F Y"|default:"&mdash;" }},<br />
+                            <span class="small">{{ obj.age }} {% trans 'years' %}</span>
+                        </li>
+                        <li title="{% trans 'Gender' %}" class="icon {{ obj.get_gender_display|lower }}">
+                            {{ obj.get_gender_display }}
+                        </li>
+                        <li title="{% trans 'International student' %}" class="icon icon-world">
+                            {{ obj.get_international_member_display }}
+                        </li>
+                        <li title="{% trans 'Language of preference' %}" class="icon language">
+                            {{ obj.get_preferred_language_display }}
+                        </li>
+                        {% if full_overview == "1" %}
+                            <li>
+                                <hr />
+                            </li>
+                            <li title="{% trans "Claudia link" %}">
+                                {{ obj|clau_mapping:"Claudia" }}
+                            </li>
+                            <li class="icon account" title="{% trans "Account name" %}">
+                                {% if obj.account_name %}
+                                    {{ obj.account_name }}
+                                {% else %}
+                                    {% trans 'No account' %}
+                                {% endif %}
+                            </li>
+                            <li>
+                                <hr />
+                            </li>
+                        {% endif %}
+                    </ul>
+                </td>
+                <td>
+                    <ul class="members_detail no-bullets">
+                        <li class="icon address" title="{% trans "Address" %}">
+                            {% if obj.address %}
+                                {{ obj.address}}<br />
+                                {{ obj.postal_code }} {{ obj.city }}<br />
+                                {{ obj.country }}<br />
+
+                                {% if full_overview == "1" %}
+                                    <span class="small">
+                                        <a href="https://www.google.com/maps?q={{ obj.address }}+{{ obj.postal_code }}+{{ obj.city }}+{{ obj.country }}" target="_blank">
+                                            Google Maps
+                                        </a>
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </li>
+                        <li>
+                            <hr />
+                        </li>
+                        <li class="icon icon-phone" title="{% trans "(Mobile) telephone number" %}">
+                            {{ obj.telephone|default:"&mdash;" }}
+                        </li>
+                        <li>
+                            <hr />
+                        </li>
+                        <li class="icon icon-email" title="{% trans "E-mail address" %}">
+                            <a href="mailto:{{ obj.email_address }}">
+                                {{ obj.email_address }}
+                            </a>
+                        </li>
+                        <li>
+                            <hr />
+                        </li>
+                        <li class="icon address" title="{% trans "Address of parent(s)/guardian(s)" %}">
+                            {% if obj.address_parents %}
+                                {{ obj.address_parents }}<br />
+                                {{ obj.postal_code_parents }} {{ obj.city_parents }}<br />
+                                {{ obj.country_parents }}<br />
+
+                                {% if full_overview == "1" %}
+                                    <span class="small">
+                                        <a href="https://www.google.com/maps?q={{ obj.address_parents }}+{{ obj.postal_code_parents }}+{{ obj.city_parents }}+{{ obj.country_parents }}" target="_blank">
+                                            Google Maps
+                                        </a>
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </li>
+                        <li class="icon icon-email" title="{% trans "E-mail address of parent(s)/guardian(s)" %}">
+                            {{ email_address_parents|default:"&mdash;" }}
+                        </li>
+
+                        {% if full_overview == "1" %}
+                            <li>
+                                <hr />
+                            </li>
+                            <li class="icon personal_tab">
+                                <a href="{% url 'personal_tab:dashboard' obj.pk obj.slug %}">
+                                    {% trans 'Digital cookie and candy list' %}
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </td>
+                {% if full_overview == "1" %}
+                    <td>
+                        <ul class="members_detail">
+                            {% if obj.is_member %}
+                                <li class="pos">
+                                    {% blocktrans with first_name=obj.first_name %}{{ first_name }} is a member{% endblocktrans %}
+                                </li>
+                            {% else %}
+                                {% if obj.membership_set.count == 0 %}
+                                    <li class="neg">
+                                        {% blocktrans with first_name=obj.first_name %}{{ first_name }} is not a member{% endblocktrans %}
+                                    </li>
+                                {% else %}
+                                    <li class="warning">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is (not) a member (anymore){% endblocktrans %}</li>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if obj.is_active_member %}
+                                <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is active{% endblocktrans %}</li>
+                            {% else %}
+                                {% if obj.function_set.count == 0 %}
+                                    <li class="neg">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is not active{% endblocktrans %}</li>
+                                {% else %}
+                                    <li class="warning">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is not active any more{% endblocktrans %}</li>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if obj.nda %}
+                                <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} signed an NDA.{% endblocktrans %}</li>
+                            {% endif %}
+
+                            {% if obj.webmaster %}
+                                <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is a webmaster.{% endblocktrans %}</li>
+                            {% endif %}
+                        </ul>
+
+                        <hr />
+
+                        {% if obj.notes %}
+                            {{ obj.notes|markdown }}
+                        {% else %}
+                            <p>
+                                {% blocktrans %}No further notes{% endblocktrans %}
+                            </p>
+                        {% endif %}
+
+                        <div class="buttons">
+                            <input
+                                type="button"
+                                value="{% trans 'Send a mailing' %}"
+                                onclick="window.location='/members/mailing/?id={{ obj.id }}'"
+                            />      <br />
+                            <input
+                                type="button"
+                                value="{% trans 'Send a push notification' %}"
+                                onclick="window.location='/members/push/?id={{ obj.id }}'"
+                            /> <br />
+                            <div id="oauth2_container">
+                            <a class="looks-like-a-button js-load-block" data-container="oauth2_container" href="{% url 'oauth:send_token' obj.id %}">
+                                {% trans 'Send OAuth login mail' %}
+                            </a> </div>
+
+                            <a href="{% url 'members:person_edit' obj.id obj.slug %}" class="looks-like-a-button">
+                                {% trans 'Edit' %}
+                            </a>
+                        </div>
+                     </td>
+                 {% endif %}
+            </tr>
+        </tbody>
+    </table>
+</div>

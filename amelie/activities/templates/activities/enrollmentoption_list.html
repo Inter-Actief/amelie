@@ -1,0 +1,210 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Enrollment options' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="current">
+        <h2>{% blocktrans %}Edit enrollment options for {{ activity }}{% endblocktrans %}</h2>
+        <div class="content">
+            <p>
+                {% blocktrans with url=activity.get_absolute_url %}
+                    Edit the enrollment options for <a href="{{ url }}">{{ activity }}</a> here.
+                {% endblocktrans %}
+            </p>
+
+            {% if not add_delete_allowed %}
+                <p class="icon icon-information">
+                    {% blocktrans %}
+                        Enrollment options cannot be added or edited because this activity already has enrollments.
+                    {% endblocktrans %}
+                </p>
+                <p class="icon icon-information">
+                    {% blocktrans %}
+                        Edits to prices of enrollment options only have effect on new enrollments.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2> {% trans 'Checkboxes' %} </h2>
+
+        <div class="content">
+            {% if options_checkbox %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <th class="align-right">{% trans 'Extra price' %}</th>
+                            <th>{% trans "Limit" %}</th>
+                            <th>{% trans "Spots left" %}</th>
+                            <th>{% trans 'Edit' %}</th>
+                            {% if add_delete_allowed %}
+                                <th>{% trans 'Delete' %}</th>
+                            {% endif %}
+                        </tr>
+                    {% for obj in options_checkbox %}
+                        <tr>
+                            <td>{{ obj.title }}</td>
+                            <td class="align-right">&euro;{{ obj.price_extra }}</td>
+                            <td>{% if obj.maximum == 0 %}{% trans "Unlimited" %}{% else %}{{ obj.maximum }}{% endif %}</td>
+                            <td>{% if obj.count_spots_left == -1 %}-{% else %}{{ obj.count_spots_left }}{% endif %}</td>
+                            <td><a href="{% url 'activities:enrollmentoption_edit' obj.pk %}" class="looks-like-a-button">{% trans 'Edit' %}</a></td>
+                            {% if add_delete_allowed %}
+                                <td><a href="{% url 'activities:enrollmentoption_delete' obj.pk %}" class="looks-like-a-button">{% trans 'Delete' %}</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                    </table>
+                </div>
+            {%  else %}
+                <p>
+                    {% trans 'None' %}
+                </p>
+            {% endif %}
+
+            {% if add_delete_allowed %}
+                <p>
+                    <a href="{% url 'activities:enrollmentoption_checkbox_new' activity.pk %}" class="looks-like-a-button">{% trans 'Add checkbox' %}</a>
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2> {% trans 'Numeric' %} </h2>
+
+        <div class="content">
+            {% if options_numeric %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <th class="align-right">{% trans 'Extra price' %}</th>
+                            <th>{% trans "Limit" %}</th>
+                            <th>{% trans "Spots left" %}</th>
+                            <th>{% trans "Max per person" %}</th>
+                            <th>{% trans 'Edit' %}</th>
+                            {% if add_delete_allowed %}
+                                <th>{% trans 'Delete' %}</th>
+                            {% endif %}
+                        </tr>
+                    {% for obj in options_numeric %}
+                        <tr>
+                            <td>{{ obj.title }}</td>
+                            <td class="align-right">&euro;{{ obj.price_extra }}</td>
+                            <td>{% if obj.maximum == 0 %}{% trans "Unlimited" %}{% else %}{{ obj.maximum }}{% endif %}</td>
+                            <td>{% if obj.count_spots_left == -1 %}-{% else %}{{ obj.count_spots_left }}{% endif %}</td>
+                            <td>{% if obj.maximum_per_person == 0 %}-{% else %}{{ obj.maximum_per_person }}{% endif %}</td>
+                            <td><a href="{% url 'activities:enrollmentoption_edit' obj.pk %}" class="looks-like-a-button">{% trans 'Edit' %}</a></td>
+                            {% if add_delete_allowed %}
+                                <td><a href="{% url 'activities:enrollmentoption_delete' obj.pk %}" class="looks-like-a-button">{% trans 'Delete' %}</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                    </table>
+                </div>
+            {%  else %}
+                <p>
+                    {% trans 'None' %}
+                </p>
+            {% endif %}
+
+            {% if add_delete_allowed %}
+                <p>
+                    <a href="{% url 'activities:enrollmentoption_numeric_new' activity.pk %}" class="looks-like-a-button">{% trans 'Add numeric' %}</a>
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2> {% trans 'Questions' %} </h2>
+
+        <div class="content">
+            {% if options_question %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <th>{% trans 'Required' %}</th>
+                            <th>{% trans 'Edit' %}</th>
+                            {% if add_delete_allowed %}
+                                <th>{% trans 'Delete' %}</th>
+                            {% endif %}
+                        </tr>
+                    {% for obj in options_question %}
+                        <tr>
+                            <td>{{ obj.title }}</td>
+                            <td>{{ obj.required|yesno }}</td>
+                            <td><a href="{% url 'activities:enrollmentoption_edit' obj.pk %}" class="looks-like-a-button">{% trans 'Edit' %}</a></td>
+                            {% if add_delete_allowed %}
+                                <td><a href="{% url 'activities:enrollmentoption_delete' obj.pk %}" class="looks-like-a-button">{% trans 'Delete' %}</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                    </table>
+                </div>
+            {%  else %}
+                <p>
+                    {% trans 'None' %}
+                </p>
+            {% endif %}
+
+            {% if add_delete_allowed %}
+                <p>
+                    <a href="{% url 'activities:enrollmentoption_question_new' activity.pk %}" class="looks-like-a-button">{% trans 'Add question' %}</a>
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2> {% trans 'Food' %} </h2>
+
+        <div class="content">
+            {% if options_food %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <th>{% trans 'Required' %}</th>
+                            <th>{% trans 'Edit' %}</th>
+                            {% if add_delete_allowed %}
+                                <th>{% trans 'Delete' %}</th>
+                            {% endif %}
+                        </tr>
+                    {% for obj in options_food %}
+                        <tr>
+                            <td>{{ obj.title }}</td>
+                            <td>{{ obj.required|yesno }}</td>
+                            <td><a href="{% url 'activities:enrollmentoption_edit' obj.pk %}" class="looks-like-a-button">{% trans 'Edit' %}</a></td>
+                            {% if add_delete_allowed %}
+                                <td><a href="{% url 'activities:enrollmentoption_delete' obj.pk %}" class="looks-like-a-button">{% trans 'Delete' %}</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                    </table>
+                </div>
+            {%  else %}
+                <p>
+                    {% trans 'None' %}
+                </p>
+            {% endif %}
+
+            {% if add_delete_allowed %}
+                <p>
+                    <a href="{% url 'activities:enrollmentoption_food_new' activity.pk %}" class="looks-like-a-button">{% trans 'Add food' %}</a>
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock %}

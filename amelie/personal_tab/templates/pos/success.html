@@ -1,0 +1,87 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block bodytags %}class="{% if free_cookie_winner %} free-cookie-winner {% endif %}" onclick="window.location='{% url 'personal_tab:pos_logout' %}';"{% endblock %}
+
+{% block content %}
+    <div id="promotion">
+        <audio id="promotion-audio" src="{{ STATIC_URL }}sound/alarm.mp3" controls preload="auto"></audio>
+        <img id="promotion-background" src="{{ STATIC_URL }}img/promotion-background.jpg" alt="Promotion background">
+    </div>
+    <div id="container">
+        <div id="header">
+            <div id="header-logo"></div>
+            <div id="header-logout-button">
+                <a href="{% url 'personal_tab:pos_logout' %}">
+                    <span id="scan-header">{% trans 'Return to home' %}</span>
+                </a>
+            </div>
+            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+        </div>
+        <div id="content" class="center">
+            <div id="login-box">
+                <div id="login-box-header">
+                    <h1>{% trans 'Success!' %}<span id="success-timer">5</span></h1>
+                </div>
+                <div id="login-box-content">
+                    <p class="text">{{ success_text }}</p>
+
+                    {% if transactions %}
+                        <table class="receipt">
+                            <thead>
+                                <tr>
+                                    <th>{%  trans 'Product'%}</th>
+                                    <th>{%  trans 'Price per piece'%}</th>
+                                    <th>{%  trans 'Amount'%}</th>
+                                    {% if discount %}
+                                        <th>{%  trans 'discount'%}</th>
+                                    {% endif %}
+                                    <th>{%  trans 'Subtotal'%}</th>
+                                    <th>{%  trans 'kCal'%}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.item.name }}</td>
+                                    <td>&euro; {{ transaction.item.price }}</td>
+                                    <td>{{ transaction.amount }}</td>
+                                    {% if discount %}
+                                        <td>&euro; {{ transaction.discount.amount }}</td>
+                                    {% endif %}
+                                    <td>&euro; {{ transaction.total }}</td>
+                                    <td>{{ transaction.subtotal_kcal|default:"&mdash;" }}</td>
+                                </tr>
+                            {% endfor %}
+                                <tr>
+                                    <td></td>
+                                    <td><strong>{%  trans 'Total:' %}</strong></td>
+                                    <td></td>
+                                    {% if discount %}
+                                        <td></td>
+                                    {% endif %}
+                                    <td><strong>&euro; {{ total_price }}</strong></td>
+                                    <td><strong>{{ total_kcal|default:"&mdash;" }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript_pre %}
+    <script type="text/javascript">
+        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            setupPosSuccess();
+        });
+    </script>
+{% endblock %}

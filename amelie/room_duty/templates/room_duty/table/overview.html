@@ -1,0 +1,184 @@
+{% extends "basis.html" %}
+{% load i18n %}
+{% load tz %}
+
+{% block titel %}
+    {% blocktrans %}Overview{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <script type="text/javascript">
+        function format(hours) {
+            return hours.toFixed(1);
+        }
+
+        function updateRoomDutyStatistics() {
+            $('#row-morning').find('.statistic').each(function() {
+                var stat = $(this);
+                var person = stat.attr('data-person');
+                var base = parseFloat(stat.attr('data-base'));
+                var schema = 0.0;
+                $('[data-morning=1] [data-person=' + person + '] :checked').each(function() {
+                    console.log(this, $(this).parents('.room-duty'));
+                    schema += parseFloat($(this).parents('.room-duty').attr('data-duration'));
+                });
+                stat.text(format(base + schema));
+            });
+
+            $('#row-afternoon').find('.statistic').each(function() {
+                var stat = $(this);
+                var person = stat.attr('data-person');
+                var base = parseInt(stat.attr('data-base'));
+                var schema = 0.0;
+                $('[data-morning=0] [data-person=' + person + '] :checked').each(function() {
+                    console.log(this, $(this).parents('.room-duty'));
+                    schema += parseFloat($(this).parents('.room-duty').attr('data-duration'));
+                });
+                stat.text(format(base + schema));
+            });
+
+            $('#row-total').find('.statistic').each(function() {
+                var stat = $(this);
+                var person = stat.attr('data-person');
+                var base = parseInt(stat.attr('data-base'));
+                var schema = 0.0;
+                $('[data-person=' + person + '] :checked').each(function() {
+                    console.log(this, $(this).parents('.room-duty'));
+                    schema += parseFloat($(this).parents('.room-duty').attr('data-duration'));
+                });
+                stat.text(format(base + schema));
+            });
+
+            $('#row-schema').find('.statistic').each(function() {
+                var stat = $(this);
+                var person = stat.attr('data-person');
+                var schema = 0.0;
+                $('[data-person=' + person + '] :checked').each(function() {
+                    console.log(this, $(this).parents('.room-duty'));
+                    schema += parseFloat($(this).parents('.room-duty').attr('data-duration'));
+                });
+                stat.text(format(schema));
+            });
+
+            $('.room-duty').each(function() {
+                var room_duty = $(this);
+                var division = room_duty.find('.division');
+                var persons = [];
+
+                room_duty.find('.availability').has(':checked').each(function() {
+                    var person = $(this).attr('data-person');
+                    persons.push($('#row-names').find('[data-person=' + person + ']').text());
+                });
+
+                division.text(persons.join(', '));
+            })
+        }
+
+    $(function() {
+        $('input[type=checkbox]').click(function() {
+            updateRoomDutyStatistics();
+        });
+    });
+    </script>
+
+    <div class="ia">
+        <h2>
+            {% trans 'Overview' %}
+            <a class="looks-like-a-button no-margin" href="{% url 'room_duty:table_change' table.pk %}">{% trans 'Edit' %}</a>
+            <a class="looks-like-a-button no-margin" href="{% url 'room_duty:table_change_persons' table.pk %}">{% trans 'Change participants' %}</a>
+            <a class="looks-like-a-button no-margin" href="{% url 'room_duty:table_delete' table.pk %}">{% trans 'Delete' %}</a>
+            <a href="{% url 'room_duty:table_print' table.pk %}" class="looks-like-a-button float-right no-margin">{% trans "Print" %}</a>
+        </h2>
+        <div class="content">
+            <form method="post">
+                {% csrf_token %}
+                <a href="{% url 'room_duty:table_fill' table.pk %}" class="looks-like-a-button">{% trans "Fill in" %}</a>
+                <label for="edit-participants"><a class="looks-like-a-button">{% blocktrans %}Toggle assignment{% endblocktrans %}</a></label>
+                <input id="edit-participants" type="checkbox" style="display: none">
+                <table>
+                    <tr id="row-names">
+                        <th>{% trans "Begin" %}</th>
+                        <th>{% trans "End" %}</th>
+                        <th>{% trans "Assignment" %}</th>
+                        {% for person in table.persons %}
+                            <th data-person="{{ person.pk }}">{{ person.first_name }}</th>
+                        {% endfor %}
+                    </tr>
+                    {% for room_duty in room_duties %}
+                        {% with room_duty.begin|timezone:"Europe/Amsterdam" as rd_begin %}
+                        <tr class="room-duty room-duty-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}"
+                            data-morning="{% if rd_begin.hour < 12 %}1{% else %}0{% endif %}"
+                            data-duration="{{ room_duty.duration|escapejs }}">
+                            <td>{{ room_duty.begin|date:"D d/m H:i" }}</td>
+                            <td>{{ room_duty.end|date:"D d/m H:i" }}</td>
+                            <td class="division">{{ room_duty.participant_names|join:", " }}</td>
+                            {% for availability, checkbox in room_duty.template_data %}
+                                <td class="availability
+                                           {{ availability.css_class }}
+                                           {% if availability.hungover %}room-duty-hungover{% endif %}
+                                           {% if availability.not_in_the_break %}room-duty-break{% endif %}"
+                                    data-person="{{ checkbox.data.value }}">
+
+                                    {{ checkbox.tag }}
+                                    {{ checkbox.tag.errors }}
+
+                                    {% if availability == None %}
+                                        -
+                                    {% else %}
+                                        {{ availability.availability }}{% if availability.hungover %}B{% endif %}{% if availability.not_in_the_break %}P{% endif %}
+                                        {% if availability.comments %}
+                                            <span class="icon icon-comment"
+                                                  onclick="alert('{{ availability.comments|escapejs }}');"
+                                                  title="{{ availability.comments }}">
+                                            </span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                    <tr id="row-schema">
+                        <td colspan="3">{% trans 'Total' %}</td>
+                        {% for person in table.persons %}
+                            <td class="statistic" data-person="{{ person.pk }}">{{ person.room_duty_stats_table.total|escapejs }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+                <input type="submit" value="{% trans 'Save' %}">
+            </form>
+        </div>
+    </div>
+
+    <div class="ia">
+        <h2>{% trans 'Statistics' %}</h2>
+        <div class="content">
+            <table>
+                <tr>
+                    <th><!-- Dummy --></th>
+                    {% for person in table.persons %}
+                        <th>{{ person.first_name }}</th>
+                    {% endfor %}
+                </tr>
+                <tr id="row-morning">
+                    <td>{% trans 'Morning office duties' %}</td>
+                    {% for person in table.persons %}
+                        <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.morning }}">{{ person.room_duty_stats.morning|escapejs }}</td>
+                    {% endfor %}
+                </tr>
+                <tr id="row-afternoon">
+                    <td>{% trans 'Afternoon office duties' %}</td>
+                    {% for person in table.persons %}
+                        <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.afternoon }}">{{ person.room_duty_stats.afternoon|escapejs }}</td>
+                    {% endfor %}
+                </tr>
+                <tr id="row-total">
+                    <td>{% trans 'Total' %}</td>
+                    {% for person in table.persons %}
+                        <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.total }}">{{ person.room_duty_stats.total|escapejs }}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+{% endblock %}

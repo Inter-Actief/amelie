@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Blame' %} - {% trans 'Overview' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Blame overview' %}</h2>
+
+        <div class="content">
+            <p>{% trans 'Choose a model to view its history:' %}</p>
+
+            {% include "paginator.html" with page=page_obj %}
+            <ul>
+                {% for ctype in page_obj %}
+                    <li><a href="{% url 'blame:model_overview' ctype.pk %}">{{ ctype.app_label }}.{{ ctype.model }}</a></li>
+                {% endfor %}
+            </ul>
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

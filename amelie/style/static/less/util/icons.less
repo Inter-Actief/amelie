@@ -1,0 +1,183 @@
+@import "constants";
+@import "icons_list";
+
+/**
+ * This file contains the css needed for the icons used in the website
+ */
+
+.icon {
+  padding-left: 18px;
+  min-height: 16px;
+  background-repeat: no-repeat;
+  line-height: 1.5;
+
+  &[type="button"], &[type="submit"], &.looks-like-a-button {
+    padding-left: 26px;
+    background-position-x: 4px;
+    background-position-y: 4px;
+  }
+
+}
+
+.news-pinned {
+  float: right;
+  .pinned;
+  .icon;
+}
+
+.previewer {
+  padding: 10px;
+  margin-left: 0;
+  margin-right: 0;
+
+  background: @white;
+  border: 1px @_c solid;
+
+  font-size: 11px;
+  font-family: 'Lucida Console', 'Courier New', monospace;
+  word-wrap: break-word;
+}
+
+.invalid {
+  background-color: red;
+  color: @white;
+  display: inline;
+}
+
+.activity-list-date {
+  // TODO: Move this to a somewhat better location
+  min-width: 105px;
+}
+
+.activity-list-status {
+  // TODO: Move this to a somewhat better location
+  min-width: 170px;
+}
+
+.old-activity-list-date {
+  // TODO: Move this to a somewhat better location
+  min-width: 50px;
+}
+
+.icon-red-bullet {
+  padding-left: 18px;
+  min-height: 16px;
+  background: url("/@{STATIC_URL}img/icons/bullet_red.png") no-repeat left center;
+  line-height: 1.5;
+  margin: 0px;
+}
+
+.dutch-indicator {
+  display: none;
+  float: right;
+  padding-top: 7px;
+}
+
+.dutch-only .dutch-indicator {
+  display: block;
+}
+
+.activity-list .dutch-indicator {
+  padding-top: 3px;
+}
+
+.activity-list-icons .dutch-indicator {
+  margin-top: 3px;
+}
+
+.dutch-only h3 {
+  margin-right: 16px;
+  padding-right: 8px;
+}
+
+p {
+  &.exclamation,
+  &.neg,
+  &.attention {
+    font-style: italic;
+  }
+
+  &.line-with-button {
+    background-position:left center;
+  }
+
+  &.pos { .icon-accept; }
+  &.neg { .icon-cancel; }
+  &.warning { .icon-information; }
+}
+
+ul {
+  &.errorlist {
+    .no-bullets;
+    margin-left: 0;
+    margin-right: 0;
+
+    li {
+      margin-left: 0;
+      padding-left: 20px;
+      background-repeat: no-repeat;
+    }
+  }
+
+  &.errorlist li {
+    .icon-exclamation;
+    color: red;
+    font-weight: bold;
+  }
+}
+
+li {
+  &.calendar { .icon-calendar; }
+  &.course { .icon-script; }
+  &.books { .icon-book_error; }
+  &.exams { .icon-page_error; }
+  &.courses { .icon-script_error; }
+  &.study { .icon-brick; }
+  &.phase { .icon-brick; }
+  &.curriculum { .icon-brick; }
+  &.workgroup { .icon-group; }
+
+  &.books-unknown { .icon-book_error; }
+  &.books-closed { .icon-book_delete; }
+  &.books-open { .icon-book_go; }
+  &.books-soon { .icon-book_error; }
+
+  &.exams-unknown { .icon-page_error; }
+  &.exams-closed { .icon-page_delete; }
+  &.exams-open { .icon-page_go; }
+  &.exams-soon { .icon-page_error; }
+
+  &.courses-unknown { .icon-script_error; }
+  &.courses-closed { .icon-script_delete; }
+  &.courses-open { .icon-script_go; }
+  &.courses-soon { .icon-script_error; }
+}
+
+.pos { .icon-list-bullet_green; }
+.neg { .icon-list-bullet_red; }
+.warning { .icon-list-bullet_yellow; }
+.unpaid { .icon-money_delete; }
+.paid { .icon-money; }
+.man { .icon-male; }
+.woman { .icon-female; }
+.language { .icon-comment; }
+.account { .icon-vcard; }
+.address { .icon-map; }
+.link { .icon-world_go; }
+.exclamation { .icon-exclamation; }
+.attention { .icon-exclamation; }
+.search { .icon-magnifier_badge; }
+.number { .icon-report_user; }
+.smile { .icon-emoticon_grin; }
+.person { .icon-user; }
+.reporter { .icon-accept; }
+.done { .icon-tick; }
+.cross { .icon-cross; }
+.pdf { .icon-page_white_acrobat; }
+.pages { .icon-page_white_stack; }
+.course { .icon-script; }
+.not-public { .icon-eye; }
+.personal_tab { .icon-coins; }
+.add { .icon-add; }
+.pinned { .icon-lock; }
+.icon-enroll { .icon-calendar_add; }

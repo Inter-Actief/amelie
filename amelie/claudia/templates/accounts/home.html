@@ -1,0 +1,20 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Inter-Actief account' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Inter-<i>Actief</i> account' %}</h2>
+        <div class="content">
+            <ul class="">
+                <li>
+                    <a href="{% url 'account:activate' %}">{% trans 'Activate account' %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'account:password' %}">{% trans 'Change password' %}</a>
+                </li>
+            </ul>
+        </div>
+    </div></div>
+{% endblock content %}

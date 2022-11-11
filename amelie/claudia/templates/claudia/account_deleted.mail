@@ -1,0 +1,16 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans %}Active member account at Inter-Actief{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear {{ name }},{% endblocktrans %}{% endhtmlify %}
+
+{% htmlify %}{% blocktrans %}According to the administration of Inter-Actief, you are no longer committee member and therefore should not have access to an active members account. This is the account with which you could log in to the computers and the Google Suite of Inter-Actief, your association membership will of course continue as normal.
+
+The active member account will be removed automatically in 30 days (including all data that you still have stored in your personal folders, and all e-mails you have in your Inter-Actief Google account!). Until then, you can still use your account and the folders to retrieve any important data.{% endblocktrans %}{% endhtmlify %}
+
+{% htmlify %}{% blocktrans %}If you would like to join a committee again in the future, contact the board!{% endblocktrans %}{% endhtmlify %}
+
+{% htmlify %}{% blocktrans %}Kind regards,{% endblocktrans %}
+
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %} Accountbeheer
+accountbeheer@inter-actief.utwente.nl{% endhtmlify %}{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Vote for the Educational Award' %}{% endblock titel %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+<h2>{% blocktrans %}Vote for the Educational Award{% endblocktrans %}</h2>
+<div class="content">
+    <p>
+    {% trans 'Which teacher should receive the Educational Award?' %}<br />
+    </p>
+    <form action="" method="post">
+    {% csrf_token %}
+    {{dea_form.errors}}
+    <table>
+        <tr><td>{% trans "Teacher" %}</td><td>{{ dea_form.teacher.errors }}{{ dea_form.teacher }}</td></tr>
+        <tr><td>{% blocktrans %}I followed courses of these teacher(s){% endblocktrans %}</td><td>{{ dea_form.lecture.errors }}{{ dea_form.lecture }}</td></tr>
+    </table>
+    <div class="buttons">
+        <input type="reset" value="{% trans 'Recover all data' %}" />
+        <input type="submit" value="{% trans 'Send' %}" />
+    </div>
+    </form>
+
+
+</div>
+</div></div>
+{% endblock content %}

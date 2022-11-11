@@ -1,0 +1,147 @@
+@import "../util/constants";
+
+// makes sure the page width is the same as for the other things.
+.follow-container {
+  width: 100%;
+}
+
+// this makes the follow-container invisible. purely technical use.
+.follow-invisible {
+  display: none;
+}
+
+// this is used to make sure the follow-scroll container does not block the viewport when in smaller window mode.
+@media (min-width: 992px) {
+  .follow-container {
+    position: fixed;
+    top: 0;
+  }
+
+  .follow-invisible {
+    display: block;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 991px) {
+  .two-columns {
+    -webkit-column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1;
+  }
+}
+
+.two-columns {
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
+  -webkit-column-gap: 0;
+  -moz-column-gap: 0;
+  column-gap: 0;
+
+  & > [class^="col-"],
+  & > [class*=" col-"] {
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
+// used for titles that should not span multiple lines
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+// A generic way to display dates
+.date {
+  margin-right: 5px;
+  margin-bottom: 5px;
+  line-height: 1em;
+  width: 60px;
+  float: left;
+  font-size: 12px;
+  font-weight: normal;
+
+  .day {
+    width: 50%;
+    float: left;
+    display: block;
+    font-size: 20px;
+    padding-top: 3px;
+    line-height: 1em;
+  }
+
+  .now {
+    display: block;
+    font-size: 20px;
+    text-align: center;
+    padding-top: 3px;
+    line-height: 1em;
+  }
+
+  .month,
+  .weekday {
+    width: 50%;
+    float: right;
+    display: block;
+  }
+}
+
+// A styling for definitionlists (<dl>-tags)
+.details {
+
+  dt {
+    float: left;
+    clear: left;
+    width: 70px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  dd {
+    margin-left: 80px;
+    margin-bottom: 10px;
+  }
+
+  &.wide dt {
+    width: 120px;
+  }
+
+  &.wide dd {
+    margin-left: 130px;
+  }
+}
+
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+  &.col-layered:first-child {
+    padding-left: 0;
+  }
+
+  &.col-layered:last-child {
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .col-xs-12 {
+    &.col-layered {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  div.sticky-list {
+    position: sticky;
+    top: 10px;
+
+    .content {
+      max-height: ~"calc(100vh - 80px)";
+      overflow-y: auto;
+    }
+  }
+}

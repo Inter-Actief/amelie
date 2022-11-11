@@ -1,0 +1,21 @@
+@import 'link';
+
+.user-content {
+  &_primary {
+    .user-content-style(@iacolor, @iacolor_dark);
+  }
+
+  &_edu {
+    .user-content-style(@educolor, @educolor_dark);
+  }
+
+  &_current {
+    .user-content-style(@currentcolor, @currentcolor_dark);
+  }
+}
+
+.user-content-style(@color, @colordark) {
+  a {
+    .link_style(@color, @colordark);
+  }
+}

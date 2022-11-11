@@ -1,0 +1,18 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Page not found'%}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Page not found' %}</h2>
+
+        <div class="content">
+          <p class="icon exclamation">
+              {% trans 'The requested page does not exist' %}
+          </p>
+        </div>
+    </div></div>
+{% endblock content %}

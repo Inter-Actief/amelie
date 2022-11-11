@@ -1,0 +1,37 @@
+@import "./button.less";
+
+.cc-company {
+  &__name {
+    color: @iacolor;
+  }
+
+  &__logo {
+    display: block;
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+  }
+
+  &__summary {
+    color: @gray;
+    // As the currently-used grid does not use flexbox, the grid items cannot automatically extend to the height of the
+    // largest grid item. As such, for all items, the height of the summary is set to the maximum expected height, which
+    // is 4 * 1.35em = 5.4em.
+    min-height: 5.4em;
+  }
+
+  &__edit {
+    display: block;
+    padding: 6px 12px;
+    border-top: 1px solid @gray-lighter;
+    color: @iacolor;
+    text-align: center;
+
+    &:hover,
+    &:focus {
+      // Color required to override the generic styling on anchor elements
+      color: @iacolor;
+      text-decoration: underline;
+    }
+  }
+}

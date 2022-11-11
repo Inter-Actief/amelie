@@ -1,0 +1,49 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% blocktrans %}Change office duty schedule{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>{% trans 'Change office duty schedule' %}</h2>
+        <div class="content">
+            <form method="post" class="big">
+                {% csrf_token %}
+                {{ form.as_div }}
+                <input type="submit" value="{% trans 'Save' %}">
+            </form>
+        </div>
+    </div>
+
+    <div class="ia">
+        <h2>{% trans 'Add office duty' %}</h2>
+        <div class="content">
+            <form action="{% url 'room_duty:table_room_duty_add' table.pk %}" method="post" class="big">
+                {% csrf_token %}
+                {{ room_duty_form.as_div }}
+                <input type="submit" value="{% trans 'Save' %}">
+            </form>
+        </div>
+    </div>
+
+    {% if table.room_duties.all %}
+        <div class="ia">
+                <h2>{% trans 'Office duties' %}</h2>
+                <div class="content">
+                <ul>
+                    {% for room_duty in table.room_duties.all %}
+                        <li>
+                            {{ room_duty }}
+                            <form action="{% url 'room_duty:table_room_duty_delete' table.pk room_duty.pk %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <input type="submit" value="{% trans 'Delete' %}">
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

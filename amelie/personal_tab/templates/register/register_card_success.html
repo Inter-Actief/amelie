@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Register an RFID card - Success' %}{% endblock titel %}
+
+{% block content %}
+    <script type="text/javascript">
+        setInterval(function () {
+            window.location='{% url "personal_tab:register_index" %}';
+        }, 5000);
+    </script>
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Register an RFID card - Success' %}</h2>
+        <div class="content">
+            <h3 id="display">{{ success_text }}</h3>
+
+            <p>{% trans 'You will be brought back to the registration screen in 5 seconds...' %}</p>
+
+            <p><a class="looks-like-a-button" href="{% url "personal_tab:register_index" %}">{% trans 'Go back now' %}</a></p>
+        </div>
+    </div></div>
+{% endblock content %}

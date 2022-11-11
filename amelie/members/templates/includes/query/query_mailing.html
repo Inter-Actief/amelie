@@ -1,0 +1,125 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}{% trans "Send mailing" %}{% endblock titel %}
+
+{% block content %}
+    {% if previews %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="ia">
+                <h2>{% trans 'Example' %}</h2>
+                <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            Check your message before you actually send it.
+                        {% endblocktrans %}
+                    </p>
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>
+                                <p>{% trans 'Subject:' %} {{ previews.nl.subject }}</p>
+                                <p class="previewer">{{ previews.nl.content|force_escape|linebreaksbr }}</p>
+                            </div>
+                            <div>
+                                <p>{% trans 'Subject:' %} {{ previews.en.subject }}</p>
+                                <p class="previewer">{{ previews.en.content|force_escape|linebreaksbr }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="icol-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans "Send mailing" %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans with amount=persons.count %}
+                        There are {{ amount }} persons selected. The variable 'recipient' contains data of every
+                        receiver. They can be used as follows:
+                    {% endblocktrans %}
+                </p>
+
+                <div class="buttons template-tags">
+                    <input type="button" value="&#123;&#123;recipient.first_name&#125;&#125;">
+                    <input type="button" value="&#123;&#123;recipient.last_name&#125;&#125;">
+                    <input type="button" value="&#123;&#123;recipient.address&#125;&#125;">
+                    <input type="button" value="&#123;&#123;recipient.postal_code&#125;&#125;">
+                    <input type="button" value="&#123;&#123;recipient.city&#125;&#125;">
+                    <input type="button" value="&#123;&#123;recipient.country&#125;&#125;">
+                    <input type="button" value="&#123;&#123;recipient.student.number&#125;&#125;">
+                </div>
+
+                <form class="big util" data-tags='{ "recipient.first_name": "{{ longest_first_name }}", "recipient.last_name": "{{ longest_last_name }}", "recipient.address": "{{ longest_address }}", "recipient.postal_code": "{{ longest_postal_code }}", "recipient.city": "{{ longest_city }}", "recipient.country": "{{ longest_country }}", "recipient.student.number": "{{ longest_student_number }}" }' action="?{{ request.GET.urlencode }}" method="post">
+                    {% for error in form.non_field_errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+
+                    {% csrf_token %}
+
+                    {% fieldset sender,email,cc_email,bcc_email,include_waiting_list as header from form %}
+                    {{ header }}
+
+                    <div>
+                        {% for error in form.subject_nl.errors %}
+                            <p class="icon neg">{% trans 'NL:'%} {{ error }}</p>
+                        {% endfor %}
+                        {% for error in form.subject_en.errors %}
+                            <p class="icon neg">{% trans 'EN:'%} {{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-row">
+                        <label> {% trans 'Subject:' %} </label>
+
+                        <div class="tabbed-ticker" style="display:inline-block;">
+                            <ul>
+                                <li class="active">NL</li>
+                                <li>EN</li>
+                            </ul>
+                            <div class="tabbed-content">
+                                <div>{{ form.subject_nl }}</div>
+                                <div>{{ form.subject_en }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        {%  for error in form.template_nl.errors %}
+                            <p class="icon neg">{% trans 'NL:'%} {{ error }}</p>
+                        {%  endfor %}
+                        {%  for error in form.template_en.errors %}
+                            <p class="icon neg">{% trans 'EN:'%} {{ error }}</p>
+                        {%  endfor %}
+                    </div>
+
+                    <div class="tabbed-ticker">
+                        <label> {% trans 'Content:' %} </label>
+
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.template_nl }}</div>
+                            <div>{{ form.template_en }}</div>
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <input name="preview" type="submit" value="{% trans 'Example' %}" />
+                        {% if previews %}
+                            <input type="submit" value="{% trans 'Send mailing' %}" />
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

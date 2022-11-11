@@ -1,0 +1,21 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Before we forget...' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'We have some final questions for you.' %}
+            </p>
+            <!-- User preferences -->
+            {{ wizard.form.preferences.errors }}
+            {{ wizard.form.preferences }}
+
+            <small class="form-text text-muted">
+                {% trans 'These preferences can always be changed in your profile on the Inter-<i>Actief</i> website later.' %}
+            </small>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

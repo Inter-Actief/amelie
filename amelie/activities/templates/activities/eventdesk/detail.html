@@ -1,0 +1,99 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Event Desk message detail' %}
+{% endblock titel %}
+
+{% block content %}
+
+	<div class="col-xs-12">
+		<div class="current">
+			<h2>{% trans 'Metadata' %}</h2>
+
+			<div class="content">
+				<table>
+                    <tr>
+                        <th>{% trans 'Date' %}</th>
+                        <td>{{ object.message_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Requester' %}</th>
+                        <td>{{ object.requester }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event name' %}</th>
+                        <td>{{ object.event_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event start' %}</th>
+                        <td>{{ object.get_event_start }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event end' %}</th>
+                        <td>{{ object.get_event_end }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event location' %}</th>
+                        <td>{{ object.event_location }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Activity link' %}</th>
+                        <td>
+                            {% if object.activity %}
+                                <a href="{{ object.get_absolute_url }}"><span class="icon icon-calendar">{{ object.activity }}</span></a>
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Matching certainty' %}</th>
+                        <td class="event-ratio-text-{{ object.ratio_ok|yesno:"OK,WARN" }}">
+                            {{ object.get_match_ratio_display }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'New state (as of this e-mail)' %}</th>
+                        <td class="event-state-{{ object.state }}">
+                            <span class="state-text">{{ object.get_state_display }}</span>
+                        </td>
+                    </tr>
+                </table>
+
+                <a href="{% url 'activities:eventdesk_list' %}" class="looks-like-a-button">{% trans 'Go back to message list' %}</a>
+                {% if object.activity %}
+                    <a href="{% url 'activities:eventdesk_history' object.activity.pk %}" class="looks-like-a-button">{% trans 'All messages for the linked event' %}</a>
+                    {% if request.is_board %}
+                        <a href="{% url 'activities:eventdesk_match' object.pk %}" class="looks-like-a-button">{% trans 'Fix activity link' %}</a>
+                        <a href="{% url 'activities:eventdesk_unmatch' object.pk %}" class="looks-like-a-button">{% trans 'Remove activity link' %}</a>
+                    {% endif %}
+                {% else %}
+                    {% if request.is_board %}
+                        <a href="{% url 'activities:eventdesk_match' object.pk %}" class="looks-like-a-button">{% trans 'Link to activity' %}</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+		</div>
+    </div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2>
+            {% trans 'Message' %}
+        </h2>
+
+        <div class="content">
+            <dl class="details">
+                <dt>{% trans 'From' %}</dt>
+                <dd>{{ message_from }}</dd>
+
+                <dt>{% trans 'To' %}</dt>
+                <dd>{{ message_to }}</dd>
+
+                <dt>{% trans 'Subject' %}</dt>
+                <dd>{{ message_subject }}</dd>
+            </dl>
+            <pre class="eventdesk-message">{{ message_text }}</pre>
+        </div>
+    </div></div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans %}Account at Inter-Actief{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ name }},
+
+{% blocktrans %}Since you are/have become an active member of Inter-Actief, an account has been created for you in the Inter-Actief ICT environment.{% endblocktrans %}
+
+{% blocktrans %}With this account you can log in to the computers in the Inter-Actief room, you have access to any files on your committee's drives, and you can log in to the Inter-Actief wiki and some other services. (see https://intra.ia.utwente.nl/ for an overview.){% endblocktrans %}
+
+{% blocktrans %}With this account you also get an e-mail address and a Google Account on our own Google Suite environment. From now you will also be reachable on {{ email }}. To see the e-mails that you receive on this account, you can log in to google with that e-mail address. You will then be redirected to the Inter-Actief website to complete the login.{% endblocktrans %}
+
+{% blocktrans %}All e-mails to committees that you are a member off will be sent to that e-mail address, so please keep an eye on it!{% endblocktrans %}
+
+{% if alias %}{% blocktrans %}Next to e-mails to your committees, you will also receive the e-mails that are sent to: {{ alias }}{% endblocktrans %}{% endif %}
+
+{% blocktrans %}You can also forward all of these e-mails to your private e-mail address. This forward can be set up in your profile on the Inter-Actief website: ( https://www.inter-actief.utwente.nl/profile/ ).{% endblocktrans %}{% endhtmlify %}
+
+{% htmlify %}{% onlyhtml %}<b>{% endonlyhtml %}{% blocktrans %}Username:{% endblocktrans %}{% onlyhtml %}</b>{% endonlyhtml %} {{ account }}
+{% onlyhtml %}<b>{% endonlyhtml %}{% blocktrans %}Password:{% endblocktrans %}{% onlyhtml %}</b>{% endonlyhtml %} {{ password }}{% endhtmlify %}
+
+{% htmlify %}{% blocktrans %}Before you can use all of these facilities, you need to activate your account using the following page:
+https://www.inter-actief.utwente.nl/account/activate/
+After you have done that, you can use your account to log in to the ICT systems of Inter-Actief and use all services like for example SFTP and the Google Suite.{% endblocktrans %}
+
+{% blocktrans %}Do you have any questions? On https://wiki.ia.utwente.nl/ under the heading ICT, you can find a list of Frequently Asked Questions, a manual on how to access the committee drives and more. For other questions you can of course always send us an e-mail.{% endblocktrans %}
+
+{% blocktrans %}Kind regards,{% endblocktrans %}
+
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %} {% blocktrans %}Account management{% endblocktrans %}
+accountbeheer@inter-actief.utwente.nl{% endhtmlify %}{% endblock %}

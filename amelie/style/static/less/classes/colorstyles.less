@@ -1,0 +1,69 @@
+@import "../util/constants";
+@import "../util/mixins";
+
+/**
+ * The main class of the website. Only the activity module and the education module are not shown in this color.
+ *
+ * Main color: @iacolor
+ * Support color light: @iacolor_light
+ * Support color dark: @iacolor_dark
+ **/
+.ia {
+  .make_colored_base(
+    @iacolor,
+    @iacolor_light,
+    @iacolor_dark
+  ); // This creates the base of the class hierarchy
+}
+
+/**
+ * The class used for activities and such
+ *
+ * Main color: @currentcolor
+ * Support color light: @currentcolor_light
+ * Support color dark: @currentcolor_dark
+ **/
+.current {
+  .make_colored_base(
+    @currentcolor,
+    @currentcolor_light,
+    @currentcolor_dark
+  ); // This creates the base of the class hierarchy
+}
+
+/**
+ * The parent class of the edu-module.
+ *
+ * Main color: @educolor
+ * Support color light: @educolor_light
+ * Support color dark: @educolor_dark
+ **/
+.edu {
+  .make_colored_base(
+    @educolor,
+    @educolor_light,
+    @educolor_dark
+  ); // This creates the base of the class hierarchy
+}
+
+/**
+ * The class used to give education activities their color (red) in lists
+ */
+.activity-educational {
+  color: @educolor !important;
+
+  h3 > a {
+    color: @educolor !important;
+  }
+}
+
+/**
+ * The class used to give external activities their color (blue) in lists
+ */
+.activity-external {
+  color: @iacolor !important;
+
+  h3 > a {
+    color: @iacolor !important;
+  }
+}

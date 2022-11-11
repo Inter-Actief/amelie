@@ -1,0 +1,78 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'RFID cards' %}</h2>
+
+    <div class="content">
+        {% if rfids %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Card' %}</th>
+                            <th>{% trans 'Type of card' %}</th>
+                            <th>{% trans 'Status' %}</th>
+                            <th>{% trans 'Registered' %}</th>
+                            <th>{% trans 'Last used' %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rfid in rfids %}
+                            <tr>
+                                <td>
+                                    {{ rfid }}
+                                </td>
+                                <td>
+                                    {{ rfid.type|default:"&mdash;" }}
+                                </td>
+                                <td>
+                                    {% if rfid.active %}
+                                        <span class="icon icon-tick"></span>{% trans 'Activated' %}
+                                    {% else %}
+                                        <span class="icon icon-cross"></span> {% trans 'Not activated' %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if rfid.is_before_new_rfid_cards %}
+                                        {% trans 'Before September 2019' %}
+                                    {% else %}
+                                        {{ rfid.created }}
+                                     {% endif %}
+                                </td>
+                                <td>
+                                    {% if rfid.used_before_new_rfid_cards %}
+                                        {% trans 'Unknown' %}
+                                    {% else %}
+                                        {{ rfid.last_used }}
+                                     {% endif %}
+                                </td>
+                                <td>
+                                    <div class="buttons">
+                                    {% if rfid.active %}
+                                        <a class="looks-like-a-button js-load-block" data-container="rfid_cards" href="{% url 'personal_tab:rfid_change_status' rfid.id 'deactivate' %}">
+                                            {% trans 'Deactivate' %}
+                                        </a>
+                                    {% else %}
+                                        <a class="looks-like-a-button js-load-block" data-container="rfid_cards" href="{% url 'personal_tab:rfid_change_status' rfid.id 'activate' %}">
+                                            {% trans 'Activate' %}
+                                        </a>
+                                    {% endif %}
+
+                                    <a class="looks-like-a-button js-load-block" data-container="rfid_cards" href="{% url 'personal_tab:rfid_remove' rfid.id %}">
+                                        {% trans 'Delete' %}
+                                    </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="icon warning">
+                {% trans "You didn't register any rfid cards." %}
+            </p>
+        {% endif %}
+    </div>
+</div></div>

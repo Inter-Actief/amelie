@@ -1,0 +1,36 @@
+*~
+*.pyc
+*.pyo
+celerybeat-schedule
+amelie/settings/local.py
+# Old settings location
+settings/local.py
+*.log
+*.orig
+.*.swp
+*.pid
+.idea
+static/*
+site_media
+.venv
+venv/
+.apt/
+.cache/
+media/
+amelie.db
+
+# backups of local settings, but not the .default settings
+amelie/settings/local.py*
+!amelie/settings/local.py.default
+!amelie/settings/local.py.localdev
+
+# Ignore certificates for the SAML IdP, except for the gitkeep file and the google metadatas
+certificates/*
+!certificates/.gitkeep
+!certificates/google-sp-metadata.xml
+!certificates/google-ianl-sp-metadata.xml
+!certificates/google-ianet-sp-metadata.xml
+
+# Ignore credentials folder, except for the gitkeep file
+credentials/*
+!credentials/.gitkeep

@@ -1,0 +1,58 @@
+.room-duty-dibs {
+  background: linear-gradient(to right,
+        rgba(255, 0, 0, 1) 0%,
+        rgba(255, 255, 0, 1) 15%,
+        rgba(0, 255, 0, 1) 30%,
+        rgba(0, 255, 255, 1) 50%,
+        rgba(0, 0, 255, 1) 65%,
+        rgba(255, 0, 255, 1) 80%,
+        rgba(255, 0, 0, 1) 100%);
+  color: black;
+  text-shadow: white 0 0 2px;
+}
+
+.room-duty-gladly {
+  background-color: #3c763d;
+  color: white;
+}
+
+.room-duty-available {
+  background-color: #5b9c25;
+  color: white;
+}
+
+.room-duty-rather-not {
+  background-color: #fbbd00;
+  color: black;
+}
+
+.room-duty-unavailable {
+  background-color: #ff6464;
+  color: white;
+}
+
+.room-duty-unknown {
+  background-color: #cfcfcf;
+  color: black;
+}
+
+.room-duty-hungover {
+  // none
+}
+
+.room-duty-break {
+  // none
+}
+
+#edit-participants:not(:checked) + table input {
+    display: none;
+}
+
+#edit-participants:not(:checked) + table + input {
+  display: none;
+}
+
+.room-duty-weekday-even + .room-duty-weekday-odd,
+.room-duty-weekday-odd + .room-duty-weekday-even {
+  border-top: 2px solid #888;
+}

@@ -1,0 +1,55 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transaction information' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transaction information' %}</h2>
+
+        <div class="content">
+            <table>
+                {% include "info/transaction_information.html" %}
+                <tr>
+                    <th>{% trans 'Transaction number Alexia' %}</th>
+                    <td class="align-right">{{ object.transaction_id }}</td>
+                </tr>
+            </table>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Purchases' %}</h2>
+
+        <div class="content">
+            {% if alexia %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Product' %}</th>
+                            <th class="align-right">{% trans 'Amount' %}</th>
+                            <th class="align-right">{% trans 'Price' %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for purchase in alexia.purchases %}
+                            <tr>
+                                <td>{{ purchase.product.name }}</td>
+                                <td class="align-right">{{ purchase.amount }}</td>
+                                <td class="align-right">{{ purchase.price }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">{% trans 'No purchases.' %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="icon error">{% trans 'It was not possible to retrieve the transaction details.' %}</p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

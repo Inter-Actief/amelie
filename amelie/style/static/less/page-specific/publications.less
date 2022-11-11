@@ -1,0 +1,46 @@
+.publications-list {
+  padding: 0;
+  margin: 0;
+
+  .publication-item {
+    padding-left: 0;
+    padding-bottom: 10px;
+
+    .thumbnail-container {
+      height: 250px;
+
+      padding: 4px;
+      position: relative;
+      border: 1px solid gray;
+      display: inline-block;
+
+      a {
+        border-bottom: none;
+
+        h3 {
+          display: inline-block;
+          bottom: 5px;
+          left: 15px;
+          position: absolute;
+          background-color: rgba(0, 0, 0, 0.7);
+          z-index: 1;
+          color: white;
+          padding: 2px;
+        }
+
+        .thumbnail {
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+
+          height: 100%;
+          width: 100%;
+        }
+      }
+    }
+
+    .thumbnail-container.small {
+      height: 95px;
+    }
+  }
+}

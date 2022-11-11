@@ -1,0 +1,57 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'New tweet' %}
+{% endblock titel %}
+
+{% block content %}
+	{% if preview %}
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+			<h2>{% trans 'Example' %}</h2>
+
+			<div class="content">
+				<p>
+					{% blocktrans with account=form.cleaned_data.account %}
+                        Check your message before you send it.
+                        This message will be sent from this account: {{ account }}.
+					{% endblocktrans %}
+				</p>
+
+			    <p class="previewer">
+					{{ preview|linebreaksbr }}
+			    </p>
+			</div>
+		</div></div>
+	{% endif %}
+
+	<div class="col-xs-12"><div class="ia">
+		<h2>{% trans "New Tweet" %}</h2>
+
+		<div class="content">
+			<form class="big util" data-max-chars="{{ max_length }}" action="?{{ request.GET.urlencode }}" method="post">
+				{% csrf_token %}
+				<fieldset>
+				    {{ form }}
+
+				    <div class="form-row">
+				    	<label for="id_preview">{% trans 'Preview' %}</label>
+
+				    	<div class="looks-like-input">
+				    		<p class="previewer" id="id_preview">...</p>
+				    		<p class="counter"></p>
+				    	</div>
+				    </div>
+
+				    <div class="buttons">
+				        <input name="preview" type="submit" value="{% trans 'Preview' %}" />
+
+				        {% if preview %}
+				        	<input type="submit" value="{% trans 'Send tweet' %}" />
+				        {% endif %}
+				    </div>
+				</fieldset>
+			</form>
+		</div>
+	</div></div>
+{% endblock content %}

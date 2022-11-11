@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}{{ obj }}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>{{ obj }}</h2>
+
+		<div class="content">
+            {{ obj.content|markdown:"unsafe" }}
+
+			{% if is_www %}
+				<div class="buttons">
+			    	<a class="looks-like-a-button" href="{% url 'about:page_edit' obj.pk obj.slug %}">{% trans 'Edit Page' %}</a>
+			    	<a class="looks-like-a-button" href="{% url 'about:page_delete' obj.pk obj.slug %}">{% trans 'Delete page' %}</a>
+				</div>
+			{% endif %}
+		</div>
+	</div></div>
+{% endblock content %}

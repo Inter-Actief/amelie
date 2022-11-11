@@ -1,0 +1,129 @@
+{% extends "basis.html" %}
+{% load i18n compress %}
+
+{% block titel %}{% trans "Enrollment check" %}{% if obj %} :: {{ obj }}{% endif %} {% endblock titel %}
+
+{% block head %}
+    {% compress js %}
+        <script src="{{ STATIC_URL }}js/registration_check.js" type="text/javascript"></script>
+    {% endcompress %}
+{% endblock head %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2>{% trans "Enrollment check" %}</h2>
+
+    <div class="content">
+        <form action="{% url 'members:registration_check' %}" method="post">
+            <table>
+            {{ student_number_form.as_table }}
+            {% csrf_token %}
+            <tr><td></td><td><input type="submit" value="{% trans 'Search' %}" /></td></tr>
+            </table>
+        </form>
+    </div>
+</div></div>
+
+{% if obj %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2>{% trans "Data" %}</h2>
+
+    <div class="content">
+        <table>
+            <tr>
+                <th>{% trans 'Name' %}</th>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.first_name }} {{ obj.last_name_prefix }} {{ obj.last_name }}</a></td>
+            </tr>
+            <tr>
+                <th>{% trans 'Student number' %}</th>
+                <td>{{ obj.student.student_number }}</td>
+            </tr>
+
+            {% for sp in obj.student.studyperiod_set.all %}
+            <tr>
+                <th>{% trans 'Course' %}</th>
+                <td> {{ sp.study.name }}</td>
+            </tr>
+            <tr>
+                <th>{% trans 'Dogroup' %}</th>
+                <td>{% if sp.dogroup %}{{ sp.dogroup }}{% else %}<span class="icon error">{% trans 'No introduction group' %}</span>{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2"><span class="icon exclamation">{% trans 'No study' %}</span></td>
+            </tr>
+            {% endfor %}
+
+            {% for l in obj.membership_set.all %}
+            <tr>
+                <th>{% trans 'Membership type' %}</th>
+                <td> {{ l.type }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2"><span class="icon exclamation">{% trans 'No membership' %}</span></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</div></div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2 data-target="person_mandate">{% trans 'Mandates' %}</h2>
+    <div id="person_mandate">
+        {% include "person_mandate.html" %}
+    </div>
+</div></div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2><a href="{% url 'personal_tab:dashboard' obj.pk obj.slug %}">{% trans 'Digital cookie and candy list' %}</a></h2>
+
+    {% if debug and request.user.is_superuser %}
+        <div style="position: absolute; top: 2px; left: 2px; width: 200px; border: 1px solid #FF0000; background: white; padding: 5px">
+            <a href="javascript:Scanner.action({'atqa': '00:04', 'sak': '08', 'uid': '06:65:74:49'})">{% trans "02,06:65:74:49" %}</a><br/>
+            <a href="javascript:Scanner.action({'atqa': '00:04', 'sak': '08', 'uid': '00:00:00:00'})">{% blocktrans %}unknown id{% endblocktrans %}</a><br/>
+            <a href="javascript:Scanner.action({'atqa': '99:99', 'sak': '99', 'uid': '00:00:00:00'})">{% blocktrans %}invalid atqa/sak{% endblocktrans %}</a>
+        </div>
+    {% endif %}
+
+    <div class="content">
+        <form id="enrollment_control_form" action="" method="post">
+        {{ rfid_form.non_field_errors }}
+        {% for hidden in rfid_form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        <table class="layout">
+        <thead>
+            <tr>
+                <th>{% trans 'Card' %}</th>
+                <th>{% trans 'Status' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for rfid in obj.rfidcard_set.all %}
+        <tr>
+            <td>{{ rfid }}</td>
+            <td>{% if rfid.active %}
+                <span class="icon icon-tick"></span> {% trans 'Activated' %}
+            {% else %}
+                <span class="icon icon-cross"></span> {% trans 'Not activated' %}
+            {% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2"><p class="icon warning">{% trans "You didn't register any rfid cards." %}</p></td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>{{ rfid_form.code.errors }} {{ rfid_form.code }}</td>
+            <td>{% csrf_token %}<input type="submit" value="{% trans 'Add' %}" /></td>
+        </tr>
+        </tbody>
+        </table>
+        </form>
+    </div>
+</div></div>
+{% endif %}
+
+{% endblock content %}

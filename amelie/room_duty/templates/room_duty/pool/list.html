@@ -1,0 +1,33 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Office duty pools' %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2 class="h2-with-buttons">
+            {% trans "Office duty pools" %}
+            <a href="{% url 'room_duty:pool_add' %}" class="looks-like-a-button">{% trans 'Add' %}</a>
+        </h2>
+        <div class="content">
+            <ul>
+                {% for pool in pools %}
+                    <li>
+                        {{ pool }}
+                        ({% if pool.persons %}{{ pool.persons|join:', ' }}{% else %}<em>{% trans 'Empty' %}</em>{% endif %})
+                        <a href="{% url 'room_duty:pool_change_persons' pool.pk %}" class="looks-like-a-button">
+                            {% trans 'Change persons' %}
+                        </a>
+                        <a href="{% url 'room_duty:pool_delete' pool.pk %}" class="looks-like-a-button">
+                            {% trans 'Delete' %}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li><em>{% trans "There are no office duty pools yet." %}</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

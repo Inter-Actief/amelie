@@ -1,0 +1,57 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Activities with external parties ' %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="ia">
+		<h2>{% trans 'Past activities with external parties ' %}</h2>
+
+		<div class="content">
+			<form class="big" action="{% url 'companies:event_old' %}" method="GET">
+				{{ form }}
+
+				<div class="buttons">
+					<input type="submit" value="{% trans 'Search' %}" />
+				</div>
+			</form>
+		</div>
+	</div></div>
+
+	<div class="col-xs-12"><div class="ia">
+		<h2>
+			{% blocktrans with amount=events|length %}
+				Results ({{ amount }} activities)
+			{% endblocktrans %}
+		</h2>
+
+		<div class="content">
+            <div class="table-responsive">
+                <table class="table layout">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Activities' %}</th>
+                            <th>{% trans "Photos" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                            <tr>
+                                <td>
+                                    <a href="{{ event.get_calendar_url }}">
+                                        <span class="icon icon-calendar" title="{% trans 'iCal document with activity ' %}"></span>
+                                    </a>
+
+                                    {{ event.begin|date:"d-b (D)" }}
+                                </td>
+                                <td><a href="{{ event.get_absolute_url }}" title="{{ event.description|striptags|truncatewords:30}}">{{ event.summary }}</a></td>
+                                <td>{% include "includes/activity_list_photos.html" %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+		</div>
+	</div></div>
+{% endblock content %}

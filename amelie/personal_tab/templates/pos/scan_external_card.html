@@ -1,0 +1,48 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block content %}
+    <div id="container">
+        <div id="header">
+            <div id="header-logo"></div>
+            <div id="header-logout-button">
+                <a href="{% url 'personal_tab:pos_logout' %}">
+                    <span id="scan-header">{% trans 'Return to home' %}</span>
+                </a>
+            </div>
+            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+        </div>
+        <div id="content" class="center">
+            <div id="login-box">
+                <div id="login-box-header">
+                    <h1>{% trans 'Scan an external card' %}</h1>
+                </div>
+                <div id="login-box-content">
+                    <p class="text">{%  trans 'Please scan the RFID card now.'%}</p>
+
+                    <form id="rfid-form" class="user-register external-scan-form active" method="POST">
+                        {% csrf_token %}
+
+                        <input name="tags" id="rfid-form-tags" type="hidden" value="">
+                        <a id="scan-button-cancel" class="center" href="{% url 'personal_tab:pos_logout' %}">{%  trans 'Cancel'%}</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript_pre %}
+    <script type="text/javascript">
+        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            setupPosExternalScan();
+        });
+    </script>
+{% endblock %}

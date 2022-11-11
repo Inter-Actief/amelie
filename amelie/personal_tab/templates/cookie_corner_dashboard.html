@@ -1,0 +1,81 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans %}Cookie and candy list of {{ person }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>
+            {% blocktrans %}Cookie and candy list of {{ person }}{% endblocktrans %}
+        </h2>
+
+        <div class="content">
+            <p>{% blocktrans %}Your current balance is &euro; {{ curr_balance }}. Including future transactions that will be &euro; {{ all_balance }}.{% endblocktrans %}</p>
+            {% for instruction in future_debt_collection_instructions %}
+                <p>
+                    {% blocktrans with date=instruction.batch.execution_date amount=instruction.amount url=instruction.get_absolute_url %}
+                        On {{ date }}, <a href="{{ url }}">&euro; {{ amount }} will be withdrawn</a> from your bank account.
+                    {% endblocktrans %}
+                </p>
+            {% endfor %}
+            {% if exam_cookie_credit %}
+                <p>
+                    {% blocktrans with credit=exam_cookie_credits %}
+                        Because you have submitted an exam paper, you may spend {{ credit }} on consumptions.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>
+            {% trans 'Transactions' %}
+        </h2>
+
+        <div class="content">
+            {% if not transactions %}
+                <p class="icon warning">{% trans 'No transactions have been found' %}</p>
+            {% else %}
+                <p>
+                    {% blocktrans with transactions|length as amount %}
+                        Last {{ amount }} added transactions.
+                    {% endblocktrans %}
+                </p>
+
+                {% include "lists/transactions.html" with transactions=transactions %}
+
+                <a class="looks-like-a-button" href="{% url 'personal_tab:person_transactions' person.pk person.slug %}">
+                    {% trans 'Previous transactions' %}
+                </a>
+                <a href="{% url 'personal_tab:person_exam_cookie_credit' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                    {% trans 'History of exam credit' %}
+                </a>
+            {% endif %}
+        </div>
+
+        {% if request.is_board %}
+            <div class="buttons">
+                <a href="{% url 'personal_tab:person_new_transaction' person_id=person.pk slug=person.slug transaction_type='cookie_corner' %}" class="looks-like-a-button">
+                    {% trans 'Add transaction to personal tab' %}
+                </a>
+                <a href="{% url 'personal_tab:person_new_transaction' person_id=person.pk slug=person.slug transaction_type='other' %}" class="looks-like-a-button">
+                    {% trans 'Add other transaction' %}
+                </a>
+                <a href="{% url 'personal_tab:person_exam_cookie_credit_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                    {% trans 'Add credit for exams' %}
+                </a>
+            </div>
+        {% endif %}
+    </div></div>
+
+    {% if person and not date_from %}
+        {% include "info/debt_collection_instructions.html" %}
+        {% include "info/account_information.html" %}
+
+        <div id="rfid_cards">
+            {% include "info/rfid_cards.html" with rfids=person.rfidcard_set.all %}
+        </div>
+    {% endif %}
+
+{% endblock content %}

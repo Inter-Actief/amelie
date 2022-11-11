@@ -1,0 +1,27 @@
+{% load i18n %}
+ ___     _                ___      _   _      __  __
+|_ _|_ _| |_ ___ _ _ ___ / /_\  __| |_(_)___ / _|/ /
+ | || ' \  _/ -_) '_|___/ / _ \/ _|  _| / -_)  _/ /
+|___|_||_\__\___|_|    /_/_/ \_\__|\__|_\___|_|/_/
+ ___       _                                _
+|   \ __ _| |_ __ _   _____ ___ __  ___ _ _| |_
+| |) / _` |  _/ _` | / -_) \ / '_ \/ _ \ '_|  _|
+|___/\__,_|\__\__,_| \___/_\_\ .__/\___/_|  \__|
+                             |_|
+=====================================================
+
+{% trans 'This data export contains all personal data that Inter-Actief has on this person:' %}
+{{ obj.person }}
+
+{% trans 'This export was requested on:' %}
+{{ obj.request_timestamp }}
+
+{% trans 'The export was done on:' %}
+{{ obj.complete_timestamp }}
+
+{% trans 'Information on these applications/services have been exported:' %}{% for application in obj.exported_applications.all %}
+- {{ application.get_application_display }}{% if application.status == 3 %} {% trans '(failed)' %}{% endif %}{% empty %}
+- {% trans 'No applications/services were exported.' %}{% endfor %}
+
+{% trans 'This export was created by Amélie, the website and member administration of I.C.T.S.V. Inter-/Actief/.' %}
+{% trans 'For comments or problems, please contact us at www@inter-actief.net.' %}

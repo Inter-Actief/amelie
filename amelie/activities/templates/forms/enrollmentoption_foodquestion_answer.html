@@ -1,0 +1,42 @@
+{% load i18n %}
+
+<p>
+	<!-- Errors -->
+	{% if form.non_field_errors %}
+		<span>
+			{{ form.non_field_errors }}
+		</span>
+	{% endif %}
+
+	<!-- Title -->
+  {{ form.dishprice.errors }}
+	<h3>
+		{{ form.enrollmentoption.title }}
+
+		{% if form.enrollmentoption.required %}
+			({% trans 'required' %})
+		{% endif %}
+	</h3>
+
+	<!-- Veld -->
+	<span>
+        <select id="{{ form.dishprice.id_for_label }}" name="{{ form.dishprice.html_name}}">
+        {% if not form.enrollmentoption.required %}
+            <option value="" data-price_extra="0" selected="selected">---------</option>
+        {% endif %}
+        {% for c in form.fields.dishprice.queryset.all %}
+            <option value="{{ c.id }}" data-price_extra="{{ c.price }}">{{ c.answer|capfirst }} {{ c }}</option>
+        {% endfor %}
+        </select>
+	</span>
+
+    <!-- Allergens -->
+    {% for c in form.fields.dishprice.queryset.all %}
+        <span class="allergen_information" style="display: none" data-dish-id="{{ c.id }}" data-dish-price-id="{{ form.dishprice.id_for_label }}"><i>{% trans 'Allergens' %}: </i> {% trans c.dish.allergens %}</span>
+    {% endfor %}
+
+	<!-- Rest -->
+	{% for field in form.hidden_fields %}
+		{{ field }}
+	{% endfor %}
+</p>

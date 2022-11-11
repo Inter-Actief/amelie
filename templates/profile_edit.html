@@ -1,0 +1,109 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% trans 'Change profile' %}
+{% endblock titel %}
+
+{% block content %}
+    <form action="" method="post" class="big">
+        {% csrf_token %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Change profile' %}</h2>
+
+            <div class="content">
+                {% for error in form.non_field_errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+
+                {% if not profile %}
+                    <p>{% blocktrans %}
+                        This is the first time you log on to the website.
+                        Before you continue, we would like to ask you to check if the following data are still correct.
+                    {% endblocktrans %}</p>
+
+                    <p class="icon icon-information"><em>
+                        {% trans 'These data can always be changed in your profile later.' %}
+                    </em></p>
+                {% endif %}
+
+              {% fieldset gender,international_member,preferred_language,date_of_birth as form_basic from form %}
+              {{ form_basic }}
+            </div>
+        </div></div>
+
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Address' %}</h2>
+
+            <div class="content">
+              {% fieldset address,postal_code,city,country as form_address from form %}
+              {{ form_address }}
+            </div>
+        </div></div>
+
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Other contact information' %}</h2>
+
+            <div class="content">
+              {% fieldset email_address,telephone as form_other from form %}
+              {{ form_other }}
+              {% if request.person.is_active_member %}
+                <p><span class="icon status_icon icon-error"></span>{% trans '<b>Warning:</b> When you change your e-mail address, you will need to disable and re-enable e-mailforwarding via the button on your profile if you have that enabled!' %}</p>
+              {% endif %}
+            </div>
+        </div></div>
+
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Address of parent(s)/guardian(s)' %}</h2>
+
+            <div class="content">
+                {% fieldset address_parents,postal_code_parents,city_parents,country_parents,email_address_parents as form_address_parents from form %}
+                {{ form_address_parents }}
+                <p>
+                    {{ form.can_use_parents_address }}
+                    <label for="{{ form.can_use_parents_address.auto_id }}">{% trans "My parents' address details may be used for the parents day." %}</label>
+                </p>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Preferences' %}</h2>
+
+            <div class="content">
+              {% fieldset preferences,shell as form_preferences from form %}
+              {{ form_preferences }}
+            </div>
+        </div></div>
+
+        {% if study %}
+            <div class="col-xs-12"><div class="ia">
+                <h2>{% trans 'Course' %}</h2>
+
+                <div class="content">
+                    <p class="icon warning">{% blocktrans %}
+                        According to our administration you are currently still enrolled for the bachelor {{ study }}.
+                        However, it is possible that you have already completed this and started your master.
+                        If this is the case, please alert us.
+                        It is also possible that you are already enrolled for a master simultaneously.
+                    {% endblocktrans %}</p>
+
+                  {{ study_form }}
+                </div>
+            </div></div>
+        {% endif %}
+
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Save' %}</h2>
+
+            <div class="content">
+              <p>
+                  {% trans 'Done making changes? Click save!' %}
+              </p>
+
+              <div class="buttons">
+                  <input type="submit" value="{% trans 'Save' %}" />
+              </div>
+            </div>
+        </div></div>
+    </form>
+{% endblock content %}

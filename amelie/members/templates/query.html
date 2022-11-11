@@ -1,0 +1,78 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'Search for members' %}
+{% endblock titel %}
+
+{% block content %}
+    <form method="get" action="{% url 'members:query' %}" id="query" class="big">
+            {% for error in form.non_field_errors %}
+                <div class="error">{{ error }}</div>
+            {% endfor %}
+
+			{% if not search %}
+                <div class="col-xs-12">
+                    <div class="ia">
+                        <h2> {% trans 'Search members or alumni' %} </h2>
+                    </div>
+                </div>
+				<div class="col-xs-12 col-md-6">
+                    <div class="ia">
+				        {% include "includes/query/query_name.html" %}
+				    </div>
+                </div>
+				<div class="col-xs-12 col-md-6">
+                    <div class="ia">
+					    {% include "includes/query/query_membership.html" %}
+				    </div>
+                </div>
+				<div class="col-xs-12 col-md-6">
+                    <div class="ia">
+					    <div class="content">
+	                        <div class="buttons">
+	                            <input type="submit" value="{% trans 'Search' %}" />
+	                        </div>
+                        </div>
+				    </div>
+                </div>
+		        <div class="clear"></div>
+
+		    	<div class="col-xs-12"><div class="ia">
+				    <h2 class="expand" data-target="search_options">{% blocktrans %}More search options{% endblocktrans %}</h2>
+						<div class="content">
+		    			    <div id="search_options" hidden>
+			    		        {% include "includes/query/query_study.html" %}
+				    	        {% include "includes/query/query_employee.html" %}
+					            {% include "includes/query/query_active.html" %}
+					            {% include "includes/query/query_dogroup.html" %}
+    			                {% include "includes/query/query_mandate.html" %}
+	    		                {% include "includes/query/query_nationality.html" %}
+		    			        {% include "includes/query/query_preference.html" %}
+			    		        {% include "includes/query/query_preprogrammed.html" %}
+			                    <div class="buttons">
+			                        <input type="submit" value="{% trans 'Search' %}" />
+			                    </div>
+					        </div>
+						</div>
+			        </div>
+                </div>
+			{% else %}
+			    <div class="col-xs-12">
+                    <div class="ia">
+                        <h2> {% trans 'Search for members' %} </h2>
+                        <div class="content">
+                            {{ search_form }}
+                            <div class="buttons">
+                                <input type="submit" value="{% trans 'Search' %}" /> <a href="{% url 'members:query' %}">{% trans 'Advanced search form' %}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+			{% endif %}
+
+			{{ form.media }}
+    </form>
+
+	{% include "includes/query/query_results.html" %}
+{% endblock content %}

@@ -1,0 +1,56 @@
+{% extends "basis.html" %}
+{% load i18n transaction_link %}
+
+{% block titel %}{% trans 'Transactions' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>
+            {% trans 'Transactions' %}
+
+            {% if person %}
+                {% trans 'from' %} {{ person }}
+            {% endif %}
+        </h2>
+
+        <div class="content">
+            <form class="big" action="{% transaction_link %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+
+                <input type="submit" value="{% trans 'Show overview' %}" />
+            </form>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>
+            {% trans 'Transactions' %}
+
+            {% if date_from %}
+                {% blocktrans with date_from=date_from date_to=date_to %}from {{ date_from }} till {{ date_to }}{% endblocktrans %}
+            {% endif %}
+        </h2>
+
+        <div class="content">
+            {% if not has_transactions %}
+                <p class="icon warning">{% trans 'No transactions have been found' %}</p>
+            {% elif overview_type == 'day' %}
+                <h3>{% trans 'Personal tab' %}</h3>
+                {% include "lists/cookie_corner_transactions.html" with transactions=all_transactions.0 totals=totals.0  %}
+
+                <h3>{% trans 'Activities' %}</h3>
+                {% include "lists/activity_transactions.html" with transactions=all_transactions.1 totals=totals.1  %}
+
+                <h3>{% trans 'Alexia' %}</h3>
+                {% include "lists/alexia_transactions.html" with transactions=all_transactions.2 totals=totals.2 %}
+
+                <h3>{% trans 'Other' %}</h3>
+                {% include "lists/custom_transactions.html" with transactions=all_transactions.3 totals=totals.3 %}
+            {% else %}
+                {% include "lists/transactions_totals.html" %}
+            {% endif %}
+        </div>
+    </div></div>
+
+{% endblock content %}

@@ -1,0 +1,85 @@
+@import "../util/constants";
+
+.button-style(@fillcolor, @bordercolor, @textcolor) {
+  background-color: @fillcolor;
+  border-color: @bordercolor;
+  color: @textcolor;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @white;
+  }
+
+    &.button_outline {
+    background-color: transparent;
+    color: @bordercolor;
+
+    &:hover {
+      color: @bordercolor;
+    }
+  }
+
+  &.button_text {
+    background-color: transparent;
+    color: @bordercolor;
+    border: none;
+
+    &:hover {
+      color: @bordercolor;
+    }
+  }
+}
+
+.button {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+
+  display: inline-block;
+  color: @_f;
+  background-color: @_e;
+  border: 1px solid @_d;
+
+  margin-top: 12px;
+  padding: 7px 11px;
+
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 12px;
+
+  @media print {
+    display: none;
+  }
+
+  &:hover {
+    text-decoration: underline;
+    color: inherit;
+  }
+
+  &_primary {
+    .button-style(@iacolor, @iacolor_dark, @white);
+  }
+
+  &_current {
+    .button-style(@currentcolor, @currentcolor_dark, @white);
+  }
+
+  &_edu {
+    .button-style(@educolor, @educolor_dark, @white);
+  }
+
+  &_small {
+    padding: 3px 7px;
+  }
+
+  &_no-margin {
+    margin-top: 0;
+  }
+
+  &_with-icon {
+    padding-left: 26px;
+    background-position-x: 4px;
+    background-position-y: 4px;
+  }
+}

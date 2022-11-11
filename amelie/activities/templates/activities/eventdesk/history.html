@@ -1,0 +1,93 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% blocktrans with activity_name=object.summary %}
+        Event Desk message history for {{ activity_name }}
+    {% endblocktrans %}
+{% endblock titel %}
+
+{% block content %}
+
+	<div class="col-xs-12">
+		<div class="current">
+			<h2>{% trans 'Activity information' %}</h2>
+
+			<div class="content">
+				<dl class="details">
+			        <dt>{% trans 'Who' %}</dt>
+			        <dd><a href="{{ object.organizer.get_absolute_url }}">{{ object.organizer }}</a></dd>
+
+			        <dt>{% trans 'What' %}</dt>
+                    <dd><a href="{{ object.get_absolute_url }}"><span class="icon icon-calendar">{{ object }}</span></a></dd>
+
+			        <dt>{% trans 'Where' %}</dt>
+			        <dd>{{ object.location|default:"&mdash;" }}</dd>
+
+                    <dt>{% trans 'When' %}</dt>
+                    <dd>
+                        {% if object.begin|date:"l j F Y" == object.end|date:"l j F Y" %}
+                            {{ object.begin|date:"l j F Y" }}
+                        {% trans 'from' %} {{ object.begin|date:"G:i"}}
+                            {% trans 'until' %} {{ object.end|date:"G:i"}}
+                        {% else %}
+                            {% trans 'from' %} {{ object.begin|date:"l j F Y G:i"}}
+                            {% trans 'until' %} {{ object.end|date:"l j F Y G:i"}}
+                        {% endif %}
+                    </dd>
+                </dl>
+                {% if object.dutch_activity %}
+                    <strong>{% trans 'Dutch will be spoken at this activity.' %}</strong>
+                {% endif %}
+            </div>
+		</div>
+    </div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2 class="h2-with-buttons">
+            {% trans 'Event Desk messages' %}
+            <a class="looks-like-a-button" href="{% url "activities:eventdesk_list" %}">{% trans "All messages" %}</a>
+        </h2>
+
+        <div class="content">
+            <p>
+                {% trans 'These are the UT event desk messages that we received for this activity.' %}
+            </p>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th>{% trans 'Date of message' %}</th>
+                        <th>{% trans 'Requester' %}</th>
+                        <th>{% trans 'Event name' %}</th>
+                        <th>{% trans 'Event start' %}</th>
+                        <th>{% trans 'Event end' %}</th>
+                        <th>{% trans 'Event location' %}</th>
+                        <th>{% trans 'State' %}</th>
+                        <th>{% trans 'Details' %}</th>
+                    </tr>
+                {% for message in object.eventdeskregistrationmessage_set.all %}
+                    <tr>
+                        <td>{{ message.message_date }}</td>
+                        <td>{{ message.requester }}</td>
+                        <td>{{ message.event_name }}</td>
+                        <td>{{ message.get_event_start }}</td>
+                        <td>{{ message.get_event_end }}</td>
+                        <td>{{ message.event_location }}</td>
+                        <td class="event-state-{{ message.state }}">
+                            <span class="state-text">{{ message.get_state_display }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'activities:eventdesk_detail' message.pk %}">
+                                <span class="icon icon-application_view_detail">{% trans 'Details' %}</span>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8">{% trans 'There are no messages for this activity' %}</td></tr>
+                {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div></div>
+{% endblock %}

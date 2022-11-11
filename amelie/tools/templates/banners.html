@@ -1,0 +1,7 @@
+{% for banner in banners %}
+<div class="max-col-xs-12 max-col-sm-6 max-col-md-3 max-col-lg-2 banner{{ forloop.counter }}">
+	<a href="{{ banner.url}}">
+		<img class="banner" src="{{ banner.picture.url }}" alt="{{ banner.name }}" />
+	</a>
+</div>
+{% endfor %}

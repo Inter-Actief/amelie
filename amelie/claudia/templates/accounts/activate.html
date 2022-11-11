@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Activate Inter-Actief active members account' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Activate Inter-<i>Actief</i> active members account' %}</h2>
+        <div class="content">
+            <p>{% trans 'Before you can use your active members account, you must set a password. Please do so below.' %}</p>
+            <p>{% trans 'Naturally, your password must differ from the one we gave you, and consist of at least 8 characters.' %}</p>
+            {% if error %}
+            <ul class="errorlist">
+                <li>{{ error }}</li>
+            </ul>
+            {% endif %}
+            <form method="post" action="">
+                {% csrf_token %}
+                <table>
+                {{ form }}
+                </table>
+                <p><input type="submit" value="{% trans 'Activate account' %}" /></p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

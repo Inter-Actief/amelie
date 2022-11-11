@@ -1,0 +1,28 @@
+{% load i18n picture_tags %}
+
+<p class="paging">
+	{% if page.has_previous %}
+		<span><a href="{% picture_activities_url 1 %}">{% trans 'First' %}</a></span>
+		<span><a href="{% picture_activities_url page.previous_page_number %}">{% trans 'Back' %}</a></span>
+    {% else %}
+        <span><a href="#" class="paging-disabled">{% trans 'First' %}</a></span>
+		<span><a href="#" class="paging-disabled">{% trans 'Back' %}</a></span>
+	{% endif %}
+    {% if pages.current_page %}
+        {% for p in pages.page_range %}
+            {% if p == page.number %}
+                <span class="current">{{ p }}</span>
+            {% else %}
+                <span><a href="{% picture_activities_url p %}">{{ p }}</a></span>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+	{% if page.has_next %}
+		<span><a href="{% picture_activities_url page.next_page_number %}">{% trans 'Next' %}</a></span>
+		<span><a href="{% picture_activities_url pages.num_pages %}">{% trans 'Last' %}</a></span>
+    {% else %}
+        <span><a href="#" class="paging-disabled">{% trans 'Next' %}</a></span>
+		<span><a href="#" class="paging-disabled">{% trans 'Last' %}</a></span>
+	{% endif %}
+</p>

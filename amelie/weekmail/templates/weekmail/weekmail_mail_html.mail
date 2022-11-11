@@ -1,0 +1,172 @@
+{% load md extend attach absolute_url i18n %}
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>[Inter-Actief {% if weekmail.mailtype == 'W' %}{% trans 'Weekly mail' %}] {% blocktrans %}Week{% endblocktrans %} {{ weekmail.creation_date|date:"W" }}{% else %}{% trans 'Mastermail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% endif %}</title>
+</head>
+{% get_current_language as LANGUAGE_CODE %}
+
+
+<body style="background-color: white; margin: 10px; color: #000000; font-size: 10pt; font-family: Open-Sans, Arial, sans-serif;">
+    <div id="main" style="background-color: white;">
+
+        <table align="center" cellspacing="0" style="font-family: Open-Sans, Arial, sans-serif; font-size: 14px; width: 768px; margin-top: 25px; background-color: white;">
+            <tr>
+                <td style="vertical-align: middle; text-align: left; padding: 5px;" valign="middle" align="left">
+                    <a href="{% absolute_link weekmail.get_absolute_url %}">{% trans 'Read online' %}</a> |
+                    {% if LANGUAGE_CODE == 'nl' %}
+                        <a href="{% absolute_link weekmail.get_absolute_url %}en">English version</a>
+                    {% else %}
+                        <a href="{% absolute_link weekmail.get_absolute_url %}nl">Nederlandse versie</a>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <table align="center" cellspacing="0" style="font-family: Open-Sans, Arial, sans-serif; font-size: 14px; width: 768px; background-color: white; border: 1px solid #ccc;">
+            <tr style="background-color: #1d428a; height: 100px; font-size: 50px; margin: 5px; color: white" >
+                <td style="padding-left: 20px; width: 100%" colspan=1>
+                    {% if weekmail.mailtype == 'W' %}{% trans 'Week' %} {{ weekmail.creation_date|date:"W" }}{% else %}{% trans 'Mastermail' %}{% endif %}
+                </td>
+                <td style="padding-right: 20px;" colspan=1>
+                    <img src="{% attach_static "weekmail/inter-actief-logo-tekst-rechts-wit-randloos.png" %}" height="50" align="right" alt="Inter-Actief logo"/>
+                </td>
+            </tr>
+
+            <!-- Activities list -->
+            {% if weekmail.new_activities.all %}
+            <tr>
+                <td valign="top" style="padding: 20px; line-height: 1.4em; width: 100%;" colspan=2>
+                    <p style="font-size: 40px; padding: 10px 0px 10px 0px; margin: 0; color: #1d428a">{% trans 'Agenda' %}</p>
+                    <ul style="list-style-type: none; padding: 0; font-size: 16px;">
+                        {% for activity in weekmail.new_activities.all %}
+                            <li>
+                                <a href="#activity_{{ activity.id }}" style="color: #000000; text-decoration: underline;">
+                                    {{ activity.begin|date:"j M" }}: {{ activity.summary }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                </td>
+            </tr>
+            {% endif %}
+
+            <!-- Extra news articles -->
+            {% for news_article in weekmail.added_news_articles.all %}
+                {% if weekmail.new_activities.all %}
+                <tr>
+                    <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #f79321;" colspan=2> </td>
+                </tr>
+                {% else %}
+                    {% if not forloop.first %}
+                        <tr>
+                            <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #f79321;" colspan=2> </td>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+                <tr>
+                    <td valign="top" style="padding: 10px 20px 10px 20px; font-size: 40px; line-height: 1.4em; width: 100%; height: 6px; color: #f79321; word-wrap: break-word;" colspan=2>
+                        {{ news_article.title }}
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" style="padding: 10px 20px 20px 20px; line-height: 1.4em; width: 100%;" colspan=2>
+                        {{ news_article.content|markdown:"absolute_urls"  }}
+                    </td>
+                </tr>
+            {% endfor %}
+
+            {% for news_article in weekmail.news_articles.all %}
+
+                {% if weekmail.new_activities.all or weekmail.added_news_articles.all %}
+                    {% if news_article.is_education_item %}
+                            <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #b8231f;" colspan=2> </td>
+                        {% else %}
+                            <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #1d428a;" colspan=2> </td>
+                        {% endif %}
+                {% else %}
+                    {% if not forloop.first %}
+                        {% if news_article.is_education_item %}
+                            <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #b8231f;" colspan=2> </td>
+                        {% else %}
+                            <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #1d428a;" colspan=2> </td>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                <tr>
+                    {% if news_article.is_education_item %}
+                        <td valign="top" style="padding: 10px 20px 10px 20px; font-size: 40px; line-height: 1.4em; width: 100%; height: 6px; color: #b8231f; word-wrap: break-word;" colspan=2>
+                    {% else %}
+                        <td valign="top" style="padding: 10px 20px 10px 20px; font-size: 40px; line-height: 1.4em; width: 100%; height: 6px; color: #1d428a; word-wrap: break-word;" colspan=2>
+                    {% endif %}
+                        <a href="{% absolute_link news_article.get_absolute_url %}" style="color:inherit;text-decoration:none;">
+                            {{ news_article.title }}
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" style="padding: 10px 20px 20px 20px; line-height: 1.4em; width: 100%;" colspan=2>
+                        {{ news_article.introduction|markdown:"absolute_urls" }}
+                        {{ news_article.content|markdown:"absolute_urls"  }}
+                    </td>
+                </tr>
+            {% endfor %}
+
+
+            {% for activity in weekmail.new_activities.all %}
+                <tr>
+                    <td valign="top" style="line-height: 1.4em; width: 100%; height: 6px; background-color: #077821;"  id="activity_{{activity.id}}" colspan=2> </td>
+                </tr>
+                <tr>
+                    <td valign="top" style="padding: 10px 20px 0px 20px; font-size: 40px; line-height: 1.4em; width: 100%; height: 6px; color: #077821;" colspan=2>
+                        <a href="{% absolute_link activity.activity.get_absolute_url %}" style="color:inherit;text-decoration:none;">
+                            {{ activity.summary }}
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan=2>
+                        <table width="100%">
+                            <tr>
+                                <td valign="top" style="padding: 0px 20px 10px 20px; font-size: 16px; line-height: 1.4em; height: 6px; color: #666666"  width="100%" colspan=1>
+                                    {{ activity.begin }} - {{ activity.end }}
+                                </td>
+
+                                {% if activity.location %}
+                                <td valign="top" style="padding: 0px 20px 10px 20px; font-size: 16px; line-height: 1.4em; height: 6px; color: #666666; text-align: right;  width: 1px; white-space: nowrap;" colspan=1>
+                                     {{ activity.location }}
+                                </td>
+                                {% endif %}
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td valign="top" style="padding: 10px 20px 20px 20px; line-height: 1.4em; width: 100%;" colspan=2>
+                        {% if activity.promo|length > 64 %}
+                            {{ activity.promo|markdown:"absolute_urls" }}
+                        {% else %}
+                            {{ activity.description|markdown:"absolute_urls" }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr style="background-color: #1d428a; font-size: 12px; color: white;">
+                <td colspan=2 style="padding: 20px">
+                    {% trans "You are receiving this e-mail because you have indicated you wanted it. Change your preference in your profile on the Inter-Actief website or contact the board." %}<br />
+                    {% trans "I.C.T.S.V. Inter-<i>Actief</i>" %}<br />
+                    <a href="mailto:contact@inter-actief.net" style="color:white">contact@inter-actief.net</a><br />
+                    <a href="https://www.inter-actief.net/" style="color:white">https://www.inter-actief.net/</a>
+                </td>
+            </tr>
+        </table>
+
+
+    </div>
+</body>

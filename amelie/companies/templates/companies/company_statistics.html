@@ -1,0 +1,164 @@
+{% extends "basis.html" %}
+
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Company statistics' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Company statistics' %}</h2>
+            <div class="content no-print">
+                <p>
+                    {% trans 'Select a period and click Statistics.' %}
+                </p>
+
+                <form class="big" action="{% url 'companies:statistics' %}" method="post">
+                    {% csrf_token %}
+                    {{ form }}
+
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Statistics' %}"/>
+                    </div>
+                </form>
+                <p>
+                    <i>
+                        {% blocktrans %}
+                            Please note that historic data might be inaccurate. Many banners and company corner pages are re-used, with their start and end date changed.
+                        {% endblocktrans %}
+                    </i>
+                </p>
+            </div>
+        </div>
+
+        {% if companies %}
+            <div class="ia">
+                <h2>{% trans 'Company Corner' %}</h2>
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Company' %}</th>
+                                    <th>{% trans 'Start date' %}</th>
+                                    <th>{% trans 'End date' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for company in companies %}
+                                    <tr>
+                                        <td><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></td>
+                                        <td>{{ company.start_date }}</td>
+                                        <td>{{ company.end_date }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if website_banners %}
+            <div class="ia">
+                <h2>{% trans 'Website banners' %}</h2>
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Name (company)' %}</th>
+                                    <th>{% trans 'Set start date' %}</th>
+                                    <th>{% trans 'Set end date' %}</th>
+                                    <th>{% trans 'Active?' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for banner in website_banners %}
+                                    <tr>
+                                        <td><a href="{{ banner.get_absolute_url }}">{{ banner.name }}</a></td>
+                                        <td>{{ banner.start_date }}</td>
+                                        <td>{{ banner.end_date }}</td>
+                                        <td>{{ banner.active|yesno }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if television_banners %}
+            <div class="ia">
+                <h2>{% trans 'Television banners' %}</h2>
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Name (company)' %}</th>
+                                    <th>{% trans 'Set start date' %}</th>
+                                    <th>{% trans 'Set end date' %}</th>
+                                    <th>{% trans 'Active?' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for banner in television_banners %}
+                                    <tr>
+                                        <td><a href="{{ banner.get_absolute_url }}">{{ banner.name }}</a></td>
+                                        <td>{{ banner.start_date }}</td>
+                                        <td>{{ banner.end_date }}</td>
+                                        <td>{{ banner.active|yesno }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if events %}
+            <div class="ia">
+                <h2>{% trans 'Events' %}</h2>
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Company' %}</th>
+                                    <th>{% trans 'Event' %}</th>
+                                    <th>{% trans 'Visible from' %}</th>
+                                    <th>{% trans 'Visible till' %}</th>
+                                    <th>{% trans 'Visible?' %}</th>
+                                    <th>{% trans 'Date' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in events %}
+                                    <tr>
+                                        <td>
+                                            {% if event.company %}
+                                                {{ event.company.name }}
+                                            {% else %}
+                                                {{ event.company_text }}
+                                            {% endif %}
+                                        </td>
+                                        <td><a href="{{ event.get_absolute_url }}">{{ event.summary }}</a></td>
+                                        <td>{{ event.visible_from }}</td>
+                                        <td>{{ event.visible_till }}</td>
+                                        <td>{{ event.is_visible|yesno }}</td>
+                                        <td>{{ event.begin }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

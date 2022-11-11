@@ -1,0 +1,59 @@
+{% extends "basis.html" %}
+{% load i18n md date_tags %}
+
+{% block titel %}
+	{{ obj }}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-md-8">
+		<div class="edu">
+			<h2>{{ obj }}</h2>
+			<div class="content">
+                {{ obj.description|markdown }}
+
+				<div class="buttons">
+					{% if request.is_board %}
+					    <div class="buttons addmargin">
+					    	<a class="looks-like-a-button" href="{% url 'education:event_edit' obj.id %}">{% trans 'Edit' %}</a>
+					    	<a class="looks-like-a-button icon icon-delete" href="{% url 'education:event_delete' obj.id %}">{% trans 'Delete' %}</a>
+					    </div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-xs-12 col-md-4">
+		<div class="edu">
+			<h2>{% trans 'Who, what, where, when...' %}</h2>
+
+            <div class="content">
+                <dl class="details">
+                    <dt>{% trans 'Who' %}</dt>
+                    <dd>
+                        {{ obj.education_organizer|default:"&mdash;" }}
+                    </dd>
+
+                    <dt>{% trans 'What' %}</dt>
+                    <dd>{{ obj }}</dd>
+
+                    <dt>{% trans 'Where' %}</dt>
+                    <dd>{{ obj.location|default:"&mdash;" }}</dd>
+
+                    <dt>{% trans 'When' %}</dt>
+                    <dd>
+                        {% if obj.begin|date:"l j F Y" == obj.end|date:"l j F Y" %}
+                            {{ obj.begin|date:"l j F Y" }}
+                        {% trans 'from' %} {{ obj.begin|date:"G:i"}}
+                            {% trans 'until' %} {{ obj.end|date:"G:i"}}
+                        {% else %}
+                            {% trans 'from' %} {{ obj.begin|date:"l j F Y G:i"}}
+                            {% trans 'until' %} {{ obj.end|date:"l j F Y G:i"}}
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+		</div>
+	</div>
+{% endblock content %}

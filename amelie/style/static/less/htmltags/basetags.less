@@ -1,0 +1,146 @@
+@import "../util/constants";
+
+html {
+  font-size: 13px;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  color: #222;
+  position: relative;
+  min-height: 100%;
+  min-width: 320px;
+}
+
+body {
+  margin: 0 0 136px;
+  background-color: #f4f4f4;
+}
+
+#top {
+  padding-top: 5px;
+  //background: @iacolor url("/@{STATIC_URL}img/layout/bg_blue.png");
+  background: rgb(29, 66, 138);
+  -webkit-box-shadow: 0px -25px 15px -25px #222 inset;
+  -moz-box-shadow: 0px -25px 15px -25px #222 inset;
+  box-shadow: 0px -25px 15px -25px #222 inset;
+
+  @media print {
+    display: none;
+  }
+
+  #banners {
+    height: 76px;
+    padding: 7px 0 12px;
+
+    margin-left: 5px;
+    margin-right: 10px;
+
+    img {
+      max-width: 200px;
+      max-height: 75px;
+      margin-left: 5px;
+      display: block;
+      float: left;
+    }
+
+    div img {
+      padding-right: 5px;
+      padding-left: 5px;
+    }
+
+    a {
+      border: 0px;
+    }
+
+    @media (max-width: 991px) {
+      .banner1 {
+        display: none;
+      }
+    }
+
+    @media (max-width: 718px) {
+      .banner2 {
+        display: none;
+      }
+
+      .banner3 > a > img {
+        margin-bottom: 10px;
+      }
+    }
+  }
+
+  #logo {
+    display: block;
+    padding-top: 8px;
+
+    a {
+      border: 0px;
+    }
+
+    img {
+      width: 289px;
+      max-width: none;
+      max-height: none;
+    }
+  }
+}
+
+#middle {
+  min-height: 350px;
+  padding: 10px 0 20px;
+}
+
+#bottom {
+  width: 100%;
+  -webkit-box-shadow: 0px 25px 15px -25px #000 inset;
+  -moz-box-shadow: 0px 25px 15px -25px #000 inset;
+  box-shadow: 0px 25px 15px -25px #000 inset;
+  padding: 20px 0 10px;
+  background: rgb(29, 66, 138);
+
+  // Sticky footer
+  position: absolute;
+  bottom: 0;
+
+  @media print {
+    display: none;
+  }
+}
+
+#footer {
+  line-height: 60px;
+  height: 87px;
+  color:#EEE;
+
+  span {
+    padding-right: 10px;
+  }
+
+  a {
+    color: white;
+  }
+
+  #sponsor {
+    float: right;
+  }
+}
+
+/* development-only */
+
+#staging {
+  border: solid transparent;
+  border-width: 0 40px;
+  border-image: url("/@{STATIC_URL}img/staging-bg.png") 50 round;
+
+  @media print {
+    border: none;
+  }
+}
+
+#debug {
+  border: solid transparent;
+  border-width: 0 40px;
+  border-image: url("/@{STATIC_URL}img/beta-bg.png") 50 round;
+
+  @media print {
+    border: none;
+  }
+}

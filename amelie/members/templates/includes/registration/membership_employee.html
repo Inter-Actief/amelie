@@ -1,0 +1,33 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'What membership type do you want?' %}</h2>
+        <div class="content">
+            <p>{% trans 'As an employee, you only have one type of membership available.' %}</p>
+            <p>
+                {% blocktrans %}
+                    With a year membership for employees, you pay every year, and you will be a member until you
+                    yourself cancel your membership. This membership is meant for employees of the University of Twente
+                    who want to become a member. A year membership for employees costs &euro;
+                    {{ employee_member_costs }} yearly.
+                {% endblocktrans %}
+            </p>
+            <div class="small-form-spacer"></div>
+
+            <!-- Membership Type -->
+            <div class="form-group">
+                {{ wizard.form.membership.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Membership type' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.membership|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Which membership type do you want? (See above for explanations)' %}</small>
+                </div>
+            </div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

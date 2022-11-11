@@ -1,0 +1,67 @@
+{% load i18n %}
+<td>
+    <a href="{{ obj.get_absolute_url }}">
+        {% if obj.picture %}
+            <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture_small"/>
+        {% else %}
+            <img src="{{ STATIC_URL }}img/profile_picture_unknown.png" alt="{{ obj }}" class="profile_picture_small"/>
+        {% endif %}
+    </a>
+</td>
+
+<td>
+    <ul class="no-bullets">
+        <li><a href="{{ obj.get_absolute_url }}"> {{ obj.full_name }} </a></li>
+    <li class="icon icon-cake">{{ obj.date_of_birth|date:"j F Y"|default:"&mdash;" }},<br /><span class="small">{{ obj.date_of_birth|timesince }}</span></li>
+    <li class="icon {{ obj.get_gender_display|lower }}">{{ obj.get_gender_display }}</li>
+    <li class="icon icon-world">{{ obj.get_international_member_display }}</li>
+    <li class="icon language">{{ obj.get_preferred_language_display }}</li>
+    <li class="icon account">
+    {% if obj.account_name %}
+        {{ obj.account_name }}
+    {% else %}
+        {% trans 'No account' %}
+    {% endif %}
+        </li>
+    </ul>
+</td>
+
+<td>
+    <ul class="no-bullets">
+    <li class="icon address">
+        {% if obj.address %}
+            {{ obj.address }}<br />
+            {{ obj.postal_code }} {{ obj.city }}<br />
+            {{ obj.country }}
+        {% else %}
+            &mdash;
+        {% endif %}
+    </li>
+    <li class="icon icon-phone">{{ obj.telephone|default:"&mdash;" }}</li>
+    <li class="icon icon-email"><a href="mailto:{{ obj.email_address }}">{{ obj.email_address }}</a></li>
+    </ul>
+</td>
+
+<td>
+    <ul>
+        {% if obj.is_member %}
+        <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is a member{% endblocktrans %}</li>
+        {% else %}
+            {% if obj.membership_set.count == 0 %}
+                <li class="neg">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is not a member{% endblocktrans %}</li>
+            {% else %}
+                <li class="warning">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is not a member any more.{% endblocktrans %}</li>
+            {% endif %}
+        {% endif %}
+
+        {% if obj.is_active_member %}
+        <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is active{% endblocktrans %}</li>
+        {% else %}
+            {% if obj.function_set.count == 0 %}
+                <li class="neg">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is not active{% endblocktrans %}</li>
+            {% else %}
+                <li class="warning">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is not active any more{% endblocktrans %}</li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</td>

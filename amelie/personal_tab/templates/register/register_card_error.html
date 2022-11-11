@@ -1,0 +1,17 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Register an RFID card - Error' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Register an RFID card - Error' %}</h2>
+        <div class="content">
+            <h3 id="display">{% trans 'Something went wrong while registering your RFID card' %}</h3>
+
+            <p>{{ error_text }}</p>
+
+            <p><a class="looks-like-a-button" href="{% url "personal_tab:register_index" %}">{% trans 'Go back' %}</a></p>
+        </div>
+    </div></div>
+{% endblock content %}

@@ -1,0 +1,30 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Export list of direct withdrawals' %}{% endblock titel %}
+
+{% block content %}
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Export list of direct withdrawals' %}</h2>
+
+        <div class="content">
+            <p>
+                {% trans 'Select a period and click export.' %}
+            </p>
+
+            <form class="big" action="{% url 'personal_tab:export' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+
+                <div class="buttons">
+                    <input type="submit" value="{% trans 'Export' %}" />
+                </div>
+            </form>
+        </div>
+    </div></div>
+
+    {% if rows %}
+        {% include 'exports/screen.html' %}
+    {% endif %}
+{% endblock content %}

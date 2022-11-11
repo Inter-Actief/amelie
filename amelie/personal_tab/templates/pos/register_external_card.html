@@ -1,0 +1,63 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block css %}
+    <!-- Autocomplete CSS -->
+    <link type="text/less" rel="stylesheet" href="{{ STATIC_URL }}less/util/autocomplete.less" />
+    <script src="{{ STATIC_URL }}js/less-2.5.3.min.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="container">
+        <div id="header">
+            <div id="header-logo"></div>
+            <div id="header-logout-button">
+                <a href="{% url 'personal_tab:pos_logout' %}">
+                    <span id="scan-header">{% trans 'Return to home' %}</span>
+                </a>
+            </div>
+            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+        </div>
+        <div id="content" class="center">
+            <div id="login-box">
+                <div id="login-box-header">
+                    <h1>{% trans 'Register an external card' %}</h1>
+                </div>
+                <div id="login-box-content">
+                    <p class="text">{%  trans 'Search a person to whom the card should be registered'%}</p>
+                    <form class="user-register active" method="POST">
+                        {% csrf_token %}
+
+                        {{ form.non_field_errors }}
+
+                        <div class="input-wrapper">
+                            {{ form.person.errors }}
+                            {{ form.person }}
+
+                        </div>
+                        <div id="search-buttons">
+                            <button id="search-button-accept" type="submit">{%  trans 'Choose' %}</button>
+                            <a id="search-button-cancel" href="{% url 'personal_tab:pos_logout' %}">{%  trans 'Cancel'%}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript_pre %}
+    <script type="text/javascript">
+        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ STATIC_URL }}js/autocomplete_cookie_corner.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            enable_autocomplete();
+        });
+    </script>
+{% endblock %}

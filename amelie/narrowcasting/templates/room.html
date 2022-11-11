@@ -1,0 +1,214 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% trans 'Inter-/Actief/ Room Narrowcasting' %}</title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'css/room_narrowcasting.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-jsonrpc.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/moment-with-locales.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/room_narrowcasting.js' %}"></script>
+    {% if theme == 'christmas' %}
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/room_narrowcasting_christmas.css" />
+    {% elif theme == "valentine" %}
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/room_narrowcasting_valentine.css" />
+    {% endif %}
+</head>
+<body>
+    <div id="content">
+        <div id="content_top">
+            <div id="top_bar">
+                <div id="timedate">
+                    <span id="time"></span>
+                    <span id="date"></span>
+                </div>
+                <div id="logo"></div>
+            </div>
+            <div id="top_wrapper">
+                <div id="nowplaying">
+                    <div id="nowplaying_icon">
+                        <i class="fab fa-spotify"></i>
+                    </div>
+                    <div id="nowplaying_locations">
+                        <div id="nowplaying_iaroom" class="nowplaying_location" data-user="inter-actief">
+                            <div class="nowplaying_icon"></div>
+                            <div class="nowplaying_album not_playing">
+                                <img class="albumimage" alt="{% trans 'Album image' %}" src="" />
+                            </div>
+                            <div class="nowplaying_track nowplaying_nothing">
+                                <div class="nowplaying_title">{% trans 'Not playing anything...' %}</div>
+                                <div class="progress_container"><div class="nowplaying_progress"></div></div>
+                                <div class="nowplaying_artist"></div>
+                                <div class="nowplaying_device"></div>
+                            </div>
+                        </div>
+                        <div id="nowplaying_drinkroom" class="nowplaying_location" data-user="borrelsia">
+                            <div class="nowplaying_icon"></div>
+                            <div class="nowplaying_album not_playing">
+                                <img class="albumimage" alt="{% trans 'Album image' %}" src="" />
+                            </div>
+                            <div class="nowplaying_track nowplaying_nothing">
+                                <div class="nowplaying_title">{% trans 'Not playing anything...' %}</div>
+                                <div class="progress_container"><div class="nowplaying_progress"></div></div>
+                                <div class="nowplaying_artist"></div>
+                                <div class="nowplaying_device"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="nextevent">
+                    <div id="nextevent_countdown"></div>
+                    <div id="nextevent_title">{% trans 'Loading activity information...' %}</div>
+                    <div id="nextevent_location"></div>
+                </div>
+            </div>
+        </div>
+        <div id="content_bottom">
+            <div id="content_left">
+                <div id="room_duty">
+                    <div id="room_duty_title">{% trans 'Room duty' %}</div>
+                    <div id="room_duty_entries">
+                        <div class="room_duty_entry">
+                            <span class="time"></span>
+                            <span class="names"></span>
+                        </div>
+                        <div class="room_duty_entry">
+                            <span class="time"></span>
+                            <span class="names"></span>
+                        </div>
+                    </div>
+                </div>
+                <div id="pc_status">
+                    <div class="pc_column">
+                        <div class="pc_square" data-state="off" data-host="omaduck" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="katrien" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="cornelis" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="prul" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square empty"></div>
+                    </div>
+                    <div class="pc_column">
+
+                    </div>
+                    <div class="pc_column small">
+
+                    </div>
+                    <div class="pc_column">
+                        <div class="pc_square" data-state="off" data-host="gideon" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="woerd" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square empty"></div>
+                        <div class="pc_square" data-state="off" data-host="kwik" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="kwek" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                    </div>
+                    <div class="pc_column">
+                        <div class="pc_square" data-state="off" data-host="dagobert" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="martje" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square empty"></div>
+                        <div class="pc_square" data-state="off" data-host="kwak" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="pc_square" data-state="off" data-host="lizzy" data-type="workstation">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                    </div>
+                    <div class="pc_column">
+
+                    </div>
+                    <div class="pc_column small">
+
+                    </div>
+                    <div class="pc_column">
+                        <div class="pc_square" data-state="tv" data-host="guus" data-type="simple">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="pc_square empty"></div>
+                        <div class="pc_square empty"></div>
+                        <div class="pc_square empty"></div>
+                        <div class="pc_square empty"></div>
+                    </div>
+                </div>
+                <div id="pc_status_legend">
+                    <div id="pc_legend">
+                        <div class="pc_legend_column">
+                            <span class="user">{% trans 'Active member logged in' %}</span>
+                            <span class="guest">{% trans 'Visitor logged in' %}</span>
+                        </div>
+                        <div class="pc_legend_column">
+                            <span class="on">{% trans 'No one logged in' %}</span>
+                            <span class="off">{% trans 'Turned off' %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="content_right">
+                <div id="media_container">
+                    <div id="media_content">
+                        <div id="media_index">
+                            <span><i class="fas fa-image"></i><span id="media_index_text"></span></span>
+                        </div>
+                        <div id="media_title">
+                            <span>{% trans 'Loading pictures...' %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="preload"></div>
+    <div id="fouroclock_audio">
+        <audio id="fouroclock_player" controls="" src="{% static '4uur.mp3' %}" style="width: calc(40vw - 2vw); max-width: 400px;"></audio>
+    </div>
+    <div id="translation_strings">
+        <span id="locale">{{ LANGUAGE_CODE }}</span>
+        <span id="no_room_duty_today">{% trans 'No room duty today!' %}</span>
+        <span id="no_room_duty_scheduled">{% trans 'No one!' %}</span>
+        <span id="next_activity_future">{% trans 'Next activity starts ' %}</span>
+        <span id="next_activity_now">{% trans 'Next activity is starting now!' %}</span>
+        <span id="next_activity_past">{% trans 'Current activity started ' %}</span>
+        <span id="loading_activities">{% trans 'Loading activity information...' %}</span>
+        <span id="no_activities">{% trans 'There are no events planned...' %}</span>
+        <span id="four_o_clock">{% trans "Four 'o clock!" %}</span>
+        <span id="not_associated">{% trans 'Not associated to a Spotify account...' %}</span>
+        <span id="unknown_artist">{% trans 'Unknown artist' %}</span>
+        <span id="not_playing">{% trans 'Not playing anything...' %}</span>
+        <span id="spotify_error">{% trans 'Error while getting spotify data' %}</span>
+    </div>
+
+    {% if theme == "christmas" %}
+    <div class="winter-is-coming">
+        <div class="snow snow--mid"></div>
+        <div class="snow snow--mid snow--alt"></div>
+        <div class="snow snow--far"></div>
+        <div class="snow snow--far snow--alt"></div>
+    </div>
+    <div id="snowheap"></div>
+    {% elif theme == "valentine" %}
+    <div class="valentine-is-coming">
+        <div class="hearts hearts--near"></div>
+        <div class="hearts hearts--near hearts--alt"></div>
+    </div>
+    {% endif %}
+</body>
+</html>

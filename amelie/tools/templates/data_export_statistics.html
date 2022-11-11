@@ -1,0 +1,55 @@
+{% extends "basis.html" %}
+{% load i18n help_text %}
+
+{% block titel %}
+    {% trans 'Data export statistics' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Data export statistics' %}</h2>
+
+        <div class="content">
+            {% include "paginator.html" with page=page_obj %}
+
+            <form action="{% url 'tools:data_export_statistics' %}" method="get">
+                <p>
+                    <b>{{ export_types_form.export_type.label }}: </b>
+                    {{ export_types_form.export_type }}
+                    <input class="button" type="submit" value="Filter">
+                </p>
+            </form>
+
+            <table>
+                <tr>
+                    <th>#</th>
+                    <th>{% trans 'Timestamp' %}&nbsp;<span class="icon icon-help" title="{{ model|get_help_text:"date" }}"></span></th>
+                    <th>{% trans 'Export type' %}&nbsp;<span class="icon icon-help" title="{{ model|get_help_text:"export_type" }}"></span></th>
+                    <th>{% trans 'Reason' %}&nbsp;<span class="icon icon-help" title="{{ model|get_help_text:"reason" }}"></span></th>
+                    <th>{% trans 'Exported by' %}&nbsp;<span class="icon icon-help" title="{{ model|get_help_text:"exporter" }}"></span></th>
+                    <th>{% trans 'Export details' %}&nbsp;<span class="icon icon-help" title="{{ model|get_help_text:"details" }}"></span></th>
+                </tr>
+                {% for obj in page_obj %}
+                <tr>
+                    <td>{{ obj.id }}</td>
+                    <td>{{ obj.date }}</td>
+                    <td>{{ obj.export_type }}</td>
+                    <td>{{ obj.reason }}</td>
+                    {% if obj.exporter %}
+                        <td><a class="icon icon-link" href="{{ obj.exporter.get_absolute_url }}">{{ obj.exporter_name }}</a></td>
+                    {% else %}
+                        <td><span class="icon icon-link_break">{{ obj.exporter_name }}</span></td>
+                    {% endif %}
+                    <td>{{ obj.details|default:"&mdash;" }}</td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">{% trans "No exports saved" %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

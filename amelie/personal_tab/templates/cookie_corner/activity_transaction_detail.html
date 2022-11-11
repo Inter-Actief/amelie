@@ -1,0 +1,65 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transaction information' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transaction information' %}</h2>
+
+        <div class="content">
+            <table>
+                {% include "info/transaction_information.html" %}
+                <tr>
+                    <th>{% trans 'Activities' %}</th>
+                    <td>
+                        {% if object.event %}
+                            {% if request.is_board %}
+                                <a href="{% url 'personal_tab:event' event_id=object.event.id %}">{{ object.event.summary }}</a>
+                            {% else %}
+                                <a href="{{ object.event.get_absolute_url }}">{{ object.event.summary }}</a>
+                            {% endif %}
+                        {% else %}
+                            {% trans 'Deleted event' %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if object.participation.remark %}
+                    <tr>
+                        <th>{% trans 'Remarks' %}</th>
+                        <td>{{ object.participation.remark }}</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div></div>
+
+    {% if object.participation.enrollmentoptionanswer_set.all %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Enrollment options' %}</h2>
+
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Question' %}</th>
+                            <th>{% trans 'Respons' %}</th>
+                            <th class="align-right">{% trans 'Costs' %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for answer in object.participation.enrollmentoptionanswer_set.all %}
+                            <tr>
+                                <td>{{ answer.enrollmentoption.title }}</td>
+                                <td>{{ answer.display_answer }}</td>
+                                <td class="align-right">{{ answer.get_price_extra|default:"&mdash;" }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div></div>
+    {% endif %}
+{% endblock content %}

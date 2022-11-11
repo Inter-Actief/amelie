@@ -1,0 +1,115 @@
+# Note: This is an example settings `local.py` file.
+# It enables all DEBUG features, so only use this in a development environment!
+
+# Keep these imports here!
+import warnings
+import os
+
+from amelie.settings import *
+
+# Show error when naive datetime is used.
+warnings.filterwarnings('error', r"DateTimeField .*received a naive datetime",
+                        RuntimeWarning, r'django\.db\.models\.fields')
+
+# Configure database
+DATABASES = {
+    'default': {
+        'ENGINE': 'amelie.tools.utf8mb4_mysql_backend',
+        'NAME': 'amelie_development',
+        'USER': 'amelie',
+        'PASSWORD': '',
+        'HOST': 'mysql-secure.ia.utwente.nl',
+        'PORT': '',
+        'OPTIONS': {'charset': 'utf8mb4'},
+        'TEST': {
+            'NAME': 'amelie_development_test',
+        },
+    }
+}
+
+# Definitely DON'T put these settings in production!
+ENV = 'DEBUG'
+DEBUG = True
+DEBUG_TOOLBAR = True
+ALLOWED_HOSTS = ["*"]
+
+# Default setting for enabling profiling (the rest of the config is done in local.py(.default)
+# If this is turned on a lot of data will be generated and stored in the database. So only turn it on if you feel bold.
+ENABLE_REQUEST_PROFILING = False
+
+# Allow local accounts to login
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend'] + AUTHENTICATION_BACKENDS
+
+# Load the debug toolbar -- does not need to be changed in principle
+if DEBUG_TOOLBAR:
+    def custom_show_toolbar(request):
+        return True
+
+
+    # Order is important
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': '%s.%s' % (__name__, custom_show_toolbar.__name__),
+    }
+
+# Only enable rosetta in debug mode
+if DEBUG:
+    INSTALLED_APPS = INSTALLED_APPS + ('rosetta',)
+
+# Only enable silk if profiling is requested
+if ENABLE_REQUEST_PROFILING:
+    INSTALLED_APPS = INSTALLED_APPS + ('silk', )
+    MIDDLEWARE = ['silk.middleware.SilkyMiddleware'] + MIDDLEWARE
+
+# User UID for beta environment
+UID = os.getuid()
+
+# Path where debug e-mail messages are saved
+EMAIL_FILE_PATH = "/tmp/amelie-messages-{}".format(UID)
+
+# Path to the beta environment
+ABSOLUTE_PATH_TO_SITE = "https://beta.ia.utwente.nl:{}".format(UID)
+
+# Media root for ia-beta
+MEDIA_ROOT = "/data/application_data/amelie/site_media"
+
+# TODO: Add SAML login information
+SAML_CONFIG = None
+
+# TODO: Add YouTube API key
+YOUTUBE_API_KEY = ''
+
+# TODO: Add keys for Firebase Cloud Messaging (FCM)
+FCM_DJANGO_SETTINGS = {
+    'FCM_SERVER_KEY': '',
+}
+
+# TODO: Add keys and secrets for OAuth2 Providers
+SOCIAL_AUTH_GITHUB_KEY = ''
+SOCIAL_AUTH_GITHUB_SECRET = ''
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+
+SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = ''
+SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = ''
+
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
+
+# Profiling settings (disabled by default)
+# If this is turned on a lot of data will be generated and stored in the database. So only turn it on if you feel bold.
+ENABLE_REQUEST_PROFILING = False
+
+if ENABLE_REQUEST_PROFILING:
+    MIDDLEWARE = ['silk.middleware.SilkyMiddleware'] + MIDDLEWARE
+    INSTALLED_APPS = INSTALLED_APPS + ['silk']
+
+    SILKY_PYTHON_PROFILER = False
+    SILKY_PYTHON_PROFILER_BINARY = False
+    SILKY_AUTHENTICATION = True  # User must login
+    SILKY_AUTHORISATION = True  # User must be staff
+    SILKY_MAX_REQUEST_BODY_SIZE = 0  # Silk takes anything <0 as no limit
+    SILKY_MAX_RESPONSE_BODY_SIZE = 0  # If response body>0 bytes, ignore

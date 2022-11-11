@@ -1,0 +1,62 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}{% trans 'Export personal data' %}{% endblock titel %}
+
+{% block head %}
+    <style type="text/css">
+        .helptext {
+            padding-left: 18px;
+            min-height: 16px;
+            line-height: 1.5;
+            background: transparent url("/static/img/icons/help.png") no-repeat;
+            position: relative;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>{% trans 'Export personal data' %}</h2>
+
+		<div class="content">
+            {% if user.is_authenticated %}
+                <p>{% trans 'On this page you can request a data export of all of your personal data that I.C.T.S.V. Inter-<i>Actief</i> has about you.' %}</p>
+                <p>{% trans 'First choose which data you want to have included in the export (some options can make the export pretty big), and then click on "Request export". Then you will be sent to a status page on which you can check the status of your export. You will also get an e-mail when the export has finished with a download link.' %}</p>
+                <p>{% trans '24 to 48 hours after the export has finished, it will be deleted from the IA-servers and your download link will expire.' %}</p>
+            {% else %}
+                <p>{% trans 'You are not logged in. To automatically create a data export of your data you need to be logged in.' %}</p>
+                <p>{% trans 'If you do not have an account at Inter-Actief, but want to know what data we have about you, please send an e-mail to the board.' %}</p>
+                <p><a href="{% url 'about:page' 7 'contact' %}">{% trans 'Go to our contact page.' %}</a></p>
+            {% endif %}
+		</div>
+    </div></div>
+
+    {% if user.is_authenticated %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2>{% trans 'Request data export' %}</h2>
+            <div class="content">
+                {% if already_has_export %}
+                    <p class="icon icon-error">
+                        {% blocktrans %}
+                            Unfortunately you have already created a data export recently that has not expired yet.
+                            Please download the old export using the download link that you have received per e-mail.
+                            If you do not have this link any more, you will have to wait until the old export has expired, before you can create a new one.
+                            Sorry for the inconvenience, this is purely a method to give our servers a little bit of rest too.
+                            If you really want a new data export earlier, then please send an e-mail to the board.
+                        {% endblocktrans %}
+                    </p>
+                {% else %}
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <table>
+                            {{ form.as_table }}
+                        </table>
+                        <p><input type="submit" value="{% trans 'Request export' %}"></p>
+                    </form>
+                {% endif %}
+            </div>
+        </div></div>
+    {% endif %}
+{% endblock content %}

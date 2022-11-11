@@ -1,0 +1,157 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Mandate' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Mandate' %}</h2>
+        <div class="content">
+            <table>
+                <tbody>
+                    <tr>
+                        <th>{% trans 'Mandate reference' %}</th>
+                        <td>{{ authorization.authorization_reference }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Sort' %}</th>
+                        <td>{{ authorization.authorization_type }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Person' %}</th>
+                        <td>
+                            {% if authorization.person %}
+                                <a href="{{ authorization.person.get_absolute_url }}">
+                                    {{ authorization.person }}
+                                </a>
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'IBAN' %}</th>
+                        <td>{{ authorization.iban|default:"&mdash;" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'BIC' %}</th>
+                        <td>{{ authorization.bic|default:"&mdash;" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Account holder' %}</th>
+                        <td>{{ authorization.account_holder_name|default:"&mdash;" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Starts on' %}</th>
+                        <td>{{ authorization.start_date|default_if_none:"&mdash;" }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Ends on' %}</th>
+                        <td>{{ authorization.end_date|default_if_none:"&mdash;" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><a href="{% url 'members:mandate_form' authorization.id %}" class="icon icon-printer">{% trans 'print' %}</a></p>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Amendments' %}</h2>
+        <div class="content">
+            {% if authorization.amendments.all %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Previous IBAN' %}</th>
+                                <th>{% trans 'Previous BIC' %}</th>
+                                <th>{% trans 'Other bank' %}</th>
+                                <th>{% trans 'Remarks' %}</th>
+                                <th>{% trans 'Instruction' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for amendment in authorization.amendments.all %}
+                                <tr>
+                                    <td>{{ amendment.date }}</td>
+                                    <td>{{ amendment.previous_iban|default:"&mdash;" }}</td>
+                                    <td>{{ amendment.previous_bic|default:"&mdash;" }}</td>
+                                    <td>{{ amendment.other_bank|yesno }}</td>
+                                    <td>{{ amendment.reason }}</td>
+                                    <td>
+                                        {% if amendment.instruction %}
+                                            <a href="{{ amendment.instruction.get_absolute_url }}">
+                                                {{ amendment.instruction }}
+                                            </a>
+                                        {% else %}
+                                            &mdash;
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="icon warning">{% trans 'No amendments have been found.' %}</p>
+            {% endif %}
+            {% if not authorization.next_amendment %}
+                <p><a href="{% url 'personal_tab:authorization_amendment' authorization.id %}" class="icon icon-add">{% trans 'Add amendment' %}</a></p>
+            {% else %}
+                <p class="icon warning">{% trans 'No amendments can be added right now.' %}</p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Instructions' %}</h2>
+        <div class="content">
+            {% if authorization.instructions.all %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Reference' %}</th>
+                                <th>{% trans 'Task/batch' %}</th>
+                                <th>{% trans 'end-to-end-id' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                                <th>{% trans 'Amendment' %}</th>
+                                <th class="align-right">{% trans 'Price' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for instruction in authorization.instructions.all %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ instruction.get_absolute_url }}">
+                                            {{ instruction.debt_collection_reference }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{ instruction.batch.assignment.get_absolute_url }}">
+                                            {{ instruction.batch.assignment }}
+                                        </a><br />
+                                        <span class="small">{{ instruction.batch }}</span>
+                                    </td>
+                                    <td>{{ instruction.end_to_end_id }}</td>
+                                    <td>{{ instruction.description }}</td>
+                                    <td>
+                                        {% if instruction.amendment %}
+                                            {{ instruction.amendment.date }}
+                                        {% else %}
+                                            &mdash;
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-right">{{ instruction.amount }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="icon warning">{% trans 'No instructions have been found.' %}</p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

@@ -1,0 +1,39 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Direct withdrawal-tasks' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Direct withdrawal-tasks' %}</h2>
+        <div class="content">
+            <p class="icon add">
+                <a href="{% url 'personal_tab:debt_collection_new' %}">
+                    {% trans 'Create collection' %}
+                </a>
+            </p>
+            {% if assignments %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Identification' %}</th>
+                                <th>{% trans 'Created on' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assignments %}
+                                <tr>
+                                    <td><a href="{{ assignment.get_absolute_url }}">{{ assignment.file_identification }}</a></td>
+                                    <td>{{ assignment.created_on|date:"d F Y" }}</td>
+                                    <td>{{ assignment.description }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

@@ -1,0 +1,23 @@
+{% extends "basis.html" %}
+{% load i18n md2 %}
+
+{% block titel %}
+    {% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% else %}{% trans 'Edit mastermail' %}{% endif %}{% else %}{% trans 'Add weekly mail or mastermail' %}{% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="current">
+            <h2>{% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% else %}{% trans 'Edit mastermail' %}{% endif %}{% else %}{% trans 'Add weekly mail or mastermail' %}{% endif %}</h2>
+            <div class="content">
+                <form method="post">
+                    {% csrf_token %}
+                    <table>
+                        {{ form.as_table }}
+                    </table>
+                    <input type="submit" value="{% trans "Done" %}">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

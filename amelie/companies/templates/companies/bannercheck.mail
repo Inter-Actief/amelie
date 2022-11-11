@@ -1,0 +1,32 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans %}[Extern alert] Banner expire update!{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear external affairs{% endblocktrans %},{% endhtmlify %}
+
+{% if companies %}{% htmlify %}{% blocktrans %}Within the next month the following company pages will expire:{% endblocktrans %}{% endhtmlify %}
+
+{% onlyhtml %}<ul>
+    {% for company in companies %}{% blocktrans with name=company.name end_date=company.end_date %}
+        <li>{{ name }} on {{ end_date }}</li>
+    {% endblocktrans %}{% endfor %}
+</ul>
+
+{% endonlyhtml %}{% onlyplain %}{% for company in companies %}{% blocktrans with name=company.name end_date=company.end_date %}
+* {{ name }} on {{ end_date }}
+{% endblocktrans %}{% endfor %}{% endonlyplain %}{% endif %}
+
+{% if banners %}{% htmlify %}{% blocktrans %}Within the next month the following banners will expire:{% endblocktrans %}{% endhtmlify %}
+
+{% onlyhtml %}<ul>
+    {% for banner in banners %}{% blocktrans with name=banner.name end_date=banner.end_date %}
+        <li>{{ name }} on {{ end_date }}</li>
+    {% endblocktrans %}{% endfor %}
+</ul>
+
+{% endonlyhtml %}{% onlyplain %}{% for banner in banners %}{% blocktrans with name=banner.name tot=banner.end_date %}
+* {{ name }} on {{ end_date }}
+{% endblocktrans %}{% endfor %}{% endonlyplain %}{% endif %}
+
+{% htmlify %}{% blocktrans %}Kind regards,
+The external affairs-helper{% endblocktrans %}{% endhtmlify %}{% endblock %}

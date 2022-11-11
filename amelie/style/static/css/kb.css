@@ -1,0 +1,27 @@
+.current h2, .ia h2, .edu h2, #top, #bottom {
+	background:pink!important;
+}
+
+.current h2::before, .ia h2::before, .edu h2::before, #bottom::before {
+	content: '';
+	width: 100px;
+	height: 100px;
+	
+	display: block;
+	background-image: url('https://happyrent.nl/Company/_Template/Images/guido.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	
+	position: absolute;
+	top: -50px;
+	right: 50px
+}
+
+.ia, .edu, .current {
+	background-color: #FF00FF;
+}
+
+#middle {
+	background:url('https://www.animaatjes.nl/plaatjes/m/my_little_pony/animaatjes-my_little_pony-27130.png')!important;
+	background-repeat:no-repeat!important;
+}

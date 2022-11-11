@@ -1,0 +1,53 @@
+@import "../util/constants";
+@import "../htmltags/list";
+
+// the less in this file is used for multi-language inputs: it makes the input fields show up tabbed.
+
+.tabbed-ticker {
+  margin-bottom: 10px;
+
+  ul {
+    .no-bullets;
+    padding: 0;
+    margin-bottom: -1px;
+  }
+
+  li {
+    float: left;
+    padding: 2px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid @_e;
+    border-bottom: none;
+    background: @white;
+    border-radius: 5px 5px 0 0;
+
+    &:hover {
+      cursor: pointer;
+      background: #DDD;
+    }
+
+    &:active {
+      background: @iacolor;
+      color: @white;
+    }
+  }
+}
+.tabbed-content {
+  clear: both;
+
+  div {
+    display: none;
+
+    &:first-child {
+      display: block;
+    }
+  }
+
+  textarea,
+  input,
+  select {
+    margin-top: 0;
+    width: 368px;
+  }
+}

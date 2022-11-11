@@ -1,0 +1,29 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load htmlify i18n only %}
+
+{% block subject %}{% blocktrans %}Delivery report Push Notification{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Hey there,{% endblocktrans %}
+
+{% blocktrans %}You receive this e-mail report because you sent a push notification.
+
+The following push notifications have been sent (possible variables have been filled with the first person):{% endblocktrans %}{% endhtmlify %}
+
+{% onlyhtml %}<pre>{% endonlyhtml %}{{ notification.message_en }}{% onlyhtml %}</pre>{% endonlyhtml %}
+
+{% onlyhtml %}<pre>{% endonlyhtml %}{{ notification.message_nl }}{% onlyhtml %}</pre>{% endonlyhtml %}
+
+{% htmlify %}{% blocktrans with not_accepted=failed_notification_recipients|length %}This message has been sent to {{ recipients }} numbers. Of these {{ successful_push_recipients }} have been sent through a push message and {{ not_accepted }} have not been sent.{% endblocktrans %}{% endhtmlify %}
+
+{% if failed_notification_recipients|length > 0 %}{% htmlify %}{% blocktrans %}The following people did not receive a notification.{% endblocktrans %}{% endhtmlify %}
+
+{% onlyhtml %}
+<ul>
+    {% for recipient in failed_notification_recipients %}
+        <li>{{ recipient.full_name }}</li>
+    {% endfor %}
+</ul>
+{% endonlyhtml %}{% onlyplain %}{% for recipient in failed_notification_recipients %} * {{ recipient.full_name }}
+{% endfor %}{% endonlyplain %}
+{% endif %}{% htmlify %}{% blocktrans %}Kind regards,{% endblocktrans %}
+Amelie{% endhtmlify %}{% endblock %}

@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_dogroup">
+    <h3>{% trans 'Dogroup' %}</h3>
+
+    {% fieldset has_dogroup,has_no_dogroup,dogroup as form_dogroup from form %}
+    {{ form_dogroup }}
+</div>

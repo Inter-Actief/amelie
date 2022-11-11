@@ -1,0 +1,65 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}
+    {% if is_new %}
+        {% trans 'New publication' %}
+    {% else %}
+        {% trans 'Change publication' %}
+    {% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <form class="big" method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+
+        <div class="col-xs-12 col-md-12">
+            <div class="current">
+                <h2>
+                    {% if is_new %}
+                        {% trans 'Add new publication' %}
+                    {% else %}
+                        {% trans 'Change publication' %}
+                    {% endif %}
+                </h2>
+
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                {{ form.name.errors }}
+                                <th>{% trans "Title" %}</th>
+                                <td><div>{{ form.name }}</div></td>
+                            </tr>
+                            <tr>
+                                {{ form.publication_type.errors }}
+                                <th>{% trans "Publication type" %}</th>
+                                <td><div>{{ form.publication_type }}</div></td>
+                            </tr>
+                            <tr>
+                                {{ form.file.errors }}
+                                <th>{% trans "File" %}</th>
+                                <td><div>{{ form.file }}</div></td>
+                            </tr>
+                            <tr>
+                                {{ form.thumbnail.errors }}
+                                <th>{% trans "Thumbnail" %}</th>
+                                <td><div>{{ form.thumbnail }}</div></td>
+                            </tr>
+                            <tr>
+                                {{ form.date_published.errors }}
+                                <th>{% trans "Publication date" %}</th>
+                                <td><div>{{ form.date_published }}</div></td>
+                            </tr>
+                            {% fieldset public,is_featured as form_extras from form %}
+                            {{ form_extras.as_table }}
+                        </table>
+                    </div>
+
+                    <input type="submit" value="{% if is_new %}{% trans 'Create publication' %}{% else %}{% trans 'Change publication' %}{% endif %} &raquo;" />
+                </div>
+            </div>
+        </div>
+
+    </form>
+{% endblock content %}

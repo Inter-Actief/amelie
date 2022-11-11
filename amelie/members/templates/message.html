@@ -1,0 +1,19 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Message' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans 'Confirmation message' %}</h2>
+            <div class="content">
+                <p class="icon done">{% trans 'The command is being executed...' %}
+                </p>
+                <p>
+                    {{ message }}
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

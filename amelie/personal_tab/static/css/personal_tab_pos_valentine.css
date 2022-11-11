@@ -1,0 +1,134 @@
+/* CSS3 snowflakes */
+.valentine-is-coming, .snow {
+    z-index: 100;
+    pointer-events: none;
+}
+
+.valentine-is-coming {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    height: 1600px;
+    max-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    background: transparent;
+}
+
+.hearts {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    -webkit-animation: falling linear infinite both;
+    animation: falling linear infinite both;
+    -webkit-transform: translate3D(0, -100%, 0);
+    transform: translate3D(0, -100%, 0);
+}
+
+.hearts--near {
+    -webkit-animation-duration: 10s;
+    animation-duration: 10s;
+    background-image: url("/static/img/layout/heart-snow-large.png");
+    /*background-size: contain;*/
+	background-repeat: space;
+	z-index: 600;
+	image-rendering: pixelated
+}
+
+.hearts--near + .hearts--alt {
+    -webkit-animation-delay: 5s;
+    animation-delay: 5s;
+}
+
+.hearts--mid {
+    -webkit-animation-duration: 20s;
+    animation-duration: 20s;
+    background-image: url("/static/img/layout/heart-snow-medium.png");
+    /*background-size: contain;*/
+	background-repeat: space;
+	z-index: 600;
+	image-rendering: pixelated
+}
+
+.hearts--mid + .hearts--alt {
+    -webkit-animation-delay: 10s;
+    animation-delay: 10s;
+}
+
+.hearts--far {
+    -webkit-animation-duration: 30s;
+    animation-duration: 30s;
+    background-image: url("/static/img/layout/heart-snow-small.png");
+    /*background-size: contain;*/
+	background-repeat: space;
+	z-index: 600;
+	image-rendering: pixelated
+}
+
+.hearts--far + .hearts--alt {
+    -webkit-animation-delay: 15s;
+    animation-delay: 15s;
+}
+
+@-webkit-keyframes falling {
+    0% {
+        opacity: 1;
+        -webkit-transform: translate3D(-7.5%, -100%, 0);
+        transform: translate3D(-7.5%, -100%, 0);
+    }
+    75% {
+        opacity: 1;
+        -webkit-transform: translate3D(7.5%, -25%, 0);
+        transform: translate3D(7.5%, -25%, 0);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: translate3D(7.5%, 0%, 0);
+        transform: translate3D(7.5%, 0%, 0);
+    }
+}
+
+@keyframes falling {
+    0% {
+        opacity: 1;
+        -webkit-transform: translate3D(-7.5%, -100%, 0);
+        transform: translate3D(-7.5%, -100%, 0);
+    }
+    75% {
+        opacity: 1;
+        -webkit-transform: translate3D(7.5%, -25%, 0);
+        transform: translate3D(7.5%, -25%, 0);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: translate3D(7.5%, 0%, 0);
+        transform: translate3D(7.5%, 0%, 0);
+    }
+}
+
+#header-logo {
+    background-image: url("../img/logo_shop_valentine.png");
+}
+
+:root {
+    --ia-blue-verylight: #ffabce;
+    --ia-blue-light: #ff93c0;
+    --ia-blue: #FF7BB2;
+    --ia-blue-dark: #da0870;
+    --ia-blue-verydark: #b3075c;
+    --ia-green-verylight: #bdd295;
+    --ia-green-light: #afc97e;
+    --ia-green: #90a568;
+    --ia-green-dark: #708051;
+    --ia-red-verylight: #e4c3b7;
+    --ia-red-light: #dcb2a2;
+    --ia-red: #d5a18e;
+    --ia-red-dark: #af8475;
+
+    --orange-verylight: rgba(255,128,0,0.8);
+
+    --grey-verylight: #ACACAC;
+    --grey-verydark: #202020;
+}

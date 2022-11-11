@@ -1,0 +1,21 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Delete news message of the weekly mail or mastermail' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% blocktrans %}Are you sure you want to delete {{ object }}?{% endblocktrans %}</h2>
+
+            <div class="content">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="{% trans "Yes" %}">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

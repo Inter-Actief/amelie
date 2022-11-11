@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_preference">
+    <h3>{% trans 'Preferences' %}</h3>
+
+    {% fieldset preference_not,preference as form_preference from form %}
+    {{ form_preference }}
+</div>

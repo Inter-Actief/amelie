@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_nationality">
+    <h3>{% trans '(Inter)nationality' %}</h3>
+
+    {% fieldset international_member,preferred_language as form_nationality from form %}
+    {{ form_nationality }}
+</div>

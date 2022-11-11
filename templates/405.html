@@ -1,0 +1,18 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Cannot request page'%}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Cannot request page' %}</h2>
+
+        <div class="content">
+          <p class="icon exclamation">
+              {% trans 'The page cannot be requested (405).' %}
+          </p>
+        </div>
+    </div></div>
+{% endblock content %}

@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Booklist' %}{% endblock titel %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2>{% trans 'Booklist' %}</h2>
+
+    <div class="content">
+        <p>{% blocktrans %}This is the book list for IAPC. The first list contains al students of BIT and MBI, the second on all other students who are a member of Inter-<i>Actief</i>.{% endblocktrans %}</p>
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'BIT-students' %} ({{ student_numbers_bit|length }})</h2>
+
+    <div class="content">
+        <textarea rows="15" cols="50">{% for student_number in student_numbers_bit %}
+{{ student_number }}{% endfor %}
+        </textarea>
+    </div>
+
+</div></div>
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Other students' %} ({{ student_numbers_other|length }})</h2>
+
+    <div class="content">
+        <textarea rows="15" cols="50">{% for student_number in student_numbers_other %}
+{{ student_number }}{% endfor %}
+        </textarea>
+    </div>
+
+</div></div>
+
+{% endblock content %}

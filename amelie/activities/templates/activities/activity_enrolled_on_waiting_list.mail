@@ -1,0 +1,18 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans %}Confirmation of enrollment on waiting list{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans with summary=activity.summary begindate=activity.begin|date:"l j F Y" begintime=activity.begin|date:"G:i" %}You receive this email because you have been enrolled on the waiting list for {{ summary }}. This activity starts at {{ begindate }} hour on {{ begintime }}.{% endblocktrans %}{% endhtmlify %}
+
+{% htmlify %}{% blocktrans %}Please note: you are on the waiting list for this activity; {% endblocktrans %}{% if participation.calculate_costs > 0 %} {% blocktrans %}since no spot is available yet, you are not yet charged{% endblocktrans %}{% else %} {% blocktrans %}there is no spot available yet{% endblocktrans %}{% endif %}. {% blocktrans %}If a spot becomes available, you will be enrolled automatically and receive another email.{% endblocktrans %}{% endhtmlify %}
+
+{% if enrolled_by %}{% blocktrans %}You have been enrolled by {{ enrolled_by }}. In case you did not approve this, get in touch with the board.{% endblocktrans %}
+
+{% endif %}{% if invite %}{% blocktrans %}An invite is attached. You can import this in your agenda. In case you no longer want to receive invites through e-mail, edit your preferences on the website.{% endblocktrans %}
+
+{% endif %}{% blocktrans %}
+Kind regards,{% endblocktrans %}
+{% onlyhtml %}<br />{% endonlyhtml %}
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% endblock %}

@@ -1,0 +1,68 @@
+@import "../util/constants";
+
+// This file holds all direct table related css/less.
+
+table {
+  margin-bottom: 10px;
+
+  td, th {
+    padding: 5px 5px;
+    border:1px solid #ddd;
+  }
+
+  p.icon {
+    margin: 0;
+  }
+
+  thead tr th {
+    font-size: 14px;
+    text-align: left;
+  }
+
+  &.center {
+    margin: 0 auto;
+  }
+
+  &.totals {
+    empty-cells: hide;
+
+    td {
+      &:nth-last-child(2) td {
+        border-right: 1px solid @black;
+      }
+
+      &:last-child {
+        border-left: 1px solid @black;
+
+        &,
+        & td {
+          font-weight: bold;
+        }
+      }
+
+      &:empty {
+        border: none;
+      }
+    }
+
+    tr {
+      &:last-child td {
+        font-weight: bold;
+        border-top: 1px solid @black;
+      }
+
+      &:nth-last-child(2) td {
+        border-bottom: 1px solid @black;
+      }
+    }
+  }
+}
+
+// util classes for use in tables
+.align-center {
+    text-align: center;
+}
+
+.number, .align-right {
+    text-align: right;
+}

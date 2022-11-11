@@ -1,0 +1,73 @@
+{% extends "basis.html" %}
+
+{% block titel %}Logging configuration{% endblock titel %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2>
+        <span>
+            Logging configuration
+        </span>
+    </h2>
+
+    <div class="content">
+        <h3>Handlers</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Handler</th>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Filters</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for handler in handlers %}
+                    <tr>
+                        <td>{{ handler }}</td>
+                        <td>{% if handler.get_name %}{{ handler.get_name }}{% endif %}</td>
+                        <td style="{% if handler.level %}background-color: darkgray;{% endif %}">{{ handler.level }}</td>
+                        <td>{{ handler.filters }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Loggers</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Logger</th>
+                    <th>Disabled</th>
+                    <th>Level</th>
+                    <th>Propagate</th>
+                    <th>Filters</th>
+                    <th>Handlers</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="{% if rootlogger.disabled %}text-decoration: line-through;{% endif %}"><i>root logger</i></td>
+                    <td>{{ rootlogger.disabled|yesno }}</td>
+                    <td>{{ rootlogger.level }}</td>
+                    <td>{{ rootlogger.propagate|yesno }}</td>
+                    <td>{{ rootlogger.filters }}</td>
+                    <td>{{ rootlogger.handlers }}</td>
+                </tr>
+                {% for logger in logger_list %}
+                    <tr style="{% if not logger.disabled and not logger.level and logger.propagate and not logger.fitlers and not logger.handlers %}color: darkgrey;{% endif %}">
+                        <td style="{% if logger.disabled %}text-decoration: line-through;{% endif %}">{{ logger.name }}</td>
+                        <td style="{% if logger.disabled %}background-color: orange;{% endif %}">{{ logger.disabled|yesno }}</td>
+                        <td style="{% if logger.level %}background-color: darkgray;{% endif %}">{{ logger.level }}</td>
+                        <td style="{% if not logger.propagate %}background-color: orange;{% endif %}">{{ logger.propagate|yesno }}</td>
+                        <td>{{ logger.filters }}</td>
+                        <td>{{ logger.handlers }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div></div>
+{% endblock content %}

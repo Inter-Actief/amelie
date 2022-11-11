@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="edu">
+    <h2>{% trans 'Exam credit' %}</h2>
+
+    <div class="content">
+        {% if cookie_corner_credit %}
+            <p class="icon icon-information">
+                {% blocktrans with credit=cookie_corner_credit %}
+                    Because you have submitted an exam paper, you may spend {{ credit }} on consumptions.
+                {% endblocktrans %}
+            </p>
+        {% else %}
+            <p class="icon cross">{% trans 'You have no exam credit.' %}</p>
+        {% endif %}
+
+        <a href="{% url 'personal_tab:person_exam_cookie_credit' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+            {% trans 'History of exam credit' %}
+        </a>
+        {% if request.is_board %}
+            <a href="{% url 'personal_tab:person_exam_cookie_credit_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                {% trans 'Add credit for exams' %}
+            </a>
+        {% endif %}
+    </div>
+</div></div>

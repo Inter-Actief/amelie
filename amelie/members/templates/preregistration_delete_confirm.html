@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Pre-enrollment' %} - {% trans 'Confirm deletion' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Confirm deletion' %}</h2>
+        <div class="content">
+            <p>
+            {% blocktrans with name=enrollment.incomplete_name dogroup=enrollment.dogroup %}
+                Do you really want to delete the pre-enrollment of {{ name }} of do-group {{ dogroup }}?
+            {% endblocktrans %}
+            </p>
+
+            <p>
+                <a class="looks-like-a-button" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=delete-sure">{% trans 'Yes' %}</a>
+                <a class="looks-like-a-button" href="{% url 'members:preregistration_status' %}">{% trans 'No' %}</a>
+            </p>
+        </div>
+    </div></div>
+{% endblock content %}

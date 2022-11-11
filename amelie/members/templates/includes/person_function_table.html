@@ -1,0 +1,34 @@
+{% load i18n %}
+
+<div class="table-responsive">
+    <table class="table person_table">
+        <thead>
+            <tr>
+                <th>{% trans 'Committee' %}</th>
+                <th>{% trans 'Position' %}</th>
+                <th>{% trans 'Starts on' %}</th>
+                <th>{% trans 'Ends on' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for function in obj.function_set.all %}
+                <tr>
+                    <td><a href="{{ function.committee.get_absolute_url }}">{{ function.committee }}</a></td>
+                    <td>{{ function.function }}</td>
+                    <td>{{ function.begin|date:"j b Y" }}</td>
+                    <td>
+                        {% if function.end %}
+                            {{ function.end|date:"j b Y" }}
+                        {% else %}
+                            {% if function.committee.abolished %}
+                                {{ function.committee.abolished|date:"j b Y" }}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

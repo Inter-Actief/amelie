@@ -1,0 +1,36 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Shared Drives' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Google Shared Drives' %}</h2>
+        <div class="content">
+            <p class="icon icon-add">
+                <a href="{% url 'claudia:shareddrive_add' %}">{% trans 'Create Google shared drive' %}</a>
+            </p>
+
+            {% include "paginator.html" with page=page_obj %}
+
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th>{% trans 'Name' %}</th>
+                        <th>{% trans 'Description' %}</th>
+                    </tr>
+                    {% for group in page_obj %}
+                    <tr {% if not group.active %}class="claudia-inactive"{% endif %}>
+                        <td>{{ group|clau_link }}</td>
+                        <td>{{ group.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

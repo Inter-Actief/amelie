@@ -1,0 +1,29 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+
+{% block titel %}
+    {% trans 'Enrollment of new employee' %}
+{% endblock titel %}
+
+{% block content %}
+    <form action="" method="post" xmlns="http://www.w3.org/1999/html" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% include 'includes/registration/introduction.html' %}
+
+        {% if wizard.steps.step1 == 1 %}
+            {% include 'includes/registration/personal_details_employee.html' %}
+        {% elif wizard.steps.step1 == 2 %}
+            {% include 'includes/registration/contact_member.html' %}
+        {% elif wizard.steps.step1 == 3 %}
+            {% include 'includes/registration/employee_general.html' %}
+        {% elif wizard.steps.step1 == 4 %}
+            {% include 'includes/registration/membership_employee.html' %}
+        {% elif wizard.steps.step1 == 5 %}
+            {% include 'includes/registration/authorizations.html' %}
+        {% elif wizard.steps.step1 == 6 %}
+            {% include 'includes/registration/preferences.html' %}
+        {% elif wizard.steps.step1 == 7 %}
+            {% include 'includes/registration/final_check.html' %}
+        {% endif %}
+    </form>
+{% endblock content %}

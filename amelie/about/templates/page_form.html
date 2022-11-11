@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% if is_new %}
+		{% trans 'New page' %}
+	{% else %}
+		{% trans 'Edit new' %}
+	{% endif %}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>
+			{% if is_new %}
+				{% trans 'New page' %}
+			{% else %}
+				{% trans 'Edit new' %}
+			{% endif %}
+		</h2>
+
+		<div class="content">
+			<form method="post" action="" class="big">
+				{% csrf_token %}
+				{{ form }}
+
+				<div class="buttons">
+					{% if is_new %}
+						<input type="submit" value="{% trans 'Create page' %}" />
+					{% else %}
+						<input type="submit" value="{% trans 'Save page' %}" />
+					{% endif %}
+				</div>
+			</form>
+		</div>
+	</div></div>
+{% endblock content %}

@@ -1,0 +1,193 @@
+{% extends "basis.html" %}
+{% load i18n md %}
+
+{% block titel %}{% trans 'Complaint' %} ({{ obj.get_subject_display }}){% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+        <h2>
+            {% trans "Complaint" %}
+        </h2>
+
+        <div class="content">
+            <h3>
+                {% if obj.summary %}
+                    {{ obj.get_subject_display }}: {{ obj.summary }}
+                {% else %}
+                    {{ obj.get_subject_display }}
+                {% endif %}
+
+                {% if request.is_education_committee %}
+                    <a class="looks-like-a-button" href="{% url 'education:complaint_edit' obj.pk %}">{% trans 'Edit' %}</a>
+                {% endif %}
+            </h3>
+
+            {% if obj.course %}
+                <p class="icon course"><a href="{{ obj.course.get_absolute_url }}">{{ obj.course }}</a></p>
+            {% endif %}
+
+            {% if obj.comment %}
+                {{ obj.comment|markdown }}
+            {% endif %}
+
+            <div class="right">
+                <p class="small">{% blocktrans with obj.published|timesince as time %}Added {{ time }} ago{% endblocktrans %}</p>
+                {% if request.is_board %}
+                    <span class="small">{% trans 'Reporter' %}:</span>
+                    <span class="icon person">
+                        <a href="{{ obj.reporter.get_absolute_url }}">{{ obj.reporter }}</a>
+                        <span class="icon icon-help" title="{% trans 'You can see this because you are a board member' %}."></span>
+                    </span>
+                {% endif %}
+                {% if request.is_education_committee %}
+                    {% if not obj.completed %}
+                        <div class="buttons">
+                            <form action="" method="post">
+                                {% csrf_token %}
+                                <input type="submit" name="complete" value="{% trans 'Mark complaint handled.' %}" />
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% if obj.completed %}
+                    <div class="buttons">
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="submit" name="reopen" value="{% trans 'Reopen complaint' %}" />
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <p class="icon person">{% blocktrans with obj.people.count|add:"1" as amount %}This complaint has {{ amount }} people supporting it.{% endblocktrans %}</p>
+
+            <form action="" method="post">
+                {% csrf_token %}
+                <span class="icon compact icon-information">
+                    {% if request.person != obj.reporter %}
+                        {% if request.person in obj.people.all %}
+                            {% trans 'I suffer from these problems too' %}.
+                            <input type="submit" name="nosupport" value="{% trans 'I do not suffer from this' %}." />
+                        {% else %}
+                            {% trans 'You have not indicated this bothers you, too' %}.
+                            <input type="submit" name="support" value="{% trans 'Agree with this complaint' %}." />
+                        {% endif %}
+                    {% else %}
+                        {% trans 'You are the reporter of this complaint' %}.
+                    {% endif %}
+                </span>
+            </form>
+
+            {% if obj.anonymous %}
+                <p class="icon compact not-public">{% trans 'This complaint is anonymous' %}.</p>
+            {% endif %}
+            {% if not obj.public %}
+                <p class="icon compact not-public">{% trans 'This complaint is not public' %}.</p>
+            {% endif %}
+            {% if obj.completed %}
+                <p class="icon compact done">{% trans 'This complaint is dealt with' %}.</p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    {% if complaint_comments.all %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2>{% trans 'Comments' %} ({{ complaint_comments.count }})</h2>
+
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table layout">
+                        {% for comment in complaint_comments %}
+                            <tr>
+                                {% if request.is_education_committee or comment.person == request.person %}
+                                <form action="" method="post">{% csrf_token %}
+                                {% endif %}
+                                <td>
+                                    <p>
+                                        <span class="icon icon-comment" title="{% trans 'Remarks' %}"></span>
+                                        {% if comment.official %}
+                                            <span class="icon icon-rosette" title="{% trans 'Comment by Education Committee' %}"></span>
+                                        {% endif %}
+                                        {% if not comment.public %}
+                                            <span class="icon icon-eye" title="{% trans 'This message is visible only to the original poster, the commenter and the Committee of Education' %}"></span>
+                                        {% endif %}
+
+                                        {% if request.is_board %}
+                                            <a href="{{ comment.person.get_absolute_url }}">{{ comment.person }}</a>
+                                        {% else %}
+                                            {{ comment.person }}
+                                        {% endif %}
+                                    </p>
+
+                                    <p class="small">
+                                        {% blocktrans with comment.published|timesince as time %}Added {{ time }} ago{% endblocktrans %}
+                                    </p>
+
+                                    {% if request.is_education_committee or comment.person == request.person %}
+
+                                        <div class="buttons">
+                                            <input type="hidden" name="comment_id" value="{{ comment.id }}" />
+                                            <input class="complaint_comment_value" type="hidden" name="comment" value="{{ comment.comment }}" />
+                                            <input type="submit" name="delete" value="{% trans 'Remove message' %}." />
+                                            <button class="complaint_comment_edit">{% trans 'Edit message' %}</button>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ comment.comment|markdown }}
+                                    {% if request.is_education_committee or comment.person == request.person %}
+                                        <br/>
+                                        <input type="submit" class="complaint_comment_save" name="edit" value="{% trans 'Save comment' %}">
+                                    {% endif %}
+                                </td>
+                            {% if request.is_education_committee or comment.person == request.person %}
+                            </form>
+                            {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div></div>
+    {% endif %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+        <h2>{% trans 'Add comment' %}</h2>
+
+        <div class="content">
+            <form action="" method="post" class="big">
+                {% for error in comment_form.non_field_errors %}
+                    <div class="icon-error">{{ error }}</div>
+                {% endfor %}
+
+                {% csrf_token %}
+                <p>
+                    {% trans 'Comments with private information can also be send directly to the Officer of Educational Affairs' %}
+                </p>
+                <p>
+                    {{ comment_form.comment.errors }}
+                    {{ comment_form.comment }}
+                </p>
+
+                {% if reporter or request.is_education_committee %}
+                    <p class="icon not-public">
+                        {{ comment_form.public }}
+                        <label for="{{ comment_form.public.auto_id }}">{% trans 'Make this message visible to anyone' %}.</label>
+                        <span class="icon icon-help" title="{% trans 'Non-public comments are visible to the commenter, the person who filed the complaint and the Education Committee'%}"></span>
+                    </p>
+                {% endif %}
+                {% if request.is_education_committee %}
+                    <p class="icon icon-rosette">
+                        {{ comment_form.official }}
+                        <label for="{{ comment_form.official.auto_id }}">{% trans 'Post this comment as Education Committee' %}</label>
+                        <span class="icon icon-help" title="{% trans 'If you post this comment as member of the Education Committee, the comment will be marked with a red badge' %}"></span>
+                    </p>
+                {% endif %}
+
+                <div class="buttons">
+                    <input type="submit" name="new_comment" value="{% trans 'Post' %}" />
+                </div>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

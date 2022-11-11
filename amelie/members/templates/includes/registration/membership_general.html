@@ -1,0 +1,46 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'What membership type do you want?' %}</h2>
+        <div class="content">
+            <p>{% trans 'You can choose between three types of membership.' %}</p>
+            <p>
+                {% blocktrans %}
+                    With a study long membership, you pay once, and will be a member as long as you are studying
+                    Technical Computer Science (TCS) or Business Information Technology (BIT). A study long membership costs &euro;
+                    {{ study_long_member_costs }} once.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    With a primary year membership, you pay every year, and you will be a member until you yourself
+                    cancel your membership. A primary year membership costs &euro; {{ year_member_costs }} yearly.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    With a secondary year membership, you pay every year, and you will be a member until you yourself
+                    cancel your membership. This membership is meant for people who are already a member of a different
+                    study association, who also want to become a member of Inter-<i>Actief</i>. A secondary year
+                    membership costs &euro; {{ secondary_member_costs }} yearly.
+                {% endblocktrans %}
+            </p>
+            <div class="small-form-spacer"></div>
+
+            <!-- Membership Type -->
+            <div class="form-group">
+                {{ wizard.form.membership.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Membership type' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.membership|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Which membership type do you want? (See above for explanations)' %}</small>
+                </div>
+            </div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

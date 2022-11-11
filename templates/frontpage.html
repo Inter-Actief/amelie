@@ -1,0 +1,257 @@
+{% extends "basis.html" %}
+{% load i18n date_tags md %}
+
+{% block titel %}Home{% endblock titel %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/brandbox.js"></script>
+{% endblock head %}
+
+{% block content %}
+    <div class="col-md-4 col-xs-12">
+        {# Activity things #}
+        <div class="current activity-list">
+            <h2><a href="{% url 'activities:activities' %}">{% trans 'Upcoming activities' %}</a></h2>
+            <ul>
+                {% for current_activity in current_activities %}
+                    <li class="activity-{{ current_activity.activity_type }}{% if current_activity.dutch_activity %} dutch-only{% endif %}">
+                        <div class="date">
+                            <span class="now"> {% trans 'Now' %} </span>
+                        </div>
+
+                        <div>
+                            <div class="activity-list-item">
+                                <h3 class="truncate">
+                                    <a href="{{ current_activity.get_absolute_url }}">{{ current_activity }}</a>
+                                </h3>
+
+                                <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
+                                
+                                <div title={{ current_activity.activity_label.name }}>
+                                    <img src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clear"></div>
+                    </li>
+                {% endfor %}
+                {% for upcoming_activity in upcoming_activities %}
+                    <li class="activity-{{ upcoming_activity.activity_type }}{% if upcoming_activity.dutch_activity %} dutch-only{% endif %}">
+                        <div class="date">
+                            <span class="day">{{ upcoming_activity.begin|date:"d"|safe }}</span>
+                            <span class="month">{{ upcoming_activity.begin|date:"M" }}</span>
+                            <span class="weekday">{{ upcoming_activity.begin|date:"D" }}</span>
+                        </div>
+                        
+                        <div>
+                            <div class="activity-list-item">
+                                <h3 class="truncate">
+                                    <a href="{{ upcoming_activity.get_absolute_url }}">{{ upcoming_activity }}</a>
+                                </h3>
+                                
+                                <div class="activity-list-icons">
+                                    <div title="{% trans 'Dutch-only' %}">
+                                        <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
+                                    </div>
+    
+                                    <div title="{{ upcoming_activity.activity_label.name }}" style="">
+                                        <img class="activity-icon" src="{{STATIC_URL}}img/icons/{{ upcoming_activity.activity_label.icon }}.png" alt="{{ upcoming_activity.activity_label.name }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clear"></div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {# End activity things #}
+
+        {# Company things #}
+        <div id="companies" class="ia">
+            <h2>{% trans 'Company Corner' %}</h2>
+            <div class="content">
+              <p>{% trans 'In the Company Corner you can find information about companies and possible graduation projects or job opportunities.' %}</p>
+            <ul class="no-bullets">
+                <li class="icon icon-building"><a href="{% url 'companies:company_list' %}">
+                    {% trans 'Company Corner' %}
+                </a></li>
+                <li class="icon icon-building"><a href="{% url 'companies:event_list' %}">
+                    {% trans 'Upcoming activities with external parties' %}
+                </a></li>
+            </ul>
+            </div>
+        </div>
+        {# End company things #}
+
+        {# Video things #}
+        {% if featured_video %}
+            <div id="video" class="current">
+                <h2><a href="{% url 'videos:list_videos' %}">{% trans "Videos" %}</a></h2>
+                <div class="video-wrapper featured-video">
+                    {% if featured_video.get_video_type == "streamingia" %}
+                        <iframe src='{{ streaming_base_url }}/play/{{ featured_video.video_id }}?embedded=True&autoplay=False' scrolling="no" frameborder="0" allowfullscreen></iframe>
+                    {% else %}
+                        <iframe src="https://www.youtube-nocookie.com/embed/{{ featured_video.video_id }}?modestbranding=0&amp;rel=0&amp;showinfo=0&amp;vq=hd720&amp;hl={{ LANGUAGE_CODE }}" scrolling="no" frameborder="0" allowfullscreen></iframe>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        {# End video things #}
+
+        {# Board things #}
+        {% if user.is_authenticated and request.is_board %}
+            <div class="ia">
+                <h2>{% trans 'Board tasks' %}</h2>
+                <ul class="no-bullets">
+                    <li><b>{% trans 'Member management' %}</b></li>
+                    <li class="person"><a href="{% url 'members:query' %}">{% trans 'Members' %}</a></li>
+                    <li class="person"><a href="{% url 'members:person_new_general' %}">{% trans 'Add new member' %}</a></li>
+                    <li class="person"><a href="{% url 'members:person_new_external' %}">{% trans 'Add new external member' %}</a></li>
+                    <li class="person"><a href="{% url 'members:person_new_employee' %}">{% trans 'Add new employee' %}</a></li>
+                    <li class="person"><a href="{% url 'members:person_new_freshman' %}">{% trans 'Add new freshman member' %}</a></li>
+                    <li class="person"><a href="{% url 'members:person_preregister_freshman' %}">{% trans 'Pre-enroll freshman member' %}</a></li>
+                    <li class="person"><a href="{% url 'members:preregistration_status' %}">{% trans 'Pre-enrollment status' %}</a></li>
+                    <li class="person"><a href="{% url 'members:committee_new' %}">{% trans 'Add new committee' %}</a></li>
+
+                    <li><b>{% trans 'Other' %}</b></li>
+                    <li class="person"><a href="{% url 'room_duty:index' %}">{% trans 'Office duty' %}</a></li>
+                    <li class="person"><a href="{% url 'claudia:home' %}">{% trans 'ClaudIA' %}</a></li>
+                    <li class="person"><a href="{% url 'about:page_new' %}">{% trans "Create new '/over' page" %}</a></li>
+                    <li class="person"><a href="{% url 'personal_tab:register_index' %}">{% trans "Register RFID cards" %}</a></li>
+                </ul>
+            </div>
+        {% endif %}
+        {# End board things #}
+    </div>
+
+    <div class="col-md-8 col-xs-12">
+        {% if past_activities %}
+            <div class="current">
+                {% include 'slider.html' %}
+            </div>
+        {% endif %}
+        {# Line 2 #}
+
+        <div>
+            <div class="col-layered col-md-6 col-xs-12">
+                {# News things #}
+                <div class="ia news">
+                    <h2 class="h2-with-buttons">
+                        <a href="{% url 'news:overview' %}">{% trans 'News' %}</a>
+                        {% if request.person.is_active_member %}
+                            <a class="looks-like-a-button" href="{% url 'news:new' %}">{% trans 'Add message' %}</a>
+                        {% endif %}
+                    </h2>
+
+                    <div class="content">
+                        <ul>
+                            {% for news_post in news %}
+                                <li>{{ news_post.publication_date|date_short }}
+                                    <h3>
+                                        <a class="ellipsis-275" href="{{ news_post.get_absolute_url }}">{{ news_post.title }}</a>
+                                        {% if news_post.pinned %}
+                                            <span class="news-pinned" title="{% trans 'This message has been pinned.' %}"></span>
+                                        {% endif %}
+                                    </h3>
+                                    {{ news_post.introduction|markdown }}
+                                </li>
+                            {% empty %}
+                                <li>{% trans 'There are no news posts.' %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {# End news things #}
+
+                {# Birthday things #}
+                {% if user.is_authenticated %}
+                    <div class="ia">
+                        {% if request.is_board %}
+                            <h2><a href="{% url 'members:birthdays' %}">{% trans 'Birthdays' %}</a></h2>
+                        {% else %}
+                            <h2>{% trans 'Birthdays' %}</h2>
+                        {% endif %}
+                        <div class="content">
+                            <ul class="no-bullets">
+                                {% for birthday in birthdays %}
+                                    <li class="person">
+                                        {% if request.is_board %}
+                                            <a href="{{ birthday.get_absolute_url }}">{{ birthday }}</a>
+                                        {% else %}
+                                            {{ birthday }}
+                                        {% endif %}
+                                        ({{ birthday.age }} {% if birtday.age == 1 %}{% trans 'year' %}{% else %}{% trans 'years' %}{% endif %})
+                                    </li>
+                                {% empty %}
+                                    <li>{% trans 'There are no birthdays today' %}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+                {# End birthday things #}
+            </div>
+
+            <div class="col-layered col-md-6 col-xs-12">
+                {# Education news things #}
+                <div class="edu news">
+                    <h2 class="h2-with-buttons">
+                        <a href="{% url 'education:news_archive' %}">{% trans 'Education news' %}</a>
+                        {% if request.person.is_education_committee %}
+                                <a class="looks-like-a-button" href="{% url 'news:new' %}?education">{% trans 'Add message' %}</a>
+                        {% endif %}
+                    </h2>
+
+                    <div class="content">
+                        <ul>
+                            {% for news_post in education_news %}
+                                <li>{{ news_post.publication_date|date_short }}
+                                    <h3>
+                                        <a class="ellipsis-275" href="{{ news_post.get_absolute_url }}">{{ news_post.title }}</a>
+                                        {% if news_post.pinned %}
+                                            <span class="news-pinned" title="{% trans 'This message has been pinned.' %}"></span>
+                                        {% endif %}
+                                    </h3>
+                                    {{ news_post.introduction|markdown }}
+                                </li>
+                            {% empty %}
+                                <li>{% trans 'There are no education news posts.' %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {# End education news things #}
+
+                {# Education complaint things #}
+                {% if user.is_authenticated %}
+                    <div class="edu">
+                        <h2><a href="{% url 'education:complaints' %}">{% trans "Complaints" %}</a></h2>
+
+                        <div class="content">
+                            <h3 class="legend">{% trans 'Recent complaints' %}</h3>
+                            <ul>
+                                {% for complaint in complaints %}
+                                    {% if complaint.course %}
+                                        <li><a href="{{ complaint.get_absolute_url }}">{{ complaint.subject }}: {{ complaint.course }}</a></li>
+                                    {% else %}
+                                        <li><a href="{{ complaint.get_absolute_url }}">{{ complaint.subject }}: {{ complaint.summary }}</a></li>
+                                    {% endif %}
+                                {% empty %}
+                                    <li>{% trans 'No public outstanding complaints' %}.</li>
+                                {% endfor %}
+                            </ul>
+
+                            <div class="buttons">
+                                <a class="looks-like-a-button" href="{% url 'education:complaints' %}">{% trans 'See all complaints / File complaint' %}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {# End education complaint things #}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

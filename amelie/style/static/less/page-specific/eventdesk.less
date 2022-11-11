@@ -1,0 +1,52 @@
+@import "../util/constants";
+
+td {
+  &.event-state-ACCEPTED {
+    background-color: #D1FFBF;
+  }
+  &.event-state-NEW {
+    background-color: #C1E5FF;
+  }
+  &.event-state-UNREGISTERED {
+    background-color: #FFBFBF;
+  }
+
+  &.event-ratio-WARN {
+    box-shadow: inset 0 0 0 2px #FF6A00;
+    span.ratio-text {
+      color: #FF6A00;
+    }
+  }
+
+  &.event-ratio-text-WARN {
+    box-shadow: inset 0 0 0 2px #FF6A00;
+    color: #FF6A00;
+  }
+
+  .state-text {
+    display: block;
+  }
+  .ratio-text {
+    display: block;
+    font-size: 80%;
+  }
+}
+
+pre.eventdesk-message {
+  border: 1px solid grey;
+  padding: 8px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+dd {
+  &.eventdesk-status-NEW a {
+    color: @iacolor;
+  }
+  &.eventdesk-status-ACCEPTED a {
+    color: @currentcolor;
+  }
+  &.eventdesk-status-UNREGISTERED a {
+    color: @educolor;
+  }
+}

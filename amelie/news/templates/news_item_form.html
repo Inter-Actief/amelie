@@ -1,0 +1,89 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}{% trans 'New news message' %}{% endblock titel %}
+
+{% block content %}
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2>{% if is_new %}{% trans 'Add new news message' %}{% else %}{% trans 'Edit news message' %}{% endif %}</h2>
+
+    <div class="content">
+      <form class="big" method="post" action="" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <table>
+              <tr>
+                  <th>{% trans "Title" %}</th>
+                  <td>
+                      {% if form.title_nl.errors or form.title_en.errors %}
+                          {% for error in form.title_nl.errors|extend:form.title_en.errors %}
+                              <div class="error"> {{ error }} </div>
+                          {% endfor %}
+                      {% endif %}
+                      <div class="tabbed-ticker">
+                          <ul>
+                              <li class="active"> NL </li>
+                              <li> EN </li>
+                          </ul>
+                          <div class="tabbed-content">
+                              <div>{{ form.title_nl }}</div>
+                              <div>{{ form.title_en }}</div>
+                          </div>
+                      </div>
+                  </td>
+              </tr>
+
+              <tr>
+                  <th>{% trans "Introduction" %}</th>
+                  <td>
+                      {% if form.introduction_nl.errors or form.introduction_en.errors %}
+                          {% for error in form.introduction_nl.errors|extend:form.introduction_en.errors %}
+                              <div class="error"> {{ error }} </div>
+                          {% endfor %}
+                      {% endif %}
+                      <p class="icon icon-error">{% trans 'Please note, the introduction is shown on the front page, and is also placed before the content on the message page itself.' %}</p>
+                      <div class="tabbed-ticker">
+                          <ul>
+                              <li class="active"> NL </li>
+                              <li> EN </li>
+                          </ul>
+                          <div class="tabbed-content">
+                              <div>{{ form.introduction_nl }}</div>
+                              <div>{{ form.introduction_en }}</div>
+                          </div>
+                      </div>
+                  </td>
+              </tr>
+
+              <tr>
+                  <th>{% trans "Content" %}</th>
+                  <td>
+                      {% if form.content_nl.errors or form.content_en.errors %}
+                          {% for error in form.content_nl.errors|extend:form.content_en.errors %}
+                              <div class="error"> {{ error }} </div>
+                          {% endfor %}
+                      {% endif %}
+                      <div class="tabbed-ticker">
+                          <ul>
+                              <li class="active"> NL </li>
+                              <li> EN </li>
+                          </ul>
+                          <div class="tabbed-content">
+                              <div>{{ form.content_nl }}</div>
+                              <div>{{ form.content_en }}</div>
+                          </div>
+                      </div>
+                  </td>
+              </tr>
+
+              {% fieldset publisher,pinned as form_extras from form %}
+              {{ form_extras.as_table }}
+          </table>
+          <input type="submit" value="{% if is_new %}{% trans 'Create news message' %}{% else %}{% trans 'Edit news message' %}{% endif %} &raquo;" />
+      </form>
+    </div>
+</div></div>
+
+
+{% endblock content %}

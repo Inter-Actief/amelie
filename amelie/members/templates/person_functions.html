@@ -1,0 +1,22 @@
+{% load i18n %}
+<div class="content">
+    {% if obj.function_set.count == 0 %}
+        <p>
+            {% blocktrans %}
+                {{ obj }} is not active.
+            {% endblocktrans %}
+
+            <a class="looks-like-a-button js-load-block" data-container="person_functions" href="{% url 'members:person_functions' obj.id %}">
+                {% trans 'Edit' %}
+            </a>
+        </p>
+    {% else %}
+        {% include 'includes/person_function_table.html' with obj=obj %}
+
+        <div class="buttons">
+            <a class="looks-like-a-button js-load-block" data-container="person_functions" href="{% url 'members:person_functions' obj.id %}">
+                {% trans 'Edit' %}
+            </a>
+        </div>
+    {% endif %}
+</div>

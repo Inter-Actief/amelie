@@ -1,0 +1,39 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Email details' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Email details: ' %}{{ email }}</h2>
+        <div class="content">
+            <p>{% blocktrans with email=email %}The e-mail address {{ email }} is used by the following mappings:{% endblocktrans %}</p>
+            <table>
+                <tr>
+                    <th>{% trans 'Type' %}</th>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'AD name' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'Active' %}</th>
+                </tr>
+                {% for mapping in mappings %}
+                <tr class="{% if not mapping.active %}claudia-inactive{% endif %}">
+                    <td>{{ mapping.type }}</td>
+                    <td>{{ mapping|clau_link }}</td>
+                    <td>{{ mapping.adname|clau_account }}</td>
+                    <td>{{ mapping.description }}</td>
+                    <td>{{ mapping.active|yesno }}</td>
+                </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">{% trans 'This e-mail address is not used by any mappings' %}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

@@ -1,0 +1,286 @@
+/*
+da0870 = background
+ff7bb2 = bars
+ea1121 = buttons
+ffffff = text
+*/
+
+#top, #bottom {
+    background: #da0870;
+}
+
+#top #logo img {
+    max-width: 290px;
+    height: 56px;
+}
+
+#nav {
+	background-color: #FF7BB2;
+}
+
+#nav li a {
+    color: #fff;
+}
+
+#nav li ul li {
+    background: #da0870 !important;
+}
+
+#nav_login ul, #nav_login .ia {
+    background: #da0870 !important;
+}
+
+#nav_login ul li, #nav_login ul li:hover {
+    color: #fff;
+}
+
+#nav_login select#provider, #nav_login input#id_username, #nav_login input#id_password {
+    color: #da0870;
+}
+
+#nav > li:not(.active):hover span#icon-user, #nav > li.active span#icon-user {
+    background: url("/static/img/layout/user_white.png") no-repeat;
+}
+
+#nav li ul li a:hover {
+    background: #ea1121 !important;
+}
+
+#nav li:hover > a, #nav li.hover > a, #nav li.active > a {
+    background: #ea1121;
+    color: #fff;
+}
+
+/* Nav should be blue tones if we are in collapsed view */
+@media(max-width: 991px) {
+    #nav li ul li {
+        background: rgba(0, 0, 0, 0.2) !important;
+    }
+
+    #nav_login ul, #nav_login .ia {
+        background: rgba(0, 0, 0, 0.2) !important;
+    }
+
+    #nav_login select#provider, #nav_login input#id_username, #nav_login input#id_password {
+        color: rgba(0, 0, 0, 0.2);
+    }
+
+    #nav li ul li a:hover {
+        background: rgba(0, 0, 0, 0.5) !important;
+    }
+
+    #nav li:hover > a, #nav li.hover > a, #nav li.active > a {
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+    }
+}
+
+@media(min-width: 992px) {
+    #nav-root {
+        position: relative;
+    }
+}
+
+.profile_picture {
+    position: relative;
+    padding-top: 30px;
+}
+
+.profile_picture::before {
+    background-image: url("/static/img/layout/hearts_hat.png");
+    display: block;
+    content: " ";
+    z-index: 100;
+    height: 100%;
+    width: 60%;
+    background-size: contain;
+    position: absolute;
+    top: 10%;
+    left: 20%;
+    background-repeat: no-repeat;
+}
+
+#subnavbar ul li:hover, #subnavbar ul li.active {
+    background: #da0870;
+}
+
+.ia th {
+    background: #da0870;
+}
+
+.ia .paging > .current, .current .paging > .current, .edu.paging > .current {
+    background: #da0870;
+    border: 1px solid #fff;
+    color: #fff;
+}
+
+.ia .paging > span:not(.current) a, .current .paging > span:not(.current) a, .edu.paging > span:not(.current) a {
+    color: #da0870;
+    border: 1px solid #fff;
+}
+
+.current h2, .ia h2, .edu h2, .current th {
+    background: #da0870;
+    color: #fff;
+}
+
+.content > h2 {
+    padding: 2px 4px;
+}
+
+#slider-list li {
+    background: #FF7BB2 !important;
+    color: #fff;
+}
+
+#slider-list li.active {
+    background: #da0870 !important;
+    color: #fff;
+}
+
+a.looks-like-a-button {
+    color: #fff;
+    background: #ea1121 !important;
+    border-color: #fff;
+}
+
+.ia input[type="button"], .ia input[type="submit"], .ia button, .ia a.looks-like-a-button,
+.edu a.looks-like-a-button, .edu input[type="submit"], .edu input[type="button"], .edu button,
+.current a.looks-like-a-button, .current input[type="submit"], .current input[type="button"], .current button, .ia a.looks-like-a-button, .ia input.looks-like-a-button, #slider-carousel-title a.looks-like-a-button, .current a.looks-like-a-button {
+    color: #fff;
+    background: #ea1121 !important;
+    border-color: #fff;
+    position: relative;
+}
+
+.ia input[type="button"]::before, .ia input[type="submit"]::before, .ia button::before, .ia a.looks-like-a-button::before,
+.edu a.looks-like-a-button::before, .edu input[type="submit"]::before, .edu input[type="button"]::before, .edu button::before,
+.current a.looks-like-a-button::before, .current input[type="submit"]::before, .current input[type="button"]::before, .current button::before, .ia a.looks-like-a-button::before, .ia input.looks-like-a-button::before, #slider-carousel-title a.looks-like-a-button::before, .current a.looks-like-a-button::before {
+    background-image: url("/static/img/layout/valentine_heart_2x.png") !important;
+    background-repeat: no-repeat !important;
+    content: " ";
+    width: 22px;
+    height: 22px;
+    display: block;
+    position: absolute;
+    right: -12px;
+    top: -10px;
+    display: block;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.ia a, .edu a, .current a {
+    color: #ea1121;
+}
+
+#middle, html {
+    background: #ededed;
+}
+
+/* CSS3 snowflakes */
+.valentine-is-coming, .snow {
+    z-index: 100;
+    pointer-events: none;
+}
+
+.valentine-is-coming {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    height: 1600px;
+    max-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    background: transparent;
+}
+
+.hearts {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    -webkit-animation: falling linear infinite both;
+    animation: falling linear infinite both;
+    -webkit-transform: translate3D(0, -100%, 0);
+    transform: translate3D(0, -100%, 0);
+}
+
+.hearts--near {
+    -webkit-animation-duration: 10s;
+    animation-duration: 10s;
+    background-image: url("/static/img/layout/heart-snow-large.png");
+	background-repeat: space;
+	z-index: 999;
+	image-rendering: pixelated
+}
+
+.hearts--near + .hearts--alt {
+    -webkit-animation-delay: 5s;
+    animation-delay: 5s;
+}
+
+.hearts--mid {
+    -webkit-animation-duration: 20s;
+    animation-duration: 20s;
+    background-image: url("/static/img/layout/heart-snow-large.png");
+	background-repeat: space;
+	z-index: 999;
+	image-rendering: pixelated
+}
+
+.hearts--mid + .hearts--alt {
+    -webkit-animation-delay: 10s;
+    animation-delay: 10s;
+}
+
+.hearts--far {
+    -webkit-animation-duration: 30s;
+    animation-duration: 30s;
+    background-image: url("/static/img/layout/heart-snow-large.png");
+	background-repeat: space;
+	z-index: 999;
+	image-rendering: pixelated
+}
+
+.hearts--far + .hearts--alt {
+    -webkit-animation-delay: 15s;
+    animation-delay: 15s;
+}
+
+@-webkit-keyframes falling {
+    0% {
+        opacity: 1;
+        -webkit-transform: translate3D(-7.5%, -100%, 0);
+        transform: translate3D(-7.5%, -100%, 0);
+    }
+    75% {
+        opacity: 1;
+        -webkit-transform: translate3D(7.5%, -25%, 0);
+        transform: translate3D(7.5%, -25%, 0);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: translate3D(7.5%, 0%, 0);
+        transform: translate3D(7.5%, 0%, 0);
+    }
+}
+
+@keyframes falling {
+    0% {
+        opacity: 1;
+        -webkit-transform: translate3D(-7.5%, -100%, 0);
+        transform: translate3D(-7.5%, -100%, 0);
+    }
+    75% {
+        opacity: 1;
+        -webkit-transform: translate3D(7.5%, -25%, 0);
+        transform: translate3D(7.5%, -25%, 0);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: translate3D(7.5%, 0%, 0);
+        transform: translate3D(7.5%, 0%, 0);
+    }
+}

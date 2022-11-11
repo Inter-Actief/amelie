@@ -1,0 +1,22 @@
+.link_style(@regularcolor, @hovercolor) {
+  color: @regularcolor;
+
+  &:hover {
+    color: @hovercolor;
+  }
+}
+
+.link {
+  &_primary {
+    .link_style(@iacolor, @iacolor_dark);
+  }
+
+  &_edu {
+    .link_style(@educolor, @educolor_dark);
+  }
+
+  &_current {
+    .link_style(@currentcolor, @currentcolor_dark);
+  }
+}
+

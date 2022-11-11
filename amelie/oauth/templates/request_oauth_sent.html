@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n md %}
+{% block titel %}{% trans 'OAuth2 Access Request Submitted' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'OAuth2 Access Request Submitted' %}</h2>
+
+        <div class="content">
+            <p>{% trans 'Your request has been succesfull' %}!</p>
+            <p>
+                {% blocktrans %}You have entered the following information{% endblocktrans %}:<br>
+                <b>{% trans 'Application Name' %}</b>: {{ application_name }}<br>
+                <b>{% trans 'Member Name' %}</b>: {{ member_name }}<br>
+                <b>{% trans 'Member Mail' %}</b>: {{ member_mail }}<br>
+                <b>{% trans 'Redirect URLs' %}</b>:
+                <ul>
+                    {% for url in redirect_urls %}
+                        <li>{{ url }}</li>
+                    {% endfor %}
+                </ul>
+                <b>{% trans 'Client Type' %}</b>: {{ client_type }}<br>
+                <b>{% trans 'Description' %}</b>: {{ description }}
+            </p>
+        </div>
+    </div></div>
+{% endblock content %}

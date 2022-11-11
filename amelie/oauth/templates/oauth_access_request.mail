@@ -1,0 +1,14 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load htmlify i18n only %}
+{% block subject %}[Inter-Actief] {% blocktrans %}New OAuth Access Request{% endblocktrans %}{% endblock subject %}
+
+{% block content %}{% htmlify %}{% blocktrans %}A new OAuth access request has been performed by a party.{% endblocktrans %}
+
+{% trans 'Application' %}: {{application_name}}
+{% trans 'Member Name' %}: {{member_name}}
+{% trans 'Member Mail' %}: {{member_mail}}
+{% trans 'Redirect URLs' %}:{% onlyhtml %}<ul>{% endonlyhtml %}{% for url in redirect_urls %}{% onlyhtml %}<li>{% endonlyhtml %}{{url}}{% onlyhtml %}</li>{% endonlyhtml %}{% endfor %}{% onlyhtml %}</ul>{% endonlyhtml %}
+{% trans 'Client Type' %}: {{client_type}}
+{% trans 'Description' %}: {{description}}
+
+{% endhtmlify %}{% endblock content %}

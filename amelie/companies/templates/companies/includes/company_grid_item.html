@@ -1,0 +1,24 @@
+{% load i18n %}
+
+<article class="col col-xs-12 col-sm-6 col-md-4 col-lg-3">
+    <a href="{% url 'companies:company_details' company.slug %}">
+        <div class="block">
+            <a href="{% url 'companies:company_details' company.slug %}">
+                <div class="header">
+                    <h2 class="header__title cc-company__name">{{ company.name }}</h2>
+                </div>
+                <div class="block__content">
+                    {% if company.logo %}
+                        <img class="cc-company__logo" src="{{ company.logo.url }}" alt="{{ company.name }}">
+                    {% endif %}
+                    <p class="cc-company__summary">
+                        {{ company.short_description }}
+                    </p>
+                </div>
+            </a>
+            {% if is_board %}
+                <a class="cc-company__edit" href="{% url 'companies:company_edit' company.slug %}">{% trans 'Edit' %}</a>
+            {% endif %}
+        </div>
+    </a>
+</article>

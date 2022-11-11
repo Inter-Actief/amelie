@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="content">
+    <form action="{% url 'members:committee_data' obj.id %}" method="post" onsubmit="verstuur(this, 'committee_data');return false;">
+        {% csrf_token %}
+        {{ form }}
+        <div class="buttons">
+            <a href="{% url 'members:committee_data' obj.id %}?original=1" class="looks-like-a-button js-load-block" data-container="committee_data">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input type="submit" value="{% trans 'Save' %}"  />
+        </div>
+    </form>
+</div>

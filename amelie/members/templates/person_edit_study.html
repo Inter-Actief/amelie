@@ -1,0 +1,54 @@
+{% load i18n %}
+<div class="content">
+    <form action="{% url 'members:person_study' obj.id %}" method="post" class="js-ajax-form" data-container="person_study">
+    {% csrf_token %}
+
+    {{ form }}
+
+    {{ formset.management_form }}
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <th>{% trans 'Course' %}</th>
+                <th>{% trans 'Starts on' %}</th>
+                <th>{% trans 'Ends on' %}</th>
+                <th>{% trans 'Graduated?' %}</th>
+                <th>{% trans 'Dogroup' %}</th>
+            </tr>
+            {% for form in formset.forms %}
+            {{ form.id }}
+            <tr>
+                <td>
+                    {{ form.study.errors }}
+                    {{ form.study }}
+                </td>
+                <td>
+                    {{ form.begin.errors }}
+                    {{ form.begin }}
+                </td>
+                <td>
+                    {{ form.end.errors }}
+                    {{ form.end }}
+                </td>
+                <td>
+                    {{ form.graduated.errors }}
+                    {{ form.graduated }}
+                </td>
+                <td>
+                    {{ form.dogroup.errors }}
+                    {{ form.dogroup }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="buttons">
+        <a href="{% url 'members:person_study' obj.id %}?original=1" class="looks-like-a-button js-load-block" data-container="person_study">
+            {% trans 'Cancel' %}
+        </a>
+
+        <input type="submit" value="{% trans 'Save' %}" />
+    </div>
+    </form>
+</div>

@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Activate mandate' %}</h3>
+
+    <form action="{% url 'members:person_mandate_activate' obj.id  mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
+        {% csrf_token %}
+        <input type="hidden" name="activate" value="activate" />
+
+        <p>{% blocktrans with mandate=mandate %}
+            Do you wish to activate mandate {{ mandate }}?
+        {% endblocktrans %}</p>
+
+        <p>{% blocktrans %}
+            Only do this if the mandate has been signed and is in the treasurer's folder or mailbox.
+        {% endblocktrans %}</p>
+
+        <div class="buttons">
+            <a href="{% url 'members:person_mandate' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input type="submit" value="{% trans 'Activate' %}" />
+        </div>
+    </form>
+</div>

@@ -1,0 +1,42 @@
+{% load static i18n md %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% trans 'Inter-/Actief/ Cookie Corner Point of Sale' %}</title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}"/>
+    <link rel="stylesheet" href="{% static 'css/personal_tab_pos.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+    {% if theme == "christmas" %}
+        <link rel="stylesheet" href="{% static 'css/personal_tab_pos_christmas.css' %}">
+    {% elif theme == "valentine" %}
+        <link rel="stylesheet" href="{% static 'css/personal_tab_pos_valentine.css' %}">
+    {% endif %}
+    {% block css %}
+    {% endblock %}
+</head>
+<body {% block bodytags %}{% endblock %}>
+    {% block content %}
+    {% endblock %}
+    {% if theme == "christmas" %}
+    <div class="winter-is-coming">
+        <div class="snow snow--mid"></div>
+        <div class="snow snow--mid snow--alt"></div>
+        <div class="snow snow--far"></div>
+        <div class="snow snow--far snow--alt"></div>
+    </div>
+    {% elif theme == "valentine" %}
+    <div class="valentine-is-coming">
+        <div class="hearts hearts--near"></div>
+        <div class="hearts hearts--near hearts--alt"></div>
+    </div>
+    {% endif %}
+    {% block javascript_pre %}
+    {% endblock %}
+    <script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-jsonrpc.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/personal_tab_pos.js' %}"></script>
+    {% block javascript %}
+    {% endblock %}
+</body>
+</html>

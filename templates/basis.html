@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+{% load i18n banners active_menu compress cached_static provider_name %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<html lang="{{ LANGUAGE_CODE }}" {% if env == 'STAGING' %} id="staging" {% elif env == 'DEBUG' %} id="debug"{% endif %}>
+	<head>
+		<!-- SEO -->
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		{% if metadata_enable_opengraph %}
+            {# Make image larger, tricks somewebsites #}
+		    <meta name="twitter:card" content="summary_large_image" />
+		    <meta property="og:type" content="website" />
+		{% else %}
+		    <meta name="description" content="{% trans 'Website of I.C.T.S.V. Inter-Actief, the study association for Technical Computer Science and Business Information Technology students at the University of Twente' %}">
+		    <!-- FB Image -->
+            <meta property="og:image" content="https://{{ request.get_host }}{% cached_static "img/pdf/ialogo.png" %}" />
+		{% endif %}
+		<meta name="keywords" content="{% trans 'inter-actief, utwente, university of twente, computer science, technical computer science, study association, Business Information Technology' %}">
+        <meta name="apple-itunes-app" content="app-id=586912286">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#1d428a">
+
+        <meta name="application-name" content="Inter-Actief" />
+		<title>{% trans 'Study Association Inter-Actief' %} :: {% block titel %}{% trans 'Frontpage' %}{% endblock titel %}</title>
+
+		<!-- Scripts -->
+        {% compress js %}
+            <script src="{% cached_static 'js/jquery-1.8.0.min.js' %}" type="text/javascript"></script>
+            <script src="{% cached_static 'js/bootstrap-datepicker.js' %}" type="text/javascript"></script>
+            <script src="{% cached_static 'js/bootstrap-timepicker.js' %}" type="text/javascript"></script>
+            <script src="{% cached_static 'js/chosen.jquery.min.js' %}" type="text/javascript"></script>
+            <script src="{% cached_static 'js/amelie.js' %}" type="text/javascript"></script>
+        {% endcompress %}
+
+        {% if debug %}
+    	    <link type="text/less" rel="stylesheet" href="{% cached_static 'less/style.less' %}" />
+    		<script src="{% cached_static 'js/less-2.5.3.min.js' %}" type="text/javascript"></script>
+            <link type="text/css" rel="stylesheet" href="{% cached_static 'css/chosen.min.css' %}" />
+        {% else %}
+            {% compress css %}
+                <link type="text/css" rel="stylesheet" href="{% cached_static 'css/compiled.css' %}" />
+                <link type="text/css" rel="stylesheet" href="{% cached_static 'css/chosen.min.css' %}" />
+            {% endcompress %}
+        {% endif %}
+
+        {% if theme == 'christmas' %}
+            <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/christmas.css" />
+        {% elif theme == "valentine" and request.person %}
+            <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/valentine.css" />
+        {% elif theme == "april-fools" %}
+            <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/april-fools.css" />
+        {% endif %}
+
+        {% if request.person.is_candidate_board %}
+            {% compress css %}
+        	<link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
+            <link rel="stylesheet" type="text/css" href="{% cached_static 'css/clippy.css' %}" media="all"/>
+            {% endcompress %}
+            {% compress js %}
+            <script src="{% cached_static 'js/clippy.min.js' %}"></script>
+            <script type="text/javascript">
+                clippy.load('Clippy', function(agent) {
+                    agent.show();
+                    agent.speak("{% trans 'It seems like you are trying to become a board member. Would you like help?' %}");
+                });
+            </script>
+            {% endcompress %}
+        {% endif %}
+
+		{% block head %}{% endblock head %}
+
+		<!-- Feeds -->
+		<link rel="alternate" title="{% trans "News RSS feed" %}" type="application/rss+xml" href="{% url 'feeds:latest-news' %}" />
+   		<link rel="alternate" title="{% trans "Activities RSS-feed" %}" type="application/rss+xml" href="{% url 'feeds:activities' %}" />
+   		<link rel="alternate" title="{% trans "Activities iCal feed" %}" type="text/calendar" href="{% url 'activities:activities_ics_international' lang=LANGUAGE_CODE %}" />
+
+		<!-- Compatibility with older browsers -->
+		<!--[if IE]><script src="https://html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript"></script><![endif]-->
+		<!--[if (gte IE 6)&(lte IE 8)]><script src="https://cdnjs.cloudflare.com/ajax/libs/selectivizr/1.0.2/selectivizr-min.js" type="text/javascript"></script><![endif]-->
+
+        <!-- https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color -->
+        <meta name="theme-color" content="#1D428A">
+	</head>
+	<body>
+		<div id="top" class="clearfix">
+			<div id="header" class="container">
+				{% if LANGUAGE_CODE != "en" %}
+					<form name="setLangEnglish" action="/i18n/setlang/" method="POST">{% csrf_token %}
+						<input name="next" type="hidden" value="{{ request.path }}" />
+						<input type="hidden" name="language" value="en" />
+					</form>
+				{% endif %}
+				{% if LANGUAGE_CODE != "nl" %}
+					<form name="setLangDutch" action="/i18n/setlang/" method="POST">{% csrf_token %}
+						<input name="next" type="hidden" value="{{ request.path }}" />
+						<input type="hidden" name="language" value="nl" />
+					</form>
+				{% endif %}
+				<div id="banners" class="row">
+					<div id="logo" class="max-col-xs-12 max-col-sm-6 max-col-md-3 max-col-lg-2">
+						<a href="{% url 'frontpage' %}">
+                            {% if theme == 'christmas' %}
+                                {% if request.person %}
+                                    <img src="{% cached_static 'img/layout/logo_christmas_winter.svg' %}" data-fallback="{% cached_static 'img/layout/logo_christmas_winter.png' %}" alt="Winter-/Actief/"/>
+                                {% else %}
+                                    <img src="{% cached_static 'img/layout/logo_christmas.svg' %}" data-fallback="{% cached_static 'img/layout/logo_christmas.png' %}" alt="Inter-/Actief/"/>
+                                {% endif %}
+                            {% elif theme == "valentine" and request.person %}
+                                <img src="{% cached_static 'img/layout/logo_valentine.svg' %}" data-fallback="{% cached_static 'img/layout/logo_valentine.png' %}" alt="Inter-/Actief/"/>
+                            {% elif theme == "april-fools" %}
+                                <img src="{% cached_static 'img/layout/logo_production_aprilfools.svg' %}" data-fallback="{% cached_static 'img/layout/logo_production.png' %}" alt="Inter-/Actief/"/>
+                            {% else %}
+                                {% if env == 'STAGING' %}
+                                    <img src="{% cached_static 'img/layout/logo_staging.svg' %}" data-fallback="{% cached_static 'img/layout/logo_staging.png' %}" alt="Inter-/Actief/"/>
+                                {% elif env == 'DEBUG' %}
+                                    <img src="{% cached_static 'img/layout/logo_beta.svg' %}" data-fallback="{% cached_static 'img/layout/logo_beta.png' %}" alt="Inter-/Actief/"/>
+                                {% else %}
+                                    <img src="{% cached_static 'img/layout/logo_production.svg' %}" data-fallback="{% cached_static 'img/layout/logo_production.png' %}" alt="Inter-/Actief/"/>
+                                {% endif %}
+                            {% endif %}
+						</a>
+					</div>
+
+					{% banners 3 %}
+				</div>
+				<div class="col-xs-12" id="nav-root">
+                    <a class="pull-right" href="#"><img class="toggle-menu" src="{% cached_static 'img/layout/hamburger.png' %}" alt="menu" /></a>
+                    <ul id="nav" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 dropdown dropdown-horizontal">
+                        <li class="{% active_menu 'home' %}">
+                            <a href="{% url 'frontpage' %}">Home</a>
+                        </li>
+
+                        <li>
+                            <a href="#">{% trans 'Current' %}<span class="arrow">&#9660;</span></a>
+                            <ul>
+                                <li>
+                                    <a href="{% url 'news:overview' %}">{% trans 'News' %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'activities:activities' %}">{% trans 'Activities' %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'activities:photos' %}">{% trans 'Photo album' %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'videos:list_videos' %}">{% trans "Videos" %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'publications:list_publications' %}">{% trans 'Publications' %}</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="#">{% trans 'Association' %}<span class="arrow">&#9660;</span></a>
+                            <ul>
+                                <li><a href="{% url 'about:page' 1 'about-the-association-inter-actief' %}">{% trans 'Inter-<em>Actief</em>' %}</a></li>
+                                <li><a href="{% url 'about:page' 2 'board' %}">{% trans 'Board' %}</a></li>
+                                <li><a href="{% url 'about:page' 6 'former-boards' %}">{% trans 'Former boards' %}</a></li>
+                                <li><a href="{% url 'about:page' 8 'honorary-members' %}">{% trans 'Honorary members' %}</a></li>
+                                <li><a href="{% url 'about:page' 19 'members-of-merit' %}">{% trans 'Members of Merit' %}</a></li>
+                                <li><a href="{% url 'members:committees' %}">{% trans 'Committees' %}</a></li>
+                                <li><a href="{% url 'about:page' 3 'membership' %}">{% trans 'Membership' %}</a></li>
+                                <li><a href="{% url 'about:page' 26 'graduation-drink' %}">{% trans '(Graduation) drink' %}</a></li>
+                                <li><a href="{% url 'about:page' 11 'presentations' %}">{% trans 'Presentations' %}</a></li>
+                                <li><a href="{% url 'about:page' 20 'symposia' %}">{% trans 'Symposia' %}</a></li>
+                                <li><a href="{% url 'about:page' 28 'study-tours' %}">{% trans 'Study tours' %}</a></li>
+                                <li><a href="{% url 'about:page' 14 'members-initiative' %}">{% trans "Members' initiative" %}</a></li>
+                                <li><a href="{% url 'about:page' 5 'association-song' %}">{% trans 'Association song' %}</a></li>
+                                <li><a href="{% url 'about:page' 16 'alumni-association-eniac' %}">{% trans 'Association ENIAC' %}</a></li>
+                                <li><a href="{% url 'about:page' 4 'sister-associations' %}">{% trans 'Sister associations' %}</a></li>
+				<li><a href="{% url 'about:page' 27 'the-inter-actief-app' %}">{% trans 'Inter-<i>Actief</i> app' %}</a></li>
+				<li><a href="https://inter-archief.net">{% trans 'Inter-Archive' %}</a></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="#">{% trans 'For members' %}<span class="arrow">&#9660;</span></a>
+                            <ul>
+                                <li class="{% active_menu 'azure-dev-tools-for-teaching' %}">
+                                    <a href="{% url 'about:page' 24 'azure-dev-tools-for-teaching' %}">{% trans 'Azure Dev Tools' %}</a>
+                                </li>
+                                <li class="{% active_menu 'gmm' %}">
+                                    <a href="{% url 'gmm:index' %}">{% trans 'GMM documents' %}</a>
+                                </li>
+                                <li class="{% active_menu 'assignments-ut' %}">
+                                    <a href="{% url 'about:page' 18 'assignments-ut' %}">{% trans 'Assignments by the UT' %}</a>
+                                </li>
+                                <li>
+                                    <a href="https://huisstijl.inter-actief.net">{% trans 'Corporate identity' %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'about:page' 25 'old-privacy-policies' %}">{% trans 'Old privacy policies' %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'about:page' 31 'social-media' %}">{% trans 'Social media' %}</a>
+                                </li>
+                                {% if request.person.is_active_member %}
+                                    <li>
+                                        <a href="https://intra.ia.utwente.nl/">{% trans 'Intraweb' %}</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="#">{% trans 'Companies' %}<span class="arrow">&#9660;</span></a>
+
+                            <ul>
+                                <li> <a href="{% url 'companies:company_list' %}"> {% trans 'Company Corner' %}</a> </li>
+                                <li> <a href="{% url 'companies:event_list' %}"> {% trans 'External Activities' %} </a> </li>
+                            </ul>
+                        </li>
+
+                        <li class="{% active_menu 'education' %}">
+                            <a href="#">{% trans 'Education' %}<span class="arrow">&#9660;</span></a>
+
+                            <ul>
+                                <li><a href="{% url 'education:overview' %}">{% trans 'Information' %}</a></li>
+                                <li><a href="{% url 'education:news_archive' %}">{% trans 'Education news' %}</a></li>
+                                <li><a href="{% url 'education:event_overview' %}">{% trans 'Activities' %}</a></li>
+                                <li><a href="https://interactief.itdepartment.nl/">{% trans 'Books' %}</a></li>
+                                <li><a href="https://samenvattingen.inter-actief.utwente.nl/">{% trans 'Summaries' %}</a></li>
+                                <li><a href="{% url 'education:complaints' %}">{% trans 'Complaints' %}</a></li>
+                                <li><a href="{% url 'education:bouquet' %}">{% trans 'Educational bouquet' %}</a></li>
+                                <li><a href="{% url 'education:awards' %}">{% trans 'Education awards' %}</a></li>
+				<li><a href="{% url 'about:page' 29 'tutoring' %}">{% trans 'Tutoring' %}</a></li>
+                            </ul>
+                        </li>
+                        <li class="{% active_menu 'contact'  %}">
+                            <a href="{% url 'about:page' 7 'contact' %}">{% trans 'Contact' %}</a>
+                        </li>
+
+                        <li class="pull-right" id="nav_flag">
+                            {% if LANGUAGE_CODE != "en" %}
+                                <a href="#" onclick="document.setLangEnglish.submit();return false;" title="Switch to English language"><img src="{% cached_static 'img/layout/flag_en.png' %}" alt="English"></a>
+                            {% endif %}
+                            {% if LANGUAGE_CODE != "nl" %}
+                                <a href="#" onclick="document.setLangDutch.submit();return false;" title="Wissel taal naar Nederlands"><img src="{% cached_static 'img/layout/flag_nl.png' %}" alt="Nederlands"></a>
+                            {% endif %}
+                        </li>
+
+                        {% if user.is_authenticated %}
+                            <li>
+                                <a href="#">{{ request.person.incomplete_name }}</a>
+
+                                <ul>
+                                    <li>
+                                        <a href="{% url 'profile_overview' %}">{% trans 'My profile' %}</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'personal_tab:overview' %}">{% trans 'Personal tab' %}</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'logout' %}">{% trans 'Log out' %}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="{% active_menu 'login' %}" id="nav_login">
+                                <a href="#" title="{% trans 'Log in' %}">
+                                    <span id="icon-user"></span> {% trans 'Log in' %}
+                                </a>
+
+                                <ul>
+                                    <li class="ia no-shadow" id="login_box">
+                                        <h3>{% trans 'Log in' %}</h3>
+
+                                        <p>
+                                            {% trans 'You can log in with your UTwente account, or your Inter-<em>Actief</em> account.'%}
+                                        </p>
+
+                                        <p><a href="{% url 'saml2_login' %}?next={{ request.path|urlencode }}" class="looks-like-a-button"><i class="icon icon-building"></i>  {% trans 'Log in with UTwente' %}</a></p>
+                                        <p><a href="#" class="looks-like-a-button expand collapsed" data-target="collapseLogin"><i class="icon icon-lock_go"></i>  {% trans 'Alternative login' %}</a></p>
+                                        <div class="clearfix">&nbsp;</div>
+                                        <div id="collapseLogin" hidden="">
+                                            <form class="big ia no-shadow" method="post" action="{% url 'login' %}">
+                                                {% if show_oauth %}
+                                                    <div class="form-row">
+                                                        <label for="provider">{% trans 'Log in with:' %}</label>
+                                                        <select id="provider" onchange="if(this.value) { location.href=this.value; $('div#login_elements').css('visibility','hidden') }">
+                                                            <option value="" selected="selected">{% trans 'Inter-Actief account' %}</option>
+                                                            {% for backend in backends.backends %}
+                                                            <option value="{% url 'social_auth:begin' backend %}">{{ backend|provider_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                {% else %}
+                                                    <p class="icon error">
+                                                        {% trans "Log in with your Inter-<i>Actief</i> or University of Twente account to link it to your external account." %}
+                                                    </p>
+                                                {% endif %}
+                                                {% csrf_token %}
+                                                {{ form_login }}
+                                                <input type="hidden" name="next" value="{{ request.path }}" />
+                                                <input type="submit" value="{% trans 'Log in' %}" />
+                                            </form>
+                                            <p class="password-reset-link">
+                                                <a href="{% url "account:password_reset" %}">{% trans "Forgot password?" %}</a>
+                                            </p>
+                                        </div>
+
+                                        <div class="clearfix"></div>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+			</div>
+		</div>
+
+		<div id="middle">
+			<div class="follow-container"><div id="screenfollow" class="container"></div></div>
+			<div id="content" class="container">
+                {% if messages %}
+                    <div class="col-xs-12">
+                        <ul class="ia_messages">
+                            {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }} dismissable"{% endif %}> <a class="action_button" data-dismiss>{% trans 'close' %}</a>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+				<div class="clearfix"></div>
+                {% block content %}{% endblock content %}
+				<div class="clearfix"></div>
+			</div>
+		</div>
+
+		<div id="bottom">
+			<div id="footer" class="container">
+				<a href="https://privacy.ia.utwente.nl/">{% trans 'Privacy policy' %}</a> |
+				<a href="{% url 'about:page' 7 'contact' %}">{% trans 'Contact' %}</a> |
+				<a href="https://www.github.com/Inter-Actief/amelie/issues">{% trans 'Report a problem' %}</a> |
+                <a href="{% url 'about:page' 33 'coordinated-vulnerability-disclosure-policy' %}">{% trans 'CVD Policy' %}</a>
+                <div id="sponsor">
+                    <span>Sponsored by: </span>
+                    <img src="{% cached_static 'img/byte_logo.png' %}" alt="Sponsored by Byte" />
+                </div>
+            </div>
+        </div>
+
+        {% if theme == "christmas" %}
+        <div class="winter-is-coming">
+            <div class="snow snow--mid"></div>
+            <div class="snow snow--mid snow--alt"></div>
+            <div class="snow snow--far"></div>
+            <div class="snow snow--far snow--alt"></div>
+        </div>
+        <div id="snowheap"></div>
+        {% elif theme == "valentine" %}
+        <div class="valentine-is-coming">
+            <div class="hearts hearts--near"></div>
+            <div class="hearts hearts--near hearts--alt"></div>
+        </div>
+        {% endif %}
+	</body>
+</html>

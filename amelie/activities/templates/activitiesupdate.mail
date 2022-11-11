@@ -1,0 +1,22 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans with week=week week2=week2%}[Inter-Actief] Activities update W{{ week }}-{{ week2 }}{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear board{% endblocktrans %},
+
+{% blocktrans %}In the following two weeks, there are activities in the I/A/ calendar which take place outside of business hours:{% endblocktrans %}{% endhtmlify %}
+
+{% onlyhtml %}<ul>
+    {% for act in activities %}{% blocktrans with summary=act.activity.summary begin=act.activity.begin end=act.activity.end registered=act.registered %}
+        <li>{{ summary }} from {{ begin }} until {{ end }} - Reservation status: {{ registered }}</li>
+    {% endblocktrans %}{% endfor %}
+</ul>
+
+{% endonlyhtml %}{% onlyplain %}{% for act in activities %}{% blocktrans with summary=act.activity.summary begin=act.activity.begin end=act.activity.end registered=act.registered %}
+* {{ summary }} from {{ begin }} until {{ end }} - Reservation status: {{ registered }}
+{% endblocktrans %}{% endfor %}{% endonlyplain %}
+{% htmlify %}{% blocktrans with url=url %}Check the entire list here: https://www.inter-actief.utwente.nl/activities/
+And the reservations for the following two weeks here: {{ url }}
+
+Kind regards,
+The activity assistant{% endblocktrans %}{% endhtmlify %}{% endblock %}

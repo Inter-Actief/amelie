@@ -1,0 +1,63 @@
+{% extends "basis.html" %}
+{% load i18n md %}
+
+{% block titel %}{% trans 'Educational bouquet' %}{% endblock titel %}
+
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="edu">
+        <h2>{% trans "Educational bouquet" %}</h2>
+
+        <div class="content">
+          {% if message_sent %}
+              <p>
+                  {% trans 'Thank you for your nomination for an educational bouquet!' %}
+              </p>
+          {% else %}
+              <p>
+                  {% blocktrans %}
+                  Do you know someone who is extremely committed to improve the quality of education or is always willing to help students without hesitation?
+                  Then, what are you waiting for? Nominate him or her for the education bouquet!
+                  {% endblocktrans %}
+              </p>
+              <p>
+                  {% blocktrans %}
+                  Think for example of a teacher who gives extra lectures or a student assistant who is making hours in overtime to help each and everyone of you!
+                  You can nominate someone filling in and sending the form below.
+                  {% endblocktrans %}
+              </p>
+
+              <form action="" method="POST" class="big">
+                  {% csrf_token %}
+                  {{ bouquet_form }}
+
+                  <div class="buttons">
+                      <input type="submit" value="{% trans 'Send' %}" />
+                  </div>
+              </form>
+          {% endif %}
+        </div>
+    </div></div>
+
+    {% if prev_bouquets %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="{{ page.slug }}" class="edu">
+                <h2 class="h2-with-buttons">{% trans 'Previous bouquets' %}
+                    {% if is_education %}
+                        <a class="looks-like-a-button"
+                           href="{% url 'about:page_edit' prev_bouquets.id prev_bouquets.slug %}">
+                            {% trans 'Edit Page' %}
+                        </a>
+                    {% endif %}
+                </h2>
+
+                <div class="content">
+                    {{ prev_bouquets.content|markdown:"unsafe" }}
+                </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock content %}
+

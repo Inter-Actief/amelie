@@ -1,0 +1,164 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Direct withdrawal-instruction' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Direct withdrawal-instruction' %}</h2>
+        <div class="content">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>{% trans 'Reference of direct withdrawal' %}</th>
+                            <td>{{ instruction.debt_collection_reference }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'end-to-end-id' %}</th>
+                            <td>{{ instruction.end_to_end_id }}</td>
+                        </tr>
+                        {% if request.is_board %}
+                        <tr>
+                            <th>{% trans 'Person' %}</th>
+                            <td>
+                                {% if instruction.authorization.person %}
+                                    <a href="{{ instruction.authorization.person.get_absolute_url }}">
+                                        {{ instruction.authorization.person  }}
+                                    </a>
+                                {% else %}
+                                    &mdash;
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>{% trans 'Mandate' %}</th>
+                            <td>
+                                {% if request.is_board %}
+                                    <a href="{{ instruction.authorization.get_absolute_url }}">
+                                        {{ instruction.authorization }}
+                                    </a>
+                                {% else %}
+                                    {{ instruction.authorization }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if request.is_board %}
+                        <tr>
+                            <th>{% trans 'direct withdrawal-task' %}</th>
+                            <td>
+                                <a href="{{ instruction.batch.assignment.get_absolute_url }}">
+                                    {{ instruction.batch.assignment.file_identification }}
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Direct withdrawal-batch' %}</th>
+                            <td>{{ instruction.batch }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>{% trans 'Date of execution' %}</th>
+                            <td>{{ instruction.batch.execution_date|date:"d F Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Description' %}</th>
+                            <td>{{ instruction.description }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Price' %}</th>
+                            <td>{{ instruction.amount }}</td>
+                        </tr>
+                        {% if request.is_board %}
+                        <tr>
+                            <th>{% trans 'Amendment' %}</th>
+                            <td>
+                                {% if instruction.amendment %}
+                                    {% trans 'yes' %}
+                                {% else %}
+                                    {% trans 'no' %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>{% trans 'Debit reversal' %}</th>
+                            <td>{{ instruction.reversal|yesno }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% if request.is_board %}
+            <p>
+                <a href="{% url 'personal_tab:debt_collection_instruction_reversal' instruction.id %}" class="icon icon-add">
+                    {% trans 'Insert reversal' %}
+                </a>
+            </p>
+            {% endif %}
+        </div>
+    </div></div>
+
+    {% if request.is_board and instruction.amendment %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Amendment' %}</h2>
+            <div class="content">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <td>{{ instruction.amendment.date|date:"d F Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Previous IBAN' %}</th>
+                            <td>{{ instruction.amendment.previous_iban }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Previous BIC' %}</th>
+                            <td>{{ instruction.amendment.previous_bic }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Other bank' %}</th>
+                            <td>{{ instruction.amendment.other_bank|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Remarks' %}</th>
+                            <td>{{ instruction.amendment.reason }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div></div>
+    {% endif %}
+
+    {% if instruction.reversal %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'Debit reversal' %}</h2>
+            <div class="content">
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <td>{{ instruction.reversal.date|date:"d F Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Pre-settlement' %}</th>
+                            <td>{{ instruction.reversal.pre_settlement|yesno }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Reason' %}</th>
+                            <td>{{ instruction.reversal.get_reason_display }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div></div>
+    {% endif %}
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transactions' %}</h2>
+        <div class="content">
+            {% include 'lists/transactions.html' with transactions=instruction.transactions.all %}
+        </div>
+    </div></div>
+{% endblock content %}

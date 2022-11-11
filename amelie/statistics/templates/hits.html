@@ -1,0 +1,23 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Page visits' %}
+{% endblock %}
+
+{% block content %}
+    {% for page in pages %}
+        <div class="col-xs-12">
+            <div class="ia">
+                <h2>{{ page.name }}</h2>
+                <div class="content">
+                    <ul>
+                        <li>{% trans 'Today:' %} {{ page.today }}</li>
+                        <li>{% trans 'Past 7 days' %} {{ page.week }}</li>
+                        <li>{% trans 'Past 4 weeks' %} {{ page.month }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

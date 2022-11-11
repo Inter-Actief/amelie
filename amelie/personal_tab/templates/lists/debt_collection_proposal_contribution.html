@@ -1,0 +1,62 @@
+{% load i18n %}
+
+{% if rows %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    {% if enabled %}<th>{% trans 'Collect' %}</th>{% endif %}
+                    <th>{% trans 'Person' %}</th>
+                    <th>{% trans 'Membership type' %}</th>
+                    <th>{% trans 'Mandate' %}</th>
+                    <th class="number">{% trans 'Price' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                    {% if enabled %}
+                        <td>
+                            <input type="checkbox" checked="checked"
+                                name="contribution_{{ row.membership.id }}" value="true"/>
+                        </td>
+                    {% endif %}
+                    <td>
+                        <a href="{{ row.person.get_absolute_url }}">
+                            {{ row.person }}
+                        </a>
+                    </td>
+                    <td>{{ row.membership.type }}</td>
+                    <td>
+                        <a href="{{ row.instruction.authorization.get_absolute_url }}">{{ row.instruction.authorization }}</a>
+                        {% if row.instruction.amendment %}
+                            (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
+                        {% endif %}
+                    </td>
+                    <td class="number">{{ row.sumf }}</td>
+                </tr>
+                <tr>
+                    <td colspan="{% if enabled %}5{% else %}4{% endif %}">
+                        {{ row.instruction.description }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    {% if enabled %}
+                        <td></td>
+                    {% endif %}
+                    <td>{% trans 'Total' %}</td>
+                    <td></td>
+                    <td></td>
+                    <td class="number">{{ total }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">
+        {% blocktrans %}There are no collections in this category.{% endblocktrans %}
+    </p>
+{% endif %}

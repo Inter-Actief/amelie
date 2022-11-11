@@ -1,0 +1,83 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+
+{% block titel %}
+    {% trans 'Pre-enrollment status' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans 'Pre-enrollment status' %}</h2>
+            <div class="content">
+                <p>
+                    {% trans 'These are the current pre-enrollments that are not activated yet, per do-group.' %}
+                </p>
+                <p>
+                    {% trans 'If the member has signed their membership and authorization forms, you can click the "Activate" (<i class="icon icon-accept"></i>) button to activate the membership (and authorizations).' %}<br/>
+                    {% trans 'You can also re-print the forms for that member by clicking the "Print" (<i class="icon icon-printer"></i>) button.' %}
+                    {% if delete_enabled %}
+                        <br/>{% trans 'Click the "Delete" (<i class="icon icon-delete"></i>) button to delete the pre-enrollment.' %}<br/>
+                    {% endif %}
+                </p>
+                <p>
+                    <a href="{% url 'members:person_preregister_freshman' %}" class="looks-like-a-button">
+                        {% trans 'Pre-enroll member' %}
+                    </a>
+                    <a href="{% url 'members:preregistration_print_all' %}" class="looks-like-a-button">
+                        {% trans 'Print all membership and authorization forms' %}
+                    </a>
+                    {% if delete_enabled %}
+                        <span class="current">
+                            <a href="{% url 'members:preregistration_status' %}" class="looks-like-a-button float-right">
+                                {% trans 'Disable deletions' %}
+                            </a>
+                        </span>
+                    {% else %}
+                        <span class="edu">
+                            <a href="{% url 'members:preregistration_status' %}?deletion=on" class="looks-like-a-button float-right">
+                                {% trans 'Enable deletions' %}
+                            </a>
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% regroup pre_enrollments by dogroup as pre_enrollments_by_dogroup %}
+
+    {% for dogroup in pre_enrollments_by_dogroup %}
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="ia">
+                <h2>{{ dogroup.grouper }} - {% blocktrans with len=dogroup.list|length %}{{ len }} enrollment(s){% endblocktrans %} <a target="_blank" href="{% url 'members:preregistration_print_dogroup' %}?did={{ dogroup.grouper.pk }}"><i class="icon icon-printer pull-right"></i></a></h2>
+                <div class="content">
+                    <ul>
+                        {% for enrollment in dogroup.list %}
+                            <li>
+                                {{ enrollment.incomplete_name }}&nbsp;
+                                <a href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=accept"><i class="icon icon-accept"></i></a>
+                                <a target="_blank" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=print"><i class="icon icon-printer"></i></a>
+                                <span>&emsp;&emsp;</span>
+                                {% if delete_enabled %}<a href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=delete"><i class="icon icon-delete"></i></a>{% endif %}
+                            </li>
+                        {% empty %}
+                            <li><i>{% trans 'No members' %}</i></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="ia">
+                <h2>{% trans 'No pre-enrollments' %}</h2>
+                <div class="content">
+                    <p>
+                        {% trans 'There are currently no pre-enrollments.' %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock content %}

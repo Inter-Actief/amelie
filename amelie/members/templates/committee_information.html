@@ -1,0 +1,12 @@
+{% load i18n md %}
+
+<div class="content">
+    {{ obj.information|markdown }}
+
+	{% if is_board %}
+		<div class="knoppen">
+		    <input type="button" value="{% trans 'Stop' %}" />
+		    <input type="button" value="{% trans 'Add member' %}" />
+		</div>
+	{% endif %}
+</div>

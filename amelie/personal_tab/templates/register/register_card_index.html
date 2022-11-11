@@ -1,0 +1,36 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Register an RFID card' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Register an RFID card' %}</h2>
+        <div class="content">
+            <h3>{% trans 'Log in to register a card' %}</h3>
+
+            <p>{% trans 'You can log on with your student account (for example: s0123456) or your Inter-<em>Actief</em> account.' %}</p>
+
+            <form class="big" method="post" action="">
+
+                <div id="login_elements">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <label for="id_username">{% trans 'Username' %}:</label>
+                        <input type="text" name="username" value="" autofocus="" required="" maxlength="254" id="id_username">
+                    </div>
+                    <div class="form-row">
+                        <label for="id_password">{% trans 'Password' %}:</label>
+                        <input type="password" name="password" required="" id="id_password">
+                    </div>
+
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Log in' %}">
+                    </div>
+                </div>
+            </form>
+
+            <div class="clearfix"></div>
+        </div>
+    </div></div>
+{% endblock content %}

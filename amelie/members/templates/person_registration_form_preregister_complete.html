@@ -1,0 +1,46 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+
+{% block titel %}
+    {% trans 'Pre-enrollment successful' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <!-- Introduction-->
+            <h2>{% trans 'Pre-enrollment successful' %}</h2>
+            <div class="content">
+                <p>
+                    {% trans 'Your pre-enrollment was successful!' %}
+                </p>
+                <p>
+                    <b>{% trans 'Please check your e-mail for your enrollment form(s) and sign them!' %}</b>
+                </p>
+                <p>
+                    {% blocktrans %}To finalize your enrollment at Inter-<i>Actief</i>, you will need to sign your membership form generated with the details you provided in previous steps. By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.{% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}If you opted for one or both mandates to pay for your membership fee and/or consumptions and activities, you will also need to sign these mandates.{% endblocktrans %}
+                </p>
+                <p>
+                    {% trans 'See you soon at Inter-<em>Actief</em>!' %}
+                </p>
+
+                <div class="small-form-spacer"></div>
+
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;min-width: 85px;">
+                        {% trans 'Complete!' %}
+                    </div>
+                </div>
+
+                <p>
+                    <a href="{% url 'frontpage' %}" class="looks-like-a-button">
+                        {% trans 'Back to front page' %}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

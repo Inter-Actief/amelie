@@ -1,0 +1,38 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Payment statistics' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans "Payments" %}</h2>
+            <div class="content">
+                <table class="totals">
+                    <tr>
+                        <td></td>
+                        {% for ptype in payment_types %}
+                            <th>{{ ptype.name }}</th>
+                        {% endfor %}
+                        <th>{% trans 'Total' %}</th>
+                    </tr>
+                    {% for row in rows %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>{% trans 'Totals' %}</td>
+                        {% for totalcell in totalcells %}
+                            <td>{{ totalcell }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

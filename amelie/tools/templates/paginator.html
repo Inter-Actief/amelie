@@ -1,0 +1,27 @@
+{% load i18n %}
+
+{% if page and page.has_other_pages %}
+    <p class="paging">
+        {% if page.has_previous %}
+            <span><a href="?page=1&amp;{{ query }}">{% trans 'First' %}</a></span>
+            <span><a href="?page={{page.previous_page_number}}&amp;{{ query }}">{% trans 'Back' %}</a></span>
+        {% endif %}
+
+        {% for p in page.paginator.page_range %}
+            {% if p >= page.number|add:"-3" and p <= page.number|add:"3" %}
+            <span>
+                {% if p == page.number %}
+                    <span class="current">{{ p }} / {{ page.paginator.num_pages }}</span>
+                {% else %}
+                    <a href="?page={{ p }}&amp;{{ query }}" >{{ p }}</a>
+                {% endif %}
+            </span>
+            {% endif %}
+        {% endfor %}
+
+        {% if page.has_next %}
+            <span><a href="?page={{ page.next_page_number }}&amp;{{ query }}">{% trans 'Next' %}</a></span>
+            <span><a href="?page={{ page.paginator.num_pages }}&amp;{{ query }}">{% trans 'Last' %}</a></span>
+        {% endif %}
+    </p>
+{% endif %}

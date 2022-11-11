@@ -1,0 +1,44 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Delete account' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <div class="content">
+                {% blocktrans with id=person.id %}
+                    Are you sure you want to delete: {{ person }} (id={{ id }})?<br/>
+                    The following things will be removed as well:<br/>
+                {% endblocktrans %}
+                <ul>
+                    {% for membership in memberships %}
+                        <li>{% blocktrans with id=membership.id %}Membership: {{ id }}{% endblocktrans %}</li>
+                        {% if membership.payment %}
+                            <ul>
+                                <li>{{ membership.payment }}</li>
+                            </ul>
+                        {% endif %}
+                    {% endfor %}
+                    {% if student %}
+                        <li>{{ student.number }}</li>
+                        <ul>
+                            {% for period in studyperiods %}
+                                <li>{{ period }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </ul>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="buttons">
+                        <input type="submit" value="{% trans "Yes, throw away" %}"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,33 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans "Office duty schedules" %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2 class="h2-with-buttons">
+            {% trans "Office duty schedules" %}
+            <a href="{% url 'room_duty:table_add' %}" class="looks-like-a-button">{% trans 'Add' %}</a>
+        </h2>
+        <div class="content">
+            <a href="{% url 'room_duty:room_duty_ics' request.person.pk %}"><img src="{{STATIC_URL}}img/icons/calendar.png" alt="iCal-link" title="{% trans 'iCal document with your office duties'%}" /> {% trans 'iCal with all your office duties' %}</a>
+            <ul>
+                {% for table in tables %}
+                    <li>
+                        <a href="{% url 'room_duty:table_overview' table.pk %}">{{ table }}</a>
+                        <a href="{% url 'room_duty:table_change' table.pk %}" class="looks-like-a-button">
+                            {% trans 'Edit' %}
+                        </a>
+                        <a href="{% url 'room_duty:table_delete' table.pk %}" class="looks-like-a-button">
+                            {% trans 'Delete' %}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li><em>{% trans "There are no office duty schedules." %}</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

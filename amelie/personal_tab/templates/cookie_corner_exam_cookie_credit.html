@@ -1,0 +1,61 @@
+{% extends "basis.html" %}
+{% load i18n transaction_link %}
+
+{% block titel %}{% trans 'Exam credit transactions' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="edu">
+        <h2>
+            {% trans 'Exam credit transactions' %}
+
+            {% if person %}
+                {% trans 'from' %} {{ person }}
+            {% endif %}
+        </h2>
+
+        <div class="content">
+            <form class="big" action="{% exam_cookie_credit_link %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+
+                <input type="submit" value="{% trans 'Show overview' %}" />
+            </form>
+        </div>
+        <div class="content">
+            {% if not has_transactions %}
+                <p class="icon warning">{% trans 'No transactions have been found' %}</p>
+            {% elif overview_type == 'day' %}
+                {% include "lists/exam_cookie_credit_transactions.html" with transactions=all_transactions.0 total=total totals=totals.0 %}
+
+                <h3>{% trans 'Balance transaction' %}</h3>
+                {% include "lists/exam_cookie_credit_transactions.html" with transactions=all_transactions.1 total=total totals=totals.1  %}
+
+                <h3>{% trans 'Usage transactions' %}</h3>
+                {% include "lists/exam_cookie_credit_transactions.html" with transactions=all_transactions.2 total=total totals=totals.2  %}
+            {% else %}
+                {% if not date_from %}
+                    <h3>
+                        {% blocktrans with count=last_10_transactions|length %}
+                            Last {{ count }} transactions
+                        {% endblocktrans %}
+                    </h3>
+
+                    {% include "lists/exam_cookie_credit_transactions.html" with transactions=transactions total=total totals=totals %}
+
+                    <h3>{% trans 'Previous transactions' %}</h3>
+                {% endif %}
+
+                {% include "lists/exam_cookie_credit_totals.html" %}
+            {% endif %}
+
+            {% if request.is_board and person and not date_from %}
+                <div class="buttons">
+                    <a href="{% url 'personal_tab:person_exam_cookie_credit_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                    {% trans 'Add credit for exams' %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div></div>
+
+{% endblock content %}

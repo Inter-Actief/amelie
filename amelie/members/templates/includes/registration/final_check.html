@@ -1,0 +1,71 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans "That's it!" %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'That was it. Please check your personal details again and then continue.' %}
+            </p>
+            {% if form_type == "freshmen" or form_type == "pre_enroll_freshmen" %}
+                {% include 'includes/registration/data_overview_freshmen.html' with data=form_data all_preferences=all_preferences %}
+            {% elif form_type == "employee" %}
+                {% include 'includes/registration/data_overview_employee.html' with data=form_data all_preferences=all_preferences %}
+            {% elif form_type == "external" %}
+                {% include 'includes/registration/data_overview_external.html' with data=form_data all_preferences=all_preferences %}
+            {% else %}
+                {% include 'includes/registration/data_overview_general.html' with data=form_data all_preferences=all_preferences %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Is everything OK?' %}</h2>
+        <div class="content">
+            <!-- Done filling in form -->
+            <div class="form-group radio-button-multiline-padding">
+                {{ wizard.form.done.errors }}
+                <div class="col-xs-1 col-sm-1">{{ wizard.form.done }}</div>
+                <label class="col-xs-11 col-sm-11" for="{{ wizard.form.done.auto_id }}">
+                    {% trans 'Did you fill in all the formfields?' %} <span class="form-required">*</span><br/>
+                    <small class="form-text text-muted">{% trans 'All information I filled in is correct and has been checked again.' %}</small>
+                </label>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Permission for processing of personal details' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'According to Dutch law, we have to explicitly ask you for permission to process your personal details. By checking the box below, you give us permission to save and use your personal details for the purposes listed in our <a href="https://privacy.ia.utwente.nl/en/" target="_blank">privacy document</a>.' %}
+            </p>
+
+            <p>
+                {% trans 'According to Dutch law, we cannot process personal details of people under 16 years old, unless their parent(s)/guardian(s) have given permission for it. Are you younger then 16 years old, please ask your parent(s)/guardian(s) if they give permission that Inter-<i>Actief</i> can process your personal details.' %}
+            </p>
+
+            <!-- Over 16 years old (or permission) and privacy statement consent check -->
+            <div class="form-group radio-button-multiline-padding">
+                {{ wizard.form.over_16_or_permission_and_agree_to_privacy_statement.errors }}
+                <div class="col-xs-1 col-sm-1">{{ wizard.form.over_16_or_permission_and_agree_to_privacy_statement }}</div>
+                <label class="col-xs-11 col-sm-11" for="{{ wizard.form.over_16_or_permission_and_agree_to_privacy_statement.auto_id }}">
+                    {% trans 'I am 16 years old or older, and I give permission, or my parent(s)/guardian(s) give permission, that my personal details may be processed by Inter-<i>Actief</i>.' %} <span class="form-required">*</span><br/>
+                    <small class="form-text text-muted">{% trans 'If you are under 16 years old, you <b>have</b> to actually ask for permission, do not just check the box!' %}</small>
+                </label>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            {% if form_type != "pre_enroll_freshmen" %}
+                <p>{% trans 'After you send the form one or more PDF-documents will appear that you need to print out and sign.' %}</p>
+            {% endif %}
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

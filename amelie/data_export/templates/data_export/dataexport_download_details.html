@@ -1,0 +1,44 @@
+{% load i18n %}
+{% if object.is_ready %}
+    <b>{% trans 'Download details' %}</b>
+    <table>
+        <tr>
+            <th>{% trans 'Filename' %}</th>
+            <td>{{ object.filename }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Requested on' %}</th>
+            <td>{{ object.request_timestamp }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Finished on' %}</th>
+            <td>{{ object.complete_timestamp }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Number of times downloaded' %}</th>
+            <td>{% blocktrans with download_count=object.download_count %}{{ download_count }} times{% endblocktrans %}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Size' %}</th>
+            <td>{{ object_size|filesizeformat }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Expiry date' %}</th>
+            <td>{{ object.expires_on }}</td>
+        </tr>
+    </table>
+
+    <a class="looks-like-a-button" href="{% url 'data_export:download_export' object.download_code %}">{% trans 'Download export' %}</a>
+{% else %}
+    <b>{% trans 'Export details' %}</b>
+    <table>
+        <tr>
+            <th>{% trans 'Requested on' %}</th>
+            <td>{{ object.request_timestamp }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Expiry date' %}</th>
+            <td>{{ object.expires_on }}</td>
+        </tr>
+    </table>
+{% endif %}

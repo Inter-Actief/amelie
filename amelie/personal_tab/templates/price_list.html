@@ -1,0 +1,41 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transactions' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Price list' %}</h2>
+        <div class="content">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Category' %}</th>
+                            <th>{% trans 'Article' %}</th>
+                            <th class="align-right">{% trans 'Price' %}</th>
+                            <th class="align-right">{% trans 'kCal' %}</th>
+                            <th class="align-right">{% trans 'kCal/euro' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                            <tr>
+                                <td colspan="5"><h3>{{ cat.name }}</h3></td>
+                            </tr>
+                            {% for article in cat.articles %}
+                                <tr>
+                                    <td></td>
+                                    <td>{{ article.article.name }}</td>
+                                    <td class="align-right">{{ article.article.price }}</td>
+                                    <td class="align-right">{{ article.article.kcal|default_if_none:"-" }} </td>
+                                    <td class="align-right">{{ article.kcal_per_euro|default_if_none:"-" }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div></div>
+{% endblock content %}

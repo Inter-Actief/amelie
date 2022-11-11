@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% trans 'Add office duty pool' %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>
+            {% trans 'Add office duty pool' %}
+        </h2>
+        <div class="content">
+            <form method="post" class="big">
+                {% csrf_token %}
+                {{ form.as_div }}
+                <a href="{% url 'room_duty:pools' %}" class="looks-like-a-button">{% trans 'Cancel' %}</a>
+                <input type="submit" value="{% trans 'Save' %}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

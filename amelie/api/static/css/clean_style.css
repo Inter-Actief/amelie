@@ -1,0 +1,30 @@
+body {
+	margin:0;
+	padding:0;
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    color: #333;
+    background-color: #eee;
+}
+
+.markdown p{
+	padding: 5px;
+}
+
+.markdown h1, h2, h3, h4, h5, h6{
+    padding: 5px;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.outer > img {
+	width:100%;
+	position:relative;
+	z-index:1;
+}
+
+.wrapper{
+    background-color: #fff;
+    border: 1px solid #ccc;
+    margin: 10px;
+}

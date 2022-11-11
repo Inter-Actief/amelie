@@ -1,0 +1,93 @@
+{% extends "basis.html" %}
+{% load cached_static i18n blame_tags %}
+
+{% block titel %}
+    {% trans 'Blame' %} - {% blocktrans with actual_obj=object|actual %}Change to {{ actual_obj }}{% endblocktrans %}
+{% endblock titel %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% cached_static 'css/diff2html.github.min.css' %}" />
+    <link rel="stylesheet" href="{% cached_static 'css/diff2html.min.css' %}" />
+    <script type="text/javascript" src="{% cached_static 'js/diff2html-ui.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans with classname=object.content_type.model pk=object.object_pk actual_obj=object|actual %}Change to {{ classname }} {{ pk }}: {{ actual_obj }}{% endblocktrans %}</h2>
+
+        <div class="content">
+            <p>
+                <a href="{% url 'blame:overview' %}" class="looks-like-a-button">{% trans 'Blame overview' %}</a>
+                <a href="{% url 'blame:model_overview' content_type=content_type_id %}" class="looks-like-a-button">{% blocktrans with classname=object.content_type.model %}Overview for {{ classname }}{% endblocktrans %}</a>
+                <a href="{% url 'blame:object_changelog' content_type=content_type_id object_pk=object.object_pk %}" class="looks-like-a-button">{% blocktrans with actual_obj=object|actual %}All changes to {{ actual_obj }}{% endblocktrans %}</a>
+            </p>
+
+            <h3>{% blocktrans with actual_obj=object|actual %}Change to {{ actual_obj }}{% endblocktrans %}</h3>
+
+            <table>
+                <tr>
+                    <th>{% trans 'Timestamp' %}</th>
+                    <td>{{ object.timestamp }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'By' %}</th>
+                    {% if not object.remote_addr %}
+                        <td><a class="icon person" href="#">{% trans 'System' %}</a></td>
+                    {% elif not object.actor %}
+                        <td><a class="icon person" href="#">{% trans 'Anonymous' %}</a></td>
+                    {% else %}
+                        <td><a class="icon person" href="{{ object.actor.person.get_absolute_url }}">{{ object.actor.person }}</a></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th>{% trans 'Object' %}</th>
+                    <td>
+                    {% if object|get_url != "" %}
+                        <a class="icon icon-link" title="{% trans 'Detail page of this object' %}" href="{{ object|get_url }}">{{ object|actual }}</a>
+                    {% else %}
+                        {{ object|actual }}
+                    {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Object type' %}</th>
+                    <td>{{ object|full_classname }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Action' %}</th>
+                    <td>{{ object|action_string }}</td>
+                </tr>
+            </table>
+
+            <h3>{% trans 'Changes' %}</h3>
+            {% if object.action == 2 %}
+                <p>{% trans 'This object has been removed.' %}</p>
+            {% else %}
+                <div id="objectChangesDiff"></div>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <script type="text/javascript">
+        const diffs = `{{ object|diff_string }}`;
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var targetElement = document.getElementById('objectChangesDiff');
+          var configuration = {
+            drawFileList: false,
+            fileListToggle: false,
+            fileListStartVisible: false,
+            fileContentToggle: false,
+            matching: 'words',
+            diffStyle: 'word',
+            outputFormat: 'side-by-side',
+            synchronisedScroll: true,
+            highlight: true,
+            renderNothingWhenEmpty: false,
+          };
+          var diff2htmlUi = new Diff2HtmlUI(targetElement, diffs, configuration);
+          diff2htmlUi.draw();
+          diff2htmlUi.highlightCode();
+        });
+    </script>
+{% endblock content %}

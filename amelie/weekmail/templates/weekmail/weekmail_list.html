@@ -1,0 +1,41 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Weekly mails and mastermails' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="current">
+            <h2>{% trans 'Weekly mails and mastermails' %}</h2>
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table layout">
+                        <thead>
+                        <tr>
+                            <th> {% trans "Weekly mail" %}</th>
+                            {% if request.is_board %}
+                                <th> {% trans "Published" %}</th>
+                                <th> {% trans "Edit" %}</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        {% for object in object_list %}
+                            <tr>
+                                <td width="100%"><a href="{% url 'weekmail:preview' object.pk %}"> {{ object }} </a></td>
+                                {% if request.is_board %}
+                                    <td> {{ object.published|yesno }} </td>
+                                    <td><a href="{% url 'weekmail:wizard' object.pk %}">{% trans "Edit" %}</a></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% if request.is_board %}
+                    <a class="looks-like-a-button" href="{% url 'weekmail:new' %}">{% blocktrans %}New weekly mail or mastermail{% endblocktrans %}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

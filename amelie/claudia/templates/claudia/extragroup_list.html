@@ -1,0 +1,44 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Extra AD groups' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Extra AD groups' %}</h2>
+        <div class="content">
+            <p class="icon icon-add">
+                <a href="{% url 'claudia:extragroup_add' %}">{% trans 'Create extra group' %}</a>
+            </p>
+
+            {% include "paginator.html" with page=page_obj %}
+
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th>{% trans 'Name' %}</th>
+                        <th>{% trans 'E-mail address' %}</th>
+                        <th>{% trans 'Account name' %}</th>
+                        <th>{% trans 'Description' %}</th>
+                        <th>{% trans 'Active' %}</th>
+                        <th>{% trans 'Dogroup' %}</th>
+                    </tr>
+                    {% for group in page_obj %}
+                    <tr {% if not group.active %}class="claudia-inactive"{% endif %}>
+                        <td>{{ group|clau_link }}</td>
+                        <td>{{ group.email|clau_link }}</td>
+                        <td>{{ group.adname|clau_account }}</td>
+                        <td>{{ group.description }}</td>
+                        <td>{{ group.active|yesno }}</td>
+                        <td>{{ group.dogroup|yesno }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

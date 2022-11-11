@@ -1,0 +1,215 @@
+{% extends "basis.html" %}
+{% load i18n md %}
+
+{% block titel %}{% trans 'Complaint overview' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+        <h2>{% trans 'Complaint overview' %}</h2>
+
+        <div class="content">
+            <p>
+                {% blocktrans %}
+                    Not everything in your study is smooth sailing, and you are not always the cause of it.
+                    Public complaints that are reported to us are listed below.
+                    You can support a complaint, comment on it, or file a new complaint.
+                {% endblocktrans %}
+            </p>
+
+          {% if not expired and not complaint_objs %}
+              <p class="icon icon-information">{% trans 'There are no open public complaints' %}</p>
+          {% endif %}
+
+          <div class="buttons">
+              <a href="{% url 'education:complaint_new' %}" class="looks-like-a-button">{% trans 'File new complaint' %}</a>
+          </div>
+        </div>
+    </div></div>
+
+
+    {% if expired %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2 class="expand" data-target="expired_complaints">{% trans 'Marking period expired' %}</h2>
+
+            <div id="expired_complaints" class="content" hidden>
+                <table>
+                    {% for complaint in expired %}
+                        <tr>
+                            <td class="layout">
+                                <h3>
+                                    {% if request.person == complaint.reporter %}
+                                        <span class="icon icon-accept" title="{% trans 'This is your complaint' %}"></span>
+                                    {% endif %}
+                                    {% if not complaint.public %}
+                                        <span class="icon icon-eye" title="{% trans 'This complaint is not public' %}"></span>
+                                    {% endif %}
+                                    <a href="{{ complaint.get_absolute_url }}">
+                                        {% if complaint.summary %}
+                                            {{ complaint.subject }}: {{ complaint.summary }}
+                                        {% else %}
+                                            {{ complaint.get_subject_display }}
+                                        {% endif %}
+                                    </a>
+                                    <span class="icon icon-thumb_up" title="{% trans 'Number of fellow students with the same complaint' %}">{{ complaint.people.count | add:"1" }}</span>
+                                    <span class="icon icon-comment" title="{% trans 'Number of comments' %}">{{ complaint.complaintcomment_set.count }}</span>
+                                </h3>
+
+                                {% if complaint.course %}
+                                    <p>
+                                        <span class="icon vak" title="{% trans 'Course' %}">
+                                            <a href="{{ complaint.course.get_absolute_url }}">{{ complaint.course }}</a>
+                                        </span>
+                                    </p>
+                                {% endif %}
+
+
+                                {{ complaint.comment|markdown }}
+
+                                <p class="small right">
+                                    {% blocktrans with complaint.published|timesince as time %}Added {{ time }} ago{% endblocktrans %}
+                                </p>
+
+                                {% if request.person != complaint.reporter %}
+                                <form action="" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="complaint_id" value="{{ complaint.id }}" />
+
+                                    {% if request.person in complaint.people.all %}
+                                    <input type="submit" value="{% trans 'I do not suffer from this' %}." />
+                                    <input type="hidden" name="nosupport" value="{{ complaint.id }}" />
+                                    <span class="icon icon-thumb_up" title="{% trans 'I suffer from these problems too' %}."></span>
+                                    {% else %}
+                                    <input type="hidden" name="support" value="{{ complaint.id }}" />
+                                    <input type="submit" value="{% trans 'Agree with this complaint' %}." />
+                                    {% endif %}
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div></div>
+    {% endif %}
+
+    {% if complaint_objs %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2>{% trans 'Open complaints' %}</h2>
+
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table layout">
+                        {% for complaint in complaint_objs %}
+                            <tr>
+                                <td class="layout">
+                                    <h3>
+                                        {% if request.person == complaint.reporter %}
+                                            <span class="icon icon-accept" title="{% trans 'This is your complaint' %}"></span>
+                                        {% endif %}
+                                        {% if not complaint.public %}
+                                            <span class="icon icon-eye" title="{% trans 'This complaint is not public' %}"></span>
+                                        {% endif %}
+                                        <a href="{{ complaint.get_absolute_url }}">{{ complaint.subject }}: {{ complaint.summary }}</a>
+                                        <span class="icon icon-thumb_up" title="{% trans 'Number of fellow students with the same complaint' %}">{{ complaint.people.count | add:"1" }}</span>
+                                        <span class="icon icon-comment" title="{% trans 'Number of comments' %}">{{ complaint.complaintcomment_set.count }}</span>
+                                    </h3>
+
+                                    {% if complaint.course %}
+                                        <p>
+                                            <span class="icon vak" title="{% trans 'Course' %}">
+                                                <a href="{{ complaint.course.get_absolute_url }}">{{ complaint.course }}</a>
+                                            </span>
+                                        </p>
+                                    {% endif %}
+
+
+                                    {{ complaint.comment|markdown }}
+
+                                    <p class="small right">
+                                        {% blocktrans with complaint.published|timesince as time %}Added {{ time }} ago{% endblocktrans %}
+                                    </p>
+
+                                    {% if request.person != complaint.reporter %}
+                                    <form action="" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="complaint_id" value="{{ complaint.id }}" />
+
+                                        {% if request.person in complaint.people.all %}
+                                        <input type="submit" value="{% trans 'I do not suffer from this' %}." />
+                                        <input type="hidden" name="nosupport" value="{{ complaint.id }}" />
+                                        <span class="icon icon-thumb_up" title="{% trans 'I suffer from these problems too' %}."></span>
+                                        {% else %}
+                                        <input type="hidden" name="support" value="{{ complaint.id }}" />
+                                        <input type="submit" value="{% trans 'Agree with this complaint' %}." />
+                                        {% endif %}
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div></div>
+    {% endif %}
+
+    {% if completed %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2 class="expand" data-target="expand_completed">{% trans 'Old complaints' %}</h2>
+            <div class="content" id="expand_completed" hidden>
+
+            <span class="icon"></span>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans 'Complaint' %}</th>
+                        <th class="align-center">
+                            <span class="icon icon-thumb_up" title="{% trans 'Number of fellow students with the same complaint' %}">{% trans 'Supporters' %}</span>
+                        </th>
+                        <th class="align-center">
+                            <span class="icon icon-comments" title="{% trans 'Number of comments' %}">{% trans 'Comments' %}</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in completed %}
+                        <tr>
+                            <td>
+                                <span class="icon done"></span>
+
+                                {% if not complaint.public %}
+                                    &nbsp; <span class="icon icon-eye" title="{% trans 'This complaint is not public' %}"></span>
+                                {% endif %}
+
+                                <a href="{{ complaint.get_absolute_url }}">
+                                    {% if complaint.summary %}
+                                        {% if complaint.course %}
+                                            {{ complaint.subject }}: {{ complaint.summary }} ({{ complaint.course.name }})
+                                        {% else %}
+                                            {{ complaint.subject }}: {{ complaint.summary }}
+                                        {% endif %}
+                                    {% else %}
+                                        {{ complaint.subject }}: {{ complaint.course.name }}
+                                    {% endif %}
+                                </a>
+                                <span class="small right">
+                                    {% blocktrans with complaint.published|timesince as time %}Added {{ time }} ago{% endblocktrans %}
+                                </span>
+
+                            </td>
+
+                            <td class="align-center">
+                                {{ complaint.people.count|add:"1" }}
+                            </td>
+
+                            <td class="align-center">
+                                <a href="{{ complaint.get_absolute_url }}">{{ complaint.complaintcomment_set.count }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div></div>
+    {% endif %}
+{% endblock content %}

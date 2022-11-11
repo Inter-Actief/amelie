@@ -1,0 +1,142 @@
+@import "../util/constants";
+@import "../htmltags/list";
+
+.activity-list {
+  ul {
+    .no-bullets;
+    .no-bullets.no-padding;
+    margin: 0;
+  }
+
+  li {
+    border-bottom: 1px solid #ddd;
+    padding: 5px 10px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    h3 {
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 1.4em;
+      margin-top: 2px;
+      margin-bottom: 0;
+    }
+
+    a {
+      margin-left: 5px;
+      margin-bottom: 3px;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+  }
+}
+
+.activity-list-item {
+  display: flex; 
+  justify-content: space-between;
+}
+
+.activity-list-icons {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: 16px 16px;
+}
+
+#past-activities {
+  min-height: 311px;
+
+  .current {
+    padding-bottom: 0;
+  }
+
+  h2 {
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+  }
+}
+
+#carousel {
+  position: relative;
+  height: 320px;
+  background-color: #eee;
+}
+
+#slider-items {
+  position: relative;
+  height: 233px;
+  width: 100%;
+  background-color: #EEE;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+
+  img {
+    margin: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+}
+
+#slider-list {
+  padding: 0;
+  margin: 0;
+
+  li {
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1em;
+    list-style: none;
+    padding: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    * {
+      font: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    &.active {
+      color: #FFF;
+      background-color: rgb(7, 120, 33);
+    }
+  }
+}
+
+.committees #slider-list li.active {
+  background-color: #1d428a;
+}
+
+.news {
+  ul {
+    .no-bullets;
+    .no-bullets.no-padding;
+  }
+
+  li {
+    margin-bottom: 10px;
+  }
+
+  h3 {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1.4em;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    margin-top: 0;
+    word-wrap: break-word;
+  }
+}
+
+#companies li {
+  margin-bottom: 5px;
+}

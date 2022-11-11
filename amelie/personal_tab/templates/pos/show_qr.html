@@ -1,0 +1,62 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block content %}
+    <div id="container">
+        <div id="header">
+            <div id="header-logo"></div>
+            <div id="header-logout-button">
+                <a href="{% url 'personal_tab:pos_logout' %}">
+                    <span id="scan-header">{% trans 'Return to home' %}</span>
+                </a>
+            </div>
+            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+        </div>
+        <div id="content" class="center">
+            <div id="login-box">
+                <div id="login-box-header"{% if type != "login" and type != "register" %} class="error"{% endif %}>
+                    {% if type == "login" %}
+                        <h1>{% trans 'Log in' %}</h1>
+                    {% elif type == "register" %}
+                        <h1>{% trans 'Register new RFID card' %}</h1>
+                    {% else %}
+                        <h1>{% trans 'Error' %}</h1>
+                    {% endif %}
+                </div>
+                <div id="login-box-content">
+                    {% if type == "login" %}
+                        <p>{% trans 'Scan the QR code below to log in.' %}</p>
+                        {% if debug %}<a href="{{ token.get_url }}">{% endif %}
+                            <img src="{{ token.png_image|safe }}" />
+                        {% if debug %}</a>{% endif %}
+                    {% elif type == "register" %}
+                        <p>{% trans 'Scan the QR code below to register your new card.' %}</p>
+                        {% if debug %}<a href="{{ token.get_url }}">{% endif %}
+                            <img src="{{ token.png_image|safe }}" />
+                        {% if debug %}</a>{% endif %}
+                    {% else %}
+                        <p>{% trans 'Something went wrong. Please go back to the main page.' %}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript_pre %}
+    <script type="text/javascript">
+        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+        var tokenCheckURL = null;
+        {% if token %}
+        tokenCheckURL = "{% url 'personal_tab:pos_check' uuid=token.token %}";
+        {% endif %}
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+           setupLoginPage();
+        });
+    </script>
+{% endblock %}

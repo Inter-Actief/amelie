@@ -1,0 +1,7 @@
+{% load i18n fieldsets %}
+
+<div id="query_study" class="">
+	<h3>{% trans 'Course' %}</h3>
+    {% fieldset study,studies,primary_studies,study_year as form_study from form %}
+    {{ form_study }}
+</div>

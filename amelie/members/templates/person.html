@@ -1,0 +1,92 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{{ obj }}{% endblock titel %}
+
+{% block content %}
+    <div class="container">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2>{{ obj }}</h2>
+            <div class="content">
+              {% include "person_data.html" %}
+              <br style="clear:both;" />
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12i"><div class="ia">
+            <h2 class="expand" data-target="person_membership">{% trans 'Membership data' %}</h2>
+            <div class="content">
+              <div id="person_membership" hidden>
+                  {% include "person_membership.html" %}
+              </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_mandate">{% trans 'Mandates' %}</h2>
+            <div class="content">
+              <div id="person_mandate" hidden>
+                  {% include "person_mandate.html" %}
+              </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_study">{% trans 'Student data' %}</h2>
+            <div class="content">
+              <div id="person_study" hidden>
+                  {% include "person_study.html" %}
+              </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_employee">{% trans 'Employee data' %}</h2>
+            <div class="content">
+              <div id="person_employee" hidden>
+                  {% include "person_employee.html" %}
+              </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_functions">{% trans 'Committees' %}</h2>
+            <div class="content">
+              <div id="person_functions" hidden>
+                  {% include "person_functions.html" %}
+              </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_preferences">{% trans 'Preferences' %}</h2>
+            <div class="content">
+              <div id="person_preferences" hidden>
+                  {% include "person_preferences.html" %}
+              </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12i"><div class="ia">
+            <h2 class="expand" data-target="person_anonymize">{% trans 'Anonymize person' %}</h2>
+            <div class="content">
+              <div id="person_anonymize" hidden>
+                  <p>{% trans 'With this button the personal details of this person that the association does not need to keep for legal reasons will be anonymized.' %}</p>
+                    <span class="icon icon-error">{% trans 'Warning: Anonymizing a person is irreversible! Only do this if the person themselves have indicated that they want their personal data removed!' %}</span>
+                    {% if can_be_anonymized %}
+                        <a href="{% url 'members:person_anonymize' obj.id obj.slug %}" class="looks-like-a-button">
+                            {% trans 'Anonymize this person' %}
+                        </a>
+                    {% else %}
+                        <p>{% trans 'This person cannot be anonymized because of the following reasons:' %}</p>
+                        <ul>
+                        {% for reason in unable_to_anonymize_reasons %}
+                            <li>{{ reason }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+              </div>
+            </div>
+        </div></div>
+    </div>
+{% endblock content %}

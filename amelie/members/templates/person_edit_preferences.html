@@ -1,0 +1,23 @@
+{% load i18n %}
+<div class="content">
+    <form action="{% url 'members:person_preferences' obj.id %}" method="post" class="js-ajax-form" data-container="person_preferences">
+    {% csrf_token %}
+
+    <table>
+		{% for n, f in forms %} {{ f.errors }} {% endfor %}
+		{% for n, f in forms %}
+			<h3 class="legend">{{ n }}</h3>
+			{% for field in f.visible_fields %}
+				{{ field }}
+			{% endfor %}
+		{% endfor %}
+    </table>
+    <div class="buttons">
+        <a href="{% url 'members:person_preferences' obj.id %}?original=1" class="looks-like-a-button js-load-block" data-container="person_preferences">
+            {% trans 'Cancel' %}
+        </a>
+
+        <input type="submit" value="{% trans 'Save' %}" />
+    </div>
+    </form>
+</div>

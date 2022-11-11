@@ -1,0 +1,40 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block head %}
+    <script src="{{ STATIC_URL }}js/autocomplete.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block titel %}
+    {% blocktrans with name=activity.summary %}
+        Enroll person for {{ name }}
+    {% endblocktrans %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="current">
+            <h2>
+                {% blocktrans with name=activity.summary %}
+                    Enroll person for {{ name }}
+                {% endblocktrans %}
+            </h2>
+
+            <div class="content">
+                <form class="big" action="{% url 'activities:enrollment_person_search' activity.id %}"
+                      method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Enroll' %}"/>
+                    </div>
+
+                    <script type="application/javascript">
+                        enable_autocomplete();
+                    </script>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

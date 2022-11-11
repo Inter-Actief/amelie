@@ -1,0 +1,12 @@
+.user-register label {
+    font-size: 2em;
+}
+
+.user-register .ui-widget .autocomplete-input{
+    font-size: 3em;
+    padding: 10px;
+}
+
+ul.ui-autocomplete.ui-front {
+   font-size:2em;
+}

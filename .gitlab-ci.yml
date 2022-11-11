@@ -1,0 +1,64 @@
+# Do not create a pipeline if this is a pull request pipeline
+# because a pipeline for the commit will be created as well.
+# Source: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/38673
+workflow:
+  rules:
+    - if: $CI_EXTERNAL_PULL_REQUEST_IID
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+variables:
+  DJANGO_SETTINGS_MODULE: amelie.settings.gitlab
+  MARIADB_DATABASE: amelie_test
+  MARIADB_ROOT_PASSWORD: amelie_test
+  MARIADB_USER: amelie_test
+  MARIADB_PASSWORD: amelie_test
+
+.basetests:
+  cache:
+    paths:
+      - .cache/pip/
+      - venv/
+      - .apt/
+  before_script:
+    - echo $CI_PROJECT_DIR
+    # Install Python packages (in virtualenv) required for the Amelie project
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    # Print some debugging information about the environment
+    - python -V # Python version
+    - which python # Path to the python binary being used
+    - pip -V # Pip version
+    - which pip # Path to the pip binary being used
+    - pip freeze # Installed pip package list
+  script:
+    # The MARIADB user only gets permissions for MARIADB_DB, so Django can't create a test database.
+    - echo "GRANT ALL on *.* to '${MARIADB_USER}';"| mysql -u root --password="${MARIADB_ROOT_PASSWORD}" -h mariadb
+    # Activate virtualenv
+    - source venv/bin/activate
+    # Migrate the database, test if django is able to run, and then run the tests.
+    - python manage.py migrate
+    - python manage.py check
+    - python manage.py test --keepdb
+
+# Python 3.7 test.
+# Must succeed, image version and mariadb version is based on the current
+# versions of the ia-www3 server that the production website is running on.
+django-tests-py37:
+  extends: ".basetests"
+  stage: test
+  image: kurocon/amelie-test:py3.7
+  services:
+    - mariadb:10.2
+
+# Python 3.9 test.
+# May fail, image version and mariadb version is based on the next versions that the
+# ia-www3 server will run if the SysCom updates it to the next Debian version.
+django-tests-py39:
+  extends: ".basetests"
+  stage: test
+  image: kurocon/amelie-test:py3.9
+  services:
+    - mariadb:10.5
+  allow_failure: true

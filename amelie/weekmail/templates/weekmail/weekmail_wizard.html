@@ -1,0 +1,291 @@
+{% extends "basis.html" %}
+{% load i18n md md2 %}
+
+{% block titel %}
+    {% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% else %}{% trans 'Edit mastermail' %}{% endif %}
+{% endblock titel %}
+
+{% block head %}
+    <style>
+        .details dt {
+            min-width: 120px;
+            width: auto;
+            margin-right: 5px;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-6">
+        <div class="ia">
+            <h2> {{ object }} </h2>
+
+            <div class="content">
+                <dl class="details">
+                    <dt>{% trans "Created on" %}:</dt>
+                    <dd>{{ object.creation_date }}</dd>
+                    <dt>{% trans "Author" %}:</dt>
+                    <dd>{{ object.writer }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+        <div class="ia">
+            <h2>{% trans 'Status' %}</h2>
+
+            <div class="content">
+                <dl class="details">
+                    <dt>{% trans "Send status" %}:</dt>
+                    <dd>{{ object.get_status_display }}</dd>
+                    <dt>{% trans "Published" %}:</dt>
+                    <dd>{{ object.published|yesno }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 class="expand collapsed"
+                data-target="weekmail_extra_news_articles">{% trans "Additional news messages" %}:</h2>
+
+            <div class="content">
+                <div id="weekmail_extra_news_articles">
+                    {% for news in object.added_news_articles.all %}
+                        <div class="col-xs-12 col-md-6">
+                            <div class="ia">
+                                <h2>{{ news.title_nl }}</h2>
+
+                                <div class="content">
+                                    {{ news.content_nl|markdown:"absolute_urls" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-6">
+                            <div class="ia">
+                                <h2>{{ news.title_en|default:"Translation Missing" }}</h2>
+
+                                <div class="content">
+                                    {{ news.content_en|default:"Translation Missing"|markdown:"absolute_urls" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <div class="col-xs-12">
+                            <a href="{% url 'weekmail:extra_news_article_delete' object.pk news.pk %}"
+                               class="looks-like-a-button">{% trans "Delete" %}</a>
+                            <a href="{% url 'weekmail:extra_news_article_update' object.pk news.pk %}"
+                               class="looks-like-a-button">{% trans "Edit" %}</a>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        {% empty %}
+                        <p>{% trans 'No extra news articles were added.' %}</p>
+                    {% endfor %}
+
+                    <div class="col-xs-12">
+                        <a href="{% url 'weekmail:extra_news_article_add' object.pk %}" class="looks-like-a-button">
+                            {% blocktrans %}Add additional news messages{% endblocktrans %}
+                        </a>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 class="expand collapsed" data-target="weekmail_news_articles">{% trans "Connected news messages" %}:</h2>
+
+            <div class="content">
+                <div id="weekmail_news_articles">
+                    {% for news in object.news_articles.all %}
+                        <div class="col-xs-12 col-md-6">
+                            <div class="ia">
+                                <h2>{{ news.title_nl }}</h2>
+
+                                <div class="content">
+                                    {{ news.introduction_nl|markdown:"absolute_urls" }}
+
+                                    {{ news.content_nl|markdown:"absolute_urls" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-6">
+                            <div class="ia">
+                                <h2>{{ news.title_en|default:"Translation Missing" }}</h2>
+
+                                <div class="content">
+                                    {{ news.introduction_en|default:"Translation Missing"|markdown:"absolute_urls" }}
+
+                                    {{ news.content_en|default:"Translation Missing"|markdown:"absolute_urls" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <div class="col-xs-12">
+                            <a href="{% url 'weekmail:news_article_update' object.pk news.pk %}"
+                               class="looks-like-a-button">{% trans "Edit" %}</a>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        {% empty %}
+                        <p>{% trans "There are no connected news messages." %}</p>
+                    {% endfor %}
+
+                    <div class="col-xs-12">
+                        <a href="{% url 'weekmail:update' object.pk %}"
+                           class="looks-like-a-button">{% trans "Edit connected news messages" %}</a>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="col-xs-12">
+        <div class="current">
+            <h2 class="expand collapsed" data-target="weekmail_activities">{% trans "Connected activities" %}</h2>
+
+            <div class="content">
+                <div id="weekmail_activities">
+                    {% for activity in object.new_activities.all %}
+                        <div class="col-xs-12 col-md-6">
+                            <div class="current">
+                                <h2>{{ activity.summary_nl }}</h2>
+
+                                <div class="content">
+                                    <p>
+                                        <b>{% trans 'From:' %}</b> {{ activity.begin }} <br/>
+                                        <b>{% trans 'To:' %}</b> {{ activity.end }} <br/>
+                                        <b>{% trans 'Where' %}</b>
+                                        {% if activity.location %}
+                                            {{ activity.location }}
+                                        {% else %}
+                                            <i>{% trans 'No location provided' %}</i>
+                                        {% endif %}
+                                    </p>
+                                    {% if activity.promo_nl|length > 64 %}
+                                        {{ activity.promo_nl|markdown:"absolute_urls" }}
+                                    {% else %}
+                                        {{ activity.description_nl|markdown:"absolute_urls" }}
+                                    {% endif %}
+                                    {% if not activity.facebook_event_id %}
+                                        <p class="icon error"> {% trans "This activity has no facebook id." %} </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-6">
+                            <div class="current">
+                                <h2>{{ activity.summary_en|default:"Translation Missing" }}</h2>
+
+                                <div class="content">
+                                    {% language 'en' %}
+                                        <p>
+                                            <b>{% trans 'From:' %}</b> {{ activity.begin }} <br/>
+                                            <b>{% trans 'To:' %}</b> {{ activity.end }} <br/>
+                                            <b>{% trans 'Where' %}</b>
+                                            {% if activity.location %}
+                                                {{ activity.location }}
+                                            {% else %}
+                                                <i>{% trans 'No location provided' %}</i>
+                                            {% endif %}
+                                        </p>
+                                    {% endlanguage %}
+                                    {% if activity.promo_en|length > 64 %}
+                                        {{ activity.promo_en|default:"Translation Missing"|markdown:"absolute_urls" }}
+                                    {% else %}
+                                        {{ activity.description_en|default:"Translation Missing"|markdown:"absolute_urls" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+
+                        <div class="col-xs-12">
+                            <a href="{% url 'weekmail:activity_update' object.pk activity.pk %}"
+                               class="looks-like-a-button">{% trans "Edit" %}</a>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        {% empty %}
+                        <p>{% trans "There are no connected events." %}</p>
+                    {% endfor %}
+                    <div class="col-xs-12">
+                        <a href="{% url 'weekmail:update' object.pk %}"
+                           class="looks-like-a-button">{% trans "Edit connected activities" %}</a>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 class="expand collapsed" data-target="weekmail_send">{% trans "Send" %}</h2>
+
+            <div class="content">
+                <div id="weekmail_send" hidden>
+                    <form action="{% url 'weekmail:send_weekmail' object.pk %}" method="post">
+                        {% csrf_token %}
+                        <button>{% if object.mailtype == 'W' %}{% trans "Send weekly mail" %}{% else %}{% trans "Send mastermail" %}{% endif %}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="col-xs-12 col-md-6">
+        <div class="ia">
+            <h2 class="expand collapsed" data-target="weekmail_preview_nl">{% trans "Example (NL)" %}</h2>
+
+            <div class="content">
+                <div id="weekmail_preview_nl" hidden>
+                    <iframe src="{% url 'weekmail:preview' pk=object.pk lang='nl' %}" width="100%" height="500px">
+
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-6">
+        <div class="ia">
+            <h2 class="expand collapsed" data-target="weekmail_preview_en">{% trans "Example (EN)" %}</h2>
+
+            <div class="content">
+                <div id="weekmail_preview_en" hidden>
+                    <iframe src="{% url 'weekmail:preview' pk=object.pk lang='en' %}" width="100%" height="500px">
+
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

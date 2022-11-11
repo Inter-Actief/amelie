@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<p>
+	<!-- Fouten -->
+	{% if form.non_field_errors %}
+		<span>
+			{{ form.non_field_errors }}
+		</span>
+	{% endif %}
+
+	<!-- Titel -->
+	<h3>
+		{{ form.enrollmentoption.title }}
+	</h3>
+
+	<!-- Veld -->
+	<span {% if form.enrollmentoption.price_extra != 0 %}data-price_extra="{{ form.enrollmentoption.price_extra|stringformat:".2f" }}"{% endif %}>
+		{{ form.answer }}
+
+		{% if form.enrollmentoption.price_extra > 0 %}
+			({% trans 'Additional costs per unit:' %} {{ form.enrollmentoption.price_extra }} euro)
+		{% endif %}
+
+		{% if form.enrollmentoption.price_extra < 0 %}
+			({% trans 'Discount per unit' %} {{ form.enrollmentoption.price_extra }} euro)
+		{% endif %}
+        {% if form.enrollmentoption.maximum %}
+            -- {{ form.enrollmentoption.count_spots_left }} {% trans "spot(s) left" %}
+        {% endif %}
+        {% if form.enrollmentoption.maximum_per_person %}
+            <br />
+            <p>{% trans "The maximum per person is" %} {{ form.enrollmentoption.maximum_per_person }}</p>
+        {% endif %}
+	</span>
+
+	<!-- Rest -->
+	{% for field in form.hidden_fields %}
+		{{ field }}
+	{% endfor %}
+</p>

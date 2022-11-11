@@ -1,0 +1,34 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block titel %}
+	{{ object }}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="current">
+		    <h2 class="h2-with-buttons">
+                {{ object }}
+                <a class="looks-like-a-button" href="{% url 'videos:list_videos' %}">{% trans 'All videos' %}</a>
+            </h2>
+
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube-nocookie.com/embed/{{ object.video_id }}?modestbranding=0&amp;rel=0&amp;showinfo=0&amp;vq=hd1080&amp;hl={{ LANGUAGE_CODE }}" frameborder="0" allowfullscreen></iframe>
+            </div>
+
+            <div class="content">
+                <p class="video-description">{{ object.description }}</p>
+
+                {% if delete_allowed %}
+                    <div class="buttons">
+                        <a class="looks-like-a-button" href="{% url 'videos:edit_yt_video' object.video_id %}">{% trans 'Edit video' %} &raquo;</a>
+                        <a class="looks-like-a-button" href="{% url 'videos:delete_video' object.video_id %}">{% trans 'Delete video' %} &raquo;</a>
+                    </div>
+                {% endif %}
+            </div>
+	    </div>
+    </div>
+{% endblock content %}

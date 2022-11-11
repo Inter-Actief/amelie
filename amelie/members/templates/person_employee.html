@@ -1,0 +1,32 @@
+{% load i18n %}
+<div class="content">
+    {% if obj.employee %}
+        <div class="table-responsive">
+            <table class="table person_table">
+                <tr>
+                    <td class="layout">
+                        <h3 class="legend">{% trans 'Employee data' %}</h3>
+                        <p class="icon number"> {{ obj.employee.number }} </p>
+                    </td>
+                    <td class="layout">
+                        <div class="buttons">
+                            <a href="{% url 'members:person_employee' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_employee">
+                                {% trans 'Edit' %}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    {% else %}
+        <p>
+            {% blocktrans %}
+                {{ obj }} is not an employee.
+            {% endblocktrans %}
+
+            <a href="{% url 'members:person_employee' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_employee">
+                {% trans 'Configure' %}
+            </a>
+        </p>
+    {% endif %}
+</div>

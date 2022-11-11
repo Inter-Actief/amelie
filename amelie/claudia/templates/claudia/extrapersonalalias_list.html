@@ -1,0 +1,46 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Extra aliases' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        {% if object %}
+        <h2>{% trans 'Extra aliases for' %} {{ object }}</h2>
+        {% else %}
+        <h2>{% trans "All extra aliases" %}</h2>
+        {% endif %}
+        <div class="content">
+            {% if object %}
+            <p class="icon icon-add">
+                <a href="{% url 'claudia:personal_alias_add' object.pk %}">{% trans 'Add extra personal alias' %}</a>
+            </p>
+            {% endif %}
+
+            {% include "paginator.html" with page=page_obj %}
+
+            <table>
+                <tr>
+                    {% if not object %}
+                    <th>{% trans "Mapping" %}</th>
+                    {% endif %}
+                    <th>{% trans 'E-mail address' %}</th>
+                    <th>{% trans 'Action' %}</th>
+                </tr>
+                {% for alias in page_obj %}
+                <tr>
+                    {% if not object %}
+                    <td>{{ alias.mapping|clau_link }}</td>
+                    {% endif %}
+                    <td>{{ alias.email }}</td>
+                    <td><a class="icon icon-delete" href="{% url "claudia:personal_alias_remove" alias.pk %}">{% trans "Remove" %}</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

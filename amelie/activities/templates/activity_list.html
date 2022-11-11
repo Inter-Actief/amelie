@@ -1,0 +1,134 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Activities' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-7">
+        <div class="current">
+            <h2>{% trans "Activities you don't want to miss" %}</h2>
+            <div class="content">
+                <a href="{% url 'activities:activities_ics_international' lang=LANGUAGE_CODE %}"><img
+                        src="{{ STATIC_URL }}img/icons/calendar.png" alt="iCal-link"
+                        title="{% trans 'iCal-file with activity.' %}"/> {% trans 'iCal all activities' %}</a>
+                {% get_available_languages as languages %}
+                {% for lang_code, lang_name in languages %}
+                    {% if lang_code != LANGUAGE_CODE %}
+                        {% trans '(or in' %}
+                        <a href="{% url 'activities:activities_ics_international' lang=lang_code %}">{{ lang_name }}
+                            <img src="{{ STATIC_URL }}img/layout/flag_{{ lang_code }}.png" alt=""></a>)<br><br>
+                    {% endif %}
+                {% endfor %}
+                {% if only_open_enrollments %}
+                    <a style="float: right" href="/activities">{% trans 'Show all upcoming activities' %}</a>
+                {% else %}
+                    <a style="float: right" href="/activities?openEnrollments">{% trans 'Show only activities with open enrollments' %}</a>
+                {% endif %}
+                <br>
+                {% if new_activities %}
+                    <div class="table-responsive">
+                        <table class="table layout addmargin activity-list">
+                            <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Label' %}</th>
+                                <th>{% trans 'Activities' %}</th>
+                                <th>{% trans 'Enrollment' %}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for activity in new_activities %}
+                                {% if not only_open_enrollments or activity.enrollment_open %}
+                                <tr{% if activity.dutch_activity %} class="dutch-only"{% endif %}>
+                                    <td class="activity-list-date">
+
+                                        <a href="{{ activity.get_calendar_url }}">
+                                            <span class="icon icon-calendar"
+                                                  title="{% trans 'iCal document with activity' %}"></span>
+                                        </a>
+
+                                        {{ activity.begin|date:"d-b (D)" }}
+                                    </td>
+                                    <td>
+                                        <div class="activity-list-label" 
+                                            style="background: #{{ activity.activity_label.color }};">
+                                            <span class="activity-list-label-name">
+                                                {{ activity.activity_label.name }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
+                                            title="{% trans 'Dutch-only' %}" 
+                                            alt="{% trans 'Dutch-only' %}">
+                                        <a class="activity-{{ activity.activity_type }}"
+                                           href="{{ activity.get_absolute_url }}"
+                                           title="{{ activity.description|striptags|truncatewords:30 }}">{{ activity.summary }}</a>
+                                    </td>
+                                    <td class="activity-list-status">
+                                        {% include "includes/activity_list_enrollment.html" %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="icon warning">{% trans 'There are no planned events. Maybe because it is holiday?' %}</p>
+                {% endif %}
+
+                {% if request.person.current_committees|length > 0 or request.person.is_board %}
+                    <div class="buttons">
+                        <a class="looks-like-a-button" href="{% url 'activities:new' %}">{% trans 'Add event' %}</a>
+                        <a class="looks-like-a-button"
+                           href="{% url 'activities:eventdesk_list' %}">{% trans 'UT Event Desk status' %}</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-5">
+        <div class="current">
+            <h2><a href="{% url 'activities:activities_old' %}">{% trans 'Past activities' %}</a></h2>
+
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table layout addmargin activity-list">
+                        <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Activities' %}</th>
+                            <th>{% trans "Photos" %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for activity in old_activities %}
+                            <tr{% if activity.dutch_activity %} class="dutch-only"{% endif %}>
+                                <td class="old-activity-list-date">
+                                    {{ activity.begin|date:"d-b " }}
+                                </td>
+                                <td>
+                                    <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
+                                         alt="{% trans 'Dutch-only' %}">
+                                    <a class="activity-{{ activity.activity_type }}"
+                                       href="{{ activity.get_absolute_url }}" title="
+
+
+
+                                            {{ activity.description|striptags|truncatewords:30 }}">{{ activity.summary }}</a>
+                                </td>
+                                <td>
+                                    {% include "includes/activity_list_photos.html" %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

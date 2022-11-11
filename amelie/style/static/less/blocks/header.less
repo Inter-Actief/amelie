@@ -1,0 +1,42 @@
+.header {
+  display: flex;
+  margin: 0;
+  padding: 4px 12px;
+
+  &_primary {
+    .header-style(@iacolor, @white);
+  }
+
+  &_edu {
+    .header-style(@educolor, @white);
+  }
+
+  &_current {
+    .header-style(@currentcolor, @white);
+  }
+
+  &__link {
+    color: inherit;
+    flex-grow: 1;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: inherit;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    padding: 2px 0;
+    color: inherit;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 16px;
+  }
+}
+
+.header-style(@backgroundcolor, @textcolor) {
+  background-color: @backgroundcolor;
+  color: @textcolor;
+}

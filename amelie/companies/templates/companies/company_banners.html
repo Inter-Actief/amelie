@@ -1,0 +1,79 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Banners' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Website banners' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Click on the website banner to edit it
+                    {% endblocktrans %}
+                </p>
+                <a href="{% url 'companies:websitebanner_create' %}" class="looks-like-a-button">{% trans 'New' %}</a>
+            </div>
+        </div>
+    </div>
+    {% for wb in website_banners %}
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <a href="{% url 'companies:banner_edit' wb.id %}" class="panel panel-default banner-grid">
+                <div class="ia"><h2>{{ wb.name }}</h2></div>
+                <img src="{{ MEDIA_URL }}{{ wb.picture }}">
+                {% if wb.end_date >= today and wb.start_date <= today and wb.active %}
+                    <span>{% blocktrans with end_date=wb.end_date %}Expires: {{ end_date }}{% endblocktrans %}
+                        <span class="label label-success">{% trans 'Active' %}</span></span>
+                {% elif wb.end_date >= today and wb.start_date <= today %}
+                    <span>{% blocktrans with end_date=wb.end_date %}Expires: {{ end_date }}{% endblocktrans %}
+                        <span class="label label-default">{% trans "Turned off" %}</span></span>
+                {% elif wb.start_date > today %}
+                    <span>{% blocktrans with start_date=wb.start_date %}Active from: {{ start_date }}{% endblocktrans %}
+                        <span class="label label-primary">{% trans "Future" %}</span></span>
+                {% else %}
+                    <span>{% blocktrans with end_date=wb.end_date %}Has expired on: {{ end_date }}{% endblocktrans %}
+                        <span class="label label-default">{% trans "Past" %}</span></span>
+                {% endif %}
+            </a>
+        </div>
+    {% endfor %}
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2> {% trans "Television banners" %} </h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Clicking on the television banner should allow you to edit it, but this feature has not been
+                        implemented yet.
+                    {% endblocktrans %}
+                </p>
+                <a href="{% url 'companies:televisionbanner_create' %}" class="looks-like-a-button">{% trans "New" %}</a>
+            </div>
+        </div>
+    </div>
+    {% for tb in television_banners %}
+        <div class="col-xs-12 col-md-6">
+            <a href="{% url 'companies:banner_edit' tb.id %}" class="panel panel-default banner-grid tv">
+                <div class="ia"><h2>{{ tb.name }}</h2></div>
+                <img src="{{ MEDIA_URL }}{{ tb.picture }}">
+                {% if tb.end_date >= today and tb.start_date <= today and tb.active %}
+                    <span>{% blocktrans with end_date=tb.end_date %}Expires: {{ end_date }}{% endblocktrans %}
+                        <span class="label label-success">{% trans 'Active' %}</span></span>
+                {% elif tb.end_date >= today and tb.start_date <= today %}
+                    <span>{% blocktrans with end_date=tb.end_date %}Expires: {{ end_date }}{% endblocktrans %}
+                        <span class="label label-default">{% trans "Turned off" %}</span></span>
+                {% elif tb.start_date > today %}
+                    <span>{% blocktrans with start_date=tb.start_date %}Active from: {{ start_date }}{% endblocktrans %}
+                        <span class="label label-primary">{% trans "Future" %}</span></span>
+                {% else %}
+                    <span>{% blocktrans with end_date=tb.end_date %}Has expired on: {{ end_date }}{% endblocktrans %}
+                        <span class="label label-default">{% trans "Past" %}</span></span>
+                {% endif %}
+            </a>
+        </div>
+    {% endfor %}
+{% endblock %}

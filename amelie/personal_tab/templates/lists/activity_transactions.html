@@ -1,0 +1,65 @@
+{% load i18n %}
+
+{% if transactions %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Date/time' %}</th>
+                    <th>{% trans 'Added' %}</th>
+                    <th>{% trans 'Person' %}</th>
+                    <th>{% trans 'Activities' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'More sign up options' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date|date:"d F Y G:i" }}</td>
+                        <td>{{ transaction.added_on|date:"d F Y G:i"}}</td>
+                        <td>
+                            {% if transaction.person %}
+                                {% if request.is_board %}
+                                    <a href="{% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug  %}">{{ transaction.person }}</a>
+                                {% else %}
+                                    {{ transaction.person }}
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.event %}
+                                {% if request.is_board %}
+                                    <a href="{% url 'personal_tab:event' event_id=transaction.event.id %}">{{ transaction.event.summary }}</a>
+                                {% else %}
+                                    {{ transaction.event.summary }}
+                                {% endif %}
+                            {% else %}
+                                {% trans 'Deleted event' %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ transaction.get_absolute_url }}">
+                                {{ transaction.description }}
+                            </a>
+                        </td>
+                        <td>{{ transaction.with_enrollment_options|yesno:"Ja,Nee" }}</td>
+                        <td class="align-right">{{ transaction.price }}</td>
+                    </tr>
+                {% endfor %}
+                {% if totals %}
+                    <tr>
+                        <td colspan="3"></td>
+                        <td colspan="3">{% trans 'Total' %}</td>
+                        <td class="align-right">{{ totals }}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">{% trans 'No activity transactions.' %}</p>
+{% endif %}

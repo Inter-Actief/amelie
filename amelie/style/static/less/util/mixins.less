@@ -1,0 +1,132 @@
+@import "constants";
+
+/***
+ * When compiling to css this file cannot generate any css statements.
+ * This is to prevent that all files that include this one do not generate duplicate css,
+ * and to keep everything findable.
+ ***/
+
+
+/* Makes the basis of every colored base class. */
+.make_colored_base(@color, @color_light, @color_dark){
+  // Add pagination colors
+  .mixin_paging(@color);
+
+  // Add header styles
+  .mixin_headers(@color);
+
+  // Add button colors
+  .mixin_buttons(@color, @color_dark);
+
+  // Add text colors
+  .mixin_text_styling(@color, @color_light, @color_dark);
+
+  // Add table styling
+  .mixin_table_styling(@color, @color_light);
+
+  // Add common styling
+  .mixin_commons();
+}
+
+
+// this is used to give all styles each an own stylized pagination
+.mixin_paging(@background){
+  .paging > .current {
+    background: @background;
+    color: @white;
+  }
+}
+
+
+// this styles the headers
+.mixin_headers(@color) {
+  & > h2 {
+    display: block;
+    font-weight: bold;
+    font-size: 16px;
+    line-height:16px;
+    margin: 0;
+    padding: 6px;
+    color: @white;
+    background: @color;
+    word-wrap: break-word;
+
+    a {
+      color: @white;
+      word-wrap: break-word;
+    }
+  }
+}
+
+
+// this generates the class-specific styled buttons
+.mixin_buttons(@fillcolor, @bordercolor){
+  input[type=button],
+  input[type=submit],
+  button,
+  a.looks-like-a-button {
+    background-color: @fillcolor;
+    border-color: @bordercolor;
+
+    &.no-margin {
+      margin: 0;
+    }
+  }
+
+  .tabbed-ticker li.active {
+    background: @fillcolor;
+	color: @white;
+  }
+}
+
+// styles the text in the given colors
+.mixin_text_styling(@color, @color_light, @color_dark){
+  a {
+    color: @color;
+  }
+}
+
+
+// Make the table styling with the defined colors
+.mixin_table_styling(@color, @color_light){
+  th {
+    background: @color;
+    color: @white;
+    font-weight: bold;
+  }
+
+  .zebra {
+    thead tr th {
+      color: @white;
+      background-color: @color;
+    }
+
+    tbody tr {
+      &:nth-child(odd) td {
+        background-color: @white;
+      }
+
+      &:nth-child(even) td {
+        background-color: lighten(@color_light, 0.5);
+      }
+    }
+  }
+}
+
+
+// Commonly used styling, but still given to all, since they do not always have a common parent
+.mixin_commons(){
+  margin-top: 10px;
+  background: @white;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+
+  &.no-shadow{
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+  }
+
+  @media print {
+    box-shadow: none;
+  }
+}

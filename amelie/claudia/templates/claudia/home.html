@@ -1,0 +1,39 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Claudia account management' %}</h2>
+        <div class="content">
+            <ul class="">
+                {% if user.person.is_board %}
+                <p>{% blocktrans %}Hi board member! In here, you can break a lot of stuff if you don't know what you're doing. Therefore,
+                    please read <b><a href="https://wiki.ia.utwente.nl/index.php/Board:Claudia">this wiki page</a></b> before editing
+                anything! Any questions? Don't hesitate to ask the SysCom or WWW-Supers!{% endblocktrans %}</p>
+                {% endif %}
+                <li>
+                    <a class="icon icon-link" href="{% url 'claudia:mapping_list' %}">{% trans 'Mappings' %}</a>
+                </li>
+                <li>
+                    <a class="claudia-ExtraGroup" href="{% url 'claudia:extragroup_list' %}">{% trans 'Extra AD groups' %}</a>
+                </li>
+                <li>
+                    <a class="claudia-ExtraPerson" href="{% url 'claudia:extraperson_list' %}">{% trans 'Extra AD people' %}</a>
+                </li>
+                <li>
+                    <a class="claudia-SharedDrive" href="{% url 'claudia:shareddrive_list' %}">{% trans 'Google Shared drives' %}</a>
+                </li>
+                <li>
+                    <a class="claudia-alias" href="{% url 'claudia:aliasgroup_list' %}">{% trans 'Google mail aliases' %}</a>
+                </li>
+                <li>
+                    <a class="claudia-email" href="{% url 'claudia:contact_list' %}">{% trans 'External contacts' %}</a>
+                </li>
+            </ul>
+        </div>
+    </div></div>
+{% endblock content %}

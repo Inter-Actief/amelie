@@ -1,0 +1,124 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Create collection' %}{% endblock titel %}
+
+{% block content %}
+    <form class="big" action="" method="post">
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Create collection' %}</h2>
+        <div class="content">
+            <p class="icon warning">
+                {% blocktrans with minimal_execution_date=minimal_execution_date %}
+                    The first possible date of execution is {{ minimal_execution_date }}.
+                {% endblocktrans %}
+            </p>
+            {% csrf_token %}
+            {{ form }}
+
+            <div class="buttons">
+                <input type="submit" value="{% trans 'Create proposal' %}" />
+                {% if contribution_instructions or cookie_corner_instructions %}
+                    <input type="submit" name="save" value="{% trans 'Save' %}" />
+                {% endif %}
+
+            </div>
+        </div>
+    </div></div>
+
+    {% if contribution_instructions %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans %}Direct withdrawal of membership fees{% endblocktrans %}</h2>
+
+        <div class="content">
+            {% if contribution_instructions.ongoing_frst %}
+                <h3>{% trans 'Ongoing first attempt at direct withdrawal' %}</h3>
+                <p class="icon error">
+                    {% trans 'People with an ongoing first attempt at direct withdrawal will NOT be withdrawn from.' %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        The first attempt at collection of the belowmentioned people has not yet been processed.
+                        They cannot be collected until the first attempt has been processed.
+                    {% endblocktrans %}
+                </p>
+                {% include 'lists/debt_collection_proposal_contribution.html' with rows=contribution_instructions.ongoing_frst total=contribution_totals.ongoing_frst enabled=0 default=0 %}
+            {% endif %}
+
+            <h3>{% trans 'First collection' %}</h3>
+            {% include 'lists/debt_collection_proposal_contribution.html' with rows=contribution_instructions.frst total=contribution_totals.frst enabled=1 default=1 %}
+
+            <h3>{% trans 'Follow-up direct withdrawal' %}</h3>
+            {% include 'lists/debt_collection_proposal_contribution.html' with rows=contribution_instructions.rcur total=contribution_totals.rcur enabled=1 default=1 %}
+        </div>
+    </div></div>
+    {% endif %}
+
+    {% if cookie_corner_instructions %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans %}Direct withdrawal of personal tabs{% endblocktrans %}</h2>
+
+        <div class="content">
+            {% if cookie_corner_instructions.negative %}
+                <h3>{% trans 'Negative balance' %}</h3>
+                <p class="icon error">
+                    {% trans 'People with a negative balance will NOT be withdrawn from.' %}
+                </p>
+                {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.negative total=cookie_corner_totals.negative enabled=0 default=0 %}
+            {% endif %}
+
+            {% if cookie_corner_instructions.no_authorization %}
+                <h3>{% trans 'No mandate' %}</h3>
+                <p class="icon error">
+                    {% trans 'People who have not signed a direct debit mandate will NOT be withdrawn from.' %}
+                </p>
+                {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.no_authorization total=cookie_corner_totals.no_authorization enabled=0 default=0 %}
+            {% endif %}
+
+            {% if cookie_corner_instructions.ongoing_frst %}
+                <h3>{% trans 'Ongoing first attempt at direct withdrawal' %}</h3>
+                <p class="icon error">
+                    {% trans 'People with an ongoing first attempt at direct withdrawal will NOT be withdrawn from.' %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        The first attempt at collection of the belowmentioned people has not yet been processed.
+                        They cannot be collected until the first attempt has been processed.
+                    {% endblocktrans %}
+                </p>
+                {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.ongoing_frst total=cookie_corner_totals.ongoing_frst enabled=0 default=0 %}
+            {% endif %}
+
+            {% if cookie_corner_instructions.terminated_authorization_frst or cookie_corner_instructions.terminated_authorization_rcur %}
+                <h3>{% trans 'Mandate has ended' %}</h3>
+                <p class="icon error">
+                    {% trans 'There are people whose mandate has ended.' %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        The people listed below used to have a mandate, but have had it canceled.
+                        You can still add them to a collection instruction.
+                    {% endblocktrans %}
+                </p>
+                {% if cookie_corner_instructions.terminated_authorization_frst %}
+                    <h4>{% trans 'Mandate has ended' %} &ndash; {% trans 'First collection' %}</h4>
+                    {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.terminated_authorization_frst total=cookie_corner_totals.terminated_authorization_frst enabled=1 default=0 %}
+                {% endif %}
+                {% if cookie_corner_instructions.terminated_authorization_rcur %}
+                    <h4>{% trans 'Mandate has ended' %} &ndash; {% trans 'Follow-up direct withdrawal' %}</h4>
+                    {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.terminated_authorization_rcur total=cookie_corner_totals.terminated_authorization_rcur enabled=1 default=0 %}
+                {% endif %}
+            {% endif %}
+
+            <h3>{% trans 'First collection' %}</h3>
+            {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.frst total=cookie_corner_totals.frst enabled=1 default=1 %}
+
+            <h3>{% trans 'Follow-up direct withdrawal' %}</h3>
+            {% include 'lists/debt_collection_proposal_cookie_corner.html' with rows=cookie_corner_instructions.rcur total=cookie_corner_totals.rcur enabled=1 default=1 %}
+        </div>
+    </div></div>
+    {% endif %}
+
+    </form>
+{% endblock content %}

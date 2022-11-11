@@ -1,0 +1,30 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Send collection mailing' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Send collection mailing' %}</h2>
+        <div class="content">
+            {% if has_contribution %}
+                <p><a href="{% url 'personal_tab:debt_collection_mailing_contribution' assignment.id %}" class="icon icon-email_go">
+                    {% trans 'Send mailing for direct withdrawal of membership fee' %}
+                </a></p>
+            {% else %}
+                <p>
+                    {% trans "This task does not contain direct wirhdrawals for membership fees." %}
+                </p>
+            {% endif %}
+            {% if has_cookie_corner %}
+                <p><a href="{% url 'personal_tab:debt_collection_mailing_cookie_corner' assignment.id %}" class="icon icon-email_go">
+                    {% trans 'Send mailing for direct withdrawal of personal tabs.' %}
+                </a></p>
+            {% else %}
+                <p>
+                    {% trans "This task does not contain direct withdrawals for personal tabs." %}
+                </p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

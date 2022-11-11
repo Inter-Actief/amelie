@@ -1,0 +1,7 @@
+{% autoescape off %}{% for person in persons %}
+BEGIN:VCARD
+VERSION:2.1
+N:;{{ person.incomplete_name }}
+TEL;HOME:{{ person.telephone }}
+END:VCARD
+{% endfor %}{% endautoescape %}

@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_employee">
+    <h3>{% trans 'Employee' %}</h3>
+
+    {% fieldset employee,department as form_employee from form %}
+    {{ form_employee }}
+</div>

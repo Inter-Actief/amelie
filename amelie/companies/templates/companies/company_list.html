@@ -1,0 +1,76 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}
+    {% trans 'Company Corner' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4">
+        <div class="ia">
+            <!-- add classes follow-scroll and attribute data-follow-scroll-padding="20" for following scrollbar -->
+            <h2>{% trans 'Company Corner' %}</h2>
+
+            <div class="content">
+                <ul class="no-bullets no-padding">
+                    {% for company in companies %}
+                        <li>
+                            <a class="scroll-to" data-scroll-to-padding="15" href="#{{ company.slug }}">
+                                {{ company }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                {% if is_board %}
+                    <div class="buttons">
+                        <a class="looks-like-a-button" href="{% url 'companies:company_create' %}">
+                            {% trans 'Add new company' %}
+                        </a>
+                        <a class="looks-like-a-button" href="{% url 'companies:company_list' %}">
+                            {% trans 'Overview of active companies' %}
+                        </a>
+                        <a class="looks-like-a-button" href="{% url 'companies:company_old' %}">
+                            {% trans 'Overview of inactive companies' %}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-8">
+        {% for company in companies %}
+            {% if company.profile %}
+                <div class="ia">
+                    <h2><a name="{{ company.slug }}">{{ company }}</a></h2>
+
+                    <div class="content">
+                        {% with company as obj %}
+                            {% if obj.logo %}
+                                <div style="float:right; padding: 5px;">
+                                    <a href="{{ obj.url }}"><img src="{{ obj.logo.url }}" alt="{{ obj.name }}"/></a>
+                                </div>
+                            {% endif %}
+
+                            {{ obj.profile|markdown:"unsafe" }}
+
+                            <p>{% trans 'For more information, have a look at the' %} <a href="{{ obj.url }}">{% trans 'web site' %}</a></p>
+
+                            {% if is_board %}
+                                <p>
+                                    <a class="looks-like-a-button" href="{% url 'companies:company_edit' obj.slug %}">
+                                        {% trans 'Edit company' %}
+                                    </a>
+                                </p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            {% trans 'At this moment, no companies are available in the Company Corner.' %}
+        {% endfor %}
+    </div>
+{% endblock content %}

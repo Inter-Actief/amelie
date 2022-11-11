@@ -1,0 +1,99 @@
+{% load i18n %}
+
+{% if obj.membership_set.count == 0 %}
+    <p>
+        {% blocktrans %}
+            {{ obj }} is not a member.
+        {% endblocktrans %}
+
+        <a href="{% url 'members:person_membership_new' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+            {% trans 'Add membership' %}
+        </a>
+    </p>
+{% else %}
+
+    {% if obj.is_member %}
+    <p class="icon pos">{% blocktrans %}{{ obj }} is a member{% endblocktrans %}{% if obj.is_member_strict %}.{% else %}{% trans ', but has not paid yet' %}{% endif %}
+    </p>
+        {% if obj.membership.is_verified %}
+            <p class="icon pos">
+                {% blocktrans with first_name=obj.first_name %}{{ first_name }} has a verified student status or does not need one.{% endblocktrans %}
+            </p>
+        {% else %}
+            <p class="icon icon-cancel">
+                {% blocktrans with first_name=obj.first_name %}{{ first_name }} has no verified student status while this is needed.{% endblocktrans %}
+            </p>
+        {% endif %}
+    {% else %}
+    <p class="icon neg">{% blocktrans %}{{ obj }} is not a member{% endblocktrans %}</p>
+    {% endif %}
+    <div class="table-responsive">
+        <table class="person_table table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Course year' %}</th>
+                    <th>{% trans 'Sort' %}</th>
+                    <th>{% trans 'Payment' %}</th>
+                    {% if request.is_board %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for membership in obj.membership_set.all %}
+                    <tr>
+                        <td>
+                            {% if membership.is_paid %}
+                                <p class="icon paid">
+                            {% else %}
+                                <p class="icon unpaid">
+                            {% endif %}
+                            {{ membership.year }} &mdash; {{ membership.year|add:1 }}
+                            {% if membership.ended %}
+                                <p class="icon icon-cancel">
+                                {% blocktrans with ended=membership.ended %}Ended as of {{ ended }}{% endblocktrans %}
+                                </p>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ membership.type.name }}
+                        </td>
+                        <td>
+                            {% if membership.payment %}
+                                {{ membership.payment.payment_type.name }}
+                                {% if membership.payment.amount != 0 %}
+                                    {% if membership.contributiontransaction_set.count == 0 %}
+                                        <a href="{% url 'members:payment_delete' membership.payment.pk %}" class="icon icon-delete">{% trans 'Delete payment' %}</a>
+                                    {% endif %}
+                                {% endif %}
+                                <br>
+                                 <span class="small">{{ membership.payment.date|date:"j b Y"|default:"?" }}</span>
+                            {% endif %}
+
+                            {% if not membership.is_paid %}
+                                <a href="{% url 'members:person_pay' obj.id membership.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+                                    {% trans 'Process payment' %}
+                                </a>
+                            {% endif %}
+                        </td>
+                        {% if request.is_board %}
+                        <td>
+                            <a href="{% url 'members:membership_form' obj.id membership.id %}" class="icon icon-printer"></a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="buttons">
+        {% if obj.is_member %}
+		<a href="{% url 'members:person_membership_end' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+            {% trans 'Terminate membership' %}
+        </a>
+		{% endif %}
+        <a href="{% url 'members:person_membership_new' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+            {% trans 'Add membership' %}
+        </a>
+    </div>
+{% endif %}
+

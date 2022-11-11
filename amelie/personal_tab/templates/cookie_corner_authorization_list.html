@@ -1,0 +1,121 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Mandates' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Search mandates for collection' %}</h2>
+        <div class="content">
+            <form method="get">
+                {{ form.errors }}
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>{{ form.search.label_tag }}</th>
+                            <td>{{ form.search }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.status.label_tag }}</th>
+                            <td>
+                                {% for choice in form.status.field.choices %}
+                                    <label><input
+                                        type="checkbox" name="status"
+                                        {% if choice|first in form.status.value %}checked="checked"{% endif %}
+                                        value="{{ choice|first }}" />&nbsp;{{ choice|last }}</label>{% if not forloop.last %}&nbsp;&ndash;{% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.authorization_type.label_tag }}</th>
+                            <td>
+                                {% for choice in form.authorization_type.field.choices %}
+                                    <label><input
+                                        type="checkbox" name="authorization_type"
+                                        {% if choice|first|lower in form.authorization_type.value %}checked="checked"{% endif %}
+                                        value="{{ choice|first }}" />&nbsp;{{ choice|last }}</label>{% if not forloop.last %}<br />{% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.sort_by.label_tag }}</th>
+                            <td>
+                                {{ form.sort_by }}
+                                <label>
+                                    {{ form.reverse }}
+                                    {{ form.reverse.label_tag }}
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <p><input type="submit" value="{% trans "Search" %}" /></p>
+            </form>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Mandates' %}</h2>
+        <div class="content">
+            {% include "paginator.html" with page=authorizations query=query %}
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Reference' %}</th>
+                            <th>{% trans 'Sort' %}</th>
+                            <th>{% trans 'Person/account holder' %}</th>
+                            <th>{% trans 'IBAN/BIC' %}</th>
+                            <th>{% trans 'Starts on' %}</th>
+                            <th>{% trans 'Ends on' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for authorization in authorizations %}
+                            <tr>
+                                <td>
+                                    <a href="{{ authorization.get_absolute_url }}"
+                                        class="icon {% if authorization.is_signed and not authorization.end_date %}icon-tick{% else %}icon-cross{% endif %}">
+                                        {{ authorization.authorization_reference }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <div title="{{ authorization.authorization_type.name }}" style="width: 160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ authorization.authorization_type.name }}</div>
+                                </td>
+                                <td>
+                                    {% if authorization.person %}
+                                        <a href="{{ authorization.person.get_absolute_url }}">
+                                            {{ authorization.person }}
+                                        </a>
+                                    {% else %}
+                                        &mdash;
+                                    {% endif %}
+                                    <br />
+                                    <font style="font-size:0.7em">{{ authorization.account_holder_name|default:"&mdash;" }}</font>
+                                </td>
+                                <td>
+                                    <b>{{ authorization.iban|default:"&mdash;" }}</b> <br />
+                                    <font style="font-size:0.7em">{{ authorization.bic|default:"&mdash;" }}</font>
+                                </td>
+                                <td>
+                                    {% if not authorization.is_signed %}
+                                        <i>{% trans '(not yet) active' %}</i>
+                                    {% elif authorization.start_date == date_old_authorizations %}
+                                        <i>{% trans 'before September 2013' %}</i>
+                                    {% else %}
+                                        {{ authorization.start_date }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ authorization.end_date|default_if_none:"&mdash;" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% include "paginator.html" with page=authorizations query=query %}
+        </div>
+    </div></div>
+{% endblock content %}

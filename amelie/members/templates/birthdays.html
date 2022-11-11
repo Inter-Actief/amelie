@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'Birthdays' %}
+{% endblock titel %}
+
+{% block content %}
+    {% regroup birthdays by date_of_birth|date:'F' as bdays %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans 'Birthdays' %}</h2>
+            <div class="content">
+                {% for month in bdays %}
+                    <h3>{{ month.grouper|capfirst }}</h3>
+                    <ul>
+                        {% for birthday_person in month.list %}
+                            <li class="person">
+                                ({{ birthday_person.date_of_birth|date:'d' }})
+
+                                {% if request.is_board %}
+                                    <a href="{{ birthday_person.get_absolute_url }}">{{ birthday_person }}</a>
+                                {% else %}
+                                    {{ birthday_person }}
+                                {% endif %}
+
+                                ({{ birthday_person.becoming_age }} {% if birthday_person.becoming_age == 1 %}{% trans 'year' %}{% else %}{% trans 'years' %}{% endif %})
+                            </li>
+                        {% empty %}
+                            <li>{% trans 'There are no birthdays today' %}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

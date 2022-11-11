@@ -1,0 +1,229 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Event Desk messages' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'Event desk messages' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'This page shows the event registration status of activities of Inter-<i>Actief</i>.' %}
+            </p>
+            <p>
+                {% trans "Each activity that takes place on university terrain, outside of the opening hours of the building or the terrain, should be registered at the University's Event Desk." %}
+            </p>
+            <p>
+                {% trans 'To register an activity, go to <a href="https://ictsv.nl/eventdesk">the event desk</a>.' %}
+            </p>
+            <p>
+                <span class="icon icon-error">{% blocktrans with ia_event_email=ia_event_email %}IMPORTANT: Enter <abbr class="monospace-text-bordered">{{ ia_event_email }}</abbr> as the alternative e-mail address in the UT form to make this page work properly{% endblocktrans %}</span>
+            </p>
+            <p>
+                {% trans 'The mailbox is checked each hour, at 30 minutes past the hour. If your registration does not show up after that time, contact the Officer of Internal Affairs.' %}
+            </p>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2> {% trans 'Activity status' %} </h2>
+
+        <div class="content">
+            <p>
+                {% trans 'These are all upcoming activities, and activities that happened in the past week, and their status at the UT event desk.' %}
+            </p>
+            <p>
+                {% trans 'Only activities that you are allowed to edit are shown.' %}
+            </p>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th colspan="4">{% trans 'Legend' %}</th>
+                    </tr>
+                    <tr>
+                        <td class="event-state-UNREGISTERED col-xs-3">
+                            <span class="state-text">{% trans 'Unregistered' %}</span>
+                            <span class="ratio-text">{% trans '(Event not known at the University)' %}</span>
+                        </td>
+                        <td class="event-state-NEW col-xs-3">
+                            <span class="state-text">{% trans 'Registered' %}</span>
+                            <span class="ratio-text">{% trans '(Event registered, but not yet accepted)' %}</span>
+                        </td>
+                        <td class="event-state-ACCEPTED col-xs-3">
+                            <span class="state-text">{% trans 'Accepted' %}</span>
+                            <span class="ratio-text">{% trans '(Event registered and accepted by the University)' %}</span>
+                        </td>
+                        <td class="event-ratio-WARN col-xs-3">
+                            <span class="state-text"><i>{% trans 'Any status (orange border)' %}</i></span>
+                            <span class="ratio-text">{% trans '(Match between UT and IA activity <60% certain)' %}</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="table-responsive">
+                <p><strong>{% trans 'Upcoming activities' %}</strong></p>
+                <table class="table">
+                    <tr>
+                        <th class="col-xs-2">{% trans 'Start date/time' %}</th>
+                        <th class="col-xs-5">{% trans 'Activity' %}</th>
+                        <th class="col-xs-3">{% trans 'Status' %}</th>
+                        <th class="col-xs-2">{% trans 'Details' %}</th>
+                    </tr>
+                {% for activity in current_activities %}
+                    <tr>
+                        <td>{{ activity.begin }}</td>
+                        <td><a href="{{ activity.get_absolute_url }}"><span class="icon icon-calendar">{{ activity }}</span></a></td>
+                        {% with activity.latest_event_registration_message as message %}
+                            {% if message is not None %}
+                                <td class="event-state-{{ message.state }} event-ratio-{{ message.ratio_ok|yesno:"OK,WARN" }}">
+                                    <span class="state-text">{{ message.get_state_display }}</span>
+                                    <span class="ratio-text">({{ message.event_name }}, {{ message.get_match_ratio_display }})</span>
+                                </td>
+                                <td><a href="{% url "activities:eventdesk_history" activity.pk %}"><span class="icon icon-hourglass_go">{% trans 'History' %}</span></a></td>
+                            {% else %}
+                                <td class="event-state-UNREGISTERED">{% trans 'Unregistered' %}</td>
+                                <td>&mdash;</td>
+                            {% endif %}
+                        {% endwith %}
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">{% trans 'There are no activities visible to you in this timeframe.' %}</td></tr>
+                {% endfor %}
+
+                </table>
+            </div>
+            <div class="table-responsive">
+                <p><strong>{% trans 'Activities from the past week' %}</strong></p>
+                <table class="table">
+                    <tr>
+                        <th class="col-xs-2">{% trans 'Start date/time' %}</th>
+                        <th class="col-xs-5">{% trans 'Activity' %}</th>
+                        <th class="col-xs-3">{% trans 'Status' %}</th>
+                        <th class="col-xs-2">{% trans 'Details' %}</th>
+                    </tr>
+                {% for activity in past_activities %}
+                    <tr>
+                        <td>{{ activity.begin }}</td>
+                        <td><a href="{{ activity.get_absolute_url }}"><span class="icon icon-calendar">{{ activity }}</span></a></td>
+                        {% with activity.latest_event_registration_message as message %}
+                            {% if message is not None %}
+                                <td class="event-state-{{ message.state }} event-ratio-{{ message.ratio_ok|yesno:"OK,WARN" }}">
+                                    <span class="state-text">{{ message.get_state_display }}</span>
+                                    <span class="ratio-text">({{ message.event_name }}, {{ message.get_match_ratio_display }})</span>
+                                </td>
+                                <td><a href="{% url "activities:eventdesk_history" activity.pk %}"><span class="icon icon-hourglass_go">{% trans 'History' %}</span></a></td>
+                            {% else %}
+                                <td class="event-state-UNREGISTERED">{% trans 'Unregistered' %}</td>
+                                <td>&mdash;</td>
+                            {% endif %}
+                        {% endwith %}
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">{% trans 'There are no activities visible to you in this timeframe.' %}</td></tr>
+                {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div></div>
+
+    {% if request.is_board %}
+    <div class="col-xs-12"><div class="current">
+        <h2> {% trans 'Unlinked messages' %} </h2>
+
+        <div class="content">
+            <p>
+                {% trans 'These are the last 15 event registration messages that we received and that are not matched to any activity.' %}
+            </p>
+            <p>
+                {% trans 'This might mean that the event is not on the website yet (possibly because it is a graduation drink or other non-IA-activity), or that it could not be matched.' %}
+            </p>
+            <p>
+                {% trans 'You can manually match these messages to an activity by clicking the "Match" button, if necessary.' %}
+            </p>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th class="col-xs-2">{% trans 'Date of message' %}</th>
+                        <th class="col-xs-1">{% trans 'Requester' %}</th>
+                        <th class="col-xs-3">{% trans 'Event name' %}</th>
+                        <th class="col-xs-2">{% trans 'Start/end time' %}</th>
+                        <th class="col-xs-1">{% trans 'Location' %}</th>
+                        <th class="col-xs-1">{% trans 'State' %}</th>
+                        <th class="col-xs-1">{% trans 'Match' %}</th>
+                        <th class="col-xs-1">{% trans 'Details' %}</th>
+                    </tr>
+                {% for message in unmatched_messages %}
+                    <tr>
+                        <td>{{ message.message_date }}</td>
+                        <td>{{ message.requester }}</td>
+                        <td>{{ message.event_name }}</td>
+                        <td>{{ message.get_event_start }} - <br/>{{ message.get_event_end }}</td>
+                        <td>{{ message.event_location }}</td>
+                        <td class="event-state-{{ message.state }}">
+                            <span class="state-text">{{ message.get_state_display }}</span>
+                        </td>
+                        <td><a href="{% url "activities:eventdesk_match" message.pk %}"><span class="icon icon-link_add">{% trans 'Match' %}</span></a></td>
+                        <td><a href="{% url "activities:eventdesk_detail" message.pk %}"><span class="icon icon-application_view_detail">{% trans 'Details' %}</span></a></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9">{% trans 'There are no unmatched messages.' %}</td></tr>
+                {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2 class="expand collapsed" data-target="expand_messages">{% trans 'All Messages' %}</h2>
+
+        <div class="content">
+            <div class="table-responsive" id="expand_messages" style="display: none;" hidden="">
+                <p>
+                    {% trans 'These are the past 50 messages that we have received from the event desk.' %}
+                </p>
+                <table class="table">
+                    <tr>
+                        <th class="col-xs-2">{% trans 'Date of message' %}</th>
+                        <th class="col-xs-1">{% trans 'Requester' %}</th>
+                        <th class="col-xs-3">{% trans 'Event name' %}</th>
+                        <th class="col-xs-2">{% trans 'Start/end time' %}</th>
+                        <th class="col-xs-1">{% trans 'Location' %}</th>
+                        <th class="col-xs-1">{% trans 'State' %}</th>
+                        <th class="col-xs-1">{% trans 'Matched?' %}</th>
+                        <th class="col-xs-1">{% trans 'Details' %}</th>
+                    </tr>
+                {% for message in object_list %}
+                    <tr>
+                        <td>{{ message.message_date }}</td>
+                        <td>{{ message.requester }}</td>
+                        <td>{{ message.event_name }}</td>
+                        <td>{{ message.get_event_start }} - <br/>{{ message.get_event_end }}</td>
+                        <td>{{ message.event_location }}</td>
+                        <td class="event-state-{{ message.state }}">
+                            <span class="state-text">{{ message.get_state_display }}</span>
+                        </td>
+                        <td>
+                            {% if message.activity %}
+                                <a title="{{ message.activity.summary }}" href="{{ message.activity.get_absolute_url }}">
+                                    <span class="icon icon-calendar">{% trans "Yes" %}</span>
+                                </a>
+                            {% else %}
+                                {% trans "No" %}
+                            {% endif %}
+                        </td>
+                        <td><a href="{% url "activities:eventdesk_detail" message.pk %}"><span class="icon icon-application_view_detail">{% trans 'Details' %}</span></a></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9">{% trans 'There are no messages.' %}</td></tr>
+                {% endfor %}
+
+                </table>
+            </div>
+        </div>
+    </div></div>
+    {% endif %}
+{% endblock %}

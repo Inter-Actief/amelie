@@ -1,0 +1,20 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify %}
+
+{% block subject %}{% blocktrans %}Complaint entered about {{ complaint_course }}{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,{% endblocktrans %}
+
+{% if complaint_courseperiod %}{% blocktrans %}Someone submitted a complaint about the course {{ complaint_courseperiod }}.{% endblocktrans %}
+{% else %}{% blocktrans %}Someone submitted a complaint.{% endblocktrans %}
+{% endif %}
+{% blocktrans %}Subject: {{ complaint_subject }}
+Summary: "{{ complaint_summary }}".
+Complaint:
+
+> {{ complaint_comment }}
+
+Read more on: https://www.inter-actief.utwente.nl{{ url }}
+
+Cheers,
+Amélie{% endblocktrans %}{% endhtmlify %}{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Digital cookie and candy list' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Digital cookie and candy list' %}</h2>
+        <div class="content">
+            <ul>
+                <li>
+                    <a href="{% url 'personal_tab:dashboard' request.person.pk request.person.slug %}">
+                        {% trans 'Personal overview' %}
+                    </a>
+                </li>
+                <li><a href="{% url 'personal_tab:price_list' %}">{% trans 'Price list' %}</a></li>
+                <li><a href="{% url 'personal_tab:transactions' %}">{% trans 'Transactionoverview' %}</a></li>
+                <li><a href="{% url 'personal_tab:exam_cookie_credit' %}">{% trans 'Exam credit transactions' %}</a></li>
+                <li><a href="{% url 'personal_tab:statistics_form' %}">{% trans 'Statistics' %}</a></li>
+                <li><a href="{% url 'personal_tab:balance' %}">{% trans 'Balance' %}</a></li>
+                <li><a href="{% url 'personal_tab:authorization_list' %}">{% trans 'Mandates' %}</a>
+                    <ul>
+                        <li><a href="{% url 'personal_tab:authorization_terminate' %}">{% trans 'End inactive mandates' %}</a>
+                        <li><a href="{% url 'personal_tab:authorization_anonymize' %}">{% trans 'Anonymize old mandates' %}</a>
+                    </ul>
+                </li>
+                <li><a href="{% url 'personal_tab:debt_collection_list' %}">{% trans 'Direct withdrawal-tasks (SEPA)' %}</a></li>
+            </ul>
+            <h3>{% trans "Deprecated pages" %}</h3>
+            <ul>
+                <li><a href="{% url 'personal_tab:export' %}">{% trans 'Export list of direct withdrawals (ClieOp)' %}</a></li>
+            </ul>
+        </div>
+    </div></div>
+{% endblock content %}

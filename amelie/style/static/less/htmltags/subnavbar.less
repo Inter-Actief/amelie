@@ -1,0 +1,59 @@
+@import "../util/constants";
+
+/**
+ * Sub menu is built as follows:
+ *
+ * <div id="subnavbar"
+ *   <ul class="clearfix">
+ *     <li>
+ *       <a href="link">Item</a>
+ *     </li>
+ *     <li>
+ *       <a href="link">Item</a>
+ *     </li>
+ *   </ul>
+ * </div>
+ */
+
+#subnavbar {
+  margin-top: 0;
+}
+
+#subnavbar ul {
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: block;
+    float: left;
+    white-space: nowrap;
+    position: relative;
+    line-height: 1em;
+    padding: 0 3px;
+    min-width: 115px;
+
+    a {
+      display: block;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 5px 0;
+      text-align: center;
+      border-bottom: none;
+    }
+
+    &:hover, &.active {
+      background: @iacolor;
+      a {
+        color: @white;
+      }
+    }
+
+    .arrow {
+      font-size: 8px;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+    }
+  }
+}

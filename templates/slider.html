@@ -1,0 +1,20 @@
+{% load i18n %}
+<h2 id="slider-carousel-title" class="h2-with-buttons">
+    <a href="{% url 'activities:photos' %}">{% trans 'Past activities' %}</a>
+
+    {% if mediacie or request.is_board %}
+        <a class="looks-like-a-button"
+           href="{% url 'activities:photo_upload' %}">{% trans "Add photos" %}</a>
+    {% endif %}
+</h2>
+<div id="slider-items">
+    {% for activity in past_activities %}
+        <a href="{{ activity.get_photo_url }}" title="{{ activity }}"></a>
+    {% endfor %}
+</div>
+<ol id="slider-list"></ol>
+<script type="text/javascript">
+    $(document).ready(function(){
+        createBrandBox();
+    });
+</script>

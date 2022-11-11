@@ -1,0 +1,11 @@
+{% load i18n %}
+{% blocktrans with first_name=person.first_name %}Dear {{ first_name }},
+
+In order to keep the member database of Inter-<i>Actief</i> up to date, we would like to ask you to check your data with us.
+Below is your data. Is this still accurate? You can update most of it on https://www.inter-actief.utwente.nl/profile/edit. Is something incorrect and you can't edit it yourself? Then please mail the secretary or the entire board.{% endblocktrans %}
+
+{% include "members/datablock_plain.mail" %}
+
+{% blocktrans %}Kind regards,
+
+The board of Inter-Actief{% endblocktrans %}

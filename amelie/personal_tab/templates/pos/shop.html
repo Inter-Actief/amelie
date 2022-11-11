@@ -1,0 +1,147 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block content %}
+    <div id="shop-container">
+        <div id="shop-contents">
+            <div id="shop-header">
+                <div id="header-logo"></div>
+                {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+            </div>
+            <div id="shop-back" style="display: none;">
+                <a href="#" id="shop-back-button">
+                    <span><i class="fa fa-backward"></i>&nbsp;{% trans "Go back" %}</span>
+                </a>
+                <span id="shop-category-name">&nbsp;</span>
+            </div>
+            <div id="shop-categories" class="center" data-active-id="">
+                {% for category in categories %}
+                    <a href="#" class="shop-category-button" data-id="{{ category.id }}">
+                        <div class="category-cover"></div>
+                        <div class="catgory-image" style="background-image: url('{% if category.image %}{{ category.image.url }}{% endif %}');"></div>
+                        <div class="category-title">{{ category.name }}</div>
+                    </a>
+                    <div class="shop-category {% if category.show_calculator_in_pos %}calculator-category{% endif %}" data-id="{{ category.id }}">
+                        {% if category.show_calculator_in_pos %}
+                            {% with category.active_articles.0 as article %}
+                                <div class="calculator" data-id="{{ article.id }}" data-price="{{ article.price }}" data-name="{{ article.name }}" data-image="{{ article.image.url }}">
+                                    <div class="product-header">
+                                        <span class="image" style="background-image: url('{{ article.image.url }}');"></span>
+                                        <div class="text">
+                                            <div class="amount"><span>{{ article.name }}</span></div>
+                                            <div class="price">{% blocktrans with price=article.price %}&euro; {{ price }} per piece{% endblocktrans %}</div>
+                                        </div>
+                                    </div>
+                                    <div class="input-amount">
+                                        <input type="text" value="" placeholder="{% trans 'Please enter the amount of pieces...' %}" maxlength="3">
+                                    </div>
+                                    <div class="calculator-buttons">
+                                        <div class="row"><a data-val="7" href="#">7</a><a data-val="8" href="#">8</a><a data-val="9" href="#">9</a></div>
+                                        <div class="row"><a data-val="4" href="#">4</a><a data-val="5" href="#">5</a><a data-val="6" href="#">6</a></div>
+                                        <div class="row"><a data-val="1" href="#">1</a><a data-val="2" href="#">2</a><a data-val="3" href="#">3</a></div>
+                                        <div class="row"><a data-val="0" href="#">0</a><a data-val="back" href="#" class="backspace">backspace</a></div>
+                                        <div class="row"><a data-val="add" href="#" class="add-calc-to-cart">{% trans 'In shopping cart' %}</a></div>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% else %}
+                            {% for article in category.active_articles %}
+                                <div class="shop-article-button" data-id="{{ article.id }}" data-price="{{ article.price }}" data-name="{{ article.name }}" data-image="{{ article.image.url }}">
+                                    <a href="#" class="article-instabuy"><i class="fas fa-donate"></i><span>{% trans 'Insta-buy' %}</span></a>
+                                    <a href="#" class="article-addtocart">
+                                        <div class="article-cover"></div>
+                                        <div class="article-image" style="background-image: url('{% if article.image %}{{ article.image.url }}{% endif %}');"></div>
+                                        <div class="article-title">
+                                            <div class="article-name">{{ article.name }}</div>
+                                            <div class="article-price">&euro; {{ article.price }}</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% empty %}
+                                <p class="article-empty">There are no articles in this category.</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="category-empty">There are no categories registered.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="shop-sidebar">
+            <div id="sidebar-welcome">
+                <h1>{% trans 'Welcome,' %}</h1>
+                <h2>{{ pos_person.incomplete_name }}</h2>
+                <div id="register-external-card"><a href="{% url 'personal_tab:pos_register_external' %}">{% trans 'Register external card' %}</a></div>
+            </div>
+            <div id="top-five" style="display: flex;">
+                <h3 class="title">{% trans 'Your top 5!' %}</h3>
+                <p class="instabuy">{% trans '<b>Note:</b> These products are insta-buy!' %}</p>
+                <div id="top-five-products">
+                    {% if not top_five_products %}
+                        <p class="empty"><i>{% trans 'No products bought yet!' %}</i></p>
+                    {% else %}
+                        <div id="top-five-entries">
+                            {% for article in top_five_products %}
+                                <div class="top-five-entry" data-id="{{ article.id }}" data-price="{{ article.price }}" data-name="{{ article.name }}" data-image="{{ article.article_image }}">
+                                    <a href="#" class="top-five-instabuy">
+                                        <div class="cover"></div>
+                                        <span class="image" style="background-image: url('{{ article.article_image }}');"><span class="image-instabuy"><i class="fas fa-donate"></i><span>{% trans 'Insta-buy' %}</span></span></span>
+                                        <div class="text">
+                                            <div class="amount"><span>{% blocktrans with amount=article.amount %}Bought: {{ amount }}x{% endblocktrans %}</span></div>
+                                            <div class="price">&euro; {{ article.price }}</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="shopping-cart" style="display: none;">
+                <div id="cart-top">
+                    <h1 class="title">{% trans 'Shopping cart' %}</h1>
+                    <div id="cart-entries"></div>
+                </div>
+                <div id="cart-bottom">
+                    <div id="cart-totals">
+                        <div id="totals-title">{% trans 'Total' %}</div>
+                        <div id="totals-amount">&euro; 0,00</div>
+                    </div>
+                </div>
+            </div>
+            <div id="control-buttons">
+                <a href="#" id="button-accept" style="display: none;"><i class="fa fa-check"></i></a>
+                <a href="#" id="button-cancel"><i class="fa fa-times"></i></a>
+            </div>
+        </div>
+    </div>
+    <div id="cart-entry-template" data-id="0" data-amount="1" data-price-per-unit="0.00" data-price-total="0.00" data-image-url="">
+        <span class="image"><span class="image-amount"></span></span>
+        <div class="text">
+            <span class="name"></span>
+            <div class="amountprice"><span class="amount"></span><span class="total"></span></div>
+        </div>
+        <a href="#" class="remove"><i class="fa fa-times"></i></a>
+    </div>
+    <div id="cart-full-template">
+        <div class="text">{% trans 'And {amount} more articles...' %}</div>
+    </div>
+    <form id="checkout-form" method="post" action="{% url 'personal_tab:pos_shop' %}">
+        {% csrf_token %}
+        <input type="hidden" name="cart" id="checkout-form-cart" value="">
+    </form>
+{% endblock %}
+
+{% block javascript_pre %}
+    <script type="text/javascript">
+        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+    </script>
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+           setupShopPage();
+        });
+    </script>
+{% endblock %}

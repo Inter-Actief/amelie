@@ -1,0 +1,27 @@
+{% load i18n picture_tags %}
+
+<p class="paging">
+	{% if page.has_previous %}
+		<span><a href="{% picture_gallery_url obj 1 %}">{% trans 'First' %}</a></span>
+		<span><a href="{% picture_gallery_url obj page.previous_page_number %}">{% trans 'Back' %}</a></span>
+    {% else %}
+        <span><a href="#" class="paging-disabled">{% trans 'First' %}</a></span>
+		<span><a href="#" class="paging-disabled">{% trans 'Back' %}</a></span>
+	{% endif %}
+
+	{% for p in pages.page_range %}
+		{% if p == page.number %}
+		    <span class="current">{{ p }}</span>
+		{% else %}
+		    <span><a href="{% picture_gallery_url obj p %}">{{ p }}</a></span>
+		{% endif %}
+	{% endfor %}
+
+	{% if page.has_next %}
+		<span><a href="{% picture_gallery_url obj page.next_page_number %}#photo-full">{% trans 'Next' %}</a></span>
+		<span><a href="{% picture_gallery_url obj pages.num_pages %}#photo-full">{% trans 'Last' %}</a></span>
+    {% else %}
+        <span><a href="#" class="disabled">{% trans 'Next' %}</a></span>
+		<span><a href="#" class="disabled">{% trans 'Last' %}</a></span>
+	{% endif %}
+</p>

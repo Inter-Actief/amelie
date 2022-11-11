@@ -1,0 +1,74 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}{% trans 'New news message' %}{% endblock titel %}
+
+{% block content %}
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% if is_new %}{% trans 'Add new news message' %}{% else %}
+                {% trans 'Edit news message' %}{% endif %}</h2>
+
+            <div class="content">
+                <form class="big" method="post" action="" enctype="multipart/form-data">
+                    {% for error in form.non_field_errors %}
+                        <div class="icon-error">{{ error }}</div>
+                    {% endfor %}
+
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                            <th>{% trans 'Title' %}</th>
+                            <td>
+                                {% if form.title_nl.errors or form.title_en.errors %}
+                                    {% for error in form.title_nl.errors %}
+                                        <div class="icon-error"> {% trans "Error in the field title_nl:" %} {{ error }} </div>
+                                    {% endfor %}
+                                    {% for error in form.title_en.errors %}
+                                        <div class="icon-error"> {% trans "Error in the field title_en:" %} {{ error }} </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="tabbed-ticker">
+                                    <ul>
+                                        <li class="active"> NL</li>
+                                        <li> EN</li>
+                                    </ul>
+                                    <div class="tabbed-content">
+                                        <div>{{ form.title_nl }}</div>
+                                        <div>{{ form.title_en }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>{% trans 'Content' %}</th>
+                            <td>
+                                {% if form.content_nl.errors or form.content_en.errors %}
+                                    {% for error in form.content_nl.errors %}
+                                        <div class="icon-error"> {% trans "Error in the field inhoud:" %} {{ error }} </div>
+                                    {% endfor %}
+                                    {% for error in form.content_en.errors %}
+                                        <div class="icon-error"> {% trans "Error in the field inhoud_en:" %} {{ error }} </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="tabbed-ticker">
+                                    <ul>
+                                        <li class="active"> NL</li>
+                                        <li> EN</li>
+                                    </ul>
+                                    <div class="tabbed-content">
+                                        <div>{{ form.content_nl }}</div>
+                                        <div>{{ form.content_en }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="submit" value="{% if is_new %}{% trans 'Create news message' %}{% else %}{% trans 'Edit news message' %}{% endif %} &raquo;"/>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

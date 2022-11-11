@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_preprogrammed">
+    <h3>{% trans 'Pre-programmed selections' %}</h3>
+
+    {% fieldset second_year_and_older,third_year_and_older,fourth_year_and_older,fifth_year_and_older as form_preprogrammed from form %}
+    {{ form_preprogrammed }}
+</div>

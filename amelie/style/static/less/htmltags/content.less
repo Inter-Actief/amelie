@@ -1,0 +1,101 @@
+@import "../util/constants";
+@import "../util/icons_list";
+
+// This file contains mostly text styling, and a small bit of content styling
+
+em, i { font-style:italic; }
+strong, b { font-weight: bold; }
+u { font-style: underline; }
+li { line-height:1.35em }
+
+#content {
+  clear: both;
+
+  @media (max-width: 480px) {
+    margin-bottom: 30px;
+  }
+}
+
+h2 {
+  &.expand {
+    cursor: pointer;
+  }
+
+  &.expanded,
+  &.collapsed {
+    span {
+      display: block;
+      width: 16px;
+      height: 16px;
+      float: right;
+    }
+  }
+
+  &.collapsed span {
+    .icon-collapsed;
+  }
+
+  &.expanded span {
+    .icon-expanded;
+  }
+}
+
+.h2-with-buttons {
+  .looks-like-a-button, input {
+    float: right;
+    margin: -3px 0 0;
+  }
+}
+
+h2.h2-with-date {
+  line-height: 20px;
+  .date {
+    margin-top: -2px;
+  }
+}
+
+a {
+  color: @currentcolor;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+*:not(.slider-item) > img {
+  max-width: 100%;
+}
+
+.content {
+  margin-top: 10px;
+  padding: 0 10px 10px;
+  word-wrap: break-word;
+}
+
+p {
+  line-height: 1.35em;
+  margin: 10px 0;
+  word-wrap: break-word;
+
+  &.serial {
+    padding: 0 5px;
+    display: inline-block;
+    border: 2px dashed @_2;
+    background-color: #FFE55C;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: bold;
+    margin:0;
+  }
+}
+
+.small {
+  font-size: 10px;
+}
+
+@media print {
+  .no-print {
+    display:none;
+  }
+}

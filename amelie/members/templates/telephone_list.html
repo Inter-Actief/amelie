@@ -1,0 +1,41 @@
+<html>
+<head>
+    <style type="text/css">
+        body {
+            font-size: 10pt;
+        }
+
+        td {
+            font-family: Calibri;
+            font-size: 9pt;
+        }
+
+        tr.even {
+            background: #eee;
+        }
+
+        tr.odd {
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+<table cellpadding=3 cellspacing=0>
+    {% for committee in committees %}
+        <tr>
+            <th colspan="4" style="background-color:black; color:white; text-align:left;">{{ committee.name }}</th>
+        </tr>
+        {% for function in committee.function_set.all %}
+            {% if not function.end %}
+                <tr class="{% cycle "even" "odd" %}">
+                    <td>{{ function.person }}</td>
+                    <td width="100">{{ function.function }}</td>
+                    <td>{{ function.person.telephone }}</td>
+                    <td>{{ function.person.email_address }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</table>
+</body>
+</html>

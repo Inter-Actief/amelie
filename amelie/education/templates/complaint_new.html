@@ -1,0 +1,140 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Add complaint' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+        <h2>{% trans 'Add complaint' %}</h2>
+
+        <div class="content">
+            <p>
+                {% blocktrans %}
+                    Because not everything always goes smoothly, you can file a complaint/ comment here.
+                    Please check the overview of complaints for your complaint before posting, so you can support it.
+                    This way, you won't have to file a new complaint.
+                {% endblocktrans %}
+
+                {{ form.non_field_errors }}
+            </p>
+        </div>
+    </div></div>
+
+    <form action="" method="post" class="big">
+        {% csrf_token %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2>{% trans 'Subject of the complaint' %}</h2>
+
+            <div class="content">
+                {% for error in form.non_field_errors %}
+                    <div class="icon-error">{{ error }}</div>
+                {% endfor %}
+
+                <p>
+                    {% trans 'Firstly, what does your complaint concern? Remember: teacher have 10 working days to grade your exams!' %}
+                </p>
+
+                {{ form.subject.errors }} {{ form.subject }}
+            </div>
+        </div></div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2>{% trans 'Course or Module' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% trans 'If it concerns a course or module, you can select it here' %}:
+                </p>
+                <p>
+                    {{ form.course.errors }} {{ form.course }} &nbsp; {{ form.part }}
+                </p>
+                <p class="small">
+                    {% url 'education:course_new' as new_course_url %}
+
+                    {% blocktrans %}
+                        There is a chance that the course you are looking for does not yet exist.
+
+                        <a href="{{ new_course_url }}"> If so, please create a new course.</a>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% trans 'Academic year and period of the course:' %}
+                </p>
+                <p>
+                    {{ form.year }} &nbsp; {{ form.period }}
+                </p>
+                <p class="small">
+                    {% blocktrans %}Year in which the academic year began{% endblocktrans %}
+                </p>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2>{% trans 'Complaint' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Please state clearly your problem and the actions you have already taken to solve it
+                        (for example, e-mailing the teacher or module coordinator).
+                        Also include the name of the teacher of the course.
+                        If the complaint is about an exceeded marking period, be sure to state the date of the
+                        test/assignment deadline.
+                        Preferably describe your complaint in English to make sure other students can understand it (later).
+                        In case you'd rather do this in Dutch, that's fine as well.
+                    {% endblocktrans %}
+                </p>
+
+                <p class="icon icon-error">
+                    {% blocktrans %}
+                        Please contact the teacher of the subject and/or the module coordinator about the issue before
+                        submitting a complaint. Oftentimes, complaints can be solved much quicker and easier with
+                        direct contact than through Inter-<i>Actief</i>. <b>By submitting a complaint here, you indicate
+                        to us that you have raised the issue with the teacher or module coordinator, and that this
+                        did not lead to an acceptable resolution of the issue.</b>
+                    {% endblocktrans %}
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>{{ form.summary.label_tag }}</th>
+                            <td>{{ form.summary.errors }} {{ form.summary }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ form.comment.label_tag }}</th>
+                            <td>{{ form.comment.errors }} {{ form.comment }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div></div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+            <h2>{% trans 'Complaint-preferences' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% trans 'Lastly, we have three more questions for you' %}:
+                </p>
+                <p>
+                    {{ form.public }} <label for="{{ form.public.auto_id }}">{% trans 'Include this complaint in the overview, so other members can see and support it' %}.</label> {% trans 'Your name will not be shown in the overview' %}.
+                </p>
+                <p>
+                    {{ form.progress }} <label for="{{ form.progress.auto_id }}">{% trans 'Keep me updated by e-mail' %}.</label>
+                </p>
+                <p>
+                    {{ form.anonymous }} <label for="{{ form.anonymous.auto_id }}">{% trans 'Handle my complaint anonymously (only the board can see who filed the complaint)' %}.</label>
+                </p>
+                <p>
+                    {% trans 'You can now hand in your complaint. Thank you!' %}
+                </p>
+
+                <div class="buttons">
+                    <input type="submit" value="{% if is_new %}{% trans 'Submit' %}{% else %}{% trans 'Save' %}{% endif %}" />
+                </div>
+            </div>
+        </div></div>
+    </form>
+
+    {{ form.media }}
+{% endblock content %}

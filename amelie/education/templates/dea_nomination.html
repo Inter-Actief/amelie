@@ -1,0 +1,44 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Nomination for the Educational Award' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 edu">
+        <h2>{% blocktrans %}Education award nomination{% endblocktrans %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'Which teacher should receive the Educational Award?' %}
+            </p>
+            <form action="" method="post">
+                {% for error in dea_form.non_field_errors %}
+                    <div class="icon-error">{{ error }}</div>
+                {% endfor %}
+
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <td>{% trans "Teacher" %}</td>
+                        <td>{{ dea_form.teacher.errors }}{{ dea_form.teacher }}</td>
+                    </tr>
+                    <tr>
+                        <td>{% trans "Reason" %}</td>
+                        <td>{{ dea_form.reason.errors }}{{ dea_form.reason }}</td>
+                    </tr>
+                    <tr>
+                        <td>{% blocktrans %}Your name{% endblocktrans %}</td>
+                        <td>{{ dea_form.author.errors }}{{ dea_form.author }}</td>
+                    </tr>
+                    <tr>
+                        <td>{% blocktrans %}Your e-mail address{% endblocktrans %}</td>
+                        <td>{{ dea_form.email.errors }}{{ dea_form.email }}</td>
+                    </tr>
+                </table>
+                <div class="buttons">
+                    <input type="reset" value="{% trans 'Recover all data' %}"/>
+                    <input type="submit" value="{% trans 'Send' %}"/>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

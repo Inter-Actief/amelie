@@ -1,0 +1,62 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans "Videos" %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2 class="h2-with-buttons">
+		    {% trans "Videos" %}
+
+		    {% if page_obj.has_other_pages %}
+		    	({{ page_obj.start_index }} - {{ page_obj.end_index }} / {{ paginator.count }})
+		    {% else %}
+		    	({{ paginator.count }})
+		    {% endif %}
+
+            {% if can_create %}
+                <a class="looks-like-a-button" href="{% url 'videos:new_yt_video' %}">{% trans 'Add video from YouTube' %}</a>
+                <a class="looks-like-a-button" style="margin-right: 8px;" href="{% url 'videos:new_ia_video' %}">{% trans 'Add video from Streaming.IA' %}</a>
+            {% endif %}
+		</h2>
+
+    <div class="content">
+  		<p>
+  			{% blocktrans %}
+                Every so often the MedIA committee of Inter-<i>Actief</i> records videos of events
+                and activities. You can find a list of the most recent videos below.
+  			{% endblocktrans %}
+  		</p>
+
+		{% if login_voor_meer %}
+        <p class="icon icon-information">
+            {% url 'login' as login_url %}
+            {% trans "More videos are available if you" %} <a href="{{ login_url }}?next={% url 'videos:list' pk %}">{% trans 'logged in' %}</a>.
+        </p>
+        {% endif %}
+
+  		{% if page_obj.has_other_pages %}
+  			{% include "videos/includes/videos_paginator.html" %}
+  		{% endif %}
+
+  		<div class="row media-list">
+  			{% for vid in page_obj.object_list %}
+  				<div class="col-xs-12 col-md-6 col-lg-4 media-item">
+                    <div class="col-xs-12 thumbnail-container">
+                        <a href="{{ vid.get_absolute_url }}">
+                            <h3>{{ vid.title }}</h3>
+                            <div class="thumbnail" style="background-image: url({{ vid.thumbnail_url }})"></div>
+                        </a>
+                    </div>
+  				</div>
+  			{% endfor %}
+  		</div>
+
+  		<div class="clear"></div>
+
+  		{% if page_obj.has_other_pages %}
+  			{% include "videos/includes/videos_paginator.html" %}
+  		{% endif %}
+    </div>
+	</div></div>
+{% endblock content %}

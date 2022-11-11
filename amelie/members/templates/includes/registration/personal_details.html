@@ -1,0 +1,106 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+
+        <!-- General information-->
+        <h2>{% trans 'Who are you?' %}</h2>
+        <div class="content">
+
+            <!-- Full name -->
+            <div class="form-group">
+                {{ wizard.form.first_name.errors }}
+                {{ wizard.form.last_name_prefix.errors }}
+                {{ wizard.form.last_name.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Name' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.first_name|form_bootstrapify }}
+                        {{ wizard.form.last_name_prefix|form_bootstrapify }}
+                        {{ wizard.form.last_name|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Please give your first name, last name and last name prefix(es) in the three different boxes, with correct capitalization.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Initials -->
+            <div class="form-group">
+                {{ wizard.form.initials.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Initials' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.initials|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'These are the initials of your first name (and optional baptismal name(s)), excluding the first letter of your last name.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Date of Birth -->
+            <div class="form-group">
+                {{ wizard.form.date_of_birth.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Birth date' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.date_of_birth|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Please fill in your date of birth in the format "<b>yyyy-mm-dd</b>".' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Gender -->
+            <div class="form-group">
+                {{ wizard.form.gender.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Gender' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.gender|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your gender.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- E-mail address -->
+            <div class="form-group">
+                {{ wizard.form.email_address.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'E-mail address' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.email_address|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans "Your e-mail address. No worries, we won't send you any e-mails that you did not ask for or which are not necessary for your membership. We recommend you to use a personal email address, since your student email will stop working when you graduate." %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Preferred language -->
+            <div class="form-group">
+                {{ wizard.form.preferred_language.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Language of preference' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.preferred_language|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'This is the language that the website will be shown in, and in which you will receive any information mails.' %}</small>
+                </div>
+            </div>
+
+            <!-- International member-->
+            <div class="form-group">
+                {{ wizard.form.international_member.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'International student' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.international_member|form_bootstrapify }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'If you are coming from abroad to study here or not. Is used to support the integration of international students in our association.' %}</small>
+                </div>
+            </div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

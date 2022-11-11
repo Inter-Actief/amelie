@@ -1,0 +1,109 @@
+{% load l10n %}{% localize off %}<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02">
+    <CstmrDrctDbtInitn>
+        <GrpHdr>
+            <MsgId>{{ assignment.file_identification }}</MsgId>
+            <CreDtTm>{{ assignment.created_on|date:"c" }}</CreDtTm>
+            <NbOfTxs>{{ assignment.number_of_transactions }}</NbOfTxs>
+            <CtrlSum>{{ assignment.control_sum }}</CtrlSum>
+            <InitgPty>
+                <Nm>Inter-Actief</Nm>
+            </InitgPty>
+        </GrpHdr>
+{% for batch in assignment.batches.all %}
+        <PmtInf>
+            <PmtInfId>{{ batch.reference_number }}</PmtInfId>
+            <PmtMtd>DD</PmtMtd>
+            <BtchBookg>true</BtchBookg>
+            <NbOfTxs>{{ batch.number_of_transactions }}</NbOfTxs>
+            <CtrlSum>{{ batch.control_sum }}</CtrlSum>
+            <PmtTpInf>
+                <SvcLvl>
+                    <Cd>SEPA</Cd>
+                </SvcLvl>
+                <LclInstrm>
+                    <Cd>CORE</Cd>
+                </LclInstrm>
+                <SeqTp>{{ batch.sequence_type }}</SeqTp>
+            </PmtTpInf>
+            <ReqdColltnDt>{{ batch.execution_date|date:"Y-m-d" }}</ReqdColltnDt>
+            <Cdtr>
+                <Nm>Inter-Actief</Nm>
+            </Cdtr>
+            <CdtrAcct>
+                <Id>
+                    <IBAN>NL70RABO0103421068</IBAN>
+                </Id>
+            </CdtrAcct>
+            <CdtrAgt>
+                <FinInstnId>
+                    <BIC>RABONL2U</BIC>
+                </FinInstnId>
+            </CdtrAgt>
+            <ChrgBr>SLEV</ChrgBr>
+            <CdtrSchmeId>
+                <Id>
+                    <PrvtId>
+                        <Othr>
+                            <Id>NL81ZZZ400749470000</Id>
+                            <SchmeNm>
+                                <Prtry>SEPA</Prtry>
+                            </SchmeNm>
+                        </Othr>
+                    </PrvtId>
+                </Id>
+            </CdtrSchmeId>
+{% for instruction in batch.instructions.all %}
+            <DrctDbtTxInf>
+                <PmtId>
+                    <InstrId>{{ instruction.debt_collection_reference }}</InstrId>
+                    <EndToEndId>{{ instruction.end_to_end_id }}</EndToEndId>
+                </PmtId>
+                <InstdAmt Ccy="EUR">{{ instruction.amount }}</InstdAmt>
+                <DrctDbtTx>
+                    <MndtRltdInf>
+                        <MndtId>{{ instruction.authorization.authorization_reference }}</MndtId>
+                        <DtOfSgntr>{{ instruction.authorization.start_date|date:"Y-m-d" }}</DtOfSgntr>
+{% if instruction.amendment %}
+                        <AmdmntInd>true</AmdmntInd>
+                        <AmdmntInfDtls>
+                            <OrgnlDbtrAcct>
+                                <Id>
+                                    <IBAN>{{ instruction.amendment.previous_iban }}</IBAN>
+                                </Id>
+                            </OrgnlDbtrAcct>
+{% if other_bank %}
+                            <OrgnlDbtrAgt>
+                                <FinInstnId>
+                                    <Othr>
+                                        <Id>SMNDA</Id>
+                                    </Othr>
+                                </FinInstnId>
+                            </OrgnlDbtrAgt>
+{% endif %}
+                        </AmdmntInfDtls>
+{% endif %}
+                    </MndtRltdInf>
+                </DrctDbtTx>
+                <DbtrAgt>
+                    <FinInstnId>
+                        <BIC>{{ instruction.authorization.bic }}</BIC>
+                    </FinInstnId>
+                </DbtrAgt>
+                <Dbtr>
+                    <Nm>{{ instruction.authorization.account_holder_name }}</Nm>
+                </Dbtr>
+                <DbtrAcct>
+                    <Id>
+                        <IBAN>{{ instruction.authorization.iban }}</IBAN>
+                    </Id>
+                </DbtrAcct>
+                <RmtInf>
+                    <Ustrd>{{ instruction.description }}</Ustrd>
+                </RmtInf>
+            </DrctDbtTxInf>
+{% endfor %}
+        </PmtInf>
+{% endfor %}
+    </CstmrDrctDbtInitn>
+</Document>{% endlocalize %}

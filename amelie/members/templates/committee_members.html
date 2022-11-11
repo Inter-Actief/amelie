@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<div class="content">
+<table>
+<thead>
+<tr>
+    <th>{% trans 'Name' %}</th>
+    <th>{% trans 'Position' %}</th>
+    <th>{% trans 'Member since' %}</th>
+</thead>
+<tbody>
+{% for member in members %}
+<tr>
+    {% if is_board %}
+    <td><a href="{{ member.person.get_absolute_url }}">{{ member.person }}</a></td>
+    {% else %}
+    <td>{{ member.person }}</td>
+    {% endif %}
+    <td>{{ member.function }}</td>
+    <td>{{ member.begin|timesince }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+</div>

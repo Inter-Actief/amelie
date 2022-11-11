@@ -1,0 +1,23 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans with name=recipient.incomplete_name %}[Inter-Actief] Welcome to Inter-/Actief/, {{ name }}, please sign your membership documents!{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+{% onlyhtml %}
+{% blocktrans %}Thank you for wanting to become a member of Inter-<i>Actief</i>! To complete your enrollment, you need to sign your membership form. By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
+{% blocktrans %}Thank you for wanting to become a member of Inter-/Actief/! To complete your enrollment, you need to sign your membership form. By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.{% endblocktrans %}{% endonlyplain %}
+
+{% blocktrans %}If you opted for one or both authorizations to pay for your membership fee and/or consumptions and activities, you will also need to sign these authorizations.{% endblocktrans %}
+
+{% blocktrans %}All forms that you will need to sign are attached to this e-mail. Print the form(s), sign using pen and paper (note that there may be multiple pages), and scan the document(s) using your printer. Alternatively, you can sign the form(s) digitally using a program such as Adobe Acrobat Reader.{% endblocktrans %}
+{% onlyhtml %}
+{% blocktrans with number=recipient.student.number %}Once signed, reply to this e-mail and attach the signed form(s), or send the form(s) to <a href="mailto:secretary@inter-actief.net">secretary@inter-actief.net</a>, stating "Enrollment {{ number }}" in the subject of the email.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
+{% blocktrans with number=recipient.student.number %}Once signed, reply to this e-mail and attach the signed form(s), or send the form(s) to secretary@inter-actief.net, stating "Enrollment {{ number }}" in the subject of the email.{% endblocktrans %}{% endonlyplain %}
+{% onlyhtml %}
+{% blocktrans %}Kind regards,
+
+The board of Inter-<i>Actief</i>{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
+{% blocktrans %}Kind regards,
+
+The board of Inter-/Actief/{% endblocktrans %}{% endonlyplain %}{% endhtmlify %}{% endblock %}

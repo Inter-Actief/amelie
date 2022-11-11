@@ -1,0 +1,24 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'What are your employee details?' %}</h2>
+        <div class="content">
+
+            <!-- Employee number -->
+            <div class="form-group">
+                {{ wizard.form.employee_number.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Employee number' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.employee_number|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your employee number, without the "m" (e.g. <b>0123456</b>").' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

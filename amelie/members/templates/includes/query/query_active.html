@@ -1,0 +1,8 @@
+{% load i18n fieldsets %}
+
+<div id="query_activism" class="">
+    <h3>{% trans 'Activism' %}</h3>
+
+    {% fieldset active,not_active,has_nda,active_year,committee,committee_now as form_activism from form %}
+    {{ form_activism }}
+</div>

@@ -1,0 +1,21 @@
+{% load i18n %}
+<div class="content">
+    {% for category in preference_categories %}
+        <h3 class="legend">{{ category.name }}</h3>
+        <ul>
+        {% for preference in category.preference_set.all %}
+            {% if preference in obj.preferences.all %}
+            <li class="pos">{{ preference.preference }}</li>
+            {% else %}
+            <li class="neg">{{ preference.preference }}</li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+    {% endfor %}
+
+    <div class="buttons">
+        <a class="looks-like-a-button js-load-block" data-container="person_preferences" href="{% url 'members:person_preferences' obj.id %}" >
+            {% trans "Edit" %}
+        </a>
+    </div>
+</div>

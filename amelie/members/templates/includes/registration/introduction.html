@@ -1,0 +1,41 @@
+{% load i18n %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+
+        <!-- Introduction-->
+        {% if form_type == "pre_enroll_freshmen" %}
+            <h2>{% trans 'Pre-enroll at Inter-<em>Actief</em>' %}</h2>
+        {% else %}
+            <h2>{% trans 'Enroll at Inter-<em>Actief</em>' %}</h2>
+        {% endif %}
+        <div class="content">
+            <p>
+                {% trans 'Welcome to Inter-<em>Actief</em>! To register you as a member of the association, we would like to know a couple of things about you.' %}
+            </p>
+            <p>
+                {% trans 'Please try to fill in the form as correctly as possible (with correct capitalization / formatting), this saves the board a lot of work.' %}
+            </p>
+            <p>
+                {% trans 'Fields marked with a <span class="form-required">*</span> are required, the rest is optional.' %}
+            </p>
+
+            <div class="small-form-spacer"></div>
+
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ wizard.steps.step1 }}" aria-valuemin="0" aria-valuemax="{{ wizard.steps.count }}" style="width: {{ progress_bar_percentage }}%;min-width: 85px;">
+                    {% blocktrans with current_step=wizard.steps.step1 total_steps=wizard.steps.count%}Step {{ current_step }} of {{ total_steps }}{% endblocktrans %}
+                </div>
+            </div>
+
+            {{ wizard.management_form }}
+
+            {% if wizard.form.non_field_errors %}
+                <ul class="errorlist">
+                    {% for error in wizard.form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>

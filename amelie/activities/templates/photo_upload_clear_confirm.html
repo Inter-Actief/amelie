@@ -1,0 +1,31 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans "Clear photo upload directory" %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Confirmation' %}</h2>
+        <div class="content">
+            <p>{% trans "Are you sure you want to clear the upload directory?" %}</p>
+
+            <p>{% trans "This will remove the following files:" %}</p>
+
+            <ul>
+                {% for filename in photos %}
+                    <li>{{ filename }}</li>
+                {% empty %}
+                    <li>{% trans "There are no files in the upload directory." %}</li>
+                {% endfor %}
+            </ul>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <p>
+                    <input type="submit" name="yes" value="{% trans 'Yes' %}"/>
+                    <input type="submit" name="no" value="{% trans 'No' %}"/>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

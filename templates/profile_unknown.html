@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Unknown user' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Unknown user' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Hello, you are unknown in our administration, so you cannot do much here.
+                        The board is waiting for you if you want to change this :-)
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    <a href="{% url 'logout' %}" class="looks-like-a-button">{% trans 'Log out and go back' %}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

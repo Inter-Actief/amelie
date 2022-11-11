@@ -1,0 +1,102 @@
+{% load i18n %}
+{% load url_helpers %}
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2 class="expand" data-target="export_options">{% trans 'Export results' %}</h2>
+    <div class="content">
+        <div id="export_options" hidden>
+            <div class="buttons">
+                <form action="{% url 'members:data_export' %}" method="post">
+                    {% csrf_token %}
+                    {% include 'gdpr_export_notice.html' %}
+                    {{ export_form }}
+                    <input type="submit" name="member_export_csv" value="{% trans 'Export data (CSV)' %}">
+                    <input type="submit" name="member_export_vcf" value="{% trans 'Export data (VCF)' %}">
+                    <input type="submit" name="member_export_email" value="{% trans 'Export e-mail addresses' %}">
+                    <a class="looks-like-a-button" href="{% url 'tools:data_export_statistics' %}">{% trans 'Data export statistics' %}</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+    <h2>{% trans 'Results' %} ({{ persons.count }})</h2>
+
+    <div class="content">
+        {% if page and page.has_other_pages %}
+            <p class="paging">
+                {% if page.has_previous %}
+                    <span><a href="?{% update_query_string page=1 %}">{% trans 'First' %}</a></span>
+                    <span><a href="?{% update_query_string page=page.previous_page_number %}">{% trans 'Back' %}</a></span>
+                {% endif %}
+
+                {% for p in page.paginator.page_range %}
+                    {% if p == page.number %}
+                        <span class="current">{{ p }}</span>
+                    {% else %}
+                        <span>
+                            <a href="?{% update_query_string page=p %}">{{ p }}</a>
+                        </span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page.has_next %}
+                    <span><a href="?{% update_query_string page=page.next_page_number %}">{% trans 'Next' %}</a></span>
+                    <span><a href="?{% update_query_string page=p.num_pages %}">{% trans 'Last' %}</a></span>
+                {% endif %}
+            </p>
+        {% endif %}
+
+        <div class="buttons">
+            <a href="{% url 'members:send_mailing' %}?{{ request.GET.urlencode }}" class="looks-like-a-button">{% trans 'Send a mailing' %}</a>&nbsp;
+            <a href="{% url 'members:send_push' %}?{{ request.GET.urlencode }}" class="looks-like-a-button">{% trans 'Send a push notification' %}</a>&nbsp;
+            <a href="{% url 'members:person_new_freshman' %}" class="looks-like-a-button">{% trans 'Add new freshmen' %}</a>&nbsp;
+            <a href="{% url 'members:person_new_general' %}" class="looks-like-a-button">{% trans 'Add new member' %}</a>
+        </div>
+  	<br>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>{% trans "Photo" %}</th>
+                        <th>{% trans "Personal data" %}</th>
+                        <th>{% trans "Contact data" %}</th>
+                        <th>{% trans "Notes" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in page.object_list %}
+                        <tr>
+                            {% include "includes/query/query_person_data.html" %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page and page.has_other_pages %}
+            <p class="paging">
+                {% if page.has_previous %}
+                    <span><a href="?{% update_query_string page=1 %}">{% trans 'First' %}</a></span>
+                    <span><a href="?{% update_query_string page=page.previous_page_number %}">{% trans 'Back' %}</a></span>
+                {% endif %}
+
+                {% for p in page.paginator.page_range %}
+                    {% if p == page.number %}
+                        <span class="current">{{ p }}</span>
+                    {% else %}
+                        <span>
+                            <a href="?{% update_query_string page=p %}">{{ p }}</a>
+                        </span>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page.has_next %}
+                    <span><a href="?{% update_query_string page=page.next_page_number %}">{% trans 'Next' %}</a></span>
+                    <span><a href="?{% update_query_string page=p.num_pages %}">{% trans 'Last' %}</a></span>
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+</div></div>

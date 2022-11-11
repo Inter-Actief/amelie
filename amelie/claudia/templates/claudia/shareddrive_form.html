@@ -1,0 +1,22 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% if object %}{{ object }}{% else %}{% trans 'Create new shared drive' %}{% endif %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% if object %}{{ object }}{% else %}{% trans 'Create new Google shared drive' %}{% endif %}</h2>
+        <div class="content">
+            <form method="post" action="">
+                {% csrf_token %}
+                {% if object %}<p>{% trans 'Claudia mapping:' %} {{ object|clau_mapping }}</p>{% endif %}
+                <table>
+                {{ form }}
+                </table>
+                <p><input type="submit" value="{% trans 'Save' %}" /></p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

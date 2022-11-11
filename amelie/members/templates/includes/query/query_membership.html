@@ -1,0 +1,10 @@
+{% load i18n fieldsets %}
+
+<h2>{% trans 'Membership' %}</h2>
+
+<div class="content">
+    <div id="query_membership">
+        {% fieldset membership,member,old_member,paid,member_in_year as form_membership from form %}
+        {{ form_membership }}
+    </div>
+</div>

@@ -1,0 +1,56 @@
+{% load i18n %}
+<tr>
+    <th>{% trans 'Date' %}</th>
+    <td>{{ object.date }}</td>
+</tr>
+<tr>
+    <th>{% trans 'Description' %}</th>
+    <td>{{ object.description }}</td>
+</tr>
+<tr>
+    <th>{% trans 'Price' %}</th>
+    <td class="align-right">{{ object.price }}</td>
+</tr>
+<tr>
+    <th>{% trans 'Direct withdrawal' %}</th>
+    <td>
+        {% if object.debt_collection %}
+            <a href="{{ object.debt_collection.get_absolute_url }}">
+                {{ object.debt_collection }}
+            </a><br />
+            <span class="small">{{ object.debt_collection.batch.execution_date }}</span>
+        {% else %}
+            &mdash;
+        {% endif %}
+    </td>
+</tr>
+{% if object.discount %}
+    <tr>
+        <th>{% trans 'Discount offer' %}</th>
+        <td>{{ object.discount.discount_period }}</td>
+    </tr>
+    <tr>
+        <th>{% trans 'Discount amount' %}</th>
+        <td class="align-right">{{ object.discount.amount }}</td>
+    </tr>
+{% endif %}
+{% if request.is_board %}
+    <tr>
+        <th>{% trans 'Person' %}</th>
+        <td>
+            {% if object.person %}
+                <a href="{% url 'personal_tab:dashboard' object.person.pk object.person.slug  %}">{{ object.person }}</a>
+            {% else %}
+                &mdash;
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans 'Added on' %}</th>
+        <td>{{ object.added_on }}</td>
+    </tr>
+    <tr>
+        <th>{% trans 'Added by' %}</th>
+        <td>{{ object.added_by|default:"&mdash;" }}</td>
+    </tr>
+{% endif %}

@@ -1,0 +1,18 @@
+{% load md %}
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ ABSOLUTE_PATH_TO_SITE }}{{ STATIC_URL }}css/clean_style.css" />
+    <base href="{{ ABSOLUTE_PATH_TO_SITE }}" />
+</head>
+<body id="breakout">
+    <div class="outer">
+        <div class="markdown wrapper">
+            {{ intro|markdown }}
+        </div>
+        <div class="markdown wrapper">
+            {{ content|markdown }}
+        </div>
+    </div>
+</body>
+</html>

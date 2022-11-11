@@ -1,0 +1,23 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'New page' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="edu">
+            <h2>{% trans 'New page' %}</h2>
+            <div class="content">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            {{ form }}
+                        </table>
+                    </div>
+                    <input type="submit" value="{% trans 'Create page' %} &raquo;" />
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

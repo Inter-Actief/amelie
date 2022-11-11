@@ -1,0 +1,35 @@
+{% load i18n active_menu %}
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia" id="subnavbar">
+    <ul class="clearfix">
+        <li class="{% active_menu 'claudia' %}">
+            <a href="{% url 'claudia:home' %}">{% trans 'Claudia' %}<span class="arrow">►</span></a>
+        </li>
+        <li class="{% active_menu 'claudia/mapping' %}">
+            <a href="{% url 'claudia:mapping_list' %}">{% trans 'Mappings' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/extragroup' %}">
+            <a href="{% url 'claudia:extragroup_list' %}">{% trans 'Extra AD groups' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/extraperson' %}">
+            <a href="{% url 'claudia:extraperson_list' %}">{% trans 'Extra AD users' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/shareddrive' %}">
+            <a href="{% url 'claudia:shareddrive_list' %}">{% trans 'Shared Drives' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/aliasgroup' %}">
+            <a href="{% url 'claudia:aliasgroup_list' %}">{% trans 'Mail Aliases' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/contact' %}">
+            <a href="{% url 'claudia:contact_list' %}">{% trans 'External contacts' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/personal_alias' %}">
+            <a href="{% url 'claudia:all_personal_aliases' %}">{% trans 'Personal Aliases' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/timeline' %}">
+            <a href="{% url 'claudia:timeline_list' %}">{% trans 'Timeline' %}</a>
+        </li>
+    </ul>
+</div></div>
+

@@ -1,0 +1,85 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>
+        {% trans 'Result' %}
+    </h2>
+
+    <div class="content">
+        <table>
+            <tbody>
+                <tr>
+                    <th>{% trans 'Balance date:' %}</th>
+                    <td>{{ dt|date:"DATETIME_FORMAT" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Total costs' %}</th>
+                    <td class="align-right">{{ all_transactions_sum }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Exam credits' %}</th>
+                    <td class="align-right">{{ exam_cookie_sum }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Personal tab' %}</h2>
+    <div class="content">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Person' %}</th>
+                        <th class="align-right">{% trans 'Balance' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for person, total in person_totals %}
+                <tr class="important">
+                    <td><a href="{% url 'personal_tab:dashboard' person.pk person.slug  %}">{{ person }}</a></td>
+                    <td class="align-right">{{ total|stringformat:".2f" }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="important">
+                    <td>{% trans 'Total' %}</td>
+                    <td class="align-right">{{ all_transactions_sum }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="edu">
+    <h2>{% trans 'Exam credits' %}</h2>
+    <div class="content">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Person' %}</th>
+                        <th class="align-right">{% trans 'Balance' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person, total in exam_cookie_person_totals %}
+                        <tr class="important">
+                            <td>
+                                <a href="{% url 'personal_tab:dashboard' person.pk person.slug  %}">{{ person }}</a>
+                            </td>
+                            <td class="align-right">{{ total|stringformat:".2f" }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="important">
+                        <td>{% trans 'Total' %}</td>
+                        <td class="align-right">{{ exam_cookie_sum }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div></div>
+

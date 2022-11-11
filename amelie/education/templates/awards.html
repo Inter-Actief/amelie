@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n md %}
+
+{% block titel %}{% trans 'Education awards' %}{% endblock titel %}
+
+
+{% block content %}
+    {% if awards_info %}
+    <div class="col-xs-12">
+        <div id="{{ page.slug }}" class="edu">
+            <h2 class="h2-with-buttons">{% trans 'Education awards' %}
+                {% if is_education %}
+                    <a class="looks-like-a-button"
+                       href="{% url 'about:page_edit' awards_info.id awards_info.slug %}">
+                        {% trans 'Edit Page' %}
+                    </a>
+                {% endif %}
+            </h2>
+
+            <div class="content">
+                {{ awards_info.content|markdown:"unsafe" }}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-xs-12">
+        <div class="edu">
+            <h2 class="h2-with-buttons">{% trans 'Education awards' %}</h2>
+            <div class="content">
+                {% trans "There is currently no information available on the education awards." %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock content %}
+

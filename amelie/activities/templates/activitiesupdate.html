@@ -1,0 +1,12 @@
+Hallo bestuur,
+
+De aankomende twee weken zijn er deze activiteiten in de I/A/-Agenda te vinden die buiten kantooruren vallen:
+{% for act in activities %}
+- {{ act.activity.summary }} van {{ act.activity.begin }} tot {{ act.activity.end }} - Reservering status: {{ act.aangemeld }}
+{% endfor %}
+
+Bekijk ook de complete lijst hier: https://www.inter-actief.utwente.nl/activiteiten/
+En de reserveringen voor de komende twee weken hier: {{ url2 }}
+
+Met vriendelijke groet,
+Het activiteitenhulpje

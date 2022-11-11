@@ -1,0 +1,118 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}
+    {% if is_new %}
+        {% trans 'New company' %}
+    {% else %}
+        {{ company }} {% trans 'edit' %}
+    {% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <form method="post" action="" enctype="multipart/form-data" class="big">
+        {% csrf_token %}
+        <div class="col-xs-12 col-md-6">
+            <div class="ia">
+                <h2>
+                    {% if is_new %}
+                        {% trans 'New company' %}
+                    {% else %}
+                        {% trans 'Change company' %}
+                    {% endif %}
+                </h2>
+
+                {% for error in form.non_field_errors %}
+                    <div class="icon-error">{{ error }}</div>
+                {% endfor %}
+
+                <div class="content">
+                    {% if form.name_nl.errors or form.name_en.errors %}
+                        {% for error in form.name_nl.errors|extend:form.name_en.errors %}
+                            <div class="icon-error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.name_nl }}</div>
+                            <div>{{ form.name_en }}</div>
+                        </div>
+                    </div>
+                    {% fieldset url as form_general from form %}
+                    {{ form_general }}
+
+
+                    <h2>
+                        {% trans 'Active' %}
+                    </h2>
+
+                    {% fieldset start_date,end_date,show_in_app as form_data from form %}
+                    {{ form_data }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-6">
+            <div class="ia">
+                <h2> {% trans "Logo" %} </h2>
+
+                <div class="content">
+                    {% fieldset logo,app_logo as form_logo from form %}
+                    {{ form_logo }}
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-xs-12 col-md-6">
+            <div class="ia">
+                <h2> {% trans 'Profile' %} </h2>
+
+                <div class="content">
+                    {% if form.profile_nl.errors or form.profile_en.errors %}
+                        {% for error in form.profile_nl.errors|extend:form.profile_en.errors %}
+                            <div class="icon-error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <label for="{{ form.profile_nl.id_for_label }}">{{ form.profile_nl.label }}</label>
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.profile_nl }}</div>
+                            <div>{{ form.profile_en }}</div>
+                        </div>
+                    </div>
+
+                    {% if form.short_description_nl.errors or form.short_description_en.errors %}
+                        {% for error in form.short_description_nl.errors|extend:form.short_description_en.errors %}
+                            <div class="icon-error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <label for="{{ form.short_description_nl.id_for_label }}">{{ form.short_description_nl.label }}</label>
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.short_description_nl }}</div>
+                            <div>{{ form.short_description_en }}</div>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <input type="submit" value="{% if is_new %}{% trans 'Add company' %}{% else %}{% trans 'Edit company' %}{% endif %}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}

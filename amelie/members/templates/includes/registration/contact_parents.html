@@ -1,0 +1,91 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Where can we reach your parent(s)/guardian(s)?' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'Inter-<i>Actief</i> organises a parents day each year for the parent(s)/guardian(s) of our first years. To invite your parent(s)/guardian(s) for this day, we need their contact details (at least an e-mail address), as well as permission to use those details for this purpose.' %}
+            </p>
+
+            <!-- Use parent details consent -->
+            <div class="form-group radio-button-multiline-padding">
+                {{ wizard.form.can_use_parents_address.errors }}
+                {# TODO: Emailadres verplicht, woonadres niet verplicht. #}
+                <div class="col-xs-1 col-sm-1">{{ wizard.form.can_use_parents_address }}</div>
+                <label class="col-xs-11 col-sm-11" for="{{ wizard.form.can_use_parents_address.auto_id }}">
+                    {% trans "My parents' address details may be used for the parents day." %}<br/>
+                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you do not need to fill in the fields below.' %}</small>
+                </label>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Parents E-mail address -->
+            <div class="form-group">
+                {{ wizard.form.email_address_parents.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'E-mail address of parent(s)/guardian(s)' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.email_address_parents|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'The e-mail address of your parent(s)/guardian(s)' %} {% trans 'Optional.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Parents Address -->
+            <div class="form-group">
+                {{ wizard.form.address_parents.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Address of parent(s)/guardian(s)' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.address_parents|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Street and house number of parent(s)/guardian(s).' %} {% trans 'Optional.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Parents Postal Code -->
+            <div class="form-group">
+                {{ wizard.form.postal_code_parents.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Postal code of parent(s)/guardian(s)' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.postal_code_parents|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Postal code of parent(s)/guardian(s), in the format "<b>1234 AB</b>".' %} {% trans 'Optional.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Parents City -->
+            <div class="form-group">
+                {{ wizard.form.city_parents.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Residence of parent(s)/guardian(s)' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.city_parents|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'City of parent(s)/guardian(s)' %} {% trans 'Optional.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Parents Country -->
+            <div class="form-group">
+                {{ wizard.form.country_parents.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Country of parent(s)/guardian(s)' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.country_parents|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'The name of the country of your parent(s)/guardian(s). For example "<b>The Netherlands</b>"' %} {% trans 'Optional.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

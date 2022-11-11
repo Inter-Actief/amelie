@@ -1,0 +1,32 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Office duty schedule templates' %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2 class="h2-with-buttons">
+            {% trans "Office duty schedule templates" %}
+            <a href="{% url 'room_duty:template_add' %}" class="looks-like-a-button">{% trans 'Add' %}</a>
+        </h2>
+        <div class="content">
+            <ul>
+                {% for template in templates %}
+                    <li>
+                        {{ template }}
+                        <a href="{% url 'room_duty:template_change' template.pk %}" class="looks-like-a-button">
+                            {% trans 'Edit' %}
+                        </a>
+                        <a href="{% url 'room_duty:template_delete' template.pk %}" class="looks-like-a-button">
+                            {% trans 'Delete' %}
+                        </a>
+                    </li>
+                {% empty %}
+                    <li><em>{% trans "There are no office duty schedule templates yet." %}</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Member statistics' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="ia">
+            <h2>{% blocktrans %}Members per study{% endblocktrans %}</h2>
+
+            <div class="content">
+                <table class="totals">
+                    <tr>
+                        <th>{% trans "Course" %}</th>
+                        <th>{% trans "Amount" %}</th>
+                    </tr>
+                    {% for row in per_study_rows %}
+                        <tr>
+                            <td>{{ row.name|truncatechars:34 }} ({{ row.abbreviation }})</td>
+                            <td>{{ row.count }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>{% trans "Total" %}</td>
+                        <td>{{ per_study_total }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="ia">
+            <h2>{% trans "General statistics" %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans with committees_1=per_active_member_total.1 committees_2=per_active_member_total.2 committees_3=per_active_member_total.3 committees_4=per_active_member_total.4 committees_5=per_active_member_total.5 %}
+                        Total number of members: {{ members_count }} <br />
+                        Number of active members (INF/BIT/Otherwise): {{ active_members_count }} ({{ active_members_tcs_count }}/{{ active_members_bit_count }}/{{ active_members_other_count }})<br />
+                        Number of active freshmen INF/BIT: {{ active_freshmen_tcs_count }}/{{ active_freshmen_bit_count }}<br />
+                        Number of freshmen (INF/BIT): {{ freshmen_count }} ({{ freshmen_tcs_count }}/{{ freshmen_bit_count }})<br />
+                        Percentage active members: {{ percent_active_members }}%<br/>
+                        Percentage active freshmen (relative to active members): {{ percent_active_freshmen }}%<br />
+                        Faculty staff that are member: {{ employee_count }}<br/>
+                        Number of committees: {{ committee_count }}<br/>
+                        Filled committee spots: {{ per_committee_total }}<br/>
+                        Average number of committees per active member (ex pools): {{ average_committees_per_active_member }} ({{ average_committees_ex_pools_per_active_member }})<br/>
+                        Number of people in 1 committee: {{ committees_1 }}<br/>
+                        Number of people in 2 committees: {{ committees_2 }}<br/>
+                        Number of people in 3 committees: {{ committees_3 }}<br/>
+                        Number of people in 4 committees: {{ committees_4 }}<br/>
+                        Number of people in 5 committees: {{ committees_5 }}<br/>
+                        Number of people in 6 or more committees: {{ per_active_member_total_6plus }}<br/>
+                        Number of international members: {{ international_members_count }}<br/>
+                        Number of active international members: {{ active_international_members_count }}
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="ia">
+            <h2>{% blocktrans %}Number of committees per member{% endblocktrans %}</h2>
+
+            <div class="content table-responsive">
+                <table class="totals">
+                    <tr>
+                        <th>{% trans "Committees" %}</th>
+                        <th>{% trans "Members" %}</th>
+                        <th>{% trans "Board/CB" %}</th>
+                        <th>{% trans "Freshmen" %}</th>
+                        <th>{% trans "International" %}</th>
+                        <th>{% trans "TCS" %}</th>
+                        <th>{% trans "BIT" %}</th>
+                        <th>{% trans "Otherwise" %}</th>
+                    </tr>
+                    {% for row in committees_per_member %}
+                        <tr>
+                            <td>{{ row.n }}</td>
+                            <td>{{ row.total }} ({{ row.total_ex }})</td>
+                            <td>{{ row.board }} ({{ row.board_ex }})</td>
+                            <td>{{ row.freshman }} ({{ row.freshman_ex }})</td>
+                            <td>{{ row.international }} ({{ row.international_ex }})</td>
+                            <td>{{ row.tcs }} ({{ row.tcs_ex }})</td>
+                            <td>{{ row.bit }} ({{ row.bit_ex }})</td>
+                            <td>{{ row.other }} ({{ row.other_ex }})</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="ia">
+            <h2>{% blocktrans %}Members per committee{% endblocktrans %}</h2>
+
+            <div class="content">
+                <table class="totals">
+                    <tr>
+                        <th>{% trans "Committee" %}</th>
+                        <th>{% trans "Amount" %}</th>
+                    </tr>
+                    {% for row in per_committee_rows %}
+                        <tr>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.count }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>{% trans "Total" %}</td>
+                        <td>{{ per_committee_total }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

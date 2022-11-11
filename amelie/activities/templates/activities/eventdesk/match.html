@@ -1,0 +1,91 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Event Desk message detail' %}
+{% endblock titel %}
+
+{% block content %}
+
+	<div class="col-xs-12">
+		<div class="current">
+			<h2>{% trans 'Metadata' %}</h2>
+
+			<div class="content">
+				<table>
+                    <tr>
+                        <th>{% trans 'Date' %}</th>
+                        <td>{{ object.message_date }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Requester' %}</th>
+                        <td>{{ object.requester }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event name' %}</th>
+                        <td>{{ object.event_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event start' %}</th>
+                        <td>{{ object.get_event_start }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event end' %}</th>
+                        <td>{{ object.get_event_end }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Event location' %}</th>
+                        <td>{{ object.event_location }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Linked to' %}</th>
+                        <td>
+                            {% if object.activity %}
+                                <a href="{{ object.get_absolute_url }}"><span class="icon icon-calendar">{{ object.activity }}</span></a>
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'Matching certainty' %}</th>
+                        <td>{{ object.get_match_ratio_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans 'New state (as of this e-mail)' %}</th>
+                        <td class="event-state-{{ object.state }}">
+                            <span class="state-text">{{ object.get_state_display }}</span>
+                        </td>
+                    </tr>
+                </table>
+
+                <a href="{% url 'activities:eventdesk_list' %}" class="looks-like-a-button">{% trans 'Go back to message list' %}</a>
+                {% if object.activity %}
+                    <a href="{% url 'activities:eventdesk_history' object.activity.pk %}" class="looks-like-a-button">{% trans 'All messages for the linked event' %}</a>
+                {% endif %}
+            </div>
+		</div>
+    </div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2>
+            {% trans 'Match with activity' %}
+        </h2>
+
+        <div class="content">
+            <p>{% trans 'Please choose the activity that you want to match this message to and save.' %}</p>
+            <p>{% trans 'Only activities from a week before until a week after the reservation are shown.' %}</p>
+
+            {% if form.errors %}
+                {{ form.errors }}
+            {% endif %}
+
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="{% trans 'Save' %}" />
+            </form>
+
+        </div>
+    </div></div>
+{% endblock %}

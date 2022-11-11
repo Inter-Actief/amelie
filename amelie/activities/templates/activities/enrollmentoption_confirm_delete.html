@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+	{% trans 'Delete enrollment option' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="current">
+        <h2>{% blocktrans %}Delete enrollment options{% endblocktrans %}</h2>
+        <div class="content">
+            <form action="" method="post">{% csrf_token %}
+                <p>
+                    {% blocktrans with activity=object.activity %}
+                        Are you sure you want to remove enrollment option {{ object }} for {{ activity }}?
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    <input type="submit" value="{% trans 'Delete' %}" />
+                    <a href="{% url 'activities:enrollmentoption_list' object.activity.pk %}">
+                        {% trans 'Cancel' %}
+                    </a>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock %}

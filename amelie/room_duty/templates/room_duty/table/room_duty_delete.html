@@ -1,0 +1,34 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% blocktrans %}Delete office duty {{ room_duty }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>
+            {% blocktrans %}Delete office duty {{ room_duty }}{% endblocktrans %}
+        </h2>
+        <div class="content">
+            <p>{% blocktrans %}
+                Are you sure you want to remove office duty {{ room_duty }}?
+            {% endblocktrans %}</p>
+
+            {% if room_duty.availabilities.all %}
+                {% blocktrans count room_duty.availabilities.all|count as count %}
+                    One other person has filled in their availability.
+                {% plural %}
+                    {{ count }} others have filled in their availability.
+                {% endblocktrans %}
+            {% endif %}
+
+            <a href="{% url 'room_duty:table_change' table.pk %}" class="looks-like-a-button">{% trans "Cancel" %}</a>
+
+            <form method="post" class="inline">
+                {% csrf_token %}
+                <input type="submit" value="{% trans 'Delete' %}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

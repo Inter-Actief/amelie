@@ -1,0 +1,30 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transaction information' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transaction information' %}</h2>
+
+        <div class="content">
+            <table>
+                {% include "info/transaction_information.html" %}
+                <tr>
+                    <th>{% trans 'Reversed collection' %}</th>
+                    <td>
+                        <a href="{{ object.reversal.instruction.get_absolute_url }}">
+                            {{ object.reversal.instruction }}
+                        </a><br />
+                        <span class="small">{{ object.reversal.instruction.batch.execution_date }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Reason' %}</th>
+                    <td>{{ object.reversal.get_reason_display }}</td>
+                </tr>
+            </table>
+        </div>
+    </div></div>
+
+{% endblock content %}

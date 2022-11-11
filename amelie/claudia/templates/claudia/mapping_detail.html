@@ -1,0 +1,185 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {{ object }} {% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{{ object }}</h2>
+        <div class="content">
+            <table>
+                <tr>
+                    <th>{% trans 'Mapping' %}</th>
+                    <td>{{ object.get_mapped_object|clau_link }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <td>{{ object.name }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Active' %}</th>
+                    <td>{{ object.active|yesno }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'E-mail address' %}</th>
+                    <td>{{ object.email|clau_link }}</td>
+                </tr>
+                {% if object.personal_aliases %}
+                <tr>
+                    <th>{% trans 'Aliases' %}
+                    <td>
+                        {{ object.personal_aliases|join:", " }}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>{% trans 'Extra Aliases' %}
+                    <td>
+                        {% for alias in object.extra_personal_aliases.all %}
+                            {{ alias.email }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            &mdash;
+                        {% endfor %}
+                        <a href="{% url "claudia:personal_alias" object.pk %}" class="icon icon-pencil">Edit</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Account name' %}</th>
+                    <td>{{ object.adname|clau_account }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'GUID' %}</th>
+                    <td>{{ object.guid|default:"&mdash;" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'GSuite-ID' %}</th>
+                    <td>{{ object.gsuite_id|default:"&mdash;" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Claudia ID' %}</th>
+                    <td>{{ object.id }}</td>
+                </tr>
+            </table>
+
+            <form method="post" action="{% url 'claudia:mapping_verify' pk=object.id %}">
+                {% csrf_token %}
+                <p>
+                    <input type="submit" value="{% trans 'Verify' %}" />
+                    <a href="{% url 'claudia:mapping_timeline' object.pk %}">{% trans 'Timeline' %}</a>
+                </p>
+            </form>
+        </div>
+    </div></div>
+
+    {% if object.is_group or object.is_shareddrive %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Members' %}</h2>
+
+        <div class="content">
+            {% if auto_members or extra_members or groupaddresses %}
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Address' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'AD' %}</th>
+                    <th>{% trans 'Email' %}</th>
+                    <th></th>
+                </tr>
+                {% for member in auto_members %}
+                <tr>
+                    <td>{{ member|clau_mapping }}</td>
+                    <td>{{ member.email|clau_link }}</td>
+                    <td><i>{% trans 'automatic' %}</i></td>
+                    <td><i>{% trans 'yes' %}</i></td>
+                    <td><i>{% trans 'yes' %}</i></td>
+                    <td></td>
+                </tr>
+                {% endfor %}
+                {% for mem in extra_members %}
+                <tr>
+                    <td>{{ mem.member|clau_mapping }}</td>
+                    <td>{{ mem.member.email|clau_link }}</td>
+                    <td>{{ mem.description }}</td>
+                    <td>{{ mem.ad|yesno }}</td>
+                    <td>{{ mem.mail|yesno }}</td>
+                    <td>{{ mem|clau_editlinks }}</td>
+                </tr>
+                {% endfor %}
+                {% for ga in groupaddresses %}
+                <tr>
+                    <td>&mdash;</td>
+                    <td>{{ ga.email|clau_link }}</td>
+                    <td>{{ ga.description }}</td>
+                    <td>&mdash;</td>
+                    <td><i>{% trans 'yes' %}</i></td>
+                    <td>{{ ga|clau_editlinks }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+
+            <form method="post" action="{% url 'claudia:add_to_mapping' pk=object.id %}">
+                {% csrf_token %}
+                <p><label>{% trans 'Add member:' %} <input type="text" name="search" /></label> <input type="submit" value="{% trans 'Search' %}" /></p>
+            </form>
+        </div>
+    </div></div>
+    {% endif %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Member of' %}</h2>
+
+        <div class="content">
+            {% if auto_groups or extra_groups or extra_aliases %}
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Address' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'AD' %}</th>
+                    <th>{% trans 'Email' %}</th>
+                    <th></th>
+                </tr>
+                {% for group in auto_groups %}
+                <tr>
+                    <td>{{ group|clau_mapping }}</td>
+                    <td>{{ group.email|clau_link }}</td>
+                    <td><i>{% trans 'automatic' %}</i></td>
+                    <td><i>{% trans 'yes' %}</i></td>
+                    <td><i>{% trans 'yes' %}</i></td>
+                    <td></td>
+                </tr>
+                {% endfor %}
+                {% for mem in extra_groups %}
+                <tr>
+                    <td>{{ mem.group|clau_mapping }}</td>
+                    <td>{{ mem.group.email|clau_link }}</td>
+                    <td>{{ mem.description }}</td>
+                    <td>{{ mem.ad|yesno }}</td>
+                    <td>{{ mem.mail|yesno }}</td>
+                    <td>{{ mem|clau_editlinks }}</td>
+                </tr>
+                {% endfor %}
+                {% for ao in extra_aliases %}
+                <tr>
+                    <td>&mdash;</td>
+                    <td>{{ ao.alias|clau_link }}</td>
+                    <td>{{ ao.description }}</td>
+                    <td>&mdash;</td>
+                    <td><i>{% trans 'yes' %}</i></td>
+                    <td>{{ ao|clau_editlinks }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+
+            <form method="post" action="{% url 'claudia:add_mapping_to' pk=object.id %}">
+                {% csrf_token %}
+                <p><label>{% trans 'Add to:' %} <input type="text" name="search" /></label> <input type="submit" value="{% trans 'Search' %}" /></p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

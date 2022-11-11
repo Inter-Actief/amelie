@@ -1,0 +1,21 @@
+{% load i18n %}
+
+{% if activity.enrollment %}
+    {% if request.person in activity.confirmed_participants %}
+        <p class="icon pos">{% trans 'You have enrolled for this event' %}</p>
+    {% elif request.person in activity.waiting_participants %}
+        <p class="icon pos">{% trans 'You are on the waiting list' %}</p>
+	{% else %}
+	    {% if activity.enrollment_closed %}
+	        <p class="icon-red-bullet">{% trans 'Subscription closed' %}</p>
+        {% elif activity.enrollment_full %}
+            <p class="icon-red-bullet">{% trans 'Enrollment is full' %}</p>
+        {% elif activity.enrollment_open %}
+            <p class="icon icon-enroll"><a href="{{ activity.get_absolute_url }}">{% trans 'Enroll now!' %}</a></p>
+	    {% else %}
+	        <p>{% blocktrans with date=activity.enrollment_begin|date:"d-b" %}Subscription is open from {{ date }}{% endblocktrans %}</p>
+	    {% endif %}
+	{% endif %}
+{% else %}
+    &mdash;
+{% endif %}

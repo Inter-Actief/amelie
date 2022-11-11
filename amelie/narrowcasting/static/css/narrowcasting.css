@@ -1,0 +1,182 @@
+html {
+    height: 100%;
+    color: #FFF;
+    overflow: hidden;
+
+}
+body {
+    height: 100%;
+    font-family: humanist, sans-serif;
+    font-size: 14px;
+    margin: 0;
+    cursor: none;
+}
+
+.main {
+    height: 100%;
+    margin: 0;
+	background:#666;
+}
+
+.header {
+    padding: 30px 793px 30px 30px;
+    overflow: hidden;
+    box-shadow: -25px 25px 15px -25px #222222;
+	height:107px;
+}
+
+.header .logo-wrapper, .header .agenda {
+	float:left;
+    max-width: 510px;
+    white-space: nowrap;
+}
+
+.header .logo-wrapper {
+    margin-top: -15px;
+    max-width: 300px;
+}
+
+.header .logo {
+    float: left;
+    width: 280px;
+}
+
+.datetime {
+    float: left;
+    text-align: left;
+}
+
+.datetime .date {
+    font-size: 20px;
+}
+
+.datetime .time {
+    font-size: 28px;
+}
+
+.agenda {
+	margin-top:-15px;
+	margin-left:50px;
+}
+
+.agenda img {
+    vertical-align: top;
+}
+
+.agenda span {
+	display:inline-block;
+	vertical-align:top;
+}
+
+#activity-table td {
+	padding-bottom:5px;
+}
+
+.activity-datetime {
+	font-size:20px;
+	padding-left: 15px;
+}
+
+.activity-title {
+    padding-left: 15px;
+    font-size: 24px;
+    font-weight: normal;
+
+	display:inline-block;
+	width:350px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	margin-top:-4px;
+}
+
+.content {
+    height: 100%;
+    padding: 0 763px 0 0;
+
+    margin-top: -167px;
+    margin-bottom: -167px;
+}
+
+.content > div {
+    padding-top: 167px;
+    padding-bottom: 167px;
+	height:calc(100% - 334px);
+}
+
+.photo-wrapper {
+	overflow:hidden;
+	height:100%;
+	position:relative;
+}
+
+.photo-wrapper #photo-activity {
+	position:absolute;
+	bottom:25px;
+	left:25px;
+	font-size:35px;
+	display:block;
+	padding:10px 20px;
+	background:rgba(0,0,0,0.8);
+}
+
+.photo-wrapper > img {
+	width:100%;
+    display: block;
+	margin:0 auto;
+}
+
+.photo-wrapper > img.portrait {
+	width:auto;
+	height:100%;
+}
+
+.footer {
+    height: 137px;
+    padding: 15px 793px 15px 30px;
+    box-shadow: -25px 25px 215px 25px #222222;
+}
+
+.news-item {
+	margin-bottom:20px;
+}
+
+.news-header {
+	font-size:24px;
+	margin-bottom:5px;
+}
+
+.news-header span {
+	font-size:20px;
+	margin-right:15px;
+}
+
+.news-content {
+	font-size:18px;
+}
+
+.ads {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 763px;
+	height:100%;
+	background:#666;
+	box-shadow: 0px 0px 20px #222;
+}
+
+.ads img {
+    display: block;
+    height: auto;
+    width: 100%;
+
+	position:absolute;
+    top:0;
+    bottom:0;
+    margin:auto;
+}
+
+.ads img.portrait {
+	height:100%;
+	width:auto;
+}

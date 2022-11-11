@@ -1,0 +1,120 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% blocktrans %}Narrow Casting{% endblocktrans %}</title>
+
+        <link rel="stylesheet" href="{% static 'css/narrowcasting.css' %}">
+        <style>
+            @font-face {
+                font-family: humanist;
+                src: url('{% static 'fonts/Humanist521BT.ttf' %}');
+            }
+
+            .header {
+                background: #1d428a;
+            }
+
+            .footer {
+                background: #1d428a;
+            }
+
+            @font-face {
+                font-family: 'Glyphicons Halflings';
+                src: url('{% static 'fonts/glyphicons-halflings-regular.eot' %}');
+                src: url('{% static 'fonts/glyphicons-halflings-regular.eot?#iefix' %}') format('embedded-opentype'), url('{% static 'fonts/glyphicons-halflings-regular.woff' %}') format('woff'), url('{% static 'fonts/glyphicons-halflings-regular.ttf' %}') format('truetype'), url('{% static 'fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular' %}') format('svg');
+            }
+
+            .glyphicon {
+                position: relative;
+                top: 1px;
+                display: inline-block;
+                font-family: 'Glyphicons Halflings';
+                font-style: normal;
+                font-weight: normal;
+                line-height: 1;
+
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            .glyphicon-calendar:before {
+                content: "\e109";
+            }
+			.glyphicon-globe:before {
+				content: "\e135";
+			}
+        </style>
+        {% if theme == "christmas" %}
+        <link rel="stylesheet" href="{% static 'css/narrowcasting_christmas.css' %}">
+        {% elif theme == "valentine" %}
+        <link rel="stylesheet" href="{% static 'css/narrowcasting_valentine.css' %}">
+        {% endif %}
+        <script type="text/javascript" src="{% static 'js/jquery-2.1.0.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery-jsonrpc.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/widget.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/photo_widget.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/promotion_widget.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/scheduler.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/inter-actief.js' %}"></script>
+    </head>
+    <body>
+        <div class="main">
+            <div class="header">
+                <div class="logo-wrapper">
+
+                    {% if theme == 'christmas' %}
+                        <img src="{{ STATIC_URL }}img/layout/logo_christmas_winter.svg" data-fallback="{{ STATIC_URL }}img/layout/logo_christmas_winter.png" alt="logo" class="logo">
+                    {% elif theme == "valentine" %}
+                        <img src="{{ STATIC_URL }}img/layout/logo_valentine.svg" data-fallback="{{ STATIC_URL }}img/layout/logo_valentine.png" alt="logo" class="logo">
+                    {% else %}
+                        {% if env == 'STAGING' %}
+                            <img src="{% static 'img/layout/logo_staging.svg' %}" alt="logo" class="logo">
+                        {% elif env == 'DEBUG' %}
+                            <img src="{% static 'img/layout/logo_beta.svg' %}" alt="logo" class="logo">
+                        {% else %}
+                            <img src="{% static 'img/layout/logo_production.svg' %}" alt="logo" class="logo">
+                        {% endif %}
+                    {% endif %}
+                    <div class="datetime">
+                        <div class="date"></div>
+                        <div class="time"></div>
+                    </div>
+                </div>
+                <div class="agenda">
+					<table id="activity-table">
+					</table>
+				</div>
+            </div>
+            <div class="content">
+                <div>
+					<div class="photo-wrapper">
+						<span id="photo-activity">{% trans 'Loading' %}...</span>
+						<img id="photo">
+					</div>
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+        <div class="ads">
+            <img id="adImg">
+        </div>
+
+        {% if theme == "christmas" %}
+        <div class="winter-is-coming">
+            <div class="snow snow--mid"></div>
+            <div class="snow snow--mid snow--alt"></div>
+            <div class="snow snow--far"></div>
+            <div class="snow snow--far snow--alt"></div>
+        </div>
+        {% elif theme == "valentine" %}
+        <div class="valentine-is-coming">
+            <div class="hearts hearts--near"></div>
+            <div class="hearts hearts--near hearts--alt"></div>
+        </div>
+        {% endif %}
+    </body>
+</html>

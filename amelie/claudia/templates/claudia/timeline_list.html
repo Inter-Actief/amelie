@@ -1,0 +1,38 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Timeline' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Timeline' %}</h2>
+
+        <div class="content">
+            {% include "paginator.html" with page=page_obj %}
+
+            <table>
+                <tr>
+                    <th>{% trans 'Date/time' %}</th>
+                    <th>{% trans 'Mapping' %}</th>
+                    <th>{% trans 'Type' %}</th>
+                    <th>{% trans 'Name' %}</th>
+                </tr>
+                {% for timeline in page_obj %}
+                <tr>
+                    <td rowspan="2">{% ifchanged %}{{ timeline.datetime }}{% endifchanged %}</td>
+                    <td>{{ timeline.mapping|clau_mapping }}</td>
+                    <td>{{ timeline.type }}</td>
+                    <td>{{ timeline.name }}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid black">
+                    <td colspan="3">{{ timeline.description }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

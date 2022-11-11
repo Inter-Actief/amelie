@@ -1,0 +1,118 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}
+    {% trans 'Send push notification' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans "Send push notification" %}</h2>
+
+            {% if count <= 0 %}
+                <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            From the people that you have selected, there is no person with a registered push device.
+                        {% endblocktrans %}
+                    </p>
+
+                    <p>
+                        <a class="looks-like-a-button" href="{{request.META.HTTP_REFERER|escape}}">
+                            {% trans 'Back' %}
+                        </a>
+                    </p>
+                </div>
+            {% else %}
+                <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            You can only send a push notification to a maximum of <b>{{ count }}</b> people based on
+                            your selection. Use the fields below to compose a message.
+                        {% endblocktrans %}
+                    </p>
+
+                    <hr/>
+
+                    <form class="big util" action="?{{ request.GET.urlencode }}" method="post"
+                          data-tags='{ "recipient.first_name": "{{ longest_first_name }}",
+                                   "recipient.last_name": "{{ longest_last_name }}",
+                                   "recipient.address": "{{ longest_address }}",
+                                   "recipient.postal_code": "{{ longest_postal_code }}",
+                                   "recipient.city": "{{ longest_city }}",
+                                   "recipient.country": "{{ longest_country }}",
+                                   "recipient.student.number": "{{ longest_student_number }}" }'>
+
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <div class="ia">
+                            <h2>{% trans "Title" %}</h2>
+
+                            {% if form.title_nl.errors or form.title_en.errors %}
+                                {% for error in form.title_nl.errors|extend:form.title_en.errors %}
+                                    <div class="error"> {{ error }} </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="content">
+                                <div class="tabbed-ticker">
+                                    <ul>
+                                        <li class="active"> NL</li>
+                                        <li> EN</li>
+                                    </ul>
+                                    <div class="tabbed-content">
+                                        <div>{{ form.title_nl }}</div>
+                                        <div>{{ form.title_en }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ia">
+                            <h2>{% trans "Message" %}</h2>
+
+                            <div class="content">
+                                <div class="buttons template-tags">
+                                    <input type="button" value="&#123;&#123;recipient.first_name&#125;&#125;">
+                                    <input type="button" value="&#123;&#123;recipient.last_name&#125;&#125;">
+                                    <input type="button" value="&#123;&#123;recipient.address&#125;&#125;">
+                                    <input type="button" value="&#123;&#123;recipient.postal_code&#125;&#125;">
+                                    <input type="button" value="&#123;&#123;recipient.city&#125;&#125;">
+                                    <input type="button" value="&#123;&#123;recipient.country&#125;&#125;">
+                                    <input type="button" value="&#123;&#123;recipient.student.number&#125;&#125;">
+                                </div>
+
+                                {% if form.message_nl.errors or form.message_en.errors %}
+                                    <hr/>
+                                    {% for error in form.message_nl.errors %}
+                                        <div class="error" style="padding-left: 22px">NL: {{ error }}</div>
+                                    {% endfor %}
+                                    {% for error in form.message_en.errors %}
+                                        <div class="error" style="padding-left: 22px">EN: {{ error }}</div>
+                                    {% endfor %}
+                                    <hr/>
+                                {% endif %}
+
+                                <div class="tabbed-ticker">
+                                    <ul>
+                                        <li class="active"> NL</li>
+                                        <li> EN</li>
+                                    </ul>
+                                    <div class="tabbed-content">
+                                        <div>{{ form.message_nl }}</div>
+                                        <div>{{ form.message_en }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="submit" value="{% trans 'Send notification' %}"/>
+                    </form>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock content %}

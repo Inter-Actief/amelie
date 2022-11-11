@@ -1,0 +1,24 @@
+{% load i18n %}
+{% trans "Initials" %}: {{person.initials}}
+{% trans "First name" %}: {{person.first_name}}
+{% trans "Last name pre-fix" %}: {{person.last_name_prefix}}
+{% trans "Last name" %}: {{person.last_name}}
+{% trans "Birth date" %}: {{person.date_of_birth}}
+{% trans "International?" %}: {{person.get_international_member_display}}
+{% trans "Gender" %}: {{person.get_gender_display}}
+{% trans "Language of preference" %}: {{person.get_preferred_language_display}}
+
+{% trans "Student number" %}: {{person.student.number}}
+{% trans "Course" %}: {{study}}
+
+{% trans "Address" %}: {{person.address}}
+{% trans "Postal code" %}: {{person.postal_code}}
+{% trans "City" %}: {{person.city}}
+{% trans "Country" %}: {{person.country}}
+
+{% trans "Phonenumber" %}: {{person.telephone}}
+{% trans "E-mail address" %}: {{person.email_address}}
+
+{% trans "Preferences" %}:
+{% for preference_name,preference in preferences.items %}
+{% if preference %}[X]{% else %}[ ]{% endif%} {{preference_name}}{% endfor %}

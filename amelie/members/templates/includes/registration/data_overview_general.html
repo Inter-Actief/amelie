@@ -1,0 +1,87 @@
+{% load i18n %}
+<div class="col-xs-12 col-md-6">
+    <h3>{% trans 'Personal details' %}</h3>
+    <dl class="dl-horizontal">
+        <dt>{% trans "Full name" %}</dt>
+        <dd>{{ data.first_name }} ({{ data.initials }}){% if data.last_name_prefix %} {{ data.last_name_prefix }}{% endif %} {{ data.last_name }}</dd>
+
+        <dt>{% trans "Birth date" %}</dt>
+        <dd>{{ data.date_of_birth|date:"j F Y"|default:"&mdash;" }}</dd>
+
+        <dt>{% trans "Gender" %}</dt>
+        <dd>{{ data.gender }}</dd>
+
+        <dt>{% trans "E-mail address" %}</dt>
+        <dd>{{ data.email_address }}</dd>
+
+        <dt>{% trans "Language of preference" %}</dt>
+        <dd>{{ data.preferred_language }}</dd>
+
+        <dt>{% trans "International student?" %}</dt>
+        <dd>{{ data.international_member }}</dd>
+    </dl>
+</div>
+
+<div class="col-xs-12 col-md-6">
+    <h3>{% trans 'Own address details' %}</h3>
+    <dl class="dl-horizontal">
+        <dt>{% trans "Address" %}</dt>
+        <dd>{{ data.address }}</dd>
+
+        <dt>{% trans "Postal code" %}</dt>
+        <dd>{{ data.postal_code }}</dd>
+
+        <dt>{% trans "City" %}</dt>
+        <dd>{{ data.city }}</dd>
+
+        <dt>{% trans "Country" %}</dt>
+        <dd>{{ data.country }}</dd>
+
+        <dt>{% trans "(Mobile) telephone number" %}</dt>
+        <dd>{{ data.telephone|default:"&mdash;" }}</dd>
+    </dl>
+</div>
+
+<div class="col-xs-12 col-md-6 col-lg-4">
+    <h3>{% trans 'Study and Membership data' %}</h3>
+    <dl class="dl-horizontal">
+        <dt>{% trans "Study/studies" %}</dt>
+        <dd>{% for study in data.study %}{{ study }}{% if not forloop.last %}<br/>{% endif %}{% endfor %}</dd>
+
+        <dt>{% trans "Student number" %}</dt>
+        <dd>{{ data.student_number }}</dd>
+
+        <dt>{% trans "Year you started studying (generation) " %}</dt>
+        <dd>{{ data.generation|default:"&mdash;" }}</dd>
+
+        <dt>{% trans "Membership type" %}</dt>
+        <dd>{{ data.membership }}</dd>
+    </dl>
+</div>
+
+<div class="col-xs-12 col-md-6 col-lg-4">
+    <h3>{% trans 'Direct debit authorization details' %}</h3>
+    <dl class="dl-horizontal">
+        <dt>{% trans "I want a contribution authorization" %}</dt>
+        <dd>{{ data.authorization_contribution|yesno }}</dd>
+
+        <dt>{% trans "I want to have an authorization for activities, consumptions and other transactions" %}</dt>
+        <dd>{{ data.authorization_other|yesno }}</dd>
+
+        <dt>{% trans "IBAN" %}</dt>
+        <dd>{{ data.iban|default:"&mdash;" }}</dd>
+
+        <dt>{% trans "BIC" %}</dt>
+        <dd>{{ data.bic|default:"&mdash;" }}</dd>
+    </dl>
+</div>
+
+<div class="col-xs-12 col-md-6 col-lg-4">
+    <h3>{% trans 'Personal preferences' %}</h3>
+    {% for preference in all_preferences %}
+        <span class="icon icon-{% if preference in data.preferences %}accept{% else %}cancel{% endif %}">{{ preference }}</span>
+        {% if not forloop.last %}<br/>{% endif %}
+    {% endfor %}
+</div>
+
+<div class="clearfix"></div>

@@ -1,0 +1,50 @@
+{% extends "basis.html" %}
+
+{% load i18n %}
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            {% if not error %}
+                <h2>{% trans "Grant access to" %} {{ application.name }}?</h2>
+
+                <div class="content">
+                    <form id="authorizationForm" method="post">
+                        <h3 class="block-center-heading"></h3>
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            {% if field.is_hidden %}
+                                {{ field }}
+                            {% endif %}
+                        {% endfor %}
+
+                        <p>{% blocktrans with appname=application.name %}
+                            {{ appname }} requires the following permissions:
+                        {% endblocktrans %}</p>
+                        <ul>
+                            {% for scope in scopes_descriptions %}
+                                <li>{% trans scope %}</li>
+                            {% endfor %}
+                        </ul>
+
+                        {{ form.errors }}
+                        {{ form.non_field_errors }}
+
+                        <div class="control-group">
+                            <div class="controls">
+                                <input type="submit" class="btn btn-large" value="{% trans 'Cancel' %}"/>
+                                <input type="submit" class="btn btn-large btn-primary" name="allow"
+                                       value="{% trans 'Grant access' %}"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            {% else %}
+                <h2>{% trans 'Granting access to the API has failed' %}: {{ error.error }}</h2>
+                <div class="content">
+                    <p>{{ error.description }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

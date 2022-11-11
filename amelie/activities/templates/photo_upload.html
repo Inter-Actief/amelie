@@ -1,0 +1,56 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}{% trans "Upload photos" %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2>{% trans "Upload photos" %}</h2>
+
+		<div class="content">
+			{% if photos %}
+				<p>
+					{% blocktrans %}
+						If needed you can still uncheck a photo. After uploading photos will be moved to the website
+                        and will no longer be available in the uploadfolder.
+					{% endblocktrans %}
+				</p>
+
+				<form class="big" action="" method="post">
+					{% csrf_token %}
+
+                    {% fieldset photographer,first_name,last_name_prefix,last_name,activity,public as form_fields from form %}
+                    {{ form_fields }}
+
+                    <div class="form-row">
+                        <label for="id_{{ form.photos.name }}">{% trans "Photos" %}</label>
+                        <div id="photo-list" class="row media-list">
+                            {{ form.photos }}
+                        </div>
+                    </div>
+
+
+					<div class="buttons">
+					    <input type="submit" value="{% trans "Upload selected photos" %}" />
+					</div>
+				</form>
+			{% else %}
+				<p class="icon warning">
+					{% trans "No photos found in upload folder" %}
+				</p>
+			{% endif %}
+            <p>
+                <a class="looks-like-a-button" href="{% url 'activities:photo_upload_files' %}">
+                    {% trans "Upload new files" %}
+                </a>
+                {% if photos %}
+                <span class="edu">
+                    <a class="looks-like-a-button" href="{% url 'activities:photo_upload_clear' %}">
+                        {% trans "Clear upload directory" %}
+                    </a>
+                </span>
+                {% endif %}
+            </p>
+		</div>
+	</div></div>
+{% endblock content %}

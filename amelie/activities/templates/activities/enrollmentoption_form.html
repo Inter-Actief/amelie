@@ -1,0 +1,40 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Edit enrollment option' %}
+{% endblock titel %}
+
+{% comment %}
+    This template renders all possible enrollmentoption-create/update-views.
+    As long as we do not create too complex registration options, this should be fine.
+
+    If you read this comment and you think "this is a complex enrollment option",
+    then you can create a complex form yourself. It might be possible to pass a template_name in the create-urls.
+    For the edit page, you will have to make sure the correct template is being used afterwards.
+{% endcomment %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="current">
+        <h2>
+            {% if object %}
+                {% blocktrans %}Edit {{ object }}{% endblocktrans %}
+            {% else %}
+                {% blocktrans %}Add {{ option }}{% endblocktrans %}
+            {% endif %}
+        </h2>
+
+        <div class="content">
+            <form method="post" enctype="multipart/form-data">
+                {%  csrf_token %}
+                <table>
+                    {{ form.as_table }}
+                </table>
+
+                <div class="buttons">
+                    <input type="submit" name="submit" value="{% trans 'Save' %}" />
+                </div>
+            </form>
+        </div>
+    </div></div>
+{% endblock %}

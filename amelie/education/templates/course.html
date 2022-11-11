@@ -1,0 +1,25 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{{ obj }}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="edu">
+            <h2>{{ obj }}</h2>
+            <div class="content">
+                <p>
+                    {% trans 'These complaints have been received concerning this course' %}:
+                </p>
+
+                <ul class="icon">
+                {% for complaint in obj.complaint_set.all %}
+                    <li>
+                        <a href="{{ complaint.get_absolute_url }}">{{ complaint.year }} - {{ complaint.period }}: {{ complaint.summary }} ({{ complaint.subject }})</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

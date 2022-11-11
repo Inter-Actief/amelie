@@ -1,0 +1,80 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}
+    {% trans 'Education' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-3 follow-scroll" data-follow-scroll-padding="10">
+        <div class="edu">
+            <h2>{% trans 'Information' %}</h2>
+
+            <div class="content">
+                {% for category, pages in categories %}
+                    <h3>{{ category.name }}</h3>
+                    {% if is_education %}
+                        <a class="looks-like-a-button"
+                           href="{% url 'education:category_edit' category.id %}">{% trans 'Edit category' %}</a>
+                    {% endif %}
+                    <ul class="no-bullets no-padding">
+                        {% for page in pages %}
+                            <li class="pagina">
+                                <a href="#{{ page.slug }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+
+                {% if is_education %}
+                    <div class="buttons">
+                        <a class="looks-like-a-button"
+                           href="{% url 'education:category_new' %}">{% trans 'Add new category' %}</a>
+                        <a class="looks-like-a-button"
+                           href="{% url 'education:page_new' %}">{% trans 'Add new info' %}</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-9">
+        {% for page in pages %}
+            <div id="{{ page.slug }}" class="edu">
+                <h2>{{ page }}</h2>
+
+                <div class="content">
+                    {{ page.content|markdown:"unsafe" }}
+
+                    <p class="small">{% blocktrans with page.last_changed|timesince as time %}Updated {{ time }} ago{% endblocktrans %}</p>
+
+                    {% if is_education %}
+                        <div class="buttons">
+                            <a class="looks-like-a-button"
+                               href="{% url 'education:page_edit' page.id %}">
+                                {% trans 'Edit Page' %}
+                            </a>
+                            <a class="looks-like-a-button"
+                               href="{% url 'education:page_delete' page.id %}">
+                                {% trans 'Delete page' %}
+                            </a>
+
+                            <form method="POST" action="{% url 'education:page_up' page.id %}" class="inline">
+                                {% csrf_token %}
+                                <input type="submit" value="{% trans 'Move up' %}">
+                            </form>
+                            <form method="POST" action="{% url 'education:page_down' page.id %}" class="inline">
+                                {% csrf_token %}
+                                <input type="submit" value="{% trans 'Move down' %}">
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}

@@ -1,0 +1,76 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+
+        <!-- Contact details member -->
+        <h2>{% trans 'Where can we reach you?' %}</h2>
+        <div class="content">
+            <!-- Member Address -->
+            <div class="form-group">
+                {{ wizard.form.address.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Address' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.address|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your street and house number (and optional suffixes).' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Member Postal Code -->
+            <div class="form-group">
+                {{ wizard.form.postal_code.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Postal code' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.postal_code|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your postal code, in the format "<b>1234 AB</b>".' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Member City -->
+            <div class="form-group">
+                {{ wizard.form.city.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'City' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.city|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'The city you live in.' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Member Country -->
+            <div class="form-group">
+                {{ wizard.form.country.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'Country' %} <span class="form-required">*</span></label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.country|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'The name of the country you live in. (For example "<b>The Netherlands</b>")' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- Member telephone -->
+            <div class="form-group">
+                {{ wizard.form.telephone.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans '(Mobile) telephone number' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.telephone|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your (preferably mobile) telephone number.' %} {% trans 'Optional.' %}</small>
+                </div>
+            </div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

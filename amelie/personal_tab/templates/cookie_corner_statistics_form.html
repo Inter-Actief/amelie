@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Personal tab statistics' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12{{ print }}">
+        <div class="ia">
+            <h2>{% trans 'Personal tab statistics' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% trans 'Select a period and click Statistics.' %}
+                </p>
+
+                <form class="big" action="{% url 'personal_tab:statistics_form' %}" method="post">
+                    {% csrf_token %}
+                    {{ form }}
+
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Statistics' %}"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

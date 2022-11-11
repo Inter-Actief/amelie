@@ -1,0 +1,63 @@
+{% load i18n %}
+<div class="content">
+    {% if not obj.account_name %}
+        <ul class="errorlist"><li>{% trans 'There is no accountname set. Without accountname, a person cannot log in.' %}</li></ul>
+    {% endif %}
+    <form action="{% url 'members:person_functions' obj.id %}" method="post" class="js-ajax-form" data-container="person_functions">
+        {% for error in form.non_field_errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table>
+            <tr>
+                <th>{% trans 'Committee' %}</th>
+                <th>{% trans 'Position' %}</th>
+                <th>{% trans 'Starts on' %}</th>
+                <th>{% trans 'Ends on' %}</th>
+            </tr>
+            {% for form in formset.forms %}
+            {{ form.id }}
+            {% if form.non_field_errors %}
+            <tr>
+                <td colspan="4">
+                    <ul class="errorlist">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>
+                    {{ form.committee.errors }}
+                    {{ form.committee }}
+                </td>
+                <td>
+                    {{ form.function.errors }}
+                    {{ form.function }}
+                </td>
+                <td>
+                    {{ form.begin.errors }}
+                    {{ form.begin }}
+                </td>
+                <td>
+                    {{ form.end.errors }}
+                    {{ form.end }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <div class="buttons">
+            <a href="{% url 'members:person_functions' obj.id %}?original=1" class="looks-like-a-button js-load-block" data-container="person_functions">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input type="submit" value="{% trans 'Save' %}" />
+        </div>
+    </form>
+</div>

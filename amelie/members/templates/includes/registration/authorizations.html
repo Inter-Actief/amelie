@@ -1,0 +1,85 @@
+{% load i18n form_stylish %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Mandates' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'You have to pay your membership fee via a direct debit authorization.' %}
+            </p>
+            <p>
+                {% trans 'If you chose the yearly membership above, then you authorize the association to withdraw the membership fee from your bank account automatically in the coming years. Your membership will be extended automatically each your until terminate it.' %}
+            </p>
+            <p>
+                {% trans 'If you have chosen for a study long membership, then the authorization will only be used once.' %}
+            </p>
+
+            <!-- Contribution Authorization -->
+            <div class="form-group radio-button-multiline-padding">
+                {{ wizard.form.authorization_contribution.errors }}
+                <div class="col-xs-1 col-sm-1">{{ wizard.form.authorization_contribution }}</div>
+                <label class="col-xs-11 col-sm-11" for="{{ wizard.form.authorization_contribution.auto_id }}">
+                    {% trans 'I authorize the association to withdraw my membership fee from my bank account. ' %}<br/>
+                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you need to pay your membership fee in cash.' %}</small>
+                </label>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <p>
+                {% trans 'At Inter-<i>Actief</i> you can participate in activities; pay for consumptions during the activities; or pay for cookies, drinks and candy at the cookie corner in the Inter-<i>Actief</i> room.' %}
+            </p>
+            <p>
+                {% trans 'The costs for these activities and consumptions can be paid with a direct debit authorization. The amount will then be withdrawn from your bank account monthly.' %}
+            </p>
+
+            <!-- Personal Tab Authorization -->
+            <div class="form-group radio-button-multiline-padding">
+                {{ wizard.form.authorization_other.errors }}
+                <div class="col-xs-1 col-sm-1">{{ wizard.form.authorization_other }}</div>
+                <label class="col-xs-11 col-sm-11" for="{{ wizard.form.authorization_other.auto_id }}">
+                    {% trans 'I authorize the association to debit my bank account for consumptions and activities.' %}<br/>
+                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you have to pay in cash during activities, and you will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and activities.' %}</small>
+                </label>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <p><b>
+                {% blocktrans %}If you choose not to sign an authorization, you will need to pay your contribution fee in cash. This can only be done in person at the Inter-<i>Actief</i> room. Your membership will not be activated until the payment has been completed.{% endblocktrans %}
+            </b></p>
+            <div class="small-form-spacer"></div>
+
+            <!-- Bank details -->
+            <p>
+                {% trans 'If you did choose an authorization above, then we need your bank details.' %}
+            </p>
+
+            <!-- IBAN -->
+            <div class="form-group">
+                {{ wizard.form.iban.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'IBAN' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.iban|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your IBAN bank account number. For example "<b>NL18ABNA0484869868</b>".' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- BIC -->
+            <div class="form-group">
+                {{ wizard.form.bic.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'BIC' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">
+                        {{ wizard.form.bic|form_bootstrapify:"noplaceholder" }}
+                    </div>
+                    <small class="form-text text-muted">{% trans 'Your BIC-code. <b>Not required for Dutch bank accounts</b>. For example "<b>ABNANL2A</b>". Find your BIC by <a href="https://www.ibancalculator.com/blz.html" target="_blank">clicking here</a> (opens in new tab).' %}</small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

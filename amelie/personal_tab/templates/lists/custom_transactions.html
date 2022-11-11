@@ -1,0 +1,51 @@
+{% load i18n %}
+
+{% if transactions %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Date' %}</th>
+                    <th>{% trans 'Time' %}</th>
+                    <th>{% trans 'Person' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date|date:"d F Y" }}</td>
+                        <td>{{ transaction.date|date:"G:i"}}</td>
+                        <td>
+                            {% if transaction.person %}
+                                {% if request.is_board %}
+                                    <a href="{% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug  %}">{{ transaction.person }}</a>
+                                {% else %}
+                                    {{ transaction.person }}
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ transaction.get_absolute_url }}">
+                                {{ transaction.description }}
+                            </a>
+                        </td>
+                        <td class="align-right">{{ transaction.price }}</td>
+                    </tr>
+                {% endfor %}
+                {% if total %}
+                    <tr>
+                        <td colspan="3"></td>
+                        <td>{% trans 'Total' %}</td>
+                        <td class="align-right">{{ totals }}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">{% trans 'No other transactions.' %}</p>
+{% endif %}

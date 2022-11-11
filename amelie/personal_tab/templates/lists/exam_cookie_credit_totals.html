@@ -1,0 +1,60 @@
+{% load i18n transaction_link %}
+
+{% if rows %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        {% if overview_type == 'year' %}
+                            {% trans 'Month' %}
+                        {% endif %}
+
+                        {% if overview_type == 'month' %}
+                            {% trans 'Day' %}
+                        {% endif %}
+
+                        {% if overview_type == 'total' %}
+                            {% trans 'Year' %}
+                        {% endif %}
+                    </th>
+                    <th class="align-right">{% trans 'Total' %}</th>
+                    <th class="align-right">{% trans 'Credit' %}</th>
+                    <th class="align-right">{% trans 'Usage' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>
+                            {% if overview_type == 'year' %}
+                                <a href="{% exam_cookie_credit_link row.start_url row.end_url %}">{{ row.date|date:"F Y" }}</a>
+                            {% endif %}
+
+                            {% if overview_type == 'month' %}
+                                <a href="{% exam_cookie_credit_link row.start_url row.end_url %}">{{ row.date|date:"d F Y" }}</a>
+                            {% endif %}
+
+                            {% if overview_type == 'total' %}
+                                <a href="{% exam_cookie_credit_link row.start_url row.end_url %}">{{ row.date.year }}</a>
+                            {% endif %}
+                        </td>
+                        {% for amount in row.amounts %}
+                            <td class="align-right">
+                                {{ amount }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td>{% trans 'Total' %}</td>
+                    {% for total in totals %}
+                        <td class="align-right">{{ total }}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">{% trans 'No transactions' %}</p>
+{% endif %}

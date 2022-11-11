@@ -1,0 +1,71 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Mappings' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Search' %}</h2>
+        <div class="content">
+            <form method="get">
+                {{ form.errors }}
+                <table>
+                    <tr>
+                        <th>{{ form.search.label_tag }}</th>
+                        <td>{{ form.search }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.include_inactive.label_tag }}</th>
+                        <td>{{ form.include_inactive }}</td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.types.label }}:</th>
+                        <td>
+                            {% for choice in form.types.field.choices %}
+                                <label><input
+                                    type="checkbox" name="types"
+                                    {% if choice|first in form.types.value %}checked="checked"{% endif %}
+                                    value="{{ choice|first }}" />&nbsp;<span class="claudia-{{ choice|first }}"
+                                    >{{ choice|last }}</span></label>{% if not forloop.last %}&nbsp;&ndash;{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </table>
+                <p><input type="submit" value="{% trans "Search" %}" /></p>
+            </form>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Mappings' %}</h2>
+
+        <div class="content">
+            {% include "paginator.html" with page=page_obj query=query %}
+
+            <table>
+                <tr>
+                    <th>{% trans 'Mapping' %}</th>
+                    <th>{% trans 'Type' %}</th>
+                    <th>{% trans 'ID' %}</th>
+                    <th>{% trans 'Active' %}</th>
+                    <th>{% trans 'E-mail' %}</th>
+                    <th>{% trans 'ADName' %}</th>
+                </tr>
+                {% for mapping in page_obj %}
+                <tr>
+                    <td>{{ mapping|clau_mapping }}</td>
+                    <td>{{ mapping.type }}</td>
+                    <td>{{ mapping.ident }}</td>
+                    <td>{{ mapping.active|yesno }}</td>
+                    <td>{{ mapping.email|clau_link }}</td>
+                    <td>{{ mapping.adname }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            {% include "paginator.html" with page=page_obj query=query %}
+        </div>
+    </div></div>
+{% endblock content %}

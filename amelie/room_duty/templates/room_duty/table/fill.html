@@ -1,0 +1,60 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% blocktrans %}Fill in your availability{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>{% blocktrans %}Fill in {{ table }} availability{% endblocktrans %}</h2>
+        <div class="content">
+            {% for error in form.non_field_errors %}
+                {{ error|safe }}
+            {% endfor %}
+            <form method="post">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th>{% trans "Begin" %}</th>
+                        <th>{% trans "End" %}</th>
+                        <th colspan="3">{% trans "Availability" %}</th>
+                        <th>{% trans "Comments" %}</th>
+                    </tr>
+                    {% for room_duty, availability, form in availabilities %}
+                        <tr class="kamerdienst-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}">
+                            {% for error in form.non_field_errors %}
+                                <td class="icon-error">{{ error }}</td>
+                            {% endfor %}
+                            <td>
+                                {{ room_duty.begin|date:"D d/m H:i" }}
+                            </td>
+                            <td>
+                                {{ room_duty.end|date:"D d/m H:i" }}
+                            </td>
+                            <td>
+                                {{ form.availability.errors|safe }}
+                                {{ form.availability }}
+                            </td>
+                            <td>
+                                {{ form.hungover.errors|safe }}
+                                <label for="{{ form.hungover.id_for_label }}">{{ form.hungover }} {% trans 'Hungover' %}</label>
+                            </td>
+                            <td>
+                                {{ form.not_in_the_break.errors|safe }}
+                                <label for="{{ form.not_in_the_break.id_for_label }}">
+                                    {{ form.not_in_the_break }} {% trans 'Not in the break' %}
+                                </label>
+                            </td>
+                            <td>
+                                {{ form.comments.errors|safe }}
+                                {{ form.comments }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <input type="submit" value="{% trans 'Save' %}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

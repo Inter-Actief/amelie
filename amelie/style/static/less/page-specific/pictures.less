@@ -1,0 +1,54 @@
+@import "../util/constants";
+
+.photo-container {
+  display: block;
+  text-align: center;
+
+  img {
+    padding: 4px;
+    position: relative;
+
+    border: 1px solid gray;
+    background-color: white;
+
+    display: inline-block;
+  }
+
+  a {
+    border-bottom: none;
+  }
+}
+
+#photo-content {
+  form {
+    width: 100%;
+  }
+
+  form input {
+
+  }
+}
+
+@media (max-width: @screen-xs-max) {
+  #photo-content input {
+    width: 100%;
+  }
+}
+
+@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+  #photo-content input {
+    width: 100%;
+  }
+}
+
+@media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
+  #photo-content input {
+    width: 50%;
+  }
+}
+
+@media (min-width: @screen-lg-min) {
+  #photo-content input {
+    width: 40%;
+  }
+}

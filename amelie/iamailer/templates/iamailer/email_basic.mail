@@ -1,0 +1,58 @@
+{% load attach i18n only subject absolute_url %}{% comment %} Whitespace IS important in this file {% endcomment %}{% subject %}{% block subject %}{% endblock %}{% endsubject %}{% onlyhtml %}
+<html>
+	<body>
+
+	    <table align="center" cellspacing="0" style="font-family: Verdana; font-size: 11px; width: 600px; margin-top: 25px; background-color: white;">
+            <tr colspan=2>
+		        <td>
+		            <a href="{% absolute_url 'profile_edit' %}">{% trans "Change language preference" %}</a>
+		        </td>
+		    </tr>
+        </table>
+
+		<table align="center" cellspacing="0" style="font-family: Verdana; font-size: 14px; width: 600px; background-color: white; border: 1px solid #ccc;">
+
+			<tr style="background-color: #1d428a; height: 6px; font-size: 1px;" >
+				<td colspan=2>
+					&nbsp;
+				</td>
+			</tr>
+			<tr>
+				<td colspan=2 style="padding-top: 15px; padding-left: 20px;">
+					<img src="{% attach_static "img/email_top_logo.gif" %}" alt="Inter-Actief logo" style="width: 250px; height: 48px;"/>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top" style="padding: 20px 20px; line-height: 1.4em;">
+{% endonlyhtml %}{% block content %}{% endblock %}{% onlyhtml %}
+				</td>
+				<td style="width: 0px; height: 300px;">
+
+				</td>
+			</tr>
+			<tr style="background-color: #1d428a; font-size: 11px; color: white;">
+				<td colspan=2 style="padding: 0px 12px;">
+					<p>
+                        {% blocktrans %}
+						    I.C.T.S.V. Inter-<i>Actief</i><br />
+                            P.O. Box 217<br />
+                            7500 AE Enschede<br />
+                            053 - 489 3756<br />
+                            <a href="mailto:contact@inter-actief.net" style="color:white">contact@inter-actief.net</a><br />
+                            <a href="https://www.inter-actief.net/" style="color:white">https://www.inter-actief.net/</a>
+                        {% endblocktrans %}
+					</p>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
+{% endonlyhtml %}
+{% onlyplain %}
+-- {# <-- Important whitespace #}
+{% blocktrans %}I.C.T.S.V. Inter-Actief
+contact@inter-actief.net
+https://www.inter-actief.net{% endblocktrans %}
+
+{% trans "Change language preference:" %} {% absolute_url 'profile_edit' %}
+{% endonlyplain %}

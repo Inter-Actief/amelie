@@ -1,0 +1,24 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Insert reversal' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Insert reversal' %}</h2>
+        <div class="content">
+            <p class="icon warning">
+                {% blocktrans with instruction=instruction url=instruction.get_absolute_url %}
+                    With this form, you can add a debit reversal of direct withdrawal-instruction <a href="{{ url }}">{{ instruction }}</a>.
+                {% endblocktrans %}
+            </p>
+            <form class="big" action="" method="post">
+                {{ form }}
+                {% csrf_token %}
+                <div class="buttons">
+                    <input type="submit" name="save" value="{% trans 'Save' %}" />
+                </div>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

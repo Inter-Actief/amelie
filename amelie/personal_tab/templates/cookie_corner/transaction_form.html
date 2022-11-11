@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Add transaction' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        {% if object %}
+            <h2>{% blocktrans %}Edit transaction '{{ object }}'{% endblocktrans %}</h2>
+        {% else %}
+            <h2>{% trans 'Add transaction' %}</h2>
+        {% endif %}
+
+        <div class="content">
+            {% if not object %}
+                <p>
+                    {% if transaction_type == 'cookie_corner' %}
+                        {% trans 'You are now adding a transaction to a personal tab' %}
+                    {% elif transaction_type == 'other' %}
+                        {% trans 'You are now adding a transaction in the category "Other"' %}
+                    {% endif %}
+                </p>
+            {% endif %}
+
+            <form action="" method="POST" class="big">
+                {% csrf_token %}
+                {{ form }}
+
+                <div class="buttons">
+                    <input type="submit" value="{% if object %}{% trans 'Edit' %}{% else %}{% trans 'Add' %}{% endif %}">
+                </div>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

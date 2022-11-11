@@ -1,0 +1,20 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans "Upload photos" %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2>{% trans "Upload photos" %}</h2>
+
+		<div class="content">
+            <form method="post" action="{% url 'activities:photo_upload_files' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form }}
+                <p>
+                    <input type="submit" value="{% trans "Upload pictures" %}">
+                </p>
+            </form>
+		</div>
+	</div></div>
+{% endblock content %}

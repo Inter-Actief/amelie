@@ -1,0 +1,85 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Educational activities' %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-md-7"><div class="edu">
+		<h2>{% trans 'Educational activities' %}</h2>
+		<div class="content">
+        {% if new_events %}
+            <div class="table-responsive">
+                <table class="table layout addmargin">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Educational activity' %}</th>
+                            {% if request.is_education_committee %}
+                                <th>{% trans 'Public' %}</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in new_events %}
+                        <tr>
+                            <td>
+                                {{ event.begin|date:"d-b (D)" }}
+                            </td>
+                            <td>
+                                <a href="{{ event.get_absolute_url }}" title="{{ event.description|striptags|truncatewords:30}}">{{ event.summary }}</a>
+                            </td>
+                        {% if request.is_education_committee %}
+                            <td>
+                                {% if event.public %}
+                                    <p class="icon pos"></p>
+                                {% else %}
+                                    <p class="icon neg"></p>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+	    {% else %}
+	        <p class="icon warning">{% trans 'There are not (as of yet) any events in the future, check again soon!' %}</p>
+	    {% endif %}
+
+	    {% if request.is_board %}
+		    <div class="buttons">
+		    	<a class="looks-like-a-button" href="{% url 'education:event_new' %}">{% trans 'Add event' %}</a>
+		    </div>
+	    {% endif %}
+        </div>
+	</div></div>
+
+	<div class="col-xs-12 col-md-5"><div class="edu">
+		<h2>{% blocktrans %}Past activities{% endblocktrans %}</h2>
+
+        <div class="content">
+            <div class="table-responsive">
+                <table class="table layout addmargin">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Educational activity' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in old_events %}
+                            <tr>
+                                <td>
+                                    {{ event.begin|date:"d-b " }}
+                                </td>
+                                <td>
+                                    <a href="{{ event.get_absolute_url }}" title="{{ event.description|striptags|truncatewords:30}}">{{ event.summary }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+	</div></div>
+{% endblock content %}

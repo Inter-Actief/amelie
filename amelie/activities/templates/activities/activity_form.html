@@ -1,0 +1,126 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}
+    {% if is_new %}
+        {% trans 'Add event' %}
+    {% else %}
+        {% trans 'Edit this event' %}
+    {% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <form class="big" method="post" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="col-xs-12 col-md-6">
+            <div class="current">
+                <h2>{% if is_new %}{% trans 'Add event' %}{% else %}{% trans 'Edit this event' %}{% endif %}</h2>
+                {% for error in form.non_field_errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+
+                <div class="content">
+                    {% if has_participants and not is_new %}
+                        <p class="icon warning">
+                            {% blocktrans %}
+                                <b>Warning:</b> This activity already has participants.
+                                It is therefore impossible to add or alter options for enrollment.
+                                Changing prices and/or texts will only influence people who have yet to enroll!
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+
+                    {% if form.summary_nl.errors or form.summary_en.errors %}
+                        {% for error in form.summary_nl.errors|extend:form.summary_en.errors %}
+                            <div class="error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.summary_nl }}</div>
+                            <div>{{ form.summary_en }}</div>
+                        </div>
+                    </div>
+
+                    {% fieldset location,begin,end,organizer,activity_label as form_predescription from form %}
+                    {{ form_predescription }}
+                    <hr>
+                    {% if form.promo_nl.errors or form.promo_en.errors %}
+                        {% for error in form.promo_nl.errors|extend:form.promo_en.errors %}
+                            <div class="error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <p><b>{% trans 'Promotional text:' %}</b></p>
+                    <p>{{ form.promo_nl.help_text }}</p>
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.promo_nl }}</div>
+                            <div>{{ form.promo_en }}</div>
+                        </div>
+                    </div>
+
+                    {% if form.description_nl.errors or form.description_en.errors %}
+                        {% for error in form.description_nl.errors|extend:form.description_en.errors %}
+                            <div class="error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <p><b>{% trans 'Full description:' %}</b></p>
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.description_nl }}</div>
+                            <div>{{ form.description_en }}</div>
+                        </div>
+                    </div>
+
+                    {% fieldset image_icon,public,dutch_activity as form_general from form %}
+                    {{ form_general }}
+
+                    {% if is_new %}<p class="icon icon-error">
+                        {% blocktrans %}
+                            When you save this new event, it will immediately be announced to our Discord server and
+                            to our IRC channel. Please make sure all entered details are correct and that you added at
+                            least a brief summary, and not just <i>More info will follow...</i>.
+                        {% endblocktrans %}
+                    </p>{% endif %}
+
+                    <div class="buttons">
+                        <button type="submit" name="submit" value="save"> {% trans 'Save' %} </button>
+                        <button type="submit" name="submit"
+                                value="save_and_options">{% trans 'Save and add enrollment options' %}</button>
+                        {% if is_new %}
+                            <a class="looks-like-a-button"
+                               href="{% url 'activities:activities' %}">{% trans 'Cancel' %}</a>
+                        {% else %}
+                            <a class="looks-like-a-button"
+                               href="{{ activity.get_absolute_url }}">{% trans 'Cancel' %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-6">
+            <div class="current">
+                <h2>{% trans 'Enrollment' %}</h2>
+
+                <div class="content">
+                    {% fieldset enrollment,enrollment_begin,enrollment_end,maximum,waiting_list_locked,price,can_unenroll,callback_url,callback_secret_key,facebook_event_id,oauth_application as form_description from form %}
+                    {{ form_description }}
+                </div>
+            </div>
+
+        </div>
+    </form>
+{% endblock content %}

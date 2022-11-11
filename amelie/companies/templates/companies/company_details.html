@@ -1,0 +1,38 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}
+    {{ obj }}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{{ obj }}</h2>
+
+            <div class="content">
+                <p>
+                    {% if obj.logo %}
+                        <div style="float:right; padding: 5px;">
+                            <a href="{{ obj.url }}"><img src="{{ obj.logo.url }}" alt="{{ obj.name }}"/></a>
+                        </div>
+                    {% endif %}
+
+                    {{ obj.profile|markdown:"unsafe" }}
+                </p>
+                <table>
+                    <tr>
+                        <th>{% trans 'URL' %}</th>
+                        <td><a href="{{ obj.url }}">{{ obj.url }}</a></td>
+                    </tr>
+                </table>
+                {% if is_board %}
+                    <p>
+                        <a href="{% url 'companies:company_edit' obj.slug %}">{% trans 'Edit company' %} &raquo;</a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

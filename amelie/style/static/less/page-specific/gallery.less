@@ -1,0 +1,63 @@
+.media-list {
+  padding: 0;
+  margin: 0;
+
+  .media-item {
+    padding-left: 0;
+    padding-bottom: 10px;
+
+    .thumbnail-container {
+      height: 189px;
+
+      padding: 4px;
+      position: relative;
+      border: 1px solid gray;
+      display: inline-block;
+      overflow: hidden;
+
+      label {
+        height: 100%;
+        width: 100%;
+      }
+
+      a, label {
+        border-bottom: none;
+
+        h3 {
+          display: inline-block;
+          bottom: 5px;
+          left: 15px;
+          position: absolute;
+          background-color: rgba(0, 0, 0, 0.7);
+          z-index: 1;
+          color: white;
+          padding: 2px;
+          word-wrap: anywhere;
+        }
+
+        .thumbnail {
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+
+          height: 100%;
+          width: 100%;
+        }
+      }
+    }
+
+    .thumbnail-container.small {
+      height: 95px;
+    }
+
+    .thumbnail-container.medium {
+      height: 115px;
+
+      a, label {
+        h3 {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}

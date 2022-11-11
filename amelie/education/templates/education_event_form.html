@@ -1,0 +1,83 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}
+    {% if is_new %}
+        {% trans 'Add new educational activity' %}
+    {% else %}
+        {% trans 'Edit educational activity' %}
+    {% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <form class="big" method="post" action="" enctype="multipart/form-data">
+        {% for error in form.non_field_errors %}
+            <div class="icon-error">{{ error }}</div>
+        {% endfor %}
+
+        {% csrf_token %}
+        <div class="col-xs-12 col-md-12">
+            <div class="edu">
+                <h2>{% if is_new %}{% trans 'Add event' %}{% else %}{% trans 'Edit this event ' %}{% endif %}</h2>
+
+                <div class="content">
+                    {% if form.summary_nl.errors or form.summary_en.errors %}
+                        {% for error in form.summary_nl.errors|extend:form.summary_en.errors %}
+                            <div class="icon-error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.summary_nl }}</div>
+                            <div>{{ form.summary_en }}</div>
+                        </div>
+                    </div>
+
+                    {% fieldset location,education_organizer,begin,end,public as form_general from form %}
+                    {{ form_general }}
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="col-xs-12">
+            <div class="edu">
+                <h2>{% trans "Description" %}</h2>
+
+                <div class="content">
+                    {% if form.description_nl.errors or form.description_en.errors %}
+                        {% for error in form.description_nl.errors|extend:form.description_en.errors %}
+                            <div class="icon-error"> {{ error }} </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="tabbed-ticker">
+                        <ul>
+                            <li class="active">NL</li>
+                            <li>EN</li>
+                        </ul>
+                        <div class="tabbed-content">
+                            <div>{{ form.description_nl }}</div>
+                            <div>{{ form.description_en }}</div>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <input type="submit" name="submit" value="{% trans 'Save' %}"/>
+
+                        {% if is_new %}
+                            <a class="looks-like-a-button"
+                               href="{% url 'activities:activities' %}">{% trans 'Cancel' %}</a>
+                        {% else %}
+                            <a class="looks-like-a-button" href="{{ obj.get_absolute_url }}">{% trans 'Cancel' %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}

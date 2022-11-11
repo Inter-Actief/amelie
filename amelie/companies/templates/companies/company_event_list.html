@@ -1,0 +1,96 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Activities' %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-md-7"><div class="ia">
+		<h2>{% trans 'External event' %}</h2>
+		<div class="content">
+        <a href="{% url 'companies:events_ics' %}"><img src="{{STATIC_URL}}img/icons/calendar.png" alt="iCal-link" title="{% trans 'iCal-file with activity.'%}" />{% blocktrans %}iCal all external events{% endblocktrans %}</a><br><br>
+		{% if new_events %}
+            <div class="table-responsive">
+                <table class="table layout addmargin">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'External event' %}</th>
+                            {% if request.is_board %}
+                                <th>{% trans 'Visible' %}</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in new_events %}
+                        <tr{% if event.dutch_activity %} class="dutch-only"{% endif %}>
+                            <td>
+
+                                <a href="{% url 'companies:event_ics' event.id %}">
+                                    <span class="icon icon-calendar" title="{% trans 'iCal document with activity' %}"></span>
+                                </a>
+
+                                {{ event.begin|date:"d-b (D)" }}
+                            </td>
+                            <td>
+                                <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
+                                     alt="{% trans 'Dutch-only' %}">
+                                <a href="{{ event.get_absolute_url }}" title="{{ event.description|striptags|truncatewords:30}}">{{ event.summary }}</a>
+                            </td>
+                            {% if request.is_board %}
+                                <td>
+                                    {% if event.is_visible %}
+                                        <p class="icon pos"> {% trans "till:" %} {{ event.visible_till|date:"d-b (D)" }} </p>
+                                    {% else %}
+                                        <p class="icon neg"> {% trans "from:" %} {{ event.visible_from|date:"d-b (D)" }} </p>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+	    {% else %}
+	        <p class="icon warning">{% trans 'There are not (as of yet) any events in the future, check again soon!' %}</p>
+	    {% endif %}
+
+	    {% if request.is_board %}
+		    <div class="buttons">
+		    	<a class="looks-like-a-button" href="{% url 'companies:event_create' %}">{% trans 'Add event' %}</a>
+		    </div>
+	    {% endif %}
+        </div>
+	</div></div>
+
+	<div class="col-xs-12 col-md-5"><div class="ia">
+		<h2><a href="{% url 'companies:event_old' %}">{% trans 'Past activities' %}</a></h2>
+
+        <div class="content">
+            <div class="table-responsive">
+                <table class="table layout addmargin">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'External event' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in old_events %}
+                            <tr{% if event.dutch_activity %} class="dutch-only"{% endif %}>
+                                <td>
+                                    <span class="icon icon-calendar" title="{% trans 'iCal document with activity' %}"></span>
+                                    {{ event.begin|date:"d-b " }}
+                                </td>
+                                <td>
+                                    <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
+                                         alt="{% trans 'Dutch-only' %}">
+                                    <a href="{{ event.get_absolute_url }}" title="{{ event.description|striptags|truncatewords:30}}">{{ event.summary }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+	</div></div>
+{% endblock content %}

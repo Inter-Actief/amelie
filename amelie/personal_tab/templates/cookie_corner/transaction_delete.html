@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transaction information' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans %}Delete transaction '{{ object }}'{% endblocktrans %}</h2>
+
+        <div class="content">
+            <p>{% blocktrans with person=object.person %}
+                Are you sure you want to delete '{{ object }}' for {{ person }}?
+            {% endblocktrans %}</p>
+
+            <a class="looks-like-a-button" href="{% url 'personal_tab:transaction_detail' pk=object.pk %}">
+                {% trans 'Cancel' %}
+            </a>
+
+            <form class="inline" action="" method="post">
+                {% csrf_token %}
+                <input type="submit" value="{% trans 'Delete' %}">
+            </form>
+        </div>
+    </div></div>
+
+{% endblock content %}

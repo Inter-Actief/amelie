@@ -1,0 +1,15 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load htmlify i18n only %}
+
+{% block subject %}{% blocktrans %}[members] Edit data of {{ obj }}{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear board member,{% endblocktrans %}
+
+{% blocktrans %}{{ obj }} edited his/her profile in Amélie.{% endblocktrans %}
+{% for c in changes %}
+ * {{ c.field }}: {{ c.old }} --> {{ c.new }}{% endfor %}
+
+{% blocktrans %}For more information, see:{% endblocktrans %} {% onlyhtml %}<a href="https://www.inter-actief.utwente.nl{{ url }}">{% endonlyhtml %}https://www.inter-actief.utwente.nl{{ url }}{% onlyhtml %}</a>{% endonlyhtml %}
+
+{% blocktrans %}Greetings,{% endblocktrans %}
+Amélie{% endhtmlify %}{% endblock %}

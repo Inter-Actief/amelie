@@ -1,0 +1,38 @@
+{% extends "basis.html" %}
+
+{% load i18n date_tags md %}
+
+{% block titel %}{% trans 'News' %}{% endblock titel %}
+
+{% block content %}
+    {% for news_item in education_news %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="edu">
+                <h2 class="h2-with-date">
+                    {{ news_item.publication_date|date_short }}
+                    <a href="{{ news_item.get_absolute_url }}">{{ news_item.title }} &raquo;</a>
+                </h2>
+
+                <div class="content">
+                    {{ news_item.introduction|markdown }}
+
+                    {{ news_item.content|markdown }}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="edu">
+                <h2 class="h2-with-date">{% trans "No articles" %}</h2>
+                <div class="content">
+                    {% trans "There are no education news articles available." %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    {% if education_news.has_other_pages %}
+        {% include "includes/education_news_paginator.html" %}
+    {% endif %}
+
+{% endblock content %}

@@ -1,0 +1,32 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /leden/
+Disallow: /members/
+Disallow: /login/
+Disallow: /logout/
+Disallow: /autosearch/
+Disallow: /gmm/
+Disallow: /profile/
+Disallow: /files/
+Disallow: /xml-rpc/
+Disallow: /onderwijs/
+Disallow: /education/
+Disallow: /site_media/
+Disallow: /api/
+
+User-agent: Googlebot
+Disallow: /admin/
+Disallow: /leden/
+Disallow: /members/
+Disallow: /login/
+Disallow: /logout/
+Disallow: /autosearch/
+Disallow: /gmm/
+Disallow: /profile/
+Disallow: /files/
+Disallow: /xml-rpc/
+Disallow: /site_media/
+Disallow: /api/
+Disallow: /activiteiten/*/*/*/*/*/fotos/willekeurig/
+Disallow: /activities/*/*/*/*/*/photos/random/
+

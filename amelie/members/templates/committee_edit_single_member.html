@@ -1,0 +1,78 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block head %}
+    <script src="{{ STATIC_URL }}js/autocomplete.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block titel %}
+    {{ committee }}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans "Edit committee member" %}</h2>
+            <br>
+            <div class="content">
+                <form action="{% url 'members:committee_single_member_edit' id slug function.id %}" method="post">
+
+
+                    {% csrf_token %}
+
+                    {{ error }}
+
+                    <table>
+                        <tr>
+                            <th>{% trans 'Person' %}</th>
+                            <th>{% trans 'Position' %}</th>
+                            <th>{% trans 'Starts on' %}</th>
+                            <th>{% trans 'Ends on' %}</th>
+                        </tr>
+                        {{ form.id }}
+                        {% if form.non_field_errors %}
+                        <tr>
+                            <td colspan="4">
+                                <ul class="errorlist">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>
+                                {{ form.person.errors }}
+                                {{ form.person }}
+                            </td>
+                            <td>
+                                {{ form.function.errors }}
+                                {{ form.function }}
+                            </td>
+                            <td>
+                                {{ form.begin.errors }}
+                                {{ form.begin }}
+                            </td>
+                            <td>
+                                {{ form.end.errors }}
+                                {{ form.end }}
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="buttons">
+                        <a href="{% url 'members:committee' id slug %}" class="looks-like-a-button">
+                            {% trans "Cancel" %}
+                        </a>
+
+                        <input type="submit" value="{% trans 'Save' %}"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="application/javascript">
+        enable_autocomplete();
+    </script>
+{% endblock content %}

@@ -1,0 +1,58 @@
+{% load i18n %}
+
+{% if transactions %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Date' %}</th>
+                    <th>{% trans 'Time' %}</th>
+                    <th>{% trans 'Person' %}</th>
+                    <th>{% trans 'Article' %}</th>
+                    <th>{% trans 'Amount' %}</th>
+                    <th class="align-right">{% trans 'discount' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
+                    <th class="align-right">{% trans 'kCal' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.date|date:"d F Y" }}</td>
+                        <td>{{ transaction.date|date:"G:i"}}</td>
+                        <td>
+                            {% if transaction.person %}
+                                {% if request.is_board %}
+                                    <a href="{% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug  %}">{{ transaction.person }}</a>
+                                {% else %}
+                                    {{ transaction.person }}
+                                {% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ transaction.get_absolute_url }}">
+                                {{ transaction.article }}
+                            </a>
+                        </td>
+                        <td class="align-right">{{ transaction.amount }}</td>
+                        <td class="align-right">{{ transaction.discount.amount|default:"&mdash;" }}</td>
+                        <td class="align-right">{{ transaction.price }}</td>
+                        <td class="align-right">{{ transaction.kcal|default:"&mdash;" }}</td>
+                    </tr>
+                {% endfor %}
+                {% if totals %}
+                    <tr>
+                        <td colspan="3"></td>
+                        <td colspan="3">{% trans 'Total' %}</td>
+                        <td class="align-right">{{ totals }}</td>
+                        <td class="align-right">{{ kcal_totals }}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">{% trans 'No transactions on personal tab.' %}</p>
+{% endif %}

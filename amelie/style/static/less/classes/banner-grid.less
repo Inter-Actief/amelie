@@ -1,0 +1,58 @@
+@import "../util/constants";
+
+// Not sure what or why, but this is used somewhere iirc.
+.banner-grid {
+  border:0;
+  margin:0;
+  padding:0;
+  text-decoration:none;
+  color:#222;
+  display:block;
+  text-align:center;
+  height:200px;
+  position:relative;
+
+  &.tv {
+    height: auto;
+    padding-bottom: 20px;
+
+    img {
+      max-width:458px;
+      max-height:458px;
+    }
+  }
+
+  img {
+    max-width: 218px;
+    max-height: 99px;
+    margin: 15px 10px 10px 10px;
+  }
+
+  span {
+    line-height: 20px;
+    display: block;
+    margin-top: 8px;
+
+    &.label {
+      vertical-align: top;
+      margin-left: 3px;
+      display: inline;
+    }
+  }
+}
+
+.ellipsis-230 { // TODO: NICK.fix()
+  display: inline-block;
+  width: 218px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ellipsis-470 {
+  display: inline-block;
+  width: 458px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

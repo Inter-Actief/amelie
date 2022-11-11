@@ -1,0 +1,47 @@
+{% extends 'basis.html' %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans %}Add course{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+  <form action="" method="post" class="big">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <div class="current edu">
+              <h2>{% trans 'Add course' %}</h2>
+
+              {% for error in form.non_field_errors %}
+                  <div class="icon-error">{{ error }}</div>
+              {% endfor %}
+
+              <div class="content">
+                {% csrf_token %}
+
+                {{ form.name.errors }}
+
+                <div class="form-row">
+                    <label for="name">{% blocktrans %}Course or Module name{% endblocktrans %}</label>
+                    {{ form.name }}
+                </div>
+
+                {{ form.course_type.errors }}
+
+                <div class="form-row">
+                    <label for="course_type">{% trans "Type" %}</label>
+                    {{ form.course_type }}
+                </div>
+
+                {{ form.course_code.errors }}
+
+                <div class="form-row">
+                    <label for="course_code">{% trans "Course code" %}</label>
+                    {{ form.course_code }}
+                </div>
+
+                <div class="buttons">
+                    <input type="submit" value="{% trans 'Save' %}">
+                </div>
+              </div>
+          </div>
+      </div>
+  </form>
+{% endblock content %}

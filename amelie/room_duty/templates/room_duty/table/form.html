@@ -1,0 +1,61 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% if is_nieuw %}
+        {% trans 'Add office duty schedule' %}
+    {% else %}
+        {% trans 'Change office duty schedule' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>
+            {% if is_new %}
+                {% trans 'Add office duty schedule' %}
+            {% else %}
+                {% trans 'Change office duty schedule' %}
+            {% endif %}
+        </h2>
+        <div class="content">
+            <form method="post" class="big">
+                {% csrf_token %}
+
+                {% for error in form.non_field_errors %}
+                    <div class="icon-error">{{ error }}</div>
+                {% endfor %}
+
+                {% fieldset title,begin as fields from form %}
+                {{ fields }}
+
+                <div class="form-row">
+                    <label for="{{ form.pool.id_for_label }}">
+                        <a href="{% url 'room_duty:pools' %}">{% trans "Pool" %}</a>:
+                    </label>
+                    {{ form.pool.errors }}
+                    {{ form.pool }}
+                </div>
+
+                <div class="form-row">
+                    <label for="{{ form.template.id_for_label }}">
+                        <a href="{% url 'room_duty:templates' %}">{% trans "Template" %}</a>:
+                    </label>
+                    {{ form.template.errors }}
+                    {{ form.template }}
+                </div>
+
+                <div class="form-row">
+                    <label for="{{ form.balcony_duty.id_for_label }}">
+                        <a href="{% url 'room_duty:balcony_duty' %}">{% trans 'Balcony Duty' %}</a>
+                    </label>
+                    {{ form.balcony_duty.errors }}
+                    {{ form.balcony_duty }}
+                </div>
+
+                <a href="{% url 'room_duty:index' %}" class="looks-like-a-button">{% trans 'Cancel' %}</a>
+                <input type="submit" value="{% trans 'Save' %}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

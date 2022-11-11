@@ -1,0 +1,38 @@
+@import "../util/constants";
+
+// styling for the paging buttons on the bottom of the page
+.paging {
+  text-align: center;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
+  background: inherit;
+  box-shadow: none;
+
+  &.no-margin {
+    margin: 0;
+  }
+
+  span {
+    margin-right: 3px;
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  a,
+  &> .current {
+    padding:3px 7px;
+    border:1px solid grey;
+    background-color: @white;
+  }
+
+  a.paging-disabled {
+    &,
+    &:hover {
+      color: @_a;
+      background: @_e;
+      border: 1px solid @_a;
+      cursor: default;
+    }
+  }
+}

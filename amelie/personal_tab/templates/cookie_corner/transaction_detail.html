@@ -1,0 +1,24 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transaction information' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transaction information' %}</h2>
+
+        <div class="content">
+            <table>
+                {% include "info/transaction_information.html" %}
+            </table>
+
+            {% if object.customtransaction and object.customtransaction.editable and request.is_board %}
+                <a href="{% url 'personal_tab:transaction_update' pk=object.pk %}" class="looks-like-a-button">{% trans 'Edit transaction' %}</a>
+                <a href="{% url 'personal_tab:transaction_delete' pk=object.pk %}" class="looks-like-a-button">{% trans 'Delete transaction' %}</a>
+            {% elif object.customtransaction and request.is_board %}
+                <i>{% trans 'This transaction is not editable as it has already been debited.' %}</i>
+            {% endif %}
+        </div>
+    </div></div>
+
+{% endblock content %}

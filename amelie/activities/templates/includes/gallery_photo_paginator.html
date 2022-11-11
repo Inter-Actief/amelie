@@ -1,0 +1,14 @@
+{% load i18n %}
+{% load picture_tags %}
+
+<p class="paging">
+	{% if previous %}
+		<span><a href="{% picture_url obj first %}#photo-full" id="first_photo">{% trans 'First' %}</a></span>
+		<span><a href="{% picture_url obj previous %}#photo-full" id="previous_photo">{% trans 'Back' %}</a></span>
+	{% endif %}
+
+	{% if next %}
+		<span><a href="{% picture_url obj next %}#photo-full" id="next_photo">{% trans 'Next' %}</a></span>
+		<span><a href="{% picture_url obj last %}#photo-full" id="last_photo">{% trans 'Last' %}</a></span>
+	{% endif %}
+</p>

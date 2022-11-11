@@ -1,0 +1,77 @@
+{% extends "basis.html" %}
+{% load i18n provider_name %}
+
+{% block titel %}{% trans 'Log in' %}{% endblock titel %}
+
+{% block head %}
+    <script>
+        $(document).ready(function () {
+            $('#id_username').focus();
+        });
+    </script>
+{% endblock head %}
+
+{% block content %}
+    <div id="login" class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Login on the Inter-<em>Actief</em> website' %}.</h2>
+
+            <div class="content">
+                {% if request.person %}
+                    <p class="icon neg">
+                        {% trans 'You do not have acces to the page you are visiting.' %}
+                    </p>
+                {% endif %}
+
+                {{ form.errors.non_field_errors }}
+
+                <p>
+                    {% trans 'You can log in with your <abbr title="This is your student account. E.g. s0123456.">UTwente account</abbr> or with your <abbr title="You get an Inter-Actief account if you become an active member at Inter-Actief. E.g. bouwerb.">Inter-<em>Actief</em> account</abbr>.' %}
+                </p>
+                <p>
+                    {% trans 'If you do not have either of these accounts, you can link an external account, like your Google, GitHub, or Facebook account, by contacting the board.' %}
+                </p>
+
+                <p><a class="looks-like-a-button" href="{% url 'saml2_login' %}?next={% if redirect_to %}{{ redirect_to|urlencode }}{% else %}{{ request.path|urlencode }}{% endif %}"><i class="icon icon-building"></i> <b>{% trans 'Log in with your UTwente account' %}</b></a></p>
+
+                <h3>{% trans '- or -' %}</h3>
+
+                <form class="big" method="post" action="">
+                    {% if show_oauth %}
+                        <div class="form-row">
+                            <label for="provider">{% trans 'Log in with:' %}</label>
+                            <select id="provider" onchange="if(this.value) { location.href=this.value; $('div#login_elements').css('visibility','hidden') }">
+                                <option value="" selected="selected">{% trans 'Inter-Actief account' %}</option>
+                                {% for backend in backends.backends %}
+                                    <option value="{% url 'social_auth:begin' backend %}">{{ backend|provider_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% else %}
+                        <p class="icon error">
+                            {% blocktrans %}
+                                Login with your Inter-<i>Actief</i> or University of Twente account to link it to
+                                your external account.
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+
+                    <div id="login_elements">
+                        {% csrf_token %}
+                        {{ form }}
+
+                        <div class="buttons">
+                            <input type="submit" value="{% trans 'Log in' %}"/>
+                        </div>
+
+                        <p><a href="{% url "account:password_reset" %}">{% trans 'Forgot password?' %}</a></p>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ redirect_to }}"/>
+                </form>
+
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

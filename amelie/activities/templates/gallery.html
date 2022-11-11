@@ -1,0 +1,52 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans "Photos" %} {{ activity }}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2 class="h2-with-buttons">
+		    {% trans "Photos" %} {{ activity }}
+
+		    {% if page.has_other_pages %}
+		    	({{ page.start_index }} - {{ page.end_index }} / {{ pages.count }})
+		    {% else %}
+		    	({{ pages.count }})
+		    {% endif %}
+
+		    <a class="looks-like-a-button" href="{% url 'activities:photos' %}">{% trans 'All albums' %}</a>
+		</h2>
+
+    <div class="content">
+		{% if login_for_more %}
+        <p class="icon icon-information">
+            {% url 'login' as login_url %}
+            {% trans "More photos are available if you" %} <a href="{{ login_url }}?next={% url 'activities:gallery' pk %}">{% trans 'logged in' %}</a>.
+        </p>
+        {% endif %}
+
+  		{% if page.has_other_pages %}
+  			{% include "includes/gallery_paginator.html" with obj=activity %}
+  		{% endif %}
+
+        <div id="photo-list" class="row media-list">
+            {% for photo in page.object_list %}
+                <div class="col-xs-4 col-sm-3 col-lg-2 media-item">
+                    <div class="col-xs-12 thumbnail-container small">
+                        <a href="{% url 'activities:gallery_photo' activity.pk photo.pk %}#photo-full">
+                            <div class="thumbnail"
+                                    style="background-image: url('{{ photo.thumb_file_small.url }}')"></div>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+  		<div class="clear"></div>
+
+  		{% if pagina.has_other_pages %}
+  			{% include "includes/gallery_paginator.html" with obj=activity %}
+  		{% endif %}
+    </div>
+	</div></div>
+{% endblock content %}

@@ -1,0 +1,18 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans %}[Inter-Actief] Important information regarding your membership{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans %}During the previous period, you have not logged in on our website via the University of Twente login. Because of this, we were unable to get your current student status, meaning we cannot prolong your membership as a study long type.{% endblocktrans %}
+
+{% blocktrans %}If you have not graduated yet and are still studying Business Information Technology, Technical Computer Science or one of the masters belonging to these studies, please visit our website and log in via University of Twente in order to prolong your membership for free. You have to do this within 14 days, otherwise your membership will be terminated as of the 1st of July. {% endblocktrans %}
+
+{% blocktrans %}If you have graduated, your membership of Inter-Actief will end. There is however still the opportunity to become a member of ENIAC, the alumni association for TCS, BIT, CS, ITECH, EMSYS, and IST.{% endblocktrans %} {% onlyhtml %}{% blocktrans %}If you want to know more about ENIAC or if you want to become a member, take a look at their website, <a href="https://eniac.utwente.nl/">https://eniac.utwente.nl/</a>. The board of ENIAC can be contacted using the contact form on their website.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}{% blocktrans %}If you want to know more about ENIAC or if you want to become a member, take a look at their website, eniac.utwente.nl. The board of ENIAC can be contacted using the contact form on their website.{% endblocktrans %}{% endonlyplain %}
+
+{% blocktrans %}If you have any questions you can contact us by replying to this email.{% endblocktrans %}
+
+{% blocktrans %}Kind regards,
+
+The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}{% endblock %}

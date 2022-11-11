@@ -1,0 +1,27 @@
+{% load i18n %}
+
+<p class="paging">
+	{% if page_obj.has_previous %}
+		<span><a href="?page=1">{% trans 'First' %}</a></span>
+		<span><a href="?page={{ page_obj.previous_page_number }}">{% trans 'Back' %}</a></span>
+    {% else %}
+        <span><a href="#" class="paging-disabled">{% trans 'First' %}</a></span>
+		<span><a href="#" class="paging-disabled">{% trans 'Back' %}</a></span>
+	{% endif %}
+
+	{% for p in paginator.page_range %}
+		{% if p == page_obj.number %}
+		    <span class="current">{{ p }}</span>
+		{% else %}
+		    <span><a href="?page={{ p }}">{{ p }}</a></span>
+		{% endif %}
+	{% endfor %}
+
+	{% if page_obj.has_next %}
+		<span><a href="?page={{ page_obj.next_page_number }}">{% trans 'Next' %}</a></span>
+		<span><a href="?page={{ paginator.num_pages }}">{% trans 'Last' %}</a></span>
+    {% else %}
+        <span><a href="#" class="paging-disabled">{% trans 'Next' %}</a></span>
+		<span><a href="#" class="paging-disabled">{% trans 'Last' %}</a></span>
+	{% endif %}
+</p>

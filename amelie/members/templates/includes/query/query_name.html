@@ -1,0 +1,10 @@
+{% load i18n fieldsets %}
+
+<h2>{% trans 'Basic data' %}</h2>
+
+<div class="content">
+    <div id="query_name">
+        {% fieldset name,id,sm_number,telephone_number,email_address,gender,minor as form_name from form %}
+        {{ form_name }}
+    </div>
+</div>

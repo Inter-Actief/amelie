@@ -1,0 +1,32 @@
+{% extends 'pos/base.html' %}
+{% load static i18n md %}
+
+{% block content %}
+    <div id="container">
+        <div id="header">
+            <div id="header-logo"></div>
+            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+        </div>
+        <div id="content" class="center">
+            <div id="login-box">
+                <div id="login-box-header"{% if not success %} class="error"{% endif %}>
+                    <h1>{% trans 'Cookie Corner Login' %}{% if not success %} - {% trans 'Error' %}{% endif %}</h1>
+                </div>
+                <div id="login-box-content">
+                    <p>{{ message }}</p>
+                    <p>&nbsp;</p>
+                    <p>{% trans 'You may close this window now.' %}</p>
+                    {% url 'frontpage' as home_url %}
+                    <p>{% blocktrans with home_url=home_url %}<a class="pos-link-button" href="{{ home_url }}">Or go to the homepage</a>{% endblocktrans %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript_pre %}
+    <script type="text/javascript">
+        var numActivities = {{ upcoming_activities|length }};
+        var numPictures = {{ past_activities|length }};
+    </script>
+{% endblock %}

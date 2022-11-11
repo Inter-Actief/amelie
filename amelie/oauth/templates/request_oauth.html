@@ -1,0 +1,62 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+{% block titel %}{% trans 'Request OAuth2 Access' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Request OAuth2 Access' %}</h2>
+        <div class="content">
+            <form action="{% url "oauth:request_oauth" %}" method="post">
+                {{ form.errors }}
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th>{{ form.application_name.label_tag }}</th>
+                        <td>
+                            {{ form.application_name|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'What is the name of the application?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.member_name.label_tag }}</th>
+                        <td>
+                            {{ form.member_name|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'Who is placing this request?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.member_mail.label_tag }}</th>
+                        <td>
+                            {{ form.member_mail|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'What is your email address?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.redirect_urls.label_tag }}</th>
+                        <td>
+                            {{ form.redirect_urls|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'What are the redirection URLs?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.client_type.label_tag }}</th>
+                        <td>
+                            {{ form.client_type|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'Is this a confidential or public client?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.description.label_tag }}</th>
+                        <td>
+                            {{ form.description|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'Please give a short description of the intended purpose of this application.' %}</small>
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    <input type="submit" value="{% trans 'Request OAuth2 Access' %}">
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

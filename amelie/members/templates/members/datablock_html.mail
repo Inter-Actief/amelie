@@ -1,0 +1,28 @@
+{% load i18n %}
+<table>
+<tr><td>{% trans "Initials" %}</td><td>{{person.initials}}</td></tr>
+<tr><td>{% trans "First name" %}</td><td>{{person.first_name}}</td></tr>
+<tr><td>{% trans "Last name pre-fix" %}</td><td>{{person.last_name_prefix}}</td></tr>
+<tr><td>{% trans "Last name" %}</td><td>{{person.last_name}}</td></tr>
+<tr><td>{% trans "Birth date" %}</td><td>{{person.date_of_birth}}</td></tr>
+<tr><td>{% trans "International?" %}</td><td>{{person.get_international_member_display}}</td></tr>
+<tr><td>{% trans "Gender" %}</td><td>{{person.get_gender_display}}</td></tr>
+<tr><td>{% trans "Language of preference" %}</td><td>{{person.get_preferred_language_display}}</td></tr>
+<tr><td></td><td></td></tr>
+<tr><td>{% trans "Student number" %}</td><td>{{person.student.number}}</td></tr>
+<tr><td>{% trans "Course" %}</td><td>{{study}}</td></tr>
+<tr><td></td><td></td></tr>
+<tr><td>{% trans "Address" %}</td><td>{{person.address}}</td></tr>
+<tr><td>{% trans "Postal code" %}</td><td>{{person.postal_code}}</td></tr>
+<tr><td>{% trans "City" %}</td><td>{{person.city}}</td></tr>
+<tr><td>{% trans "Country" %}</td><td>{{person.country}}</td></tr>
+<tr><td></td><td></td></tr>
+<tr><td>{% trans "Phonenumber" %}</td><td>{{person.telephone}}</td></tr>
+<tr><td>{% trans "E-mail address" %}</td><td>{{person.email_address}}</td></tr>
+</table><br />
+<table>
+<tr><td>{% trans "Preferences" %}:</td><td></td></tr>
+{% for preference_name,preference in preferences.items %}
+<tr><td>{{preference_name}}</td><td>{% if preference %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif%}</td></tr>
+{% endfor %}
+</table>

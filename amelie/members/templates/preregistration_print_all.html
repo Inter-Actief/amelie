@@ -1,0 +1,50 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+
+{% block titel %}{% trans 'Pre-enrollment' %} - {% trans 'Print all forms' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Print all membership and authorization forms' %}</h2>
+        <div class="content">
+            <form action="{% url "members:preregistration_print_all" %}" method="post">
+                {{ form.errors }}
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <th>{{ form.sort_by.label_tag }}</th>
+                        <td>
+                            {{ form.sort_by|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'How should the forms be sorted?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.group_by_dogroup.label_tag }}</th>
+                        <td>
+                            {{ form.group_by_dogroup|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'Should forms for one do-group be kept together?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.signing_date.label_tag }}</th>
+                        <td>
+                            {{ form.signing_date|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'On which date will these forms be signed?' %}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>{{ form.language.label_tag }}</th>
+                        <td>
+                            {{ form.language|form_bootstrapify }}
+                            <small class="form-text text-muted clearfix">{% trans 'In which language should these forms be printed?' %}</small>
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    <input type="submit" value="{% trans 'Print those forms!' %}">
+                    <a class="looks-like-a-button" href="{% url 'members:preregistration_status' %}">{% trans 'Go back' %}</a>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

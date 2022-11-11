@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans "Direct debits" %}</h2>
+
+    <div class="content">
+        {% if debt_collection_instructions %}
+            <p>
+                {% blocktrans with debt_collection_instructions|length as amount %}
+                    Last {{ amount }} executed or planned direct debits.
+                {% endblocktrans %}
+            </p>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Description' %}</th>
+                            <th class="align-right">{% trans 'Price' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instruction in debt_collection_instructions %}
+                            <tr>
+                                <td>
+                                    {{ instruction.batch.execution_date }}
+                                </td>
+                                <td>
+                                    <a href="{{ instruction.get_absolute_url }}">
+                                        {{ instruction.description }}
+                                    </a>
+                                </td>
+                                <td class="align-right">{{ instruction.amount }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p>
+                <a class="looks-like-a-button" href="{% url 'personal_tab:person_debt_collection_instructions' person.id person.slug %}">
+                    {% trans "View all direct debits." %}
+                </a>
+            </p>
+        {% else %}
+            <p class="icon warning">{% trans "There are no direct debits executed or planned yet." %}</p>
+        {% endif %}
+    </div>
+</div></div>

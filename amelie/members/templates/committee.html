@@ -1,0 +1,134 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {{ obj }}
+{% endblock titel %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/brandbox.js"></script>
+{% endblock head %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+        <div class="committees ia">
+            <h2>
+                {{ obj }}
+            </h2>
+
+            <div class="content">
+                {% include "includes/committee_data.html" %}
+            </div>
+        </div>
+
+        {% if past_activities %}
+            <div class="committees ia">
+                {% include 'slider.html' %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+        <div class="ia">
+            <h2 class="h2-with-buttons">{% trans 'Members' %} ({{ members|length }})
+                {% if request.is_board %}
+                    <a class="looks-like-a-button" href="{% url 'members:committee_members_edit' obj.id obj.slug %}">
+                        {% trans 'Edit members' %}
+                    </a>
+                {% endif %}
+            </h2>
+            <div class="content">
+                <ul class="no-bullets">
+                    {% for member in members %}
+                        <li class="person">
+                            {% if request.is_board %}
+                                <a href="{{ member.person.get_absolute_url }}">
+                            {% endif %}
+
+                            {{ member.person }}
+
+                            {% if request.is_board %}
+                                </a>
+                            {% endif %}
+
+                            <span class="small">
+                                {{ member.function }}{% if numbers %} - {{ member.person.telephone }}{% endif %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+	    </div>
+
+        <div class="ia">
+            <h2>
+                {% trans 'Agenda' %}
+                <a href="{% url 'members:committee_agenda_ics' obj.id obj.slug %}">
+                    <img src="{{ STATIC_URL }}img/icons/calendar.png" alt="iCal-link" title="{% trans 'iCal-file with activity.'%}" />
+                </a>
+            </h2>
+
+            <div class="content">
+                    <ul class="icon">
+                        {% for activity in activities %}
+                            <li>
+                                <a href="{{ activity.get_absolute_url }}">{{ activity }}</a>
+                                <span class="small">{{ activity.begin|date:"d-b (D)" }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="activiteit">{% trans 'There are no events' %}</li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if request.is_board %}
+                        <br class="clearfix">
+
+                        <div class="buttons addmargin">
+                            <a href="{% url 'activities:new' %}" class="looks-like-a-button">
+                                {% trans 'Add new event' %}
+                            </a>
+                        </div>
+                    {% endif %}
+            </div>
+        </div>
+    </div>
+
+	<div class="clearfix"></div>
+
+	{% if request.is_board %}
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="current">
+                <h2 id="oudlid" class="expand" data-target="expand_oudlid"> {% trans "Overview of former members" %}</h2>
+
+                <div hidden id="expand_oudlid" class="content">
+                    <p>
+                        {% blocktrans %}
+                            This overview contains all functions. It may therefore occur that people show up in the
+                            overview multiple times. People from parent-committees have also been added to this
+                            overview.
+                        {% endblocktrans %}
+                    </p>
+
+                    <table>
+                        <tr>
+                            {% for member in old_members %}
+                                <td>
+                                    <div>
+                                        <a class="float-right" href="{% url 'members:committee_single_member_edit' obj.id obj.slug member.pk %}"><i class="icon icon-pencil"></i></a>
+                                        <a href="{{ member.person.get_absolute_url }}">{{ member.person }}</a>
+                                        <br /><span class="small">{{ member.function }} -
+                                                                  {{ member.end|default:member.committee.abolished }}</span>
+                                    </div>
+                                </td>
+
+                                {% if forloop.counter|divisibleby:"4" %}
+                                    </tr><tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </table>
+                </div>
+		    </div>
+        </div>
+	{% endif %}
+
+{% endblock content %}

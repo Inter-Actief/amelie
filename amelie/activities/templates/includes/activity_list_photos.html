@@ -1,0 +1,7 @@
+{% load i18n %}
+
+{% if activity.photos.count %}
+	<a href="{{ activity.get_photo_url }}"><span class="small">{% trans "Photos"  %}</span></a>
+{% else %}
+	<span class="small">&mdash;</span>
+{% endif %}

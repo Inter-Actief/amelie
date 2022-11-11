@@ -1,0 +1,75 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Statistics' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Statistics' %}</h2>
+
+        <div class="content">
+            <p>
+                {% blocktrans %}
+                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself.
+                    The data is no older than an hour. Data about a specific year is calculated in academic years.
+                {% endblocktrans %}
+            </p>
+
+            {% if request.is_board %}
+                <p>
+                    {% trans 'Statistics for the board:' %}
+                </p>
+
+                <ul>
+                    <li><a href="{% url 'statistics:hits' %}">{% trans 'Page visits' %}</a></li>
+                </ul>
+            {% endif %}
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Association' %}</h2>
+
+        <div class="content">
+          <ul>
+              <li>{% trans 'Members:' %} {{ member_count }}</li>
+              <li>{% trans 'Active members:' %} {{ active_member_count }}</li>
+              <li>{% trans 'Committee' %} {{ committee_count }}</li>
+              <li>{% trans 'Committee categories' %} {{ committee_category_count }}</li>
+              <li>{% trans 'Activities (this year):' %} {{ current_activity_count }}</li>
+              <li>{% trans 'Activities (total)' %} {{ activity_count }}</li>
+          </ul>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Photos' %}</h2>
+
+        <div class="content">
+          <ul>
+              <li>{% trans 'Albums:' %} {{ albums_count }}</li>
+              <li>{% trans 'Photos:' %} {{ photos_count }}</li>
+              <li>{% trans 'Different photographers' %} {{ photographer_count }}</li>
+          </ul>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Personal tab' %}</h2>
+
+        <div class="content">
+          <ul>
+              <li>{% trans 'Transactions:' %} {{ transactions_count }}</li>
+              <li>{% trans 'Transactions from personal tab:' %} {{ snacks_count }}</li>
+              <li>{% trans 'Average number of daily transactions on personal tab:' %} {{ snacks_average_count }}</li>
+              <li>{% trans 'Number of transactions on personal tab today:' %} {{ snacks_today_count }}</li>
+              <li>{% trans 'Registered RFID-cards:' %} {{ rfids_count }}</li>
+              <li>{% trans 'Popular snacks:' %} {{ popular_snacks|join:", " }}</li>
+              <li>{% trans 'Most healthy board member:' %} {{ healthiest_board_member }}</li>
+          </ul>
+        </div>
+    </div></div>
+
+{% endblock content %}

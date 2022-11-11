@@ -1,0 +1,21 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Execute payment' %}</h3>
+
+    <form action="{% url 'members:person_pay' obj.id membership.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+        {% csrf_token %}
+        <p>
+            {{ membership.year }} ({{ membership.type }}, EUR {{ membership.type.price }})
+        </p>
+
+        {{ form }}
+
+        <div class="buttons">
+            <a href="{% url 'members:person_pay' obj.id membership.id %}?original=1" class="looks-like-a-button js-load-block" data-container="person_membership">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input type="submit" name="add" value="{% trans 'Input' %}" />
+        </div>
+    </form>
+</div>

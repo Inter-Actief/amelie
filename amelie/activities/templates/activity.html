@@ -1,0 +1,175 @@
+{% extends "basis.html" %}
+{% load i18n md date_tags %}
+
+{% block titel %}
+	{{ obj }}
+{% endblock titel %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/brandbox.js"></script>
+    <meta property="og:title" content="{{ obj }}" />
+    {% if obj.image_icon %}
+        <meta property="og:image" content="{{ obj.image_icon.url }}" />
+    {% endif %}
+    <meta property="og:description" content="{{ obj.description_short }}" />
+    <meta property="og:url" content="https://{{ request.get_host }}{{ obj.get_absolute_url }}" />
+{% endblock head %}
+
+{% block content %}
+	<div class="col-xs-12 col-md-8">
+		<div class="current">
+			<h2>{{ obj }}</h2>
+
+			<div class="content">
+                {{ obj.description|markdown }}
+
+				{% if obj.enrollment %}
+				    <div class="layout">
+				        {% include "includes/activity_enrollment.html" %}
+				    </div>
+				{% endif %}
+
+				<div class="buttons">
+					{% if can_edit %}
+					    <div class="buttons addmargin">
+					    	<a class="looks-like-a-button" href="{% url 'activities:edit' obj.id %}">{% trans 'Edit' %}</a>
+	                        <a class="looks-like-a-button" href="{% url 'activities:enrollmentoption_list' obj.id %}">{% trans 'Edit enrollment options' %}</a>
+	                    {% if request.is_board %}
+					    	<a class="looks-like-a-button icon icon-delete" href="{% url 'activities:delete' obj.id %}">{% trans 'Delete' %}</a>
+	                    {% else %}
+	                        {% trans 'The board can remove activities.' %}
+	                    {% endif %}
+					    </div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-xs-12 col-md-4">
+		<div class="current">
+			<h2>{% trans 'Who, what, where, when...' %}</h2>
+
+			<div class="content">
+				<dl class="details">
+			        <dt>{% trans 'Who' %}</dt>
+			        <dd><a href="{{ obj.organizer.get_absolute_url }}">{{ obj.organizer }}</a></dd>
+
+			        <dt>{% trans 'What' %}</dt>
+			        <dd>{{ obj }}</dd>
+
+			        <dt>{% trans 'Where' %}</dt>
+			        <dd>{{ obj.location|default:"&mdash;" }}</dd>
+
+                    <dt>{% trans 'When' %}</dt>
+                    <dd>
+                        {% if obj.begin|date:"l j F Y" == obj.end|date:"l j F Y" %}
+                            {{ obj.begin|date:"l j F Y" }}
+                        {% trans 'from' %} {{ obj.begin|date:"G:i"}}
+                            {% trans 'until' %} {{ obj.end|date:"G:i"}}
+                        {% else %}
+                            {% trans 'from' %} {{ obj.begin|date:"l j F Y G:i"}}
+                            {% trans 'until' %} {{ obj.end|date:"l j F Y G:i"}}
+                        {% endif %}
+                        <a href="{{ obj.get_calendar_url }}"><img src="{{STATIC_URL}}img/icons/calendar.png" alt="iCal-link" title="{% trans 'iCal-file with activity.'%}" /></a>
+                    </dd>
+                    <dt>{% trans 'Label' %}</dt>
+                    <dd>
+                        {{ obj.activity_label.name }}
+                    <dt>{% trans 'Costs' %}</dt>
+                    <dd>
+                        {% if obj.price == 0 %}
+                            {% trans 'free' %}
+                        {% else %}
+                            {{ obj.price }} euro
+                        {% endif %}
+                    </dd>
+
+                    {% if can_edit %}
+                        <dt title="Registration status of this activity at the Event Desk of the University">{% trans 'UT Status' %}</dt>
+                        {% if obj.latest_event_registration_message %}
+                            <dd class="eventdesk-status-{{ obj.latest_event_registration_message.state }}">
+                                <a href="{% url 'activities:eventdesk_detail' obj.latest_event_registration_message.pk %}">
+                                    {{ obj.latest_event_registration_message.get_state_display }}
+                                </a>
+                            </dd>
+                        {% else %}
+                            <dd class="eventdesk-status-UNREGISTERED">
+                                <a href="{% url 'activities:eventdesk_list' %}">{% trans 'Unregistered' %}</a>
+                            </dd>
+                        {% endif %}
+                    {% endif %}
+                </dl>
+
+                {% if obj.image_icon %}
+                    <div id="icon" style="text-align: center">
+                    <img style="max-height:275px;" src="{{ obj.image_icon.url}}">
+                    </div>
+                {% endif %}
+
+                {% if obj.dutch_activity %}
+                    <strong>{% trans 'Dutch will be spoken at this activity.' %}</strong>
+                {% endif %}
+            </div>
+		</div>
+
+		{% if obj.photos.count %}
+            <div class="current">
+                <h2 id="slider-carousel-title" class="h2-with-buttons">{% trans "Pictures of the event" %}</h2>
+                <div id="slider-items">
+                    <a href="{{ activity.get_photo_url }}" title="{{ activity }}"></a>
+                </div>
+                <ol id="slider-list" style="display: none;"></ol>
+                <script type="text/javascript">
+                    $(document).ready(function(){
+                        createBrandBox();
+                    });
+                </script>
+            </div>
+		{% endif %}
+	</div>
+
+    {% if obj.enrollment %}
+        {% if obj.organizer in request.person.current_committees or request.is_board %}
+            <div class="col-xs-12 col-md-12">
+                <div class="current">
+                    <h2 class="expand" data-target="export_options">{% trans 'Export enrollments' %}</h2>
+                    <div class="content">
+                        <div id="export_options" hidden>
+                            <div class="buttons">
+                                <form action="{% url 'activities:enrollment_data_export' obj.pk %}" method="post">
+                                    {% csrf_token %}
+                                    {% include 'gdpr_export_notice.html' %}
+                                    {{ export_form }}
+                                    {% if obj.enrollment_open %}
+				                        <p style="color:red; font-weight:bold">
+                                            {% trans 'Warning: You are exporting enrollments while they are still open! Changes might happen after the export.' %}
+                                        </p>
+				                    {% endif %}
+                                    <input type="submit" name="activity_export_deanonymise" value="{% trans 'Deanonymise enrollment list' %}">
+                                    <input type="submit" name="activity_export_csv" value="{% trans 'Export enrollments (CSV)' %}">
+                                    <input type="submit" name="activity_export_print" value="{% trans 'Print enrollments' %}">
+                                    {% if request.is_board %}
+                                        <a class="looks-like-a-button" href="{% url 'tools:data_export_statistics' %}">{% trans 'Data export statistics' %}</a>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12 col-md-12">
+                <div class="current">
+                    <h2>{% trans 'Enrollments' %}</h2>
+
+                    <div id="enrollment_overview" class="content">
+                    {% include "activity_enrollment_overview.html" %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+{% endblock content %}

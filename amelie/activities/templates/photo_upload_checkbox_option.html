@@ -1,0 +1,8 @@
+<div class="col-xs-4 col-sm-3 col-lg-2 media-item">
+    <div class="col-xs-12 thumbnail-container medium">
+        <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>
+            <h3>{% include "django/forms/widgets/input.html" %} {{ widget.label }}</h3>
+            <div class="thumbnail" style="background-image: url('{% url "activities:photo_upload_preview" option.value %}')"></div>
+        </label>
+    </div>
+</div>

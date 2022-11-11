@@ -1,0 +1,63 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}
+    {% trans 'Company Corner' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="cc-grid__controls button-group">
+                {% if is_board %}
+                    <a class="button-group__button button button_primary" href="{% url 'companies:company_create' %}">
+                        {% trans 'Add new company' %}
+                    </a>
+                    {% if active %}
+                        <a class="button-group__button button button_primary" href="{% url 'companies:company_overview_old' %}">
+                            {% trans 'Overview of inactive companies' %}
+                        </a>
+                    {% else %}
+                        <a class="button-group__button button button_primary" href="{% url 'companies:company_overview' %}">
+                            {% trans 'Overview of active companies' %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+                {% if not sorted %}
+                    <a class="button-group__button button button_primary" href="{% url 'companies:company_overview' %}?sort=name">
+                        {% trans 'Sort by name' %}
+                    </a>
+                {% else %}
+                    <a class="button-group__button button button_primary" href="{% url 'companies:company_overview' %}">
+                        {% trans 'Sort randomly' %}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="cc-grid__companies col-xs-12">
+            {% for company in companies %}
+                {% if company.profile %}
+                    {% include 'companies/includes/company_grid_item.html' %}
+                {% endif %}
+            {% empty %}
+                {% trans 'At this moment, no companies are available in the Company Corner.' %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="cta-section row">
+        <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+            <p class="cta-section__desc">
+                {% trans 'Would you like your company to be promoted here as well? Contact our Officer of External Affairs to discuss the opportunities!' %}
+            </p>
+            <a href="mailto:{% trans 'collaboration@inter-actief.net' %}" class="button button_primary">
+                {% trans 'Mail collaboration@inter-actief.net' %}
+            </a>
+        </div>
+    </div>
+{% endblock content %}

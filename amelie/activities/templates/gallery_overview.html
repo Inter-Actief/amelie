@@ -1,0 +1,247 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Photos' %}{% endblock titel %}
+
+{% block head %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var cleared = false;
+            var original = "";
+            var requestID = 0;
+            var images = {};
+
+            var photoList = document.getElementById("photo-list");
+
+            function clear() {
+                // If the page is not cleared yet, clear it
+                if (cleared === false) {
+                    cleared = true;
+                    original = photoList.innerHTML;
+                    photoList.innerHTML = "";
+
+                    $(".paging").each(function (key, element) {
+                        element.classList.add("hidden");
+                    });
+
+                    document.getElementById("page-title").innerHTML = "{% trans "Photos" %}";
+                }
+            }
+
+            function checkEnter(e) {
+                e = e || event;
+                var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
+                return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
+            }
+
+            var searchRequest;
+
+            $("#el-cheapo-search").keyup(
+                function (event) {
+                    if (checkEnter(event) === true) {
+                        event.preventDefault();
+                    }
+
+                    if (searchRequest) {
+                        searchRequest.abort();
+                    }
+
+                    // Get the query from the search box
+                    var query = document.getElementById("el-cheapo-search").value;
+
+                    if (query.length === 0 && cleared === true) {
+                        photoList.innerHTML = original;
+
+                        $(".paging").each(function (key, element) {
+                            element.classList.remove("hidden");
+                        });
+
+                        cleared = false;
+                        return;
+                    } else if (query.length === 0) {
+                        return;
+                    } else if (query.length < 3) {
+                        clear();
+                        var errorMessage = document.createElement("p");
+                        errorMessage.setAttribute("class", "search-error");
+                        errorMessage.innerHTML = "{% trans "Please enter a search query longer than 2 characters" %}";
+                        errorMessage.classList.add("icon");
+                        errorMessage.classList.add("error");
+                        photoList.innerHTML = "";
+                        photoList.appendChild(errorMessage);
+                        return;
+                    }
+
+                    clear();
+
+                    // Select a new request ID for the new request
+                    requestID = Math.floor(Math.random() * 1000000000);
+
+                    // Set the data for the request
+                    var data = {
+                        "jsonrpc": "2.0",
+                        "id": requestID,
+                        "method": "searchGallery",
+                        "params": [query]
+                    };
+
+                    // Run the request
+                    searchRequest = $.post(
+                        "/api/",
+                        JSON.stringify(data),
+                        function (json) {
+                            // If this response is not the latest request that was sent, cancel handling the response
+                            if (json.id !== requestID) {
+                                return;
+                            }
+
+                            photoList.innerHTML = "";
+
+                            if (json.result.length === 0 ||
+                                json.result.every(function (item) { return item.photoCount === 0; })) {
+                                var errorMessage = document.createElement("p");
+                                errorMessage.setAttribute("class", "search-error");
+                                errorMessage.innerHTML = "{% trans "There are no results" %}";
+                                errorMessage.classList.add("icon");
+                                errorMessage.classList.add("error");
+                                photoList.appendChild(errorMessage);
+                                return;
+                            }
+
+                            // Loop through the items
+                            for (var i in json.result) {
+                                var item = json.result[i];
+
+                                if(item.photoCount === 0) {
+                                    continue;
+                                }
+
+                                // Re-using previously loaded resources
+                                var thumb = item.thumbnails.medium;
+
+                                if (images[item.id] !== undefined) {
+                                    thumb = images[item.id];
+                                } else {
+                                    images[item.id] = thumb;
+                                }
+
+                                // Create a new item
+                                var listItem = document.createElement("div");
+                                listItem.setAttribute("class", "col-xs-12 col-sm-6 col-md-4 col-lg-3 media-item");
+
+                                var container = document.createElement("div");
+                                container.setAttribute("class", "col-xs-12 thumbnail-container");
+
+                                var anchor = document.createElement("a");
+                                anchor.setAttribute("href", {% url 'activities:activities' %} + item.id + "/photos/");
+
+                                var title = document.createElement("h3");
+                                title.innerHTML = "[" + item.beginDate.split("T")[0] + "] " + item.title +
+                                    " (" + item.photoCount + ")";
+
+                                var thumbnail = document.createElement("div");
+                                thumbnail.setAttribute("class", "thumbnail");
+                                thumbnail.setAttribute("style", "background-image: url('" + thumb + "')");
+
+                                anchor.appendChild(title);
+                                anchor.appendChild(thumbnail);
+                                container.appendChild(anchor);
+                                listItem.appendChild(container);
+                                photoList.appendChild(listItem);
+                            }
+
+
+                        }, "json");
+                }
+            )
+        });
+    </script>
+{% endblock head %}
+
+{% block content %}
+    {# Search and text #}
+    <div class="col-xs-12"><div class="current">
+        <h2>
+            {% trans "At least we still have the photos" %}
+        </h2>
+        <div class="content" id="photo-content">
+            <p>
+                {% blocktrans %}
+                    Inter-<i>Actief</i> regularly makes photos during activities.
+                    This is done by the MedIA committee.
+                    Here you can find photos of the recent activities.
+                {% endblocktrans %}
+            </p>
+
+            {% if not request.person %}
+                <p class="icon icon-information">
+                    {% url 'login' as login_url %}
+                    {% trans "More photos are available if you" %} <a
+                        href="{{ login_url }}?next={% url 'activities:photos' %}">{% trans 'logged in' %}</a>.
+                </p>
+            {% endif %}
+
+            <form method="get" action="/activities/photos/" class="big">
+                <input id="el-cheapo-search" name="q" type="search" placeholder="{% trans "Search for pictures" %}" />
+            </form>
+        </div>
+    </div></div>{# ./current, ./col-xs-12 #}
+
+    {# Actual albums #}
+    <div class="col-xs-12">
+        <div class="current">
+            <h2 id="page-title">
+                {% trans "Photos" %}
+
+                {% if page.has_other_pages %}
+                    ({{ page.start_index }} - {{ page.end_index }} / {{ pages.count }} {% trans 'albums' %})
+                {% else %}
+                    ({{ pages.count }} {% trans 'albums' %})
+                {% endif %}
+            </h2>
+
+            <div class="content">
+                {% if page.has_other_pages %}
+                    {% include "includes/photo_overview_paginator.html" %}
+                {% endif %}
+
+                <div id="photo-list" class="row media-list">
+                    {% for act in page.object_list %}
+                        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 media-item">
+                            <div class="col-xs-12 thumbnail-container">
+                                <a href="{{ act.get_photo_url }}">
+                                    <h3>[{{ act.begin|date:"Y-m-d" }}] {{ act }} ({{ act.photos.count }})</h3>
+                                    {% with photo=act.random_photo %}
+                                        <div class="thumbnail"
+                                             style="background-image: url('{{ photo.thumb_file_medium.url }}')"></div>
+                                    {% endwith %}
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="clear"></div>
+
+                {% include "includes/photo_overview_paginator.html" %}
+            </div>
+        </div>
+    </div>
+
+    {% if pagina.number == 1 %}
+        <div class="col-xs-12">
+            <div class="current">
+                <h2>{% trans 'Photo archive' %}</h2>
+
+                <div class="content">
+                    <p>
+                        {% blocktrans %}
+                            The photo archive with photos from 2000 till march 2009 can be found on
+                            <a href="https://foto.inter-actief.net/">foto.inter-actief.net</a>.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}

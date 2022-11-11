@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Summaries' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+        <h2>{% blocktrans %}Search for a course{% endblocktrans %}</h2>
+
+        <div class="content">
+          <form action="" method="GET" class="big">
+              {{ form }}
+
+              <div class="buttons">
+                  <input type="submit" value="{% trans 'Search' %}" />
+              </div>
+          </form>
+        </div>
+    </div></div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="edu">
+        {% if courses %}
+            <h2>{% trans "Courses" %}</h2>
+
+            <div class="content">
+              <p class="small">{% blocktrans %}
+                  This content is not managed by Inter-<i>Actief</i>, but by <a href="http://samenvattingen.student.utwente.nl/wiki.php/SamenvattingenWIKI:Info">SamenvattingenWiki (SummariesWiki)</a>.
+              {% endblocktrans %}</p>
+
+              <ol>
+                  {% for course in courses %}
+                      <li><a href="{{ course.url|safe }}">{{ course.code|safe}}</a> {{ course.name|safe}}</li>
+                  {% endfor %}
+              </ol>
+            </div>
+        {% endif %}
+    </div></div>
+{% endblock content %}

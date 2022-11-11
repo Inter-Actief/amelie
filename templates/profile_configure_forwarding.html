@@ -1,0 +1,261 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Configure e-mail forwarding' %}
+{% endblock titel %}
+
+{% block head %}
+    <style type="text/css">
+        @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+        @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+        @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+        .icon-arrow_rotate_clockwise {
+            display: inline-block;
+            -webkit-animation:spin 4s linear infinite;
+            -moz-animation:spin 4s linear infinite;
+            animation:spin 4s linear infinite;
+        }
+
+        .status_icon {
+            display: inline-block;
+            top: 2px;
+            position: relative;
+            margin-right: 4px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if no_gsuite_account %}
+        <div class="col-xs-12">
+            <div class="ia">
+                <h2>{% trans 'No Google Suite account' %}</h2>
+
+                <div class="content">
+                    <p>{% blocktrans %}
+                        It seems that you don't have a Google Suite account! If you just became an active member, it
+                        is possible that this just has not been created yet. Please try again later in that case.
+                    {% endblocktrans %}</p>
+                    <p>{% blocktrans %}
+                        If this error keeps occurring, please contact our account managers via account@inter-actief.net.
+                    {% endblocktrans %}</p>
+                    <p><a class="looks-like-a-button" href="{% url 'profile_overview' %}">{% trans 'Back to my profile' %}</a></p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-xs-12">
+            <div class="ia">
+                <h2>{% trans 'Configure e-mail forwarding' %}</h2>
+
+                <div class="content">
+                    <p>{% blocktrans with account_name=request.person.account_name domain=primary_email_domain personal_email=personal_email %}
+                         On this page you can configure if e-mails that arrive on your active members e-mail address ({{ account_name }}@{{ domain }}) should be forwarded to your personal e-mail address ({{ personal_email }}).
+                    {% endblocktrans %}</p>
+                    <p>{% trans 'For you, this means that e-mails that arrive on the following e-mail addresses will be forwarded:' %}</p>
+                    <ul>
+                        {% for domain in email_domains %}
+                            <li>{{ request.person.account_name }}@{{ domain }}</li>
+                            {% for alias in request.person.personal_aliases %}
+                                <li>{{ alias }}@{{ domain }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        <li>{% trans 'And e-mail addresses of your committees and other groups.' %}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% if is_currently_forwarding %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Disable e-mail forwarding' %}</h2>
+
+                    <div class="content">
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="step" id="id_step" value="{{ current_step|add:1 }}">
+                            <div id="check-result">
+                                <p id="check-result-email">{% trans 'E-mail forwarding is enabled. Forwarding to address: ' %}<span class="icon status_icon icon-arrow_rotate_clockwise"></span></p>
+                                <p>{% trans 'Click on the button below to disable it.' %}</p>
+                                <p><a class="looks-like-a-button" href="#" onclick="deactivateForwardingAddress()">{% trans 'Disable forwarding' %}</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-xs-12">
+                <div class="ia">
+                    <h2>{% trans 'Enable e-mail forwarding' %}</h2>
+
+                    <div class="content">
+                        <p>{% trans 'Follow the steps below to enable e-mail forwarding:' %}</p>
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="step" id="id_step" value="{{ current_step|add:1 }}">
+                            {% if current_step == 1 %}
+                                <div id="check-result">
+                                    <div class="icon status_icon icon-arrow_rotate_clockwise"></div>
+                                    <span>{% trans 'Just a second while we check the current status of your Google Suite account...' %}</span>
+                                </div>
+                            {% elif current_step == 2 %}
+                                <p><b>{% trans 'Step 2: Verify e-mail address' %}</b></p>
+                                <p>{% blocktrans with personal_email=personal_email %}
+                                    Please check your e-mail on {{ personal_email }}. You should have received an e-mail
+                                    from Google with the request to forward e-mails from your Inter-Actief addresses.
+                                    Please click on the link in that e-mail to verify your address. The process will
+                                    continue automatically when your e-mail has been verified.
+                                {% endblocktrans %}</p>
+                                <div id="check-result"></div>
+                            {% elif current_step == 3 %}
+                                <p><b>{% trans 'Step 3: Activate forwarding' %}</b></p>
+                                <div id="check-result">
+                                    <div class="icon status_icon icon-arrow_rotate_clockwise"></div>
+                                    <span>{% trans 'Just a second while we activate your forward...' %}</span>
+                                </div>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <script type="text/javascript">
+    {% if is_currently_forwarding %}
+        function deactivateForwardingAddress(){
+            var resultDiv = $("#check-result");
+            resultDiv[0].innerHTML = "<div class=\"icon status_icon icon-arrow_rotate_clockwise\"></div>" +
+                "<span>{% trans 'Just a second while we deactivate your forward...' %}</span>";
+            var url = "{% url 'account:deactivate_forwarding_address' %}";
+            $.ajax(url, {
+                cache: false,
+                success: function(data){
+                    var resultDiv = $("#check-result");
+                    resultDiv[0].innerHTML = "<p>"+data['message']+"</p><p><a class=\"looks-like-a-button\" href=\"{% url "profile_overview" %}\">{% trans 'Back to my profile' %}</a></p>";
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log("Error " + xhr.status + " while setting forwarding address.");
+                    var resultDiv = $("#check-result");
+                    resultDiv[0].innerHTML = "<div class=\"icon status_icon icon-cancel\"></div><span>{% trans 'Something went wrong while activating your forward at Google. Please try again later.' %}</span>";
+                }
+            });
+        }
+        function checkForwardingStatus(){
+            var url = "{% url 'account:check_forwarding_status' %}";
+
+            $.ajax(url, {
+                cache: false,
+                success: function(data){
+                    var resultDiv = $("#check-result-email");
+                    resultDiv[0].innerHTML = "{% trans 'E-mail forwarding is enabled. Forwarding to address: ' %}<b>"+data['email']+"</b>";
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log("Error " + xhr.status + " while getting verification status.");
+                    var resultDiv = $("#check-result-email");
+                    resultDiv[0].innerHTML = "{% trans 'E-mail forwarding is enabled. Forwarding to address: ' %}<span class=\"icon status_icon icon-cancel\"></span><b>{% trans 'Error while checking the status at Google. Please try again later.' %}</b>";
+                }
+            });
+        }
+        // Check the currently active forwarding address on document ready
+        $(document).ready(function() {checkForwardingStatus()});
+    {% else %}
+        function checkVerificationStatus(initial, recheck){
+            var url = "{% url 'account:check_forwarding_verification' %}?initial="+(initial ? 1 : 0);
+
+            $.ajax(url, {
+                cache: false,
+                success: function(data){
+                    var resultDiv = $("#check-result");
+
+                    var resultHtml = "";
+                    {% if current_step == 1 %}
+                    if(data['address_verified']){
+                        resultHtml += "<p><b>{% trans 'Activate forwarding' %}</b></p>";
+                    }else{
+                        resultHtml += "<p><b>{% trans 'Step 1: Add e-mail address' %}</b></p>";
+                    }
+                    {% endif %}
+                    resultHtml += "<p>"+data['message']+"</p>";
+
+                    if(data['address_verified']){
+                        $("#id_step")[0].value = 3;
+                        resultHtml += "<p><input type=\"submit\" value=\"{% trans 'Activate forwarding' %}\" /></p>";
+                    }else{
+                        {% if current_step == 1 %}
+                        resultHtml += "<p><input type=\"submit\" value=\"{% trans 'Add e-mail address' %}\" /></p>";
+                        {% endif %}
+
+                        // If recheck is set, schedule another check in 10 seconds
+                        if(recheck) {
+                            setTimeout(checkVerificationStatus(initial, recheck), 10000);
+                        }
+                    }
+
+                    resultDiv[0].innerHTML = resultHtml;
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log("Error " + xhr.status + " while getting status update.");
+                    var resultDiv = $("#check-result");
+                    resultDiv[0].innerHTML = "<div class=\"icon status_icon icon-cancel\"></div><span>{% trans 'Something went wrong while checking the status of your account at Google. Please try again later.' %}</span>";
+
+                    // If recheck is set, schedule another check in 10 seconds
+                    if(recheck) {
+                        setTimeout(checkVerificationStatus(initial, recheck), 10000);
+                    }
+                }
+            });
+        }
+
+    {% if current_step == 1 %}
+        // Check if the person's e-mail address is already known when the page is finished loading
+        $(document).ready(function() {checkVerificationStatus(true, false)});
+    {% elif current_step == 2 %}
+        function addForwardingAddress(){
+            var url = "{% url 'account:add_forwarding_address' %}";
+            $.ajax(url, {
+                cache: false,
+                success: function(data){
+                    if(data['ok']){
+                        // Address added, wait 20 seconds and check if it is verified. Repeat the check periodically.
+                        setTimeout(checkVerificationStatus(false, true), 20000);
+                    }else{
+                        // Addres was already added and activated, recheck the status in a second.
+                        setTimeout(checkVerificationStatus(false, false), 10000);
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log("Error " + xhr.status + " while setting forwarding address.");
+                    var resultDiv = $("#check-result");
+                    resultDiv[0].innerHTML = "<div class=\"icon status_icon icon-cancel\"></div><span>{% trans 'Something went wrong while configuring your forward at Google. Please try again later.' %}</span>";
+                }
+            });
+        }
+
+        // Set the forwarding address on document ready
+        $(document).ready(function() {addForwardingAddress()});
+    {% elif current_step == 3 %}
+        function activateForwardingAddress(){
+            var url = "{% url 'account:activate_forwarding_address' %}";
+            $.ajax(url, {
+                cache: false,
+                success: function(data){
+                    var resultDiv = $("#check-result");
+                    resultDiv[0].innerHTML = "<p>"+data['message']+"</p><p><a class=\"looks-like-a-button\" href=\"{% url "profile_overview" %}\">{% trans 'Back to my profile' %}</a></p>";
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log("Error " + xhr.status + " while setting forwarding address.");
+                    var resultDiv = $("#check-result");
+                    resultDiv[0].innerHTML = "<div class=\"icon status_icon icon-cancel\"></div><span>{% trans 'Something went wrong while activating your forward at Google. Please try again later.' %}</span>";
+                }
+            });
+        }
+
+        // Set the forwarding address on document ready
+        $(document).ready(function() {activateForwardingAddress()});
+    {% endif %}
+    {% endif %}
+    </script>
+{% endblock content %}

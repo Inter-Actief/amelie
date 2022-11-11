@@ -1,0 +1,36 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transaction information' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transaction information' %}</h2>
+
+        <div class="content">
+            <table>
+                {% include "info/transaction_information.html" %}
+                <tr>
+                    <th>{% trans 'Article' %}</th>
+                    <td>{{ object.article|default:"&mdash;" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Amount' %}</th>
+                    <td class="align-right">{{ object.amount }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'kCal' %}</th>
+                    <td class="align-right">{{ object.kcal|default_if_none:"&mdash;" }}</td>
+                </tr>
+            </table>
+
+            {% if object.editable and request.is_board %}
+                <a href="{% url 'personal_tab:cookie_corner_transaction_update' pk=object.pk %}" class="looks-like-a-button">{% trans 'Edit transaction' %}</a>
+                <a href="{% url 'personal_tab:cookie_corner_transaction_delete' pk=object.pk %}" class="looks-like-a-button">{% trans 'Delete transaction' %}</a>
+            {% elif request.is_board %}
+                <i>{% trans 'This transaction is not editable as it has already been debited.' %}</i>
+            {% endif %}
+        </div>
+    </div></div>
+
+{% endblock content %}

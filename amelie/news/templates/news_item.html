@@ -1,0 +1,30 @@
+{% extends "basis.html" %}
+
+{% load i18n md %}
+
+{% block titel %}
+	{{ obj }}
+{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="{{ obj.is_education_item|yesno:"edu,ia" }}">
+		<h2>{{ obj }}</h2>
+
+		<div class="content">
+        {{ obj.introduction|markdown }}
+
+        {{ obj.content|markdown }}
+
+			{% if can_edit or can_delete %}
+				<div class="buttons">
+						{% if can_edit %}
+				    <a class="looks-like-a-button" href="{% url 'news:edit' obj.id obj.publication_date.year obj.publication_date.month obj.publication_date.day obj.slug %}">{% trans 'Edit message' %} &raquo;</a> <br />
+						{% endif %}
+						{% if can_delete %}
+				    <a class="looks-like-a-button" href="{% url 'news:delete' obj.id obj.publication_date.year obj.publication_date.month obj.publication_date.day obj.slug %}">{% trans 'Remove message' %} &raquo;</a>
+						{% endif %}
+				</div>
+			{% endif %}
+		</div>
+	</div></div>
+{% endblock content %}

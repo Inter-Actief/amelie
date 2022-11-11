@@ -1,0 +1,220 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets provider_name %}
+
+{% block titel %}
+    {% trans 'Profile overview' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Data' %}</h2>
+
+        <div class="content">
+          {% include 'includes/person_data_table.html' with obj=request.person full_overview="0" %}
+
+          <div class="buttons">
+              <a class="looks-like-a-button" href="{% url 'profile_edit' %}">
+                  {% trans 'Edit' %}
+              </a>
+              <a class="looks-like-a-button" href="{% url 'account:mail_alias' %}">
+                  {% trans 'Mail alias preferences' %}
+              </a>
+              <a class="looks-like-a-button" href="{% url 'data_export:request_export' %}">
+                  {% trans 'Export personal data' %}
+              </a>
+              {% if request.person.is_active_member %}
+              <a class="looks-like-a-button" href="{% url 'account:password' %}">
+                  {% trans 'Change password' %}
+              </a>
+              <a class="looks-like-a-button" href="{% url 'account:configure_forwarding' %}">
+                  {% trans 'Configure E-mail Forwarding' %}
+              </a>
+              {% endif %}
+              <p>
+                  <span class="icon compact icon-information"></span>
+                  {% trans 'Not satisfied with your looks? You can ask the board to change or delete your profile picture.' %}
+              </p>
+          </div>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Membership' %}</h2>
+
+        <div class="content">
+          {% if request.person.is_member %}
+            {% with membership=request.person.membership %}
+                <p>
+                    {% blocktrans with begin=membership.year end=membership.year|add:1 %}
+                        There is a membership from {{ begin }} until {{ end }}.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans with type=membership.type %}
+                        Your membership type is {{ type }}.
+                    {% endblocktrans %}
+                </p>
+
+                {% if membership.is_paid %}
+                    <p class="icon paid">
+                        {% blocktrans with payment_type=membership.payment.payment_type.name date=membership.payment.date|date:"j b Y"|default:"?" %}
+                            Your membership fees have been paid through {{ payment_type }} on {{ date }}.
+                        {% endblocktrans %}
+                    </p>
+                {% else %}
+                    <p class="icon unpaid">
+                        {% blocktrans %}
+                            Your membership fee for this year has not yet been paid.
+                            If you have signed a direct debit mandate, this will be arranged automatically.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+                {% if membership.is_verified %}
+                    <p class="icon pos">{% blocktrans %}
+                    Your student status has been verified, or we do not need it for your membership type.
+                    {% endblocktrans %}</p>
+                {% else %}
+                    <p class="icon icon-cancel">{% blocktrans %}
+                    Your student status has not been verified, while we do need it for your membership type.
+                    For your membership type, you have to be a student of the study BIT, TCS or one of the connected masters.
+                    In order to verify your student status at the UT, log out and log in using your University of Twente account.
+                    In case you are no longer eligible for the current membership type, it will not be prolonged in July.
+                    You can contact the Board in order to change your membership type starting from then.
+                    {% endblocktrans %}</p>
+                {% endif %}
+            {% endwith %}
+          {% else %}
+              <p>
+                  {% blocktrans %}
+                      You have no active membership.
+                  {% endblocktrans %}
+              </p>
+          {% endif %}
+        </div>
+    </div></div>
+
+    {% if request.person.student %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Student data' %}</h2>
+
+        <div class="content">
+
+            {% with student=request.person.student %}
+            <div class="table-responsive">
+        <table class="table person_table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Student data' %}</th>
+                    <th>{% trans 'Study/studies' %}</th>
+                    <th>{% trans 'Period(s)' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for studyperiod in student.studyperiod_set.all %}
+            <tr>
+                <td>{{ student.student_number }}</td>
+                <td>{{ studyperiod.study }} <span class="small">{{ studyperiod.study.type }}</span>
+                    <br>
+                    <span class="small">{% if studyperiod.dogroup %}{{ studyperiod.dogroup }}{% else %}{% trans 'No doegroep registered' %}{% endif %}</span>
+                </td>
+                <td>{{ studyperiod.begin|date:"j b Y" }} &mdash; {% if studyperiod.end %}{{ studyperiod.end|date:"j b Y" }}{% else %}{% trans 'Current' %}{% endif %}
+                    <br>
+                    {% if studyperiod.end %}
+                        <span class="small">{{ studyperiod.end|timeuntil:studyperiod.begin }}</span>
+                    {% else %}
+                        <span class="small">{{ studyperiod.begin|timesince }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            <tfooter></tfooter>
+        </table>
+    </div>
+            {% endwith %}
+
+        </div>
+    </div> </div>
+    {% endif %}
+
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'Committees' %}</h2>
+
+        <div class="content">
+          <p>
+              {% blocktrans %}
+                  Below you can find an overview of your activism at Inter-Actief.
+                  Do you want to join a committee? Please contact our functionary internal affairs.
+              {% endblocktrans %}
+          </p>
+
+          {% include 'includes/person_function_table.html' with obj=request.person %}
+        </div>
+    </div></div>
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'Apps' %}</h2>
+
+        <div class="content">
+          <p>
+              {% blocktrans %}
+                  Below you can find an overview of the apps you have given permissions to use or edit your personal information.
+              {% endblocktrans %}
+          </p>
+          <div id="oauth2_container" class="table-responsive">
+              {% include 'oauth2_provider/includes/user_oauth_table.html' with user=request.user %}
+          </div>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'Login providers' %}</h2>
+
+        <div class="content">
+            {% if backends.associated %}
+                <p>
+                    {% trans 'The following login providers have been linked to your account:' %}
+                </p>
+                <table class="table-responsive">
+                    <tr>
+                        <th>{% trans 'Login provider' %}</th>
+                        <th>{% trans 'User-ID' %}</th>
+                        <th><!-- Disconnect --></th>
+                    </tr>
+                    {% for assoc in backends.associated %}
+                        <tr>
+                            <td>{{ assoc.provider|provider_name }}</td>
+                            <td>{{ assoc.uid }}</td>
+                            <td>
+                                <form class="inline" action="{% url 'social_auth:disconnect_individual' assoc.provider assoc.id %}?next={% url 'profile_overview' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="submit" class="no-margin" value="{% trans 'Delete' %}">
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>
+                    {% trans 'You have not linked any login providers yet.' %}
+                </p>
+            {% endif %}
+
+            <p>
+                {% trans 'You can add another account to the following login providers:' %}
+            </p>
+
+            <ul>
+                {% for backend in backends.backends %}
+                    <li>
+                        <a href="{% url 'social_auth:begin' backend %}?next={% url 'profile_overview' %}">
+                            {% blocktrans with backend|provider_name as backend %}
+                                Login using {{ backend }}
+                            {% endblocktrans %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div></div>
+
+{% endblock content %}

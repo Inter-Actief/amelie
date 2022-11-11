@@ -1,0 +1,24 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Add to' %} {{mapping}} {% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Add to' %} {{ mapping }}</h2>
+        <div class="content">
+            <p>{% blocktrans with mp=mapping|clau_mapping %}Add to {{ mp }}:{% endblocktrans %}</p>
+            {% if results %}
+            <ul>
+                {% for result in results %}
+                    <li><a class="{{ result|clau_class }}" href="{% url 'claudia:mapping_add_mapping' pk=mapping.id member_id=result.id %}">{{ result }}</a></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="icon icon-error">{% trans 'There are no results.' %}</p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

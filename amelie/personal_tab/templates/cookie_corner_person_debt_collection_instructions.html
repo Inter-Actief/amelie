@@ -1,0 +1,42 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans %}Direct debit for {{ person }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans %}Direct debit for {{ person }}{% endblocktrans %}</h2>
+        <div class="content">
+            {% if debt_collection_instructions %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                                <th class="align-right">{% trans 'Price' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for instruction in debt_collection_instructions.select_related %}
+                            <tr>
+                                <td>
+                                    {{ instruction.batch.execution_date }}
+                                </td>
+                                <td>
+                                    <a href="{{ instruction.get_absolute_url }}">
+                                        {{ instruction.description }}
+                                    </a>
+                                </td>
+                                <td class="align-right">{{ instruction.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="icon warning">{% trans "No direct debits have been found." %}</p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

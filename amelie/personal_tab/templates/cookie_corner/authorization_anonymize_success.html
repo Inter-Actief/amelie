@@ -1,0 +1,30 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Old mandates anonymized' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Old mandates anonymized' %}</h2>
+            <div class="content">
+                <p>
+                    {% trans 'The following mandates are anonymized and their paper version can be destroyed.' %}
+                </p>
+
+                <p>{% trans 'Number of mandates' %}: {{ authorizations|length }}</p>
+
+                <ul>
+                    {% for authorization in authorizations %}
+                        <li>
+                            <a href="{{ authorization.get_absolute_url }}"
+                                class="icon {% if authorization.is_signed and not authorization.end_date %}icon-tick{% else %}icon-cross{% endif %}">
+                                {{ authorization.authorization_reference }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

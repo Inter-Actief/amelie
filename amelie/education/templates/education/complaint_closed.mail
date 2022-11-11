@@ -1,0 +1,18 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans %}Complaint handled: {{ complaint_subject }}{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}
+{% if OC %}{% blocktrans %}Dear OC'er,{% endblocktrans %}
+
+{% blocktrans %}This complaint has been handled:{% endblocktrans %}{{ complaint_subject }}.
+{% else %}{% blocktrans %}Dear{% endblocktrans %} {{ complaint_complainant }},
+
+{% blocktrans %}A complaint that you have submitted has been handled.{% endblocktrans %}{{ complaint_subject }}.
+{% endif %}
+{% blocktrans %}Read more on: https://www.inter-actief.utwente.nl{{ url }}
+
+Kind regards,{% endblocktrans %}
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% endhtmlify %}{% endblock %}
+

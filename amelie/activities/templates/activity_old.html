@@ -1,0 +1,57 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Activities' %}{% endblock titel %}
+
+{% block content %}
+	<div class="col-xs-12"><div class="current">
+		<h2>{% trans 'Old events' %}</h2>
+
+		<div class="content">
+			<form class="big" action="{% url 'activities:activities_old' %}" method="GET">
+				{{ form }}
+
+				<div class="buttons">
+					<input type="submit" value="{% trans 'Search' %}" />
+				</div>
+			</form>
+		</div>
+	</div></div>
+
+	<div class="col-xs-12"><div class="current">
+		<h2>
+			{% blocktrans with amount=old_activities|length %}
+				Results ({{ amount }} activities)
+			{% endblocktrans %}
+		</h2> {# TODO: Deze template komt ook voor in activiteiten.html, samenvoegen? #}
+
+		<div class="content">
+            <div class="table-responsive">
+                <table class="table layout">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Activities' %}</th>
+                            <th>{% trans "Photos" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in old_activities %}
+                            <tr>
+                                <td>
+                                    <a href="{{ activity.get_calendar_url }}">
+                                        <span class="icon icon-calendar" title="{% trans 'iCal document with activity' %}"></span>
+                                    </a>
+
+                                    {{ activity.begin|date:"d-b (D)" }}
+                                </td>
+                                <td><a href="{{ activity.get_absolute_url }}" title="{{ activity.description|striptags|truncatewords:30}}">{{ activity.summary }}</a></td>
+                                <td>{% include "includes/activity_list_photos.html" %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+		</div>
+	</div></div>
+{% endblock content %}

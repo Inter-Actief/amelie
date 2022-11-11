@@ -1,0 +1,112 @@
+{% extends "basis.html" %}
+
+{% load i18n status_icon %}
+
+{% block titel %}{{ object }}{% endblock titel %}
+
+{% block head %}
+    <style type="text/css">
+        @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+        @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+        @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+        .icon-arrow_rotate_clockwise {
+            display: inline-block;
+            -webkit-animation:spin 4s linear infinite;
+            -moz-animation:spin 4s linear infinite;
+            animation:spin 4s linear infinite;
+        }
+
+        .status_icon {
+            display: inline-block;
+            top: 2px;
+            position: relative;
+            margin-right: 4px;
+        }
+    </style>
+    <script type="text/javascript">
+        // Set a timeout to refresh the status in one second.
+        $(document).ready(function() {
+            setTimeout(refreshStatus, 1000)
+        });
+
+        // Refresh the export status, update the page, then schedule another refresh if the export is not finished.
+        function refreshStatus(){
+            var url = "{% url 'data_export:export_ajax' slug=object.download_code %}";
+
+            $.ajax(url, {
+                cache: false,
+                success: function(data){
+                    for (var i = 0; i < data['applications'].length; i++) {
+                        var application = data['applications'][i];
+                        var application_status = $('#application_row_' + application['name'] + ' .application_status');
+
+                        if(application_status.length > 0 && application_status[0].innerHTML !== application['status_html']){
+                            application_status[0].innerHTML = application['status_html'];
+                        }
+                    }
+
+                    // If the export is not done, refresh again in a second.
+                    if(!data['done']){
+                        setTimeout(refreshStatus, 1000);
+                    }else {
+                        $('#download_details')[0].innerHTML = data['details_html'];
+                        $('#flavour_text')[0].innerHTML = "{% trans 'Download your finished data export here.' %}";
+                        console.log("Stopping status updates because the export is completed.")
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    console.log("Error " + xhr.status + " while getting status update.");
+                    if(xhr.status !== 404){
+                        // Try again a bit later...
+                        console.log("Trying again in 10 seconds.");
+                        setTimeout(refreshStatus, 10000);
+                    }else{
+                        console.log("Stopping status updates.");
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>{{ object }}</h2>
+
+		<div class="content">
+            {% if object.is_ready %}
+                <p id="flavour_text">{% trans 'Download your finished data export here.' %}</p>
+            {% else %}
+                <p id="flavour_text">{% trans 'Your data export is not finished yet! Please check the status below.' %}</p>
+            {% endif %}
+
+            <b>{% trans 'Export status' %}</b>
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans 'Export type' %}</th>
+                        <th>{% trans 'Status' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in object.exported_applications.all %}
+                        <tr id="application_row_{{ application.application }}">
+                            <td>{{ application.get_application_display }}</td>
+                            <td class="application_status">{{ application|status_icon }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="2">{% trans 'You have not exported anything! Are you a wizard?' %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div id="download_details">
+                {% include 'data_export/dataexport_download_details.html' %}
+            </div>
+
+		</div>
+	</div></div>
+{% endblock content %}

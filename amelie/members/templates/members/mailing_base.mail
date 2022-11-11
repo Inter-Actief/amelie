@@ -1,0 +1,4 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load htmlify %}
+
+{% block content %}{% htmlify %}{% block plain_content %}{% endblock %}{% endhtmlify %}{% endblock %}

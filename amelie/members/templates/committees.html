@@ -1,0 +1,124 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'Committees' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 committees_title">
+        <div class="ia current">
+            <h2>{% trans 'Committees' %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Inter-<em>Actief</em> has a large number of committees which organize events.
+                        Every committee belongs to a specific category.
+                        For an overview of all committees, including inactive committees, see our
+                        <a href="https://media.ia.utwente.nl/amelie/data/uploads/2021/10/04/Committee_Booklet_21_22.pdf">committee booklet</a>.
+                        At the moment Inter-<em>Actief</em> has the following committees:
+                    {% endblocktrans %}
+                </p>
+                {% if request.is_board %}
+                    <div class="buttons ">
+                        <a href="{% url 'members:committee_new' %}"
+                           class="looks-like-a-button">{% trans 'Add committee' %}</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12">
+        <div class="row two-columns">
+            {% for category in categories %}
+                {% if category.name == 'Studie' %}
+                <div class="col-xs-12 committees_first">
+                {% else %}
+                <div class="col-xs-12">
+                {% endif %}
+                    {% if category.name == 'Activiteiten' or category.name == 'Studie' %}
+                    <div class="ia current committees_last">
+                    {% else %}
+                    <div class="ia current">
+                    {% endif %}
+
+                        <h2>{% trans category.name %}</h2>
+                        <div class="content">
+                            <ul class="no-bullets no-padding">
+                                {% for committee in category.committee_set.active %}
+                                    <li><a href="{{ committee.get_absolute_url }}">{{ committee }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if request.is_board %}
+        <div class="col-xs-12">
+            <div class="ia current">
+                <h2>{% trans 'Committees without category' %}</h2>
+
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                {% for committee in committees_without_category %}
+                                    <td>
+                                        <a href="{{ committee.get_absolute_url }}">{{ committee }}</a>
+                                    </td>
+
+                                    {% if forloop.counter|divisibleby:"5" %}
+                                        </tr>
+                                        <tr>
+                                    {% endif %}
+                                    {% empty %}
+                                    <td>
+                                        {% trans 'There are no committees without categories' %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="ia current">
+                <h2 class="expand" data-target="expand_disbanded">{% trans 'Disbanded committees' %}</h2>
+
+                <div class="content">
+                    <div class="table-responsive">
+                        <table id="expand_disbanded" class="table" hidden>
+                            <tbody>
+                            <tr>
+                                {% for committee in committees_abolished %}
+                                    <td class="committee">
+                                        <a href="{{ committee.get_absolute_url }}">{{ committee }}</a>
+                                    </td>
+
+                                    {% if forloop.counter|divisibleby:"5" %}
+                                        </tr>
+                                        <tr>
+                                    {% endif %}
+                                    {% empty %}
+                                    <td>
+                                        {% trans 'There are no committees which have been disbanded.' %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock content %}

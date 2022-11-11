@@ -1,0 +1,61 @@
+{% extends "basis.html" %}
+{% load i18n blame_tags %}
+
+{% block titel %}
+    {% trans 'Blame' %} - {% blocktrans with modelname=modelname objectname=objectname %}Log for {{ modelname }} {{ objectname }}{% endblocktrans %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans with modelname=modelname objectname=objectname %}Log for {{ modelname }} {{ objectname }}{% endblocktrans %}</h2>
+
+        <div class="content">
+            <p>
+                <a href="{% url 'blame:overview' %}" class="looks-like-a-button">{% trans 'Blame overview' %}</a>
+                <a href="{% url 'blame:model_overview' content_type=content_type_id %}" class="looks-like-a-button">{% trans 'Model overview' %}</a>
+            </p>
+
+            {% include "paginator.html" with page=page_obj %}
+
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th colspan="2">{% trans 'Object' %}</th>
+                        <th>{% trans 'Action' %}</th>
+                        <th>{% trans 'Timestamp' %}</th>
+                        <th>{% trans 'Changes' %}</th>
+                        <th>{% trans 'Changed by' %}</th>
+                    </tr>
+                    {% for obj in page_obj %}
+                        <tr>
+                            <td>
+                                {% if obj|get_url != "" %}
+                                <a class="icon icon-link" title="{% trans 'Detail page of this object' %}" href="{{ obj|get_url }}"></a>
+                                {% else %}
+                                    <p class="icon icon-link_break" title="{% trans 'No detail page found for this object' %}"></p>
+                                {% endif %}
+                            </td>
+                            <td><a href="{% url "blame:object_detail" obj.pk %}" title="{% trans 'Details of this change' %}">{{ obj|actual }}</a></td>
+                            <td>{{ obj|action_string }}</td>
+                            <td>{{ obj.timestamp }}</td>
+                            <td>{{ obj|changes_list|safe }}</td>
+                            {% if not obj.remote_addr %}
+                                <td><a class="icon person" href="#">{% trans 'System' %}</a></td>
+                            {% elif not obj.actor %}
+                                <td><a class="icon person" href="#">{% trans 'Anonymous' %}</a></td>
+                            {% else %}
+                                <td><a class="icon person" href="{{ obj.actor.person.get_absolute_url }}">{{ obj.actor.person }}</a></td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">{% trans "No changes recorded" %}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            {% include "paginator.html" with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

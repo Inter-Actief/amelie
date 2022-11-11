@@ -1,0 +1,83 @@
+{% load i18n %}
+
+{% if obj.mandate_set.count == 0 %}
+    <p>
+        {% blocktrans %}
+            {{ obj }} does not have a mandate.
+        {% endblocktrans %}
+
+        <a href="{% url 'members:person_mandate_new' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+            {% trans 'Add mandate' %}
+        </a>
+    </p>
+{% else %}
+    <div class="table-responsive">
+        <table class="table person_table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Reference' %}</th>
+                    <th>{% trans 'Sort' %}</th>
+                    <th>{% trans 'IBAN/BIC' %}</th>
+                    <th>{% trans 'Account holder' %}</th>
+                    <th>{% trans 'Signed' %}</th>
+                    <th>{% trans 'Starts on' %}</th>
+                    <th>{% trans 'Ends on' %}</th>
+                    {% if request.is_board %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for mandate in obj.authorization_set.all %}
+                    <tr>
+                        <td>
+                            <a href="{{ mandate.get_absolute_url }}"
+                                class="icon {% if mandate.is_signed and not mandate.end_date %}icon-tick{% else %}icon-cross{% endif %}">
+                                {{ mandate.authorization_reference }}
+                            </a>
+                        </td>
+                        <td>
+                            <div title="{{ mandate.authorization_type.name }}" style="width: 100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ mandate.authorization_type.name }}</div>
+                        </td>
+                        <td>
+                            <b>{{ mandate.iban }}</b> <br />
+                            <font style="font-size:0.7em">{{ mandate.bic }}</font>
+                        </td>
+                        <td>
+                            {{ mandate.account_holder_name }}
+                        </td>
+                        <td>
+                            {{ mandate.is_signed|yesno }}
+                        </td>
+                        <td>
+                            {% if mandate.start_date == date_old_mandates %}
+                                <i>{% blocktrans %}before September 2013{% endblocktrans %}</i>
+                            {% else %}
+                                {{ mandate.start_date|default_if_none:"&mdash;" }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ mandate.end_date|default_if_none:"&mdash;" }}
+                        </td>
+                        {%  if request.is_board %}
+                        <td>
+                            {% if not mandate.is_signed and not mandate.end_date %}
+                                <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'print' %}</a><br />
+                                <a href="{% url 'members:person_mandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate' %}</a><br />
+                            {% endif %}
+                            <a href="{% url 'members:person_mandate_end' obj.id mandate.id %}" class="icon icon-cancel js-load-block" data-container="person_mandate">
+                                {% trans 'Stop ' %}
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="buttons">
+        <a href="{% url 'members:person_mandate_new' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+            {% trans 'Add mandate' %}
+        </a>
+    </div>
+{% endif %}
+

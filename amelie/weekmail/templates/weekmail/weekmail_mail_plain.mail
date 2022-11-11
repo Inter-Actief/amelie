@@ -1,0 +1,39 @@
+{% load extend i18n %}{% trans "Dear" %} {{ recipient.voornaam }},
+
+{% trans "Summary of upcoming activities:" %}
+{% for activity in weekmail.new_activities.all %}  * {{ activity.begin }}, {{ activity.summary }}
+{% endfor %}
+# {% trans "News messages" %}
+{% for news_article in weekmail.added_news_articles.all %}-- {{ news_article.title }}
+{{ news_article.content }}
+
+{% endfor %}
+{% for news_article in weekmail.news_articles.all %}-- {{ news_article.title }}
+{{ news_article.introduction }}
+{{ news_article.content }}
+
+{% endfor %}
+# {% trans "Activities" %}
+{% for activity in weekmail.new_activities.all %}-- {{ activity.summary }}
+-- {{ activity.begin }}, {{ activity.location }}
+{% if activity.promo|length > 64 %}
+{{ activity.promo }}
+{% else %}
+{{ activity.description }}
+{% endif %}
+
+{% endfor %}
+{% trans "Kind regards," %}
+
+
+{{ weekmail.writer}}
+{% blocktrans %}--
+I.C.T.S.V. Inter-/Actief/
+P.O. Box 217
+7500 AE Enschede
+E: secretaris@inter-actief.net
+T: 053-489 3756
+https://www.inter-actief.net
+{% endblocktrans %}
+
+{% trans "You are receiving this e-mail because you have indicated you wanted it. Change your preference in your profile on the Inter-Actief website or contact the board." %}

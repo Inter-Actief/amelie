@@ -1,0 +1,16 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans %}Inter-Actief data export completed{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans %}You are receiving this e-mail because you recently requested a data export of the personal data that Inter-Actief has about you.{% endblocktrans %}
+
+{% blocktrans %}This data export is now complete and can be downloaded from our website. For security reasons the download will only be available for 24 hours, after which it will be deleted from our server. You can download the export from the following URL:{% endblocktrans %}
+
+{% onlyhtml %}<a href="{{ base_url }}{{ data_export.get_absolute_url }}">{% endonlyhtml %}{{ base_url }}{{ data_export.get_absolute_url }}{% onlyhtml %}</a>{% endonlyhtml %}
+
+{% blocktrans %}Did you not request this data export yourself? Please contact the board as soon as possible via{% endblocktrans %} {% onlyhtml %}<a href="mailto:board@inter-actief.net">{% endonlyhtml %}{% trans 'board@inter-actief.net' %}{% onlyhtml %}</a>{% endonlyhtml %}
+
+{% blocktrans %}Kind regards,{% endblocktrans %}
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% endhtmlify %}{% endblock %}

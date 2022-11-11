@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<table class="table oauth_permission_table">
+    <thead>
+        <tr>
+            <th>{% trans 'App' %}</th>
+            <th>{% trans 'Ending on' %}</th>
+            <th>{% trans 'Access' %}</th>
+            <th>{% trans 'Delete' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for token in user.accesstoken_set.all %}
+        <tr>
+            <td>{{ token.application.name }}</td>
+            <td>{{ token.expires|date:"j b Y" }}</td>
+            <td>{{ token.scope }}</td>
+            <td><a href="{% url 'revoke-token' token.id %}"> {% trans 'delete' %}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

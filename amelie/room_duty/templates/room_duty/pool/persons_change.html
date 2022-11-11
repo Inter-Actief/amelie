@@ -1,0 +1,58 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% blocktrans %}Edit office duty pool {{ pool }}{% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <div class="ia">
+        <h2>
+            {{ pool }}
+        </h2>
+        <div class="content">
+            <ul>
+                {% for person in pool.persons %}
+                    <li>
+                        {{ person }}
+                        <form method="post" class="inline" action="{% url 'room_duty:pool_delete_person' pool.pk person.pk %}">
+                            {% csrf_token %}
+                            <input type="submit" value="{% trans 'Delete' %}">
+                        </form>
+                    </li>
+                {% empty %}
+                    <li>{% blocktrans %}{{ pool }} <em>does not contain any people</em>{% endblocktrans %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="ia">
+        <h2>{% trans 'Add persons' %}</h2>
+        <div class="content">
+            <form method="get">
+                {{ search_form }}
+                <input type="submit" style="display:none">
+            </form>
+            {% if persons != None %}
+                <p>
+                    {% blocktrans %}People found:{% endblocktrans %}
+                </p>
+                <ul>
+                    {% for person in persons %}
+                        <li>
+                            {{ person }}
+                            <form class="inline" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="person_id" value="{{ person.pk }}">
+                                <input type="submit" value="{% trans 'Add' %}">
+                            </form>
+                        </li>
+                    {% empty %}
+                        <li><em>{% blocktrans %}Found nobody.{% endblocktrans %}</em></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

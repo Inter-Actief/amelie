@@ -1,0 +1,12 @@
+{% load i18n %}
+{% blocktrans %}Dear{% endblocktrans %} {{person.first_name}},<br><br>
+
+{% blocktrans %}In order to keep the member database of Inter-<i>Actief</i> up to date, we would like to ask you to check your data with us.{% endblocktrans %}<br>
+{% blocktrans %}Below is your data. Are these no longer correct? You can update most of them on{% endblocktrans %} <a href="https://www.inter-actief.utwente.nl/profile/edit">https://www.inter-actief.utwente.nl/profile/edit</a>.<br>
+{% blocktrans %}Is anything else incorrect which you can't edit yourself? Then please mail the secretary or the entire board.{% endblocktrans %}<br><br>
+
+{% include "members/datablock_html.mail" %}
+<br><br>
+
+{% blocktrans %}Kind regards,{% endblocktrans %}<br><br>
+{% blocktrans %}The board of{% endblocktrans %} Inter-<i>Actief</i>

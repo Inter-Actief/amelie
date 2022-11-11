@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Confirmation' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Confirmation' %}</h2>
+        <div class="content">
+            <p>
+            {% blocktrans with group=group|clau_link member=member|clau_link %}
+                Do you want to add {{ member }} to {{ group }}?
+            {% endblocktrans %}
+            </p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <p>
+                    <input type="submit" name="yes" value="{% trans 'Yes' %}"/>
+                    <input type="submit" name="no" value="{% trans 'No' %}"/>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}

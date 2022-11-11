@@ -1,0 +1,88 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% trans 'GMM documents' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-3 sticky-list">
+        <div class="ia">
+            <h2>{% trans 'GMM archive' %}</h2>
+            <div class="content">
+                <ul class="no-bullets no-padding">
+                    {% for gmm in gmms_without_date %}
+                        <li><a class="scroll-to" data-scroll-to-padding="15"
+                               href="#unknown{{ forloop.counter }}">{% trans 'Upcoming GMM' %}</a></li>
+                    {% endfor %}
+                    {% for gmm in gmms %}
+                        <li><a class="scroll-to" data-scroll-to-padding="15"
+                               href="#{{ gmm.date|date:"dmY" }}">{{ gmm.date }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-md-9">
+        <div class="ia">
+            <h2>{% trans 'GMM documents' %}</h2>
+
+            <div class="content">
+                <p>{% trans "For a General Members Meeting there are almost always different documents available to offer everyone the opportunity to prepare themselves. On this page the documents for the differetn GMMs are available for download." %} </p>
+            </div>
+        </div>
+
+        <div class="ia">
+            <h2>{% trans 'Articles of Association, Rules and Regulations and other documents' %}</h2>
+
+            <div class="content">
+                <p>{% trans 'For formal association documents, only the Dutch version is legally binding.' %}</p>
+                <ol>
+                    <li>
+                        By-laws (<a href="/documenten/alv/statuten.pdf">Dutch</a> / <a href="/documenten/alv/By_laws.pdf">English</a>)
+                    </li>
+                    <li>
+                        House Regulations (HR),
+                        last modified on the GMM of 23 June 2022 (<a href="/documenten/alv/HR/2022-06-23_Huishoudelijk_Reglement.pdf">Dutch</a> /
+                        <a href="/documenten/alv/HR/2022-06-23_Huishoudelijk_Reglement_Engels.pdf">English</a>)
+                    </li>
+                    <li>
+                        Declaration Policy as accepted on 5 September 2017 (<a href="/documenten/alv/DeclarationPolicy/2017-09-05_Declaratiebeleid.pdf">Dutch</a> /
+                        <a href="/documenten/alv/DeclarationPolicy/2017-09-05_Declaration_Policy_English.pdf">English</a>)
+                    </li>
+                    <li>
+                        Explainer "What is a GMM?" (<a href="/documenten/alv/What%20is%20a%20GMM%20%5BHuisstijl%5D.pdf">English</a>)
+                    </li>
+                    <li>
+                        Reading guide by-laws and HR (<a href="/documenten/alv/Leeswijzer_Statuten_en_HR.pdf">Dutch</a> /
+                        <a href="/documenten/alv/Reading_guide_by-laws_and_HR.pdf">English</a>)
+                    </li>
+                    <li>
+                        Reading guide financial report (<a href="/documenten/alv/leeswijzer_financieel_verslag.pdf">Dutch</a> / <a href="/documenten/alv/reading_guide_financials.pdf">English</a>)
+                    </li>
+                </ol>
+            </div>
+        </div>
+        {% for gmm in gmms_without_date %}
+            <div class="ia">
+                <h2><a name="unknown{{ forloop.counter }}"
+                       id="unknown{{ forloop.counter }}">{% trans 'Documents for upcoming GMM' %}
+                    <i>{% trans '(date yet unknown)' %}</i></a></h2>
+                <div class="content">
+                    {{ gmm.agenda|safe }}
+                </div>
+            </div>
+        {% endfor %}
+        {% for gmm in gmms %}
+            <div class="ia">
+                <h2><a name="{{ gmm.date|date:"dmY"}}" id="{{ gmm.date }}">
+                    {% blocktrans with date=gmm.date %}Document for GMM of {{ date }}{% endblocktrans %}
+                </a></h2>
+                <div class="content">
+                    {{ gmm.agenda|safe }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}

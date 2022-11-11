@@ -1,0 +1,15 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify %}
+
+{% block subject %}{% blocktrans %}[DEA-nomination] Nomination for the educational award{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,
+
+{{ author }} has voted for the educational award!
+
+The email address of the nominator is {{ email }}.
+He nominated for {{ teacher }}.
+His/her reason is: "{{ reason }}".
+
+Cheers,
+Amélie{% endblocktrans %}{% endhtmlify %}{% endblock %}
