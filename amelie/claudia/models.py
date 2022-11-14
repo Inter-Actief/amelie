@@ -37,6 +37,16 @@ class ExtraGroup(models.Model, Mappable):
                 'If an email address for an extra group is set, then it may only point to an Inter-Actief server.'
             )})
 
+        # Check if the email address is already in use!
+        if self.email and Mapping.objects.exists(email=self.email):
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
+                email=self.email).name == self.name:
+                raise ValidationError({'email': _(
+                    'This email address is already in use by another mapping!'
+                )})
+
     def is_active(self):
         """Is the group active?"""
         return self.active
@@ -133,6 +143,16 @@ class ExtraPerson(models.Model, Mappable):
                 'If an extra person has an email than the email address may only point to an Inter-Actief server.'
             )})
 
+        # Check if the email address is already in use!
+        if self.email and Mapping.objects.exists(email=self.email):
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
+                email=self.email).name == self.name:
+                raise ValidationError({'email': _(
+                    'This email address is already in use by another mapping!'
+                )})
+
     def __str__(self):
         return self.name
 
@@ -170,6 +190,16 @@ class AliasGroup(models.Model, Mappable):
                 'An alias group may only point to an Inter-Actief server.'
             )})
 
+        # Check if the email address is already in use!
+        if self.email and Mapping.objects.exists(email=self.email):
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
+                email=self.email).name == self.name:
+                raise ValidationError({'email': _(
+                    'This email address is already in use by another mapping!'
+                )})
+
     def __str__(self):
         return self.name
 
@@ -193,6 +223,16 @@ class Contact(models.Model, Mappable):
     def clean(self):
         if self.email and any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
             raise ValidationError({'email': _('A contact address is not to point to an Inter-Actief server.')})
+
+        # Check if the email address is already in use!
+        if self.email and Mapping.objects.exists(email=self.email):
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
+                email=self.email).name == self.name:
+                raise ValidationError({'email': _(
+                    'This email address is already in use by another mapping!'
+                )})
 
     def is_active(self):
         return self.active
