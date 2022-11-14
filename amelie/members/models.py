@@ -148,6 +148,13 @@ class DogroupGeneration(models.Model, Mappable):
     def __str__(self):
         return '%s %s' % (self.dogroup, self.generation)
 
+    def clean(self):
+        super(DogroupGeneration, self).clean()
+        if not any(self.mail_alias.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'The mail alias for a dogroup generation may only point to an Inter-Actief server.'
+            )})
+
     # ===== Methods for Claudia-mapping =====
     def get_name(self):
         """Get the full name of the do-group generation"""
@@ -907,6 +914,13 @@ class Committee(models.Model, Mappable):
 
     def __str__(self):
         return '%s' % self.name
+
+    def clean(self):
+        super(Committee, self).clean()
+        if not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'The email address for a committee may only point to an Inter-Actief server.'
+            )})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.__str__())

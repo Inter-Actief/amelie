@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.core.validators import EmailValidator
 from django.db import models
@@ -28,6 +29,13 @@ class ExtraGroup(models.Model, Mappable):
     adname = models.CharField(max_length=50, blank=True)
     dogroup = models.BooleanField(default=False)
     description = models.TextField(blank=True)
+
+    def clean(self):
+        super(ExtraGroup, self).clean()
+        if self.email and not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'If an email address for an extra group is set, then it may only point to an Inter-Actief server.'
+            )})
 
     def is_active(self):
         """Is the group active?"""
@@ -118,6 +126,13 @@ class ExtraPerson(models.Model, Mappable):
     def get_absolute_url(self):
         return reverse('claudia:extraperson_view', args=(), kwargs={'pk': self.id, })
 
+    def clean(self):
+        super(ExtraPerson, self).clean()
+        if self.email and not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'If an extra person has an email than the email address may only point to an Inter-Actief server.'
+            )})
+
     def __str__(self):
         return self.name
 
@@ -129,7 +144,7 @@ class AliasGroup(models.Model, Mappable):
     """Group of mappings (and optionally e-mail addresses) that is reachable via one e-mail address"""
     name = models.CharField(max_length=100)
     active = models.BooleanField(default=False)
-    email = models.EmailField(blank=True, unique=True)
+    email = models.EmailField(unique=True, blank=True)
     description = models.TextField(blank=True)
     open_to_signup = models.BooleanField(default=False, verbose_name=_("Open to sign up for members"), help_text=_("Note: Description becomes public"))
 
@@ -147,6 +162,13 @@ class AliasGroup(models.Model, Mappable):
 
     def get_absolute_url(self):
         return reverse('claudia:aliasgroup_view', args=(), kwargs={'pk': self.id, })
+
+    def clean(self):
+        super(AliasGroup, self).clean()
+        if not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'An alias group may only point to an Inter-Actief server.'
+            )})
 
     def __str__(self):
         return self.name
@@ -167,6 +189,10 @@ class Contact(models.Model, Mappable):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.email and any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _('A contact address is not to point to an Inter-Actief server.')})
 
     def is_active(self):
         return self.active
