@@ -50,14 +50,14 @@
                                         {{ activity.begin|date:"d-b (D)" }}
                                     </td>
                                     <td>
-                                        <div class="activity-list-label d-none"
+                                        <div class="activity-list-label"
                                             style="background: #{{ activity.activity_label.color }};">
                                             <span class="activity-list-label-name">
                                                 {{ activity.activity_label.name }}
                                             </span>
                                         </div>
                                         <div class="activity-list-label-icon">
-                                            <img src="{{STATIC_URL}}img/icons/{{ activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}">
+                                            <img src="{{STATIC_URL}}img/icons/{{ activity.activity_label.icon }}.png" alt="{{ activity.activity_label.name }}">
                                         </div>
                                     </td>
                                     <td>
