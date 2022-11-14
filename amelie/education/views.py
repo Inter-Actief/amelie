@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.views.decorators.http import require_http_methods
+from django.views.generic import TemplateView
 
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.news.models import NewsItem
@@ -13,9 +14,10 @@ from amelie.members.models import Committee, Person
 from amelie.education import utils
 from amelie.education.forms import DEANominationForm, DEAVoteForm, ComplaintForm, ComplaintCommentForm, \
     EducationalBouquetForm, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm
-from amelie.education.models import Complaint, ComplaintComment, Page, Course, Category, EducationEvent
+from amelie.education.models import Complaint, ComplaintComment, Page, Course, Category, EducationEvent, Module
 from amelie.statistics.decorators import track_hits
 from amelie.tools.decorators import require_education, require_lid
+from amelie.tools.mixins import RequireMemberMixin
 from amelie.tools.paginator import RangedPaginator
 from amelie.about.models import Page as AboutPage
 
@@ -348,6 +350,20 @@ def complaint_edit(request, pk):
     is_new = False
 
     return render(request, 'complaint_new.html', locals())
+
+
+class ModuleView(RequireMemberMixin, TemplateView):
+    template_name = "module.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['obj'] = get_object_or_404(Module, course_code=kwargs['course_code'])
+        complaints = list(context['obj'].complaint_set.all())
+        for course in context['obj'].courses.all():
+            complaints.extend(course.complaint_set.all())
+        context['complaints'] = sorted(complaints, key=lambda x: x.id)
+
+        return context
 
 
 @require_lid
