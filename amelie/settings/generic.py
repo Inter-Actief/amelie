@@ -477,13 +477,14 @@ COOKIE_CORNER_BANK_CODES = {
 }
 
 # Celery task scheduler settings
-CELERY_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True  # If ALWAYS_EAGER, show the exceptions in the foreground
+CELERY_TASK_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
+CELERY_TASK_EAGER_PROPAGATES = True  # If ALWAYS_EAGER, show the exceptions in the foreground
 CELERY_SEND_TASK_ERROR_EMAILS = True  # Errors occurring during task execution will be sent to ADMINS by email
 CELERY_TASK_SERIALIZER = 'pickle'  # How to serialize the tasks
 CELERY_RESULT_BACKEND = 'django-db'  # Where to store the task results
 CELERY_RESULT_SERIALIZER = 'pickle'  # How to serialize the task results
 CELERY_ACCEPT_CONTENT = ['pickle']  # A list of content-types/serializers to allow
+CELERY_BROKER_URL = None  # URL to the RabbitMQ broker (used when ALWAYS_EAGER is False)
 
 
 # Connection settings for Alexia

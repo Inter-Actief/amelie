@@ -1,4 +1,4 @@
-# Based on https://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
+# Based on https://docs.celeryq.dev/en/master/django/first-steps-with-django.html
 from __future__ import absolute_import
 
 import os
@@ -14,5 +14,5 @@ app = Celery('amelie')
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
-app.config_from_object('django.conf:settings')
+app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

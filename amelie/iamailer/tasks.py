@@ -1,4 +1,4 @@
-from celery.task import task
+from celery import shared_task
 
 from amelie.iamailer.mailer import send_mails_from_template
 
@@ -7,7 +7,7 @@ from amelie.iamailer.mailer import send_mails_from_template
 # currently takes about 5 seconds per email (possibly due to a bug).
 # Kevin 2020-11-10: Time limit increased to 4 hours (14400 seconds). Sending to 1000 members using the SNT mailserver
 # costs 3 seconds per mail, plus 5 seconds delay per mail to avoid overloading.
-@task(time_limit=4 * 60 * 60)
+@shared_task(time_limit=4 * 60 * 60)
 def send_mails(mails, from_=None, template_name=None, template_string=None, report_to=None, report_language=None,
                report_always=True):
     """
