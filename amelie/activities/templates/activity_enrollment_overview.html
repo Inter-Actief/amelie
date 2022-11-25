@@ -41,7 +41,7 @@
 </div>
 
 {% if only_show_underage %}
-<p class="icon icon-error"><b>You are currently only viewing underage participants!</b></p>
+<p class="icon icon-error"><b>{% trans 'You are currently only viewing underage participants!' %}</b></p>
 {% endif %}
 
 <div class="table-responsive">
@@ -84,9 +84,9 @@
                         <td>
                             {% if request.is_board %}
                                 <a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
-                                {% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="This participant turns 18 during the activity!" />{% endif %}
+                                {% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
                             {% else %}
-                                {{ participation.person.incomplete_name }}{% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="This participant turns 18 during the activity!" />{% endif %}
+                                {{ participation.person.incomplete_name }}{% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
                             {% endif %}
                         </td>
                     {% else %}
