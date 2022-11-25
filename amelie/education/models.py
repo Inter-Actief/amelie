@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from amelie.iamailer.mailtask import MailTask
 from amelie.calendar.models import Event
+from amelie.activities.models import ActivityLabel
 from amelie.members.models import Person
 from amelie.education.managers import ComplaintCommentManager, EducationEventManager
 from amelie.tools.discord import send_discord
@@ -304,6 +305,10 @@ class EducationEvent(Event):
     objects = EducationEventManager()
 
     education_organizer = models.CharField(verbose_name="organiser", max_length=100, blank=True)
+
+    @property
+    def activity_label(self):
+        return ActivityLabel.objects.filter(name_en="Education").first()
 
     @property
     def activity_type(self):
