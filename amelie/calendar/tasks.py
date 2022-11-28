@@ -1,12 +1,12 @@
 import logging
 
 import requests
-from celery.task import task
+from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
 
-@task
+@shared_task
 def send_participation_callback(event_id, person_id, action):
 
     from amelie.calendar.models import Event
