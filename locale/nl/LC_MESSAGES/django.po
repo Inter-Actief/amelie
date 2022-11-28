@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-28 18:15+0100\n"
-"PO-Revision-Date: 2022-11-28 18:16+0020\n"
+"POT-Creation-Date: 2022-11-28 18:39+0100\n"
+"PO-Revision-Date: 2022-11-28 18:41+0020\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -522,7 +522,7 @@ msgstr ""
 "\n"
 "Als je deze nieuwe activiteit opslaat, zal deze direct worden aangekondigd op onze Discord-server en op ons IRC-kanaal. Kijk alsjeblieft nog een keer of alle details kloppen en dat je in ieder geval een korte samenvatting van de activiteit hebt ingevuld, en niet iets als <i>Meer informatie volgt...</i>."
 
-#: amelie/activities/templates/activities/activity_form.html:99 amelie/activities/templates/activities/enrollmentoption_form.html:35 amelie/activities/templates/activities/eventdesk/match.html:86 amelie/claudia/templates/accounts/mailing_alias.html:21 amelie/claudia/templates/claudia/aliasgroup_form.html:18 amelie/claudia/templates/claudia/contact_form.html:18 amelie/claudia/templates/claudia/extragroup_form.html:18 amelie/claudia/templates/claudia/extraperson_form.html:18 amelie/claudia/templates/claudia/extrapersonalalias_form.html:18 amelie/claudia/templates/claudia/shareddrive_form.html:18 amelie/companies/templates/companies/company_event_form.html:107 amelie/education/templates/complaint_new.html:133 amelie/education/templates/course_new.html:41 amelie/education/templates/education_event_form.html:70 amelie/members/templates/committee_edit_data.html:11 amelie/members/templates/committee_edit_members.html:76 amelie/members/templates/committee_edit_single_member.html:69 amelie/members/templates/person_edit_data.html:20 amelie/members/templates/person_edit_employee.html:16 amelie/members/templates/person_edit_functions.html:60 amelie/members/templates/person_edit_preferences.html:20 amelie/members/templates/person_edit_study.html:51 amelie/members/templates/person_end_mandate.html:14 amelie/members/templates/person_end_membership.html:19 amelie/personal_tab/templates/cookie_corner_authorization_amendment.html:20 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_reversal.html:19 amelie/personal_tab/templates/cookie_corner_debt_collection_new.html:23 amelie/personal_tab/templates/cookie_corner_process_batch.html:37 amelie/room_duty/templates/room_duty/balcony_duty/balcony_duty.html:60 amelie/room_duty/templates/room_duty/pool/form.html:18 amelie/room_duty/templates/room_duty/table/change.html:15 amelie/room_duty/templates/room_duty/table/change.html:26 amelie/room_duty/templates/room_duty/table/fill.html:56 amelie/room_duty/templates/room_duty/table/form.html:57 amelie/room_duty/templates/room_duty/table/overview.html:148 amelie/room_duty/templates/room_duty/table/room_duty_add.html:15 amelie/room_duty/templates/room_duty/template/add.html:18 amelie/room_duty/templates/room_duty/template/change.html:15 amelie/room_duty/templates/room_duty/template/change.html:26 amelie/room_duty/templates/room_duty/template/room_duty_add.html:15 templates/profile_edit.html:96 templates/profile_edit.html:104
+#: amelie/activities/templates/activities/activity_form.html:99 amelie/activities/templates/activities/enrollmentoption_form.html:35 amelie/activities/templates/activities/eventdesk/match.html:86 amelie/claudia/templates/accounts/mailing_alias.html:21 amelie/claudia/templates/claudia/aliasgroup_form.html:18 amelie/claudia/templates/claudia/contact_form.html:18 amelie/claudia/templates/claudia/extragroup_form.html:18 amelie/claudia/templates/claudia/extraperson_form.html:18 amelie/claudia/templates/claudia/extrapersonalalias_form.html:18 amelie/claudia/templates/claudia/shareddrive_form.html:18 amelie/companies/templates/companies/company_event_form.html:107 amelie/education/templates/complaint_new.html:132 amelie/education/templates/course_new.html:41 amelie/education/templates/education_event_form.html:70 amelie/education/templates/module_new.html:34 amelie/members/templates/committee_edit_data.html:11 amelie/members/templates/committee_edit_members.html:76 amelie/members/templates/committee_edit_single_member.html:69 amelie/members/templates/person_edit_data.html:20 amelie/members/templates/person_edit_employee.html:16 amelie/members/templates/person_edit_functions.html:60 amelie/members/templates/person_edit_preferences.html:20 amelie/members/templates/person_edit_study.html:51 amelie/members/templates/person_end_mandate.html:14 amelie/members/templates/person_end_membership.html:19 amelie/personal_tab/templates/cookie_corner_authorization_amendment.html:20 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_reversal.html:19 amelie/personal_tab/templates/cookie_corner_debt_collection_new.html:23 amelie/personal_tab/templates/cookie_corner_process_batch.html:37 amelie/room_duty/templates/room_duty/balcony_duty/balcony_duty.html:60 amelie/room_duty/templates/room_duty/pool/form.html:18 amelie/room_duty/templates/room_duty/table/change.html:15 amelie/room_duty/templates/room_duty/table/change.html:26 amelie/room_duty/templates/room_duty/table/fill.html:56 amelie/room_duty/templates/room_duty/table/form.html:57 amelie/room_duty/templates/room_duty/table/overview.html:148 amelie/room_duty/templates/room_duty/table/room_duty_add.html:15 amelie/room_duty/templates/room_duty/template/add.html:18 amelie/room_duty/templates/room_duty/template/change.html:15 amelie/room_duty/templates/room_duty/template/change.html:26 amelie/room_duty/templates/room_duty/template/room_duty_add.html:15 templates/profile_edit.html:96 templates/profile_edit.html:104
 msgid "Save"
 msgstr "Opslaan"
 
@@ -2690,7 +2690,7 @@ msgstr "Emaildetails:"
 msgid "The e-mail address %(email)s is used by the following mappings:"
 msgstr "Het e-mailadres %(email)s wordt gebruikt door de volgende mappings:"
 
-#: amelie/claudia/templates/claudia/email_detail.html:15 amelie/claudia/templates/claudia/mapping_list.html:50 amelie/claudia/templates/claudia/mapping_timeline.html:20 amelie/claudia/templates/claudia/timeline_list.html:19 amelie/education/templates/course_new.html:29 amelie/members/forms.py:226 amelie/members/models.py:59 amelie/members/models.py:84 amelie/members/models.py:789 amelie/personal_tab/forms.py:116
+#: amelie/claudia/templates/claudia/email_detail.html:15 amelie/claudia/templates/claudia/mapping_list.html:50 amelie/claudia/templates/claudia/mapping_timeline.html:20 amelie/claudia/templates/claudia/timeline_list.html:19 amelie/members/forms.py:226 amelie/members/models.py:59 amelie/members/models.py:84 amelie/members/models.py:789 amelie/personal_tab/forms.py:116
 msgid "Type"
 msgstr "Type"
 
@@ -3659,11 +3659,16 @@ msgstr "Auteur"
 msgid "You've already voted!"
 msgstr "Je hebt al gestemd!"
 
-#: amelie/education/forms.py:181
+#: amelie/education/forms.py:181 amelie/education/templates/course_new.html:22
 msgid "Course name"
 msgstr "Vaknaam"
 
-#: amelie/education/forms.py:193
+#: amelie/education/forms.py:193 amelie/education/templates/module_new.html:22
+#| msgid "Course name"
+msgid "Module name"
+msgstr "Modulenaam"
+
+#: amelie/education/forms.py:205
 msgid "Name of course"
 msgstr "Naam vak"
 
@@ -3723,12 +3728,11 @@ msgstr "Begin van vakken inschrijven kan niet na het einde voorkomen of gelijk z
 msgid "Start of the term for ordering books may not be after or simultaneous to the end of this term."
 msgstr "Begin boeken bestellen kan niet na het einde voorkomen of gelijk zijn aan het einde."
 
-#: amelie/education/models.py:178 amelie/education/templates/course_new.html:36
+#: amelie/education/models.py:178 amelie/education/templates/course_new.html:29
 msgid "Course code"
 msgstr "Vakcode"
 
 #: amelie/education/models.py:207
-#| msgid "Module"
 msgid "Modules"
 msgstr "Modules"
 
@@ -3801,7 +3805,6 @@ msgid "Handled"
 msgstr "Afgehandeld"
 
 #: amelie/education/models.py:261
-#| msgid "Course or Module"
 msgid "Course or module"
 msgstr "Vak of Module"
 
@@ -3809,7 +3812,7 @@ msgstr "Vak of Module"
 msgid "Term"
 msgstr "Periode"
 
-#: amelie/education/models.py:268 amelie/education/models.py:285 amelie/education/templates/complaint.html:4 amelie/education/templates/complaint.html:9 amelie/education/templates/complaint_new.html:72 amelie/education/templates/complaints.html:165
+#: amelie/education/models.py:268 amelie/education/models.py:285 amelie/education/templates/complaint.html:4 amelie/education/templates/complaint.html:9 amelie/education/templates/complaint_new.html:71 amelie/education/templates/complaints.html:165
 msgid "Complaint"
 msgstr "Klacht"
 
@@ -4002,29 +4005,31 @@ msgstr "Vak of Module"
 msgid "If it concerns a course or module, you can select it here"
 msgstr "Als het om een vak of module gaat, kun je die hier uitzoeken"
 
-#: amelie/education/templates/complaint_new.html:53
+#: amelie/education/templates/complaint_new.html:54
 #, python-format
+#| msgid ""
+#| "\n"
+#| "                        There is a chance that the course you are looking for does not yet exist.\n"
+#| "\n"
+#| "                        <a href=\"%(new_course_url)s\"> If so, please create a new course.</a>.\n"
+#| "                    "
 msgid ""
 "\n"
-"                        There is a chance that the course you are looking for does not yet exist.\n"
-"\n"
-"                        <a href=\"%(new_course_url)s\"> If so, please create a new course.</a>.\n"
+"                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
 "                    "
 msgstr ""
 "\n"
-"Het kan zijn dat het vak dat je zoekt nog niet bestaat.\n"
-"\n"
-"<a href=\"%(new_course_url)s\">Maak het vak dan even aan</a>."
+"Het kan zijn dat het vak dat je zoekt nog niet bestaat. Als dat  zo is, maak dan a.u.b. een <a href=\"%(new_course_url)s\">nieuw vak</a> of een <a href=\"%(new_module_url)s\">nieuwe module</a> aan."
 
-#: amelie/education/templates/complaint_new.html:60
+#: amelie/education/templates/complaint_new.html:59
 msgid "Academic year and period of the course:"
 msgstr "Studiejaar en periode van het vak:"
 
-#: amelie/education/templates/complaint_new.html:66
+#: amelie/education/templates/complaint_new.html:65
 msgid "Year in which the academic year began"
 msgstr "Jaar waarin het studiejaar begon"
 
-#: amelie/education/templates/complaint_new.html:76
+#: amelie/education/templates/complaint_new.html:75
 msgid ""
 "\n"
 "                        Please state clearly your problem and the actions you have already taken to solve it\n"
@@ -4044,7 +4049,7 @@ msgstr ""
 "laat ook weten wat de datum van de toets of de deadline van de opdracht was.\n"
 "Geef gelieve je klacht in het Engels zodat andere studenten het (later) kunnen begrijpen. Mocht je dit liever in het Nederlands doen, dan is dat ook mogelijk."
 
-#: amelie/education/templates/complaint_new.html:88
+#: amelie/education/templates/complaint_new.html:87
 msgid ""
 "\n"
 "                        Please contact the teacher of the subject and/or the module coordinator about the issue before\n"
@@ -4057,35 +4062,35 @@ msgstr ""
 "\n"
 "Neem alsjeblieft eerst contact op met de docent van het vak en/of de modulecoördinator over dit probleem voordat je een klacht indient. Vaak kunnen klachten veel sneller en gemakkelijker opgelost worden door middel van direct contact dan via Inter-<i>Actief</i>. <b>Door hier een klacht in te dienen, geef je aan ons aan dat je dit probleem aan de orde hebt gesteld bij de docent of de modulecoördinator, en dat dit niet tot een acceptabele oplossing van het probleem heeft geleid.</b>"
 
-#: amelie/education/templates/complaint_new.html:113
+#: amelie/education/templates/complaint_new.html:112
 msgid "Complaint-preferences"
 msgstr "Klachtvoorkeuren"
 
-#: amelie/education/templates/complaint_new.html:117
+#: amelie/education/templates/complaint_new.html:116
 msgid "Lastly, we have three more questions for you"
 msgstr "Als laatste hebben we nog drie vragen"
 
-#: amelie/education/templates/complaint_new.html:120
+#: amelie/education/templates/complaint_new.html:119
 msgid "Include this complaint in the overview, so other members can see and support it"
 msgstr "Neem deze klacht op in het overzicht zodat andere leden deze kunnen zien en zich er bij aan kunnen sluiten"
 
-#: amelie/education/templates/complaint_new.html:120
+#: amelie/education/templates/complaint_new.html:119
 msgid "Your name will not be shown in the overview"
 msgstr "Jouw naam zal in de overzichten nergens worden gebruikt"
 
-#: amelie/education/templates/complaint_new.html:123
+#: amelie/education/templates/complaint_new.html:122
 msgid "Keep me updated by e-mail"
 msgstr "Mail mij als er feedback op wordt geplaatst"
 
-#: amelie/education/templates/complaint_new.html:126
+#: amelie/education/templates/complaint_new.html:125
 msgid "Handle my complaint anonymously (only the board can see who filed the complaint)"
 msgstr "Behandel mijn klacht anoniem (alleen bestuur kan zien van wie de klacht afkomt)"
 
-#: amelie/education/templates/complaint_new.html:129
+#: amelie/education/templates/complaint_new.html:128
 msgid "You can now hand in your complaint. Thank you!"
 msgstr "Je kunt de klacht nu indienen, bedankt!"
 
-#: amelie/education/templates/complaint_new.html:133
+#: amelie/education/templates/complaint_new.html:132
 msgid "Submit"
 msgstr "Indienen"
 
@@ -4147,9 +4152,10 @@ msgstr "Over dit vak zijn de volgende klachten binnengekomen"
 msgid "Add course"
 msgstr "Vak toevoegen"
 
-#: amelie/education/templates/course_new.html:22
-msgid "Course or Module name"
-msgstr "Vak- of modulenaam"
+#: amelie/education/templates/course_new.html:36
+#| msgid "Which data export this status belongs to"
+msgid "Module this course belongs to"
+msgstr "Module waar dit vak bij hoort"
 
 #: amelie/education/templates/dea_nomination.html:4
 msgid "Nomination for the Educational Award"
@@ -4496,9 +4502,18 @@ msgid "Previous bouquets"
 msgstr "Vorige bloemetjes"
 
 #: amelie/education/templates/module.html:12
-#| msgid "These complaints have been received concerning this course"
 msgid "These complaints have been received concerning this module"
 msgstr "Over deze module zijn de volgende klachten binnengekomen"
+
+#: amelie/education/templates/module_new.html:4 amelie/education/templates/module_new.html:10
+#| msgid "Add course"
+msgid "Add module"
+msgstr "Module toevoegen"
+
+#: amelie/education/templates/module_new.html:29
+#| msgid "Course code"
+msgid "Module course code"
+msgstr "Vakcode van de module"
 
 #: amelie/education/templates/overview.html:6 templates/basis.html:217
 msgid "Education"
@@ -11275,6 +11290,9 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid "Course or Module name"
+#~ msgstr "Vak- of modulenaam"
 
 #~ msgid "Course type"
 #~ msgstr "Vaktype"
