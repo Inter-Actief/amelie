@@ -182,11 +182,23 @@ class CourseForm(forms.ModelForm):
     course_code = forms.IntegerField(min_value=0, max_value=2147483647)
 
     class Meta:
-        model = BaseCourseModule
-        fields = ["name", 'course_code']
+        model = Course
+        fields = ["name", 'course_code', 'module_ptr']
 
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
+
+
+class ModuleForm(forms.ModelForm):
+    name = forms.CharField(max_length=200, label=_("Module name"))
+    course_code = forms.IntegerField(min_value=0, max_value=2147483647)
+
+    class Meta:
+        model = Module
+        fields = ["name", 'course_code']
+
+    def __init__(self, *args, **kwargs):
+        super(ModuleForm, self).__init__(*args, **kwargs)
 
 
 class SearchSummariesForm(forms.Form):

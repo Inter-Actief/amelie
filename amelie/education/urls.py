@@ -15,6 +15,7 @@ urlpatterns = [
     path('complaints/<int:pk>/edit/', views.complaint_edit, name='complaint_edit'),
     path('complaints/new/', views.complaint_new, name='complaint_new'),
     path('complaints/course/new/', views.course_new, name='course_new'),
+    path('complaints/module/new/', views.module_new, name='module_new'),
 
     path('bouquet/', views.educational_bouquet, name='bouquet'),
     # path('awards', views.dea_nomination, name='dea_nomination'),

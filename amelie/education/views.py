@@ -13,7 +13,7 @@ from amelie.news.models import NewsItem
 from amelie.members.models import Committee, Person
 from amelie.education import utils
 from amelie.education.forms import DEANominationForm, DEAVoteForm, ComplaintForm, ComplaintCommentForm, \
-    EducationalBouquetForm, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm
+    EducationalBouquetForm, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
 from amelie.education.models import Complaint, ComplaintComment, Page, Course, Category, EducationEvent, Module
 from amelie.statistics.decorators import track_hits
 from amelie.tools.decorators import require_education, require_lid
@@ -385,6 +385,20 @@ def course_new(request):
             return redirect("education:complaint_new")
 
     return render(request, "course_new.html", locals())
+
+
+@require_lid
+def module_new(request):
+    form = ModuleForm(initial=request.GET)
+
+    if request.method == "POST":
+        form = ModuleForm(request.POST)
+        if form.is_valid():
+            module_obj = form.save()
+            module_obj.save()
+            return redirect("education:complaint_new")
+
+    return render(request, "module_new.html", locals())
 
 
 def event(request, event_id):
