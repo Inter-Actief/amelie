@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-25 13:37+0100\n"
-"PO-Revision-Date: 2022-11-25 13:38+0020\n"
-"Last-Translator:   <>\n"
+"POT-Creation-Date: 2022-11-28 18:15+0100\n"
+"PO-Revision-Date: 2022-11-28 18:16+0020\n"
+"Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.8\n"
 
-#: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:56 amelie/activities/templates/activity_enrollment_overview.html:174 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:24 amelie/education/models.py:46 amelie/education/models.py:131 amelie/education/models.py:184 amelie/members/models.py:35 amelie/members/models.py:56 amelie/members/models.py:80 amelie/members/models.py:120 amelie/members/models.py:191 amelie/members/models.py:221 amelie/members/models.py:628 amelie/members/models.py:658 amelie/members/models.py:842 amelie/members/models.py:865 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
+#: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:56 amelie/activities/templates/activity_enrollment_overview.html:174 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:24 amelie/education/models.py:46 amelie/education/models.py:131 amelie/education/models.py:177 amelie/members/models.py:35 amelie/members/models.py:56 amelie/members/models.py:80 amelie/members/models.py:120 amelie/members/models.py:191 amelie/members/models.py:221 amelie/members/models.py:628 amelie/members/models.py:658 amelie/members/models.py:842 amelie/members/models.py:865 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
 msgid "Name"
 msgstr "Naam"
 
@@ -170,7 +170,7 @@ msgstr "Achternaam"
 msgid "Activities"
 msgstr "Activiteiten"
 
-#: amelie/activities/forms.py:243 amelie/calendar/models.py:110 amelie/education/models.py:232 amelie/education/models.py:260 amelie/education/templates/education_event_overview.html:18 amelie/oauth/forms.py:11 amelie/videos/models.py:19
+#: amelie/activities/forms.py:243 amelie/calendar/models.py:110 amelie/education/models.py:256 amelie/education/models.py:284 amelie/education/templates/education_event_overview.html:18 amelie/oauth/forms.py:11 amelie/videos/models.py:19
 msgid "Public"
 msgstr "Publiek"
 
@@ -743,7 +743,7 @@ msgstr "Van"
 msgid "To"
 msgstr "Naar"
 
-#: amelie/activities/templates/activities/eventdesk/detail.html:93 amelie/education/forms.py:52 amelie/education/forms.py:53 amelie/education/models.py:226 amelie/education/models.py:238
+#: amelie/activities/templates/activities/eventdesk/detail.html:93 amelie/education/forms.py:53 amelie/education/forms.py:54 amelie/education/models.py:250 amelie/education/models.py:262
 msgid "Subject"
 msgstr "Onderwerp"
 
@@ -1256,17 +1256,14 @@ msgid "Number of confirmed participants"
 msgstr "Aantal bevestigde deelnemers: "
 
 #: amelie/activities/templates/activity_enrollment_overview.html:35
-#| msgid "No participants"
 msgid "Show all participants"
 msgstr "Laat alle deelnemers zien"
 
 #: amelie/activities/templates/activity_enrollment_overview.html:37
-#| msgid "Change participants"
 msgid "Only show underage participants"
 msgstr "Laat alleen minderjarige deelnemers zien"
 
 #: amelie/activities/templates/activity_enrollment_overview.html:44
-#| msgid "Change participants"
 msgid "You are currently only viewing underage participants!"
 msgstr "Je bekijkt nu alleen minderjarige deelnemers!"
 
@@ -2150,11 +2147,11 @@ msgstr "Contant bij bestuur/commissie"
 msgid "Mandate"
 msgstr "Machtiging"
 
-#: amelie/calendar/models.py:26 amelie/data_export/models.py:31 amelie/education/models.py:263 amelie/members/forms.py:292 amelie/members/models.py:676 amelie/members/models.py:727 amelie/members/models.py:1013 amelie/members/templates/committee_edit_members.html:33 amelie/members/templates/committee_edit_single_member.html:28 amelie/personal_tab/forms.py:114 amelie/personal_tab/forms.py:168 amelie/personal_tab/models.py:123 amelie/personal_tab/models.py:371 amelie/personal_tab/templates/cookie_corner_authorization_view.html:21 amelie/personal_tab/templates/cookie_corner_balance.html:35 amelie/personal_tab/templates/cookie_corner_balance.html:63 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:23 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:91 amelie/personal_tab/templates/cookie_corner_process_batch.html:48 amelie/personal_tab/templates/cookie_corner_statistics.html:325 amelie/personal_tab/templates/info/transaction_information.html:39 amelie/personal_tab/templates/lists/activity_transactions.html:10 amelie/personal_tab/templates/lists/alexia_transactions.html:10 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:10 amelie/personal_tab/templates/lists/custom_transactions.html:10 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:9 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:9 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:10 amelie/personal_tab/templates/lists/transactions.html:10
+#: amelie/calendar/models.py:26 amelie/data_export/models.py:31 amelie/education/models.py:287 amelie/members/forms.py:292 amelie/members/models.py:676 amelie/members/models.py:727 amelie/members/models.py:1013 amelie/members/templates/committee_edit_members.html:33 amelie/members/templates/committee_edit_single_member.html:28 amelie/personal_tab/forms.py:114 amelie/personal_tab/forms.py:168 amelie/personal_tab/models.py:123 amelie/personal_tab/models.py:371 amelie/personal_tab/templates/cookie_corner_authorization_view.html:21 amelie/personal_tab/templates/cookie_corner_balance.html:35 amelie/personal_tab/templates/cookie_corner_balance.html:63 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:23 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:91 amelie/personal_tab/templates/cookie_corner_process_batch.html:48 amelie/personal_tab/templates/cookie_corner_statistics.html:325 amelie/personal_tab/templates/info/transaction_information.html:39 amelie/personal_tab/templates/lists/activity_transactions.html:10 amelie/personal_tab/templates/lists/alexia_transactions.html:10 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:10 amelie/personal_tab/templates/lists/custom_transactions.html:10 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:9 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:9 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:10 amelie/personal_tab/templates/lists/transactions.html:10
 msgid "Person"
 msgstr "Persoon"
 
-#: amelie/calendar/models.py:28 amelie/education/models.py:228 amelie/education/models.py:265 amelie/education/templates/complaint.html:107 amelie/members/models.py:1016 amelie/personal_tab/forms.py:84 amelie/personal_tab/templates/cookie_corner/activity_transaction_detail.html:29 amelie/personal_tab/templates/cookie_corner_authorization_view.html:70 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:125
+#: amelie/calendar/models.py:28 amelie/education/models.py:252 amelie/education/models.py:288 amelie/education/templates/complaint.html:107 amelie/members/models.py:1016 amelie/personal_tab/forms.py:84 amelie/personal_tab/templates/cookie_corner/activity_transaction_detail.html:29 amelie/personal_tab/templates/cookie_corner_authorization_view.html:70 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:125
 msgid "Remarks"
 msgstr "Opmerking"
 
@@ -2198,7 +2195,7 @@ msgstr "Eindigt"
 msgid "All dag"
 msgstr "Hele dag"
 
-#: amelie/calendar/models.py:92 amelie/education/models.py:227
+#: amelie/calendar/models.py:92 amelie/education/models.py:251
 msgid "Summary"
 msgstr "Samenvatting"
 
@@ -2878,7 +2875,7 @@ msgstr "Toevoegen aan:"
 msgid "ID"
 msgstr "ID"
 
-#: amelie/claudia/templates/claudia/mapping_list.html:53 amelie/education/forms.py:88
+#: amelie/claudia/templates/claudia/mapping_list.html:53 amelie/education/forms.py:91
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -3626,43 +3623,47 @@ msgstr "Voor opmerkingen of problemen, neem a.u.b. contact op met www@inter-acti
 msgid "Could not find a data export download with this code."
 msgstr "Kon geen data-export download vinden met deze code."
 
-#: amelie/education/forms.py:51 amelie/education/forms.py:85 amelie/education/models.py:182 amelie/education/models.py:192 amelie/education/models.py:237 amelie/education/templates/complaints.html:59 amelie/education/templates/complaints.html:119 amelie/members/models.py:140 amelie/members/models.py:706 amelie/members/templates/includes/query/query_study.html:4 amelie/members/templates/members/datablock_html.mail:13 amelie/members/templates/members/datablock_plain.mail:12 amelie/members/templates/person_edit_study.html:12 amelie/members/templates/registration_check.html:44 amelie/members/templates/statistics/overview.html:16 amelie/tools/pdf.py:139 amelie/tools/pdf.py:144 templates/profile_edit.html:80
+#: amelie/education/forms.py:44 amelie/education/models.py:206 amelie/education/models.py:215
+msgid "Module"
+msgstr "Module"
+
+#: amelie/education/forms.py:45 amelie/education/forms.py:52 amelie/education/forms.py:88 amelie/education/models.py:219 amelie/education/templates/complaints.html:59 amelie/education/templates/complaints.html:119 amelie/members/models.py:140 amelie/members/models.py:706 amelie/members/templates/includes/query/query_study.html:4 amelie/members/templates/members/datablock_html.mail:13 amelie/members/templates/members/datablock_plain.mail:12 amelie/members/templates/person_edit_study.html:12 amelie/members/templates/registration_check.html:44 amelie/members/templates/statistics/overview.html:16 amelie/tools/pdf.py:139 amelie/tools/pdf.py:144 templates/profile_edit.html:80
 msgid "Course"
 msgstr "Vak"
 
-#: amelie/education/forms.py:54 amelie/education/models.py:130 amelie/education/models.py:239 amelie/members/models.py:790 amelie/personal_tab/templates/lists/exam_cookie_credit_totals.html:18 amelie/personal_tab/templates/lists/transactions_totals.html:18
+#: amelie/education/forms.py:55 amelie/education/models.py:130 amelie/education/models.py:263 amelie/members/models.py:790 amelie/personal_tab/templates/lists/exam_cookie_credit_totals.html:18 amelie/personal_tab/templates/lists/transactions_totals.html:18
 msgid "Year"
 msgstr "Jaar"
 
-#: amelie/education/forms.py:70
+#: amelie/education/forms.py:72
 msgid "If the deadline for revision of your exam has passed, you can select a course"
 msgstr "Als een nakijktermijn verstreken is, moet je een vak selecteren"
 
-#: amelie/education/forms.py:79
+#: amelie/education/forms.py:81
 msgid "Fill in a summary and comments"
 msgstr "Vul een samenvatting en opmerking in."
 
-#: amelie/education/forms.py:84 amelie/education/templates/dea_nomination.html:21 amelie/education/templates/dea_vote.html:17
+#: amelie/education/forms.py:86 amelie/education/templates/dea_nomination.html:21 amelie/education/templates/dea_vote.html:17
 msgid "Teacher"
 msgstr "Docent"
 
-#: amelie/education/forms.py:86 amelie/education/templates/dea_nomination.html:25 amelie/personal_tab/templates/cookie_corner/reversal_transaction_detail.html:23 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:149 amelie/tools/templates/data_export_statistics.html:28
+#: amelie/education/forms.py:89 amelie/education/templates/dea_nomination.html:25 amelie/personal_tab/templates/cookie_corner/reversal_transaction_detail.html:23 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:149 amelie/tools/templates/data_export_statistics.html:28
 msgid "Reason"
 msgstr "Reden"
 
-#: amelie/education/forms.py:87 amelie/weekmail/templates/weekmail/weekmail_wizard.html:27
+#: amelie/education/forms.py:90 amelie/weekmail/templates/weekmail/weekmail_wizard.html:27
 msgid "Author"
 msgstr "Auteur"
 
-#: amelie/education/forms.py:152
+#: amelie/education/forms.py:155
 msgid "You've already voted!"
 msgstr "Je hebt al gestemd!"
 
-#: amelie/education/forms.py:178
+#: amelie/education/forms.py:181
 msgid "Course name"
 msgstr "Vaknaam"
 
-#: amelie/education/forms.py:191
+#: amelie/education/forms.py:193
 msgid "Name of course"
 msgstr "Naam vak"
 
@@ -3722,123 +3723,121 @@ msgstr "Begin van vakken inschrijven kan niet na het einde voorkomen of gelijk z
 msgid "Start of the term for ordering books may not be after or simultaneous to the end of this term."
 msgstr "Begin boeken bestellen kan niet na het einde voorkomen of gelijk zijn aan het einde."
 
-#: amelie/education/models.py:181
-msgid "Module"
-msgstr "Module"
-
-#: amelie/education/models.py:186
-msgid "Course type"
-msgstr "Vaktype"
-
-#: amelie/education/models.py:187 amelie/education/templates/course_new.html:36
+#: amelie/education/models.py:178 amelie/education/templates/course_new.html:36
 msgid "Course code"
 msgstr "Vakcode"
 
-#: amelie/education/models.py:193 amelie/education/templates/summaries.html:22 amelie/members/models.py:192
+#: amelie/education/models.py:207
+#| msgid "Module"
+msgid "Modules"
+msgstr "Modules"
+
+#: amelie/education/models.py:220 amelie/education/templates/summaries.html:22 amelie/members/models.py:192
 msgid "Courses"
 msgstr "Vakken"
 
-#: amelie/education/models.py:210 amelie/education/templates/complaints.html:32
+#: amelie/education/models.py:234 amelie/education/templates/complaints.html:32
 msgid "Marking period expired"
 msgstr "Nakijktermijn verstreken"
 
-#: amelie/education/models.py:211
+#: amelie/education/models.py:235
 msgid "Facilities"
 msgstr "Faciliteiten"
 
-#: amelie/education/models.py:212
+#: amelie/education/models.py:236
 msgid "Information supply"
 msgstr "Informatievoorziening"
 
-#: amelie/education/models.py:213
+#: amelie/education/models.py:237
 msgid "Internationalization"
 msgstr "Internationalisering"
 
-#: amelie/education/models.py:214 amelie/members/templates/statistics/overview.html:79
+#: amelie/education/models.py:238 amelie/members/templates/statistics/overview.html:79
 msgid "Otherwise"
 msgstr "Anders"
 
-#: amelie/education/models.py:217
+#: amelie/education/models.py:241
 msgid "Quarter 1"
 msgstr "Kwartiel 1"
 
-#: amelie/education/models.py:218
+#: amelie/education/models.py:242
 msgid "Quarter 2"
 msgstr "Kwartiel 2"
 
-#: amelie/education/models.py:219
+#: amelie/education/models.py:243
 msgid "Quarter 3"
 msgstr "Kwartiel 3"
 
-#: amelie/education/models.py:220
+#: amelie/education/models.py:244
 msgid "Quarter 4"
 msgstr "Kwartiel 4"
 
-#: amelie/education/models.py:221
+#: amelie/education/models.py:245
 msgid "Semester 1"
 msgstr "Semester 1"
 
-#: amelie/education/models.py:222
+#: amelie/education/models.py:246
 msgid "Semester 2"
 msgstr "Semester 2"
 
-#: amelie/education/models.py:230 amelie/education/templates/complaint.html:36
+#: amelie/education/models.py:254 amelie/education/templates/complaint.html:36
 msgid "Reporter"
 msgstr "Melder"
 
-#: amelie/education/models.py:231
+#: amelie/education/models.py:255
 msgid "People"
 msgstr "Personen"
 
-#: amelie/education/models.py:233
+#: amelie/education/models.py:257
 msgid "Feedback on progress"
 msgstr "Voortgangterugkoppeling"
 
-#: amelie/education/models.py:234
+#: amelie/education/models.py:258
 msgid "Handle anonymously"
 msgstr "Anoniem behandelen"
 
-#: amelie/education/models.py:235
+#: amelie/education/models.py:259
 msgid "Handled"
 msgstr "Afgehandeld"
 
-#: amelie/education/models.py:240
+#: amelie/education/models.py:261
+#| msgid "Course or Module"
+msgid "Course or module"
+msgstr "Vak of Module"
+
+#: amelie/education/models.py:264
 msgid "Term"
 msgstr "Periode"
 
-#: amelie/education/models.py:244 amelie/education/models.py:261 amelie/education/templates/complaint.html:4 amelie/education/templates/complaint.html:9 amelie/education/templates/complaint_new.html:72 amelie/education/templates/complaints.html:165
+#: amelie/education/models.py:268 amelie/education/models.py:285 amelie/education/templates/complaint.html:4 amelie/education/templates/complaint.html:9 amelie/education/templates/complaint_new.html:72 amelie/education/templates/complaints.html:165
 msgid "Complaint"
 msgstr "Klacht"
 
-#: amelie/education/models.py:245 templates/basis.html:225 templates/frontpage.html:232
+#: amelie/education/models.py:269 templates/basis.html:225 templates/frontpage.html:232
 msgid "Complaints"
 msgstr "Klachten"
 
-#: amelie/education/models.py:264 amelie/education/templates/complaint.html:109
-msgid "Comment by Education Committee"
-msgstr "Opmerking van Onderwijscommissie"
-
-#: amelie/education/models.py:271
+#: amelie/education/models.py:294
 msgid "Comment on a complaint"
 msgstr "Klachtopmerking"
 
-#: amelie/education/models.py:272
+#: amelie/education/models.py:295
 msgid "Comments on a complaint"
 msgstr "Klachtopmerkingen"
 
-#: amelie/education/models.py:283
+#: amelie/education/models.py:306
 msgid "Game"
 msgstr "Wedstrijd"
 
-#: amelie/education/models.py:284
+#: amelie/education/models.py:307
 msgid "Games"
 msgstr "Wedstrijden"
 
-#: amelie/education/models.py:299
+#: amelie/education/models.py:322
 msgid "Vote"
 msgstr "Stem"
 
-#: amelie/education/models.py:300
+#: amelie/education/models.py:323
 msgid "Votes"
 msgstr "Stemmen"
 
@@ -3919,6 +3918,10 @@ msgstr "Deze klacht is afgehandeld"
 #: amelie/education/templates/complaint.html:95 amelie/education/templates/complaints.html:170 amelie/room_duty/models.py:254 amelie/room_duty/templates/room_duty/table/fill.html:22
 msgid "Comments"
 msgstr "Opmerkingen"
+
+#: amelie/education/templates/complaint.html:109
+msgid "Comment by Education Committee"
+msgstr "Opmerking van Onderwijscommissie"
 
 #: amelie/education/templates/complaint.html:112
 msgid "This message is visible only to the original poster, the commenter and the Committee of Education"
@@ -4491,6 +4494,11 @@ msgstr ""
 #: amelie/education/templates/educational_bouquet.html:46
 msgid "Previous bouquets"
 msgstr "Vorige bloemetjes"
+
+#: amelie/education/templates/module.html:12
+#| msgid "These complaints have been received concerning this course"
+msgid "These complaints have been received concerning this module"
+msgstr "Over deze module zijn de volgende klachten binnengekomen"
 
 #: amelie/education/templates/overview.html:6 templates/basis.html:217
 msgid "Education"
@@ -11267,6 +11275,9 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid "Course type"
+#~ msgstr "Vaktype"
 
 #~ msgid "Refused"
 #~ msgstr "Geweigerd"
