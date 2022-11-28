@@ -19,11 +19,31 @@
     <p class="icon icon-error"> {% trans 'For privacy reasons, this page only shows anonymized enrollment data. For more detailed information please export or print it.' %}</p>
 {% endif %}
 
-<p>
-    {% trans 'Number of total participants including waiting list' %}: {{ number_participants }}
-</p>
+<div class="enrollments-heading-content">
+    <div>
+        <p>
+            {% trans 'Number of total participants including waiting list' %}: {{ number_participants }}
+        </p>
+        
+        <p>
+            {% trans 'Number of confirmed participants' %}: {{ number_confirmed_participants }}
+        </p>
+    </div>
+    <div class="underage-button">
+        <a href=".?underage={% if only_show_underage %}False{% else %}True{% endif %}" class="looks-like-a-button no-margin">
+            {% if only_show_underage %}
+                {% trans 'Show all participants' %}
+            {% else %}
+                {% trans 'Only show underage participants' %}
+            {% endif %}
+        </a>
+    </div>
+</div>
 
-<p>{% trans 'Number of confirmed participants' %}: {{ number_confirmed_participants }}</p>
+{% if only_show_underage %}
+<p class="icon icon-error"><b>{% trans 'You are currently only viewing underage participants!' %}</b></p>
+{% endif %}
+
 <div class="table-responsive">
     <table class="table" data-toggle="table" data-sort-name="order">
         <thead>
@@ -54,6 +74,7 @@
             </tr>
         </thead>
         <tbody>
+            {# confirmed_participation_set will be filtered with only underage participants if this is given in the query parameter #}
             {% for participation in confirmed_participation_set %}
                 <tr>
                     {% if request.is_board or deanonymise %}
@@ -61,8 +82,12 @@
                             {{ forloop.counter }}
                         </td>
                         <td>
-                            {% if request.is_board %}<a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
-                                {% else %}{{ participation.person.incomplete_name }}{% endif %}
+                            {% if request.is_board %}
+                                <a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
+                                {% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
+                            {% else %}
+                                {{ participation.person.incomplete_name }}{% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
+                            {% endif %}
                         </td>
                     {% else %}
                         <td>

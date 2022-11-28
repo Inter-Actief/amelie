@@ -12715,3 +12715,22 @@ dd.eventdesk-status-UNREGISTERED a {
     display: none;
   }
 }
+@media only screen and (max-width: 650px) {
+  .enrollments-heading-content {
+    flex-direction: column;
+  }
+}
+@media only screen and (min-width: 650px) {
+  .enrollments-heading-content {
+    flex-direction: row;
+  }
+}
+.underage-button {
+  display: flex;
+  align-items: center;
+}
+.enrollments-heading-content {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
