@@ -1,10 +1,10 @@
-from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor.fields import RichTextField
 from django.db import models
 
 
 class GMM(models.Model):
     date = models.DateField(blank=True, null=True)
-    agenda = RichTextUploadingField()
+    agenda = RichTextField()
 
     def __str__(self):
         return self.date.__str__()
