@@ -138,3 +138,4 @@ class PersonalAliasCreateForm(forms.Form):
     def clean_email(self):
         if ExtraPersonalAlias.objects.filter(email=self.cleaned_data['email']).count() > 0:
             raise ValidationError(_("This mailaddress is not unique! You might want to make a group."))
+        return self.cleaned_data['email']
