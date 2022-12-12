@@ -101,6 +101,14 @@
         {% endif %}
         {# End video things #}
 
+        {# Member view: discord page things #}
+        {% if user.is_authenticated  and not request.is_board%}
+            <div id="discord" class="current">
+                <iframe src="https://discord.com/widget?id=613755161633882112&theme=light" style="width: 100%; height: 100%; min-height: 40em" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+             </div>
+        {%  endif %}
+        {# End member view: discord page things #}
+
         {# Board things #}
         {% if user.is_authenticated and request.is_board %}
             <div class="ia">
@@ -252,6 +260,14 @@
                     </div>
                 {% endif %}
                 {# End education complaint things #}
+
+                {# Board view: discord page things #}
+                {% if user.is_authenticated and request.is_board%}
+                    <div id="discord" class="current" style="margin-bottom: 2em;">
+                        <iframe src="https://discord.com/widget?id=613755161633882112&theme=light" style="width: 100%; height: 100%; min-height: 40em" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+                    </div>
+                {%  endif %}
+                {# End member view: discord page things #}
             </div>
         </div>
     </div>
