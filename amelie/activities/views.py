@@ -114,18 +114,21 @@ def activity_ics(request, pk):
     return resp
 
 
-def activities(request):
+def activities(request, act_type=None):
     """
     Gives an overview of all upcoming activities and recent past activities.
     """
     activities = Event.objects.filter_public(request)
+
+    if act_type:
+        activities = activities.filter(Q(activity__activity_label__name_en=act_type) | Q(activity__activity_label__name_nl=act_type))
+
     old_activities = list(activities.filter(end__lt=timezone.now()))[-10:]
     new_activities = list(activities.filter(end__gte=timezone.now()))
 
     old_activities = [a.as_leaf_class() for a in old_activities]
     new_activities = [a.as_leaf_class() for a in new_activities]
     only_open_enrollments = 'openEnrollments' in request.GET
-
 
     return render(request, "activity_list.html", locals())
 
@@ -210,7 +213,7 @@ def activity(request, pk, deanonymise=False):
         confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if x.person.age(at=activity.end) >= 18]
     else:
         confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
-    
+
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
 
     if hasattr(request, 'person') and waiting_participation_set.filter(person=request.person).exists():

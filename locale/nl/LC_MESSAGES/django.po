@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-28 18:39+0100\n"
-"PO-Revision-Date: 2022-11-28 18:41+0020\n"
-"Last-Translator: Kevin Alberts <>\n"
+"POT-Creation-Date: 2022-12-12 23:26+0100\n"
+"PO-Revision-Date: 2022-12-12 23:27+0018\n"
+"Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -166,7 +166,7 @@ msgstr "Tussenvoegsels"
 msgid "Last name"
 msgstr "Achternaam"
 
-#: amelie/activities/forms.py:242 amelie/activities/models.py:82 amelie/activities/models.py:83 amelie/activities/templates/activity_list.html:4 amelie/activities/templates/activity_list.html:35 amelie/activities/templates/activity_list.html:106 amelie/activities/templates/activity_old.html:4 amelie/activities/templates/activity_old.html:34 amelie/calendar/models.py:27 amelie/calendar/models.py:124 amelie/calendar/models.py:125 amelie/companies/templates/companies/company_event_list.html:4 amelie/companies/templates/companies/company_event_old.html:34 amelie/personal_tab/models.py:179 amelie/personal_tab/statistics.py:285 amelie/personal_tab/templates/cookie_corner/activity_transaction_detail.html:14 amelie/personal_tab/templates/cookie_corner_statistics.html:182 amelie/personal_tab/templates/cookie_corner_statistics.html:190 amelie/personal_tab/templates/cookie_corner_transactions_new.html:42 amelie/personal_tab/templates/lists/activity_transactions.html:11 amelie/personal_tab/templates/lists/transactions_totals.html:22 amelie/weekmail/templates/weekmail/weekmail_mail_plain.mail:16 templates/basis.html:141 templates/basis.html:222
+#: amelie/activities/forms.py:242 amelie/activities/models.py:82 amelie/activities/models.py:83 amelie/activities/templates/activity_list.html:4 amelie/activities/templates/activity_list.html:35 amelie/activities/templates/activity_list.html:110 amelie/activities/templates/activity_old.html:4 amelie/activities/templates/activity_old.html:34 amelie/calendar/models.py:27 amelie/calendar/models.py:124 amelie/calendar/models.py:125 amelie/companies/templates/companies/company_event_list.html:4 amelie/companies/templates/companies/company_event_old.html:34 amelie/personal_tab/models.py:179 amelie/personal_tab/statistics.py:285 amelie/personal_tab/templates/cookie_corner/activity_transaction_detail.html:14 amelie/personal_tab/templates/cookie_corner_statistics.html:182 amelie/personal_tab/templates/cookie_corner_statistics.html:190 amelie/personal_tab/templates/cookie_corner_transactions_new.html:42 amelie/personal_tab/templates/lists/activity_transactions.html:11 amelie/personal_tab/templates/lists/transactions_totals.html:22 amelie/weekmail/templates/weekmail/weekmail_mail_plain.mail:16 templates/basis.html:141 templates/basis.html:222
 msgid "Activities"
 msgstr "Activiteiten"
 
@@ -178,7 +178,7 @@ msgstr "Publiek"
 msgid "Photos are also available without logging in"
 msgstr "Foto's zijn ook beschikbaar zonder in te loggen"
 
-#: amelie/activities/forms.py:245 amelie/activities/templates/activity_list.html:107 amelie/activities/templates/activity_old.html:35 amelie/activities/templates/gallery.html:4 amelie/activities/templates/gallery.html:9 amelie/activities/templates/gallery_overview.html:4 amelie/activities/templates/gallery_overview.html:27 amelie/activities/templates/gallery_overview.html:194 amelie/activities/templates/gallery_photo.html:4 amelie/activities/templates/gallery_photo.html:13 amelie/activities/templates/includes/activity_list_photos.html:4 amelie/activities/templates/photo_upload.html:26 amelie/companies/templates/companies/company_event_old.html:35 amelie/statistics/templates/statistics.html:48
+#: amelie/activities/forms.py:245 amelie/activities/templates/activity_list.html:111 amelie/activities/templates/activity_old.html:35 amelie/activities/templates/gallery.html:4 amelie/activities/templates/gallery.html:9 amelie/activities/templates/gallery_overview.html:4 amelie/activities/templates/gallery_overview.html:27 amelie/activities/templates/gallery_overview.html:194 amelie/activities/templates/gallery_photo.html:4 amelie/activities/templates/gallery_photo.html:13 amelie/activities/templates/includes/activity_list_photos.html:4 amelie/activities/templates/photo_upload.html:26 amelie/companies/templates/companies/company_event_old.html:35 amelie/statistics/templates/statistics.html:48
 msgid "Photos"
 msgstr "Foto's"
 
@@ -343,7 +343,7 @@ msgstr "Aangemeld"
 msgid "Accepted"
 msgstr "Geaccepteerd"
 
-#: amelie/activities/models.py:538 amelie/activities/views.py:1347 amelie/activities/views.py:1353 amelie/activities/views.py:1359 amelie/members/models.py:260 amelie/personal_tab/templates/info/rfid_cards.html:45
+#: amelie/activities/models.py:538 amelie/activities/views.py:1350 amelie/activities/views.py:1356 amelie/activities/views.py:1362 amelie/members/models.py:260 amelie/personal_tab/templates/info/rfid_cards.html:45
 msgid "Unknown"
 msgstr "Onbekend"
 
@@ -484,7 +484,7 @@ msgstr ""
 "\n"
 "Met vriendelijke groet,"
 
-#: amelie/activities/templates/activities/activity_form.html:6 amelie/activities/templates/activities/activity_form.html:17 amelie/activities/templates/activity_list.html:87 amelie/companies/templates/companies/company_event_form.html:6 amelie/companies/templates/companies/company_event_form.html:17 amelie/companies/templates/companies/company_event_list.html:59 amelie/education/templates/education_event_form.html:21 amelie/education/templates/education_event_overview.html:51
+#: amelie/activities/templates/activities/activity_form.html:6 amelie/activities/templates/activities/activity_form.html:17 amelie/activities/templates/activity_list.html:91 amelie/companies/templates/companies/company_event_form.html:6 amelie/companies/templates/companies/company_event_form.html:17 amelie/companies/templates/companies/company_event_list.html:59 amelie/education/templates/education_event_form.html:21 amelie/education/templates/education_event_overview.html:51
 msgid "Add event"
 msgstr "Activiteit toevoegen"
 
@@ -675,7 +675,7 @@ msgstr "Evenementenbureau Berichtdetails"
 msgid "Metadata"
 msgstr "Metadata"
 
-#: amelie/activities/templates/activities/eventdesk/detail.html:17 amelie/activities/templates/activities/eventdesk/match.html:17 amelie/activities/templates/activity_list.html:33 amelie/activities/templates/activity_list.html:105 amelie/activities/templates/activity_old.html:33 amelie/companies/templates/companies/company_event_list.html:16 amelie/companies/templates/companies/company_event_list.html:73 amelie/companies/templates/companies/company_event_old.html:33 amelie/companies/templates/companies/company_statistics.html:137 amelie/education/templates/education_event_overview.html:15 amelie/education/templates/education_event_overview.html:65 amelie/members/models.py:823 amelie/personal_tab/forms.py:16 amelie/personal_tab/forms.py:24 amelie/personal_tab/forms.py:75 amelie/personal_tab/models.py:121 amelie/personal_tab/templates/cookie_corner_authorization_view.html:66 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:109 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:141 amelie/personal_tab/templates/cookie_corner_person_debt_collection_instructions.html:15 amelie/personal_tab/templates/cookie_corner_statistics.html:188 amelie/personal_tab/templates/cookie_corner_statistics.html:242 amelie/personal_tab/templates/cookie_corner_statistics.html:323 amelie/personal_tab/templates/info/debt_collection_instructions.html:17 amelie/personal_tab/templates/info/transaction_information.html:3 amelie/personal_tab/templates/lists/alexia_transactions.html:8 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:8 amelie/personal_tab/templates/lists/custom_transactions.html:8 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:8 amelie/personal_tab/templates/lists/transactions.html:8
+#: amelie/activities/templates/activities/eventdesk/detail.html:17 amelie/activities/templates/activities/eventdesk/match.html:17 amelie/activities/templates/activity_list.html:33 amelie/activities/templates/activity_list.html:109 amelie/activities/templates/activity_old.html:33 amelie/companies/templates/companies/company_event_list.html:16 amelie/companies/templates/companies/company_event_list.html:73 amelie/companies/templates/companies/company_event_old.html:33 amelie/companies/templates/companies/company_statistics.html:137 amelie/education/templates/education_event_overview.html:15 amelie/education/templates/education_event_overview.html:65 amelie/members/models.py:823 amelie/personal_tab/forms.py:16 amelie/personal_tab/forms.py:24 amelie/personal_tab/forms.py:75 amelie/personal_tab/models.py:121 amelie/personal_tab/templates/cookie_corner_authorization_view.html:66 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:109 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:141 amelie/personal_tab/templates/cookie_corner_person_debt_collection_instructions.html:15 amelie/personal_tab/templates/cookie_corner_statistics.html:188 amelie/personal_tab/templates/cookie_corner_statistics.html:242 amelie/personal_tab/templates/cookie_corner_statistics.html:323 amelie/personal_tab/templates/info/debt_collection_instructions.html:17 amelie/personal_tab/templates/info/transaction_information.html:3 amelie/personal_tab/templates/lists/alexia_transactions.html:8 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:8 amelie/personal_tab/templates/lists/custom_transactions.html:8 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:8 amelie/personal_tab/templates/lists/transactions.html:8
 msgid "Date"
 msgstr "Datum"
 
@@ -1392,19 +1392,24 @@ msgstr "Alleen activiteiten met open inschrijvingen weergeven"
 msgid "iCal document with activity"
 msgstr "iCal-document met activiteit"
 
-#: amelie/activities/templates/activity_list.html:65 amelie/activities/templates/activity_list.html:66 amelie/activities/templates/activity_list.html:118 amelie/calendar/models.py:112 amelie/companies/templates/companies/company_event_list.html:36 amelie/companies/templates/companies/company_event_list.html:86 templates/frontpage.html:28 templates/frontpage.html:54 templates/frontpage.html:55
+#: amelie/activities/templates/activity_list.html:65 amelie/activities/templates/activity_list.html:66 amelie/activities/templates/activity_list.html:122 amelie/calendar/models.py:112 amelie/companies/templates/companies/company_event_list.html:36 amelie/companies/templates/companies/company_event_list.html:86 templates/frontpage.html:28 templates/frontpage.html:54 templates/frontpage.html:55
 msgid "Dutch-only"
 msgstr "Nederlands gesproken"
 
-#: amelie/activities/templates/activity_list.html:82
+#: amelie/activities/templates/activity_list.html:83
+#, python-format
+msgid "It looks like there are no events with label %(type)s"
+msgstr "Het lijk er op dat er geen activiteiten met het label %(type)s zijn"
+
+#: amelie/activities/templates/activity_list.html:85
 msgid "There are no planned events. Maybe because it is holiday?"
 msgstr "Er zijn geen aankomende activiteiten, is het toevallig vakantie?"
 
-#: amelie/activities/templates/activity_list.html:89
+#: amelie/activities/templates/activity_list.html:93
 msgid "UT Event Desk status"
 msgstr "UT Evenementenbureau status"
 
-#: amelie/activities/templates/activity_list.html:98 amelie/companies/templates/companies/company_event_list.html:66 amelie/education/templates/education_event_overview.html:58 templates/slider.html:3
+#: amelie/activities/templates/activity_list.html:102 amelie/companies/templates/companies/company_event_list.html:66 amelie/education/templates/education_event_overview.html:58 templates/slider.html:3
 msgid "Past activities"
 msgstr "Afgelopen activiteiten"
 
@@ -1889,118 +1894,118 @@ msgstr "{person} is gepromoveerd van de wachtlijst naar bevestigde deelname voor
 msgid "Events of Inter-Actief"
 msgstr "Activiteiten IA"
 
-#: amelie/activities/views.py:245 amelie/activities/views.py:937
+#: amelie/activities/views.py:248 amelie/activities/views.py:940
 msgid "No photo"
 msgstr "Geen foto"
 
-#: amelie/activities/views.py:310
+#: amelie/activities/views.py:313
 #, python-brace-format
 msgid "You are now enrolled for {activity}."
 msgstr "Je bent nu ingeschreven voor {activity}."
 
-#: amelie/activities/views.py:316
+#: amelie/activities/views.py:319
 #, python-brace-format
 msgid "You are now on the waiting list for {activity}."
 msgstr "Je staat nu op de wachtlijst voor {activity}."
 
-#: amelie/activities/views.py:352
+#: amelie/activities/views.py:355
 #, python-brace-format
 msgid "You are now unenrolled for {activity}."
 msgstr "Je bent nu uitgeschreven voor {activity}."
 
-#: amelie/activities/views.py:469
+#: amelie/activities/views.py:472
 #, python-brace-format
 msgid "{person} is now unenrolled for {activity}."
 msgstr "{person} is nu uitgeschreven voor {activity}."
 
-#: amelie/activities/views.py:654
+#: amelie/activities/views.py:657
 msgid "the waitinglist of"
 msgstr "de wachtlijst voor"
 
-#: amelie/activities/views.py:658
+#: amelie/activities/views.py:661
 #, python-brace-format
 msgid "{person} is now enrolled for {waiting_list} {activity}."
 msgstr "{person} is nu ingeschreven voor {waiting_list} {activity}."
 
-#: amelie/activities/views.py:665
+#: amelie/activities/views.py:668
 #, python-brace-format
 msgid "You are now enrolled for {waiting_list} {activity}."
 msgstr "Je bent nu ingeschreven voor {waiting_list} {activity}."
 
-#: amelie/activities/views.py:734
+#: amelie/activities/views.py:737
 msgid "The photos are being uploaded. This might take while."
 msgstr "De foto's worden verwerkt. Dit kan even duren."
 
-#: amelie/activities/views.py:751 amelie/activities/views.py:756 amelie/activities/views.py:760 amelie/activities/views.py:788
+#: amelie/activities/views.py:754 amelie/activities/views.py:759 amelie/activities/views.py:763 amelie/activities/views.py:791
 msgid "This picture does not exist."
 msgstr "Deze foto bestaat niet."
 
-#: amelie/activities/views.py:952
+#: amelie/activities/views.py:955
 msgid "No participants"
 msgstr "Geen deelnemers"
 
-#: amelie/activities/views.py:1005
+#: amelie/activities/views.py:1008
 msgid "You do not have permissions to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1026
+#: amelie/activities/views.py:1029
 msgid "You did not fill in an English summary/description."
 msgstr "Je hebt geen Engelse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1027 amelie/activities/views.py:1034
+#: amelie/activities/views.py:1030 amelie/activities/views.py:1037
 msgid "edit event"
 msgstr "activiteit wijzigen"
 
-#: amelie/activities/views.py:1033
+#: amelie/activities/views.py:1036
 msgid "You did not fill in a Dutch summary/description."
 msgstr "Je hebt geen Nederlandse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1119 amelie/activities/views.py:1129
+#: amelie/activities/views.py:1122 amelie/activities/views.py:1132
 msgid "This activity already has enrollments, therefore options can no longer be added!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties toegevoegd worden!"
 
-#: amelie/activities/views.py:1168 amelie/activities/views.py:1182
+#: amelie/activities/views.py:1171 amelie/activities/views.py:1185
 msgid "This activity already has enrollments, therefore options cannot be deleted!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties verwijderd worden!"
 
-#: amelie/activities/views.py:1174
+#: amelie/activities/views.py:1177
 #, python-format
 msgid "Enrollment options %(object)s has been deleted"
 msgstr "Inschrijfoptie %(object)s is verwijderd"
 
-#: amelie/activities/views.py:1195
+#: amelie/activities/views.py:1198
 msgid "Only accessible for the board and the organisers of this activity."
 msgstr "Uitsluitend toegankelijk voor het bestuur en de organisators van de activiteit."
 
-#: amelie/activities/views.py:1201 amelie/activities/views.py:1215
+#: amelie/activities/views.py:1204 amelie/activities/views.py:1218
 msgid "No activity found or invalid activity ID given."
 msgstr "Geen activiteit gevonden of je hebt een ongeldige activiteit-id meegegeven."
 
-#: amelie/activities/views.py:1210
+#: amelie/activities/views.py:1213
 msgid "Invalid activity ID"
 msgstr "Ongeldige activiteit-id."
 
-#: amelie/activities/views.py:1231 amelie/personal_tab/views.py:1353
+#: amelie/activities/views.py:1234 amelie/personal_tab/views.py:1353
 msgid "Could not create data export, because an unknown data-exporttype is provided."
 msgstr "Kon geen data-export maken, omdat er een onbekend data-exporttype is opegeven."
 
-#: amelie/activities/views.py:1238 amelie/members/query_views.py:237 amelie/personal_tab/views.py:1360
+#: amelie/activities/views.py:1241 amelie/members/query_views.py:237 amelie/personal_tab/views.py:1360
 msgid "Could not create data export, because something went wrong while saving information about the export."
 msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van gegevens over de data-export."
 
-#: amelie/activities/views.py:1314 amelie/activities/views.py:1324 amelie/activities/views.py:1326
+#: amelie/activities/views.py:1317 amelie/activities/views.py:1327 amelie/activities/views.py:1329
 msgid "You are not allowed to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1365
+#: amelie/activities/views.py:1368
 msgid "Unknown error occurred."
 msgstr "Er is een onbekende fout opgetreden."
 
-#: amelie/activities/views.py:1381 amelie/activities/views.py:1396
+#: amelie/activities/views.py:1384 amelie/activities/views.py:1399
 msgid "Message is not encoded in UTF-8, Latin-1 or ASCII, giving up..."
 msgstr "Bericht is niet geëncodeerd in UTF-8, Latin-1 of ASCII, ik geef het op..."
 
-#: amelie/activities/views.py:1402
+#: amelie/activities/views.py:1405
 msgid "Could not retrieve this message from Google. {}"
 msgstr "Kon dit bericht niet ophalen bij Google. {}"
 
@@ -3089,7 +3094,7 @@ msgstr "Nieuw"
 msgid "Expires: %(end_date)s"
 msgstr "Verloopt op: %(end_date)s"
 
-#: amelie/companies/templates/companies/company_banners.html:31 amelie/companies/templates/companies/company_banners.html:68 amelie/narrowcasting/templates/room.html:160
+#: amelie/companies/templates/companies/company_banners.html:31 amelie/companies/templates/companies/company_banners.html:68 amelie/narrowcasting/templates/room.html:172
 msgid "Turned off"
 msgstr "Uitgeschakeld"
 
@@ -3664,7 +3669,6 @@ msgid "Course name"
 msgstr "Vaknaam"
 
 #: amelie/education/forms.py:193 amelie/education/templates/module_new.html:22
-#| msgid "Course name"
 msgid "Module name"
 msgstr "Modulenaam"
 
@@ -4007,12 +4011,6 @@ msgstr "Als het om een vak of module gaat, kun je die hier uitzoeken"
 
 #: amelie/education/templates/complaint_new.html:54
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                        There is a chance that the course you are looking for does not yet exist.\n"
-#| "\n"
-#| "                        <a href=\"%(new_course_url)s\"> If so, please create a new course.</a>.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
@@ -4153,7 +4151,6 @@ msgid "Add course"
 msgstr "Vak toevoegen"
 
 #: amelie/education/templates/course_new.html:36
-#| msgid "Which data export this status belongs to"
 msgid "Module this course belongs to"
 msgstr "Module waar dit vak bij hoort"
 
@@ -4506,12 +4503,10 @@ msgid "These complaints have been received concerning this module"
 msgstr "Over deze module zijn de volgende klachten binnengekomen"
 
 #: amelie/education/templates/module_new.html:4 amelie/education/templates/module_new.html:10
-#| msgid "Add course"
 msgid "Add module"
 msgstr "Module toevoegen"
 
 #: amelie/education/templates/module_new.html:29
-#| msgid "Course code"
 msgid "Module course code"
 msgstr "Vakcode van de module"
 
@@ -7219,11 +7214,11 @@ msgstr "Narrowcasting Inter-/Actief/-kamer"
 msgid "Album image"
 msgstr "Albumafbeelding"
 
-#: amelie/narrowcasting/templates/room.html:42 amelie/narrowcasting/templates/room.html:54 amelie/narrowcasting/templates/room.html:195
+#: amelie/narrowcasting/templates/room.html:42 amelie/narrowcasting/templates/room.html:54 amelie/narrowcasting/templates/room.html:207
 msgid "Not playing anything..."
 msgstr "Niks aan het afspelen..."
 
-#: amelie/narrowcasting/templates/room.html:64 amelie/narrowcasting/templates/room.html:190
+#: amelie/narrowcasting/templates/room.html:64 amelie/narrowcasting/templates/room.html:202
 msgid "Loading activity information..."
 msgstr "Activiteitsinformatie laden..."
 
@@ -7231,59 +7226,59 @@ msgstr "Activiteitsinformatie laden..."
 msgid "Room duty"
 msgstr "Kamerdienst"
 
-#: amelie/narrowcasting/templates/room.html:155
+#: amelie/narrowcasting/templates/room.html:167
 msgid "Active member logged in"
 msgstr "Actief lid ingelogd"
 
-#: amelie/narrowcasting/templates/room.html:156
+#: amelie/narrowcasting/templates/room.html:168
 msgid "Visitor logged in"
 msgstr "Bezoeker ingelogd"
 
-#: amelie/narrowcasting/templates/room.html:159
+#: amelie/narrowcasting/templates/room.html:171
 msgid "No one logged in"
 msgstr "Niemand ingelogd"
 
-#: amelie/narrowcasting/templates/room.html:172
+#: amelie/narrowcasting/templates/room.html:184
 msgid "Loading pictures..."
 msgstr "Foto's laden..."
 
-#: amelie/narrowcasting/templates/room.html:185
+#: amelie/narrowcasting/templates/room.html:197
 msgid "No room duty today!"
 msgstr "Geen kamerdienst vandaag!"
 
-#: amelie/narrowcasting/templates/room.html:186
+#: amelie/narrowcasting/templates/room.html:198
 msgid "No one!"
 msgstr "Niemand!"
 
-#: amelie/narrowcasting/templates/room.html:187
+#: amelie/narrowcasting/templates/room.html:199
 msgid "Next activity starts "
 msgstr "Volgende activiteit begint "
 
-#: amelie/narrowcasting/templates/room.html:188
+#: amelie/narrowcasting/templates/room.html:200
 msgid "Next activity is starting now!"
 msgstr "Volgende activiteit begint nu!"
 
-#: amelie/narrowcasting/templates/room.html:189
+#: amelie/narrowcasting/templates/room.html:201
 msgid "Current activity started "
 msgstr "Huidige activiteit begon "
 
-#: amelie/narrowcasting/templates/room.html:191
+#: amelie/narrowcasting/templates/room.html:203
 msgid "There are no events planned..."
 msgstr "Er zijn geen activiteiten gepland..."
 
-#: amelie/narrowcasting/templates/room.html:192
+#: amelie/narrowcasting/templates/room.html:204
 msgid "Four 'o clock!"
 msgstr "Vier uur!"
 
-#: amelie/narrowcasting/templates/room.html:193
+#: amelie/narrowcasting/templates/room.html:205
 msgid "Not associated to a Spotify account..."
 msgstr "Niet gekoppeld aan een Spotify account..."
 
-#: amelie/narrowcasting/templates/room.html:194
+#: amelie/narrowcasting/templates/room.html:206
 msgid "Unknown artist"
 msgstr "Onbekende artiest"
 
-#: amelie/narrowcasting/templates/room.html:196
+#: amelie/narrowcasting/templates/room.html:208
 msgid "Error while getting spotify data"
 msgstr "Fout bij het ophalen van data van spotify"
 
@@ -9762,19 +9757,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:643
+#: amelie/settings/generic.py:644
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:644
+#: amelie/settings/generic.py:645
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:645
+#: amelie/settings/generic.py:646
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:646
+#: amelie/settings/generic.py:647
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
