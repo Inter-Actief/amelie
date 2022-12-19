@@ -4,7 +4,7 @@
 {% block subject %}{% blocktrans %}Complaint handled: {{ complaint_subject }}{% endblocktrans %}{% endblock %}
 
 {% block content %}{% htmlify %}
-{% if OC %}{% blocktrans %}Dear OC'er,{% endblocktrans %}
+{% if OC %}{% blocktrans %}Dear EC member,{% endblocktrans %}
 
 {% blocktrans %}This complaint has been handled:{% endblocktrans %}{{ complaint_subject }}.
 {% else %}{% blocktrans %}Dear{% endblocktrans %} {{ complaint_complainant }},

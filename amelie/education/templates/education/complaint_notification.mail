@@ -3,7 +3,7 @@
 
 {% block subject %}{% blocktrans %}Complaint entered about {{ complaint_subject }}{% endblocktrans %}{% endblock %}
 
-{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,{% endblocktrans %}
+{% block content %}{% htmlify %}{% blocktrans %}Dear EC member,{% endblocktrans %}
 
 {% if complaint_courseperiod %}{% blocktrans %}{{ complaint_reporter }} submitted a complaint about the course {{ complaint_courseperiod }}.{% endblocktrans %}
 {% else %}{% blocktrans %}{{ complaint_reporter }} submitted a complaint.{% endblocktrans %}

@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-28 18:39+0100\n"
-"PO-Revision-Date: 2022-11-28 18:41+0020\n"
-"Last-Translator: Kevin Alberts <>\n"
+"POT-Creation-Date: 2022-12-19 14:57+0100\n"
+"PO-Revision-Date: 2022-12-19 14:59+0018\n"
+"Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -3655,20 +3655,19 @@ msgstr "Reden"
 msgid "Author"
 msgstr "Auteur"
 
-#: amelie/education/forms.py:155
+#: amelie/education/forms.py:157
 msgid "You've already voted!"
 msgstr "Je hebt al gestemd!"
 
-#: amelie/education/forms.py:181 amelie/education/templates/course_new.html:22
+#: amelie/education/forms.py:184 amelie/education/templates/course_new.html:22
 msgid "Course name"
 msgstr "Vaknaam"
 
-#: amelie/education/forms.py:193 amelie/education/templates/module_new.html:22
-#| msgid "Course name"
+#: amelie/education/forms.py:196 amelie/education/templates/module_new.html:22
 msgid "Module name"
 msgstr "Modulenaam"
 
-#: amelie/education/forms.py:205
+#: amelie/education/forms.py:208
 msgid "Name of course"
 msgstr "Naam vak"
 
@@ -4007,12 +4006,6 @@ msgstr "Als het om een vak of module gaat, kun je die hier uitzoeken"
 
 #: amelie/education/templates/complaint_new.html:54
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                        There is a chance that the course you are looking for does not yet exist.\n"
-#| "\n"
-#| "                        <a href=\"%(new_course_url)s\"> If so, please create a new course.</a>.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
@@ -4153,7 +4146,6 @@ msgid "Add course"
 msgstr "Vak toevoegen"
 
 #: amelie/education/templates/course_new.html:36
-#| msgid "Which data export this status belongs to"
 msgid "Module this course belongs to"
 msgstr "Module waar dit vak bij hoort"
 
@@ -4199,8 +4191,9 @@ msgid "Complaint handled: %(complaint_subject)s"
 msgstr "Klacht afgehandeld: %(complaint_subject)s"
 
 #: amelie/education/templates/education/complaint_closed.mail:7 amelie/education/templates/education/complaint_comment.mail:6 amelie/education/templates/education/complaint_notification.mail:6 amelie/education/templates/education/new_complaint_notification.mail:6
-msgid "Dear OC'er,"
-msgstr "Beste OC'er,"
+#| msgid "Dear board member,"
+msgid "Dear EC member,"
+msgstr "Beste EC'er,"
 
 #: amelie/education/templates/education/complaint_closed.mail:9
 msgid "This complaint has been handled:"
@@ -4320,8 +4313,19 @@ msgstr "[DOP-nominatie] Nominatie onderwijsprijs"
 
 #: amelie/education/templates/education/dea_nomination.mail:6
 #, python-format
+#| msgid ""
+#| "Dear OC'er,\n"
+#| "\n"
+#| "%(author)s has voted for the educational award!\n"
+#| "\n"
+#| "The email address of the nominator is %(email)s.\n"
+#| "He nominated for %(teacher)s.\n"
+#| "His/her reason is: \"%(reason)s\".\n"
+#| "\n"
+#| "Cheers,\n"
+#| "Amélie"
 msgid ""
-"Dear OC'er,\n"
+"Dear EC member,\n"
 "\n"
 "%(author)s has voted for the educational award!\n"
 "\n"
@@ -4332,7 +4336,7 @@ msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
-"Beste OC'er,\n"
+"Beste EC'er,\n"
 "\n"
 "%(author)s heeft iemand genomineerd voor de onderwijsprijs!\n"
 "\n"
@@ -4350,8 +4354,18 @@ msgstr "[DOP-stem] Stem voor de %(competition)s"
 
 #: amelie/education/templates/education/dea_vote.mail:6
 #, python-format
+#| msgid ""
+#| "Dear OC'er,\n"
+#| "\n"
+#| "%(person)s (%(student_number)s) has voted for the educational award!\n"
+#| "\n"
+#| "He voted for %(teacher)s.\n"
+#| "%(person)s has had classes from the following teachers: %(lecture)s.\n"
+#| "\n"
+#| "Cheers,\n"
+#| "Amélie"
 msgid ""
-"Dear OC'er,\n"
+"Dear EC member,\n"
 "\n"
 "%(person)s (%(student_number)s) has voted for the educational award!\n"
 "\n"
@@ -4361,7 +4375,7 @@ msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
-"Beste OC'er,\n"
+"Beste EC'er,\n"
 "\n"
 "%(person)s (%(student_number)s) heeft een stem uitgebracht voor de onderwijsprijs!\n"
 "\n"
@@ -4377,8 +4391,20 @@ msgstr "[Onderwijsbloemetje] Indiening onderwijsbloemetje"
 
 #: amelie/education/templates/education/educational_bouquet.mail:6
 #, python-format
+#| msgid ""
+#| "Dear OC'er,\n"
+#| "\n"
+#| "%(author)s has nominated someone for the educational flower!\n"
+#| "\n"
+#| "The email address of the submitter is %(email)s.\n"
+#| "He/she nominated %(teacher)s for the course %(course)s.\n"
+#| "His/her reason is: \"%(reason)s\".\n"
+#| "\n"
+#| "\n"
+#| "Cheers,\n"
+#| "Amélie"
 msgid ""
-"Dear OC'er,\n"
+"Dear EC member,\n"
 "\n"
 "%(author)s has nominated someone for the educational flower!\n"
 "\n"
@@ -4390,7 +4416,7 @@ msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
-"Beste OC'er,\n"
+"Beste EC'er,\n"
 "\n"
 "%(author)s heeft iemand genomineerd voor het onderwijsbloemetje!\n"
 "\n"
@@ -4506,12 +4532,10 @@ msgid "These complaints have been received concerning this module"
 msgstr "Over deze module zijn de volgende klachten binnengekomen"
 
 #: amelie/education/templates/module_new.html:4 amelie/education/templates/module_new.html:10
-#| msgid "Add course"
 msgid "Add module"
 msgstr "Module toevoegen"
 
 #: amelie/education/templates/module_new.html:29
-#| msgid "Course code"
 msgid "Module course code"
 msgstr "Vakcode van de module"
 
@@ -9762,19 +9786,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:643
+#: amelie/settings/generic.py:644
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:644
+#: amelie/settings/generic.py:645
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:645
+#: amelie/settings/generic.py:646
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:646
+#: amelie/settings/generic.py:647
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -11290,6 +11314,9 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid "Dear OC'er,"
+#~ msgstr "Beste OC'er,"
 
 #~ msgid "Course or Module name"
 #~ msgstr "Vak- of modulenaam"
