@@ -29,7 +29,7 @@
             {% trans 'Number of confirmed participants' %}: {{ number_confirmed_participants }}
         </p>
     </div>
-O    {% if request.is_board %}
+    {% if request.is_board %}
     <div class="underage-button">
             <a href=".?underage={% if only_show_underage %}False{% else %}True{% endif %}" class="looks-like-a-button no-margin">
                 {% if only_show_underage %}
