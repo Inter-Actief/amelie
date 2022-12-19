@@ -180,7 +180,7 @@ def activity(request, pk, deanonymise=False):
     evt.add('dtend', activity.end)
     evt.add('summary', activity.summary)
 
-    only_show_underage = request.GET.get('underage') == "True"
+    only_show_underage = (request.GET.get('underage') == "True") and request.is_board
 
     # Extra check to make sure that no sensitive data will be leaked
     if can_edit:
