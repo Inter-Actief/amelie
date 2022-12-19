@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-28 18:39+0100\n"
-"PO-Revision-Date: 2022-11-28 18:41+0020\n"
-"Last-Translator: Kevin Alberts <>\n"
+"POT-Creation-Date: 2022-12-19 15:43+0100\n"
+"PO-Revision-Date: 2022-12-19 15:44+0018\n"
+"Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.8\n"
 
-#: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:56 amelie/activities/templates/activity_enrollment_overview.html:174 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:24 amelie/education/models.py:46 amelie/education/models.py:131 amelie/education/models.py:177 amelie/members/models.py:35 amelie/members/models.py:56 amelie/members/models.py:80 amelie/members/models.py:120 amelie/members/models.py:191 amelie/members/models.py:221 amelie/members/models.py:628 amelie/members/models.py:658 amelie/members/models.py:842 amelie/members/models.py:865 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
+#: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:62 amelie/activities/templates/activity_enrollment_overview.html:180 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:24 amelie/education/models.py:46 amelie/education/models.py:131 amelie/education/models.py:177 amelie/members/models.py:35 amelie/members/models.py:56 amelie/members/models.py:80 amelie/members/models.py:120 amelie/members/models.py:191 amelie/members/models.py:221 amelie/members/models.py:628 amelie/members/models.py:658 amelie/members/models.py:842 amelie/members/models.py:865 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
 msgid "Name"
 msgstr "Naam"
 
@@ -97,7 +97,7 @@ msgstr "IA Activiteiten"
 msgid "Inter-Actief's activities in the coming weeks"
 msgstr "De activiteiten van I.C.T.S.V. Inter-Actief in de komende tijd"
 
-#: amelie/activities/forms.py:28 amelie/activities/templates/activity_enrollment_overview.html:186 amelie/activities/templates/activity_enrollment_print.html:36 amelie/calendar/models.py:30
+#: amelie/activities/forms.py:28 amelie/activities/templates/activity_enrollment_overview.html:192 amelie/activities/templates/activity_enrollment_print.html:36 amelie/calendar/models.py:30
 msgid "Method of payment"
 msgstr "Betaalwijze"
 
@@ -113,7 +113,7 @@ msgstr "Wachtlijstactie"
 msgid "Skip waiting list and enroll immediately"
 msgstr "Sla de wachtlijst over en schrijf direct in"
 
-#: amelie/activities/forms.py:51 amelie/activities/models.py:465 amelie/activities/templates/activity_enrollment_overview.html:130 amelie/activities/templates/activity_enrollment_print.html:69 amelie/members/models.py:631 amelie/members/models.py:825 amelie/personal_tab/forms.py:32 amelie/personal_tab/models.py:122 amelie/personal_tab/models.py:286 amelie/personal_tab/templates/cookie_corner/alexia_transaction_detail.html:32 amelie/personal_tab/templates/cookie_corner_authorization_view.html:120 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:70 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:95 amelie/personal_tab/templates/cookie_corner_person_debt_collection_instructions.html:17 amelie/personal_tab/templates/cookie_corner_process_batch.html:52 amelie/personal_tab/templates/cookie_corner_statistics.html:193 amelie/personal_tab/templates/cookie_corner_statistics.html:248 amelie/personal_tab/templates/cookie_corner_statistics.html:291 amelie/personal_tab/templates/cookie_corner_statistics.html:327 amelie/personal_tab/templates/cookie_corner_statistics.html:381 amelie/personal_tab/templates/cookie_corner_statistics.html:420 amelie/personal_tab/templates/exports/screen.html:69 amelie/personal_tab/templates/info/debt_collection_instructions.html:19 amelie/personal_tab/templates/info/transaction_information.html:11 amelie/personal_tab/templates/lists/activity_transactions.html:14 amelie/personal_tab/templates/lists/alexia_transactions.html:12 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:14 amelie/personal_tab/templates/lists/custom_transactions.html:12 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:12 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:11 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:12 amelie/personal_tab/templates/lists/transactions.html:12 amelie/personal_tab/templates/price_list.html:16
+#: amelie/activities/forms.py:51 amelie/activities/models.py:465 amelie/activities/templates/activity_enrollment_overview.html:136 amelie/activities/templates/activity_enrollment_print.html:69 amelie/members/models.py:631 amelie/members/models.py:825 amelie/personal_tab/forms.py:32 amelie/personal_tab/models.py:122 amelie/personal_tab/models.py:286 amelie/personal_tab/templates/cookie_corner/alexia_transaction_detail.html:32 amelie/personal_tab/templates/cookie_corner_authorization_view.html:120 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:70 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:95 amelie/personal_tab/templates/cookie_corner_person_debt_collection_instructions.html:17 amelie/personal_tab/templates/cookie_corner_process_batch.html:52 amelie/personal_tab/templates/cookie_corner_statistics.html:193 amelie/personal_tab/templates/cookie_corner_statistics.html:248 amelie/personal_tab/templates/cookie_corner_statistics.html:291 amelie/personal_tab/templates/cookie_corner_statistics.html:327 amelie/personal_tab/templates/cookie_corner_statistics.html:381 amelie/personal_tab/templates/cookie_corner_statistics.html:420 amelie/personal_tab/templates/exports/screen.html:69 amelie/personal_tab/templates/info/debt_collection_instructions.html:19 amelie/personal_tab/templates/info/transaction_information.html:11 amelie/personal_tab/templates/lists/activity_transactions.html:14 amelie/personal_tab/templates/lists/alexia_transactions.html:12 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:14 amelie/personal_tab/templates/lists/custom_transactions.html:12 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:12 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:11 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:12 amelie/personal_tab/templates/lists/transactions.html:12 amelie/personal_tab/templates/price_list.html:16
 msgid "Price"
 msgstr "Prijs"
 
@@ -1187,7 +1187,7 @@ msgstr ""
 "inschrijfkosten door Inter-<i>Actief</i> van mijn rekening zullen worden afschreven conform de door\n"
 "mijn getekende machtiging voor consumpties en activiteiten."
 
-#: amelie/activities/templates/activity_enrollment_form.html:102 amelie/activities/templates/activity_enrollment_overview.html:136 amelie/activities/templates/activity_enrollment_print.html:73 amelie/members/templates/statistics/overview.html:26 amelie/members/templates/statistics/overview.html:115 amelie/members/templates/statistics/payments.html:19 amelie/personal_tab/templates/cookie_corner_balance.html:47 amelie/personal_tab/templates/cookie_corner_balance.html:77 amelie/personal_tab/templates/cookie_corner_statistics.html:124 amelie/personal_tab/templates/cookie_corner_statistics.html:165 amelie/personal_tab/templates/cookie_corner_statistics.html:220 amelie/personal_tab/templates/cookie_corner_statistics.html:268 amelie/personal_tab/templates/cookie_corner_statistics.html:303 amelie/personal_tab/templates/cookie_corner_statistics.html:359 amelie/personal_tab/templates/cookie_corner_statistics.html:393 amelie/personal_tab/templates/cookie_corner_statistics.html:439 amelie/personal_tab/templates/exports/screen.html:82 amelie/personal_tab/templates/lists/activity_transactions.html:56 amelie/personal_tab/templates/lists/alexia_transactions.html:42 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:48 amelie/personal_tab/templates/lists/custom_transactions.html:42 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:50 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:48 amelie/personal_tab/templates/lists/exam_cookie_credit_totals.html:21 amelie/personal_tab/templates/lists/exam_cookie_credit_totals.html:50 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:38 amelie/personal_tab/templates/lists/transactions.html:44 amelie/personal_tab/templates/lists/transactions_totals.html:25 amelie/personal_tab/templates/lists/transactions_totals.html:56 amelie/personal_tab/templates/pos/shop.html:107 amelie/room_duty/templates/room_duty/table/overview.html:142 amelie/room_duty/templates/room_duty/table/overview.html:176
+#: amelie/activities/templates/activity_enrollment_form.html:102 amelie/activities/templates/activity_enrollment_overview.html:142 amelie/activities/templates/activity_enrollment_print.html:73 amelie/members/templates/statistics/overview.html:26 amelie/members/templates/statistics/overview.html:115 amelie/members/templates/statistics/payments.html:19 amelie/personal_tab/templates/cookie_corner_balance.html:47 amelie/personal_tab/templates/cookie_corner_balance.html:77 amelie/personal_tab/templates/cookie_corner_statistics.html:124 amelie/personal_tab/templates/cookie_corner_statistics.html:165 amelie/personal_tab/templates/cookie_corner_statistics.html:220 amelie/personal_tab/templates/cookie_corner_statistics.html:268 amelie/personal_tab/templates/cookie_corner_statistics.html:303 amelie/personal_tab/templates/cookie_corner_statistics.html:359 amelie/personal_tab/templates/cookie_corner_statistics.html:393 amelie/personal_tab/templates/cookie_corner_statistics.html:439 amelie/personal_tab/templates/exports/screen.html:82 amelie/personal_tab/templates/lists/activity_transactions.html:56 amelie/personal_tab/templates/lists/alexia_transactions.html:42 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:48 amelie/personal_tab/templates/lists/custom_transactions.html:42 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:50 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:48 amelie/personal_tab/templates/lists/exam_cookie_credit_totals.html:21 amelie/personal_tab/templates/lists/exam_cookie_credit_totals.html:50 amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:38 amelie/personal_tab/templates/lists/transactions.html:44 amelie/personal_tab/templates/lists/transactions_totals.html:25 amelie/personal_tab/templates/lists/transactions_totals.html:56 amelie/personal_tab/templates/pos/shop.html:107 amelie/room_duty/templates/room_duty/table/overview.html:142 amelie/room_duty/templates/room_duty/table/overview.html:176
 msgid "Total"
 msgstr "Totaal"
 
@@ -1255,88 +1255,93 @@ msgstr "Aantal deelnemers inclusief wachtlijst: "
 msgid "Number of confirmed participants"
 msgstr "Aantal bevestigde deelnemers: "
 
-#: amelie/activities/templates/activity_enrollment_overview.html:35
+#: amelie/activities/templates/activity_enrollment_overview.html:36
 msgid "Show all participants"
 msgstr "Laat alle deelnemers zien"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:37
+#: amelie/activities/templates/activity_enrollment_overview.html:38
 msgid "Only show underage participants"
 msgstr "Laat alleen minderjarige deelnemers zien"
 
 #: amelie/activities/templates/activity_enrollment_overview.html:44
+#| msgid "Only show underage participants"
+msgid "Need a list of underage participants? Ask the board!"
+msgstr "Heb je een lijst met minderjarige deelnemers nodig? Vraag het bestuur!"
+
+#: amelie/activities/templates/activity_enrollment_overview.html:50
 msgid "You are currently only viewing underage participants!"
 msgstr "Je bekijkt nu alleen minderjarige deelnemers!"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:53 amelie/activities/templates/activity_enrollment_overview.html:171 amelie/personal_tab/models.py:323
+#: amelie/activities/templates/activity_enrollment_overview.html:59 amelie/activities/templates/activity_enrollment_overview.html:177 amelie/personal_tab/models.py:323
 msgid "Sequence"
 msgstr "Volgorde"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:60 amelie/activities/templates/activity_enrollment_overview.html:178
+#: amelie/activities/templates/activity_enrollment_overview.html:66 amelie/activities/templates/activity_enrollment_overview.html:184
 msgid "Enrollment #"
 msgstr "Inschrijving #"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:68 amelie/members/models.py:824 amelie/members/templates/person_membership.html:36
+#: amelie/activities/templates/activity_enrollment_overview.html:74 amelie/members/models.py:824 amelie/members/templates/person_membership.html:36
 msgid "Payment"
 msgstr "Betaling"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:87 amelie/activities/templates/activity_enrollment_overview.html:89
+#: amelie/activities/templates/activity_enrollment_overview.html:93 amelie/activities/templates/activity_enrollment_overview.html:95
 msgid "This participant turns 18 during the activity!"
 msgstr "Deze deelnemer wordt 18 tijdens de activiteit!"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:101
+#: amelie/activities/templates/activity_enrollment_overview.html:107
 msgid "By clicking here, you confirm to have received the full amount of money."
 msgstr "Door hier te klikken, bevestig je het complete contante bedrag ontvangen te hebben."
 
-#: amelie/activities/templates/activity_enrollment_overview.html:101
+#: amelie/activities/templates/activity_enrollment_overview.html:107
 msgid "Register cash payment"
 msgstr "Registreer contante betaling"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:108 amelie/activities/templates/activity_enrollment_overview.html:217 amelie/activities/templates/includes/activity_enrollment.html:87
+#: amelie/activities/templates/activity_enrollment_overview.html:114 amelie/activities/templates/activity_enrollment_overview.html:223 amelie/activities/templates/includes/activity_enrollment.html:87
 msgid "Edit enrollment"
 msgstr "Inschrijving aanpassen"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:113 amelie/activities/templates/activity_enrollment_overview.html:222 amelie/activities/templates/activity_enrollment_print.html:53 amelie/activities/templates/includes/activity_enrollment.html:85
+#: amelie/activities/templates/activity_enrollment_overview.html:119 amelie/activities/templates/activity_enrollment_overview.html:228 amelie/activities/templates/activity_enrollment_print.html:53 amelie/activities/templates/includes/activity_enrollment.html:85
 msgid "Deregister"
 msgstr "Uitschrijven"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:127 amelie/activities/templates/activity_enrollment_print.html:66
+#: amelie/activities/templates/activity_enrollment_overview.html:133 amelie/activities/templates/activity_enrollment_print.html:66
 msgid "Order totals"
 msgstr "Totalen bestellingen"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:130 amelie/activities/templates/activity_enrollment_print.html:69
+#: amelie/activities/templates/activity_enrollment_overview.html:136 amelie/activities/templates/activity_enrollment_print.html:69
 msgid "Dish"
 msgstr "Gerecht"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:130 amelie/activities/templates/activity_enrollment_print.html:69 amelie/members/templates/statistics/overview.html:17 amelie/members/templates/statistics/overview.html:106 amelie/personal_tab/models.py:200 amelie/personal_tab/templates/cookie_corner/alexia_transaction_detail.html:31 amelie/personal_tab/templates/cookie_corner/cookie_corner_transaction_detail.html:18 amelie/personal_tab/templates/cookie_corner_statistics.html:61 amelie/personal_tab/templates/cookie_corner_statistics.html:107 amelie/personal_tab/templates/cookie_corner_statistics.html:148 amelie/personal_tab/templates/cookie_corner_statistics.html:290 amelie/personal_tab/templates/cookie_corner_statistics.html:380 amelie/personal_tab/templates/cookie_corner_statistics.html:417 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:12 amelie/personal_tab/templates/pos/success.html:35
+#: amelie/activities/templates/activity_enrollment_overview.html:136 amelie/activities/templates/activity_enrollment_print.html:69 amelie/members/templates/statistics/overview.html:17 amelie/members/templates/statistics/overview.html:106 amelie/personal_tab/models.py:200 amelie/personal_tab/templates/cookie_corner/alexia_transaction_detail.html:31 amelie/personal_tab/templates/cookie_corner/cookie_corner_transaction_detail.html:18 amelie/personal_tab/templates/cookie_corner_statistics.html:61 amelie/personal_tab/templates/cookie_corner_statistics.html:107 amelie/personal_tab/templates/cookie_corner_statistics.html:148 amelie/personal_tab/templates/cookie_corner_statistics.html:290 amelie/personal_tab/templates/cookie_corner_statistics.html:380 amelie/personal_tab/templates/cookie_corner_statistics.html:417 amelie/personal_tab/templates/lists/cookie_corner_transactions.html:12 amelie/personal_tab/templates/pos/success.html:35
 msgid "Amount"
 msgstr "Aantal"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:130 amelie/activities/templates/activity_enrollment_print.html:69
+#: amelie/activities/templates/activity_enrollment_overview.html:136 amelie/activities/templates/activity_enrollment_print.html:69
 msgid "Total price"
 msgstr "Totale prijs"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:139
+#: amelie/activities/templates/activity_enrollment_overview.html:145
 msgid "Grand Total"
 msgstr "Eindtotaal"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:146 amelie/activities/templates/activity_enrollment_print.html:81
+#: amelie/activities/templates/activity_enrollment_overview.html:152 amelie/activities/templates/activity_enrollment_print.html:81
 msgid "Enroll people"
 msgstr "Personen inschrijven"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:151 amelie/activities/templates/activity_enrollment_print.html:87 amelie/members/templates/includes/query/query_mailing.html:4 amelie/members/templates/includes/query/query_mailing.html:40 amelie/members/templates/includes/query/query_mailing.html:118 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:46
+#: amelie/activities/templates/activity_enrollment_overview.html:157 amelie/activities/templates/activity_enrollment_print.html:87 amelie/members/templates/includes/query/query_mailing.html:4 amelie/members/templates/includes/query/query_mailing.html:40 amelie/members/templates/includes/query/query_mailing.html:118 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:46
 msgid "Send mailing"
 msgstr "Mailing versturen"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:156 amelie/activities/templates/activity_enrollment_print.html:92
+#: amelie/activities/templates/activity_enrollment_overview.html:162 amelie/activities/templates/activity_enrollment_print.html:92
 msgid "View transactions"
 msgstr "Transacties bekijken"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:163
+#: amelie/activities/templates/activity_enrollment_overview.html:169
 #, python-format
 msgid "Waiting list (%(n)s members)"
 msgstr "Wachtlijst (%(n)s leden)"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:163
+#: amelie/activities/templates/activity_enrollment_overview.html:169
 msgid "Locked"
 msgstr "Vergrendeld"
 
@@ -3089,7 +3094,7 @@ msgstr "Nieuw"
 msgid "Expires: %(end_date)s"
 msgstr "Verloopt op: %(end_date)s"
 
-#: amelie/companies/templates/companies/company_banners.html:31 amelie/companies/templates/companies/company_banners.html:68 amelie/narrowcasting/templates/room.html:160
+#: amelie/companies/templates/companies/company_banners.html:31 amelie/companies/templates/companies/company_banners.html:68 amelie/narrowcasting/templates/room.html:172
 msgid "Turned off"
 msgstr "Uitgeschakeld"
 
@@ -3664,7 +3669,6 @@ msgid "Course name"
 msgstr "Vaknaam"
 
 #: amelie/education/forms.py:193 amelie/education/templates/module_new.html:22
-#| msgid "Course name"
 msgid "Module name"
 msgstr "Modulenaam"
 
@@ -4007,12 +4011,6 @@ msgstr "Als het om een vak of module gaat, kun je die hier uitzoeken"
 
 #: amelie/education/templates/complaint_new.html:54
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                        There is a chance that the course you are looking for does not yet exist.\n"
-#| "\n"
-#| "                        <a href=\"%(new_course_url)s\"> If so, please create a new course.</a>.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
@@ -4153,7 +4151,6 @@ msgid "Add course"
 msgstr "Vak toevoegen"
 
 #: amelie/education/templates/course_new.html:36
-#| msgid "Which data export this status belongs to"
 msgid "Module this course belongs to"
 msgstr "Module waar dit vak bij hoort"
 
@@ -4506,12 +4503,10 @@ msgid "These complaints have been received concerning this module"
 msgstr "Over deze module zijn de volgende klachten binnengekomen"
 
 #: amelie/education/templates/module_new.html:4 amelie/education/templates/module_new.html:10
-#| msgid "Add course"
 msgid "Add module"
 msgstr "Module toevoegen"
 
 #: amelie/education/templates/module_new.html:29
-#| msgid "Course code"
 msgid "Module course code"
 msgstr "Vakcode van de module"
 
@@ -7219,11 +7214,11 @@ msgstr "Narrowcasting Inter-/Actief/-kamer"
 msgid "Album image"
 msgstr "Albumafbeelding"
 
-#: amelie/narrowcasting/templates/room.html:42 amelie/narrowcasting/templates/room.html:54 amelie/narrowcasting/templates/room.html:195
+#: amelie/narrowcasting/templates/room.html:42 amelie/narrowcasting/templates/room.html:54 amelie/narrowcasting/templates/room.html:207
 msgid "Not playing anything..."
 msgstr "Niks aan het afspelen..."
 
-#: amelie/narrowcasting/templates/room.html:64 amelie/narrowcasting/templates/room.html:190
+#: amelie/narrowcasting/templates/room.html:64 amelie/narrowcasting/templates/room.html:202
 msgid "Loading activity information..."
 msgstr "Activiteitsinformatie laden..."
 
@@ -7231,59 +7226,59 @@ msgstr "Activiteitsinformatie laden..."
 msgid "Room duty"
 msgstr "Kamerdienst"
 
-#: amelie/narrowcasting/templates/room.html:155
+#: amelie/narrowcasting/templates/room.html:167
 msgid "Active member logged in"
 msgstr "Actief lid ingelogd"
 
-#: amelie/narrowcasting/templates/room.html:156
+#: amelie/narrowcasting/templates/room.html:168
 msgid "Visitor logged in"
 msgstr "Bezoeker ingelogd"
 
-#: amelie/narrowcasting/templates/room.html:159
+#: amelie/narrowcasting/templates/room.html:171
 msgid "No one logged in"
 msgstr "Niemand ingelogd"
 
-#: amelie/narrowcasting/templates/room.html:172
+#: amelie/narrowcasting/templates/room.html:184
 msgid "Loading pictures..."
 msgstr "Foto's laden..."
 
-#: amelie/narrowcasting/templates/room.html:185
+#: amelie/narrowcasting/templates/room.html:197
 msgid "No room duty today!"
 msgstr "Geen kamerdienst vandaag!"
 
-#: amelie/narrowcasting/templates/room.html:186
+#: amelie/narrowcasting/templates/room.html:198
 msgid "No one!"
 msgstr "Niemand!"
 
-#: amelie/narrowcasting/templates/room.html:187
+#: amelie/narrowcasting/templates/room.html:199
 msgid "Next activity starts "
 msgstr "Volgende activiteit begint "
 
-#: amelie/narrowcasting/templates/room.html:188
+#: amelie/narrowcasting/templates/room.html:200
 msgid "Next activity is starting now!"
 msgstr "Volgende activiteit begint nu!"
 
-#: amelie/narrowcasting/templates/room.html:189
+#: amelie/narrowcasting/templates/room.html:201
 msgid "Current activity started "
 msgstr "Huidige activiteit begon "
 
-#: amelie/narrowcasting/templates/room.html:191
+#: amelie/narrowcasting/templates/room.html:203
 msgid "There are no events planned..."
 msgstr "Er zijn geen activiteiten gepland..."
 
-#: amelie/narrowcasting/templates/room.html:192
+#: amelie/narrowcasting/templates/room.html:204
 msgid "Four 'o clock!"
 msgstr "Vier uur!"
 
-#: amelie/narrowcasting/templates/room.html:193
+#: amelie/narrowcasting/templates/room.html:205
 msgid "Not associated to a Spotify account..."
 msgstr "Niet gekoppeld aan een Spotify account..."
 
-#: amelie/narrowcasting/templates/room.html:194
+#: amelie/narrowcasting/templates/room.html:206
 msgid "Unknown artist"
 msgstr "Onbekende artiest"
 
-#: amelie/narrowcasting/templates/room.html:196
+#: amelie/narrowcasting/templates/room.html:208
 msgid "Error while getting spotify data"
 msgstr "Fout bij het ophalen van data van spotify"
 
@@ -9762,19 +9757,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:643
+#: amelie/settings/generic.py:644
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:644
+#: amelie/settings/generic.py:645
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:645
+#: amelie/settings/generic.py:646
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:646
+#: amelie/settings/generic.py:647
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
