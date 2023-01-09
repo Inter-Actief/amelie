@@ -156,7 +156,7 @@ class DogroupGeneration(models.Model, Mappable):
                 'The mail alias for a dogroup generation may only point to an Inter-Actief server.'
             )})
 
-        Mapping = apps.get_model('claudia.Mapping')
+        from amelie.claudia.models import Mapping
         # Check if the email address is already in use!
         if self.mail_alias and Mapping.objects.exist(email=self.mail_alias):
 
@@ -934,7 +934,7 @@ class Committee(models.Model, Mappable):
                 'The email address for a committee may only point to an Inter-Actief server.'
             )})
 
-        Mapping = apps.get_model('claudia.Mapping')
+        from amelie.claudia.models import Mapping
         # Check if the email address is already in use!
         if self.email and Mapping.objects.exists(email=self.email):
 
