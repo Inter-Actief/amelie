@@ -89,8 +89,6 @@ def kcal_equivalent(kcal, language):
     else:
       grouped[i] = 1
 
-  print(grouped)
-
   string = ''
   
   for product, amount in grouped.items():

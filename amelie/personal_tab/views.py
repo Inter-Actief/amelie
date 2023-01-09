@@ -12,7 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import get_language
 from django.db import transaction
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q, Count, Aggregate
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
@@ -1717,13 +1717,15 @@ COOKIE_CORNER_WRAPPED_YEAR = 2022
 @require_lid
 def cookie_corner_wrapped_main(request):
 
-    # TODO Group some forloop
+    # TODO Group some forloops
 
     person = request.person
     language = get_language()
 
-    transactions = CookieCornerTransaction.objects.filter(person=person, 
-        date__year=COOKIE_CORNER_WRAPPED_YEAR).all()
+    transactions = CookieCornerTransaction.objects.filter(
+        person=person, 
+        date__year=COOKIE_CORNER_WRAPPED_YEAR
+    ).all()
 
     transaction_count = transactions.annotate(
         day=TruncDay('date')
@@ -1740,7 +1742,7 @@ def cookie_corner_wrapped_main(request):
     last_transaction_of_the_year = transactions[0]
 
     most_transactions_day = transaction_count.order_by('c').last()
-    most_transactions_date = most_transactions_day['day'] 
+    most_transactions_date = most_transactions_day['day']
     most_transactions_list = transactions.filter(
         date__month=most_transactions_date.month,
         date__day=most_transactions_date.day
@@ -1751,7 +1753,7 @@ def cookie_corner_wrapped_main(request):
 
     for transaction in most_transactions_list:
         total_price += transaction.article.price
-        total_kcal += transaction.article.kcal
+        total_kcal += transaction.article.kcal if transaction.article.kcal is not None else 0 
 
 
     """
@@ -1786,7 +1788,26 @@ def cookie_corner_wrapped_main(request):
 
     total['equivalent'] = kcal_equivalent(total['kcal'], language)
 
-    return render(request, 'wrapped/main.html', {
+    """
+        Alexia
+    """
+
+    alexia_transactions = AlexiaTransaction.objects.filter(
+        person=person,
+        date__year=COOKIE_CORNER_WRAPPED_YEAR   
+    )
+
+    drink_spend_most = alexia_transactions \
+        .values('description', 'date__day', 'date__month') \
+        .annotate(total_price=Sum('price')) \
+        .order_by('-total_price', '-date__day', '-date__month')
+
+    print(drink_spend_most[0])
+
+    drinks_total = sum(d['total_price'] for d in drink_spend_most)
+
+    return render(request, 'wrapped.html', {
+        'year': COOKIE_CORNER_WRAPPED_YEAR,
         'first_transaction_of_the_year': first_transaction_of_the_year,
         'last_transaction_of_the_year': last_transaction_of_the_year,
         'most_transactions': {
@@ -1796,5 +1817,7 @@ def cookie_corner_wrapped_main(request):
             'total_kcal': total_kcal,
         },
         'top_5_products': top_5_products,
-        'total': total
+        'total': total,
+        'drink_spend_most': drink_spend_most,
+        'drinks_total': drinks_total
     })
