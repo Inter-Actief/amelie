@@ -11,7 +11,9 @@
 
     <div class="content">
       <p>
-        {% trans 'Now that the year is coming to an end, this provides a great opportunity to reflect back on your personal year at Inter-Actief.' %}
+        {% blocktrans with year=year%}
+          Now that the year is over, we can take a look into the usage of the cookie corner in {{ year }}. On this page you can view your personal statistics for the cookie corner.
+        {% endblocktrans %}
       </p>
     </div>
   </div></div>
@@ -109,15 +111,13 @@
       </h2>
       <div class="content">
         <p>
-          {% trans 'On' %}
-          {{ most_transactions.day.day|date:'d-m-Y' }}
-          {% trans ' you got a cookie ' %}
-          {{ most_transactions.day.c }}
-          {% trans ' times!' %}
+          {% blocktrans with day=most_transactions.day.day|date:'d-m-Y' c=most_transactions.day.c %}
+            On {{ day }} you got a cookie {{ c }} times!
+          {% endblocktrans %}
         </p>
 
         <p>
-          You bought:
+          {% trans 'You bought:' %}
         </p>
 
         <div class="table-responsive">
@@ -151,7 +151,7 @@
 
     <div class="ia">
       <h2>
-        Drinking rooms
+        {% trans 'Drinking rooms' %}
       </h2>
 
       <div class="content">
