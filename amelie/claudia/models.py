@@ -41,8 +41,8 @@ class ExtraGroup(models.Model, Mappable):
         if self.email and Mapping.objects.exists(email=self.email):
 
             # Already in use, if it's us, then it's fine
-            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
-                email=self.email).name == self.name:
+            if len(Mapping.objects.filter(email=self.email)) > 1 or \
+                Mapping.objects.get(email=self.email).get_mapped_object() != self:
                 raise ValidationError({'email': _(
                     'This email address is already in use by another mapping!'
                 )})
@@ -147,8 +147,8 @@ class ExtraPerson(models.Model, Mappable):
         if self.email and Mapping.objects.exists(email=self.email):
 
             # Already in use, if it's us, then it's fine
-            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
-                email=self.email).name == self.name:
+            if len(Mapping.objects.filter(email=self.email)) > 1 or \
+                Mapping.objects.get(email=self.email).get_mapped_object() != self:
                 raise ValidationError({'email': _(
                     'This email address is already in use by another mapping!'
                 )})
@@ -194,8 +194,8 @@ class AliasGroup(models.Model, Mappable):
         if self.email and Mapping.objects.exists(email=self.email):
 
             # Already in use, if it's us, then it's fine
-            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
-                email=self.email).name == self.name:
+            if len(Mapping.objects.filter(email=self.email)) > 1 or \
+                Mapping.objects.get(email=self.email).get_mapped_object() != self:
                 raise ValidationError({'email': _(
                     'This email address is already in use by another mapping!'
                 )})
@@ -229,7 +229,7 @@ class Contact(models.Model, Mappable):
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
-                email=self.email).name == self.name:
+                email=self.email).get_mapped_object() != self:
                 raise ValidationError({'email': _(
                     'This email address is already in use by another mapping!'
                 )})
