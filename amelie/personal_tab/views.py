@@ -1717,26 +1717,25 @@ COOKIE_CORNER_WRAPPED_YEAR = 2022
 @require_lid
 def cookie_corner_wrapped_main(request):
 
-    # TODO Group some forloops
-
     person = request.person
     language = get_language()
 
     transactions = CookieCornerTransaction.objects.filter(
-        person=person, 
+        person=person,
         date__year=COOKIE_CORNER_WRAPPED_YEAR
     ).all()
 
-    transaction_count = transactions.annotate(
-        day=TruncDay('date')
-    ).values(
-        'day'
-    ).annotate(
-        c=Count('id')
-    ).values(
-        'day',
-        'c'
-    )
+    if len(transactions) == 0:
+        # No transactions found, display the no transactions page
+        return render(request, 'wrapped_no_transactions.html', {
+            'year': COOKIE_CORNER_WRAPPED_YEAR
+        })
+
+    transaction_count = transactions \
+        .annotate(day=TruncDay('date')) \
+        .values('day') \
+        .annotate(c=Count('id')) \
+        .values('day', 'c')
 
     first_transaction_of_the_year = transactions.earliest('date')
     last_transaction_of_the_year = transactions[0]
@@ -1801,8 +1800,6 @@ def cookie_corner_wrapped_main(request):
         .values('description', 'date__day', 'date__month') \
         .annotate(total_price=Sum('price')) \
         .order_by('-total_price', '-date__day', '-date__month')
-
-    print(drink_spend_most[0])
 
     drinks_total = sum(d['total_price'] for d in drink_spend_most)
 
