@@ -3,6 +3,7 @@ function PromotionWidget() {
 
     this.television_promotions = [];
     this.current_promotion = null;
+    this.current_idx = 0;
     this.ticks = 0;
     this.duration = 0;
 }
@@ -36,12 +37,15 @@ PromotionWidget.prototype.tick = function () {
 
 PromotionWidget.prototype.change_photo = function () {
     if (this.television_promotions.length > 0){
-        var res = this.television_promotions.indexOf(this.current_promotion);
 
-        if (res >= 0) {
-            this.current_promotion = this.television_promotions[(res + 1) % (this.television_promotions.length)];
+        if (this.current_idx >= 0) {
+            var idx = (this.current_idx + 1) % this.television_promotions.length;
+
+            this.current_promotion = this.television_promotions[idx];
+            this.current_idx = idx;
         } else if (this.television_promotions.length > 0) {
             this.current_promotion = this.television_promotions[0];
+            this.current_idx = 0;
         }
 
         var photo_url = this.current_promotion.image;
