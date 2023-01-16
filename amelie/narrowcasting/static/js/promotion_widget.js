@@ -58,12 +58,16 @@ PromotionWidget.prototype.change_photo = function () {
         }).load(function(){
             $(".photo-wrapper #photo").remove();
             $(".photo-wrapper").append($(this));
-            if(self.current_promotion.title != undefined){
-                $("#photo-activity").html(self.current_promotion.title);
-            } else {
-                // This is a hack, hiding and showing does not yet work correctly
-                $("#photo-activity").html("Promotion");
-            }
+
+            // if(self.current_promotion.title != undefined){
+            //     $("#photo-activity").html(self.current_promotion.title);        
+            // } else {
+            //     // This is a hack, hiding and showing does not yet work correctly
+            //     $("#photo-activity").html("Promotion");
+            // }
+
+            $("#photo-activity").hide();
+            
             if($(this).height() > $(this).width()){
                 $("#photo").addClass("portrait");
             }
@@ -75,4 +79,5 @@ PromotionWidget.prototype.change_photo = function () {
     }
 };
 
-PromotionWidget.prototype.get_duration = function () { return this.duration; };
+// PromotionWidget.prototype.get_duration = function () { return this.duration; };
+PromotionWidget.prototype.get_duration = function () { return 5; };
