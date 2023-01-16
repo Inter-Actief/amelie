@@ -54,13 +54,13 @@ def get_television_promotions(request):
     result = []
     promotions = TelevisionPromotion.objects.filter(start__lte=timezone.now(), end__gte=timezone.now())
 
-    for promotion in promotions:
+    for promotion in promotions:        
         res_dict = {
             "image": "%s%s" % (settings.MEDIA_URL, str(promotion.attachment))
         }
 
         if promotion.activity:
-            res_dict["title"] = promotion.activity.description
+            res_dict["title"] = promotion.activity.summary
             if promotion.activity.enrollment:
                 res_dict["signup"] = promotion.activity.enrollment
                 res_dict["signupStart"] = promotion.activity.enrollment_begin.isoformat()
