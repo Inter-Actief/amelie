@@ -8,13 +8,15 @@ import django.db.models.deletion
 def create_default_career_label(apps, schema_editor):
     ActivityLabel = apps.get_model('activities', 'ActivityLabel')
 
+    # this part is just because we need this label in the database, in case it does not exist
+    # if it already exists, this will do nothing    
     obj, created = ActivityLabel.objects.get_or_create(
-        name_en="Education",
-        name_nl="Onderwijs",
-        color="DC332E",
-        icon="book_open",
-        explanation_en="Educational",
-        explanation_nl="Onderwijs-gerelateerd"
+        name_en="Career",
+        name_nl="Carrière",
+        color="2450A8",
+        icon="building",
+        explanation_en="Activities from companies, lunch lectures or trainings",
+        explanation_nl="Activiteiten van bedrijven, lunch lectures of trainingen"
     )
 
 class Migration(migrations.Migration):

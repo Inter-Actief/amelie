@@ -6,6 +6,8 @@ from django.db import migrations
 def create_default_education_label(apps, schema_editor):
     ActivityLabel = apps.get_model('activities', 'ActivityLabel')
 
+    # this part is just because we need this label in the database, in case it does not exist
+    # if it already exists, this will do nothing
     obj, created = ActivityLabel.objects.get_or_create(
         name_en="Education",
         name_nl="Onderwijs",
