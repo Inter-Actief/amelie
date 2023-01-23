@@ -103,6 +103,7 @@ class EducationalBouquetForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -126,6 +127,7 @@ class DEANominationForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -172,6 +174,7 @@ class DEAVoteForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
