@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-23 19:36+0100\n"
-"PO-Revision-Date: 2023-01-23 19:57+0018\n"
+"POT-Creation-Date: 2023-01-23 20:09+0100\n"
+"PO-Revision-Date: 2023-01-23 20:10+0018\n"
 "Last-Translator: Kevin Alberts <kevin.alberts@inter-actief.net>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -2383,7 +2383,6 @@ msgid "If an email address for an extra group is set, then it may only point to 
 msgstr "Als een mail adres voor een extra groep is ingesteld, dan mag deze alleen naar een Inter-Actief server wijzen."
 
 #: amelie/claudia/models.py:47 amelie/claudia/models.py:153 amelie/claudia/models.py:200 amelie/claudia/models.py:234 amelie/members/models.py:167 amelie/members/models.py:944
-#| msgid "This e-mail address is not used by any mappings"
 msgid "This email address is already in use by another mapping!"
 msgstr "Dit e-mailadres wordt al door een andere mapping gebruikt!"
 
@@ -2856,7 +2855,7 @@ msgstr "Verify"
 msgid "Timeline"
 msgstr "Timeline"
 
-#: amelie/claudia/templates/claudia/mapping_detail.html:78 amelie/members/templates/committee.html:32 amelie/members/templates/statistics/overview.html:73 templates/frontpage.html:110
+#: amelie/claudia/templates/claudia/mapping_detail.html:78 amelie/members/templates/committee.html:32 amelie/members/templates/statistics/overview.html:73 templates/frontpage.html:118
 msgid "Members"
 msgstr "Leden"
 
@@ -3676,19 +3675,19 @@ msgstr "Reden"
 msgid "Author"
 msgstr "Auteur"
 
-#: amelie/education/forms.py:155
+#: amelie/education/forms.py:157
 msgid "You've already voted!"
 msgstr "Je hebt al gestemd!"
 
-#: amelie/education/forms.py:181 amelie/education/templates/course_new.html:22
+#: amelie/education/forms.py:184 amelie/education/templates/course_new.html:22
 msgid "Course name"
 msgstr "Vaknaam"
 
-#: amelie/education/forms.py:193 amelie/education/templates/module_new.html:22
+#: amelie/education/forms.py:196 amelie/education/templates/module_new.html:22
 msgid "Module name"
 msgstr "Modulenaam"
 
-#: amelie/education/forms.py:205
+#: amelie/education/forms.py:208
 msgid "Name of course"
 msgstr "Naam vak"
 
@@ -3836,7 +3835,7 @@ msgstr "Periode"
 msgid "Complaint"
 msgstr "Klacht"
 
-#: amelie/education/models.py:270 templates/basis.html:225 templates/frontpage.html:232
+#: amelie/education/models.py:270 templates/basis.html:225 templates/frontpage.html:240
 msgid "Complaints"
 msgstr "Klachten"
 
@@ -4212,8 +4211,8 @@ msgid "Complaint handled: %(complaint_subject)s"
 msgstr "Klacht afgehandeld: %(complaint_subject)s"
 
 #: amelie/education/templates/education/complaint_closed.mail:7 amelie/education/templates/education/complaint_comment.mail:6 amelie/education/templates/education/complaint_notification.mail:6 amelie/education/templates/education/new_complaint_notification.mail:6
-msgid "Dear OC'er,"
-msgstr "Beste OC'er,"
+msgid "Dear EC member,"
+msgstr "Beste EC'er,"
 
 #: amelie/education/templates/education/complaint_closed.mail:9
 msgid "This complaint has been handled:"
@@ -4334,7 +4333,7 @@ msgstr "[DOP-nominatie] Nominatie onderwijsprijs"
 #: amelie/education/templates/education/dea_nomination.mail:6
 #, python-format
 msgid ""
-"Dear OC'er,\n"
+"Dear EC member,\n"
 "\n"
 "%(author)s has voted for the educational award!\n"
 "\n"
@@ -4345,7 +4344,7 @@ msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
-"Beste OC'er,\n"
+"Beste EC'er,\n"
 "\n"
 "%(author)s heeft iemand genomineerd voor de onderwijsprijs!\n"
 "\n"
@@ -4364,7 +4363,7 @@ msgstr "[DOP-stem] Stem voor de %(competition)s"
 #: amelie/education/templates/education/dea_vote.mail:6
 #, python-format
 msgid ""
-"Dear OC'er,\n"
+"Dear EC member,\n"
 "\n"
 "%(person)s (%(student_number)s) has voted for the educational award!\n"
 "\n"
@@ -4374,7 +4373,7 @@ msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
-"Beste OC'er,\n"
+"Beste EC'er,\n"
 "\n"
 "%(person)s (%(student_number)s) heeft een stem uitgebracht voor de onderwijsprijs!\n"
 "\n"
@@ -4391,7 +4390,7 @@ msgstr "[Onderwijsbloemetje] Indiening onderwijsbloemetje"
 #: amelie/education/templates/education/educational_bouquet.mail:6
 #, python-format
 msgid ""
-"Dear OC'er,\n"
+"Dear EC member,\n"
 "\n"
 "%(author)s has nominated someone for the educational flower!\n"
 "\n"
@@ -4403,7 +4402,7 @@ msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
-"Beste OC'er,\n"
+"Beste EC'er,\n"
 "\n"
 "%(author)s heeft iemand genomineerd voor het onderwijsbloemetje!\n"
 "\n"
@@ -4470,7 +4469,7 @@ msgstr "Onderwijsactiviteiten"
 msgid "Educational activity"
 msgstr "Onderwijsactiviteit"
 
-#: amelie/education/templates/education_news.html:5 amelie/news/templates/news_items.html:5 templates/basis.html:138 templates/frontpage.html:144
+#: amelie/education/templates/education_news.html:5 amelie/news/templates/news_items.html:5 templates/basis.html:138 templates/frontpage.html:152
 msgid "News"
 msgstr "Nieuws"
 
@@ -5003,7 +5002,7 @@ msgstr "Man"
 msgid "Woman"
 msgstr "Vrouw"
 
-#: amelie/members/models.py:282 amelie/personal_tab/templates/cookie_corner_statistics.html:317 amelie/personal_tab/templates/cookie_corner_transactions_new.html:48 amelie/personal_tab/templates/lists/transactions_totals.html:24 templates/frontpage.html:119
+#: amelie/members/models.py:282 amelie/personal_tab/templates/cookie_corner_statistics.html:317 amelie/personal_tab/templates/cookie_corner_transactions_new.html:48 amelie/personal_tab/templates/lists/transactions_totals.html:24 templates/frontpage.html:127
 msgid "Other"
 msgstr "Overig"
 
@@ -5296,7 +5295,6 @@ msgid "committees"
 msgstr "commissies"
 
 #: amelie/members/models.py:934
-#| msgid "The e-mail address of this committee is not displayed on the website"
 msgid "The email address for a committee may only point to an Inter-Actief server."
 msgstr "Het e-mailadres van een commissie mag alleen maar verwijzen naar een Inter-Actief server."
 
@@ -5519,19 +5517,19 @@ msgstr ""
 "Met vriendelijke groet,\n"
 "Het bestuur van Inter-Actief"
 
-#: amelie/members/templates/birthdays.html:5 amelie/members/templates/birthdays.html:12 templates/frontpage.html:174 templates/frontpage.html:176
+#: amelie/members/templates/birthdays.html:5 amelie/members/templates/birthdays.html:12 templates/frontpage.html:182 templates/frontpage.html:184
 msgid "Birthdays"
 msgstr "Verjaardagen"
 
-#: amelie/members/templates/birthdays.html:27 templates/frontpage.html:187
+#: amelie/members/templates/birthdays.html:27 templates/frontpage.html:195
 msgid "year"
 msgstr "jaar"
 
-#: amelie/members/templates/birthdays.html:27 amelie/members/templates/includes/person_data_table.html:25 templates/frontpage.html:187
+#: amelie/members/templates/birthdays.html:27 amelie/members/templates/includes/person_data_table.html:25 templates/frontpage.html:195
 msgid "years"
 msgstr "jaren"
 
-#: amelie/members/templates/birthdays.html:30 templates/frontpage.html:190
+#: amelie/members/templates/birthdays.html:30 templates/frontpage.html:198
 msgid "There are no birthdays today"
 msgstr "Er zijn geen jarigen vandaag."
 
@@ -5878,7 +5876,7 @@ msgstr "Resultaten"
 msgid "Add new freshmen"
 msgstr "Nieuwe eerstejaars toevoegen"
 
-#: amelie/members/templates/includes/query/query_results.html:55 templates/frontpage.html:111
+#: amelie/members/templates/includes/query/query_results.html:55 templates/frontpage.html:119
 msgid "Add new member"
 msgstr "Nieuw lid toevoegen"
 
@@ -6965,7 +6963,7 @@ msgstr "Print die formulieren!"
 msgid "Go back"
 msgstr "Ga terug"
 
-#: amelie/members/templates/preregistration_status.html:5 amelie/members/templates/preregistration_status.html:11 templates/frontpage.html:116
+#: amelie/members/templates/preregistration_status.html:5 amelie/members/templates/preregistration_status.html:11 templates/frontpage.html:124
 msgid "Pre-enrollment status"
 msgstr "Status van voorinschrijvingen"
 
@@ -9412,7 +9410,7 @@ msgstr "Meer publicaties zijn beschikbaar als je bent "
 msgid "logged in."
 msgstr "ingelogd."
 
-#: amelie/room_duty/models.py:29 amelie/room_duty/models.py:153 templates/frontpage.html:120
+#: amelie/room_duty/models.py:29 amelie/room_duty/models.py:153 templates/frontpage.html:128
 msgid "Office duty"
 msgstr "Kamerdienst"
 
@@ -10738,7 +10736,7 @@ msgstr "Intraweb"
 msgid "External Activities"
 msgstr "Externe Activiteiten"
 
-#: templates/basis.html:221 templates/frontpage.html:203
+#: templates/basis.html:221 templates/frontpage.html:211
 msgid "Education news"
 msgstr "Onderwijsnieuws"
 
@@ -10810,75 +10808,75 @@ msgstr "In de Company Corner kun je informatie vinden over bedrijven en mogelijk
 msgid "Upcoming activities with external parties"
 msgstr "Komende externe activiteiten"
 
-#: templates/frontpage.html:107
+#: templates/frontpage.html:115
 msgid "Board tasks"
 msgstr "Bestuurstaken"
 
-#: templates/frontpage.html:109
+#: templates/frontpage.html:117
 msgid "Member management"
 msgstr "Ledenbeheer"
 
-#: templates/frontpage.html:112
+#: templates/frontpage.html:120
 msgid "Add new external member"
 msgstr "Nieuw extern lid toevoegen"
 
-#: templates/frontpage.html:113
+#: templates/frontpage.html:121
 msgid "Add new employee"
 msgstr "Nieuwe medewerker toevoegen"
 
-#: templates/frontpage.html:114
+#: templates/frontpage.html:122
 msgid "Add new freshman member"
 msgstr "Nieuw eerstejaars lid toevoegen"
 
-#: templates/frontpage.html:115
+#: templates/frontpage.html:123
 msgid "Pre-enroll freshman member"
 msgstr "Nieuw eerstejaarslid voorinschrijven"
 
-#: templates/frontpage.html:117
+#: templates/frontpage.html:125
 msgid "Add new committee"
 msgstr "Nieuwe commissie aanmaken"
 
-#: templates/frontpage.html:121
+#: templates/frontpage.html:129
 msgid "ClaudIA"
 msgstr "ClaudIA"
 
-#: templates/frontpage.html:122
+#: templates/frontpage.html:130
 msgid "Create new '/over' page"
 msgstr "Nieuwe '/over' pagina maken"
 
-#: templates/frontpage.html:123
+#: templates/frontpage.html:131
 msgid "Register RFID cards"
 msgstr "Registreer RFID-kaarten"
 
-#: templates/frontpage.html:124
+#: templates/frontpage.html:132
 msgid "UT Eventdesk status"
 msgstr "UT Evenementenbureau status"
 
-#: templates/frontpage.html:146 templates/frontpage.html:205
+#: templates/frontpage.html:154 templates/frontpage.html:213
 msgid "Add message"
 msgstr "Bericht toevoegen"
 
-#: templates/frontpage.html:157 templates/frontpage.html:216
+#: templates/frontpage.html:165 templates/frontpage.html:224
 msgid "This message has been pinned."
 msgstr "Dit bericht is vastgepind."
 
-#: templates/frontpage.html:163
+#: templates/frontpage.html:171
 msgid "There are no news posts."
 msgstr "Er zijn geen nieuwsberichten."
 
-#: templates/frontpage.html:222
+#: templates/frontpage.html:230
 msgid "There are no education news posts."
 msgstr "Er zijn geen onderwijsnieuwsberichten."
 
-#: templates/frontpage.html:235
+#: templates/frontpage.html:243
 msgid "Recent complaints"
 msgstr "Recente klachten"
 
-#: templates/frontpage.html:244
+#: templates/frontpage.html:252
 msgid "No public outstanding complaints"
 msgstr "Geen publieke openstaande klachten"
 
-#: templates/frontpage.html:249
+#: templates/frontpage.html:257
 msgid "See all complaints / File complaint"
 msgstr "Bekijk alle klachten / Meld klacht"
 
@@ -11310,6 +11308,9 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid "Dear OC'er,"
+#~ msgstr "Beste OC'er,"
 
 #~ msgid "Course or Module name"
 #~ msgstr "Vak- of modulenaam"
