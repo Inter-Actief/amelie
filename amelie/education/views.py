@@ -486,6 +486,7 @@ def send_new_complaint_notification(complaint_obj, comment, reporter, url):
 
     task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                  context=context,
+                                 language='en',
                                  headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
     task.send()
@@ -513,6 +514,7 @@ def send_complaint_comment_notification(complaint_obj, comment, reporter, url):
 
     task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                  context=context,
+                                 language='en',
                                  headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
     task.send()
@@ -555,6 +557,7 @@ def send_complaint_closed_notification(complaint_summary, complainant, url):
         Recipient(
             tos=[settings.EDUCATION_COMMITTEE_EMAIL],
             context=context_oc,
+            language='en',
             headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL},
         )
     )

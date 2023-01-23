@@ -3,7 +3,7 @@
 
 {% block subject %}{% blocktrans %}[Educational flower] Submissions educational flower{% endblocktrans %}{% endblock %}
 
-{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,
+{% block content %}{% htmlify %}{% blocktrans %}Dear EC member,
 
 {{ author }} has nominated someone for the educational flower!
 
