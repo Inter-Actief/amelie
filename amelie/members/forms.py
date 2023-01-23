@@ -9,7 +9,7 @@ import re
 
 from django import forms
 from django.conf import settings
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import Q, TextChoices
 from django.forms import widgets
 from django.forms.models import BaseInlineFormSet
@@ -574,7 +574,7 @@ class RegistrationFormStepFreshmenStudyDetails(forms.Form):
 
 
 class RegistrationFormStepEmployeeDetails(forms.Form):
-    employee_number = forms.IntegerField(validators=[CheckDigitValidator(7), MaxValueValidator(9999999)])
+    employee_number = forms.IntegerField(validators=[MinValueValidator(7640000), MaxValueValidator(9999999)])
 
     def clean_employee_number(self):
         if Employee.objects.filter(number=self.cleaned_data['employee_number']).exists():

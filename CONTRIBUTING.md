@@ -33,14 +33,14 @@ To develop for Amélie, the following packages are needed:
 Python 3: https://www.python.org/downloads/
 
 ###### Debian/Ubuntu
-    sudo apt-get install python3 libjpeg-dev zlib1g-dev xmlsec libssl-dev
+    sudo apt-get install python3 libjpeg-dev zlib1g-dev xmlsec1 libssl-dev libldap-dev libsasl2-dev
 
 ###### Arch linux
     sudo pacman -Syu python libjpeg-turbo zlib xmlsec openssl
 
 ##### Clone the website
-    git clone https://github.com/Inter-Actief/amelie-private.git
-    cd amelie-private/
+    git clone https://github.com/Inter-Actief/amelie.git
+    cd amelie/
 
 ##### Setup a virtualenv
     virtualenv ./venv

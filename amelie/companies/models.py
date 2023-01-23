@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _, get_language
 from amelie.companies.managers import CompanyManager
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event
+from amelie.activities.models import ActivityLabel
 from amelie.tools.discord import send_discord
 
 class Company(models.Model):
@@ -185,6 +186,10 @@ class CompanyEvent(Event):
 
     visible_from = models.DateTimeField()
     visible_till = models.DateTimeField()
+
+    @property
+    def activity_label(self):
+        return ActivityLabel.objects.filter(name_en="Career").first()
 
     @property
     def activity_type(self):

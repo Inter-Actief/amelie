@@ -31,7 +31,7 @@
                             <thead>
                             <tr>
                                 <th>{% trans 'Date' %}</th>
-                                <th>{% trans 'Label' %}</th>
+                                <th><p class="activity-list-header-label">{% trans 'Label' %}</p></th>
                                 <th>{% trans 'Activities' %}</th>
                                 <th>{% trans 'Enrollment' %}</th>
                             </tr>
@@ -50,16 +50,19 @@
                                         {{ activity.begin|date:"d-b (D)" }}
                                     </td>
                                     <td>
-                                        <div class="activity-list-label" 
+                                        <div class="activity-list-label"
                                             style="background: #{{ activity.activity_label.color }};">
                                             <span class="activity-list-label-name">
                                                 {{ activity.activity_label.name }}
                                             </span>
                                         </div>
+                                        <div class="activity-list-label-icon">
+                                            <img src="{{STATIC_URL}}img/icons/{{ activity.activity_label.icon }}.png" alt="{{ activity.activity_label.name }}">
+                                        </div>
                                     </td>
                                     <td>
                                         <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
-                                            title="{% trans 'Dutch-only' %}" 
+                                            title="{% trans 'Dutch-only' %}"
                                             alt="{% trans 'Dutch-only' %}">
                                         <a class="activity-{{ activity.activity_type }}"
                                            href="{{ activity.get_absolute_url }}"

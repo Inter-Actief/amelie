@@ -1,13 +1,13 @@
 {% extends 'basis.html' %}
 {% load i18n %}
 
-{% block titel %}{% trans 'Add course' %}{% endblock titel %}
+{% block titel %}{% trans 'Add module' %}{% endblock titel %}
 
 {% block content %}
   <form action="" method="post" class="big">
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <div class="current edu">
-              <h2>{% trans 'Add course' %}</h2>
+              <h2>{% trans 'Add module' %}</h2>
 
               {% for error in form.non_field_errors %}
                   <div class="icon-error">{{ error }}</div>
@@ -19,22 +19,15 @@
                 {{ form.name.errors }}
 
                 <div class="form-row">
-                    <label for="name">{% trans "Course name" %}</label>
+                    <label for="name">{% trans "Module name" %}</label>
                     {{ form.name }}
                 </div>
 
                 {{ form.course_code.errors }}
 
                 <div class="form-row">
-                    <label for="course_code">{% trans "Course code" %}</label>
+                    <label for="course_code">{% trans "Module course code" %}</label>
                     {{ form.course_code }}
-                </div>
-
-                {{ form.module_ptr.errors }}
-
-                <div class="form-row">
-                    <label for="module_ptr">{% trans "Module this course belongs to" %}</label>
-                    {{ form.module_ptr }}
                 </div>
 
                 <div class="buttons">

@@ -26,7 +26,7 @@
                                 </h3>
 
                                 <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
-                                
+
                                 <div title={{ current_activity.activity_label.name }}>
                                     <img src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}">
                                 </div>
@@ -43,18 +43,18 @@
                             <span class="month">{{ upcoming_activity.begin|date:"M" }}</span>
                             <span class="weekday">{{ upcoming_activity.begin|date:"D" }}</span>
                         </div>
-                        
+
                         <div>
                             <div class="activity-list-item">
                                 <h3 class="truncate">
                                     <a href="{{ upcoming_activity.get_absolute_url }}">{{ upcoming_activity }}</a>
                                 </h3>
-                                
+
                                 <div class="activity-list-icons">
                                     <div title="{% trans 'Dutch-only' %}">
                                         <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
                                     </div>
-    
+
                                     <div title="{{ upcoming_activity.activity_label.name }}" style="">
                                         <img class="activity-icon" src="{{STATIC_URL}}img/icons/{{ upcoming_activity.activity_label.icon }}.png" alt="{{ upcoming_activity.activity_label.name }}">
                                     </div>
@@ -121,6 +121,7 @@
                     <li class="person"><a href="{% url 'claudia:home' %}">{% trans 'ClaudIA' %}</a></li>
                     <li class="person"><a href="{% url 'about:page_new' %}">{% trans "Create new '/over' page" %}</a></li>
                     <li class="person"><a href="{% url 'personal_tab:register_index' %}">{% trans "Register RFID cards" %}</a></li>
+                    <li class="person"><a href="{% url 'activities:eventdesk_list' %}">{% trans 'UT Eventdesk status' %}</a></li>
                 </ul>
             </div>
         {% endif %}

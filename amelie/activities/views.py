@@ -180,6 +180,8 @@ def activity(request, pk, deanonymise=False):
     evt.add('dtend', activity.end)
     evt.add('summary', activity.summary)
 
+    only_show_underage = request.GET.get('underage') == "True"
+
     # Extra check to make sure that no sensitive data will be leaked
     if can_edit:
         restaurants = Restaurant.objects \
@@ -202,7 +204,13 @@ def activity(request, pk, deanonymise=False):
 
     # Sorted set of participations that are used to show the enrollments
     participation_set = activity.participation_set.order_by('added_on')
-    confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
+
+    if only_show_underage:
+        confirmed_participation_set = [x for x in activity.participation_set.filter(waiting_list=False).order_by('added_on') if x.person.age(at=activity.begin) < 18]
+        confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if x.person.age(at=activity.end) >= 18]
+    else:
+        confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
+    
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
 
     if hasattr(request, 'person') and waiting_participation_set.filter(person=request.person).exists():
