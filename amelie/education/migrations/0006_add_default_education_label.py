@@ -20,7 +20,7 @@ def create_default_education_label(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('education', '0004_auto_20221028_1502'),
+        ('education', '0005_auto_20221028_1502'),
     ]
 
     operations = [
