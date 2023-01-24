@@ -38,7 +38,7 @@ class ExtraGroup(models.Model, Mappable):
             )})
 
         # Check if the email address is already in use!
-        if self.email and Mapping.objects.exists(email=self.email):
+        if self.email and Mapping.objects.filter(email=self.email).exists():
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or \
@@ -144,7 +144,7 @@ class ExtraPerson(models.Model, Mappable):
             )})
 
         # Check if the email address is already in use!
-        if self.email and Mapping.objects.exists(email=self.email):
+        if self.email and Mapping.objects.filter(email=self.email).exists():
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or \
@@ -191,7 +191,7 @@ class AliasGroup(models.Model, Mappable):
             )})
 
         # Check if the email address is already in use!
-        if self.email and Mapping.objects.exists(email=self.email):
+        if self.email and Mapping.objects.filter(email=self.email).exists():
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or \
@@ -225,7 +225,7 @@ class Contact(models.Model, Mappable):
             raise ValidationError({'email': _('A contact address is not to point to an Inter-Actief server.')})
 
         # Check if the email address is already in use!
-        if self.email and Mapping.objects.exists(email=self.email):
+        if self.email and Mapping.objects.filter(email=self.email).exists():
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(

@@ -158,7 +158,7 @@ class DogroupGeneration(models.Model, Mappable):
 
         from amelie.claudia.models import Mapping
         # Check if the email address is already in use!
-        if self.mail_alias and Mapping.objects.exist(email=self.mail_alias):
+        if self.mail_alias and Mapping.objects.filter(email=self.mail_alias).exists():
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.mail_alias)) > 1 or \
@@ -936,7 +936,7 @@ class Committee(models.Model, Mappable):
 
         from amelie.claudia.models import Mapping
         # Check if the email address is already in use!
-        if self.email and Mapping.objects.exists(email=self.email):
+        if self.email and Mapping.objects.filter(email=self.email).exists():
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(email=self.email).get_mapped_object() != self:
