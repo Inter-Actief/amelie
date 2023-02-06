@@ -7,28 +7,53 @@ const SWAP_TIME = 20 * SECOND
 let date
 let time
 let activityTable
+let companyAd
+let news
+let photo
 
-window.addEventListener('load', () => {
+// State
+let companyBanners        = []
+let selectedCompanyBanner = undefined
+let activityPhotos        = []
+let selectedActivity      = undefined
+
+window.addEventListener('load', async () => {
   // Initializes the screen
   date          = document.querySelector('#date')
   time          = document.querySelector('#time')
   activityTable = document.querySelector('#activity-table')
+  adContainer   = document.querySelector('.ads')
+  news          = document.querySelector('.footer')
+  photo         = document.querySelector('#photo')
+  photoName     = document.querySelector('#photo-activity')
 
   // Update state
-  update(updateBannerState, 5*MINUTE)
-  update(updateActivityState, 5*MINUTE)
+  await update(updateBannerState, 5*MINUTE)
+  await update(updateActivityState, 5*MINUTE)
+  await update(updateNewsState, 5*MINUTE)
+  await update(updatePhotoState, 5*MINUTE)
 
   // Update UI
   update(updateDateTimeUI, SECOND)
+  update(updateBannerUI, 10*SECOND)
+  update(updatePhotoUI, 10*SECOND)
 })
 
 /*
   Helper functions
 */
 
-const update = (callback, interval) => {
-  callback()
-  setInterval(callback, interval)
+const update = async (callback, interval) => {
+  await callback()
+  setInterval(async () => await callback(), interval)
+}
+
+const getYouTubeElement = (videoId) => {
+  return `<iframe class="video" src="https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=0&rel=0&showinfo=0&vq=hd1080&hl=nl&autoplay=1&controls=0&loop=1" frameborder="0" allowfullscreen></iframe>`
+}
+
+const getImgElement = (imageId) => {
+  return `<img id="adImg" src=${imageId}></img>`
 }
 
 /**
@@ -64,15 +89,30 @@ const req = async (endpoint, params) => {
 /*
   Update state
 */
-const updateBannerState = () => {
-  req('getBanners', [])
-    .then(updateBannerUI)
+const updateBannerState = async () => {
+  await req('getBanners', [])
+    .then(banners => {
+      console.log(banners)
+      companyBanners = banners
+    })
     .catch(console.error)
 }
 
-const updateActivityState = () => {
-  req('getUpcomingActivities', [4])
+const updateActivityState = async () => {
+  await req('getUpcomingActivities', [4, true])
     .then(updateActivityUI)
+    .catch(console.error)
+}
+
+const updateNewsState = async () => {
+  await req('getNews', [2, true])
+    .then(updateNewsUI)
+    .catch(console.error)
+}
+
+const updatePhotoState = async () => {
+  await req('getLatestActivitiesWithPictures', [10])
+    .then(activities => activityPhotos = activities)
     .catch(console.error)
 }
 
@@ -130,6 +170,68 @@ const updateActivityUI = (activities) => {
   }
 }
 
-const updateBannerUI = (banners) => {
-  console.log(banners)
+const updateNewsUI = (newsItems) => {
+  // Clear old news
+  news.textContent = ''
+
+  const options = {
+    weekday: "short", month: "short",
+    day: "numeric"
+  }
+
+  newsItems.forEach(item => {
+    const date = new Date(item["publicationDate"]).toLocaleString('nl-NL', options)
+    const elem = `
+    <div class="news-header">
+      <span class="glyphicon glyphicon-globe"></span>
+      <span>${date}</span>
+      ${item.title}
+    </div>
+    <div class="news-content">
+      ${item.introduction}
+    </div>
+    `
+    const node = document.createElement("div")
+    node.classList.add("news-item")
+    node.innerHTML = elem
+    news.appendChild(node)
+  })
+
+}
+
+const updateBannerUI = () => {
+  const currentIdx = companyBanners.indexOf(selectedCompanyBanner)
+  const nextBanner = companyBanners[(currentIdx + 1) % companyBanners.length]
+
+  selectedCompanyBanner = nextBanner
+
+  adContainer.innerHTML = ''
+
+  if (nextBanner.type === 'image') {
+    adContainer.innerHTML = getImgElement(nextBanner.image)
+  } else if (nextBanner.type === 'video') {
+    adContainer.innerHTML = getYouTubeElement(nextBanner.videoId)    
+  }
+}
+
+const _setPhoto = (activity) => {
+  const imageIdx = 0
+  // Select the large image, and if that does not exist we select the original one
+  let url = activity.images[imageIdx].large ?? activity.images[imageIdx].original
+
+  photo.src = url
+  photoName.innerText = activity.title
+}
+
+const updatePhotoUI = () => {
+  // First select an activity
+  const currentIdx   = activityPhotos.indexOf(selectedActivity)
+  const nextActivity = activityPhotos[(currentIdx + 1) % activityPhotos.length]
+
+  console.log('Selected activity: ', currentIdx)
+
+  selectedActivity = nextActivity
+  
+  // Now, we can set the photo
+  _setPhoto(nextActivity)
 }
