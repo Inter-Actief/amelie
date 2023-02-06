@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _, get_language
 from amelie.companies.managers import CompanyManager
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event
+from amelie.activities.models import ActivityLabel
 from amelie.tools.discord import send_discord
 
 class Company(models.Model):
@@ -175,6 +176,19 @@ class TelevisionBanner(BaseBanner):
         ordering = ['-end_date']
         verbose_name = _('Television banner')
         verbose_name_plural = _('Television banners')
+        
+
+class TelevisionVideo(models.Model):
+    name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    active = models.BooleanField(default=True)
+    video_id = models.CharField(max_length=12)
+    
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name = _('Television Promotion Video')
+        verbose_name_plural = _('Television Promotion Videos')
 
 
 class CompanyEvent(Event):
@@ -185,6 +199,10 @@ class CompanyEvent(Event):
 
     visible_from = models.DateTimeField()
     visible_till = models.DateTimeField()
+
+    @property
+    def activity_label(self):
+        return ActivityLabel.objects.filter(name_en="Career").first()
 
     @property
     def activity_type(self):

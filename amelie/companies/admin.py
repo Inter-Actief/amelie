@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from amelie.companies.models import Company, TelevisionBanner, WebsiteBanner
+from amelie.companies.models import Company, TelevisionBanner, WebsiteBanner, TelevisionVideo
 
 
 class CompanyAdmin(admin.ModelAdmin):
@@ -14,8 +14,12 @@ class WebsiteBannerAdmin(admin.ModelAdmin):
 
 class TelevisionBannerAdmin(admin.ModelAdmin):
     list_display = ['name', 'start_date', 'end_date', 'active']
+    
+class TelevisionVideoAdmin(admin.ModelAdmin):
+    list_display = ['name', 'start_date', 'end_date', 'active']
 
 
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(WebsiteBanner, WebsiteBannerAdmin)
 admin.site.register(TelevisionBanner, TelevisionBannerAdmin)
+admin.site.register(TelevisionVideo, TelevisionVideoAdmin)
