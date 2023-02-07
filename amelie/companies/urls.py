@@ -22,10 +22,8 @@ urlpatterns = [
     path('activities/external_activities.ics', views.company_events_ics, name='events_ics'),
     path('activities/<int:id>/external_activity.ics', views.company_event_ics, name='event_ics'),
 
-    path('', views.company_list, name='company_list'),
-    path('overview/', views.company_overview, name='company_overview'),
-    path('old/', views.company_old, name='company_old'),
-    path('overview/old/', views.company_overview_old, name='company_overview_old'),
+    path('', views.company_overview, name='company_overview'),
+    path('old/', views.company_overview_old, name='company_overview_old'),
     path('create/', views.company_create, name='company_create'),
     path('statistics/', views.CompanyStatisticsView.as_view(), name='statistics'),
     path('<slug:slug>/', views.company_details, name='company_details'),
