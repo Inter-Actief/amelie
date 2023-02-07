@@ -35,8 +35,8 @@ window.addEventListener('load', async () => {
 
   // Update UI
   update(updateDateTimeUI, SECOND)
-  update(updateBannerUI, 10*SECOND)
-  update(updatePhotoUI, 10*SECOND)
+  update(updateBannerUI, 20*SECOND)
+  update(updatePhotoUI, 20*SECOND)
 })
 
 /*
@@ -50,6 +50,10 @@ const update = async (callback, interval) => {
 
 const getYouTubeElement = (videoId) => {
   return `<iframe class="video" src="https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=0&rel=0&showinfo=0&vq=hd1080&hl=nl&autoplay=1&controls=0&loop=1" frameborder="0" allowfullscreen></iframe>`
+}
+
+const getStreamingElement = (videoId) => {
+  return `<iframe class="video" src='https://demo.openstreamingplatform.com/play/${videoId}?embedded=True&autoplay=True' height="1080" width="763"></iframe>`
 }
 
 const getImgElement = (imageId) => {
@@ -205,12 +209,16 @@ const updateBannerUI = () => {
 
   selectedCompanyBanner = nextBanner
 
+  console.log(nextBanner)
+
   adContainer.innerHTML = ''
 
   if (nextBanner.type === 'image') {
     adContainer.innerHTML = getImgElement(nextBanner.image)
-  } else if (nextBanner.type === 'video') {
+  } else if (nextBanner.type === 'youtube') {
     adContainer.innerHTML = getYouTubeElement(nextBanner.videoId)    
+  } else if (nextBanner.type === 'streamingia') {
+    adContainer.innerHTML = getStreamingElement(nextBanner.videoId)
   }
 }
 
