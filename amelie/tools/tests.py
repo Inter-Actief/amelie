@@ -171,7 +171,6 @@ class APITestCase(TestCase):
         expected_data = {
             'jsonrpc': '2.0',
             'id': 'jsonrpc',
-            'error': None,
             'result': expected_result,
         }
 

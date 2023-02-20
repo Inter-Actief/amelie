@@ -171,12 +171,10 @@ class GetActivityDetailTest(APITestCase):
         """
         self.send_and_compare_request_error('getActivityDetailed', [9001], None, 404,
                                             'DoesNotExistError',
-                                            'DoesNotExistError: The requested object does not exist.',
-                                            status_code=404)
+                                            'DoesNotExistError: The requested object does not exist.')
         self.send_and_compare_request_error('getActivityDetailed', [9001], self.data['token1'], 404,
                                             'DoesNotExistError',
-                                            'DoesNotExistError: The requested object does not exist.',
-                                            status_code=404)
+                                            'DoesNotExistError: The requested object does not exist.')
 
     def test_public(self):
         """
@@ -193,8 +191,7 @@ class GetActivityDetailTest(APITestCase):
         for activity in activities:
             self.send_and_compare_request_error('getActivityDetailed', [activity.pk], None, 403,
                                                 'NotLoggedInError',
-                                                'NotLoggedInError: You are not logged in.',
-                                                status_code=500)
+                                                'NotLoggedInError: You are not logged in.')
 
     def test_private(self):
         """
@@ -217,8 +214,7 @@ class GetActivityDetailTest(APITestCase):
         for activity in activities:
             self.send_and_compare_request_error('getActivityDetailed', [activity.pk], 'qNPiKNn3McZIC6fWKE1X', 403,
                                                 'NotLoggedInError',
-                                                'NotLoggedInError: You are not logged in.',
-                                                status_code=500)
+                                                'NotLoggedInError: You are not logged in.')
 
 
 class GetActivityStreamTest(APITestCase):
@@ -355,8 +351,7 @@ class ActivitySignupTest(APITestCase):
 
         self.send_and_compare_request_error('activitySignup', [self.activity.pk, 0.00, []], 'invalidToken', 403,
                                             'NotLoggedInError',
-                                            'NotLoggedInError: You are not logged in.',
-                                            status_code=500)
+                                            'NotLoggedInError: You are not logged in.')
 
     def test_free(self):
         # Clear options
@@ -379,8 +374,7 @@ class ActivitySignupTest(APITestCase):
         self.send_and_compare_request_error(
             'activitySignup', [self.activity.pk, 12.34, []], self.data['token1'], 412,
             'SignupError',
-            'SignupError: A signed mandate is required. Please ask the board for a mandate.',
-            status_code=500
+            'SignupError: A signed mandate is required. Please ask the board for a mandate.'
         )
 
     def test_paid(self):
@@ -402,16 +396,14 @@ class ActivitySignupTest(APITestCase):
         self.send_and_compare_request_error(
             'activitySignup', [self.activity.pk, 12.00, []], self.data['token1'], 412,
             'SignupError',
-            'SignupError: An inconsistency was detected. Please use the website to sign up.',
-            status_code=500
+            'SignupError: An inconsistency was detected. Please use the website to sign up.'
         )
 
     def test_missing_options(self):
         self.send_and_compare_request_error(
             'activitySignup', [self.activity.pk, 0.00, []], self.data['token1'], 412,
             'MissingOptionError',
-            'MissingOptionError: You need to answer all required options.',
-            status_code=500
+            'MissingOptionError: You need to answer all required options.'
         )
 
     def test_with_options(self):
@@ -452,6 +444,5 @@ class ActivitySignupTest(APITestCase):
         self.send_and_compare_request_error(
             'activitySignup', [self.activity.pk, float(price), options], self.data['token1'], 412,
             'MissingOptionError',
-            'MissingOptionError: You need to answer all required options.',
-            status_code=500
+            'MissingOptionError: You need to answer all required options.'
         )
