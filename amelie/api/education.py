@@ -1,21 +1,75 @@
-from django.utils import timezone
-from jsonrpc import jsonrpc_method
-from jsonrpc.exceptions import InvalidParamsError
+from typing import List, Dict
 
-from amelie.api.common import parse_datetime, strip_markdown
+
+from amelie.api.common import strip_markdown
 from amelie.api.decorators import authentication_required
 from amelie.api.exceptions import DoesNotExistError
-from amelie.education.models import Complaint, Course
-from amelie.education.views import send_new_complaint_notification
+from amelie.education.models import Complaint
+
+from modernrpc.core import rpc_method
+from modernrpc.exceptions import RPCInvalidParams
 
 
-@jsonrpc_method('getComplaintStream(Number, Number, String) -> Array', validate=True)
+@rpc_method(name='getComplaintStream')
 @authentication_required("education")
-def get_complaint_stream(request, offset, length, status, authentication=None):
-    person = authentication.represents()
+def get_complaint_stream(offset: int, length: int, status: str, **kwargs) -> List[Dict]:
+    """
+    Retrieves a list of education complaints.
+
+    **Module**: `education`
+
+    **Authentication:** REQUIRED (Scope: education)
+
+    **Parameters:**
+      This method accepts the following parameters:
+
+        - offset: The index offset into the list of complaints to start returning results from.
+        - length: The amount of complaints to return (maximum 250, will be limited if higher)
+        - status: The status of the complaints to return, one of "all", "open", "closed".
+
+    **Return:**
+      `List[Dict]`: An array of dictionaries containing the complaints.
+
+      Each returned element in the list has the following fields:
+
+        - id: The identifier for this complaint.
+        - dateTime: The submission date and time of this complaint (RFC3339).
+        - type: The type of this complaint.
+        - summary: The summary of this complaint.
+        - remark: The content of the complaint.
+        - supporters: The amount of supporters for this complaint (includes the original reporter).
+        - hasSupported: true if the authenticated person has supported this complaint, otherwise false.
+        - course: The course concerning this complaint, can be null.
+        - subject: The subject concerning the course of this complaint, can be null.
+        - year: The first year of the academic year in which the course was given, can be null.
+        - period: The period of the academic year in which the course was given, can be null.
+
+    **Raises:**
+
+      InvalidParamsError: The value of the status parameter was invalid.
+
+    **Example:**
+
+        --> {"method": "getComplaintStream", "params": [0, 2]}
+        <-- {"result": [{
+                "id": 28,
+                "dateTime": "2014-07-02T018:00:00+02:00",
+                "type": "Other",
+                "summary": "So many bugs, so many...,
+                "remark": "Description of the complaint",
+                "supporters": 42,
+                "hasSupported": false,
+                "course": "Computer Systems",
+                "subject": "Programming",
+                "year": 2016,
+                "period": "K2"
+              }, {...}]
+        }
+    """
+    person = kwargs.get('authentication').represents()
 
     if status not in ['all', 'open', 'closed']:
-        raise InvalidParamsError("The provided status of complaints can only be 'all', 'open' or 'closed'")
+        raise RPCInvalidParams("The provided status of complaints can only be 'all', 'open' or 'closed'")
 
     # All complaints
     complaints = Complaint.objects.filter(public=True)
@@ -27,6 +81,10 @@ def get_complaint_stream(request, offset, length, status, authentication=None):
     # Closed complaints
     elif status == 'closed':
         complaints = complaints.filter(completed=True)
+
+    # Limit amount to 250
+    if length > 250:
+        length = 250
 
     result = []
     for complaint in complaints[offset:length + offset]:
@@ -53,10 +111,34 @@ def get_complaint_stream(request, offset, length, status, authentication=None):
     return result
 
 
-@jsonrpc_method('addComplaintSupport(Number) -> Boolean', validate=True)
+@rpc_method(name='addComplaintSupport')
 @authentication_required("education")
-def add_complaint_support(request, complaint_id, authentication=None):
-    person = authentication.represents()
+def add_complaint_support(complaint_id: int, **kwargs) -> bool:
+    """
+    Adds support of the authenticated person to a specific complaint.
+
+    **Module**: `education`
+
+    **Authentication:** REQUIRED (Scope: education)
+
+    **Parameters:**
+      This method accepts the following parameters:
+
+        - id: The identifier of any existing complaint.
+
+    **Return:**
+      `bool`: `true` if successful, otherwise `false`
+
+    **Raises:**
+
+      DoesNotExistError: The complaint with the given identifier does not exist.
+
+    **Example:**
+
+        --> {"method": "addComplaintSupport", "params": [27]}
+        <-- {"result": true}
+    """
+    person = kwargs.get('authentication').represents()
 
     try:
         complaint = Complaint.objects.get(id=complaint_id)
@@ -71,10 +153,34 @@ def add_complaint_support(request, complaint_id, authentication=None):
         return False
 
 
-@jsonrpc_method('removeComplaintSupport(Number) -> Boolean', validate=True)
+@rpc_method(name='removeComplaintSupport')
 @authentication_required("education")
-def remove_complaint_support(request, complaint_id, authentication=None):
-    person = authentication.represents()
+def remove_complaint_support(complaint_id: int, **kwargs) -> bool:
+    """
+    Removes support of the authenticated person of a specific complaint.
+
+    **Module**: `education`
+
+    **Authentication:** REQUIRED (Scope: education)
+
+    **Parameters:**
+      This method accepts the following parameters:
+
+        - id: The identifier of any existing complaint.
+
+    **Return:**
+      `bool`: `true` if successful, otherwise `false`
+
+    **Raises:**
+
+      DoesNotExistError: The complaint with the given identifier does not exist.
+
+    **Example:**
+
+        --> {"method": "removeComplaintSupport", "params": [27]}
+        <-- {"result": true}
+    """
+    person = kwargs.get('authentication').represents()
 
     try:
         complaint = Complaint.objects.get(id=complaint_id)

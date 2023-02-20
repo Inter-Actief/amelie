@@ -15,6 +15,9 @@ django-auditlog>=2.2.0,<2.3
 django-oauth-toolkit>=1.7.1,<1.8  # 2.x has breaking changes.
 django-cors-headers>=3.13.0,<3.14
 
+# Django Modern RPC -- For our JSONRPC API
+django-modern-rpc>=1.0.1,<1.1
+
 # WYSIWYG Editor for Django
 django-ckeditor>=6.3.2,<6.4  # 6.4+ requires Python3.8+ and Django 3.2+
 
@@ -22,7 +25,6 @@ django-ckeditor>=6.3.2,<6.4  # 6.4+ requires Python3.8+ and Django 3.2+
 fcm-django>=0.3.11,<0.4  # 1.x has breaking changes (old firebase api removed)
 
 # Custom forks or specific commits of django packages
-git+https://github.com/samuraisam/django-json-rpc@a88d744d960e828f3eb21265da0f10a694b8ebcf
 git+https://github.com/Inter-Actief/django-sslserver@204586ce686212a4c2848c12f88f7279802b5dcc
 
 # Other random dependencies, to be documented, see issue #556 ...

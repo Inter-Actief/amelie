@@ -1,0 +1,454 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}Inter-Actief API Documentation{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>Amélie JSON-RPC API Specification</h2>
+
+            <div class="content">
+                <p>
+                    This document describes the JSON-RPC application programming interface of Amélie, the
+                    administration system of I.C.T.S.V. Inter-<i>Actief</i>. It should guide you through the different
+                    exposed entities and provide basic pointers to help you to enable your application to consume
+                    this data from Amélie.
+                </p>
+                <p>
+                    The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+                    "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+                    interpreted as described in RFC 2119.
+                </p>
+
+                <h3>Table of Contents</h3>
+                <ul>
+                    <li>
+                        <a href="#header_endpoints">Endpoints</a>
+                        <ul>
+                            <li><a href="#header_endpoints_production">Production environment</a></li>
+                            <li><a href="#header_endpoints_staging">Staging environment</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#header_localization">Localization</a></li>
+                    <li><a href="#header_jsonrpcrequest">JSON-RPC Request</a></li>
+                    <li><a href="#header_jsonrpcresponse">JSON-RPC Response</a></li>
+                    <li><a href="#header_deviceid">Device ID</a></li>
+                    <li>
+                        <a href="#header_auth">Authentication & Authorization</a>
+                        <ul>
+                            <li><a href="#header_auth_scopes">Scopes</a></li>
+                            <li><a href="#header_auth_oauth">OAuth</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#header_errors">Errors</a></li>
+                    <li><a href="#header_methods">Methods</a></li>
+                </ul>
+
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_endpoints">Endpoints</h2>
+            <div class="content">
+                <p>
+                    The current version of the API can be reached in both production and staging environments.
+                    The sandboxed staging environment has been created to ensure production data integrity.
+                </p>
+
+                <h3 id="header_endpoints_production">Production environment</h3>
+                <p>To access the API in the production environment, the following endpoint has to be used:</p>
+                <p><abbr class="monospace-text-bordered">https://www.inter-actief.utwente.nl/api/</abbr></p>
+                <p>Please note that the trailing slash is required.</p>
+
+                <h3 id="header_endpoints_staging">Staging environment</h3>
+                <p>To access the API in the staging environment, the following endpoint has to be used:</p>
+                <p><abbr class="monospace-text-bordered">https://staging.inter-actief.utwente.nl/api/</abbr></p>
+                <p>Please note that the trailing slash is required.</p>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_localization">Localization</h2>
+            <div class="content">
+                <p>
+                    As of this version of the API, two languages are supported: Dutch and English. Most data
+                    can be translated to either one of these languages, if requested properly.
+                    In order to receive localized responses, the Accept-Language HTTP header should be set
+                    in accordance with RFC5646, for example:</p>
+                <p><abbr class="monospace-text-bordered">Accept-Language: nl-NL</abbr></p>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_jsonrpcrequest">JSON-RPC Request</h2>
+            <div class="content">
+                <p>
+                    In order to execute a remote procedure, you must send an HTTP POST request, containing
+                    a json dictionary in compliance to the
+                    <a href="https://www.jsonrpc.org/specification" target="_blank">JSON-RPC 2.0 specification</a>.
+                    This implies that each request dictionary must at least contain the following keys:
+                </p>
+                <dl>
+                    <dt>jsonrpc</dt>
+                    <dd>
+                        A String specifying the version of the JSON-RPC protocol. This field MUST be exactly
+                        "2.0" in order to use JSON-RPC 2.0 features. When omitted JSON-RPC 1.0 is assumed.
+                    </dd>
+
+                    <dt>method</dt>
+                    <dd>A String containing the name of the method to be invoked.</dd>
+
+                    <dt>params</dt>
+                    <dd>
+                        A Structured value that holds the parameter values to be used during the invocation of
+                        the method. If a method does not require any parameters, an empty array MUST be
+                        included.
+                    </dd>
+
+                    <dt>id</dt>
+                    <dd>
+                        An identifier established by the Client that MUST contain a String or Number. Numbers
+                        SHOULD NOT contain fractional parts.
+                    </dd>
+                </dl>
+                <p>
+                    The <abbr class="monospace-text-bordered">id</abbr> and
+                    <abbr class="monospace-text-bordered">jsonrpc</abbr> fields are ommitted in all examples.
+                </p>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_jsonrpcresponse">JSON-RPC Response</h2>
+            <div class="content">
+                <p>
+                    After sending a request, a response object will be returned. The response object consists of a
+                    json dictionary containing the following keys:
+                </p>
+                <dl>
+                    <dt>jsonrpc</dt>
+                    <dd>A String specifying the version of the JSON-RPC protocol.</dd>
+
+                    <dt>result</dt>
+                    <dd>The value of this member is determined by the method invoked on the Server.</dd>
+
+                    <dt>error</dt>
+                    <dd>This member only exists if an error has occured.
+                        The structure of this member is defined below at <a href="#header_errors">Errors</a>.
+                        If no error has occured, this member MAY also be null.</dd>
+
+                    <dt>id</dt>
+                    <dd>This member contains the value of the id member in the Request Object. If the id could not be
+                        parsed due to a parse error, it will be set to null.</dd>
+                </dl>
+                <p>
+                    The <abbr class="monospace-text-bordered">id</abbr> and
+                    <abbr class="monospace-text-bordered">jsonrpc</abbr> fields are ommitted in all examples.
+                </p>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_deviceid">Device ID</h2>
+            <div class="content">
+                <p>
+                    Some methods may require a deviceId. A deviceId is a unique token, used to identify your
+                    device or service. Obtaining a new deviceId can be done through the
+                    <abbr class="monospace-text-bordered"><a href="#mheader_getdeviceid">getDeviceId</a></abbr> method.
+                </p>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_auth">Authentication & Authorization</h2>
+            <div class="content">
+                <p>
+                    Some methods MAY or MUST be invoked using authentication. In order to make an authenticated
+                    call, your application MUST first request an authentication token. This can be done using
+                    <a href="#header_auth_oauth">oAuth</a>.
+                </p>
+                <p>
+                    When used, an authentication token MUST be included in the HTTP Authorization header
+                    in the following fashion:
+                </p>
+                <p><abbr class="monospace-text-bordered">Bearer some.long.auth.token!%&...</abbr></p>
+
+                <h3 id="header_auth_scopes">Scopes</h3>
+                <p>
+                    After retrieving an oAuth token, the token returned will automatically be assigned all available
+                    scopes. The following scopes currently exist within the API:
+                </p>
+                <dl>
+                    <dt>account</dt>
+                    <dd>This scope is required to get access to personal data, such as name and student number.</dd>
+
+                    <dt>signup</dt>
+                    <dd>This scope is required to (de-)register for activities.</dd>
+
+                    <dt>transaction</dt>
+                    <dd>This scope is required for transactions, mandates, RFID-cards and direct debits.</dd>
+
+                    <dt>education</dt>
+                    <dd>This scope allows for the creation and reading of educational complaints.</dd>
+                </dl>
+                <p>
+                    OAuth applications will have to request each of these scopes individually. More information
+                    about OAuth can be found under <a href="#header_auth_oauth">OAuth</a>.
+                </p>
+
+                <h3 id="header_auth_oauth">OAuth</h3>
+                <p>
+                    In order to use OAuth with the Inter-<i>Actief</i> API in your application, you will first need to
+                    register an OAuth application to obtain a client_id. This can be done by sending an email
+                    describing your request to <a href="mailto:board@inter-actief.net">board@inter-actief.net</a>.
+                    Make sure to mention your application name and redirect uri(s).
+                    More information might be requested if required.
+                </p>
+                <p>
+                    When you have obtained your client_id, you will need to use the following endpoint to
+                    receive your token:
+                </p>
+                <p><abbr class="monospace-text-bordered">
+                https://www.inter-actief.utwente.nl/o/authorize/?client_id={client_id}&scope={scopes}&response_type=token
+                </abbr></p>
+                <p>
+                    Replace <abbr class="monospace-text-bordered">{client_id}</abbr> with your client_id and
+                    <abbr class="monospace-text-bordered">{scopes}</abbr> with one or more scopes separated
+                    by the <abbr class="monospace-text-bordered">+</abbr> character.
+                </p>
+
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_errors">The Error object</h2>
+            <div class="content">
+                <p>
+                    A JSON-RPC Error object has the following fields:
+                </p>
+                <dl>
+                    <dt>code</dt>
+                    <dd>A Number that indicates the error type that occurred. This MUST be an integer.</dd>
+
+                    <dt>message</dt>
+                    <dd>A String providing a short description of the error. The message SHOULD be limited to a
+                        concise single sentence.</dd>
+
+                    <dt>data</dt>
+                    <dd>A value that contains additional information about the error. The value of this member is
+                        defined by the Server, this member MAY be omitted.</dd>
+                </dl>
+
+                <h3>Known Error Codes</h3>
+                <p>The following table lists the known error codes that this API can return, with their descriptions.</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Error Code</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>403</td>
+                            <td>NotLoggedInError</td>
+                            <td>Not logged in / The token was not recognized.</td>
+                        </tr>
+                        <tr>
+                            <td>406</td>
+                            <td>UnknownDeviceError</td>
+                            <td>The DeviceId was not recognized.</td>
+                        </tr>
+                        <tr>
+                            <td>412</td>
+                            <td>SignupError</td>
+                            <td>Could not sign up for event. See message.</td>
+                        </tr>
+                        <tr>&nbsp;</tr>
+                        <tr>
+                            <td>500</td>
+                            <td>OtherError</td>
+                            <td>An unexpected error occured, see error details.</td>
+                        </tr>
+                        <tr>
+                            <td>-32700</td>
+                            <td>ParseError</td>
+                            <td>An error occurred while parsing the JSON input.</td>
+                        </tr>
+                        <tr>
+                            <td>-32600</td>
+                            <td>InvalidRequestError</td>
+                            <td>The received JSON is not a valid JSON-RPC Request.</td>
+                        </tr>
+                        <tr>
+                            <td>-32601</td>
+                            <td>MethodNotFoundError</td>
+                            <td>The requested remote-procedure does not exist.</td>
+                        </tr>
+                        <tr>
+                            <td>-32602</td>
+                            <td>InvalidParamsError</td>
+                            <td>Invalid method parameters.</td>
+                        </tr>
+                        <tr>
+                            <td>-32603</td>
+                            <td>ServerError</td>
+                            <td>Internal JSON-RPC error.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2 id="header_methods">Methods</h2>
+            <div class="content">
+                <p>
+                    The API exposes different methods. These methods are all grouped into modules. A module
+                    contains the methods involving a specific entity of amelie.
+                </p>
+                <p>
+                    The following modules and methods are available. Click any method to jump to its documentation:
+                </p>
+                <p>
+                    <h4 style="margin-bottom: 0;">Authentication Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getauthenticatedapps">getAuthenticatedApps</a></li>
+                        <li><a href="#mheader_checkauthtoken">checkAuthToken</a></li>
+                        <li><a href="#mheader_revokeauthtoken">revokeAuthToken</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Activity (ActivityStream) Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_activitysignup">activitySignup</a></li>
+                        <li><a href="#mheader_activityrevokesignup">activityRevokeSignup</a></li>
+                        <li><a href="#mheader_getactivitydetailed">getActivityDetailed</a></li>
+                        <li><a href="#mheader_getactivitystream">getActivityStream</a></li>
+                        <li><a href="#mheader_getactivitythumbnailsstream">getActivityThumbnailsStream</a></li>
+                        <li><a href="#mheader_getlatestactivitieswithpictures">getLatestActivitiesWithPictures</a></li>
+                        <li><a href="#mheader_getupcomingactivities">getUpcomingActivities</a></li>
+                        <li><a href="#mheader_searchgallery">searchGallery</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Committee Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getcommitteedetailed">getCommitteeDetailed</a></li>
+                        <li><a href="#mheader_getcommitteestream">getCommitteeStream</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Company Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getcompanydetailed">getCompanyDetailed</a></li>
+                        <li><a href="#mheader_getcompanystream">getCompanyStream</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Education Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getcomplaintstream">getComplaintStream</a></li>
+                        <li><a href="#mheader_addcomplaintsupport">addComplaintSupport</a></li>
+                        <li><a href="#mheader_removecomplaintsupport">removeComplaintSupport</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Narrowcasting Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getbanners">getBanners</a></li>
+                        <li><a href="#mheader_getphotos">getPhotos</a></li>
+                        <li><a href="#mheader_getroomdutytoday">getRoomDutyToday</a></li>
+                        <li><a href="#mheader_gettelevisionpromotions">getTelevisionPromotions</a></li>
+                        <li><a href="#mheader_gethistoricactivitieswithpictures">getHistoricActivitiesWithPictures</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">News Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getnews">getNews</a></li>
+                        <li><a href="#mheader_getnewscontent">getNewsContent</a></li>
+                        <li><a href="#mheader_getnewsstream">getNewsStream</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Person Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getuserid">getUserId</a></li>
+                        <li><a href="#mheader_getpersondetails">getPersonDetails</a></li>
+                        <li><a href="#mheader_getpersoncommittees">getPersonCommittees</a></li>
+                        <li><a href="#mheader_getpersonmembership">getPersonMembership</a></li>
+                        <li><a href="#mheader_setlanguagepreference">setLanguagePreference</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Push Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getdeviceid">getDeviceId</a></li>
+                        <li><a href="#mheader_getpushcontent">getPushContent</a></li>
+                        <li><a href="#mheader_registerpushchannel">registerPushChannel</a></li>
+                        <li><a href="#mheader_deletepushchannel">deletePushChannel</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Personal Tab (Transaction) Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getdirectdebits">getDirectDebits</a></li>
+                        <li><a href="#mheader_getmandates">getMandates</a></li>
+                        <li><a href="#mheader_getrfidcards">getRfidCards</a></li>
+                        <li><a href="#mheader_gettransactions">getTransactions</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Video Module</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_getvideodetails">getVideoDetails</a></li>
+                        <li><a href="#mheader_getvideostream">getVideoStream</a></li>
+                    </ul>
+
+                    <h4 style="margin-bottom: 0;">Other</h4>
+                    <ul style="margin-top: 0;">
+                        <li><a href="#mheader_methods">methods</a></li>
+                        <li><a href="#mheader_systemlistmethods">system.listMethods</a></li>
+                        <li><a href="#mheader_systemmethodhelp">system.methodHelp</a></li>
+                        <li><a href="#mheader_systemmethodsignature">system.methodSignature</a></li>
+                        <li><a href="#mheader_systemmulticall">system.multicall</a></li>
+                        <li><a href="#mheader_version">version</a></li>
+                    </ul>
+                </p>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    {% for method in methods %}
+        {% include 'api/doc_accordion_method.html' %}
+    {% empty %}
+        <div class="col-xs-12">
+            <div class="current">
+                <h2>{% trans 'No methods' %}</h2>
+                <div class="content">
+                    {% trans "There is no API documentation available." %}
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock content %}

@@ -1,16 +1,12 @@
 from django.urls import path
 
-from jsonrpc.site import jsonrpc_site
-
-# Load all JSON-RPC methods
-# noinspection PyUnresolvedReferences
-from amelie.api import api, authentication, news, activitystream, committee, company, authentication, push,\
-    narrowcasting, personal_tab, person, education, videos
-
+from modernrpc.core import Protocol
+from modernrpc.views import RPCEntryPoint
 
 app_name = 'api'
 
 
 urlpatterns = [
-    path('', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
+    path('', RPCEntryPoint.as_view(protocol=Protocol.JSON_RPC), name="jsonrpc_mountpoint"),
+    path('docs/', RPCEntryPoint.as_view(enable_doc=True, enable_rpc=False, template_name="api/doc_index.html")),
 ]

@@ -11,6 +11,7 @@ from amelie.members.models import Committee, Person
 from amelie.tools.ariana import send_irc
 from amelie.tools.discord import send_discord
 
+
 class NewsItem(models.Model):
     publication_date = models.DateTimeField(auto_now_add=True)
 
