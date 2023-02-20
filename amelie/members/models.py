@@ -3,6 +3,7 @@
 import datetime
 import uuid
 import os
+from django.apps import apps
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -147,6 +148,24 @@ class DogroupGeneration(models.Model, Mappable):
 
     def __str__(self):
         return '%s %s' % (self.dogroup, self.generation)
+
+    def clean(self):
+        super(DogroupGeneration, self).clean()
+        if not any(self.mail_alias.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'The mail alias for a dogroup generation may only point to an Inter-Actief server.'
+            )})
+
+        from amelie.claudia.models import Mapping
+        # Check if the email address is already in use!
+        if self.mail_alias and Mapping.objects.filter(email=self.mail_alias).exists():
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.mail_alias)) > 1 or \
+                Mapping.objects.get(email=self.mail_alias).get_mapped_object() != self:
+                raise ValidationError({'email': _(
+                    'This email address is already in use by another mapping!'
+                )})
 
     # ===== Methods for Claudia-mapping =====
     def get_name(self):
@@ -907,6 +926,23 @@ class Committee(models.Model, Mappable):
 
     def __str__(self):
         return '%s' % self.name
+
+    def clean(self):
+        super(Committee, self).clean()
+        if not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'The email address for a committee may only point to an Inter-Actief server.'
+            )})
+
+        from amelie.claudia.models import Mapping
+        # Check if the email address is already in use!
+        if self.email and Mapping.objects.filter(email=self.email).exists():
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(email=self.email).get_mapped_object() != self:
+                raise ValidationError({'error': _(
+                    'This email address is already in use by another mapping!'
+                )})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.__str__())

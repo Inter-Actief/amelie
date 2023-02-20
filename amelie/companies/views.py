@@ -21,15 +21,6 @@ from amelie.tools.mixins import RequireBoardMixin, RequireCommitteeMixin
 
 logger = logging.getLogger(__name__)
 
-@track_hits("Company Corner")
-def company_list(request):
-    """
-    List of all companies
-    NOTE: Will be deprecated in favour of the `company_overview` view.
-    """
-    is_board = hasattr(request, 'person') and request.is_board
-    companies = Company.objects.active()
-    return render(request, 'companies/company_list.html', {'is_board': is_board, 'companies': companies})
 
 @track_hits("Company Corner")
 def company_overview(request):
@@ -53,6 +44,7 @@ def company_overview(request):
         'active': True,
         'sorted': should_sort
     })
+
 
 def company_details(request, slug):
     """ Shows details of a company """
@@ -129,7 +121,6 @@ def televisionbanner_create(request):
 def company_overview_old(request):
     """
     Overview with all inactive companies
-    NOTE: Will be deprecated in favour of the `company_overview_old` view
     """
     is_board = hasattr(request, 'person') and request.is_board
     companies = Company.objects.inactive()
@@ -138,16 +129,6 @@ def company_overview_old(request):
         'companies': companies,
         'active': False
     })
-
-@require_board
-def company_old(request):
-    """
-    Overview with all inactive companies
-    NOTE: Will be deprecated in favour of the `company_overview_old` view
-    """
-    is_board = hasattr(request, 'person') and request.is_board
-    companies = Company.objects.inactive()
-    return render(request, 'companies/company_list.html', {'is_board': is_board, 'companies': companies})
 
 @require_board
 def company_edit(request, slug):
@@ -176,7 +157,9 @@ def company_create(request):
     return render(request, 'companies/company_form.html', locals())
 
 
-#### Company calendar
+##
+# Company calendar
+##
 @require_board
 def event_create(request):
     """ Create a CompanyEvent. """
