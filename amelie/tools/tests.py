@@ -139,7 +139,7 @@ class APITestCase(TestCase):
         path = reverse('api:jsonrpc_mountpoint')
 
         req = {
-            'jsonrpc': '1.0',
+            'jsonrpc': '2.0',
             'id': 'jsonrpc',
             'method': method,
             'params': params,
@@ -169,7 +169,7 @@ class APITestCase(TestCase):
         response, content = self.send_request(method, params, token)
 
         expected_data = {
-            'jsonrpc': '1.0',
+            'jsonrpc': '2.0',
             'id': 'jsonrpc',
             'error': None,
             'result': expected_result,
@@ -195,7 +195,7 @@ class APITestCase(TestCase):
                          'HTTP status code invalid. Content: ' + content)
 
         expected_data = {
-            'jsonrpc': '1.0',
+            'jsonrpc': '2.0',
             'id': 'jsonrpc',
             'error': {
                 'code': error_code,
