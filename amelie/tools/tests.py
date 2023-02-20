@@ -148,12 +148,12 @@ class APITestCase(TestCase):
         req_json = json.dumps(req)
 
         if token is not None:
-            response = self.client.post(path, req_json, content_type='text/plain; charset=UTF-8',
+            response = self.client.post(path, req_json, content_type='application/json',
                                         HTTP_AUTHORIZATION='Bearer %s' % token)
         else:
-            response = self.client.post(path, req_json, content_type='text/plain; charset=UTF-8')
+            response = self.client.post(path, req_json, content_type='application/json')
 
-        self.assertEqual(response['Content-Type'], 'application/json-rpc')
+        self.assertEqual(response['Content-Type'], 'application/json')
 
         content = response.content.decode()
 
