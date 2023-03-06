@@ -21,7 +21,7 @@ from amelie.members.models import Study, Person, Preference, MembershipType, \
 from amelie.personal_tab.models import AuthorizationType
 from amelie.tools.logic import current_academic_year_strict, current_association_year
 from amelie.tools.mail import PersonRecipient, person_dict
-
+from amelie.tools.templatetags import md
 
 def _find_years():
     year = current_association_year()
@@ -421,9 +421,10 @@ class MailingForm(forms.Form):
         # This has to be scoped within this block, otherwise it breaks :O
         template_string += '{% get_current_language as LANG %}'
         template_string += '{% if LANG == \"en\" %}'
-        template_string += self.cleaned_data['template_en']
+        #  md.markdown(activity.description)
+        template_string += md.markdown(self.cleaned_data['template_en'])
         template_string += '{% else %}'
-        template_string += self.cleaned_data['template_nl']
+        template_string +=  md.markdown(self.cleaned_data['template_nl'])
         template_string += '{% endif %}'
         template_string += '{% endblock %}'
 
