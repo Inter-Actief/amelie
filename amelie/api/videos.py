@@ -179,3 +179,10 @@ def get_video_details(video_id: str, **kwargs) -> Dict:
     result["description"] = video.description if video.description else None
 
     return result
+
+
+@rpc_method(name='videos.getVideoStream')
+@authentication_optional()
+def get_video_stream_2(offset: int, length: int, **kwargs):
+    """Alias of `getVideoStream` for backwards compatibility."""
+    return get_video_stream(offset=offset, length=length, **kwargs)

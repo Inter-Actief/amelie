@@ -402,6 +402,10 @@ MODERNRPC_METHODS_MODULES = [
     'amelie.api.videos'
 ]
 
+MODERNRPC_HANDLERS = [
+    "amelie.api.handlers.IAJSONRPCHandler"
+]
+
 # API documentation strings are formatted with markdown
 MODERNRPC_DOC_FORMAT = 'markdown'
 
