@@ -169,8 +169,8 @@ class GetActivityDetailTest(APITestCase):
         """
         Test the getActivityDetailed() call with a non-existent activity.
         """
-        self.send_and_compare_request_error('getActivityDetailed', [9001], None, 404)
-        self.send_and_compare_request_error('getActivityDetailed', [9001], self.data['token1'], 404)
+        self.send_and_compare_request_error('getActivityDetailed', [9001], None, -32095)
+        self.send_and_compare_request_error('getActivityDetailed', [9001], self.data['token1'], -32095)
 
     def test_public(self):
         """
@@ -185,7 +185,7 @@ class GetActivityDetailTest(APITestCase):
 
         activities = Activity.objects.filter(public=False)
         for activity in activities:
-            self.send_and_compare_request_error('getActivityDetailed', [activity.pk], None, 403)
+            self.send_and_compare_request_error('getActivityDetailed', [activity.pk], None, -32096)
 
     def test_private(self):
         """
@@ -206,7 +206,7 @@ class GetActivityDetailTest(APITestCase):
 
         activities = Activity.objects.filter(public=False)
         for activity in activities:
-            self.send_and_compare_request_error('getActivityDetailed', [activity.pk], 'qNPiKNn3McZIC6fWKE1X', 403)
+            self.send_and_compare_request_error('getActivityDetailed', [activity.pk], 'qNPiKNn3McZIC6fWKE1X', -32096)
 
 
 class GetActivityStreamTest(APITestCase):
@@ -341,7 +341,7 @@ class ActivitySignupTest(APITestCase):
         for option in self.activity.enrollmentoption_set.all():
             option.delete()
 
-        self.send_and_compare_request_error('activitySignup', [self.activity.pk, 0.00, []], 'invalidToken', 403)
+        self.send_and_compare_request_error('activitySignup', [self.activity.pk, 0.00, []], 'invalidToken', -32096)
 
     def test_free(self):
         # Clear options
@@ -362,7 +362,7 @@ class ActivitySignupTest(APITestCase):
         Authorization.objects.all().delete()
 
         self.send_and_compare_request_error(
-            'activitySignup', [self.activity.pk, 12.34, []], self.data['token1'], 412
+            'activitySignup', [self.activity.pk, 12.34, []], self.data['token1'], -32602
         )
 
     def test_paid(self):
@@ -382,12 +382,12 @@ class ActivitySignupTest(APITestCase):
             option.delete()
 
         self.send_and_compare_request_error(
-            'activitySignup', [self.activity.pk, 12.00, []], self.data['token1'], 412
+            'activitySignup', [self.activity.pk, 12.00, []], self.data['token1'], -32602
         )
 
     def test_missing_options(self):
         self.send_and_compare_request_error(
-            'activitySignup', [self.activity.pk, 0.00, []], self.data['token1'], 412
+            'activitySignup', [self.activity.pk, 0.00, []], self.data['token1'], -32602
         )
 
     def test_with_options(self):
@@ -426,5 +426,5 @@ class ActivitySignupTest(APITestCase):
             options.append({'id': option.pk, 'value': gerecht.id})
 
         self.send_and_compare_request_error(
-            'activitySignup', [self.activity.pk, float(price), options], self.data['token1'], 412
+            'activitySignup', [self.activity.pk, float(price), options], self.data['token1'], -32602
         )
