@@ -189,14 +189,16 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, status_code,
                          'HTTP status code invalid. Content: ' + content)
 
+        json_content = json.loads(content)
+
         # Compare jsonrpc version
-        self.assertEqual(content.get("jsonrpc", None), "2.0")
+        self.assertEqual(json_content.get("jsonrpc", None), "2.0")
         # Compare id
-        self.assertEqual(content.get("jsonrpc", None), "2.0")
+        self.assertEqual(json_content.get("jsonrpc", None), "2.0")
         # Compare error object type
-        self.assertEqual(type(content.get("error", None)), dict)
+        self.assertEqual(type(json_content.get("error", None)), dict)
         # Compare error code
-        self.assertEqual(content.get("error", {}).get("code", None), error_code)
+        self.assertEqual(json_content.get("error", {}).get("code", None), error_code)
 
 
 def _test_url(url_name):
