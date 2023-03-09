@@ -9,7 +9,7 @@ from amelie.activities.models import Activity
 from amelie.api.activitystream_utils import add_images_property, add_thumbnails_property
 from amelie.api.decorators import authentication_optional
 from amelie.api.utils import parse_datetime_parameter
-from amelie.companies.models import TelevisionBanner
+from amelie.companies.models import TelevisionBanner, TelevisionVideo
 from amelie.news.models import NewsItem
 from amelie.narrowcasting.models import TelevisionPromotion
 from amelie.room_duty.models import RoomDuty
@@ -20,12 +20,22 @@ from amelie.tools.templatetags import md
 def get_narrowcasting_banners(request):
     result = []
     banners = TelevisionBanner.objects.filter(start_date__lte=timezone.now(), end_date__gte=timezone.now(), active=True)
+    videos = TelevisionVideo.objects.filter(start_date__lte=timezone.now(), end_date__gte=timezone.now(), active=True)
 
     for banner in banners:
         result.append({
             "name": banner.name,
             "image": "%s%s" % (settings.MEDIA_URL, str(banner.picture)),
+            "type": "image",
             "id": banner.id
+        })
+        
+    for video in videos:
+        result.append({
+            "name": video.name,
+            "videoId": video.video_id,
+            "type": video.video_type,
+            "id": video.id
         })
 
     return result
@@ -54,13 +64,13 @@ def get_television_promotions(request):
     result = []
     promotions = TelevisionPromotion.objects.filter(start__lte=timezone.now(), end__gte=timezone.now())
 
-    for promotion in promotions:
+    for promotion in promotions:        
         res_dict = {
             "image": "%s%s" % (settings.MEDIA_URL, str(promotion.attachment))
         }
 
         if promotion.activity:
-            res_dict["title"] = promotion.activity.description
+            res_dict["title"] = promotion.activity.summary
             if promotion.activity.enrollment:
                 res_dict["signup"] = promotion.activity.enrollment
                 res_dict["signupStart"] = promotion.activity.enrollment_begin.isoformat()

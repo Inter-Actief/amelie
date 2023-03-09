@@ -3,6 +3,7 @@ function PromotionWidget() {
 
     this.television_promotions = [];
     this.current_promotion = null;
+    this.current_idx = 0;
     this.ticks = 0;
     this.duration = 0;
 }
@@ -36,12 +37,15 @@ PromotionWidget.prototype.tick = function () {
 
 PromotionWidget.prototype.change_photo = function () {
     if (this.television_promotions.length > 0){
-        var res = this.television_promotions.indexOf(this.current_promotion);
 
-        if (res >= 0) {
-            this.current_promotion = this.television_promotions[(res + 1) % (this.television_promotions.length)];
+        if (this.current_idx >= 0) {
+            var idx = (this.current_idx + 1) % this.television_promotions.length;
+
+            this.current_promotion = this.television_promotions[idx];
+            this.current_idx = idx;
         } else if (this.television_promotions.length > 0) {
             this.current_promotion = this.television_promotions[0];
+            this.current_idx = 0;
         }
 
         var photo_url = this.current_promotion.image;
@@ -54,12 +58,16 @@ PromotionWidget.prototype.change_photo = function () {
         }).load(function(){
             $(".photo-wrapper #photo").remove();
             $(".photo-wrapper").append($(this));
-            if(self.current_promotion.title != undefined){
-                $("#photo-activity").html(self.current_promotion.title);
-            } else {
-                // This is a hack, hiding and showing does not yet work correctly
-                $("#photo-activity").html("Promotion");
-            }
+
+            // if(self.current_promotion.title != undefined){
+            //     $("#photo-activity").html(self.current_promotion.title);        
+            // } else {
+            //     // This is a hack, hiding and showing does not yet work correctly
+            //     $("#photo-activity").html("Promotion");
+            // }
+
+            $("#photo-activity").hide();
+            
             if($(this).height() > $(this).width()){
                 $("#photo").addClass("portrait");
             }
@@ -71,4 +79,5 @@ PromotionWidget.prototype.change_photo = function () {
     }
 };
 
-PromotionWidget.prototype.get_duration = function () { return this.duration; };
+// PromotionWidget.prototype.get_duration = function () { return this.duration; };
+PromotionWidget.prototype.get_duration = function () { return 5; };

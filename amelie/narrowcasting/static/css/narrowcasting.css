@@ -132,8 +132,7 @@ body {
 }
 
 .footer {
-    height: 137px;
-    padding: 15px 793px 15px 30px;
+    padding: 7.5px 793px 7.5px 20px;
     box-shadow: -25px 25px 215px 25px #222222;
 }
 
@@ -143,7 +142,6 @@ body {
 
 .news-header {
 	font-size:24px;
-	margin-bottom:5px;
 }
 
 .news-header span {

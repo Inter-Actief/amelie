@@ -46,19 +46,25 @@
 			.glyphicon-globe:before {
 				content: "\e135";
 			}
+            
+            .video {
+                height: 100%;
+                width: 100%;
+            }
         </style>
         {% if theme == "christmas" %}
         <link rel="stylesheet" href="{% static 'css/narrowcasting_christmas.css' %}">
         {% elif theme == "valentine" %}
         <link rel="stylesheet" href="{% static 'css/narrowcasting_valentine.css' %}">
         {% endif %}
-        <script type="text/javascript" src="{% static 'js/jquery-2.1.0.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/jquery-jsonrpc.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/widget.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/photo_widget.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/promotion_widget.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/scheduler.js' %}"></script>
-        <script type="text/javascript" src="{% static 'js/inter-actief.js' %}"></script>
+        <!-- <script type="text/javascript" src="{% static 'js/jquery-3.6.3.min.js' %}"></script> -->
+        <!-- <script type="text/javascript" src="{% static 'js/jquery-jsonrpc.min.js' %}"></script> -->
+        <script type="text/javascript" src="{% static 'js/tv_narrowcasting.js' %}"></script>
+        <!-- <script type="text/javascript" src="{% static 'js/widget.js' %}"></script> -->
+        <!-- <script type="text/javascript" src="{% static 'js/photo_widget.js' %}"></script> -->
+        <!-- <script type="text/javascript" src="{% static 'js/promotion_widget.js' %}"></script> -->
+        <!-- <script type="text/javascript" src="{% static 'js/scheduler.js' %}"></script> -->
+        <!-- <script type="text/javascript" src="{% static 'js/inter-actief.js' %}"></script> -->
     </head>
     <body>
         <div class="main">
@@ -79,8 +85,8 @@
                         {% endif %}
                     {% endif %}
                     <div class="datetime">
-                        <div class="date"></div>
-                        <div class="time"></div>
+                        <div id="date" class="date"></div>
+                        <div id="time" class="time"></div>
                     </div>
                 </div>
                 <div class="agenda">

@@ -176,9 +176,31 @@ class TelevisionBanner(BaseBanner):
         ordering = ['-end_date']
         verbose_name = _('Television banner')
         verbose_name_plural = _('Television banners')
+        
+
+class TelevisionVideo(models.Model):
+    class VideoTypes(models.TextChoices):
+        YOUTUBE = 'youtube', 'YouTube'
+        STREAMINGIA = 'streamingia', 'StreamingIA'
+    
+    name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    active = models.BooleanField(default=True)
+    video_id = models.CharField(max_length=12)
+    video_type = models.CharField(
+        max_length=11,
+        choices=VideoTypes.choices,
+        default=VideoTypes.STREAMINGIA)
+    
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name = _('Television Promotion Video')
+        verbose_name_plural = _('Television Promotion Videos')
 
 
 class CompanyEvent(Event):
+    
     objects = EventManager()
     company = models.ForeignKey('Company', blank=True, null=True, on_delete=models.SET_NULL)
     company_text = models.CharField(max_length=100, blank=True)
