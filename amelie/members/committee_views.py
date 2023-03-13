@@ -12,12 +12,20 @@ from amelie.members.models import CommitteeCategory, Committee, Function
 from amelie.tools.decorators import require_board
 from amelie.tools.calendar import ical_calendar
 
+from amelie.publications.models import Publication
+
 
 def committees(request):
     categories = get_list_or_404(CommitteeCategory)
     committees_without_category = Committee.objects.filter(category__isnull=True).filter(abolished__isnull=True)
     committees_abolished = Committee.objects.filter(abolished__isnull=False)
     is_board = hasattr(request, 'person') and request.is_board
+
+    newest_committee_booklet_url = None
+    booklets = Publication.objects.filter(public=True, publication_type__type_name="Committee Booklet")
+    if len(booklets) > 0:
+        newest_committee_booklet_url = booklets[0].file.url
+
     return render(request, 'committees.html', locals())
 
 

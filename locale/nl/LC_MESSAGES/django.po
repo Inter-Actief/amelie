@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-16 14:56+0100\n"
-"PO-Revision-Date: 2023-02-16 14:59+0018\n"
+"POT-Creation-Date: 2023-03-13 17:08+0100\n"
+"PO-Revision-Date: 2023-03-13 17:09+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -5601,7 +5601,7 @@ msgstr "Einddatum"
 msgid "Edit committee member"
 msgstr "Wijzig commissielid"
 
-#: amelie/members/templates/committee_form.html:6 amelie/members/templates/committee_form.html:17 amelie/members/templates/committee_form.html:52 amelie/members/templates/committees.html:26
+#: amelie/members/templates/committee_form.html:6 amelie/members/templates/committee_form.html:17 amelie/members/templates/committee_form.html:52 amelie/members/templates/committees.html:32
 msgid "Add committee"
 msgstr "Commissie toevoegen"
 
@@ -5630,30 +5630,49 @@ msgid ""
 "\n"
 "                        Inter-<em>Actief</em> has a large number of committees which organize events.\n"
 "                        Every committee belongs to a specific category.\n"
+"                    "
+msgstr ""
+"\n"
+"Inter-<em>Actief</em> kent een groot aantal commissies die activiteiten organiseren. Elke commissie behoort tot een bepaalde categorie."
+
+#: amelie/members/templates/committees.html:20
+#, python-format
+#| msgid ""
+#| "\n"
+#| "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
+#| "                            <a href=\"https://foto.inter-actief.net/\">foto.inter-actief.net</a>.\n"
+#| "                        "
+msgid ""
+"\n"
 "                        For an overview of all committees, including inactive committees, see our\n"
-"                        <a href=\"https://media.ia.utwente.nl/amelie/data/uploads/2021/10/04/Committee_Booklet_21_22.pdf\">committee booklet</a>.\n"
+"                        <a href=\"%(newest_committee_booklet_url)s\">committee booklet</a>.\n"
+"                        "
+msgstr ""
+"\n"
+"Voor een overzicht van alle commissies van Inter-<em>Actief</em>, inclusief nog te vormen commissies, zie ons <a href=\"%(newest_committee_booklet_url)s\">commissieboekje</a>."
+
+#: amelie/members/templates/committees.html:25
+msgid ""
+"\n"
 "                        At the moment Inter-<em>Actief</em> has the following committees:\n"
 "                    "
 msgstr ""
 "\n"
-"Inter-<em>Actief</em> kent een groot aantal commissies die activiteiten organiseren.\n"
-"Elke commissie behoort tot een bepaalde categorie.\n"
-"Voor een overzicht van alle commissies van Inter-<em>Actief</em>, inclusief nog te vormen commissies, zie ons <a href=\"https://media.ia.utwente.nl/amelie/data/uploads/2021/10/04/Committee_Booklet_21_22.pdf\">commissieboekje</a>.\n"
-"Op dit moment bestaan de volgende commissies:"
+"Op dit moment bestaan de volgende commissies: "
 
-#: amelie/members/templates/committees.html:63
+#: amelie/members/templates/committees.html:69
 msgid "Committees without category"
 msgstr "Commissies zonder categorie"
 
-#: amelie/members/templates/committees.html:81
+#: amelie/members/templates/committees.html:87
 msgid "There are no committees without categories"
 msgstr "Er zijn geen commissies zonder categorien"
 
-#: amelie/members/templates/committees.html:94
+#: amelie/members/templates/committees.html:100
 msgid "Disbanded committees"
 msgstr "Opgeheven commissies"
 
-#: amelie/members/templates/committees.html:112
+#: amelie/members/templates/committees.html:118
 msgid "There are no committees which have been disbanded."
 msgstr "Er zijn geen commissies opgeheven"
 
@@ -11308,6 +11327,21 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Inter-<em>Actief</em> has a large number of committees which organize events.\n"
+#~ "                        Every committee belongs to a specific category.\n"
+#~ "                        For an overview of all committees, including inactive committees, see our\n"
+#~ "                        <a href=\"https://media.ia.utwente.nl/amelie/data/uploads/2021/10/04/Committee_Booklet_21_22.pdf\">committee booklet</a>.\n"
+#~ "                        At the moment Inter-<em>Actief</em> has the following committees:\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "Inter-<em>Actief</em> kent een groot aantal commissies die activiteiten organiseren.\n"
+#~ "Elke commissie behoort tot een bepaalde categorie.\n"
+#~ "Voor een overzicht van alle commissies van Inter-<em>Actief</em>, inclusief nog te vormen commissies, zie ons <a href=\"https://media.ia.utwente.nl/amelie/data/uploads/2021/10/04/Committee_Booklet_21_22.pdf\">commissieboekje</a>.\n"
+#~ "Op dit moment bestaan de volgende commissies:"
 
 #~ msgid "For more information, have a look at the"
 #~ msgstr "Voor meer informatie, bekijk de "
