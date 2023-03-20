@@ -3,7 +3,7 @@
 
 {% block subject %}{% blocktrans %}Progress complaint {{ complaint_subject }}{% endblocktrans %}{% endblock %}
 
-{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,{% endblocktrans %}
+{% block content %}{% htmlify %}{% blocktrans %}Dear EC member,{% endblocktrans %}
 
 {% blocktrans %}{{ complaint_reporter }} posted a comment on complaint {{ complaint_subject }}:{% endblocktrans %}
 

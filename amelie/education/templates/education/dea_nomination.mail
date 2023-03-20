@@ -3,7 +3,7 @@
 
 {% block subject %}{% blocktrans %}[DEA-nomination] Nomination for the educational award{% endblocktrans %}{% endblock %}
 
-{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,
+{% block content %}{% htmlify %}{% blocktrans %}Dear EC member,
 
 {{ author }} has voted for the educational award!
 

@@ -196,6 +196,9 @@
                                 <li>
                                     <a href="{% url 'about:page' 31 'social-media' %}">{% trans 'Social media' %}</a>
                                 </li>
+                                <li>
+                                    <a href="{% url 'about:page' 34 'mental-health' %}">{% trans 'Mental health' %}</a>
+                                </li>
                                 {% if request.person.is_active_member %}
                                     <li>
                                         <a href="https://intra.ia.utwente.nl/">{% trans 'Intraweb' %}</a>
@@ -208,7 +211,7 @@
                             <a href="#">{% trans 'Companies' %}<span class="arrow">&#9660;</span></a>
 
                             <ul>
-                                <li> <a href="{% url 'companies:company_list' %}"> {% trans 'Company Corner' %}</a> </li>
+                                <li> <a href="{% url 'companies:company_overview' %}"> {% trans 'Company Corner' %}</a> </li>
                                 <li> <a href="{% url 'companies:event_list' %}"> {% trans 'External Activities' %} </a> </li>
                             </ul>
                         </li>

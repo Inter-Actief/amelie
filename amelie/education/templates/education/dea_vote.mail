@@ -3,7 +3,7 @@
 
 {% block subject %}{% blocktrans %}[DEA-vote] Vote for the {{ competition }}{% endblocktrans %}{% endblock %}
 
-{% block content %}{% htmlify %}{% blocktrans %}Dear OC'er,
+{% block content %}{% htmlify %}{% blocktrans %}Dear EC member,
 
 {{ person }} ({{ student_number }}) has voted for the educational award!
 
