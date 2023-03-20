@@ -1360,12 +1360,13 @@ class DoGroupTreeViewData(View):
 
     def get(self, request, *args, **kwargs):
         # Create a datastructure that maps connects generations based on parents and children
-        start = time.time_ns()
         generation_objects = DogroupGeneration.objects.select_related('dogroup').prefetch_related(
             'studyperiod_set').all().order_by('dogroup', 'generation')
 
-        start = time.time_ns()
+        # A data structure
         generations = dict()
+
+        # Aggregates all the years that have had dogroups
         years = set()
         for generation in generation_objects:
             years.add(generation.generation)

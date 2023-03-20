@@ -119,7 +119,8 @@ class Dogroup(models.Model):
     e.g. Tegel, TuinfeesT
     """
     name = models.CharField(verbose_name=_('Name'), max_length=50)
-    color = ColorField(verbose_name=_('Color'), help_text=_("What is the color of this dogroup?"))
+    color = ColorField(verbose_name=_('Color'), help_text=_("What is the color of this dogroup?"),
+                       default="#000000")
 
     class Meta(object):
         ordering = ['name']
@@ -151,7 +152,7 @@ class DogroupGeneration(models.Model, Mappable):
 
     @property
     def color(self):
-        return self.color if self.generation_color else self.dogroup.color
+        return self.generation_color if self.generation_color else self.dogroup.color
 
     def __str__(self):
         return '%s %s' % (self.dogroup, self.generation)

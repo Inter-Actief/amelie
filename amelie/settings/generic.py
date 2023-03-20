@@ -327,6 +327,9 @@ INSTALLED_APPS = (
 
     # SAML2 IdP
     'djangosaml2idp',
+
+    # Color field
+    'colorfield',
 )
 
 # Enable timezone support
