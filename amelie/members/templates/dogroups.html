@@ -1,0 +1,43 @@
+{% extends "basis.html" %}
+{% load i18n static %}
+
+{% block titel %}
+    {% trans 'Dogroups' %}
+{% endblock titel %}
+
+{% block head %}
+    <script src="{% static "js/graphology.min.js" %}"></script>
+    <script src="{% static "js/sigma.min.js" %}"></script>
+    <script src="{% static "js/dogroup_tree.js" %}"></script>
+
+    <style>
+        #do-group-tree {
+            position: absolute;
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+		<h2>Dogroups</h2>
+
+		<div class="content">
+            <p>
+                {% blocktrans %}
+                    During the introductory period of the university, the Kick-In, Inter-<em>Actief</em> has study
+                    related do-groups that accompany new students into their student life. These groups usually exist
+                    for many generations and are closely intertwined. On this page one can find a complete overview of
+                    these groups and their origins.
+                {% endblocktrans %}
+            </p>
+		</div>
+
+        <div id="do-group-tree">
+            <span>Hold tight while the dogroup family tree is being loaded</span>
+        </div>
+
+	</div></div>
+
+{% endblock content %}

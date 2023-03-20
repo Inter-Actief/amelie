@@ -1,6 +1,9 @@
 import datetime
+import time
 from datetime import date
 from decimal import Decimal
+
+from django.views import View
 from io import BytesIO
 
 from django.contrib import messages
@@ -18,7 +21,7 @@ from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
@@ -34,7 +37,8 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepEmployeeDetails, \
     RegistrationFormPersonalDetailsEmployee, RegistrationFormStepEmployeeMembershipDetails, PreRegistrationPrintAllForm
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
-    Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment
+    Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
+    DogroupGeneration
 from amelie.oauth.models import LoginToken
 from amelie.oauth.views import create_token_and_send_email
 from amelie.personal_tab.forms import RFIDCardForm
@@ -1345,3 +1349,49 @@ class PaymentDeleteView(RequireBoardMixin, DeleteMessageMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.membership.member.get_absolute_url()
+
+
+class DoGroupTreeView(TemplateView):
+    template_name = "dogroups.html"
+
+
+# TODO: Add caching to this view! This cache can be kept for a month of so.
+class DoGroupTreeViewData(View):
+
+    def get(self, request, *args, **kwargs):
+        # Create a datastructure that maps connects generations based on parents and children
+        start = time.time_ns()
+        generation_objects = DogroupGeneration.objects.select_related('dogroup').prefetch_related(
+            'studyperiod_set').all().order_by('dogroup', 'generation')
+
+        start = time.time_ns()
+        generations = dict()
+        years = set()
+        for generation in generation_objects:
+            years.add(generation.generation)
+            prev = set()
+            for parent in generation.parents.all():
+                if parent.is_student():
+                    parent_prev_dogroups = parent.student.studyperiod_set.filter(dogroup__isnull=False,
+                                                                                 dogroup__generation__lt=generation.generation).order_by(
+                        'dogroup__generation')
+                    if parent_prev_dogroups.exists():
+                        prev.add(parent_prev_dogroups.last().dogroup)
+            generations[generation] = prev
+
+        dogroups = dict()
+        for dogroup in Dogroup.objects.all():
+            dogroups[str(dogroup)] = {}
+        for generation in generations.keys():
+            dogroups[str(generation.dogroup)][generation.generation] = {
+                "id": generation.id,
+                "parents": [{"id": p.id} for p in generations[generation]],
+                "color": generation.color,
+            }
+
+        data = {
+            "years": sorted(list(years)),
+            "dogroups": list(dogroups.keys()),
+            "data": dogroups,
+        }
+        return JsonResponse(data)
