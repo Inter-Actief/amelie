@@ -21,10 +21,10 @@ def committees(request):
     committees_abolished = Committee.objects.filter(abolished__isnull=False)
     is_board = hasattr(request, 'person') and request.is_board
 
-    newest_committee_booklet_url = None
-    booklets = Publication.objects.filter(public=True, publication_type__type_name="Committee Booklet")
-    if len(booklets) > 0:
-        newest_committee_booklet_url = booklets[0].file.url
+    newest_committee_booklet = Publication.objects.filter(public=True, publication_type__type_name="Committee Booklet").order_by('date_published').last()
+
+    if newest_committee_booklet:
+        newest_committee_booklet_url = newest_committee_booklet.file.url
 
     return render(request, 'committees.html', locals())
 
