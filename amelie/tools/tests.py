@@ -194,7 +194,7 @@ class APITestCase(TestCase):
         # Compare jsonrpc version
         self.assertEqual(json_content.get("jsonrpc", None), "2.0")
         # Compare id
-        self.assertEqual(json_content.get("jsonrpc", None), "2.0")
+        self.assertEqual(json_content.get("id", None), "jsonrpc")
         # Compare error object type
         self.assertEqual(type(json_content.get("error", None)), dict)
         # Compare error code
