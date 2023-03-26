@@ -49,7 +49,7 @@ def get_video_stream(offset: int, length: int, **kwargs) -> List[Dict]:
         - thumbnail: The URL to the thumbnail of this video
         - featured: Boolean, true if the video is currently being featured, false if not.
         - date: The date this video was published (RFC3339)
-        - publisher: A dictionary containing information about the publishing committee, including the following fields:
+        - publisher: A dictionary containing information about the publishing committee, can be null:
           - id: ID of the publishing committee
           - name: Name of the publishing committee
 
@@ -122,7 +122,7 @@ def get_video_details(video_id: str, **kwargs) -> Dict:
         - thumbnail: The URL to the thumbnail of this video
         - featured: Boolean, true if the video is currently being featured, false if not.
         - date: The date this video was published (RFC3339)
-        - publisher: A dictionary containing information about the publishing committee, including the following fields:
+        - publisher: A dictionary containing information about the publishing committee, can be null:
           - id: ID of the publishing committee
           - name: Name of the publishing committee
         - description: The video description as a string, or null.

@@ -83,6 +83,7 @@ def get_committee_detail(committee_id: int, **kwargs) -> Union[Dict, None]:
 
       The dictionary contains the following fields:
 
+        - id: The identifier for this committee
         - name: The name of this committee
         - imageUrl: An URL of a logo for this committee, or null
         - founded: The date of this committee was founded (RFC3339)
@@ -152,6 +153,7 @@ def get_committee_detail(committee_id: int, **kwargs) -> Union[Dict, None]:
             })
 
         result = {
+            "id": result_committee.id,
             "name": result_committee.name,
             "founded": result_committee.founded,
             "description": strip_markdown(result_committee.information).rstrip("\n\r"),

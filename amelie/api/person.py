@@ -70,7 +70,7 @@ def get_person_details(**kwargs) -> Union[Dict, None]:
         - employeeId: The employee ID of this person, can be null
         - email: The email address of this person
         - languagePreference: The preferred language for this user, either "nl" or "en"
-        - imageUrl: The profile image URL for the authenticated user
+        - imageUrl: The profile image URL for the authenticated user, can be null
 
     **Raises:**
       NotLoggedInError: Token was not recognized or already revoked.
@@ -156,9 +156,12 @@ def get_person_committees(**kwargs) -> Union[List[Dict], None]:
       Each returned element in the list has the following fields:
 
         - position: The position of this person in this committee
-        - end: The date on which this person was last member of this committee, otherwise null
         - begin: The date on which this person first joined this committee
-        - committee: The name of this committee
+        - end: The date on which this person was last member of this committee, otherwise null
+        - committee: A dictionary containing information about the committee:
+          - id: The identifier for this committee
+          - name: The name of this committee
+          - abolished: The date when this committee was abolished (RFC3339), or null if it still exists.
 
     **Raises:**
       NotLoggedInError: Token was not recognized or already revoked.
@@ -212,7 +215,7 @@ def get_person_membership(**kwargs) -> Union[Dict, None]:
         - type: The type of membership
         - year: The year of the active membership
         - hasEnded: Value indicating whether the membership has ended, either true or false
-        - payment: Details regarding the payment of this membership
+        - payment: Details regarding the payment of this membership, can be null or contain the following dictionary:
           - amount: The cost of the active membership
           - date: Date on which the payment was processed
           - method: Details regarding the payment method of the active membership

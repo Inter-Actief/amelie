@@ -43,6 +43,7 @@ def get_complaint_stream(offset: int, length: int, status: str, **kwargs) -> Lis
         - subject: The subject concerning the course of this complaint, can be null.
         - year: The first year of the academic year in which the course was given, can be null.
         - period: The period of the academic year in which the course was given, can be null.
+        - isCompleted: Boolean indicating if the complaint was marked as completed and is closed.
 
     **Raises:**
 
@@ -62,7 +63,8 @@ def get_complaint_stream(offset: int, length: int, status: str, **kwargs) -> Lis
                 "course": "Computer Systems",
                 "subject": "Programming",
                 "year": 2016,
-                "period": "K2"
+                "period": "K2",
+                "isCompleted": false
               }, {...}]
         }
     """
