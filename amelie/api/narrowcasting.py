@@ -10,7 +10,8 @@ from amelie.activities.models import Activity
 from amelie.api.activitystream_utils import add_images_property, add_thumbnails_property
 from amelie.api.decorators import authentication_optional
 from amelie.api.utils import parse_datetime_parameter
-from amelie.companies.models import TelevisionBanner
+from amelie.companies.models import TelevisionBanner, CompanyEvent
+from amelie.education.models import EducationEvent
 from amelie.news.models import NewsItem
 from amelie.narrowcasting.models import TelevisionPromotion
 from amelie.room_duty.models import RoomDuty
@@ -267,6 +268,9 @@ def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, 
         - endDate: The end date and time of this event (RFC3339)
         - source: The source of this event (always "inter-actief")
         - url: The URL to the pictures page of this event.
+        - category: The type of this activity (either "regular", "educational" or "external")
+        - isDutch: A boolean value indicating if the activity is Dutch-only
+        - organizer: The organizer of this activity
         - thumbnails: A dictionary with the following fields:
           - small: URL to a small size version of the thumbnail (max. 256x256), if available, else null.
           - medium: URL to a medium size version of the thumbnail (max. 800x600), if available, else null.
@@ -290,6 +294,9 @@ def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, 
                "endDate": "2022-07-01T20:56:50+00:00",
                "source": "inter-actief",
                "url": "/activities/1337/photos/",
+               "category": "regular",
+               "isDutch": false
+               "organizer": "Board",
                "thumbnail": {
                  "small": "https://url.to/small/image.png",
                  "medium": "https://url.to/medium/image.png",
@@ -331,8 +338,17 @@ def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, 
             "beginDate": activity.begin.isoformat(),
             "endDate": activity.end.isoformat(),
             "source": "inter-actief",
+            "category": activity.activity_type,
             "url": activity.get_photo_url(),
+            "isDutch": activity.dutch_activity,
         }
+
+        if type(activity) == EducationEvent:
+            single["organizer"] = activity.education_organizer
+        elif type(activity) == CompanyEvent:
+            single["organizer"] = activity.company.name if activity.company else activity.company_text
+        else:
+            single["organizer"] = activity.organizer.name
 
         add_thumbnails_property(activity, kwargs.get('authentication', None), single)
         add_images_property(activity, kwargs.get('authentication', None), single)
