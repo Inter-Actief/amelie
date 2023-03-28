@@ -287,6 +287,9 @@ INSTALLED_APPS = (
     'amelie.data_export',
     'amelie.publications',
 
+    # JSONRPC API
+    'modernrpc',
+
     # FCM (Firebase Cloud Messaging)
     'fcm_django',
 
@@ -295,7 +298,6 @@ INSTALLED_APPS = (
 
     # Helpers
     'compressor',
-    'jsonrpc',
 
     # Management of Amelie
     'django_extensions',
@@ -383,6 +385,29 @@ SESSION_COOKIE_NAME = 'amelie_sessionid'
 # Allow Cross Origin requests, but only on the API.
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
+
+# Modules with JSONRPC API endpoints for autoregistration
+MODERNRPC_METHODS_MODULES = [
+    'amelie.api.api',
+    'amelie.api.activitystream',
+    'amelie.api.authentication',
+    'amelie.api.committee',
+    'amelie.api.company',
+    'amelie.api.education',
+    'amelie.api.narrowcasting',
+    'amelie.api.news',
+    'amelie.api.person',
+    'amelie.api.personal_tab',
+    'amelie.api.push',
+    'amelie.api.videos'
+]
+
+MODERNRPC_HANDLERS = [
+    "amelie.api.handlers.IAJSONRPCHandler"
+]
+
+# API documentation strings are formatted with markdown
+MODERNRPC_DOC_FORMAT = 'markdown'
 
 # Settings regarding direct debits
 PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal('30.00')  # Maximum price of an activity
