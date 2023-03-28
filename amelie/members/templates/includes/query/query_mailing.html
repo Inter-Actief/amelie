@@ -3,6 +3,32 @@
 
 {% block titel %}{% trans "Send mailing" %}{% endblock titel %}
 
+{% block head %}
+    <script>
+    languages = {
+        "en": "nl",
+        "nl": "en",
+    }
+
+    $(document).ready(() => {
+        $('form .tabbed-content input, form .tabbed-content textarea').each(function () {
+            this.addEventListener('invalid', function () {
+                let language = $(this).parent().attr('data-language');
+                let selected_language = $('form .tabbed-ticker [data-language=' + language + ']');
+                selected_language.filter('div').attr('style', 'display: block');
+                selected_language.filter('li').addClass('active');
+
+                let other_lang = languages[language];
+                let other_language = $('form .tabbed-ticker [data-language=' + other_lang + ']');
+                other_language.filter('div').attr('style', 'display: none');
+                other_language.filter('li').removeClass('active');
+            });
+        });
+    });
+
+    </script>
+{% endblock head %}
+
 {% block content %}
     {% if previews %}
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -81,12 +107,12 @@
 
                         <div class="tabbed-ticker" style="display:inline-block;">
                             <ul>
-                                <li class="active">NL</li>
-                                <li>EN</li>
+                                <li class="active" data-language="nl">NL</li>
+                                <li data-language="en">EN</li>
                             </ul>
                             <div class="tabbed-content">
-                                <div>{{ form.subject_nl }}</div>
-                                <div>{{ form.subject_en }}</div>
+                                <div data-language="nl">{{ form.subject_nl }}</div>
+                                <div data-language="en">{{ form.subject_en }}</div>
                             </div>
                         </div>
                     </div>
@@ -104,12 +130,12 @@
                         <label> {% trans 'Content:' %} </label>
 
                         <ul>
-                            <li class="active">NL</li>
-                            <li>EN</li>
+                            <li class="active" data-language="nl">NL</li>
+                            <li data-language="en">EN</li>
                         </ul>
                         <div class="tabbed-content">
-                            <div>{{ form.template_nl }}</div>
-                            <div>{{ form.template_en }}</div>
+                            <div data-language="nl">{{ form.template_nl }}</div>
+                            <div data-language="en">{{ form.template_en }}</div>
                         </div>
                     </div>
                     <div class="buttons">
