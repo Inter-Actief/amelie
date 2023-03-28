@@ -89,5 +89,6 @@ class NewsItem(models.Model):
                                'day': self.publication_date.day, 'slug': self.slug, })
 
 
-post_save.connect(send_irc, sender=NewsItem)
+# IRC notifications disabled because the bot is broken -- albertskja 2023-03-28
+# post_save.connect(send_irc, sender=NewsItem)
 post_save.connect(send_discord, sender=NewsItem)
