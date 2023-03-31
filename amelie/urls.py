@@ -28,6 +28,7 @@ urlpatterns = [
 
     # General views
     path('', views.frontpage, name='frontpage'),
+    path('old', views.frontpage_normal, name='frontpage_normal'),
 
     # Redirect to privacy.ia.utwente.nl (for old links)
     path('privacy/', RedirectView.as_view(url='https://privacy.ia.utwente.nl/', permanent=True)),

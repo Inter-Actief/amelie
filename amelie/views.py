@@ -266,6 +266,9 @@ def profile_overview(request):
 
 @track_hits("Frontpage")
 def frontpage(request):
+    return render(request, "frontpage.html")
+
+def frontpage_normal(request):
     activity_list_length = 10
     now = timezone.now()
 
@@ -346,7 +349,7 @@ def frontpage(request):
             complaints = Complaint.objects.filter(Q(completed=False) & (Q(public=True) | Q(reporter=request.person)))
         context['complaints'] = complaints.select_related('course').order_by('-published')[:5]
 
-    return render(request, "frontpage.html", context)
+    return render(request, "frontpage_normal.html", context)
 
 
 def server_error(request, template_name='500.html'):
