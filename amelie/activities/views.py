@@ -542,7 +542,7 @@ def _build_enrollmentoptionsanswers_forms(activity, data, user):
                 unit = EnrollmentoptionCheckboxAnswer.objects.get(enrollmentoption=enrollmentoption, enrollment=participation)
                 checked = unit.answer
             elif form_type == EnrollmentoptionNumericAnswerForm:
-                participation = Participation.objects.get(person__user=request.user, event=activity)
+                participation = Participation.objects.get(person__user=user, event=activity)
                 unit = EnrollmentoptionNumericAnswer.objects.get(enrollmentoption=enrollmentoption, enrollment=participation)
                 checked = unit.answer > 0
         except (EnrollmentoptionCheckboxAnswer.DoesNotExist, EnrollmentoptionNumericAnswer.DoesNotExist, Participation.DoesNotExist):
