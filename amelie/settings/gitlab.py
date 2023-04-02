@@ -18,5 +18,8 @@ DATABASES = {
 
 SECRET_KEY = 'Cr38bXqNzU45MQx030enbqTyRZufMcywcRZJygkFKxnx5lu5Iq'
 
+# Add Model Auth backend to allow logins to work in tests
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend'] + AUTHENTICATION_BACKENDS
+
 # Disable secure redirects to allow testing without SSL
 SECURE_SSL_REDIRECT = False
