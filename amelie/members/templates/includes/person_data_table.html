@@ -173,17 +173,14 @@
                                 type="button"
                                 value="{% trans 'Send a mailing' %}"
                                 onclick="window.location='/members/mailing/?id={{ obj.id }}'"
-                            />      <br />
+                            />
+                            <br />
                             <input
                                 type="button"
                                 value="{% trans 'Send a push notification' %}"
                                 onclick="window.location='/members/push/?id={{ obj.id }}'"
-                            /> <br />
-                            <div id="oauth2_container">
-                            <a class="looks-like-a-button js-load-block" data-container="oauth2_container" href="{% url 'oauth:send_token' obj.id %}">
-                                {% trans 'Send OAuth login mail' %}
-                            </a> </div>
-
+                            />
+                            <br />
                             <a href="{% url 'members:person_edit' obj.id obj.slug %}" class="looks-like-a-button">
                                 {% trans 'Edit' %}
                             </a>
