@@ -11,7 +11,6 @@ from django.views.generic import TemplateView
 from fcm_django.models import FCMDevice
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
-from social_core.utils import build_absolute_uri
 from social_django.models import UserSocialAuth
 
 from wsgiref.util import FileWrapper
@@ -25,7 +24,6 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import DeleteView, FormView
 
 from amelie.claudia.models import Mapping
-from amelie.iamailer import MailTask
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -35,17 +33,13 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetailsEmployee, RegistrationFormStepEmployeeMembershipDetails, PreRegistrationPrintAllForm
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment
-from amelie.oauth.models import LoginToken
-from amelie.oauth.views import create_token_and_send_email
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
-from amelie.tools.mail import PersonRecipient
-from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeOrChildCommitteeMixin, \
-    RequireDoGroupParentInCurrentYearMixin
+from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
 
@@ -604,7 +598,8 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         person.get_or_create_user(f"e{person.pk}")
 
         # Send OAuth token to registered email
-        create_token_and_send_email(self.request, person)
+        # TODO: Figure out new way to do this with single sign on auth
+        #create_token_and_send_email(self.request, person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
