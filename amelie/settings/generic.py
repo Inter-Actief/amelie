@@ -213,18 +213,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'amelie.tools.middleware.PersonMiddleware',  # Adds person, is_board, is_education_committee attributes to request
     'auditlog.middleware.AuditlogMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware',
-    'djangosaml2.middleware.SamlSessionMiddleware',  # Adds saml_session to request
+    'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
 
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
-    'amelie.tools.auth.IALoginBackend',  # Inter-Actief LDAP
-    'amelie.tools.auth.AmelieSAML2Backend',  # SAML logins with the University of Twente
-    'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.github.GithubOAuth2',
-    'social_core.backends.linkedin.LinkedinOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
+    'amelie.tools.auth.IAOIDCAuthenticationBackend',  # Logins via OIDC / auth.ia
 ]
 
 # URL to the login page
@@ -524,7 +518,7 @@ ALEXIA_API = {
 X_ACCOUNT_USERNAME = ""
 X_ACCOUNT_PASSWORD = ""
 
-# Usernames (lowercase) that are not allowed to login to the website via LDAP, even if they exist.
+# Usernames (lowercase) that are not allowed to login to the website, even if they exist.
 LOGIN_NOT_ALLOWED_USERNAMES = ["visitor", "gearloose", "ia_mediawiki", "ia_icinga", "bob", "beun"]
 
 # Claudia plugins that are enabled
@@ -629,7 +623,7 @@ CLAUDIA_MAIL = {
     'FROM': 'Systeembeheer Inter-Actief <accountbeheer@inter-actief.net>',
     'SMTP_HOST': 'smtp.utwente.nl',
     'SMTP_PORT': 25,
-    'SMTP_LOCALHOST': 'bb-beta.ia.utwente.nl',
+    'SMTP_LOCALHOST': 'ia-beta.ia.utwente.nl',
 
     # Log complete text of each mail
     'LOG_MAIL': False,
@@ -740,110 +734,6 @@ SAML_IDP_SPCONFIG = {
     }
 }
 
-# SAML Service Provider configuration defaults
-SAML_BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'saml')
-SAML_CONFIG = {
-    # full path to the xmlsec1 binary program
-    'xmlsec_binary': get_xmlsec_binary(['/opt/local/bin', '/usr/bin/xmlsec1']),
-
-    # your entity id, usually your subdomain plus the url to the metadata view
-    'entityid': 'https://www.inter-actief.utwente.nl/saml2sp/metadata/',
-
-    # directory with attribute mapping
-    'attribute_map_dir': os.path.join(SAML_BASE_DIR, 'attribute-maps'),
-
-    # this block states what services we provide
-    'service': {
-        # we are just a lonely SP
-        'sp': {
-            'name': 'Inter-Actief SAML SP',
-            'name_id_format': None,
-            'endpoints': {
-                # url and binding to the assertion consumer service view
-                # do not change the binding or service name
-                'assertion_consumer_service': [
-                    ('https://www.inter-actief.utwente.nl/saml2sp/acs/',
-                     saml2.BINDING_HTTP_POST),
-                ],
-                # url and binding to the single logout service view
-                # do not change the binding or service name
-                'single_logout_service': [
-                    ('https://www.inter-actief.utwente.nl/saml2sp/ls/',
-                     saml2.BINDING_HTTP_REDIRECT),
-                    ('https://www.inter-actief.utwente.nl/saml2sp/ls/post',
-                     saml2.BINDING_HTTP_POST),
-                ],
-            },
-
-            # attributes that this project need to identify a user
-            'required_attributes': ['uid'],
-
-            # attributes that may be useful to have but not required
-            'optional_attributes': ['department'],
-
-            # Don't request signed responses, the UT SAML server does not do that
-            'want_response_signed': False,
-
-            # in this section the list of IdPs we talk to are defined
-            'idp': {
-                # we do not need a WAYF service since there is
-                # only an IdP defined here. This IdP should be
-                # present in our metadata
-
-                # the keys of this dictionary are entity ids
-                'https://login.microsoftonline.com/f1ec8743-cb11-40ae-982a-45e321af98b4/federationmetadata/2007-06/federationmetadata.xml?appid=c6f03997-6824-4b22-8f76-fba740a19d6f': {
-                    'single_sign_on_service': {
-                        saml2.BINDING_HTTP_REDIRECT: 'https://login.microsoftonline.com/f1ec8743-cb11-40ae-982a-45e321af98b4/saml2',
-                        saml2.BINDING_HTTP_POST: 'https://login.microsoftonline.com/f1ec8743-cb11-40ae-982a-45e321af98b4/saml2',
-                    },
-                    'single_logout_service': {
-                        saml2.BINDING_HTTP_REDIRECT: 'https://login.microsoftonline.com/f1ec8743-cb11-40ae-982a-45e321af98b4/saml2',
-                    },
-                },
-            },
-        },
-    },
-
-    # where the remote metadata is stored
-    'metadata': {
-        'local': [os.path.join(SAML_BASE_DIR, 'utwente_metadata_test.xml')],
-    },
-
-    # set to 1 to output debugging information
-    'debug': 0,
-
-    # Signing
-    'key_file': "/etc/ia/key_beta.ia.utwente.nl.pem",  # private part
-    'cert_file': "/etc/ia/cert_beta.ia.utwente.nl.pem",  # public part
-
-    # Encryption
-    'encryption_keypairs': [{
-        'key_file': "/etc/ia/key_beta.ia.utwente.nl.pem",  # private part
-        'cert_file': "/etc/ia/cert_beta.ia.utwente.nl.pem",  # public part
-    }],
-
-    # own metadata settings
-    'contact_person': [
-        {'given_name': 'WWW',
-         'sur_name': 'Commissie',
-         'company': 'I.C.T.S.V. Inter-Actief',
-         'email_address': 'www@inter-actief.net',
-         'contact_type': 'technical'},
-        {'given_name': '',
-         'sur_name': 'Bestuur',
-         'company': 'I.C.T.S.V. Inter-Actief',
-         'email_address': 'bestuur@inter-actief.net',
-         'contact_type': 'administrative'},
-    ],
-    # you can set multilanguage information here
-    'organization': {
-        'name': [('I.C.T.S.V. Inter-Actief', 'nl'), ('I.C.T.S.V. Inter-Actief', 'en')],
-        'display_name': [('Inter-Actief', 'nl'), ('Inter-Actief', 'en')],
-        'url': [('https://www.inter-actief.utwente.nl', 'nl'), ('https://www.inter-actief.utwente.nl', 'en')],
-    },
-    'valid_for': 24,  # how long is our metadata valid
-}
-
 # Module path to the view function to be used when an incoming request is rejected by the CSRF protection.
 CSRF_FAILURE_VIEW = 'amelie.views.csrf_failure'
 
@@ -935,53 +825,6 @@ PUSH_TOPICS = [
     'activities',
 ]
 
-# Settings for the django social auth plugin
-SOCIAL_AUTH_URL_NAMESPACE = 'social_auth'
-SOCIAL_AUTH_LOGIN_ERROR_URL = '/profile/'
-SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['https://www.googleapis.com/auth/userinfo.profile']
-SOCIAL_AUTH_LINKEDIN_SCOPE = ['r_basicprofile']
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['public_profile']
-
-SOCIAL_AUTH_PIPELINE = (
-    # Starts with login OK from provider
-
-    # Fetch user details from provider
-    'social_core.pipeline.social_auth.social_details',
-
-    # Fetch uid from provider
-    'social_core.pipeline.social_auth.social_uid',
-
-    # Try to find an associated Django user
-    'social_core.pipeline.social_auth.social_user',
-
-    # If there is no user, let them log in to be associated
-    'amelie.oauth.pipeline.require_login_for_association',
-
-    # If the user is not associated to the provider, associate her
-    'social_core.pipeline.social_auth.associate_user',
-
-    # Add a message for new assocations
-    'amelie.oauth.pipeline.message_new_association',
-
-    # Fetch additional data (such as the access_token)
-    'social_core.pipeline.social_auth.load_extra_data',
-)
-
-SOCIAL_AUTH_DISCONNECT_PIPELINE = (
-    # Get the entries that need to be removed, but only from the logged in user
-    'social_core.pipeline.disconnect.get_entries',
-
-    # Revoke access tokens if needed
-    'social_core.pipeline.disconnect.revoke_tokens',
-
-    # Remove the association
-    'social_core.pipeline.disconnect.disconnect',
-
-    # Add a message to signal success
-    'amelie.oauth.pipeline.message_remove_association',
-)
-
 # Settings for the homedir data exporter
 DATA_HOARDER_CONFIG = {
     "url": "https://files.ia.utwente.nl:2715",  # No trailing slash!
@@ -1035,3 +878,17 @@ SECURE_SSL_REDIRECT = True  # Enable HTTPS redirect
 SECURE_REFERRER_POLICY = 'same-origin'  # No referrer to external parties
 SECURE_HSTS_SECONDS = 31536000  # HSTS TTL
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Single Sign On via https://auth.ia.utwente.nl/
+OIDC_OP_AUTHORIZATION_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/auth"
+OIDC_OP_TOKEN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
+OIDC_OP_USER_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/userinfo"
+OIDC_RP_CLIENT_ID = "amelie-beta"
+OIDC_RP_CLIENT_SECRET = "secret"
+# Our custom Auth Backend will take care of creating users
+OIDC_CREATE_USER = False
+# Allows logout via GET request insitead of just POST
+ALLOW_LOGOUT_GET_METHOD = True
+# Keycloak uses RS256 sigining, so we need to specify that and provide the JWKS endpoint for key verification
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_OP_JWKS_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/certs"

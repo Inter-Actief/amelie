@@ -256,57 +256,13 @@
                                         <a href="{% url 'personal_tab:overview' %}">{% trans 'Personal tab' %}</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'logout' %}">{% trans 'Log out' %}</a>
+                                        <a href="{% url 'oidc_logout' %}">{% trans 'Log out' %}</a>
                                     </li>
                                 </ul>
                             </li>
                         {% else %}
-                            <li class="{% active_menu 'login' %}" id="nav_login">
-                                <a href="#" title="{% trans 'Log in' %}">
-                                    <span id="icon-user"></span> {% trans 'Log in' %}
-                                </a>
-
-                                <ul>
-                                    <li class="ia no-shadow" id="login_box">
-                                        <h3>{% trans 'Log in' %}</h3>
-
-                                        <p>
-                                            {% trans 'You can log in with your UTwente account, or your Inter-<em>Actief</em> account.'%}
-                                        </p>
-
-                                        <p><a href="{% url 'saml2_login' %}?next={{ request.path|urlencode }}" class="looks-like-a-button"><i class="icon icon-building"></i>  {% trans 'Log in with UTwente' %}</a></p>
-                                        <p><a href="#" class="looks-like-a-button expand collapsed" data-target="collapseLogin"><i class="icon icon-lock_go"></i>  {% trans 'Alternative login' %}</a></p>
-                                        <div class="clearfix">&nbsp;</div>
-                                        <div id="collapseLogin" hidden="">
-                                            <form class="big ia no-shadow" method="post" action="{% url 'login' %}">
-                                                {% if show_oauth %}
-                                                    <div class="form-row">
-                                                        <label for="provider">{% trans 'Log in with:' %}</label>
-                                                        <select id="provider" onchange="if(this.value) { location.href=this.value; $('div#login_elements').css('visibility','hidden') }">
-                                                            <option value="" selected="selected">{% trans 'Inter-Actief account' %}</option>
-                                                            {% for backend in backends.backends %}
-                                                            <option value="{% url 'social_auth:begin' backend %}">{{ backend|provider_name }}</option>
-                                                            {% endfor %}
-                                                        </select>
-                                                    </div>
-                                                {% else %}
-                                                    <p class="icon error">
-                                                        {% trans "Log in with your Inter-<i>Actief</i> or University of Twente account to link it to your external account." %}
-                                                    </p>
-                                                {% endif %}
-                                                {% csrf_token %}
-                                                {{ form_login }}
-                                                <input type="hidden" name="next" value="{{ request.path }}" />
-                                                <input type="submit" value="{% trans 'Log in' %}" />
-                                            </form>
-                                            <p class="password-reset-link">
-                                                <a href="{% url "account:password_reset" %}">{% trans "Forgot password?" %}</a>
-                                            </p>
-                                        </div>
-
-                                        <div class="clearfix"></div>
-                                    </li>
-                                </ul>
+                            <li class="{% active_menu 'login'  %}">
+                                <a href="{% url 'oidc_authentication_init' %}">{% trans 'Log in' %}</a>
                             </li>
                         {% endif %}
                     </ul>
