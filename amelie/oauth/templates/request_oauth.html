@@ -6,7 +6,7 @@
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
         <h2>{% trans 'Request OAuth2 Access' %}</h2>
         <div class="content">
-            <form action="{% url "oauth:request_oauth" %}" method="post">
+            <form action="{% url "request_oauth" %}" method="post">
                 {{ form.errors }}
                 {% csrf_token %}
                 <table>
