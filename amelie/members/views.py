@@ -1,12 +1,14 @@
 import datetime
+import json
 from datetime import date
 from decimal import Decimal
 from io import BytesIO
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
 from django.db.models import Sum
 from django.template.defaultfilters import slugify
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from fcm_django.models import FCMDevice
 from formtools.wizard.views import SessionWizardView
@@ -37,7 +39,7 @@ from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
-from amelie.tools.http import HttpResponseSendfile
+from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
@@ -1303,6 +1305,74 @@ def person_picture(request, id, slug):
         return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg', fallback=settings.DEBUG)
     else:
         raise Http404('Picture not found')
+
+
+@csrf_exempt
+def person_userinfo(request):
+    """
+    Retrieves user and group info about a person based on either their active member username or UT s- or m-number.
+    Used by our authentication platform to determine permissions for external users (UT or social login).
+    """
+    # Settings for userinfo API must be configured
+    if settings.USERINFO_API_CONFIG.get('api_key', None) is None or \
+            settings.USERINFO_API_CONFIG.get('allowed_ips', None) is None:
+        raise ImproperlyConfigured("UserInfo API config missing from settings.")
+
+    # Must be POST request
+    if request.method != "POST":
+        raise BadRequest()
+
+    # Must contain JSON body
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        raise BadRequest()
+
+    # Must contain 'apiKey' key, and either 'iaUsername' or 'utUsername' key
+    if 'apiKey' not in body or ('iaUsername' not in body and 'utUsername' not in body):
+        raise BadRequest()
+
+    # Request must come from a known auth.ia server IP address
+    if request.META['REMOTE_ADDR'] not in settings.USERINFO_API_CONFIG['allowed_ips']:
+        raise PermissionDenied()
+
+    # API Key must be valid
+    if body['apiKey'] != settings.USERINFO_API_CONFIG['api_key']:
+        raise PermissionDenied()
+
+    # Access verified. Find the Person associated with the provided username.
+    person = None
+    if 'iaUsername' in body:
+        try:
+            person = Person.objects.get(account_name=body['iaUsername'])
+        except Person.DoesNotExist:
+            person = None
+    elif 'utUsername' in body:
+        username = body['utUsername']
+        try:
+            if username[0] == 's':
+                person = Person.objects.get(student__number=username[1:])
+                # TODO: Verify studies of person if department data is present in auth request.
+            elif username[0] == 'm':
+                person = Person.objects.get(employee__number=username[1:])
+            elif username[0] == 'x':
+                person = Person.objects.get(ut_external_username=username)
+            else:
+                person = None
+        except Person.DoesNotExist:
+            person = None
+
+    # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
+    if person is not None:
+        return HttpJSONResponse({
+            'iaUsername': person.account_name or None,
+            'studentNumber': f"s{person.student.number}" if person.is_student() else None,
+            'employeeNumber': f"m{person.employee.number}" if person.is_employee() else None,
+            'externalUsername': person.ut_external_username,
+            'groups': [g.get_adname() for g in person.groups()]
+        })
+    else:
+        return HttpJSONResponse({})
 
 
 @require_board

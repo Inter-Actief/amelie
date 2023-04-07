@@ -833,6 +833,11 @@ DATA_HOARDER_CONFIG = {
     "check_ssl": True,
 }
 
+USERINFO_API_CONFIG = {
+    'api_key': None,
+    'allowed_ips': [],
+}
+
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
