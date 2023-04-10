@@ -41,6 +41,7 @@ from amelie.members.models import Payment, PaymentType, Committee, Function, Mem
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
+from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
@@ -604,8 +605,8 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         person.get_or_create_user(f"e{person.pk}")
 
         # Send OAuth token to registered email
-        # TODO: Figure out new way to do this with single sign on auth
-        #create_token_and_send_email(self.request, person)
+        link_code = get_oauth_link_code(self.request, person)
+        send_oauth_link_code_email(self.request, person, link_code)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -1429,6 +1430,16 @@ def person_groupinfo(request):
                 "groups": [g.adname for g in mp.all_groups('ad') if g.is_group_active() and g.adname]
             })
     return HttpJSONResponse({})
+
+
+@require_board
+def person_send_link_code(request, person_id):
+    person = get_object_or_404(Person, id=person_id)
+    link_code = get_oauth_link_code(person)
+    send_oauth_link_code_email(request, person, link_code)
+    name = person.incomplete_name()
+    messages.success(request, _(f"OAuth link code and instructions were sent to {name}."))
+    return HttpResponseRedirect(person.get_absolute_url())
 
 
 @require_board

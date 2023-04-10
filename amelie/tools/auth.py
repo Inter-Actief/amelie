@@ -1,14 +1,24 @@
+import datetime
+import json
+import time
+import uuid
+
+import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
+from amelie.iamailer import MailTask
 from amelie.members.models import Person
+from amelie.tools.mail import PersonRecipient
 
 
 class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def verify_claims(self, claims):
         """Block login if the OIDC claims do not give a value for a username we support"""
         verified = super(IAOIDCAuthenticationBackend, self).verify_claims(claims)
+
+        print(claims)
 
         # IA username
         has_ia_username = claims.get('iaUsername', None) is not None
@@ -91,3 +101,66 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         return self.UserModel.objects.none()
 
 
+def get_oauth_link_code(person):
+    # Login to keycloak API
+    response = requests.post(
+        f"{settings.KEYCLOAK_API_AUTHN_ENDPOINT}",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={"grant_type": "client_credentials", "client_id": settings.KEYCLOAK_API_CLIENT_ID, "client_secret": settings.KEYCLOAK_API_CLIENT_SECRET}
+    )
+    access_token = response.json()['access_token']
+
+    # See if a Keycloak user already exists
+    response = requests.get(
+        f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users?username=ia{person.pk}",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    users = response.json()
+    user = users[0] if len(users) > 0 else None
+    three_days_from_now = round(time.mktime((datetime.datetime.now() + datetime.timedelta(days=3)).timetuple()))
+    link_code = str(uuid.uuid4())
+
+    if user is None:
+        # Create user
+        last_name = f"{person.last_name_prefix} {person.last_name}" if person.last_name_prefix else person.last_name
+        response = requests.post(
+            f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"},
+            data=json.dumps({
+                "username": f"ia{person.pk}", "firstName": person.first_name, "lastName": last_name,
+                "emailVerified": True, "enabled": True, "attributes": {
+                    "created_by": "amelie", "link_code": link_code,
+                    "link_code_valid": f"{three_days_from_now}"
+                }
+            })
+        )
+        if response.status_code != 201:  # 201 is user created
+            raise ValueError(f"Error creating KeyCloak user ia{person.pk} - {response.status_code} {response.content}")
+    else:
+        # Generate new link code for user
+        new_attributes = user['attributes']
+        new_attributes["link_code"] = link_code
+        new_attributes["link_code_valid"] = f"{three_days_from_now}"
+        response = requests.put(
+            f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users/{user['id']}",
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"},
+            data=json.dumps({
+                "attributes": new_attributes
+            })
+        )
+        if response.status_code != 204:  # 204 is no content (user updated successfully)
+            raise ValueError(f"Error updating KeyCloak user ia{person.pk} - {response.status_code} {response.content}")
+    return link_code
+
+
+def send_oauth_link_code_email(request, person, link_code):
+    task = MailTask(template_name="send_oauth_link_code.mail",
+                    report_to=request.person.email_address,
+                    report_always=False)
+
+    task.add_recipient(PersonRecipient(
+        recipient=person,
+        context={"link_code": link_code}
+    ))
+
+    task.send()

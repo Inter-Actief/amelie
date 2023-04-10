@@ -222,7 +222,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # URL to the login page
-LOGIN_URL = '/login/'
+LOGIN_URL = '/legacy_login/'
 
 # URL that users are redirected to after login
 LOGIN_REDIRECT_URL = '/'
@@ -897,3 +897,10 @@ ALLOW_LOGOUT_GET_METHOD = True
 # Keycloak uses RS256 sigining, so we need to specify that and provide the JWKS endpoint for key verification
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_OP_JWKS_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/certs"
+
+# Keycloak API -- auth.ia
+KEYCLOAK_API_BASE = "https://auth.ia.utwente.nl/admin/realms"
+KEYCLOAK_REALM_NAME = "inter-actief"
+KEYCLOAK_API_CLIENT_ID = "admin-cli"
+KEYCLOAK_API_CLIENT_SECRET = ""
+KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
