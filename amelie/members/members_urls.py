@@ -35,6 +35,7 @@ urlpatterns = [
     path(r'ajax/autocomplete/cookie_corner/name/', ajax_views.autocomplete_names_cookie_corner, name='autocomplete_cookie_corner'),
 
     path(r'userinfo/', views.person_userinfo, name='person_userinfo'),
+    path(r'groupinfo/', views.person_groupinfo, name='person_groupinfo'),
 
     path(r'payment/<int:pk>/delete/', PaymentDeleteView.as_view(), name='payment_delete'),
 

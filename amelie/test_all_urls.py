@@ -30,6 +30,9 @@ IGNORE_NAMES = [
     # Cannot test OIDC login
     "oidc_authentication_callback", "oidc_authentication_init", "oidc_logout",
 
+    # UserInfo / GroupInfo API endpoints need extra configuration
+    "members:person_userinfo", "members:person_groupinfo",
+
     # GSuite forwarding views don't need to work in development
     "account:activate_forwarding_address", "account:add_forwarding_address", "account:check_forwarding_status",
     "account:check_forwarding_verification", "account:deactivate_forwarding_address",

@@ -1,7 +1,11 @@
 import datetime
 import json
+import time
 from datetime import date
 from decimal import Decimal
+
+from django.views.decorators.cache import cache_page
+from functools import lru_cache
 from io import BytesIO
 
 from django.contrib import messages
@@ -1307,12 +1311,7 @@ def person_picture(request, id, slug):
         raise Http404('Picture not found')
 
 
-@csrf_exempt
-def person_userinfo(request):
-    """
-    Retrieves user and group info about a person based on either their active member username or UT s- or m-number.
-    Used by our authentication platform to determine permissions for external users (UT or social login).
-    """
+def _person_info_request_get_body(request):
     # Settings for userinfo API must be configured
     if settings.USERINFO_API_CONFIG.get('api_key', None) is None or \
             settings.USERINFO_API_CONFIG.get('allowed_ips', None) is None:
@@ -1337,30 +1336,60 @@ def person_userinfo(request):
         raise PermissionDenied()
 
     # API Key must be valid
-    if body['apiKey'] != settings.USERINFO_API_CONFIG['api_key']:
+    api_key = body.pop('apiKey')  # Removes apiKey from the returned body
+    if api_key != settings.USERINFO_API_CONFIG['api_key']:
         raise PermissionDenied()
 
-    # Access verified. Find the Person associated with the provided username.
+    return body
+
+
+def _get_ttl_hash(seconds=3600):
+    return round(time.time() / seconds)
+
+
+# noinspection PyUnusedLocal
+@lru_cache()
+def _person_info_get_person(ia_username=None, ut_username=None, verify=False, ttl_hash=None):
+    del ttl_hash  # ttl_hash is just to get the lru_cache decorator to keep results for only 1 hour
     person = None
-    if 'iaUsername' in body:
+    if ia_username is not None:
         try:
-            person = Person.objects.get(account_name=body['iaUsername'])
+            person = Person.objects.get(account_name=ia_username)
         except Person.DoesNotExist:
             person = None
-    elif 'utUsername' in body:
-        username = body['utUsername']
+    elif ut_username is not None:
         try:
-            if username[0] == 's':
-                person = Person.objects.get(student__number=username[1:])
-                # TODO: Verify studies of person if department data is present in auth request.
-            elif username[0] == 'm':
-                person = Person.objects.get(employee__number=username[1:])
-            elif username[0] == 'x':
-                person = Person.objects.get(ut_external_username=username)
+            if ut_username[0] == 's':
+                person = Person.objects.get(student__number=ut_username[1:])
+                if verify:
+                    # TODO: Verify studies of person if department data is present in auth request.
+                    pass
+            elif ut_username[0] == 'm':
+                person = Person.objects.get(employee__number=ut_username[1:])
+            elif ut_username[0] == 'x':
+                person = Person.objects.get(ut_external_username=ut_username)
             else:
                 person = None
         except Person.DoesNotExist:
             person = None
+    return person
+
+
+@csrf_exempt
+def person_userinfo(request):
+    """
+    Retrieves user info about a person based on either their active member username or UT s- or m-number.
+    Used by our authentication platform to determine permissions for external users (UT or social login).
+
+    This endpoint is called whenever a user authenticates to a service via auth.ia that requires IA user details.
+    """
+    # Verify request and get the JSON body
+    body = _person_info_request_get_body(request)
+
+    # Access verified. Find the Person associated with the provided username.
+    person = _person_info_get_person(
+        ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None), ttl_hash=_get_ttl_hash()
+    )
 
     # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
     if person is not None:
@@ -1368,11 +1397,38 @@ def person_userinfo(request):
             'iaUsername': person.account_name or None,
             'studentNumber': f"s{person.student.number}" if person.is_student() else None,
             'employeeNumber': f"m{person.employee.number}" if person.is_employee() else None,
-            'externalUsername': person.ut_external_username,
-            'groups': [g.get_adname() for g in person.groups()]
+            'externalUsername': person.ut_external_username
         })
     else:
         return HttpJSONResponse({})
+
+
+@csrf_exempt
+def person_groupinfo(request):
+    """
+    Retrieves group info about a person based on either their active member username or UT s- or m-number.
+    Used by our authentication platform to determine permissions for external users (UT or social login).
+
+    This also verifies studies, because the UT department info will be passed to this endpoint in the body if
+    it was received by the authentication platform. This endpoint is called when a user logs in with their UT account.
+    """
+    # Verify request and get the JSON body
+    body = _person_info_request_get_body(request)
+
+    # Access verified. Find the Person associated with the provided username.
+    person = _person_info_get_person(
+        ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None),
+        verify=True, ttl_hash=_get_ttl_hash()
+    )
+
+    # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
+    if person is not None:
+        mp = Mapping.find(person)
+        if mp is not None:
+            return HttpJSONResponse({
+                "groups": [g.adname for g in mp.all_groups('ad') if g.is_group_active() and g.adname]
+            })
+    return HttpJSONResponse({})
 
 
 @require_board

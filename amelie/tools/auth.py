@@ -7,31 +7,87 @@ from amelie.members.models import Person
 
 class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
     def verify_claims(self, claims):
-        """Block login if the OIDC claims do not give a value for the Inter-Actief account username"""
+        """Block login if the OIDC claims do not give a value for a username we support"""
         verified = super(IAOIDCAuthenticationBackend, self).verify_claims(claims)
-        has_username = claims.get('preferred_username', None) is not None
-        return verified and has_username
 
-    def filter_users_by_claims(self, claims):
-        username = claims.get('preferred_username')
+        # IA username
+        has_ia_username = claims.get('iaUsername', None) is not None
+        # UT Student number
+        has_student_number = claims.get('studentNumber', None) is not None
+        # UT Employee number
+        has_employee_number = claims.get('employeeNumber', None) is not None
+        # UT X-account username
+        has_ut_xaccount = claims.get('externalUsername', None) is not None
+        # OIDC Preferred username
+        has_preferred_username = claims.get('preferred_username', None) is not None
 
-        if not username:
-            return self.UserModel.objects.none()
+        return verified and (has_ia_username or has_student_number or has_employee_number or
+                             has_ut_xaccount or has_preferred_username)
 
-        if not settings.DEBUG and username.lower() in settings.LOGIN_NOT_ALLOWED_USERNAMES:
-            return self.UserModel.objects.none()
-
-        # Find Person by IA account name
-        try:
-            person = Person.objects.get(account_name=username)
-        except Person.DoesNotExist:
-            # Login was successful, but person was not found (should not happen)
-            person = None
-
+    def _get_or_create_user(self, username, person=None):
         if person:
             # Get or create the user object for this person
             user, created = person.get_or_create_user(username)
         else:
-            # Get or create the user object for this unknown user (not linked to a Person)
+            # Get or create the user object for this unknown user (possibly not linked to a Person)
             user, created = User.objects.get_or_create(username=username)
-        return [user]
+        return user
+
+    def filter_users_by_claims(self, claims):
+        # IA username
+        ia_username = claims.get('iaUsername', None)
+        ia_username = ia_username.lower() if ia_username else None
+        # UT Student number
+        student_username = claims.get('studentNumber', None)
+        student_username = student_username.lower() if student_username else None
+        # UT Employee number
+        employee_username = claims.get('employeeNumber', None)
+        employee_username = employee_username.lower() if employee_username else None
+        # UT X-account username
+        ut_xaccount = claims.get('externalUsername', None)
+        ut_xaccount = ut_xaccount.lower() if ut_xaccount else None
+        # OIDC Preferred username as a last resort
+        preferred_username = claims.get('preferred_username', None)
+        preferred_username = preferred_username.lower() if preferred_username else None
+
+        # Try to find Person by IA account name
+        if ia_username is not None:
+            # Block login if in list of disallowed users
+            if not settings.DEBUG and ia_username in settings.LOGIN_NOT_ALLOWED_USERNAMES:
+                return self.UserModel.objects.none()
+            try:
+                return [self._get_or_create_user(ia_username, Person.objects.get(account_name=ia_username))]
+            except Person.DoesNotExist:
+                pass
+
+        # Try to find person by Student number
+        if student_username is not None:
+            s_number = int(student_username[1:])
+            try:
+                return [self._get_or_create_user(student_username, Person.objects.get(student__number=s_number))]
+            except Person.DoesNotExist:
+                pass
+
+        # Try to find person by Employee number
+        if employee_username is not None:
+            m_number = int(employee_username[1:])
+            try:
+                return [self._get_or_create_user(employee_username, Person.objects.get(employee__number=m_number))]
+            except Person.DoesNotExist:
+                pass
+
+        # Try to find person by X-account username
+        if ut_xaccount is not None:
+            try:
+                return [self._get_or_create_user(ut_xaccount, Person.objects.get(ut_external_username=ut_xaccount))]
+            except Person.DoesNotExist:
+                pass
+
+        # Try to find a user based on OIDC preferred_username, as a last ditch effort
+        if preferred_username is not None:
+            return [self._get_or_create_user(preferred_username)]
+
+        # No cigar.
+        return self.UserModel.objects.none()
+
+
