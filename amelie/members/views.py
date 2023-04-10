@@ -605,7 +605,7 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         person.get_or_create_user(f"e{person.pk}")
 
         # Send OAuth token to registered email
-        link_code = get_oauth_link_code(self.request, person)
+        link_code = get_oauth_link_code(person)
         send_oauth_link_code_email(self.request, person, link_code)
 
         # Render the enrollment forms to PDF for printing
