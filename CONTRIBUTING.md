@@ -58,7 +58,7 @@ Replace the `MEDIA_ROOT` and `DATA_EXPORT_ROOT` settings with proper locations. 
 
 For example: *(make sure the directory exists!)*
 
-    MEDIA_ROOT = "/tmp/amelie_uploads/"
+    MEDIA_ROOT = "/tmp/amelie_uploads"
 
 ##### Populate the database
     python manage.py migrate
