@@ -1,10 +1,12 @@
 import datetime
 import json
+import re
 import time
+import logging
+
 from datetime import date
 from decimal import Decimal
 
-from django.views.decorators.cache import cache_page
 from functools import lru_cache
 from io import BytesIO
 
@@ -1312,33 +1314,42 @@ def person_picture(request, id, slug):
         raise Http404('Picture not found')
 
 
-def _person_info_request_get_body(request):
+def _person_info_request_get_body(request, logger=None):
+    if logger is None:
+        logger = logging.getLogger("amelie.members.views._person_info_request_get_body")
+
     # Settings for userinfo API must be configured
     if settings.USERINFO_API_CONFIG.get('api_key', None) is None or \
             settings.USERINFO_API_CONFIG.get('allowed_ips', None) is None:
+        logger.error("UserInfo API config missing from settings.")
         raise ImproperlyConfigured("UserInfo API config missing from settings.")
 
     # Must be POST request
     if request.method != "POST":
+        logger.error(f"Bad request, request method is {request.method}, not POST.")
         raise BadRequest()
 
     # Must contain JSON body
     try:
         body = json.loads(request.body)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"Bad request, JSON decoding failed - {e}.")
         raise BadRequest()
 
-    # Must contain 'apiKey' key, and either 'iaUsername' or 'utUsername' key
-    if 'apiKey' not in body or ('iaUsername' not in body and 'utUsername' not in body):
+    # Must contain 'apiKey' key, and one of the 'iaUsername', 'utUsername' or 'localUsername' keys
+    if 'apiKey' not in body or ('iaUsername' not in body and 'utUsername' not in body and 'localUsername' not in body):
+        logger.error(f"Bad request, API Key or username key missing.")
         raise BadRequest()
 
     # Request must come from a known auth.ia server IP address
     if request.META['REMOTE_ADDR'] not in settings.USERINFO_API_CONFIG['allowed_ips']:
+        logger.error(f"Permission denied, REMOTE_ADDR {request.META['REMOTE_ADDR']} not in allowed IPs.")
         raise PermissionDenied()
 
     # API Key must be valid
     api_key = body.pop('apiKey')  # Removes apiKey from the returned body
     if api_key != settings.USERINFO_API_CONFIG['api_key']:
+        logger.error(f"Permission denied, provided API key is incorrect.")
         raise PermissionDenied()
 
     return body
@@ -1350,28 +1361,54 @@ def _get_ttl_hash(seconds=3600):
 
 # noinspection PyUnusedLocal
 @lru_cache()
-def _person_info_get_person(ia_username=None, ut_username=None, verify=False, ttl_hash=None):
+def _person_info_get_person(ia_username=None, ut_username=None, local_username=None, verify=False,
+                            ttl_hash=None, logger=None):
+    if logger is None:
+        logger = logging.getLogger("amelie.members.views._person_info_get_person")
+
     del ttl_hash  # ttl_hash is just to get the lru_cache decorator to keep results for only 1 hour
     person = None
     if ia_username is not None:
         try:
             person = Person.objects.get(account_name=ia_username)
+            logger.debug(f"Person found by ia_username {ia_username}: {person}.")
         except Person.DoesNotExist:
+            logger.info(f"Person with ia_username {ia_username} does not exist.")
             person = None
     elif ut_username is not None:
         try:
             if ut_username[0] == 's':
                 person = Person.objects.get(student__number=ut_username[1:])
+                logger.debug(f"Person found by student ut_username {ut_username}: {person}.")
                 if verify:
                     # TODO: Verify studies of person if department data is present in auth request.
+                    logger.debug(f"Verifying study for {person} (unimplemented).")
                     pass
             elif ut_username[0] == 'm':
                 person = Person.objects.get(employee__number=ut_username[1:])
+                logger.debug(f"Person found by employee ut_username {ut_username}: {person}.")
             elif ut_username[0] == 'x':
                 person = Person.objects.get(ut_external_username=ut_username)
+                logger.debug(f"Person found by external ut_username {ut_username}: {person}.")
             else:
+                logger.info(f"Cannot find person with invalid ut_username {ut_username}.")
                 person = None
         except Person.DoesNotExist:
+            logger.info(f"Person with ut_username {ut_username} does not exist.")
+            person = None
+    elif local_username is not None:
+        match = re.match(r'ia(?P<person_id>[0-9]+)', local_username)
+        person = None
+        if match:
+            person_id = int(match.group('person_id'))
+            try:
+                person = Person.objects.get(pk=person_id)
+                logger.debug(f"Person found by local_username {local_username}: {person}.")
+            except Person.DoesNotExist:
+                logger.info(f"Person with local_username {local_username} does not exist.")
+                person = None
+        else:
+            logger.info(f"Cannot find person with invalid local_username {local_username}.")
             person = None
     return person
 
@@ -1384,16 +1421,21 @@ def person_userinfo(request):
 
     This endpoint is called whenever a user authenticates to a service via auth.ia that requires IA user details.
     """
+    log = logging.getLogger("amelie.members.views.person_userinfo")
     # Verify request and get the JSON body
-    body = _person_info_request_get_body(request)
+    body = _person_info_request_get_body(request, logger=log)
 
     # Access verified. Find the Person associated with the provided username.
     person = _person_info_get_person(
-        ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None), ttl_hash=_get_ttl_hash()
+        ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None),
+        local_username=body.get('localUsername', None), ttl_hash=_get_ttl_hash(), logger=log
     )
+
+    username = body.get('iaUsername', None) or body.get('utUsername', None) or body.get('localUsername', None)
 
     # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
     if person is not None:
+        log.info(f"UserInfo retrieved for person {person} using username {username}.")
         return HttpJSONResponse({
             'iaUsername': person.account_name or None,
             'studentNumber': f"s{person.student.number}" if person.is_student() else None,
@@ -1401,6 +1443,8 @@ def person_userinfo(request):
             'externalUsername': person.ut_external_username
         })
     else:
+        log.info(f"UserInfo not found for user iaUsername={body.get('iaUsername', None)}, "
+                 f"utUsername={body.get('utUsername', None)}, localUsername={body.get('localUsername', None)}.")
         return HttpJSONResponse({})
 
 
@@ -1413,22 +1457,30 @@ def person_groupinfo(request):
     This also verifies studies, because the UT department info will be passed to this endpoint in the body if
     it was received by the authentication platform. This endpoint is called when a user logs in with their UT account.
     """
+    log = logging.getLogger("amelie.members.views.person_groupinfo")
     # Verify request and get the JSON body
-    body = _person_info_request_get_body(request)
+    body = _person_info_request_get_body(request, logger=log)
 
     # Access verified. Find the Person associated with the provided username.
     person = _person_info_get_person(
         ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None),
-        verify=True, ttl_hash=_get_ttl_hash()
+        local_username=body.get('localUsername', None), verify=True, ttl_hash=_get_ttl_hash(), logger=log
     )
+
+    username = body.get('iaUsername', None) or body.get('utUsername', None) or body.get('localUsername', None)
 
     # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
     if person is not None:
         mp = Mapping.find(person)
         if mp is not None:
+            log.info(f"GroupInfo retrieved for person {person} (cid: {mp.id}) using username {username}.")
             return HttpJSONResponse({
                 "groups": [g.adname for g in mp.all_groups('ad') if g.is_group_active() and g.adname]
             })
+        else:
+            log.info(f"GroupInfo found no groups for username {username} - User has no mapping.")
+            return HttpJSONResponse({"groups": []})
+    log.info(f"GroupInfo not found for username {username}.")
     return HttpJSONResponse({})
 
 

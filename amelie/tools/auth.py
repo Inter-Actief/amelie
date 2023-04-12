@@ -1,12 +1,16 @@
 import datetime
 import json
+import re
 import time
 import uuid
+import logging
 
 import requests
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+from django.utils.translation import gettext as _
 
 from amelie.iamailer import MailTask
 from amelie.members.models import Person
@@ -14,12 +18,12 @@ from amelie.tools.mail import PersonRecipient
 
 
 class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
+    def __init__(self, *args, **kwargs):
+        self.log = logging.getLogger(self.__class__.__name__)
+        super().__init__(*args, **kwargs)
+
     def verify_claims(self, claims):
         """Block login if the OIDC claims do not give a value for a username we support"""
-        verified = super(IAOIDCAuthenticationBackend, self).verify_claims(claims)
-
-        print(claims)
-
         # IA username
         has_ia_username = claims.get('iaUsername', None) is not None
         # UT Student number
@@ -28,11 +32,20 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         has_employee_number = claims.get('employeeNumber', None) is not None
         # UT X-account username
         has_ut_xaccount = claims.get('externalUsername', None) is not None
-        # OIDC Preferred username
-        has_preferred_username = claims.get('preferred_username', None) is not None
+        # Keycloak local username
+        has_local_username = claims.get('localUsername', None) is not None
 
-        return verified and (has_ia_username or has_student_number or has_employee_number or
-                             has_ut_xaccount or has_preferred_username)
+        can_continue = has_ia_username or has_student_number or has_employee_number or \
+            has_ut_xaccount or has_local_username
+        self.log.debug(f"User login claims verification can continue: {can_continue}, with claims: {claims}")
+        if not can_continue:
+            # Person doesn't exist and should not be logged in, inform the user
+            messages.error(self.request, _(
+                "You were successfully logged in, but we could not verify your identity. "
+                "This might be the case if your login session has expired. "
+                "Please <a href='{logout_url}' target='_blank'>click here</a> to log out completely and try again."
+            ).format(logout_url=settings.OIDC_LOGOUT_URL))
+        return can_continue
 
     def _get_or_create_user(self, username, person=None):
         if person:
@@ -41,7 +54,7 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         else:
             # Get or create the user object for this unknown user (possibly not linked to a Person)
             user, created = User.objects.get_or_create(username=username)
-        return user
+        return user, created
 
     def filter_users_by_claims(self, claims):
         # IA username
@@ -57,16 +70,20 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         ut_xaccount = claims.get('externalUsername', None)
         ut_xaccount = ut_xaccount.lower() if ut_xaccount else None
         # OIDC Preferred username as a last resort
-        preferred_username = claims.get('preferred_username', None)
-        preferred_username = preferred_username.lower() if preferred_username else None
+        local_username = claims.get('localUsername', None)
+        local_username = local_username.lower() if local_username else None
 
         # Try to find Person by IA account name
         if ia_username is not None:
             # Block login if in list of disallowed users
             if not settings.DEBUG and ia_username in settings.LOGIN_NOT_ALLOWED_USERNAMES:
+                self.log.info(f"User login for {ia_username} blocked because username is in the list of disallowed users.")
                 return self.UserModel.objects.none()
             try:
-                return [self._get_or_create_user(ia_username, Person.objects.get(account_name=ia_username))]
+                person = Person.objects.get(account_name=ia_username)
+                user, created = self._get_or_create_user(ia_username, person)
+                self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with IA username {ia_username}, Person {person} allowed.")
+                return [user]
             except Person.DoesNotExist:
                 pass
 
@@ -74,7 +91,10 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         if student_username is not None:
             s_number = int(student_username[1:])
             try:
-                return [self._get_or_create_user(student_username, Person.objects.get(student__number=s_number))]
+                person = Person.objects.get(student__number=s_number)
+                user, created = self._get_or_create_user(student_username, person)
+                self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with S-number {student_username}, Person {person} allowed.")
+                return [user]
             except Person.DoesNotExist:
                 pass
 
@@ -82,22 +102,44 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
         if employee_username is not None:
             m_number = int(employee_username[1:])
             try:
-                return [self._get_or_create_user(employee_username, Person.objects.get(employee__number=m_number))]
+                person = Person.objects.get(employee__number=m_number)
+                user, created = self._get_or_create_user(employee_username, person)
+                self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with M-number {employee_username}, Person {person} allowed.")
+                return [user]
             except Person.DoesNotExist:
                 pass
 
         # Try to find person by X-account username
         if ut_xaccount is not None:
             try:
-                return [self._get_or_create_user(ut_xaccount, Person.objects.get(ut_external_username=ut_xaccount))]
+                person = Person.objects.get(ut_external_username=ut_xaccount)
+                user, created = self._get_or_create_user(ut_xaccount, person)
+                self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with M-number {ut_xaccount}, Person {person} allowed.")
+                return [user]
             except Person.DoesNotExist:
                 pass
 
-        # Try to find a user based on OIDC preferred_username, as a last ditch effort
-        if preferred_username is not None:
-            return [self._get_or_create_user(preferred_username)]
+        # Try to find a user based on local username
+        if local_username is not None:
+            match = re.match(r'ia(:?<person_id>[0-9]+)', local_username)
+            if match:
+                person_id = int(match.group('person_id'))
+                try:
+                    person = Person.objects.get(pk=person_id)
+                    user, created = self._get_or_create_user(local_username, person)
+                    self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with local username {local_username}, Person {person} allowed.")
+                    return [user]
+                except Person.DoesNotExist:
+                    pass
 
         # No cigar.
+        messages.error(
+            self.request, _(
+                "You were successfully logged in, but no account could be found. This might be "
+                "the case if you aren't a member yet, or aren't a member anymore. "
+                "If you want to become a member you can contact the board."
+            ))
+        self.log.info(f"User login failed, no username found to match against.")
         return self.UserModel.objects.none()
 
 
@@ -129,7 +171,7 @@ def get_oauth_link_code(person):
             data=json.dumps({
                 "username": f"ia{person.pk}", "firstName": person.first_name, "lastName": last_name,
                 "emailVerified": True, "enabled": True, "attributes": {
-                    "created_by": "amelie", "link_code": link_code,
+                    "created_by": "amelie", "localUsername": f"ia{person.pk}", "link_code": link_code,
                     "link_code_valid": f"{three_days_from_now}"
                 }
             })
@@ -157,10 +199,8 @@ def send_oauth_link_code_email(request, person, link_code):
     task = MailTask(template_name="send_oauth_link_code.mail",
                     report_to=request.person.email_address,
                     report_always=False)
-
     task.add_recipient(PersonRecipient(
         recipient=person,
         context={"link_code": link_code}
     ))
-
     task.send()

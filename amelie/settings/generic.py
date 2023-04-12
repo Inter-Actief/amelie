@@ -897,6 +897,7 @@ ALLOW_LOGOUT_GET_METHOD = True
 # Keycloak uses RS256 sigining, so we need to specify that and provide the JWKS endpoint for key verification
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_OP_JWKS_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/certs"
+OIDC_LOGOUT_URL = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/logout"
 
 # Keycloak API -- auth.ia
 KEYCLOAK_API_BASE = "https://auth.ia.utwente.nl/admin/realms"

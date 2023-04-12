@@ -277,7 +277,7 @@
                     <div class="col-xs-12">
                         <ul class="ia_messages">
                             {% for message in messages %}
-                            <li{% if message.tags %} class="{{ message.tags }} dismissable"{% endif %}> <a class="action_button" data-dismiss>{% trans 'close' %}</a>{{ message }}</li>
+                            <li{% if message.tags %} class="{{ message.tags }} dismissable"{% endif %}> <a class="action_button" data-dismiss>{% trans 'close' %}</a>{{ message|safe }}</li>
                             {% endfor %}
                         </ul>
                     </div>
