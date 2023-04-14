@@ -1,5 +1,4 @@
 import oauth2_provider.views
-import djangosaml2
 
 from django.conf import settings
 from django.conf.urls import include
@@ -128,11 +127,6 @@ if settings.DEBUG:
     # Translation application for development
     urlpatterns += [
         path('translations/', include('rosetta.urls'), name='translations')
-    ]
-
-    # SAML test URLs
-    urlpatterns += [
-        path('saml2test/', djangosaml2.views.EchoAttributesView.as_view()),
     ]
 
 

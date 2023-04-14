@@ -5,13 +5,12 @@ from datetime import timedelta, date
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
@@ -64,142 +63,15 @@ def login(request, template_name='login.html', redirect_field_name=REDIRECT_FIEL
         'show_oauth': 'no_oauth' not in request.GET,
     })
 
-# The SAML login page throws a very annoying error (UnsolicitedResponse) when a timed-out response arrives, or a bot
-# visits our saml url, so we need to wrap it and ignore the error to stop it from showing up in error log mails.
-saml_logger = logging.getLogger('djangosaml2')
-from djangosaml2.cache import IdentityCache, OutstandingQueriesCache
-from djangosaml2.overrides import Saml2Client
-from djangosaml2.utils import get_custom_setting, validate_referral_url
-from djangosaml2.views import AssertionConsumerServiceView, _set_subject_id
-from saml2.response import UnsolicitedResponse, StatusError, StatusAuthnFailed, StatusRequestDenied, \
-    StatusNoAuthnContext
-from saml2.sigver import SignatureError, MissingKey
-from saml2.validate import ToEarly, ResponseLifetimeExceed
-from django.contrib import auth
-from saml2.saml import SCM_BEARER
-from django.http import HttpResponseBadRequest
-import saml2
-from saml2.s_utils import RequestVersionTooLow
-class SAMLACSOverrideView(AssertionConsumerServiceView):
 
-    def post(self, request, attribute_mapping=None, create_unknown_user=None):
-        """ SAML Authorization Response endpoint
-        """
-        if 'SAMLResponse' not in request.POST:
-            logger.warning('Missing "SAMLResponse" parameter in POST data.')
-            return HttpResponseBadRequest('Missing "SAMLResponse" parameter in POST data.')
-
-        attribute_mapping = attribute_mapping or get_custom_setting(
-            'SAML_ATTRIBUTE_MAPPING', {'uid': ('username', )})
-        create_unknown_user = create_unknown_user or get_custom_setting(
-            'SAML_CREATE_UNKNOWN_USER', True)
-        conf = self.get_sp_config(request)
-
-        identity_cache = IdentityCache(request.saml_session)
-        client = Saml2Client(conf, identity_cache=identity_cache)
-        oq_cache = OutstandingQueriesCache(request.saml_session)
-        oq_cache.sync()
-        outstanding_queries = oq_cache.outstanding_queries()
-
-        _exception = None
-        try:
-            response = client.parse_authn_request_response(request.POST['SAMLResponse'],
-                                                           saml2.BINDING_HTTP_POST,
-                                                           outstanding_queries)
-        except (StatusError, ToEarly) as e:
-            _exception = e
-            logger.exception("Error processing SAML Assertion.")
-        except ResponseLifetimeExceed as e:
-            _exception = e
-            logger.info(
-                ("SAML Assertion is no longer valid. Possibly caused "
-                 "by network delay or replay attack."), exc_info=True)
-        except SignatureError as e:
-            _exception = e
-            logger.info("Invalid or malformed SAML Assertion.", exc_info=True)
-        except StatusAuthnFailed as e:
-            _exception = e
-            logger.info("Authentication denied for user by IdP.", exc_info=True)
-        except StatusRequestDenied as e:
-            _exception = e
-            logger.warning("Authentication interrupted at IdP.", exc_info=True)
-        except StatusNoAuthnContext as e:
-            _exception = e
-            logger.warning("Missing Authentication Context from IdP.", exc_info=True)
-        except MissingKey as e:
-            _exception = e
-            logger.exception("SAML Identity Provider is not configured correctly: certificate key is missing!")
-        except UnsolicitedResponse as e:
-            _exception = e
-            #logger.exception("Received SAMLResponse when no request has been made.")
-        except RequestVersionTooLow as e:
-            _exception = e
-            logger.exception("Received SAMLResponse have a deprecated SAML2 VERSION.")
-        except Exception as e:
-            _exception = e
-            logger.exception("SAMLResponse Error")
-
-        if _exception:
-            return self.handle_acs_failure(request, exception=_exception)
-        elif response is None:
-            logger.warning("Invalid SAML Assertion received (unknown error).")
-            return self.handle_acs_failure(request, status=400, exception=SuspiciousOperation('Unknown SAML2 error'))
-
-        try:
-            self.custom_validation(response)
-        except Exception as e:
-            logger.warning(f"SAML Response validation error: {e}")
-            return self.handle_acs_failure(request, status=400, exception=SuspiciousOperation('SAML2 validation error'))
-
-        session_id = response.session_id()
-        oq_cache.delete(session_id)
-
-        # authenticate the remote user
-        session_info = response.session_info()
-
-        # assertion_info
-        assertion = response.assertion
-        assertion_info = {}
-        for sc in assertion.subject.subject_confirmation:
-            if sc.method == SCM_BEARER:
-                assertion_not_on_or_after = sc.subject_confirmation_data.not_on_or_after
-                assertion_info = {'assertion_id': assertion.id,
-                                  'not_on_or_after': assertion_not_on_or_after}
-                break
-
-        if callable(attribute_mapping):
-            attribute_mapping = attribute_mapping()
-        if callable(create_unknown_user):
-            create_unknown_user = create_unknown_user()
-
-        logger.debug(
-            'Trying to authenticate the user. Session info: %s', session_info)
-        user = auth.authenticate(request=request,
-                                 session_info=session_info,
-                                 attribute_mapping=attribute_mapping,
-                                 create_unknown_user=create_unknown_user,
-                                 assertion_info=assertion_info)
-        if user is None:
-            logger.warning(
-                "Could not authenticate user received in SAML Assertion. Session info: %s", session_info)
-            return self.handle_acs_failure(request, exception=PermissionDenied('No user could be authenticated.'),
-                                           session_info=session_info)
-
-        auth.login(self.request, user)
-        _set_subject_id(request.saml_session, session_info['name_id'])
-        logger.debug("User %s authenticated via SSO.", user)
-
-        self.post_login_hook(request, user, session_info)
-        self.customize_session(user, session_info)
-
-        relay_state = self.build_relay_state()
-        custom_redirect_url = self.custom_redirect(
-            user, relay_state, session_info)
-        if custom_redirect_url:
-            return HttpResponseRedirect(custom_redirect_url)
-        relay_state = validate_referral_url(request, relay_state)
-        logger.debug('Redirecting to the RelayState: %s', relay_state)
-        return HttpResponseRedirect(relay_state)
+def get_oidc_logout_url(request):
+    # After logout, we need to redirect to the OIDC Single Sign Out
+    # endpoint (OIDC_LOGOUT_URL) with a redirect back to the main page
+    params = urlencode({
+        'id_token_hint': request.session.get("oidc_id_token", ""),
+        'post_logout_redirect_uri': request.build_absolute_uri(reverse("frontpage"))
+    })
+    return f"{settings.OIDC_LOGOUT_URL}?{params}"
 
 
 @login_required

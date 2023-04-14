@@ -114,7 +114,7 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
             try:
                 person = Person.objects.get(ut_external_username=ut_xaccount)
                 user, created = self._get_or_create_user(ut_xaccount, person)
-                self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with M-number {ut_xaccount}, Person {person} allowed.")
+                self.log.info(f"User login to {'new' if created else 'existing'} user {user.username} with X-number {ut_xaccount}, Person {person} allowed.")
                 return [user]
             except Person.DoesNotExist:
                 pass
