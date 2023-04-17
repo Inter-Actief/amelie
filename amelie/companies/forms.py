@@ -62,7 +62,7 @@ class CompanyForm(forms.ModelForm):
 
 
 class BannerForm(forms.ModelForm):
-    picture = forms.FileField(label=_('Website banner'), widget=AdminFileWidget)
+    picture = forms.ImageField(label=_('Website banner'), widget=AdminFileWidget)
     start_date = forms.DateField(widget=DateSelector)
     end_date = forms.DateField(widget=DateSelector)
 
@@ -72,7 +72,7 @@ class BannerForm(forms.ModelForm):
 
 
 class TelevisionBannerForm(forms.ModelForm):
-    picture = forms.FileField(label=_('Television banner'), widget=AdminFileWidget)
+    picture = forms.ImageField(label=_('Television banner'), widget=AdminFileWidget)
     start_date = forms.DateField(widget=DateSelector)
     end_date = forms.DateField(widget=DateSelector)
 
