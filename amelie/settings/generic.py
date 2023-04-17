@@ -13,6 +13,8 @@ from django.views import debug
 from saml2.saml import NAMEID_FORMAT_EMAILADDRESS, NAMEID_FORMAT_UNSPECIFIED
 from saml2.sigver import get_xmlsec_binary
 
+from amelie.graphql.jwt_handlers import allow_none, get_user_from_jwt_username, get_username_from_jwt_payload
+
 # In the passing of years a lot of settings have been added that contain confidential data.
 # These settings need to be unreadable at all times, also in error reports, logs, etc.
 # Unfortunately, Django's own regex is not extensive enough for this, so we add to it here.
@@ -219,6 +221,7 @@ MIDDLEWARE = [
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
     'amelie.tools.auth.IAOIDCAuthenticationBackend',  # Logins via OIDC / auth.ia
+    'graphql_jwt.backends.JSONWebTokenBackend',  # API key logins via GraphQL
 ]
 
 # URL to the login page
@@ -269,6 +272,7 @@ INSTALLED_APPS = (
     'amelie.style',
     'amelie.narrowcasting',
     'amelie.api',
+    'amelie.graphql',
     'amelie.claudia',
     'amelie.iamailer',
     'amelie.weekmail',
@@ -283,6 +287,9 @@ INSTALLED_APPS = (
 
     # JSONRPC API
     'modernrpc',
+
+    # GraphQL API
+    'graphene_django',
 
     # FCM (Firebase Cloud Messaging)
     'fcm_django',
@@ -376,9 +383,44 @@ CSRF_COOKIE_NAME = 'amelie_csrftoken'
 LANGUAGE_COOKIE_NAME = 'amelie_django_language'
 SESSION_COOKIE_NAME = 'amelie_sessionid'
 
-# Allow Cross Origin requests, but only on the API.
+# Allow Cross Origin requests, but only on the JSONRPC or GraphQL APIs.
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
+CORS_URLS_REGEX = r'^/(api|graphql)/.*$'
+
+# GraphQL API settings
+GRAPHENE = {
+    'SCHEMA': "amelie.graphql.schema.schema",
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+        'graphene_django_extras.ExtraGraphQLDirectiveMiddleware',
+    ],
+    'RELAY_CONNECTION_MAX_LIMIT': 100
+}
+GRAPHENE_DEFAULT_LIMIT = 10
+
+GRAPHQL_JWT = {
+    'JWT_ALLOW_ANY_HANDLER': allow_none,
+    'JWT_ALGORITHM': "RS256",
+    'JWT_PUBLIC_KEY': "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtAj6EjQ4jYb7n2ipgHHX3EMegOyFMovsTAKOuPKslh5eeckU2aq0Qp/YAGRzXu6HxBXMJ5hFuDE8HgxIS5ZRBxR5AbEpO7YnvpH8CY9jUyFc7caR0L+QmugG649jy8NmkhiFvanKy1AY3DPXwfQS75D4QTrDis4viYF2xn1QAnOzTdtfe3srz2uYk/dAguj2lffAeZ0OoQ20sejO+TGHQeOpXTR7Vk16CPu89JhjWcpnhLWSkBgvwuLrg+3XoMlPum9cSHaIhc9BX1hbqt351XVMZbk8Ui4Kv6elJyMQEklPMDQhPiCCDMTXa51nqyAPkJUceA1IXkP3t1x0HBFkOwIDAQAB\n-----END PUBLIC KEY-----".encode('ascii'),
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER': get_username_from_jwt_payload,
+    'JWT_GET_USER_BY_NATURAL_KEY_HANDLER': get_user_from_jwt_username,
+}
+
+GRAPHQL_SCHEMAS = [
+    "amelie.members.graphql",
+    "amelie.news.graphql",
+]
+
+GRAPHENE_DJANGO_EXTRAS = {
+    'DEFAULT_PAGINATION_CLASS': 'graphene_django_extras.paginations.LimitOffsetGraphqlPagination',
+    'DEFAULT_PAGE_SIZE': 20,
+    'MAX_PAGE_SIZE': 100,
+    'CACHE_ACTIVE': True,
+    'CACHE_TIMEOUT': 300  # seconds
+}
 
 # Modules with JSONRPC API endpoints for autoregistration
 MODERNRPC_METHODS_MODULES = [

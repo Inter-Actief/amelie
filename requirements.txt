@@ -27,6 +27,12 @@ fcm-django>=0.3.11,<0.4  # 1.x has breaking changes (old firebase api removed)
 # Custom forks or specific commits of django packages
 git+https://github.com/Inter-Actief/django-sslserver@204586ce686212a4c2848c12f88f7279802b5dcc
 
+# GraphQL API
+graphene-django
+django-graphql-jwt
+django-filter
+graphene-django-extras
+
 # Other random dependencies, to be documented, see issue #556 ...
 beautifulsoup4>=4.11.1,<4.12
 bleach>=5.0.1,<5.1
