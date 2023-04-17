@@ -5,7 +5,47 @@ from graphql import GraphQLError
 
 import amelie.graphql.filters as custom_filters
 from amelie.graphql.decorators import allow_only_self_or_board
-from amelie.members.models import Person, Committee
+from amelie.members.models import Person, Committee, Function, Dogroup, DogroupGeneration, Association, Student, \
+    StudyPeriod, Employee, Photographer, CommitteeCategory
+
+
+class DogroupFilterSet(FilterSet):
+    class Meta:
+        Model = Dogroup
+        fields = ["name"]
+
+
+class DogroupType(DjangoObjectType):
+    class Meta:
+        model = Dogroup
+        description = "Type definition for a single Dogroup"
+        filterset_class = DogroupFilterSet
+
+
+class DogroupGenerationFilterSet(FilterSet):
+    class Meta:
+        model = DogroupGeneration
+        fields = ["generation", "dogroup", "parents", "study", "mail_alias"]
+
+
+class DogroupGenerationType(DjangoObjectType):
+    class Meta:
+        model = DogroupGeneration
+        description = "Type definition for a single DogroupGeneration"
+        filterset_class = DogroupGenerationFilterSet
+
+
+class AssociationFilterSet(FilterSet):
+    class Meta:
+        model = Association
+        fields = ["name", "studies"]
+
+
+class AssociationType(DjangoObjectType):
+    class Meta:
+        model = Association
+        description = "Type defintion for a single Association"
+        filterset_class = AssociationFilterSet
 
 
 class PersonFilterSet(FilterSet):
@@ -96,6 +136,71 @@ class PersonType(DjangoObjectType):
         return self.telephone
 
 
+class StudentFilterSet(FilterSet):
+    class Meta:
+        model = Student
+        fields = ["person", "number"]
+
+
+class StudentType(DjangoObjectType):
+    class Meta:
+        model = Student
+        description = "Type definition for a single Student"
+        filterset_class = StudentFilterSet
+
+
+class StudyPeriodFilterSet(FilterSet):
+    class Meta:
+        model = StudyPeriod
+        fields = ["student", "study", "begin", "end", "graduated", "dogroup"]
+
+
+class StudyPeriodType(DjangoObjectType):
+    class Meta:
+        model = StudyPeriod
+        description = "Type definition for a single StudyPeriod"
+        filterset_class = StudyPeriodFilterSet
+
+
+class EmployeeFilterSet(FilterSet):
+    class Meta:
+        model = Employee
+        fields = ["person", "number", "end"]
+
+
+class EmployeeType(DjangoObjectType):
+    class Meta:
+        model = Employee
+        description = "Type definition for a single Employee"
+        filterset_class = EmployeeFilterSet
+
+
+class PhotographerFilterSet(FilterSet):
+    class Meta:
+        model = Photographer
+        fields = ["first_name", "last_name_prefix", "last_name", "person"]
+
+
+class PhotographerType(DjangoObjectType):
+    class Meta:
+        model = Photographer
+        description = "Type definition for a single Photographer"
+        filterset_class = PhotographerFilterSet
+
+
+class CommitteeCategoryFilterSet(FilterSet):
+    class Meta:
+        model = CommitteeCategory
+        fields = ["name", "slug"]
+
+
+class CommitteeCategoryType(DjangoObjectType):
+    class Meta:
+        model = CommitteeCategory
+        description = "Type definition for a single CommitteeCategory"
+        filterset_class = CommitteeCategoryFilterSet
+
+
 class CommitteeFilterSet(FilterSet):
     class Meta:
         model = Committee
@@ -107,3 +212,16 @@ class CommitteeType(DjangoObjectType):
         model = Committee
         description = "Type definition for a single Committee"
         filterset_class = CommitteeFilterSet
+
+
+class FunctionFilterSet(FilterSet):
+    class Meta:
+        model = Function
+        fields = ["person", "committee", "function", "note", "begin", "end"]
+
+
+class FunctionType(DjangoObjectType):
+    class Meta:
+        model = Function
+        description = "Type definition for a single Function"
+        filterset_class = FunctionFilterSet
