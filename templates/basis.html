@@ -223,7 +223,7 @@
                                 <li><a href="{% url 'education:overview' %}">{% trans 'Information' %}</a></li>
                                 <li><a href="{% url 'education:news_archive' %}">{% trans 'Education news' %}</a></li>
                                 <li><a href="{% url 'education:event_overview' %}">{% trans 'Activities' %}</a></li>
-                                <li><a href="https://interactief.itdepartment.nl/">{% trans 'Books' %}</a></li>
+                                <li><a href="{% url 'about:page' 35 'book-sales' %}">{% trans 'Books' %}</a></li>
                                 <li><a href="https://summaries.ia.utwente.nl/">{% trans 'Summaries' %}</a></li>
                                 <li><a href="{% url 'education:complaints' %}">{% trans 'Complaints' %}</a></li>
                                 <li><a href="{% url 'education:bouquet' %}">{% trans 'Educational bouquet' %}</a></li>
@@ -277,7 +277,7 @@
                     <div class="col-xs-12">
                         <ul class="ia_messages">
                             {% for message in messages %}
-                            <li{% if message.tags %} class="{{ message.tags }} dismissable"{% endif %}> <a class="action_button" data-dismiss>{% trans 'close' %}</a>{{ message }}</li>
+                            <li{% if message.tags %} class="{{ message.tags }} dismissable"{% endif %}> <a class="action_button" data-dismiss>{% trans 'close' %}</a>{{ message|safe }}</li>
                             {% endfor %}
                         </ul>
                     </div>

@@ -225,7 +225,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # URL to the login page
-LOGIN_URL = '/login/'
+LOGIN_URL = '/oidc/authenticate/'
 
 # URL that users are redirected to after login
 LOGIN_REDIRECT_URL = '/'
@@ -309,7 +309,7 @@ INSTALLED_APPS = (
     # Audit logging for various models
     'auditlog',
 
-    # Things for the Oauth2 provider
+    # Things for the legacy API Oauth2 provider
     'oauth2_provider',
 
     # WYSIWYG Editor
@@ -319,16 +319,13 @@ INSTALLED_APPS = (
     # SSL Runserver
     'sslserver',
 
-    # OAuth2 Client
-    'social_django',
-
     # Django-celery helper for celery results
     'django_celery_results',
 
-    # SAML2 SP (authentication via UT)
-    'djangosaml2',
+    # OIDC Client (authentication via auth.ia)
+    'mozilla_django_oidc',
 
-    # SAML2 IdP
+    # SAML2 IdP (legacy)
     'djangosaml2idp',
 )
 
@@ -875,6 +872,11 @@ DATA_HOARDER_CONFIG = {
     "check_ssl": True,
 }
 
+USERINFO_API_CONFIG = {
+    'api_key': None,
+    'allowed_ips': [],
+}
+
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
@@ -929,8 +931,20 @@ OIDC_RP_CLIENT_ID = "amelie-beta"
 OIDC_RP_CLIENT_SECRET = "secret"
 # Our custom Auth Backend will take care of creating users
 OIDC_CREATE_USER = False
+# Store the OIDC ID token in the session
+OIDC_STORE_ID_TOKEN = True
 # Allows logout via GET request insitead of just POST
 ALLOW_LOGOUT_GET_METHOD = True
+# After logout, redirect to signle sign out endpoint with redirect back (the URL is returned by this function)
+OIDC_OP_LOGOUT_URL_METHOD = "amelie.views.get_oidc_logout_url"
 # Keycloak uses RS256 sigining, so we need to specify that and provide the JWKS endpoint for key verification
 OIDC_RP_SIGN_ALGO = "RS256"
 OIDC_OP_JWKS_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/certs"
+OIDC_LOGOUT_URL = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/logout"
+
+# Keycloak API -- auth.ia
+KEYCLOAK_API_BASE = "https://auth.ia.utwente.nl/admin/realms"
+KEYCLOAK_REALM_NAME = "inter-actief"
+KEYCLOAK_API_CLIENT_ID = "admin-cli"
+KEYCLOAK_API_CLIENT_SECRET = ""
+KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"

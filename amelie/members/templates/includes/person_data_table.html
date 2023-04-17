@@ -181,6 +181,10 @@
                                 onclick="window.location='/members/push/?id={{ obj.id }}'"
                             />
                             <br />
+                            <a class="looks-like-a-button" href="{% url 'members:send_oauth_link_code' obj.id %}">
+                                {% trans 'Send OAuth link code mail' %}
+                            </a>
+                            <br />
                             <a href="{% url 'members:person_edit' obj.id obj.slug %}" class="looks-like-a-button">
                                 {% trans 'Edit' %}
                             </a>
