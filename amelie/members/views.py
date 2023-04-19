@@ -1352,6 +1352,16 @@ def _person_info_request_get_body(request, logger=None):
         logger.error(f"Permission denied, provided API key is incorrect.")
         raise PermissionDenied()
 
+    # If given, the 'verify' key should be a boolean value
+    if 'verify' in body and not isinstance(body['verify'], bool):
+        logger.error("Bad request, verify key was given but was not a boolean value.")
+        raise BadRequest()
+
+    # If given, the 'departments' key should be a comma separated string value
+    if 'departments' in body and not isinstance(body['departments'], str):
+        logger.error("Bad request, departments key was given but was not a comma separated string value.")
+        raise BadRequest()
+
     return body
 
 
@@ -1361,10 +1371,13 @@ def _get_ttl_hash(seconds=3600):
 
 # noinspection PyUnusedLocal
 @lru_cache()
-def _person_info_get_person(ia_username=None, ut_username=None, local_username=None, verify=False,
+def _person_info_get_person(ia_username=None, ut_username=None, local_username=None, verify=False, departments=None,
                             ttl_hash=None, logger=None):
     if logger is None:
         logger = logging.getLogger("amelie.members.views._person_info_get_person")
+
+    if departments is None:
+        departments = []
 
     del ttl_hash  # ttl_hash is just to get the lru_cache decorator to keep results for only 1 hour
     person = None
@@ -1380,10 +1393,22 @@ def _person_info_get_person(ia_username=None, ut_username=None, local_username=N
             if ut_username[0] == 's':
                 person = Person.objects.get(student__number=ut_username[1:])
                 logger.debug(f"Person found by student ut_username {ut_username}: {person}.")
+
                 if verify:
-                    # TODO: Verify studies of person if department data is present in auth request.
-                    logger.debug(f"Verifying study for {person} (unimplemented).")
-                    pass
+                    # Verify studies of person if department data is present in auth request.
+                    logger.debug(f"Verifying study for {person}.")
+
+                    # Since UT years are from sept-aug and our year is from jul-jun, there are two months overlap.
+                    # Never verify users in July or August, as this could allow members who are done studying to get an
+                    # extra year as study long.
+                    if not person.membership.is_verified() and datetime.date.today().month not in [7, 8]:
+                        primary_studies = Study.objects.filter(primary_study=True).values_list('abbreviation',
+                                                                                               flat=True)
+                        for study in departments:
+                            if study in primary_studies:
+                                person.membership.verify()
+                                break
+
             elif ut_username[0] == 'm':
                 person = Person.objects.get(employee__number=ut_username[1:])
                 logger.debug(f"Person found by employee ut_username {ut_username}: {person}.")
@@ -1454,8 +1479,9 @@ def person_groupinfo(request):
     Retrieves group info about a person based on either their active member username or UT s- or m-number.
     Used by our authentication platform to determine permissions for external users (UT or social login).
 
-    This also verifies studies, because the UT department info will be passed to this endpoint in the body if
-    it was received by the authentication platform. This endpoint is called when a user logs in with their UT account.
+    This also verifies studies if requested, because the UT department info will be passed to this endpoint in the
+    body if it was received by the authentication platform. This endpoint is called when a user logs in with an
+    external account (UT, Google, GitHub, etc.).
     """
     log = logging.getLogger("amelie.members.views.person_groupinfo")
     # Verify request and get the JSON body
@@ -1464,7 +1490,8 @@ def person_groupinfo(request):
     # Access verified. Find the Person associated with the provided username.
     person = _person_info_get_person(
         ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None),
-        local_username=body.get('localUsername', None), verify=True, ttl_hash=_get_ttl_hash(), logger=log
+        local_username=body.get('localUsername', None), verify=body.get('verify', False),
+        departments=body.get('departments', None), ttl_hash=_get_ttl_hash(), logger=log
     )
 
     username = body.get('iaUsername', None) or body.get('utUsername', None) or body.get('localUsername', None)
