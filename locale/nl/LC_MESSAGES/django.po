@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-19 17:52+0200\n"
-"PO-Revision-Date: 2023-04-19 17:58+0018\n"
+"POT-Creation-Date: 2023-04-21 16:39+0200\n"
+"PO-Revision-Date: 2023-04-21 16:39+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -9784,27 +9784,27 @@ msgstr "Er zijn nog geen kamerdienstschema-templates."
 msgid "Add office duty template"
 msgstr "Kamerdienst-template toevoegen"
 
-#: amelie/settings/generic.py:128
+#: amelie/settings/generic.py:121
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: amelie/settings/generic.py:129
+#: amelie/settings/generic.py:122
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:658
+#: amelie/settings/generic.py:651
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:659
+#: amelie/settings/generic.py:652
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:660
+#: amelie/settings/generic.py:653
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:661
+#: amelie/settings/generic.py:654
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -9913,12 +9913,12 @@ msgstr "Populairste snacks:"
 msgid "Most healthy board member:"
 msgstr "Gezondste bestuurder:"
 
-#: amelie/tools/auth.py:44
+#: amelie/tools/auth.py:45
 #, python-brace-format
 msgid "You were successfully logged in, but we could not verify your identity. This might be the case if your login session has expired. Please <a href='{logout_url}' target='_blank'>click here</a> to log out completely and try again."
 msgstr "Je bent succesvol ingelogd, maar we konden uw identiteit niet verifiëren. Dit kan het geval zijn als uw inlogsessie is verlopen. <a href='{logout_url}' target='_blank'>Klik hier</a> om volledig uit te loggen en probeer het opnieuw."
 
-#: amelie/tools/auth.py:138
+#: amelie/tools/auth.py:139
 msgid "You were successfully logged in, but no account could be found. This might be the case if you aren't a member yet, or aren't a member anymore. If you want to become a member you can contact the board."
 msgstr "Je bent succesvol ingelogd, maar er kon geen account worden gevonden. Dit kan het geval zijn als je nog geen lid bent of geen lid meer bent. Om lid te worden kun je contact opnemen met het bestuur."
 
@@ -11317,7 +11317,7 @@ msgstr "Inter-<i>Actief</i>-actieveledenaccount"
 msgid "TOTP devices:"
 msgstr "TOTP-apparaten:"
 
-#: templates/profile_overview.html:197 templates/profile_overview.html:227
+#: templates/profile_overview.html:197 templates/profile_overview.html:228
 msgid "unlink"
 msgstr "ontkoppelen"
 
@@ -11347,11 +11347,15 @@ msgid "Provider"
 msgstr "Dienst"
 
 #: templates/profile_overview.html:230
+#| msgid "unlink"
+msgid "Cannot unlink"
+msgstr "Kan niet ontkoppelen"
+
+#: templates/profile_overview.html:234
 msgid "No linked accounts"
 msgstr "Geen gekoppelde accounts"
 
-#: templates/profile_overview.html:237
-#| msgid "Your account should now be linked."
+#: templates/profile_overview.html:241
 msgid "No user accounts could be retrieved"
 msgstr "Er konden geen accounts opgehaald worden"
 
