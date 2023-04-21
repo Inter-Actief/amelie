@@ -162,4 +162,7 @@ class KeycloakAPI:
         return self.delete(f"users/{user_id}/credentials/{credential_id}")
 
     def delete_federated_identity(self, user_id, provider_name):
-        return self.delete(f"users/{user_id}/federated-identity/{provider_name}")
+        if provider_name in settings.KEYCLOAK_PROVIDERS_UNLINK_ALLOWED:
+            return self.delete(f"users/{user_id}/federated-identity/{provider_name}")
+        else:
+            raise PermissionError(f"Cannot unlink {provider_name} via the website, contact the System Administrators.")

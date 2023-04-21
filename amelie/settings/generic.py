@@ -897,3 +897,4 @@ KEYCLOAK_REALM_NAME = "inter-actief"
 KEYCLOAK_API_CLIENT_ID = "admin-cli"
 KEYCLOAK_API_CLIENT_SECRET = ""
 KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
+KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']

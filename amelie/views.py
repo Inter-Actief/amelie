@@ -140,7 +140,10 @@ def profile_overview(request):
     except Exception as e:
         logger.exception(e)
         users = []
-    return render(request, "profile_overview.html", context={'users': users})
+    return render(request, "profile_overview.html", context={
+        'users': users,
+        'providers_unlink_allowed': settings.KEYCLOAK_PROVIDERS_UNLINK_ALLOWED
+    })
 
 
 @login_required

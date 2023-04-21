@@ -224,7 +224,11 @@
                                     <tr>
                                         <td>{{ identity.identityProvider }}</td>
                                         <td>{{ identity.userName }}</td>
-                                        <td><a href="{% url 'profile_actions' 'unlink_social' user.id identity.identityProvider %}">({% trans 'unlink' %})</a></td>
+                                        <td>{% if identity.identityProvider in providers_unlink_allowed %}
+                                            <a href="{% url 'profile_actions' 'unlink_social' user.id identity.identityProvider %}">({% trans 'unlink' %})</a>
+                                        {% else %}
+                                            <i>{% trans 'Cannot unlink' %}</i>
+                                        {% endif %}</td>
                                     </tr>
                                 {% empty %}
                                     <tr><td colspan="3">{% trans 'No linked accounts' %}</td></tr>
