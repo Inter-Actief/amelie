@@ -77,13 +77,6 @@ DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 # The LDAP host that is used to verify login attempts in the LDAP authentication module
 LDAP_HOST = 'hexia.ia.utwente.nl'
 
-# The RADIUS login details used to verify login attempts in the RADIUS authentication module
-RADIUS_HOST = 'radius1.utsp.utwente.nl'
-RADIUS_PORT = 1645
-RADIUS_SECRET = b'etisbew_ai_www'
-RADIUS_IDENTIFIER = 'interactief.utwente.nl'
-RADIUS_DICT_LOCATION = os.path.join(BASE_PATH, 'amelie', 'tools', 'radius.dict')
-
 # Caches that the website can use
 CACHES = {
     'default': {

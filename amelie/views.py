@@ -136,7 +136,7 @@ def profile_edit(request):
 @login_required
 def profile_overview(request):
     try:
-        users = get_user_info(request, request.user.person)
+        users = get_user_info(request.user.person)
     except Exception as e:
         logger.exception(e)
         users = []
@@ -145,9 +145,9 @@ def profile_overview(request):
 
 @login_required
 def profile_actions(request, action, user_id, arg):
-    users = get_user_info(request, request.user.person)
-    if user_id not in [x['id'] for x in users] and not request.user.person.is_board():
-        raise PermissionError()
+    users = get_user_info(request.user.person)
+    if user_id not in [x['id'] for x in users]:
+        raise PermissionError("You are not associated with this user.")
     if action == "unlink_totp":
         if user_id and arg:
             unlink_totp(user_id, arg)
@@ -155,7 +155,7 @@ def profile_actions(request, action, user_id, arg):
         if user_id and arg:
             unlink_acount(user_id, arg)
     else:
-        raise BadRequest()
+        raise BadRequest("Unknown action.")
 
     return redirect("profile_overview")
 

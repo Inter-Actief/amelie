@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 
 from amelie.iamailer import MailTask
 from amelie.members.models import Person
+from amelie.tools.keycloak import KeycloakAPI
 from amelie.tools.mail import PersonRecipient
 
 
@@ -144,54 +145,39 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
 
 
 def get_oauth_link_code(person):
-    # Login to keycloak API
-    response = requests.post(
-        f"{settings.KEYCLOAK_API_AUTHN_ENDPOINT}",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={"grant_type": "client_credentials", "client_id": settings.KEYCLOAK_API_CLIENT_ID, "client_secret": settings.KEYCLOAK_API_CLIENT_SECRET}
-    )
-    access_token = response.json()['access_token']
+    # Get keycloak API
+    kc = KeycloakAPI()
 
     # See if a Keycloak user already exists
-    response = requests.get(
-        f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users?username=ia{person.pk}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    users = response.json()
-    user = users[0] if len(users) > 0 else None
+    users = kc.get_user_details_by_username(username=f"ia{person.pk}")
+    user = users[0] if users and len(users) > 0 else None
     three_days_from_now = round(time.mktime((datetime.datetime.now() + datetime.timedelta(days=3)).timetuple()))
     link_code = str(uuid.uuid4())
 
     if user is None:
         # Create user
         last_name = f"{person.last_name_prefix} {person.last_name}" if person.last_name_prefix else person.last_name
-        response = requests.post(
-            f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users",
-            headers={"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"},
-            data=json.dumps({
-                "username": f"ia{person.pk}", "firstName": person.first_name, "lastName": last_name,
-                "emailVerified": True, "enabled": True, "attributes": {
-                    "created_by": "amelie", "localUsername": f"ia{person.pk}", "link_code": link_code,
-                    "link_code_valid": f"{three_days_from_now}"
-                }
-            })
-        )
-        if response.status_code != 201:  # 201 is user created
-            raise ValueError(f"Error creating KeyCloak user ia{person.pk} - {response.status_code} {response.content}")
+
+        try:
+            kc.create_user(username=f"ia{person.pk}", first_name=person.first_name, last_name=last_name,
+                           attributes={
+                               "created_by": "amelie", "localUsername": f"ia{person.pk}",
+                               "link_code": link_code,
+                               "link_code_valid": f"{three_days_from_now}"
+                           })
+        except ConnectionError as e:
+            raise ConnectionError(f"Error creating KeyCloak user ia{person.pk} - {e}")
     else:
         # Generate new link code for user
         new_attributes = user['attributes']
         new_attributes["link_code"] = link_code
         new_attributes["link_code_valid"] = f"{three_days_from_now}"
-        response = requests.put(
-            f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users/{user['id']}",
-            headers={"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"},
-            data=json.dumps({
+        try:
+            kc.update_user(user_id=user['id'], data={
                 "attributes": new_attributes
             })
-        )
-        if response.status_code != 204:  # 204 is no content (user updated successfully)
-            raise ValueError(f"Error updating KeyCloak user ia{person.pk} - {response.status_code} {response.content}")
+        except ConnectionError as e:
+            raise ConnectionError(f"Error updating KeyCloak user ia{person.pk} - {e}")
     return link_code
 
 
@@ -206,14 +192,9 @@ def send_oauth_link_code_email(request, person, link_code):
     task.send()
 
 
-def get_user_info(request, person):
-    # Login to keycloak API
-    response = requests.post(
-        f"{settings.KEYCLOAK_API_AUTHN_ENDPOINT}",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={"grant_type": "client_credentials", "client_id": settings.KEYCLOAK_API_CLIENT_ID, "client_secret": settings.KEYCLOAK_API_CLIENT_SECRET}
-    )
-    access_token = response.json()['access_token']
+def get_user_info(person):
+    # Get keycloak API
+    kc = KeycloakAPI()
 
     # Find all users associated with the current user
     all_users = []
@@ -226,53 +207,22 @@ def get_user_info(request, person):
         possible_usernames.append(person.employee.employee_number())
     if person.ut_external_username:
         possible_usernames.append(person.ut_external_username)
+
     for username in possible_usernames:
-        response = requests.get(
-            f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users?exact=true&briefRepresentation=true&username={username}",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-        users = response.json()
-        if len(users) > 0:
-            response = requests.get(
-                f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users/{users[0]['id']}",
-                headers={"Authorization": f"Bearer {access_token}"},
-            )
-            user_data = response.json()
-            response = requests.get(
-                f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users/{users[0]['id']}/credentials",
-                headers={"Authorization": f"Bearer {access_token}"},
-            )
-            user_data['credentials'] = response.json()
+        users = kc.get_brief_user_details_by_username(username=username)
+        if users and len(users) > 0:
+            user_data = kc.get_user_details_by_user_id(user_id=users[0]['id'])
+            user_data['credentials'] = kc.get_user_credentials_by_user_id(user_id=users[0]['id'])
             all_users.append(user_data)
 
     return all_users
 
 
 def unlink_totp(user_id, totp_id):
-    # Login to keycloak API
-    response = requests.post(
-        f"{settings.KEYCLOAK_API_AUTHN_ENDPOINT}",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={"grant_type": "client_credentials", "client_id": settings.KEYCLOAK_API_CLIENT_ID, "client_secret": settings.KEYCLOAK_API_CLIENT_SECRET}
-    )
-    access_token = response.json()['access_token']
-
-    response = requests.delete(
-        f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users/{user_id}/credentials/{totp_id}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
+    # Delete TOTP in Keycloak
+    KeycloakAPI().delete_credential(user_id=user_id, credential_id=totp_id)
 
 
-def unlink_acount(user_id, account_id):
-    # Login to keycloak API
-    response = requests.post(
-        f"{settings.KEYCLOAK_API_AUTHN_ENDPOINT}",
-        headers={"Content-Type": "application/x-www-form-urlencoded"},
-        data={"grant_type": "client_credentials", "client_id": settings.KEYCLOAK_API_CLIENT_ID, "client_secret": settings.KEYCLOAK_API_CLIENT_SECRET}
-    )
-    access_token = response.json()['access_token']
-
-    response = requests.delete(
-        f"{settings.KEYCLOAK_API_BASE}/{settings.KEYCLOAK_REALM_NAME}/users/{user_id}/federated-identity/{account_id}",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
+def unlink_acount(user_id, provider_name):
+    # Delete TOTP in Keycloak
+    KeycloakAPI().delete_federated_identity(user_id=user_id, provider_name=provider_name)
