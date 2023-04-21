@@ -1,5 +1,5 @@
 {% extends "basis.html" %}
-{% load i18n fieldsets provider_name %}
+{% load i18n fieldsets %}
 
 {% block titel %}
     {% trans 'Profile overview' %}
@@ -167,53 +167,77 @@
     </div></div>
 
     <div class="col-xs-12"><div class="current">
-        <h2>{% trans 'Login providers' %}</h2>
+        <h2>{% trans 'User accounts and login providers' %}</h2>
 
         <div class="content">
-            {% if backends.associated %}
-                <p>
-                    {% trans 'The following login providers have been linked to your account:' %}
-                </p>
-                <table class="table-responsive">
-                    <tr>
-                        <th>{% trans 'Login provider' %}</th>
-                        <th>{% trans 'User-ID' %}</th>
-                        <th><!-- Disconnect --></th>
-                    </tr>
-                    {% for assoc in backends.associated %}
-                        <tr>
-                            <td>{{ assoc.provider|provider_name }}</td>
-                            <td>{{ assoc.uid }}</td>
-                            <td>
-                                <form class="inline" action="{% url 'social_auth:disconnect_individual' assoc.provider assoc.id %}?next={% url 'profile_overview' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="submit" class="no-margin" value="{% trans 'Delete' %}">
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <p>
-                    {% trans 'You have not linked any login providers yet.' %}
-                </p>
-            {% endif %}
-
             <p>
-                {% trans 'You can add another account to the following login providers:' %}
+                {% trans 'The following user account(s) have been found that are related to you.' %}
             </p>
+            <p>
+                {% trans 'You can link another account by logging out, and logging back in with the Google, LinkedIn or GitHub account you want to link.' %}
+            </p>
+            <table class="table">
+                <tr>
+                    <th>{% trans 'Username' %}</th>
+                    <th style="max-width: 200px;">{% trans 'Account type' %}</th>
+                    <th>{% trans 'Linked social accounts' %}</th>
+                </tr>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td style="max-width: 200px;">
+                            {% if 'LDAP_ENTRY_DN' in user.attributes %}
+                                {% trans "Inter-<i>Actief</i> Active Members account" %}<br />
+                                <br />
+                                {% if user.totp %}
+                                    {% trans 'TOTP devices:' %}<br />
+                                    <ul style="margin: 0;">
+                                    {% for credential in user.credentials %}
+                                    {% if credential.type == "otp" %}
+                                        <li>{{ credential.userLabel }} <a href="{% url 'profile_actions' 'unlink_totp' user.id credential.id %}">({% trans 'unlink' %})</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    {% trans 'No TOTP devices' %}<br />
+                                    {% blocktrans %}
+                                        To configure a TOTP device, log in with your active members account and visit <a target="_blank" href="https://auth.ia.utwente.nl/realms/inter-actief/account/totp">this page</a>.
+                                    {% endblocktrans %}
+                                {% endif %}
 
-            <ul>
-                {% for backend in backends.backends %}
-                    <li>
-                        <a href="{% url 'social_auth:begin' backend %}?next={% url 'profile_overview' %}">
-                            {% blocktrans with backend|provider_name as backend %}
-                                Login using {{ backend }}
-                            {% endblocktrans %}
-                        </a>
-                    </li>
+                            {% elif 'created_by' in user.attributes and 'amelie' in user.attributes.created_by %}
+                                {% trans "Integration account" %}
+                            {% elif 'created_by' in user.attributes and 'ut-saml' in user.attributes.created_by %}
+                                {% trans "University of Twente account" %}
+                            {% else %}
+                                {% trans "Unknown" %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <table class="table table-condensed">
+                                <tr>
+                                    <th>{% trans 'Provider' %}</th>
+                                    <th>{% trans 'Username' %}</th>
+                                    <th><!-- Unlink --></th>
+                                </tr>
+                                {% for identity in user.federatedIdentities %}
+                                    <tr>
+                                        <td>{{ identity.identityProvider }}</td>
+                                        <td>{{ identity.userName }}</td>
+                                        <td><a href="{% url 'profile_actions' 'unlink_social' user.id identity.identityProvider %}">({% trans 'unlink' %})</a></td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="3">{% trans 'No linked accounts' %}</td></tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3"><i>{% trans 'No user accounts could be retrieved' %}</i></td>
+                    </tr>
                 {% endfor %}
-            </ul>
+            </table>
         </div>
     </div></div>
 

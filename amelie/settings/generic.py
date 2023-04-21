@@ -185,8 +185,6 @@ TEMPLATES = [
                 'amelie.style.context_processors.theme_context',  # Injects the website theme if one is active
                 'amelie.api.context_processors.absolute_path_to_site',  # Injects the absolute path to the site for API
                 'amelie.tools.context_processors.environment',  # Injects environment context
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',

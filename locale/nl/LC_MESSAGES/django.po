@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-11 00:06+0200\n"
-"PO-Revision-Date: 2023-04-11 00:06+0018\n"
+"POT-Creation-Date: 2023-04-19 17:52+0200\n"
+"PO-Revision-Date: 2023-04-19 17:58+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -343,7 +343,7 @@ msgstr "Aangemeld"
 msgid "Accepted"
 msgstr "Geaccepteerd"
 
-#: amelie/activities/models.py:539 amelie/activities/views.py:1347 amelie/activities/views.py:1353 amelie/activities/views.py:1359 amelie/members/models.py:279 amelie/personal_tab/templates/info/rfid_cards.html:45
+#: amelie/activities/models.py:539 amelie/activities/views.py:1347 amelie/activities/views.py:1353 amelie/activities/views.py:1359 amelie/members/models.py:279 amelie/personal_tab/templates/info/rfid_cards.html:45 templates/profile_overview.html:213
 msgid "Unknown"
 msgstr "Onbekend"
 
@@ -556,7 +556,7 @@ msgstr ""
 "\n"
 "Weet je zeker dat je inschrijfoptie %(object)s voor %(activity)s wilt verwijderen?"
 
-#: amelie/activities/templates/activities/enrollmentoption_confirm_delete.html:19 amelie/activities/templates/activities/enrollmentoption_list.html:47 amelie/activities/templates/activities/enrollmentoption_list.html:58 amelie/activities/templates/activities/enrollmentoption_list.html:94 amelie/activities/templates/activities/enrollmentoption_list.html:106 amelie/activities/templates/activities/enrollmentoption_list.html:139 amelie/activities/templates/activities/enrollmentoption_list.html:148 amelie/activities/templates/activities/enrollmentoption_list.html:181 amelie/activities/templates/activities/enrollmentoption_list.html:190 amelie/activities/templates/activity.html:38 amelie/claudia/templates/claudia/extrapersonalalias_delete.html:19 amelie/companies/templates/companies/company_event.html:20 amelie/education/templates/education_event.html:19 amelie/members/templates/members/payment_confirm_delete.html:19 amelie/members/templates/person_edit_employee.html:13 amelie/personal_tab/templates/cookie_corner/transaction_delete.html:21 amelie/personal_tab/templates/info/rfid_cards.html:63 amelie/room_duty/templates/room_duty/balcony_duty/balcony_duty.html:26 amelie/room_duty/templates/room_duty/balcony_duty/delete.html:22 amelie/room_duty/templates/room_duty/pool/delete.html:42 amelie/room_duty/templates/room_duty/pool/list.html:24 amelie/room_duty/templates/room_duty/pool/persons_change.html:20 amelie/room_duty/templates/room_duty/table/change.html:41 amelie/room_duty/templates/room_duty/table/change_persons.html:20 amelie/room_duty/templates/room_duty/table/delete.html:22 amelie/room_duty/templates/room_duty/table/list.html:24 amelie/room_duty/templates/room_duty/table/overview.html:89 amelie/room_duty/templates/room_duty/table/room_duty_delete.html:30 amelie/room_duty/templates/room_duty/template/change.html:41 amelie/room_duty/templates/room_duty/template/delete.html:22 amelie/room_duty/templates/room_duty/template/list.html:23 amelie/weekmail/templates/weekmail/weekmail_wizard.html:83 templates/oauth2_provider/authorized-token-delete.html:13 templates/oauth2_provider/includes/user_oauth_table.html:9 templates/profile_overview.html:190
+#: amelie/activities/templates/activities/enrollmentoption_confirm_delete.html:19 amelie/activities/templates/activities/enrollmentoption_list.html:47 amelie/activities/templates/activities/enrollmentoption_list.html:58 amelie/activities/templates/activities/enrollmentoption_list.html:94 amelie/activities/templates/activities/enrollmentoption_list.html:106 amelie/activities/templates/activities/enrollmentoption_list.html:139 amelie/activities/templates/activities/enrollmentoption_list.html:148 amelie/activities/templates/activities/enrollmentoption_list.html:181 amelie/activities/templates/activities/enrollmentoption_list.html:190 amelie/activities/templates/activity.html:38 amelie/claudia/templates/claudia/extrapersonalalias_delete.html:19 amelie/companies/templates/companies/company_event.html:20 amelie/education/templates/education_event.html:19 amelie/members/templates/members/payment_confirm_delete.html:19 amelie/members/templates/person_edit_employee.html:13 amelie/personal_tab/templates/cookie_corner/transaction_delete.html:21 amelie/personal_tab/templates/info/rfid_cards.html:63 amelie/room_duty/templates/room_duty/balcony_duty/balcony_duty.html:26 amelie/room_duty/templates/room_duty/balcony_duty/delete.html:22 amelie/room_duty/templates/room_duty/pool/delete.html:42 amelie/room_duty/templates/room_duty/pool/list.html:24 amelie/room_duty/templates/room_duty/pool/persons_change.html:20 amelie/room_duty/templates/room_duty/table/change.html:41 amelie/room_duty/templates/room_duty/table/change_persons.html:20 amelie/room_duty/templates/room_duty/table/delete.html:22 amelie/room_duty/templates/room_duty/table/list.html:24 amelie/room_duty/templates/room_duty/table/overview.html:89 amelie/room_duty/templates/room_duty/table/room_duty_delete.html:30 amelie/room_duty/templates/room_duty/template/change.html:41 amelie/room_duty/templates/room_duty/template/delete.html:22 amelie/room_duty/templates/room_duty/template/list.html:23 amelie/weekmail/templates/weekmail/weekmail_wizard.html:83 templates/oauth2_provider/authorized-token-delete.html:13 templates/oauth2_provider/includes/user_oauth_table.html:9
 msgid "Delete"
 msgstr "Verwijder"
 
@@ -2454,7 +2454,7 @@ msgstr "Inter-Actief-account error"
 msgid "Inter-<i>Actief</i> account error"
 msgstr "Inter-<i>Actief</i>-account error"
 
-#: amelie/claudia/templates/accounts/home.html:4 templates/login.html:44
+#: amelie/claudia/templates/accounts/home.html:4
 msgid "Inter-Actief account"
 msgstr "Inter-Actief-account"
 
@@ -7194,32 +7194,32 @@ msgstr "Betalingen"
 msgid "Totals"
 msgstr "Totalen"
 
-#: amelie/members/views.py:181
+#: amelie/members/views.py:183
 msgid "6 or more"
 msgstr "6 of meer"
 
-#: amelie/members/views.py:198
+#: amelie/members/views.py:200
 msgid "total"
 msgstr "Totaal"
 
-#: amelie/members/views.py:269
+#: amelie/members/views.py:271
 msgid "This person still has an active (unterminated) membership."
 msgstr "Deze persoon heeft nog een actief (niet beeindigd) lidmaatschap."
 
-#: amelie/members/views.py:273
+#: amelie/members/views.py:275
 #, python-brace-format
 msgid "This person has not paid one of their memberships ({year}/{next_year} {type})."
 msgstr "Deze persoon heeft een lidmaatschap nog niet betaald ({year}/{next_year} {type})."
 
-#: amelie/members/views.py:282
+#: amelie/members/views.py:284
 msgid "This person still has an outstanding balance on their personal tab."
 msgstr "Deze persoon heeft nog een openstaand streeplijstsaldo."
 
-#: amelie/members/views.py:285
+#: amelie/members/views.py:287
 msgid "This person isn't enrolled for one or more future activities."
 msgstr "Deze persoon staat ingeschreven voor een of meer toekomstige activiteit(en)."
 
-#: amelie/members/views.py:300
+#: amelie/members/views.py:302
 msgid ""
 "This person cannot be anonymized because of the following reasons:\n"
 "{}"
@@ -7227,21 +7227,20 @@ msgstr ""
 "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:\n"
 "{}"
 
-#: amelie/members/views.py:1441
+#: amelie/members/views.py:1520
 #, python-brace-format
-#| msgid "OAuth link code and instructions were sent to {person.incomplete_name()}."
 msgid "OAuth link code and instructions were sent to {name}."
 msgstr "OAuth link code en instructies zijn verzonden naar {name}."
 
-#: amelie/members/views.py:1469
+#: amelie/members/views.py:1548
 msgid "You are not allowed to manually delete the payments of free memberships."
 msgstr "Je mag van gratis lidmaatschappen de betaling niet handmatig verwijderen."
 
-#: amelie/members/views.py:1472
+#: amelie/members/views.py:1551
 msgid "You are not allowed to delete payments that are already (being) debited."
 msgstr "Je mag geen betalingen verwijderen die al geïncasseerd zijn/worden."
 
-#: amelie/members/views.py:1476
+#: amelie/members/views.py:1555
 #, python-format
 msgid "Payment %(object)s has been removed"
 msgstr "Betaling %(object)s is verwijderd"
@@ -7553,7 +7552,7 @@ msgstr ""
 "\n"
 "Met vriendelijke groet,"
 
-#: amelie/oauth/templates/token_login.html:5 amelie/personal_tab/templates/pos/show_qr.html:19 amelie/personal_tab/templates/register/register_card_index.html:28 templates/basis.html:265 templates/login.html:4 templates/login.html:64
+#: amelie/oauth/templates/token_login.html:5 amelie/personal_tab/templates/pos/show_qr.html:19 amelie/personal_tab/templates/register/register_card_index.html:28 templates/basis.html:265 templates/login.html:4 templates/login.html:47
 msgid "Log in"
 msgstr "Inloggen"
 
@@ -9235,7 +9234,7 @@ msgstr "Log in om een kaart te registreren"
 msgid "You can log on with your student account (for example: s0123456) or your Inter-<em>Actief</em> account."
 msgstr "Je kunt inloggen met je studentaccount (bijvoorbeeld s0123456) of je Inter-<em>Actief</em>-account."
 
-#: amelie/personal_tab/templates/register/register_card_index.html:19
+#: amelie/personal_tab/templates/register/register_card_index.html:19 templates/profile_overview.html:181 templates/profile_overview.html:220
 msgid "Username"
 msgstr "Gebruikersnaam"
 
@@ -9793,19 +9792,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:663
+#: amelie/settings/generic.py:658
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:664
+#: amelie/settings/generic.py:659
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:665
+#: amelie/settings/generic.py:660
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:666
+#: amelie/settings/generic.py:661
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -9913,6 +9912,15 @@ msgstr "Populairste snacks:"
 #: amelie/statistics/templates/statistics.html:70
 msgid "Most healthy board member:"
 msgstr "Gezondste bestuurder:"
+
+#: amelie/tools/auth.py:44
+#, python-brace-format
+msgid "You were successfully logged in, but we could not verify your identity. This might be the case if your login session has expired. Please <a href='{logout_url}' target='_blank'>click here</a> to log out completely and try again."
+msgstr "Je bent succesvol ingelogd, maar we konden uw identiteit niet verifiëren. Dit kan het geval zijn als uw inlogsessie is verlopen. <a href='{logout_url}' target='_blank'>Klik hier</a> om volledig uit te loggen en probeer het opnieuw."
+
+#: amelie/tools/auth.py:138
+msgid "You were successfully logged in, but no account could be found. This might be the case if you aren't a member yet, or aren't a member anymore. If you want to become a member you can contact the board."
+msgstr "Je bent succesvol ingelogd, maar er kon geen account worden gevonden. Dit kan het geval zijn als je nog geen lid bent of geen lid meer bent. Om lid te worden kun je contact opnemen met het bestuur."
 
 #: amelie/tools/calendar.py:126
 msgid "[START] {}"
@@ -10405,12 +10413,12 @@ msgstr "Het is niet gelukt om een verbinding met Youtube te maken! Neem contact 
 msgid "Could not connect to Streaming.IA! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met Streaming.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
-#: amelie/views.py:360
+#: amelie/views.py:259
 #, python-format
 msgid "CSRF-check failed. Reason: %s"
 msgstr "CSRF-controle mislukt. Reden: %s"
 
-#: amelie/views.py:362
+#: amelie/views.py:261
 msgid "CSRF-check failed."
 msgstr "CSRF-controle mislukt."
 
@@ -10925,28 +10933,18 @@ msgid "If you do not have either of these accounts, you can link an external acc
 msgstr "Als je geen van beide accounts hebt, dan kan je een extern account, zoals een Google-, GitHub-, of Facebook-account, laten koppelen. Neem hiervoor contact op met het bestuur."
 
 #: templates/login.html:35
-msgid "Log in with your UTwente account"
-msgstr "Log in met je UTwente account"
+msgid "Log in with Inter-Actief"
+msgstr "Log in bij Inter-Actief"
 
 #: templates/login.html:37
 msgid "- or -"
 msgstr "- of -"
 
-#: templates/login.html:42
-msgid "Log in with:"
-msgstr "Inloggen met:"
+#: templates/login.html:40
+msgid "Log in with legacy account:"
+msgstr "Log in met een lokaal account:"
 
-#: templates/login.html:52
-msgid ""
-"\n"
-"                                Login with your Inter-<i>Actief</i> or University of Twente account to link it to\n"
-"                                your external account.\n"
-"                            "
-msgstr ""
-"\n"
-"Log in met uw Inter-<i>Actief</i> of Universiteit Twente account om deze te koppelen aan uw externe account."
-
-#: templates/login.html:67
+#: templates/login.html:50
 msgid "Forgot password?"
 msgstr "Wachtwoord vergeten?"
 
@@ -11292,38 +11290,70 @@ msgstr ""
 "Hieronder staat een overzicht van apps die toestemming hebben gekregen om je gegevens te gebruiken of wijzigen."
 
 #: templates/profile_overview.html:170
-msgid "Login providers"
-msgstr "Login-providers"
+msgid "User accounts and login providers"
+msgstr "Gebruikersaccounts en inlogproviders"
 
-#: templates/profile_overview.html:175
-msgid "The following login providers have been linked to your account:"
-msgstr "De volgende login-providers zijn al aan jouw account gekoppeld:"
+#: templates/profile_overview.html:174
+msgid "The following user account(s) have been found that are related to you."
+msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan u gerelateerd zijn."
 
-#: templates/profile_overview.html:179
-msgid "Login provider"
-msgstr "Login-provider"
+#: templates/profile_overview.html:177
+msgid "You can link another account by logging out, and logging back in with the Google, LinkedIn or GitHub account you want to link."
+msgstr "U kunt een ander account koppelen door uit te loggen, en weer in te loggen met het Google-, LinkedIn- of GitHub-account dat u wilt koppelen."
 
-#: templates/profile_overview.html:180
-msgid "User-ID"
-msgstr "Gebruikers-id"
+#: templates/profile_overview.html:182
+msgid "Account type"
+msgstr "Accounttype"
 
-#: templates/profile_overview.html:198
-msgid "You have not linked any login providers yet."
-msgstr "Je hebt nog geen login-providers gekoppeld."
+#: templates/profile_overview.html:183
+msgid "Linked social accounts"
+msgstr "Gekoppelde sociale accounts"
+
+#: templates/profile_overview.html:190
+msgid "Inter-<i>Actief</i> Active Members account"
+msgstr "Inter-<i>Actief</i>-actieveledenaccount"
+
+#: templates/profile_overview.html:193
+msgid "TOTP devices:"
+msgstr "TOTP-apparaten:"
+
+#: templates/profile_overview.html:197 templates/profile_overview.html:227
+msgid "unlink"
+msgstr "ontkoppelen"
+
+#: templates/profile_overview.html:202
+msgid "No TOTP devices"
+msgstr "Geen TOTP-apparaten"
 
 #: templates/profile_overview.html:203
-msgid "You can add another account to the following login providers:"
-msgstr "Je kunt hier (nog) een account koppelen aan de volgende login-providers:"
-
-#: templates/profile_overview.html:210
-#, python-format
 msgid ""
 "\n"
-"                                Login using %(backend)s\n"
-"                            "
+"                                        To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
+"                                    "
 msgstr ""
 "\n"
-"Inloggen met %(backend)s"
+"Om een TOTP-apparaat te configureren, log in met uw actieve ledenaccount en ga naar <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">deze pagina</a>."
+
+#: templates/profile_overview.html:209
+msgid "Integration account"
+msgstr "Integratie-account"
+
+#: templates/profile_overview.html:211
+msgid "University of Twente account"
+msgstr "Universiteit Twente account"
+
+#: templates/profile_overview.html:219
+msgid "Provider"
+msgstr "Dienst"
+
+#: templates/profile_overview.html:230
+msgid "No linked accounts"
+msgstr "Geen gekoppelde accounts"
+
+#: templates/profile_overview.html:237
+#| msgid "Your account should now be linked."
+msgid "No user accounts could be retrieved"
+msgstr "Er konden geen accounts opgehaald worden"
 
 #: templates/profile_unknown.html:5 templates/profile_unknown.html:11
 msgid "Unknown user"
@@ -11349,14 +11379,49 @@ msgstr "Log uit en ga terug"
 msgid "Add photos"
 msgstr "Foto's toevoegen"
 
+#~ msgid "Log in with:"
+#~ msgstr "Inloggen met:"
+
+#~ msgid ""
+#~ "\n"
+#~ "                                Login with your Inter-<i>Actief</i> or University of Twente account to link it to\n"
+#~ "                                your external account.\n"
+#~ "                            "
+#~ msgstr ""
+#~ "\n"
+#~ "Log in met uw Inter-<i>Actief</i> of Universiteit Twente account om deze te koppelen aan uw externe account."
+
+#~ msgid "Login providers"
+#~ msgstr "Login-providers"
+
+#~ msgid "The following login providers have been linked to your account:"
+#~ msgstr "De volgende login-providers zijn al aan jouw account gekoppeld:"
+
+#~ msgid "Login provider"
+#~ msgstr "Login-provider"
+
+#~ msgid "User-ID"
+#~ msgstr "Gebruikers-id"
+
+#~ msgid "You have not linked any login providers yet."
+#~ msgstr "Je hebt nog geen login-providers gekoppeld."
+
+#~ msgid "You can add another account to the following login providers:"
+#~ msgstr "Je kunt hier (nog) een account koppelen aan de volgende login-providers:"
+
+#~ msgid ""
+#~ "\n"
+#~ "                                Login using %(backend)s\n"
+#~ "                            "
+#~ msgstr ""
+#~ "\n"
+#~ "Inloggen met %(backend)s"
+
 #~ msgid "The login token does not exist or is expired."
 #~ msgstr "Het login-token is verlopen of bestaat niet."
 
 #~ msgid "Your account is currently not linked to a user. Please contact the board."
 #~ msgstr "Je gebruikersaccount is niet gekoppeld aan een user. Neem contact op met het bestuur."
-
-#~ msgid "You were successfully logged in, but no account could be found. This might be the case if you aren't a member yet, or aren't a member anymore. If you want to become a member you can contact the board."
-#~ msgstr "Je bent succesvol ingelogd, maar er kon geen account worden gevonden. Dit kan het geval zijn als je nog geen lid bent of geen lid meer bent. Om lid te worden kun je contact opnemen met het bestuur."
 
 #~ msgid "You can log in with your UTwente account, or your Inter-<em>Actief</em> account."
 #~ msgstr "Je kunt inloggen met je UTwente-account, of met je Inter-<em>Actief</em>-account."
@@ -13030,9 +13095,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Generated classes."
 #~ msgstr "Gegenereerde colleges"
-
-#~ msgid "Provided to"
-#~ msgstr "Gegeven aan"
 
 #~ msgid "Gender is"
 #~ msgstr "Geslacht is"

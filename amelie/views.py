@@ -5,6 +5,7 @@ from datetime import timedelta, date
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import BadRequest
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
@@ -24,6 +25,7 @@ from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
+from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
 
@@ -133,7 +135,29 @@ def profile_edit(request):
 
 @login_required
 def profile_overview(request):
-    return render(request, "profile_overview.html")
+    try:
+        users = get_user_info(request, request.user.person)
+    except Exception as e:
+        logger.exception(e)
+        users = []
+    return render(request, "profile_overview.html", context={'users': users})
+
+
+@login_required
+def profile_actions(request, action, user_id, arg):
+    users = get_user_info(request, request.user.person)
+    if user_id not in [x['id'] for x in users] and not request.user.person.is_board():
+        raise PermissionError()
+    if action == "unlink_totp":
+        if user_id and arg:
+            unlink_totp(user_id, arg)
+    elif action == "unlink_social":
+        if user_id and arg:
+            unlink_acount(user_id, arg)
+    else:
+        raise BadRequest()
+
+    return redirect("profile_overview")
 
 
 @track_hits("Frontpage")
