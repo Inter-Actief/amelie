@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-21 16:39+0200\n"
-"PO-Revision-Date: 2023-04-21 16:39+0018\n"
+"POT-Creation-Date: 2023-04-23 12:18+0200\n"
+"PO-Revision-Date: 2023-04-23 12:19+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -7542,7 +7542,7 @@ msgstr ""
 "\n"
 "Je kunt nu een extern account koppelen via de volgende link:"
 
-#: amelie/oauth/templates/send_token.mail:14 amelie/tools/templates/send_oauth_link_code.mail:21
+#: amelie/oauth/templates/send_token.mail:14 amelie/tools/templates/send_oauth_link_code.mail:22
 msgid ""
 "Best of luck!\n"
 "\n"
@@ -10151,18 +10151,23 @@ msgid "Choose your preferred login service and log in"
 msgstr "Kies een dienst om mee in te loggen en log in bij die dienst"
 
 #: amelie/tools/templates/send_oauth_link_code.mail:15
+#| msgid "Choose the option \"I have a link code\""
+msgid "Choose the option \"Try Another Way\""
+msgstr "Kies de optie \"Probeer op een andere manier\""
+
+#: amelie/tools/templates/send_oauth_link_code.mail:16
 msgid "Choose the option \"I have a link code\""
 msgstr "Kies de optie \"Ik heb een link code\""
 
-#: amelie/tools/templates/send_oauth_link_code.mail:16
+#: amelie/tools/templates/send_oauth_link_code.mail:17
 msgid "Enter the following link code:"
 msgstr "Voer de volgende link code in:"
 
-#: amelie/tools/templates/send_oauth_link_code.mail:17
+#: amelie/tools/templates/send_oauth_link_code.mail:18
 msgid "Your account should now be linked."
 msgstr "Je account is nu gekoppeld"
 
-#: amelie/tools/templates/send_oauth_link_code.mail:19
+#: amelie/tools/templates/send_oauth_link_code.mail:20
 msgid "The link code will remain valid for 3 days, please complete the steps before then or request a new code at the Board."
 msgstr "De link code is 3 dagen geldig, voer a.u.b. deze stappen binnen die tijd uit of vraag een nieuwe code aan bij het Bestuur."
 
@@ -11347,7 +11352,6 @@ msgid "Provider"
 msgstr "Dienst"
 
 #: templates/profile_overview.html:230
-#| msgid "unlink"
 msgid "Cannot unlink"
 msgstr "Kan niet ontkoppelen"
 
