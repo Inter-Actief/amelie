@@ -77,3 +77,6 @@ djangosaml2>=1.5.3,<1.6
 # SAML IdP (requires xmlsec1 (on Debian))
 pysaml2>=7.2.1,<7.3
 djangosaml2idp>=0.7.2,<0.8
+
+# Single Sign On - OIDC Client
+mozilla-django-oidc
