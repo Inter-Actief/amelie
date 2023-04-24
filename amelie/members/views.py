@@ -1461,8 +1461,10 @@ def person_userinfo(request):
     # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
     if person is not None:
         log.info(f"UserInfo retrieved for person {person} using username {username}.")
+        email = "{}@{}".format(person.get_adname(), settings.CLAUDIA_GSUITE['PRIMARY_DOMAIN'])
         return HttpJSONResponse({
-            'iaUsername': person.account_name or None,
+            'iaUsername': person.get_adname() or None,
+            'iaEmail': email if person.get_adname() else None,
             'studentNumber': f"s{person.student.number}" if person.is_student() else None,
             'employeeNumber': f"m{person.employee.number}" if person.is_employee() else None,
             'externalUsername': person.ut_external_username
