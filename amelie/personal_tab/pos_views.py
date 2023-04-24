@@ -242,7 +242,7 @@ class PosVerifyTokenView(TemplateView):
         # If no user is logged in, redirect to login and then back here.
         if not self.request.user.is_authenticated:
             redirect_url = reverse('personal_tab:pos_verify', kwargs={'uuid': uuid})
-            login_url_with_redirect = reverse('login') + "?next={}".format(redirect_url)
+            login_url_with_redirect = reverse('oidc_authentication_init') + "?next={}".format(redirect_url)
             return redirect(login_url_with_redirect)
 
         pending_login = None
