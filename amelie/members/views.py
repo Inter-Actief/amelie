@@ -1437,6 +1437,10 @@ def _person_info_get_person(ia_username=None, ut_username=None, local_username=N
         else:
             logger.info(f"Cannot find person with invalid local_username {local_username}.")
             person = None
+    else:
+        logger.warning(f"Person lookup requested but no IA, UT or local username given?! - "
+                       f"Args: ia_username={ia_username}, ut_username={ut_username}, local_username={local_username}, "
+                       f"verify={verify}, departments={departments}.")
     return person
 
 
@@ -1511,7 +1515,8 @@ def person_groupinfo(request):
         else:
             log.info(f"GroupInfo found no groups for username {username} - User has no mapping.")
             return HttpJSONResponse({"groups": []})
-    log.info(f"GroupInfo not found for username {username}.")
+    log.info(f"GroupInfo not found for username(s) ia={body.get('iaUsername', None)} "
+             f"ut={body.get('utUsername', None)} local={body.get('localUsername', None)}.")
     return HttpJSONResponse({})
 
 
