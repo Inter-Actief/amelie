@@ -1378,6 +1378,8 @@ def _person_info_get_person(ia_username=None, ut_username=None, local_username=N
 
     if departments is None:
         departments = []
+    else:
+        departments = departments.split(",")
 
     del ttl_hash  # ttl_hash is just to get the lru_cache decorator to keep results for only 1 hour
     person = None
