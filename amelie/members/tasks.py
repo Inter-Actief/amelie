@@ -1,4 +1,4 @@
-from celery.task import task
+from celery import shared_task
 from django.template import Template, Context
 
 from amelie.api.models import PushNotification
@@ -7,7 +7,7 @@ from amelie.iamailer import MailTask, Recipient
 from amelie.members.models import Preference
 
 
-@task()
+@shared_task()
 def send_push_notification(notification: PushNotification, recipients, report_to=None, report_language=None):
     preferences = Preference.objects.filter(name='notifications')
 

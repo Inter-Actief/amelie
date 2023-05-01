@@ -1,7 +1,7 @@
 {% extends 'basis.html' %}
 {% load i18n %}
 
-{% block titel %}{% blocktrans %}Add course{% endblocktrans %}{% endblock titel %}
+{% block titel %}{% trans 'Add course' %}{% endblock titel %}
 
 {% block content %}
   <form action="" method="post" class="big">
@@ -19,15 +19,8 @@
                 {{ form.name.errors }}
 
                 <div class="form-row">
-                    <label for="name">{% blocktrans %}Course or Module name{% endblocktrans %}</label>
+                    <label for="name">{% trans "Course name" %}</label>
                     {{ form.name }}
-                </div>
-
-                {{ form.course_type.errors }}
-
-                <div class="form-row">
-                    <label for="course_type">{% trans "Type" %}</label>
-                    {{ form.course_type }}
                 </div>
 
                 {{ form.course_code.errors }}
@@ -35,6 +28,13 @@
                 <div class="form-row">
                     <label for="course_code">{% trans "Course code" %}</label>
                     {{ form.course_code }}
+                </div>
+
+                {{ form.module_ptr.errors }}
+
+                <div class="form-row">
+                    <label for="module_ptr">{% trans "Module this course belongs to" %}</label>
+                    {{ form.module_ptr }}
                 </div>
 
                 <div class="buttons">

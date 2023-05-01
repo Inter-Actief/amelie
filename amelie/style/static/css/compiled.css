@@ -12852,16 +12852,51 @@ dd.eventdesk-status-UNREGISTERED a {
   display: none !important;
 }
 .activity-list-label {
-  max-width: 100px;
+  max-width: 130px;
   border-radius: 2.5px;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 1px black solid;
   flex: 1;
+  min-width: 100px;
 }
 .activity-list-label-name {
   color: white;
   padding-left: 10px;
   padding-right: 10px;
+}
+.activity-list-label-icon {
+  display: none;
+  min-width: 20px;
+}
+@media only screen and (max-width: 992px) {
+  .activity-list-label {
+    display: none;
+  }
+  .activity-list-label-icon {
+    display: block;
+  }
+  .activity-list-header-label {
+    display: none;
+  }
+}
+@media only screen and (max-width: 650px) {
+  .enrollments-heading-content {
+    flex-direction: column;
+  }
+}
+@media only screen and (min-width: 650px) {
+  .enrollments-heading-content {
+    flex-direction: row;
+  }
+}
+.underage-button {
+  display: flex;
+  align-items: center;
+}
+.enrollments-heading-content {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }

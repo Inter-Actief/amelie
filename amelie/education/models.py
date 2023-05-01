@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from amelie.iamailer.mailtask import MailTask
 from amelie.calendar.models import Event
+from amelie.activities.models import ActivityLabel
 from amelie.members.models import Person
 from amelie.education.managers import ComplaintCommentManager, EducationEventManager
 from amelie.tools.discord import send_discord
@@ -173,27 +174,51 @@ class Period(models.Model):
                     _('Start of the term for ordering books may not be after or simultaneous to the end of this term.'))
 
 
-class Course(models.Model):
+class BaseCourseModule(models.Model):
+    name = models.CharField(max_length=200, verbose_name=_('Name'))
+    course_code = models.PositiveIntegerField(unique=True, verbose_name=_("Course code"),
+                                              validators=[MinValueValidator(100000), MaxValueValidator(999999999)])
+
+    def __str__(self):
+        return u'%s (%s)' % (self.name, self.course_code)
+
+    def get_absolute_url(self):
+        if hasattr(self, 'course'):
+            return self.course.get_absolute_url()
+        elif hasattr(self, 'module'):
+            return self.module.get_absolute_url()
+        else:
+            raise RuntimeError("Unknown subclass of BaseCourseModule")
+
+
+class Module(BaseCourseModule):
+    """
+    A module as specified by TEM/TOM.
+    """
+
+    def get_absolute_url(self):
+        return reverse('education:module', args=(), kwargs={
+            'course_code': self.course_code,
+            'slug': slugify(self.name),
+        })
+
+    class Meta:
+        ordering = ['name', 'course_code']
+        verbose_name = _('Module')
+        verbose_name_plural = _('Modules')
+
+
+class Course(BaseCourseModule):
     """
     A course with a specific content
     """
-    class CourseTypes(models.TextChoices):
-        MODULE = 'MOD', _('Module')
-        COURSE = 'COURSE', _('Course')
-
-    name = models.CharField(max_length=200, verbose_name=_('Name'))
-    course_type = models.CharField(max_length=6, choices=CourseTypes.choices, default=CourseTypes.COURSE,
-                                   verbose_name=_('Course type'))
-    course_code = models.PositiveIntegerField(unique=True, verbose_name=_('Course code'),
-                                          validators=[MinValueValidator(100000), MaxValueValidator(999999999)])
+    module_ptr = models.ForeignKey(Module, on_delete=models.PROTECT, related_name="courses", null=True,
+                                   verbose_name=_("Module"), blank=True)
 
     class Meta:
         ordering = ['name', 'course_code']
         verbose_name = _('Course')
         verbose_name_plural = _('Courses')
-
-    def __str__(self):
-        return '%s (%s)' % (self.name, self.course_code)
 
     def get_absolute_url(self):
         return reverse('education:course', args=(), kwargs={
@@ -234,7 +259,7 @@ class Complaint(models.Model):
     anonymous = models.BooleanField(default=False, verbose_name=_('Handle anonymously'))
     completed = models.BooleanField(default=False, verbose_name=_('Handled'))
 
-    course = models.ForeignKey(Course, null=True, blank=True, verbose_name=_('Course'), on_delete=models.SET_NULL)
+    course = models.ForeignKey(BaseCourseModule, null=True, blank=True, verbose_name=_('Course or module'), on_delete=models.SET_NULL)
     part = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Subject'))
     year = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Year'))
     period = models.CharField(max_length=2, choices=PeriodChoices.choices, null=True, blank=True, verbose_name=_('Term'))
@@ -261,7 +286,6 @@ class ComplaintComment(models.Model):
     complaint = models.ForeignKey(Complaint, editable=False, verbose_name=_('Complaint'), on_delete=models.CASCADE)
 
     person = models.ForeignKey(Person, editable=False, verbose_name=_('Person'), on_delete=models.PROTECT)
-    official = models.BooleanField(verbose_name=_('Comment by Education Committee'), default=False)
     comment = models.TextField(verbose_name=_('Remarks'))
 
     objects = ComplaintCommentManager()
@@ -304,6 +328,10 @@ class EducationEvent(Event):
     objects = EducationEventManager()
 
     education_organizer = models.CharField(verbose_name="organiser", max_length=100, blank=True)
+
+    @property
+    def activity_label(self):
+        return ActivityLabel.objects.filter(name_en="Education").first()
 
     @property
     def activity_type(self):

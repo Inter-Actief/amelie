@@ -1,7 +1,7 @@
-from celery.task import task
+from celery import shared_task
 
 
-@task
+@shared_task
 def verify_instance(obj_type, ident):
     from amelie.claudia.models import Mapping
     from amelie.claudia.clau import Claudia
@@ -10,7 +10,7 @@ def verify_instance(obj_type, ident):
     Claudia().do_verify(obj)
 
 
-@task
+@shared_task
 def verify_mapping(cid):
     from amelie.claudia.models import Mapping
     from amelie.claudia.clau import Claudia

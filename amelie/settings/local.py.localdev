@@ -35,6 +35,9 @@ ENABLE_REQUEST_PROFILING = False
 # Allow local accounts to login
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend'] + AUTHENTICATION_BACKENDS
 
+# Single Sign On
+OIDC_RP_CLIENT_SECRET = ""
+
 # Load the debug toolbar -- does not need to be changed in principle
 if DEBUG_TOOLBAR:
     def custom_show_toolbar(request):
@@ -69,9 +72,6 @@ MEDIA_ROOT = "/path/to/amelie/site_media"
 # Data export root
 DATA_EXPORT_ROOT = "/path/to/amelie/data_exports"
 
-# TODO: Add SAML login information
-SAML_CONFIG = None
-
 # TODO: Add YouTube API key
 YOUTUBE_API_KEY = ''
 
@@ -79,16 +79,3 @@ YOUTUBE_API_KEY = ''
 FCM_DJANGO_SETTINGS = {
     'FCM_SERVER_KEY': '',
 }
-
-# TODO: Add keys and secrets for OAuth2 Providers
-SOCIAL_AUTH_GITHUB_KEY = ''
-SOCIAL_AUTH_GITHUB_SECRET = ''
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-
-SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = ''
-SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = ''
-
-SOCIAL_AUTH_FACEBOOK_KEY = ''
-SOCIAL_AUTH_FACEBOOK_SECRET = ''

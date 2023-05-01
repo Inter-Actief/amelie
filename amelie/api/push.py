@@ -1,11 +1,12 @@
 import logging
+from typing import Dict
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.template import Template, Context
 
 from fcm_django.models import FCMDevice
-from jsonrpc import jsonrpc_method
-from jsonrpc.exceptions import InvalidParamsError
+
+from modernrpc.core import rpc_method
+from modernrpc.exceptions import RPCInvalidParams
 
 from amelie.api.decorators import authentication_optional, authentication_required
 from amelie.api.exceptions import UnknownDeviceError, PermissionDeniedError
@@ -15,16 +16,70 @@ from amelie.api.utils import generate_token
 logger = logging.getLogger(__name__)
 
 
-@jsonrpc_method('getDeviceId() -> String', validate=True)
-def get_device_id(request):
+@rpc_method(name='getDeviceId')
+def get_device_id(**kwargs) -> str:
+    """
+    Requests a new deviceId. Your application SHOULD call this method only once in your
+    app's lifetime, just after its first start, and store the result for further use.
+
+    **Module**: `push`
+
+    **Authentication:** _(none)_
+
+    **Parameters:** _(none)_
+
+    **Return:**
+      `str`: A string containing a newly assigned deviceId
+
+    **Example:**
+
+        --> {"method":"getDeviceId", "params":[]}
+        <-- {"result": "QphLtj#z%Itaceny"}
+    """
     token = generate_token()
-    return token if len(FCMDevice.objects.filter(device_id=token)) == 0 else get_device_id(request)
+    # Make sure token is unique across all FCMDevices
+    while len(FCMDevice.objects.filter(device_id=token)) > 0:
+        token = generate_token()
+    return token
 
 
-@jsonrpc_method('getPushContent(Number) -> Array', validate=True)
+@rpc_method(name='getPushContent')
 @authentication_required("account")
-def get_push_content(request, push_id, authentication=None):
-    person = authentication.represents()
+def get_push_content(push_id: int, **kwargs) -> Dict[str, str]:
+    """
+    Retrieves the details of a push notification that was sent to the currently authenticated person by its ID.
+
+    **Module**: `push`
+
+    **Authentication:** REQUIRED (Scope: account)
+
+    **Parameters:**
+      This method accepts the following parameters:
+
+        - push_id: The ID of the push notification.
+
+    **Return:**
+      `Dict`: A dictionary with the following fields:
+
+        - title: The title of the notification
+        - message: The message of the notification
+
+    **Raises:**
+
+      NotLoggedInError: Token was not recognized or already revoked.
+
+      PermissionDeniedError: Push notification does not exist or the authenticated person is not a
+        recipient of this push notification.
+
+    **Example:**
+
+        --> {"method":"getPushContent", "params":[1234]}
+        <-- {"result": {
+               "title": "Activity is starting",
+               "message": "The activity you signed up for is starting."
+        }}
+    """
+    person = kwargs.get('authentication').represents()
     notification = PushNotification.objects.filter(id=push_id, recipients__in=[person]).first()
     message = Template(notification.message).render(Context({'recipient': person}))
 
@@ -37,9 +92,38 @@ def get_push_content(request, push_id, authentication=None):
     }
 
 
-@jsonrpc_method('registerPushChannel(String, String, String) -> Boolean', validate=True)
+@rpc_method(name='registerPushChannel')
 @authentication_optional()
-def register_push_channel(request, device_id, channel_id, type, authentication=None):
+def register_push_channel(device_id: str, channel_id: str, type: str, **kwargs) -> bool:
+    """
+    Registers a device to receive push notifications (optionally for the current authenticated person).
+    If any old registrations for this device exist, they will be deactivated.
+
+    **Module**: `push`
+
+    **Authentication:** OPTIONAL
+
+    **Parameters:**
+      This method accepts the following parameters:
+
+        - device_id: The ID of the device. (You can create a device ID once with `getDeviceId`).
+        - channel_id: The Firebase FCM token registered to the device.
+        - type: The type of the device wishing to receive the notification. (one of "ios", "android" or "web")
+
+    **Return:**
+      `bool`: If the device registration was successful or not.
+
+    **Raises:**
+
+      InvalidParamsError: The `type` parameter was invalid.
+
+    **Example:**
+
+        --> {"method":"registerPushChannel", "params":["QphLtj#z%Itaceny", "j_7_4....f2a+r", "android"]}
+        <-- {"result": true}
+    """
+    authentication = kwargs.get('authentication')
+
     # User object used in order to send push notifications to specific persons
     user = None
 
@@ -50,7 +134,7 @@ def register_push_channel(request, device_id, channel_id, type, authentication=N
 
     # If the type of the device requested to be registered is not supported, raise a InvalidParameterError
     if not any(type == value for key, value in FCMDevice.DEVICE_TYPES):
-        raise InvalidParamsError("The type of notification channel to be used can only be `android` or `ios`.")
+        raise RPCInvalidParams("The type of notification channel to be used can only be `android` or `ios`.")
 
     # Delete a previously registered FCMDevice for a given channel identifier
     FCMDevice.objects.filter(registration_id=channel_id).delete()
@@ -62,12 +146,36 @@ def register_push_channel(request, device_id, channel_id, type, authentication=N
     return True
 
 
-@jsonrpc_method('deletePushChannel(String) -> Boolean', validate=True)
-def delete_push_channel(request, device_id):
+@rpc_method(name='deletePushChannel')
+def delete_push_channel(device_id: str, **kwargs) -> bool:
+    """
+    Unregisters a device from all push notifications.
+
+    **Module**: `push`
+
+    **Authentication:** _(none)_
+
+    **Parameters:**
+      This method accepts the following parameters:
+
+        - device_id: The ID of the device. (You can create a device ID once with `getDeviceId`).
+
+    **Return:**
+      `bool`: If the deletion was successful or not.
+
+    **Raises:**
+
+      UnknownDeviceError: The device was not known.
+
+    **Example:**
+
+        --> {"method":"deletePushChannel", "params":["QphLtj#z%Itaceny"]}
+        <-- {"result": true}
+    """
     # Try to obtain the device using the device identifier and person
     try:
         device = FCMDevice.objects.get(device_id=device_id)
-    except ObjectDoesNotExist:
+    except FCMDevice.DoesNotExist:
         raise UnknownDeviceError()
 
     # Delete the device and return true to indicate successful deletion of FCM device

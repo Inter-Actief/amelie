@@ -8,7 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.style.forms import inject_style
 from amelie.calendar.forms import EventForm
-from amelie.education.models import Complaint, ComplaintComment, Page, Vote, Course, Competition, Category, EducationEvent
+from amelie.education.models import Complaint, ComplaintComment, Page, Vote, Course, Competition, Category, \
+    EducationEvent, BaseCourseModule, Module
 from amelie.tools.logic import current_academic_year_strict
 from amelie.tools.widgets import DateTimeSelector
 
@@ -37,11 +38,11 @@ class ComplaintCommentForm(forms.ModelForm):
 
 
 def calc_choices():
-    result = ((None, '—'),)
-
-    for course_type, course_type_name in Course.CourseTypes.choices:
-        result = result + ((course_type_name, [(course.id, course.name) for course in
-                                               Course.objects.filter(course_type=course_type)]),)
+    result = [(None, '—')]
+    modules = [(module.id, module.name) for module in Module.objects.all()]
+    courses = [(course.id, course.name) for course in Course.objects.all()]
+    result.append((_('Module'), tuple(modules)))
+    result.append((_('Course'), tuple(courses)))
 
     return result
 
@@ -50,7 +51,7 @@ class ComplaintForm(forms.ModelForm):
     subject = forms.ChoiceField(choices=Complaint.ComplaintChoices.choices, widget=widgets.RadioSelect)
     course = forms.ChoiceField(required=False, label=_('Course'))
     part = forms.CharField(max_length=255, required=False, label=_('Subject'),
-                                widget=forms.TextInput(attrs={'placeholder': _('Subject')}))
+                           widget=forms.TextInput(attrs={'placeholder': _('Subject')}))
     year = forms.IntegerField(min_value=1, required=False, initial=current_academic_year_strict, label=_('Year'))
 
     def __init__(self, *args, **kwargs):
@@ -67,8 +68,9 @@ class ComplaintForm(forms.ModelForm):
         subject = cleaned_data.get('subject', None)
         course = cleaned_data.get('course', None)
         if subject == 'Grading' and not course:
-            raise forms.ValidationError(_('If the deadline for revision of your exam has passed, you can select a course'))
-        return Course.objects.get(id=course) if course else None
+            raise forms.ValidationError(
+                _('If the deadline for revision of your exam has passed, you can select a course'))
+        return BaseCourseModule.objects.get(id=course) if course else None
 
     def clean_comment(self):
         cleaned_data = self.cleaned_data
@@ -82,7 +84,8 @@ class ComplaintForm(forms.ModelForm):
 
 class EducationalBouquetForm(forms.Form):
     teacher = forms.CharField(max_length=60, label=_('Teacher'))
-    course = forms.ModelChoiceField(queryset=Course.objects.all().order_by('name'), empty_label=None, label=_('Course'))
+    course = forms.ModelChoiceField(queryset=BaseCourseModule.objects.all().order_by('name'), empty_label=None,
+                                    label=_('Course'))
     reason = forms.CharField(max_length=300, widget=forms.Textarea, label=_('Reason'))
     author = forms.CharField(max_length=40, label=_('Author'))
     email = forms.EmailField(max_length=50, label=_('E-mail'))
@@ -100,6 +103,7 @@ class EducationalBouquetForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -123,6 +127,7 @@ class DEANominationForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -169,6 +174,7 @@ class DEAVoteForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -176,15 +182,26 @@ class DEAVoteForm(forms.Form):
 
 class CourseForm(forms.ModelForm):
     name = forms.CharField(max_length=200, label=_("Course name"))
-    course_type = forms.ChoiceField(choices=Course.CourseTypes.choices)
     course_code = forms.IntegerField(min_value=0, max_value=2147483647)
 
     class Meta:
         model = Course
-        fields = ["name", 'course_type', 'course_code']
+        fields = ["name", 'course_code', 'module_ptr']
 
     def __init__(self, *args, **kwargs):
         super(CourseForm, self).__init__(*args, **kwargs)
+
+
+class ModuleForm(forms.ModelForm):
+    name = forms.CharField(max_length=200, label=_("Module name"))
+    course_code = forms.IntegerField(min_value=0, max_value=2147483647)
+
+    class Meta:
+        model = Module
+        fields = ["name", 'course_code']
+
+    def __init__(self, *args, **kwargs):
+        super(ModuleForm, self).__init__(*args, **kwargs)
 
 
 class SearchSummariesForm(forms.Form):
@@ -204,5 +221,6 @@ class EducationEventForm(EventForm):
         }
         fields = ['summary_nl', 'summary_en', 'location', 'begin', 'end', "public", 'description_nl',
                   'description_en', "education_organizer"]
+
 
 inject_style(SearchSummariesForm, EducationalBouquetForm)
