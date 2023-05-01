@@ -2,11 +2,17 @@ import datetime
 from datetime import date
 from decimal import Decimal
 from io import BytesIO
+import logging
+from uuid import uuid4
+from wsgiref.util import FileWrapper
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.db import transaction
 from django.db.models import Sum
 from django.template.defaultfilters import slugify
+from django.urls.base import reverse
+from django.utils.functional import cached_property
 from django.views.generic import TemplateView
 from fcm_django.models import FCMDevice
 from formtools.wizard.views import SessionWizardView
@@ -14,32 +20,45 @@ from oauth2_provider.models import AccessToken, Grant
 from social_core.utils import build_absolute_uri
 from social_django.models import UserSocialAuth
 
-from wsgiref.util import FileWrapper
-
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404
-from django.shortcuts import get_object_or_404, render, redirect
+from django.http.response import HttpResponseBadRequest
+from django.shortcuts import get_list_or_404, get_object_or_404, render, redirect
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
+from django.views.generic.base import View
 from django.views.generic.edit import DeleteView, FormView
 
 from amelie.claudia.models import Mapping
 from amelie.iamailer import MailTask
-from amelie.members.forms import PersonDataForm, StudentNumberForm, \
-    RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
-    RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
-    RegistrationFormStepGeneralMembershipDetails, RegistrationFormStepAuthorizationDetails, \
-    RegistrationFormStepPersonalPreferences, RegistrationFormStepFinalCheck, RegistrationFormStepGeneralStudyDetails, \
-    RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepEmployeeDetails, \
-    RegistrationFormPersonalDetailsEmployee, RegistrationFormStepEmployeeMembershipDetails, PreRegistrationPrintAllForm
+from amelie.members.forms import (
+    PersonDataForm,
+    PreRegistrationPrintAllForm,
+    RegistrationFormPersonalDetailsEmployee,
+    RegistrationFormStepAuthorizationDetails,
+    RegistrationFormStepAuthorizationEMandateDetails,
+    RegistrationFormStepEmployeeDetails,
+    RegistrationFormStepEmployeeMembershipDetails,
+    RegistrationFormStepFinalCheck,
+    RegistrationFormStepFreshmenMembershipDetails,
+    RegistrationFormStepFreshmenStudyDetails,
+    RegistrationFormStepGeneralMembershipDetails,
+    RegistrationFormStepGeneralStudyDetails,
+    RegistrationFormStepMemberContactDetails,
+    RegistrationFormStepParentsContactDetails,
+    RegistrationFormStepPaymentMethodDetails,
+    RegistrationFormStepPersonalDetails,
+    RegistrationFormStepPersonalPreferences,
+    StudentNumberForm,
+)
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment
 from amelie.oauth.models import LoginToken
 from amelie.oauth.views import create_token_and_send_email
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
-from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
+from amelie.tools.decorators import require_ajax, require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
@@ -48,6 +67,7 @@ from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCo
     RequireDoGroupParentInCurrentYearMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
+logger = logging.getLogger(__name__)
 
 @require_board
 def statistics(request):
@@ -66,7 +86,8 @@ def statistics(request):
     active_members = Person.objects.active_members()
     active_members_count = active_members.count()
 
-    tcs = Student.objects.filter(studyperiod__study__primary_study=True).exclude(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
+    tcs = Student.objects.filter(studyperiod__study__primary_study=True).exclude(
+        studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
     active_members_tcs = [student.person for student in tcs if student.person in active_members]
     active_members_tcs_count = len(active_members_tcs)
 
@@ -97,7 +118,9 @@ def statistics(request):
 
     freshmen_count = freshmen_bit_count + freshmen_tcs_count
 
-    percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
+    percent_active_freshmen = '{0:.2f}'.format(
+        ((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count
+    )
 
     employee_count = Employee.objects.filter(person__membership__year=current_association_year()).count()
 
@@ -271,8 +294,8 @@ def _person_can_be_anonymized(person):
         if not hasattr(membership, 'payment'):
             unable_to_anonymize_reasons.append(_("This person has not paid one of their memberships "
                                                  "({year}/{next_year} {type}).".format(
-                year=membership.year, next_year=membership.year + 1, type=membership.type
-            )))
+                                                     year=membership.year, next_year=membership.year + 1, type=membership.type
+                                                 )))
     # Date where new SEPA authorizations came into effect.
     begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
     personal_tab_credit = Transaction.objects.filter(person=person, date__gte=begin).aggregate(Sum('price'))[
@@ -390,9 +413,175 @@ def person_anonymize(request, id, slug):
     return render(request, 'person_anonymization_success.html', {'person': person})
 
 
+class RegisterWizardView(SessionWizardView):
+
+    def save_unverified_enrollment(self, cleaned_data) -> UnverifiedEnrollment:
+        # Construct the Person object
+        person = UnverifiedEnrollment(
+            # Person details
+            first_name=cleaned_data['first_name'],
+            last_name_prefix=cleaned_data['last_name_prefix'],
+            last_name=cleaned_data['last_name'],
+            initials=cleaned_data['initials'],
+            gender=cleaned_data['gender'],
+            preferred_language=cleaned_data['preferred_language'],
+            international_member=cleaned_data['international_member'],
+            date_of_birth=cleaned_data['date_of_birth'],
+            address=cleaned_data['address'],
+            postal_code=cleaned_data['postal_code'],
+            city=cleaned_data['city'],
+            country=cleaned_data['country'],
+            email_address=cleaned_data['email_address'],
+            telephone=cleaned_data['telephone'],
+            address_parents=cleaned_data['address_parents'],
+            postal_code_parents=cleaned_data['postal_code_parents'],
+            city_parents=cleaned_data['city_parents'],
+            country_parents=cleaned_data['country_parents'],
+            email_address_parents=cleaned_data['email_address_parents'],
+            can_use_parents_address=cleaned_data['can_use_parents_address'],
+
+            # Membership details
+            membership_type=cleaned_data['membership'],
+            membership_year=current_association_year(),
+
+            # Study details
+            student_number=cleaned_data['student_number'],
+            study_start_date=datetime.date(current_academic_year_with_holidays(), 9, 1),
+            dogroup=cleaned_data['dogroup'],
+        )
+
+        # Save the Person object
+        person.save()
+
+        # Preferences and studies (m2m relations) can only be added after a person has been saved.
+        person.preferences.set(cleaned_data['preferences'])
+        person.save()
+
+        # Add preferences that should be enabled by default and are not shown during the first time
+        for p in Preference.objects.filter(first_time=False, default=True):
+            person.preferences.add(p)
+
+        # Add studies
+        for study in cleaned_data['study']:
+            person.studies.add(study)
+
+        return person
+
+    def sanitized_account_holder_name(self, user: Person or UnverifiedEnrollment) -> str:
+        # Sanitize account holder name
+        sanitized_account_holder_name = user.initials_last_name()
+        try:
+            SEPA_CHAR_VALIDATOR(sanitized_account_holder_name)
+        except ValidationError:
+            sanitized_account_holder_name = normalize_to_ascii(sanitized_account_holder_name)
+        return sanitized_account_holder_name
+
+    def save_authorizations(self, cleaned_data, person):
+        if not 'payment_method' in cleaned_data:
+            logger.warn('Person/UnverifiedEnrollment with id={} did not supply a payment_method ' +
+                        'during registration.'.format(person.id))
+            return
+
+        # Retrieve chosen method of payment
+        payment_method = cleaned_data['payment_method']
+
+        # Result for authorizations
+        authorizations = []
+
+        # Add authorizations according to method of payment
+        if payment_method == 'analog':
+            # For the analog payment method, the user will need to sign a physical form per authorization type
+
+            # Add contribution authorization if wanted
+            if 'authorization_contribution' in cleaned_data and cleaned_data['authorization_contribution']:
+                try:
+                    authorizations.append(self.save_authorization(cleaned_data, person, True, False, False))
+                except ObjectDoesNotExist:
+                    raise RuntimeError(
+                        'This type of Authorization(contribution={}, other={}, emandate={}) ' +
+                        'does not exist, please contact the System Administrator.'
+                        .format(str(True), str(False), str(False)))
+            # Add other authorization if wanted
+            if 'authorization_other' in cleaned_data and cleaned_data['authorization_other']:
+                try:
+                    authorizations.append(self.save_authorization(cleaned_data, person, False, True, False))
+                except ObjectDoesNotExist:
+                    raise RuntimeError(
+                        'This type of Authorization(contribution={}, other={}, emandate={}) ' +
+                        'does not exist, please contact the System Administrator.'
+                        .format(str(False), str(True), str(False)))
+            return authorizations
+        if payment_method == 'digital':
+            # For the digital payment method, the user will be redirect to the bank after registration
+            # The should only be redirected to the bank once, so the user should only sign a single mandate
+            contribution = 'authorization_contribution' in cleaned_data and cleaned_data['authorization_contribution']
+            other = 'authorization_other' in cleaned_data and cleaned_data['authorization_other']
+            # Add authorization
+            if contribution or other:
+                try:
+                    authorization = self.save_authorization(cleaned_data, person, contribution, other, True)
+                    authorization.emandate_uuid = uuid4()
+                    authorization.save()
+                    authorizations.append(authorization)
+                except ObjectDoesNotExist:
+                    raise RuntimeError(
+                        'This type of Authorization(contribution={}, other={}, emandate={}) ' +
+                        'does not exist, please contact the System Administrator.'
+                        .format(str(contribution), str(other), str(True)))
+            return authorizations
+        if payment_method == 'cash':
+            # The user has decided to pay in cash, no action necessary.
+            return authorizations
+        logger.warn('Person/UnverifiedEnrollment with id={} used an unknown payment_method'.format(person.id))
+
+    def save_authorization(self, cleaned_data, user: Person or UnverifiedEnrollment, contribution, other, emandate):
+        iban = cleaned_data['iban'] if ('iban' in cleaned_data) else ''
+        bic = cleaned_data['bic'] if ('bic' in cleaned_data) else ''
+
+        authorization = Authorization(
+            authorization_type=AuthorizationType.objects.get(
+                active=True, contribution=contribution, consumptions=other, activities=other, other_payments=other, emandate=emandate),
+            person=user if type(user) is Person else None,
+            iban=iban,
+            bic=bic,
+            account_holder_name=self.sanitized_account_holder_name(user) if user else '',
+            start_date=date.today()
+        )
+        authorization.save()
+
+        if type(user) is UnverifiedEnrollment:
+            user.authorizations.add(authorization)
+            user.save()
+
+        return authorization
+
+    def send_preregistration_welcome_mail(self, person: Person or UnverifiedEnrollment):
+        # Generate PDF enrollment forms
+        from amelie.tools.pdf import pdf_enrollment_form
+        buffer = BytesIO()
+        pdf_enrollment_form(buffer, person, person.membership_type)
+        pdf = buffer.getvalue()
+
+        # Send welcome e-mail with forms attached.
+        from amelie.iamailer import MailTask
+        from amelie.tools.mail import PersonRecipient
+        welcome_mail = MailTask(from_='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
+                                template_name='members/preregistration_welcome.mail',
+                                report_to='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
+                                report_language='nl',
+                                report_always=False)
+        person_slug = slugify(person.incomplete_name())
+
+        welcome_mail.add_recipient(PersonRecipient(recipient=person, context={}, attachments=[
+            ('inter-actief_enrollment_{}.pdf'.format(person_slug), pdf, 'application/pdf')
+        ]))
+        welcome_mail.send()
+
+
+
 class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
     template_name = "person_registration_form_general.html"
-    form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
+    form_list = [RegistrationFormStepPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepGeneralStudyDetails, RegistrationFormStepGeneralMembershipDetails,
                  RegistrationFormStepAuthorizationDetails, RegistrationFormStepPersonalPreferences,
                  RegistrationFormStepFinalCheck]
@@ -507,7 +696,7 @@ class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
 
 class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
     template_name = "person_registration_form_external.html"
-    form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
+    form_list = [RegistrationFormStepPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepAuthorizationDetails, RegistrationFormStepPersonalPreferences,
                  RegistrationFormStepFinalCheck]
 
@@ -723,7 +912,7 @@ class RegisterNewEmployeeWizardView(RequireBoardMixin, SessionWizardView):
 
 class RegisterNewFreshmanWizardView(RequireBoardMixin, SessionWizardView):
     template_name = "person_registration_form_freshmen.html"
-    form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
+    form_list = [RegistrationFormStepPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails,
                  RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepAuthorizationDetails,
                  RegistrationFormStepPersonalPreferences, RegistrationFormStepFinalCheck]
@@ -843,9 +1032,9 @@ class RegisterNewFreshmanWizardView(RequireBoardMixin, SessionWizardView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class PreRegisterNewFreshmanWizardView(SessionWizardView):
+class PreRegisterNewFreshmanWizardView(RegisterWizardView):
     template_name = "person_registration_form_preregister_freshmen.html"
-    form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
+    form_list = [RegistrationFormStepPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails,
                  RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepAuthorizationDetails,
                  RegistrationFormStepPersonalPreferences, RegistrationFormStepFinalCheck]
@@ -878,48 +1067,8 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
         # Get all cleaned data for all forms in one merged dictionary
         cleaned_data = self.get_all_cleaned_data()
 
-        # Construct the Person object
-        person = UnverifiedEnrollment(
-            # Person details
-            first_name=cleaned_data['first_name'],
-            last_name_prefix=cleaned_data['last_name_prefix'],
-            last_name=cleaned_data['last_name'],
-            initials=cleaned_data['initials'],
-            gender=cleaned_data['gender'],
-            preferred_language=cleaned_data['preferred_language'],
-            international_member=cleaned_data['international_member'],
-            date_of_birth=cleaned_data['date_of_birth'],
-            address=cleaned_data['address'],
-            postal_code=cleaned_data['postal_code'],
-            city=cleaned_data['city'],
-            country=cleaned_data['country'],
-            email_address=cleaned_data['email_address'],
-            telephone=cleaned_data['telephone'],
-            address_parents=cleaned_data['address_parents'],
-            postal_code_parents=cleaned_data['postal_code_parents'],
-            city_parents=cleaned_data['city_parents'],
-            country_parents=cleaned_data['country_parents'],
-            email_address_parents=cleaned_data['email_address_parents'],
-            can_use_parents_address=cleaned_data['can_use_parents_address'],
-
-            # Membership details
-            membership_type=cleaned_data['membership'],
-            membership_year=current_association_year(),
-
-            # Study details
-            student_number=cleaned_data['student_number'],
-            study_start_date=datetime.date(current_academic_year_with_holidays(), 9, 1),
-            dogroup=cleaned_data['dogroup'],
-        )
-        person.save()
-
-        # Preferences and studies (m2m relations) can only be added after a person has been saved.
-        person.preferences.set(cleaned_data['preferences'])
-        person.save()
-
-        # Add preferences that should be enabled by default and are not shown during the first time
-        for p in Preference.objects.filter(first_time=False, default=True):
-            person.preferences.add(p)
+        # Save Person object with preferences
+        person = self.save_unverified_enrollment(cleaned_data)
 
         # Sanitize account holder name
         sanitized_account_holder_name = person.initials_last_name()
@@ -983,8 +1132,94 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
         return redirect('members:person_preregister_complete')
 
 
+def authorization_type_form_condition_analog(wizard):
+    cleaned_data = wizard.get_cleaned_data_for_step('5') or {}
+    return cleaned_data.get('payment_method', '') == 'analog'
+
+
+def authorization_type_form_condition_digital(wizard):
+    cleaned_data = wizard.get_cleaned_data_for_step('5') or {}
+    return cleaned_data.get('payment_method', '') == 'digital'
+
+
+# TODO: The eMandate option should be embedded into the other registration methods,
+# instead of being a seperate. However, because of demo-effect, will keep our backup
+# options intact for now :P
+class PreRegisterNewFreshmanEMandateWizardView(RegisterWizardView):
+    template_name = "person_registration_form_preregister_freshmen_emandate.html"
+    form_list = [
+        RegistrationFormStepPersonalDetails,
+        RegistrationFormStepMemberContactDetails,
+        RegistrationFormStepParentsContactDetails,
+        RegistrationFormStepFreshmenStudyDetails,
+        RegistrationFormStepFreshmenMembershipDetails,
+        RegistrationFormStepPaymentMethodDetails,
+        RegistrationFormStepAuthorizationDetails,
+        RegistrationFormStepAuthorizationEMandateDetails,
+        RegistrationFormStepPersonalPreferences,
+        RegistrationFormStepFinalCheck
+    ]
+
+    def get_context_data(self, form, **kwargs):
+        context = super(PreRegisterNewFreshmanEMandateWizardView, self).get_context_data(form=form, **kwargs)
+
+        # Inject the type of registration form (Pre-enrollment, Freshmen or General)
+        context['form_type'] = 'pre_enroll_freshmen'
+
+        # Inject the costs of the different membership types for use in the templates
+        context['year_member_costs'] = MembershipType.objects.get(name_en='Primary yearlong').price
+        context['study_long_member_costs'] = MembershipType.objects.get(name_en='Studylong (first year)').price
+
+        # Inject the current progress percentage
+        context['progress_bar_percentage'] = str((self.steps.step1 / self.steps.count) * 100)
+
+        # If we are on the last step, inject the form data of all forms to show in an overview.
+        if self.steps.current == '9':
+            context['form_data'] = self.get_all_cleaned_data()
+            # Get the correct display format for the preferred language
+            language_dict = {l[0]: _(l[1]) for l in settings.LANGUAGES}
+            context['form_data']['preferred_language'] = language_dict.get(context['form_data']['preferred_language'],
+                                                                           context['form_data']['preferred_language'])
+            context['all_preferences'] = Preference.objects.exclude(first_time=False)
+        return context
+
+    @transaction.atomic
+    def done(self, form_list, **kwargs):
+        cleaned_data = self.get_all_cleaned_data()
+
+        # Save UnverifiedEnrollment
+        enrollment = self.save_unverified_enrollment(cleaned_data)
+        # Save Authorizations (temporarily under UnverifiedEnrollment until activation to Person)
+        authorizations = self.save_authorizations(cleaned_data, enrollment)
+
+        # Send welcome e-mail
+        self.send_preregistration_welcome_mail(enrollment)
+
+        # In case of digital authorization
+        if 'payment_method' in cleaned_data and cleaned_data['payment_method'] == 'digital':
+            # Dubble-check the user actually selected an authorization_type
+            if 'authorization_contribution' in cleaned_data or 'authorization_other' in cleaned_data:
+                # Dubble-check the existance of an authorization object
+                if authorizations and len(authorizations) == 1:
+                    return redirect(reverse('members:person_preregistration_checkout',
+                                            kwargs={'enrollment': enrollment.id, 'mandate': authorizations[0].id}))
+        # In case of cash or analog authorization
+        return redirect('members:person_preregister_complete')
+
+
 class PreRegistrationCompleteView(TemplateView):
     template_name = "person_registration_form_preregister_complete.html"
+
+class PreRegistrationsCheckoutView(View):
+    def get(self, request, enrollment, mandate, **kwargs):
+        enrollment = get_object_or_404(UnverifiedEnrollment, id=enrollment)
+        mandate = get_object_or_404(Authorization, id=mandate)
+
+        return render(request, "person_registration_form_preregister_checkout.html", {
+            'enrollment': enrollment,
+            'mandate': mandate,
+            'emandate_url': settings.EMANDATE_BACKEND_ACTIVATION_URL.format(token=mandate.emandate_uuid)
+        })
 
 
 class PreRegistrationStatus(RequireBoardMixin, TemplateView):
@@ -1064,7 +1299,8 @@ class PreRegistrationStatus(RequireBoardMixin, TemplateView):
                 # Add authorizations and activate them.
                 for authorization in pre_enrollment.authorizations.all():
                     authorization.person = person
-                    authorization.is_signed = True
+                    if not authorization.authorization_type.emandate:
+                        authorization.is_signed = True
                     authorization.save()
 
                 # Delete the pre-enrollment
@@ -1161,20 +1397,21 @@ class PreRegistrationPrintAll(RequireBoardMixin, FormView):
                     # Add forms to PDF
                     pdf_membership_page(pdf_canvas, enrollment, enrollment.membership_type, signing_date=sign_date)
                     for authorization in enrollment.authorizations.all():
-                        pdf_authorization_page(pdf_canvas, (authorization, enrollment), signing_date=sign_date)
+                        if not authorization.authorization_type.emandate:
+                            pdf_authorization_page(pdf_canvas, (authorization, enrollment), signing_date=sign_date)
             else:
                 pre_enrollments = pre_enrollments.order_by(sort_by)
                 for enrollment in pre_enrollments:
                     # Add forms to PDF
                     pdf_membership_page(pdf_canvas, enrollment, enrollment.membership_type, signing_date=sign_date)
                     for authorization in enrollment.authorizations.all():
-                        pdf_authorization_page(pdf_canvas, (authorization, enrollment), signing_date=sign_date)
+                        if not authorization.authorization_type.emandate:
+                            pdf_authorization_page(pdf_canvas, (authorization, enrollment), signing_date=sign_date)
 
             pdf_canvas.save()
 
         pdf = pdf_buffer.getvalue()
         return HttpResponse(pdf, content_type='application/pdf')
-
 
 
 @require_board
@@ -1204,6 +1441,12 @@ def membership_form(request, user, membership):
 @require_board
 def mandate_form(request, mandate):
     from amelie.tools.pdf import pdf_authorization_form
+
+    # If the mandate is an emandate, don't allow printing
+    # The entire point of emandate is, that they are signed digitally
+    if mandate.authorization_type.emandate:
+        return Http404(_('It is not allowed to print out an digital mandate (eMandate).'))
+
 
     buffer = BytesIO()
     mandate = get_object_or_404(Authorization, id=mandate)

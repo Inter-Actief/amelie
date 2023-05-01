@@ -250,7 +250,7 @@ class MembershipEndForm(forms.ModelForm):
 
 
 class MandateForm(forms.ModelForm):
-    authorization_type = forms.ModelChoiceField(queryset=AuthorizationType.objects.filter(active=True))
+    authorization_type = forms.ModelChoiceField(queryset=AuthorizationType.objects.filter(active=True, emandate=False))
 
     class Meta:
         model = Authorization
@@ -270,12 +270,20 @@ class MandateForm(forms.ModelForm):
 
         if not cleaned_data['bic']:
             if not cleaned_data['iban'][:2] == 'NL':
-                raise forms.ValidationError(_('BIC has to be entered for foreign bankaccounts.'))
+                raise forms.ValidationError(_('BIC has to be entered for foreign bank accounts.'))
             elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
                 cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
             else:
                 raise forms.ValidationError(_('BIC could not be generated, please enter yourself.'))
         return cleaned_data
+
+
+class EMandateForm(forms.ModelForm):
+    authorization_type = forms.ModelChoiceField(queryset=AuthorizationType.objects.filter(active=True, emandate=True))
+
+    class Meta:
+        model = Authorization
+        fields = ('authorization_type', 'start_date')
 
 
 class MandateEndForm(forms.ModelForm):
@@ -458,7 +466,7 @@ class RegistrationForm(forms.ModelForm):
         return person
 
 
-class RegistrationFormPersonalDetails(forms.ModelForm):
+class RegistrationFormStepPersonalDetails(forms.ModelForm):
     date_of_birth = forms.DateField(required=True, widget=DateSelector)
     gender = forms.ChoiceField(choices=Person.GenderTypes.choices, widget=widgets.RadioSelect)
     preferred_language = forms.ChoiceField(choices=LANGUAGE_CHOICES, widget=widgets.RadioSelect)
@@ -566,6 +574,8 @@ class RegistrationFormStepFreshmenStudyDetails(forms.Form):
         self.fields['dogroup'].queryset = DogroupGeneration.objects.filter(generation=current_academic_year_with_holidays())
 
     def clean_student_number(self):
+        # TODO: There's a bug here. This step is used by PreregisterFreshmen, but does not check 
+        # whether there exists an UnverifiedEnrollment with 'student_number'
         if Student.objects.filter(number=self.cleaned_data['student_number']).exists():
             raise forms.ValidationError(_("A student with this student number already exists."))
         if UnverifiedEnrollment.objects.filter(student_number=self.cleaned_data['student_number']).exists():
@@ -655,6 +665,17 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
 
         return cleaned_data
 
+
+# TODO: The eMandate option should be embedded into the other registration methods,
+# instead of being a seperate. However, because of demo-effect, will keep our backup
+# options intact for now :P
+class RegistrationFormStepAuthorizationEMandateDetails(forms.Form):
+    authorization_contribution = forms.BooleanField(required=False)
+    authorization_other = forms.BooleanField(required=False)
+
+class RegistrationFormStepPaymentMethodDetails(forms.Form):
+    payment_method = forms.ChoiceField(choices=[('digital', _('Digital Mandate')), ('analog', _('Paper Mandate')),('cash', _('Cash (now or later)'))],
+            required=True, widget=widgets.RadioSelect)
 
 class RegistrationFormStepPersonalPreferences(forms.ModelForm):
     # Here you can also disable specific preferences.

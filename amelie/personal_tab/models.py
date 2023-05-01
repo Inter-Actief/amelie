@@ -432,6 +432,9 @@ class AuthorizationType(models.Model):
     """An authorization of this type may be newly created and signed."""
     active = models.BooleanField(default=False, verbose_name=_('active'))
 
+    """Authorizations of this type will be activated using the eMandate system."""
+    emandate = models.BooleanField(default=False, verbose_name=_('eMandate'))
+
     """Contribution payments may be collected using this authorization."""
     contribution = models.BooleanField(default=False, verbose_name=_('membership fee'))
 
@@ -478,6 +481,23 @@ class Authorization(models.Model):
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
 
+    EMANDATE_STATUS_SUCCESS = "Success"
+    EMANDATE_STATUS_CANCELLED = "Cancelled"
+    EMANDATE_STATUS_EXPIRED = "Expired"
+    EMANDATE_STATUS_FAILURE = "Failure"
+    EMANDATE_STATUS_OPEN = "Open"
+    EMANDATE_STATUS_PENDING = "Pending"
+
+    """Possible status codes returned by the bank for an eMandate activation"""
+    EMANDATE_STATUS_CHOICES = (
+        (EMANDATE_STATUS_SUCCESS, _('Success')),
+        (EMANDATE_STATUS_CANCELLED, _('Cancelled')),
+        (EMANDATE_STATUS_EXPIRED, _('Expired')),
+        (EMANDATE_STATUS_FAILURE, _('Failure')),
+        (EMANDATE_STATUS_OPEN, _('Open')),
+        (EMANDATE_STATUS_PENDING, _('Pending')),
+    )
+
     """Prefix for authorization reference (machtigingskenmerk)"""
     PREFIX = 'IA-MNDT-'
 
@@ -506,7 +526,21 @@ class Authorization(models.Model):
     """This authorization has been signed"""
     is_signed = models.BooleanField(default=False, verbose_name=_('has been signed'))
 
+    """Unique identifier that is used to identify this authorization in communications with our eMandate service"""
+    emandate_uuid = models.UUIDField(unique=True, blank=True, null=True, verbose_name=_('eMandate UUID'))
+
+    """Status of the eMandate activation as reported by the bank."""
+    emandate_status = models.CharField(max_length=191, choices=EMANDATE_STATUS_CHOICES, blank=True, null=True,
+                                       verbose_name=_("eMandate Bank Status"))
+
     objects = AuthorizationManager()
+
+    @property
+    def emandate_status_description(self):
+        if self.emandate_status is not None:
+            return self.EMANDATE_STATUS_DESCRIPTIONS[self.emandate_status]
+        else:
+            return _("Unknown status.")
 
     def authorization_reference(self):
         """Gives the complete authorization reference with prefix"""
@@ -568,6 +602,7 @@ class Authorization(models.Model):
         self.iban = ''
         self.bic = ''
         self.account_holder_name = ''
+        self.emandate_uuid = None
         self.save()
 
         for amendment in self.amendments.all():

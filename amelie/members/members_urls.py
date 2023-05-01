@@ -2,7 +2,7 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from amelie.members import ajax_views, query_views, views
-from amelie.members.views import PaymentDeleteView
+from amelie.members.views import PaymentDeleteView, authorization_type_form_condition_analog, authorization_type_form_condition_digital
 
 urlpatterns = [
 
@@ -27,7 +27,9 @@ urlpatterns = [
     path(r'<int:id>/ajax/membership/<str:option>/', ajax_views.person_membership, name='person_membership'),
     path(r'<int:id>/ajax/mandate/', ajax_views.person_mandate, name='person_mandate'),
     path(r'<int:id>/ajax/mandate/new/', ajax_views.person_mandate_new, name='person_mandate_new'),
+    path(r'<int:id>/ajax/emandate/new/', ajax_views.person_emandate_new, name='person_emandate_new'),
     path(r'<int:id>/ajax/mandate/activate/<int:mandate>/', ajax_views.person_mandate_activate, name='person_mandate_activate'),
+    path(r'<int:id>/ajax/emandate/activate/<int:mandate>/', ajax_views.person_emandate_activate, name='person_emandate_activate'),
     path(r'<int:id>/ajax/mandate/end/<int:mandate>/', ajax_views.person_mandate_end, name='person_mandate_end'),
     path(r'<int:id>/ajax/functions/', ajax_views.person_functions, name='person_functions'),
 
@@ -43,10 +45,13 @@ urlpatterns = [
     path(r'new/employee/', views.RegisterNewEmployeeWizardView.as_view(), name='person_new_employee'),
     path(r'new/freshman/', views.RegisterNewFreshmanWizardView.as_view(), name='person_new_freshman'),
     path(r'preregister/freshman/', views.PreRegisterNewFreshmanWizardView.as_view(), name='person_preregister_freshman'),
+    path(r'preregister/freshman_emandate/', views.PreRegisterNewFreshmanEMandateWizardView.as_view(condition_dict={'6': authorization_type_form_condition_analog, '7': authorization_type_form_condition_digital}), name='person_preregister_freshman_emandate'),
     path(r'preregister/complete/', views.PreRegistrationCompleteView.as_view(), name='person_preregister_complete'),
     path(r'preregistration/', views.PreRegistrationStatus.as_view(), name='preregistration_status'),
     path(r'preregistration/print/', views.PreRegistrationPrintAll.as_view(), name='preregistration_print_all'),
     path(r'preregistration/print/dogroup/', views.PreRegistrationPrintDogroup.as_view(), name='preregistration_print_dogroup'),
+    path(r'checkout/enrollment/<int:enrollment>/mandate/<int:mandate>/', views.PreRegistrationsCheckoutView.as_view(), name='person_preregistration_checkout'),
+
 
     path(r'registration_form/<int:user>/<int:membership>/', views.registration_form, name='registration_form'),
     path(r'membership_form/<int:user>/<int:membership>/', views.membership_form, name='membership_form'),

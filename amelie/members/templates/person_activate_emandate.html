@@ -1,0 +1,42 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Activate eMandate' %}</h3>
+
+    <p>
+        {% if mandate.is_signed %}
+            <span class="icon icon-tick">{% blocktrans with mandate=mandate %}The eMandate {{ mandate }} is activated.{% endblocktrans %}</span>
+        {% elif mandate.emandate_status == "Open" %}
+        <span class="icon icon-clock">
+            {% trans 'We are waiting for confirmation of your bank.' %}
+        </span>
+        {% elif mandate.emandate_status == "Pending" %}
+        <span class="icon icon-clock">
+            {% trans 'Your eMandate requires confirmation of an authorized user.' %}
+        </span>
+        {% else %}
+            <span class="icon icon-cross">{% blocktrans with mandate=mandate %}The eMandate {{ mandate }} is <b>not</b> activated yet.{% endblocktrans %}</span>
+        {% endif %}
+    </p>
+
+    {% if not mandate.is_signed and mandate.emandate_status != "Open" and mandate.emandate_status != "Pending" %}
+    <p>{% trans 'To activate the eMandate, click "Start activation". This will open a new window to verify the eMandate.' %}</p>
+    {% endif %}
+
+    {% if not mandate.is_signed %}
+        <p>{% trans 'To check if the eMandate has been activated, click "Refresh activation status".' %}</p>
+    {% endif %}
+
+    <div class="buttons">
+        {% if not mandate.is_signed %}
+            {% if mandate.emandate_status != "Open" and mandate.emandate_status != "Pending" %}
+                <a class="looks-like-a-button" href="{{ emandate_url }}" target="_blank">{% trans 'Start activation' %}</a>
+            {% endif %}
+
+            <a href="{% url 'members:person_emandate_activate' obj.id mandate.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">{% trans 'Refresh activation status' %}</a>
+
+        {% endif %}
+        <a href="{% url 'members:person_mandate' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+            {% trans 'Go back' %}
+        </a>
+    </div>
+</div>

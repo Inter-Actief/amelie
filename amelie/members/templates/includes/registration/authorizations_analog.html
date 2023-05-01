@@ -1,0 +1,52 @@
+{% load i18n form_stylish %}
+<!-- The wizard part form for filling in the details of a paper authorization. -->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Mandates' %}</h2>
+        <div class="content">
+            <!-- prettier-ignore -->
+            <p>
+                {% blocktrans %} You have chosen to pay your membership via a <i>paper mandate</i>. After you have completed this registration process, you may sign a paper mandate using the bank details filled in below. 
+                {% endblocktrans %}
+            </p>
+
+            <!-- Select Auhtorization types: contribution, activities+drinks -->
+            {% include 'includes/registration/authorization_type.html' %}
+
+            <!-- Bank details -->
+            <p>{% trans 'If you did choose an authorization above, then we need your bank details.' %}</p>
+
+            <!-- IBAN -->
+            <div class="form-group">
+                {{ wizard.form.iban.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'IBAN' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">{{ wizard.form.iban|form_bootstrapify:"noplaceholder" }}</div>
+                    <small class="form-text text-muted">
+                        {% trans 'Your IBAN bank account number. For example "<b>NL18ABNA0484869868</b>".' %}
+                    </small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            <!-- BIC -->
+            <div class="form-group">
+                {{ wizard.form.bic.errors }}
+                <label class="col-sm-3 col-md-2 control-label">{% trans 'BIC' %}</label>
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">{{ wizard.form.bic|form_bootstrapify:"noplaceholder" }}</div>
+                    <small class="form-text text-muted">
+                        {% blocktrans %} Your BIC-code. <b>Not required for Dutch bank accounts</b>. For example
+                        "<b>ABNANL2A</b>". Find your BIC by
+                        <a href="https://www.ibancalculator.com/blz.html" target="_blank">clicking here</a> (opens in
+                        new tab). {% endblocktrans %}
+                    </small>
+                </div>
+            </div>
+            <div class="small-form-spacer"></div>
+
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

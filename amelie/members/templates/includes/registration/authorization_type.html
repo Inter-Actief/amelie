@@ -1,0 +1,77 @@
+{% load i18n %}
+<div>
+    <h3><b>{% trans 'Select Authorizations' %}</b></h3>
+
+    <p>
+        {% blocktrans %}There are two different types of authorizations. You can select either or both. Below, the types
+        of authorizations are explained. {% endblocktrans%}
+    </p>
+
+    <!-- Contribution Authorization -->
+    <h4>{% trans 'Authorization: Membership Fee' %}</h4>
+
+    <!-- Contribution Authorization: Explanation -->
+    <p>
+        {% blocktrans %} With the checkbox below, you authorize the association to withdraw your membership fee from
+        your bank account. {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans %} If you chose for the yearly membership, then you authorize the association to withdraw the
+        membership fee from your bank account automatically in the coming years. Your membership will be extended
+        automatically each year until terminate it. {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans %} If you have chosen for a study long membership, then the authorization will only be used once.
+        {% endblocktrans %}
+    </p>
+
+    <!-- Contribution Authorization: Checkbox -->
+    <div class="form-group radio-button-multiline-padding">
+        {{ wizard.form.authorization_contribution.errors }}
+        <div class="col-xs-1 col-sm-1">{{ wizard.form.authorization_contribution }}</div>
+        <label class="col-xs-11 col-sm-11" for="{{ wizard.form.authorization_contribution.auto_id }}">
+            {% trans 'I authorize the association to withdraw my membership fee from my bank account. ' %}<br />
+            <small class="form-text text-muted">
+                <!-- prettier-ignore -->
+                {% blocktrans %}
+                If you do not give permission, then you need to pay your membership fee in cash.
+                {% endblocktrans %}
+            </small>
+        </label>
+    </div>
+
+    <!-- Spacer -->
+    <div class="small-form-spacer"></div>
+
+    <!-- Personal Tab Authorization -->
+    <h4>{% trans 'Authorization: Activities & Consumptions' %}</h4>
+
+    <!-- Personal Tab Authorization: Explanation -->
+    <p>
+        {% blocktrans %} At Inter-<i>Actief</i> you can participate in activities; pay for consumptions during the
+        activities; or pay for cookies, drinks and candy at the cookie corner in the Inter-<i>Actief</i> room.
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans %} With the checkbox below, you authorize Inter-<i>Actief</i> to subtract these costs from your
+        account. The amount will then be withdrawn from your bank account monthly. {% endblocktrans %}
+    </p>
+
+    <!-- Personal Tab Authorization: Checkbox -->
+    <div class="form-group radio-button-multiline-padding">
+        {{ wizard.form.authorization_other.errors }}
+        <div class="col-xs-1 col-sm-1">{{ wizard.form.authorization_other }}</div>
+        <label class="col-xs-11 col-sm-11" for="{{ wizard.form.authorization_other.auto_id }}">
+            {% trans 'I authorize the association to debit my bank account for consumptions and activities.' %}<br />
+            <small class="form-text text-muted">
+                {% blocktrans %} If you do not give permission, then you have to pay in cash during activities, and you
+                will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and
+                activities. {% endblocktrans %}
+            </small>
+        </label>
+    </div>
+
+    <!-- Spacer -->
+    <div class="small-form-spacer"></div>
+    <div class="small-form-spacer"></div>
+</div>

@@ -183,6 +183,20 @@ class RequireCookieCornerMixin(PassesTestMixin):
                request.META['REMOTE_ADDR'] in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or \
                request.user.is_superuser
 
+
+class RequireEMandateServiceMixin(PassesTestMixin):
+    """
+    Require that the request be made from the eMandate server IP (or by a logged-in superuser)
+    """
+    needs_login = False
+    reason = _("Access for the eMandate server only.")
+
+    def test_requirement(self, request):
+        return settings.DEBUG or \
+               request.META['REMOTE_ADDR'] in settings.EMANDATE_BACKEND_ALLOWED_IPS or \
+               request.user.is_superuser
+
+
 class DeleteMessageMixin(object):
     """
     Adds a delete message on successful object deletion.

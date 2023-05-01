@@ -30,16 +30,24 @@
                     <tr>
                         <td>
                             <a href="{{ mandate.get_absolute_url }}"
-                                class="icon {% if mandate.is_signed and not mandate.end_date %}icon-tick{% else %}icon-cross{% endif %}">
+                                class="icon {% if mandate.is_signed and not mandate.end_date %}icon-tick{% elif mandate.authorization_type.emandate and mandate.emandate_status == 'Open' or mandate.emandate_status == 'Pending'%}icon-clock{% else %}icon-cross{% endif %}">
                                 {{ mandate.authorization_reference }}
                             </a>
                         </td>
                         <td>
-                            <div title="{{ mandate.authorization_type.name }}" style="width: 100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ mandate.authorization_type.name }}</div>
+                            <div style="width: 100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                {% if mandate.authorization_type.emandate %}
+                                    <span title="{% trans 'eMandate' %}" class="icon icon-computer_key"></span>
+                                    <span title="{{ mandate.authorization_type.name }}">{{ mandate.authorization_type.name }}</span><br />
+                                {% else %}
+                                    <span title="{% trans 'Paper mandate' %}" class="icon icon-page_key"></span>
+                                    <span title="{{ mandate.authorization_type.name }}">{{ mandate.authorization_type.name }}</span>
+                                {% endif %}
+                            </div>
                         </td>
                         <td>
                             <b>{{ mandate.iban }}</b> <br />
-                            <font style="font-size:0.7em">{{ mandate.bic }}</font>
+                            <span class="small">{{ mandate.bic }}</span>
                         </td>
                         <td>
                             {{ mandate.account_holder_name }}
@@ -60,8 +68,18 @@
                         {%  if request.is_board %}
                         <td>
                             {% if not mandate.is_signed and not mandate.end_date %}
-                                <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'print' %}</a><br />
-                                <a href="{% url 'members:person_mandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate' %}</a><br />
+                                {% if mandate.authorization_type.emandate %}
+                                    {%  if mandate.emandate_status == 'Open' or mandate.emandate_status == 'Pending' %}
+                                        <a href="{% url 'members:person_emandate_activate' obj.id mandate.id %}" class="icon icon-clock js-load-block" data-container="person_mandate">{% trans 'Check Status' %}</a><br />
+                                    {% else %}
+                                        <a href="{% url 'members:person_emandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate' %}</a><br />
+                                    {% endif %}
+                                {% else %}
+                                    <!-- Only Paper Mandates should be printable -->
+                                    <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'Print' %}</a><br />
+
+                                    <a href="{% url 'members:person_mandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate' %}</a><br />
+                                {% endif %}
                             {% endif %}
                             <a href="{% url 'members:person_mandate_end' obj.id mandate.id %}" class="icon icon-cancel js-load-block" data-container="person_mandate">
                                 {% trans 'Stop ' %}
@@ -77,6 +95,9 @@
     <div class="buttons">
         <a href="{% url 'members:person_mandate_new' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
             {% trans 'Add mandate' %}
+        </a>
+        <a href="{% url 'members:person_emandate_new' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+            {% trans 'Add eMandate' %}
         </a>
     </div>
 {% endif %}

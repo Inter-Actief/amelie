@@ -36,6 +36,9 @@ IGNORE_NAMES = [
 
     # Room narrowcasting page uses Spotify and Icinga API that is not configured in development.
     "narrowcasting:room_pcstatus", "narrowcasting:room_spotify_callback", "narrowcasting:room_spotify_now_playing",
+
+    # eMandates API is POST only
+    "personal_tab:emandate_query",
 ]
 
 # These pages should not cause Exceptions, but will not be checked for a 302 or 200 (namespaces must be prepended).

@@ -1,30 +1,37 @@
 # coding=utf-8
 import csv
 import datetime
+import json
 import logging
+import uuid
 from decimal import Decimal
 import itertools
 import operator
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Sum, Q
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.defaultfilters import slugify
 from django.utils import formats, timezone
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, get_language
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.edit import FormView
 from functools import reduce
 
 from amelie.calendar.models import Event
-from amelie.members.models import Person, Membership
+from amelie.members.models import Person, Membership, UnverifiedEnrollment
 from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
@@ -42,8 +49,9 @@ from amelie.personal_tab.transactions import exam_cookie_discount, \
     exam_cookie_credit as transactions_exam_cookie_credit, add_exam_cookie_credit
 from amelie.tools.decorators import require_lid, require_board, require_ajax
 from amelie.tools.forms import PeriodTimeForm, DateTimeForm, ExportForm
+from amelie.tools.http import HttpJSONResponse
 from amelie.tools.logic import current_association_year
-from amelie.tools.mixins import RequirePersonMixin, RequireBoardMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireBoardMixin, RequireEMandateServiceMixin
 
 DATETIMEFORMAT = '%Y%m%d%H%M%S'
 
@@ -1002,7 +1010,7 @@ def export_csv(request, date_from, date_to):
     for row in rows['good']:
         person = row['person']
         writer.writerow([mark_safe(str(person)), row['sumf'], person.city, 'Debt collection cookie corner', period,
-               'For questions call 0534893756', ''])
+                         'For questions call 0534893756', ''])
 
     return response
 
@@ -1112,7 +1120,7 @@ class AuthorizationTerminateView(RequireBoardMixin, FormView):
 
     def __init__(self, **kwargs):
         super(AuthorizationTerminateView, self).__init__(**kwargs)
-        self.authorizations = Authorization.objects.to_terminate().order_by('id')\
+        self.authorizations = Authorization.objects.to_terminate().order_by('id') \
             .select_related('authorization_type', 'person')
 
     def get_form_kwargs(self):
@@ -1152,7 +1160,7 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
 
     def __init__(self, **kwargs):
         super(AuthorizationAnonymizeView, self).__init__(**kwargs)
-        self.authorizations = Authorization.objects.to_anonymize().order_by('id')\
+        self.authorizations = Authorization.objects.to_anonymize().order_by('id') \
             .select_related('authorization_type', 'person')
 
     def get_form_kwargs(self):
@@ -1207,6 +1215,175 @@ def authorization_amendment(request, authorization_id):
         'form': form,
         'authorization': authorization
     })
+
+
+class EMandateQueryView(RequireEMandateServiceMixin, View):
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        return super(EMandateQueryView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request):
+        # This query endpoint is used by the amelie-emandate-service to communicate with Amelie.
+
+        post_data = json.loads(request.body.decode('utf-8'))
+
+        # Check that url?query= is present
+        query = post_data.get("query", None)
+        if query is None:
+            return HttpJSONResponse({'error': True, 'message': "Missing query"})
+
+        # Check that secret is correct
+        remote_key = post_data.get("access_key", None)
+        if remote_key is None:
+            return HttpJSONResponse({'error': True, 'message': "Missing access_key"})
+        elif remote_key != settings.EMANDATE_REMOTE_SECRET:
+            return HttpJSONResponse({'error': True, 'message': "Incorrect access_key"})
+
+        # Response template
+        response = {'error': False, 'data': None, 'access_key': settings.EMANDATE_LOCAL_SECRET}
+        def response_error(message): return HttpJSONResponse(
+            {'error': True, 'message': message, 'access_key': settings.EMANDATE_LOCAL_SECRET})
+
+        if query == "verify":
+            # Verify that a uuid exists and that it is not signed yet
+            #   If an eMandate with the posted uuid exists, return True as data.
+            #   The method is used by the emandate-service to check that a request is valid.
+
+            emandate_uuid = post_data.get("uuid", None)
+            if not emandate_uuid:
+                return response_error("INVALID_UUID")
+
+            try:
+                authorization = Authorization.objects.get(emandate_uuid=emandate_uuid)
+            except Authorization.DoesNotExist:
+                return response_error("INVALID_UUID")
+            except ValidationError:
+                return response_error("INVALID_UUID")
+
+            if authorization.is_signed:
+                return response_error("ALREADY_SIGNED")
+
+            response['data'] = {
+                'uuid': str(authorization.emandate_uuid) if authorization.emandate_uuid else None,
+                'authorization_reference': authorization.authorization_reference(),
+                'iban': authorization.iban,
+                'bic': authorization.bic,
+                'account_holder_name': authorization.account_holder_name,
+                'activated': authorization.is_signed,
+            }
+
+        elif query == "get":
+            # Returns the eMandate for a given UUID
+            #   Used by the emandate-service to retrieve the Mandate information
+
+            emandate_uuid = post_data.get("uuid", None)
+            if not emandate_uuid:
+                return response_error("Missing uuid")
+
+            try:
+                authorization = Authorization.objects.get(emandate_uuid=emandate_uuid)
+            except Authorization.DoesNotExist:
+                return response_error("Invalid uuid")
+
+            response['data'] = {
+                'uuid': str(authorization.emandate_uuid) if authorization.emandate_uuid else None,
+                'authorization_reference': authorization.authorization_reference(),
+                'iban': authorization.iban,
+                'bic': authorization.bic,
+                'account_holder_name': authorization.account_holder_name,
+                'activated': authorization.is_signed,
+            }
+
+        elif query == "update":
+            # Update the eMandate object with a newly received status from the Routing Service.
+            # Called by the emandate-service to update Amelie on the status of the transaction.
+
+            # Fetch Authorization object
+            emandate_uuid = post_data.get("uuid", None)
+            if not emandate_uuid:
+                return response_error("Missing uuid")
+            try:
+                authorization = Authorization.objects.get(emandate_uuid=emandate_uuid)
+            except Authorization.DoesNotExist:
+                return response_error("Invalid uuid")
+
+            # Check if the mandate has already been signed
+            if authorization.is_signed:
+                return response_error("The eMandate has already been signed!")
+
+            # Process received data
+            emandate_iban = post_data.get("iban", None)
+            emandate_account_holder_name = post_data.get("account_holder_name", None)
+            emandate_bic = post_data.get("bic", None)
+            emandate_status = post_data.get("status", None)
+
+            # Update the status of the authorization
+            authorization.emandate_status = emandate_status
+
+            # Check if status was not Success
+            if emandate_status != Authorization.EMANDATE_STATUS_SUCCESS:
+                logger.warning("Mandate (uuid=%s) received status '%s'",
+                               str(emandate_uuid), emandate_status)
+            else:
+                if not emandate_iban:
+                    return response_error("Missing iban")
+                if not emandate_account_holder_name:
+                    return response_error("Missing account_holder_name")
+                if not emandate_bic:
+                    return response_error("Missing bic")
+
+                # Update Mandate with information from Mandate Service
+                authorization.iban = emandate_iban
+                authorization.account_holder_name = emandate_account_holder_name
+                authorization.bic = emandate_bic
+                authorization.is_signed = True
+
+            authorization.save()
+
+            # Find relevant UnverifiedEnrollment / Person
+            try:
+                person = authorization.person
+                unverified_enrollment = UnverifiedEnrollment.objects.get(authorizations__pk=authorization.pk)
+            except ObjectDoesNotExist:
+                pass
+            if not person and not unverified_enrollment:
+                raise Exception(
+                    'Activated authorization has no linked Person or Unverified Enrollment! User will not receive confirmation email.')
+
+            isSuccess: bool = emandate_status == Authorization.EMANDATE_STATUS_SUCCESS
+            isFailure: bool = emandate_status == Authorization.EMANDATE_STATUS_FAILURE \
+                or emandate_status == Authorization.EMANDATE_STATUS_EXPIRED
+            isCancelled: bool = emandate_status == Authorization.EMANDATE_STATUS_CANCELLED
+            # Send confirmation email
+            if (isSuccess or isFailure or isCancelled):
+                user = person if person is not None else unverified_enrollment
+
+                from amelie.iamailer import MailTask
+                from amelie.tools.mail import PersonRecipient
+                status_email = MailTask(from_='I.C.T.S.V. Inter-Actief <treasurer@inter-actief.net>',
+                                              template_name='emandate_status.mail',
+                                              report_to='I.C.T.S.V. Inter-Actief <treasurer@inter-actief.net>',
+                                              report_language='nl',
+                                              report_always=False)
+                status_email.add_recipient(PersonRecipient(recipient=user, context={
+                                           'isSuccess': isSuccess, 'isFailure': isFailure, 'isCancelled': isCancelled}))
+                status_email.send()
+
+            response['data'] = {
+                'uuid': str(authorization.emandate_uuid) if authorization.emandate_uuid else None,
+                'authorization_reference': authorization.authorization_reference(),
+                'iban': authorization.iban,
+                'bic': authorization.bic,
+                'account_holder_name': authorization.account_holder_name,
+                'activated': authorization.is_signed,
+            }
+        elif query == "deactivate":
+            pass  # TODO Implement
+
+        else:
+            return response_error("Invalid query")
+
+        return HttpJSONResponse(response)
 
 
 @require_board
@@ -1321,7 +1498,7 @@ def debt_collection_new(request):
         date_text = formats.date_format(end_date)
         form = DebtCollectionForm(minimal_execution_date,
                                   initial={'description': 'Cookie corner and contribution until {}'.format(date_text),
-                                    'contribution': True, 'cookie_corner': True, 'end': end_date})
+                                           'contribution': True, 'cookie_corner': True, 'end': end_date})
 
     return render(request, 'cookie_corner_debt_collection_new.html', {
         'form': form,

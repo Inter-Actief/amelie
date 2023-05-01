@@ -1,0 +1,30 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only absolute_url %}
+
+{% block subject %}
+{% if status.isSuccess %}
+{% blocktrans %}[Inter-Actief] eMandate Signed!{% endblocktrans %}
+{% else %}
+{% blocktrans %}[Inter-Actief] eMandate Status Updated{% endblocktrans %}
+{% endif %}
+{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% if status.isSuccess %}
+{% blocktrans %}You have successfully signed your eMandate!{% endblocktrans %}
+{% endif %}
+
+{% if status.isFailure %}
+{% blocktrans %}Your bank has informed us that the process of signing your eMandate has resulted in a failure. As a result, Inter-<i>Actief</i> will not be able to substract funds from your bank account.{% endblocktrans %}
+{% blocktrans %}If you wish to try again or pay using a different payment method, please visit the Inter-<i>Actief</i> room.{% endblocktrans %}
+{% endif %}
+
+{% if status.isCancelled %}
+{% blocktrans %}You have cancelled the process of signing your eMandate.{% endblocktrans %}
+{% blocktrans %}If you wish to try again or pay using a different payment method, please visit the Inter-<i>Actief</i> room.{% endblocktrans %}
+{% endif %}
+
+{% blocktrans %}Kind regards,
+
+The board of Inter-/Actief/{% endblocktrans %}{% endhtmlify %}{% endblock %}

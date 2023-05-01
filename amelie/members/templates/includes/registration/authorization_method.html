@@ -1,0 +1,44 @@
+{% load i18n form_stylish %}
+<!-- A wizard form part allowing the user to select between a digital or paper mandate. -->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Mandates' %}</h2>
+        <div class="content">
+            <p>{% blocktrans %} We accept three different methods of payment.{% endblocktrans %}</p>
+            <p>
+                {% blocktrans %} The first method is to pay online via your bank. If you select this method, you will be
+                redirected to your bank after you have completed this form. Via your bank you can sign a digital mandate
+                (eMandate). <b>This is only supported for Dutch bank accounts!</b> {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}The second method is to pay via a paper mandate. This is a physical form to be signed by
+                you stating you authorize payments to Inter-<i>Actief</i>.
+                <b>This is only supported for Dutch bank accounts!</b> {% endblocktrans %}
+            </p>
+
+            <p>
+                {% blocktrans %} The third method is to pay in cash. If you are currently in the Inter-<i>Actief</i>
+                room being helped by one of our friendly board members, he or she will take care of the payment. If you
+                are not in the Inter-Actief room, you can pay in cash in the Inter-<i>Actief</i> room at a later moment
+                in time. {% endblocktrans %}
+            </p>
+
+            <div class="small-form-spacer"></div>
+
+            <!-- Membership Type -->
+            <div class="form-group">
+                {{ wizard.form.authorization_type.errors }}
+                <label class="col-sm-3 col-md-2 control-label"
+                    >{% trans 'Payment method' %} <span class="form-required">*</span></label
+                >
+                <div class="col-sm-9 col-md-10">
+                    <div class="form-inline">{{ wizard.form.payment_method|form_bootstrapify }}</div>
+                </div>
+            </div>
+
+            <div class="small-form-spacer"></div>
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

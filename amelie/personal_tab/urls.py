@@ -7,7 +7,7 @@ from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
     AuthorizationAnonymizeView, CustomTransactionUpdate, CustomTransactionDelete, CookieCornerTransactionUpdate, \
-    CookieCornerTransactionDelete
+    CookieCornerTransactionDelete, EMandateQueryView
 
 app_name = 'personal_tab'
 
@@ -93,6 +93,9 @@ urlpatterns = [
         name='authorization_amendment'),
     path('authorization/terminate/', AuthorizationTerminateView.as_view(), name='authorization_terminate'),
     path('authorization/anonymize/', AuthorizationAnonymizeView.as_view(), name='authorization_anonymize'),
+
+    # eMandate urls
+    url(r'^emandate/query/$', EMandateQueryView.as_view(), name='emandate_query'),
 
     # Point of sale views
     path('pos/', pos_views.PosHomeView.as_view(), name='pos_index'),

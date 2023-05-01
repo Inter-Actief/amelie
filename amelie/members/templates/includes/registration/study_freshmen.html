@@ -11,7 +11,7 @@
                 <div class="col-sm-9 col-md-10">
                     <div class="form-inline">
                         <select id="{{ wizard.form.study.auto_id }}" class="chosen-select"
-                                name="{{ wizard.steps.step0 }}-{{ wizard.form.study.name }}" multiple="multiple" required=""
+                                name="{{ wizard.steps.current }}-{{ wizard.form.study.name }}" multiple="multiple" required=""
                                 data-placeholder="{% trans 'Choose one (or more) study/studies...' %}">
                             {% for option in wizard.form.study.field.choices %}
                                 <option value="{{ option.0 }}" {% if option.0|stringformat:'d' in wizard.form.study.value %}selected="selected"{% endif %}>{{ option.1 }}</option>

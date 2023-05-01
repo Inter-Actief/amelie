@@ -1,0 +1,20 @@
+{% load i18n form_stylish %}
+<!-- The wizard part form for filling in the details of a digital authorization. -->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <h2>{% trans 'Mandates' %}</h2>
+        <div class="content">
+            <!-- prettier-ignore -->
+            <p>
+                {% blocktrans %} You have chosen to pay via an <i>online mandate (eMandate)</i>. After you have completed this registration process, you will be redirected to your bank to sign the online mandate. 
+                {% endblocktrans %}
+            </p>
+
+            <!-- Select Auhtorization types: contribution, activities+drinks -->
+            {% include 'includes/registration/authorization_type.html' %} 
+            
+            {% include 'includes/registration/wizard_buttons.html' %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

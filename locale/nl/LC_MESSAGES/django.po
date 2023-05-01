@@ -4726,6 +4726,10 @@ msgstr "Er is wel een studie gekozen, maar geen generatie. Vul een generatie in 
 msgid "IBAN is required if a mandate is checked!"
 msgstr "IBAN moet ingevuld worden als er een machtiging aangevinkt is!"
 
+#: amelie/members/forms.py:352 amelie/members/forms.py:428 amelie/members/forms.py:612
+msgid "BIC has to be entered for foreign bankaccounts."
+msgstr "BIC moet ingevuld worden met een buitenlandse rekening"
+
 #: amelie/members/forms.py:370 amelie/members/forms.py:448 amelie/members/forms.py:552 amelie/members/forms.py:570
 msgid "A student with this student number already exists."
 msgstr "Student met dit studentnummer bestaat al."
@@ -4757,6 +4761,18 @@ msgstr "Vul alstublieft uw eigen rekeningnummer in!"
 #: amelie/members/forms.py:636
 msgid "BIC is not from a SEPA country"
 msgstr "BIC komt niet uit een SEPA land"
+
+#: amelie/members/forms.py:629
+msgid "Digital Mandate"
+msgstr "Digitale Machtiging"
+
+#: amelie/members/forms.py:629
+msgid "Paper Mandate"
+msgstr "Papieren Machtiging"
+
+#: amelie/members/forms.py:629
+msgid "Cash (now or later)"
+msgstr "Contant (nu of later)"
 
 #: amelie/members/forms.py:685
 msgid "By last name"
@@ -5832,6 +5848,110 @@ msgstr "Contactgegevens"
 msgid "Mandates"
 msgstr "Machtigingen"
 
+#: amelie/members/templates/includes/registration/authorization_method.html:7
+msgid " We accept three different methods of payment."
+msgstr "Wij accepteren drie verschillende betaalmethodes."
+
+#: amelie/members/templates/includes/registration/authorization_method.html:9
+msgid ""
+" The first method is to pay online via your bank. If you select this method, you will be\n"
+"                redirected to your bank after you have completed this form. Via your bank you can sign a digital mandate\n"
+"                (eMandate). <b>This is only supported for Dutch bank accounts!</b> "
+msgstr "De eerste optie is om online te betalen via jouw bank. Als je deze betaalmethode selecteerd, zul je na het invullen van dit registratieformulier worden doorverwezen naar jouw bank. Via jouw bank kan je digitaal een machtiging (Incassomachtiging) ondertekenen. <b>Dit wordt alleen ondersteund voor Nederlandse bankrekeningen!</b>"
+
+#: amelie/members/templates/includes/registration/authorization_method.html:14
+msgid ""
+"The second method is to pay via a paper mandate. This is a physical form to be signed by\n"
+"                you stating you authorize payments to Inter-<i>Actief</i>.\n"
+"                <b>This is only supported for Dutch bank accounts!</b> "
+msgstr "De tweede optie is een papieren machtiging ondertekenen. Door een papieren incassomachtiging te tekenen, sta je Inter-<i>Actief</i> toe om geld af te schrijven van jouw rekening. <b>Dit wordt alleen ondersteund voor Nederlandse bankrekeningen!</b>"
+
+#: amelie/members/templates/includes/registration/authorization_method.html:20
+msgid ""
+" The third method is to pay in cash. If you are currently in the Inter-<i>Actief</i>\n"
+"                room being helped by one of our friendly board members, he or she will take care of the payment. If you\n"
+"                are not in the Inter-Actief room, you can pay in cash in the Inter-<i>Actief</i> room at a later moment\n"
+"                in time. "
+msgstr "De derde optie is om contant te betalen. Als je je momenteel in de Inter-<i>Actief</i> kamer bevind, zal je worden geholpen door een van onze vriendelijke bestuursleden. Als je niet in de Inter-<i>Actief</i> kamer bent, kun je op een later moment betalen in de Inter-<i>Actief</i> kamer."
+
+#: amelie/members/templates/includes/registration/authorization_method.html:32
+msgid "Payment method"
+msgstr "Betalingsmethode"
+
+#: amelie/members/templates/includes/registration/authorization_type.html:3
+msgid "Select Authorizations"
+msgstr "Machtigingen kiezen"
+
+#: amelie/members/templates/includes/registration/authorization_type.html:6
+msgid ""
+"There are two different types of authorizations. You can select either or both. Below, the types\n"
+"        of authorizations are explained. "
+msgstr "Er zijn twee verschillende machtigingen. Je kunt er voor kiezen om een van beide, of allebei, te ondertekenen."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:11
+msgid "Authorization: Membership Fee"
+msgstr "Machtiging: Contributie"
+
+#: amelie/members/templates/includes/registration/authorization_type.html:15
+msgid ""
+" With the checkbox below, you authorize the association to withdraw your membership fee from\n"
+"        your bank account. "
+msgstr "Ik machtig de vereniging om de kosten van het lidmaatschap van mijn rekening af te schrijven."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:19
+msgid ""
+" If you chose for the yearly membership, then you authorize the association to withdraw the\n"
+"        membership fee from your bank account automatically in the coming years. Your membership will be extended\n"
+"        automatically each year until terminate it. "
+msgstr "Indien je hierboven voor een jaarlidmaatschap hebt gekozen, dan machtig je de vereniging om in de komende jaren elk jaar het lidmaatschapsgeld van je rekening af te laten schrijven. Je lidmaatschap wordt dan elk jaar (totdat je het opzegt) automatisch verlengd."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:24
+msgid ""
+" If you have chosen for a study long membership, then the authorization will only be used once.\n"
+"        "
+msgstr "Indien je hebt gekozen voor een studielang lidmaatschap, dan wordt de machtiging slechts een keer gebruikt."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:33 amelie/members/templates/includes/registration/authorizations.html:21
+msgid "I authorize the association to withdraw my membership fee from my bank account. "
+msgstr "Ik machtig de vereniging om de kosten van het lidmaatschap van mijn rekening af te schrijven."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:36
+msgid ""
+"\n"
+"                If you do not give permission, then you need to pay your membership fee in cash.\n"
+"                "
+msgstr ""
+"\n"
+"Als je geen toestemming geeft, dan moet je je lidmaatschapsgeld contant betalen."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:47
+msgid "Authorization: Activities & Consumptions"
+msgstr "Machtiging: Activiteiten & consumpties"
+
+#: amelie/members/templates/includes/registration/authorization_type.html:51
+msgid ""
+" At Inter-<i>Actief</i> you can participate in activities; pay for consumptions during the\n"
+"        activities; or pay for cookies, drinks and candy at the cookie corner in the Inter-<i>Actief</i> room.\n"
+"        "
+msgstr "Bij Inter-<i>Actief</i> kun je deelnemen aan activiteiten; consumpties betalen op de activiteiten, of koekjes, drinken en snoep strepen op een streeplijst in de Inter-<i>Actief</i>-kamer."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:56
+msgid ""
+" With the checkbox below, you authorize Inter-<i>Actief</i> to subtract these costs from your\n"
+"        account. The amount will then be withdrawn from your bank account monthly. "
+msgstr "De kosten voor deze activiteiten en consumpties kun je betalen via een machtiging. Het bedrag wordt dan maandelijks van je rekening geïncasseerd."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:65 amelie/members/templates/includes/registration/authorizations.html:39
+msgid "I authorize the association to debit my bank account for consumptions and activities."
+msgstr "Ik machtig de vereniging geld af te schrijven voor consumpties en activiteiten."
+
+#: amelie/members/templates/includes/registration/authorization_type.html:67
+msgid ""
+" If you do not give permission, then you have to pay in cash during activities, and you\n"
+"                will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and\n"
+"                activities. "
+msgstr "Als je geen toestemming geeft, dan moet je op activiteiten contant betalen en kan je niet strepen op de streeplijst in de Inter-Actief-kamer of bij borrels en activiteiten."
+
 #: amelie/members/templates/includes/registration/authorizations.html:7
 msgid "You have to pay your membership fee via a direct debit authorization."
 msgstr "Je moet je lidmaatschap betalen via een automatische machtiging."
@@ -5843,10 +5963,6 @@ msgstr "Indien je hierboven voor een jaarlidmaatschap hebt gekozen, dan machtig 
 #: amelie/members/templates/includes/registration/authorizations.html:13
 msgid "If you have chosen for a study long membership, then the authorization will only be used once."
 msgstr "Indien je hebt gekozen voor een studielang lidmaatschap, dan wordt de machtiging slechts een keer gebruikt."
-
-#: amelie/members/templates/includes/registration/authorizations.html:21
-msgid "I authorize the association to withdraw my membership fee from my bank account. "
-msgstr "Ik machtig de vereniging om de kosten van het lidmaatschap van mijn rekening af te schrijven."
 
 #: amelie/members/templates/includes/registration/authorizations.html:22
 msgid "If you do not give permission, then you need to pay your membership fee in cash."
@@ -5860,10 +5976,6 @@ msgstr "Bij Inter-<i>Actief</i> kun je deelnemen aan activiteiten; consumpties b
 msgid "The costs for these activities and consumptions can be paid with a direct debit authorization. The amount will then be withdrawn from your bank account monthly."
 msgstr "De kosten voor deze activiteiten en consumpties kun je betalen via een machtiging. Het bedrag wordt dan maandelijks van je rekening ge&#xEF;ncasseerd."
 
-#: amelie/members/templates/includes/registration/authorizations.html:39
-msgid "I authorize the association to debit my bank account for consumptions and activities."
-msgstr "Ik machtig de vereniging geld af te schrijven voor consumpties en activiteiten."
-
 #: amelie/members/templates/includes/registration/authorizations.html:40
 msgid "If you do not give permission, then you have to pay in cash during activities, and you will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and activities."
 msgstr "Als je geen toestemming geeft, dan moet je op activiteiten contant betalen en kan je niet strepen op de streeplijst in de Inter-Actief-kamer of bij borrels en activiteiten."
@@ -5872,17 +5984,37 @@ msgstr "Als je geen toestemming geeft, dan moet je op activiteiten contant betal
 msgid "If you choose not to sign an authorization, you will need to pay your contribution fee in cash. This can only be done in person at the Inter-<i>Actief</i> room. Your membership will not be activated until the payment has been completed."
 msgstr "Als je ervoor kiest om geen machtiging te tekenen, dan moet je je contributie contant betalen. Dit kan alleen persoonlijk in de Inter-<i>Actief</i>-kamer. Je lidmaatschap zal niet actief worden totdat de betaling is afgerond."
 
-#: amelie/members/templates/includes/registration/authorizations.html:52
+#: amelie/members/templates/includes/registration/authorizations.html:52 amelie/members/templates/includes/registration/authorizations_analog.html:17
 msgid "If you did choose an authorization above, then we need your bank details."
 msgstr "Als je hierboven wel een machtiging hebt afgesloten, dan hebben we je bankgegevens nodig."
 
-#: amelie/members/templates/includes/registration/authorizations.html:63
+#: amelie/members/templates/includes/registration/authorizations.html:63 amelie/members/templates/includes/registration/authorizations_analog.html:26
 msgid "Your IBAN bank account number. For example \"<b>NL18ABNA0484869868</b>\"."
 msgstr "Je IBAN-bankrekeningnummer. Bijvoorbeeld \"<b>NL18ABNA0484869868</b>\"."
 
 #: amelie/members/templates/includes/registration/authorizations.html:76
 msgid "Your BIC-code. <b>Not required for Dutch bank accounts</b>. For example \"<b>ABNANL2A</b>\". Find your BIC by <a href=\"https://www.ibancalculator.com/blz.html\" target=\"_blank\">clicking here</a> (opens in new tab)."
 msgstr "Je BIC-code. <b>Niet vereist voor Nederlandse rekeningnummers</b>. Bijvoorbeeld \"<b>ABNANL2A</b>\". Vind je BIC door <a href=\"https://www.ibancalculator.com/blz.html\" target=\"_blank\">hier te klikken</a> (opent in nieuwe tab)."
+
+#: amelie/members/templates/includes/registration/authorizations_analog.html:9
+msgid ""
+" You have chosen to pay your membership via a <i>paper mandate</i>. After you have completed this registration process, you may sign a paper mandate using the bank details filled in below. \n"
+"                "
+msgstr "Je hebt gekozen voor een <i>papieren machtiging</i>. Zodra je dit registratieformulier hebt voltooid, zal een papieren machtiging worden gegenereerd met behulp van de onderstaand in te vulllen gegevens."
+
+#: amelie/members/templates/includes/registration/authorizations_analog.html:39
+msgid ""
+" Your BIC-code. <b>Not required for Dutch bank accounts</b>. For example\n"
+"                        \"<b>ABNANL2A</b>\". Find your BIC by\n"
+"                        <a href=\"https://www.ibancalculator.com/blz.html\" target=\"_blank\">clicking here</a> (opens in\n"
+"                        new tab). "
+msgstr "Je BIC-code. <b>Niet vereist voor Nederlandse rekeningnummers</b>. Bijvoorbeeld \"<b>ABNANL2A</b>\". Vind je BIC door <a href=\"https://www.ibancalculator.com/blz.html\" target=\"_blank\">hier te klikken</a> (opent in nieuwe tab)."
+
+#: amelie/members/templates/includes/registration/authorizations_digital.html:9
+msgid ""
+" You have chosen to pay via an <i>online mandate (eMandate)</i>. After you have completed this registration process, you will be redirected to your bank to sign the online mandate. \n"
+"                "
+msgstr "Je hebt gekozen voor een <i>digitale machtiging</i>. Zodra je dit registratieformulier hebt voltooid, zal een je worden doorverwezen naar je bank om de digitale machtiging te tekenen."
 
 #: amelie/members/templates/includes/registration/contact_member.html:6
 msgid "Where can we reach you?"
@@ -6346,24 +6478,32 @@ msgid "Thank you for wanting to become a member of Inter-/Actief/! To complete y
 msgstr "Bedankt dat je lid wilt worden van Inter-Actief! Om je inschrijving af te ronden moet je je lidmaatschapsformulier ondertekenen. Door dit formulier te ondertekenen ga je akkoord met alle voorwaarden van het lidmaatschap volgens het Huishoudelijk Regelement en de Statuten van de vereniging."
 
 #: amelie/members/templates/members/preregistration_welcome.mail:11
-msgid "If you opted for one or both authorizations to pay for your membership fee and/or consumptions and activities, you will also need to sign these authorizations."
-msgstr "Als je hebt gekozen voor een van de, of beide machtigingen om voor je contributie en/of activiteiten te betalen, dan moet je deze machtigingen ook ondertekenen."
+msgid "If you opted for paper mandates to pay for your membership fee and/or consumptions and activities, you will also need to sign these mandates."
+msgstr "Als je hebt gekozen voor een papieren machtiging om je contributie en/of activiteiten te betalen, dan moet je deze machtigingen ook ondertekenen."
+
+#: amelie/members/templates/members/preregistration_welcome.mail:12
+msgid "If you opted for a digital mandate, you will receive a confirmation email once you successfully completed the activation process."
+msgstr "Als je hebt gekozen voor een digitale machtiging, ontvang je een email zodra deze is geactiveerd."
 
 #: amelie/members/templates/members/preregistration_welcome.mail:13
+msgid "If you did not opt to sign a mandate or chose to pay in cash, please visit the Inter-<i>Actief</i> room to pay your membership fee."
+msgstr "Als je niet hebt gekozen om een machtiging te tekenen, of je hebt besloten om contant te betalen, bezoek dan binnenkort de Inter-<i>Actief</i> kamer om je contributie te betalen."
+
+#: amelie/members/templates/members/preregistration_welcome.mail:16
 msgid "All forms that you will need to sign are attached to this e-mail. Print the form(s), sign using pen and paper (note that there may be multiple pages), and scan the document(s) using your printer. Alternatively, you can sign the form(s) digitally using a program such as Adobe Acrobat Reader."
 msgstr "Alle formulieren die je moet ondertekenen zijn bijgevoegd in deze e-mail. Print de formulieren, onderteken ze met pen en papier (let op dat er mogelijk meerdere pagina's zijn), en scan de documenten in met je printer. Je kunt ook de formulieren digitaal ondertekenen met een programma als Adobe Acrobat Reader."
 
-#: amelie/members/templates/members/preregistration_welcome.mail:15
+#: amelie/members/templates/members/preregistration_welcome.mail:18
 #, python-format
 msgid "Once signed, reply to this e-mail and attach the signed form(s), or send the form(s) to <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, stating \"Enrollment %(number)s\" in the subject of the email."
 msgstr "Wanneer je de formulieren hebt ondertekend, reageer dan op deze e-mail en voeg de ondertekende formulieren toe als bijlage, of stuur ze op naar <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, zorg ervoor dat er \"Enrollment %(number)s\" in het onderwerp van de mail staat."
 
-#: amelie/members/templates/members/preregistration_welcome.mail:16
+#: amelie/members/templates/members/preregistration_welcome.mail:19
 #, python-format
 msgid "Once signed, reply to this e-mail and attach the signed form(s), or send the form(s) to secretary@inter-actief.net, stating \"Enrollment %(number)s\" in the subject of the email."
 msgstr "Wanneer je de formulieren hebt ondertekend, reageer dan op deze e-mail en voeg de ondertekende formulieren toe als bijlage, of stuur ze op naar secretary@inter-actief.net, zorg ervoor dat er \"Enrollment %(number)s\" in het onderwerp van de mail staat."
 
-#: amelie/members/templates/members/preregistration_welcome.mail:18
+#: amelie/members/templates/members/preregistration_welcome.mail:21
 msgid ""
 "Kind regards,\n"
 "\n"
@@ -6373,7 +6513,7 @@ msgstr ""
 "\n"
 "Het bestuur van Inter-<i>Actief</i>"
 
-#: amelie/members/templates/members/preregistration_welcome.mail:21
+#: amelie/members/templates/members/preregistration_welcome.mail:24 amelie/personal_tab/templates/emandate_status.mail:28
 msgid ""
 "Kind regards,\n"
 "\n"
@@ -6535,6 +6675,48 @@ msgstr "Deze persoon anonimiseren"
 msgid "This person cannot be anonymized because of the following reasons:"
 msgstr "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:"
 
+#: amelie/members/templates/person_activate_emandate.html:3
+msgid "Activate eMandate"
+msgstr "Digitale Incassomachtiging activeren"
+
+#: amelie/members/templates/person_activate_emandate.html:7
+#, python-format
+msgid "The eMandate %(mandate)s is activated."
+msgstr "De digitale Incassomachtiging %(mandate)s is geactiveerd."
+
+#: amelie/members/templates/person_activate_emandate.html:10 amelie/members/templates/person_registration_form_preregister_checkout.html:45
+msgid "We are waiting for confirmation of your bank."
+msgstr "We wachten op bevestiging van jouw bank."
+
+#: amelie/members/templates/person_activate_emandate.html:14 amelie/members/templates/person_registration_form_preregister_checkout.html:49
+msgid "Your eMandate requires confirmation of an authorized user."
+msgstr "De bevestiging van jouw digitale Incassomachtiging wacht op goedkeuring van een bevoegde gebruiker."
+
+#: amelie/members/templates/person_activate_emandate.html:17
+#, python-format
+msgid "The eMandate %(mandate)s is <b>not</b> activated yet."
+msgstr "De digitale Incassomachtiging %(mandate)s is nog niet geactiveerd."
+
+#: amelie/members/templates/person_activate_emandate.html:22
+msgid "To activate the eMandate, click \"Start activation\". This will open a new window to verify the eMandate."
+msgstr "Klik op de \"Start Activatie\" knop om de digitale Incassomachtiging te activeren. Dit opent een nieuw tabblad."
+
+#: amelie/members/templates/person_activate_emandate.html:26
+msgid "To check if the eMandate has been activated, click \"Refresh activation status\"."
+msgstr "Klik op de \"Ververs Activatiestatus\" knop om te verifiëren dat de digitale Incassomachtiging is geactiveerd"
+
+#: amelie/members/templates/person_activate_emandate.html:32 amelie/members/templates/person_registration_form_preregister_checkout.html:68
+msgid "Start activation"
+msgstr "Start activatie"
+
+#: amelie/members/templates/person_activate_emandate.html:35 amelie/members/templates/person_registration_form_preregister_checkout.html:72
+msgid "Refresh activation status"
+msgstr "Ververs Activatiestatus"
+
+#: amelie/members/templates/person_activate_emandate.html:39 amelie/members/templates/preregistration_print_all.html:45 amelie/personal_tab/templates/pos/shop.html:13 amelie/personal_tab/templates/register/register_card_error.html:14 amelie/personal_tab/templates/register/register_card_scan.html:54
+msgid "Go back"
+msgstr "Ga terug"
+
 #: amelie/members/templates/person_activate_mandate.html:3
 msgid "Activate mandate"
 msgstr "Machtiging activeren"
@@ -6559,7 +6741,7 @@ msgstr ""
 "Doe dit alleen wanneer de machtiging getekend is en deze in de map of\n"
 "het postvakje van de penningmeester zit."
 
-#: amelie/members/templates/person_activate_mandate.html:22 amelie/members/templates/person_mandate.html:64 amelie/personal_tab/templates/info/rfid_cards.html:58
+#: amelie/members/templates/person_activate_mandate.html:22 amelie/members/templates/person_mandate.html:73 amelie/members/templates/person_mandate.html:75 amelie/personal_tab/templates/info/rfid_cards.html:58
 msgid "Activate"
 msgstr "Activeren"
 
@@ -6667,7 +6849,7 @@ msgstr ""
 "\n"
 "%(obj)s heeft geen machtigingen."
 
-#: amelie/members/templates/person_mandate.html:10 amelie/members/templates/person_mandate.html:79 amelie/members/templates/person_new_mandate.html:3
+#: amelie/members/templates/person_mandate.html:10 amelie/members/templates/person_mandate.html:91 amelie/members/templates/person_new_mandate.html:3
 msgid "Add mandate"
 msgstr "Voeg machtiging toe"
 
@@ -6691,17 +6873,29 @@ msgstr "Rekeninghouder"
 msgid "Signed"
 msgstr "Getekend"
 
-#: amelie/members/templates/person_mandate.html:52 amelie/personal_tab/templates/cookie_corner_authorization_list.html:105 amelie/personal_tab/templates/info/account_information.html:42 amelie/personal_tab/templates/lists/authorization_select.html:46
+#: amelie/members/templates/person_mandate.html:40 amelie/personal_tab/models.py:436
+msgid "eMandate"
+msgstr "digitale Incassomachtiging"
+
+#: amelie/members/templates/person_mandate.html:43
+msgid "Paper mandate"
+msgstr "Papieren machtiging"
+
+#: amelie/members/templates/person_mandate.html:60 amelie/personal_tab/templates/cookie_corner_authorization_list.html:105 amelie/personal_tab/templates/info/account_information.html:42 amelie/personal_tab/templates/lists/authorization_select.html:46
 msgid "before September 2013"
 msgstr "voor september 2013"
 
-#: amelie/members/templates/person_mandate.html:63 amelie/personal_tab/templates/cookie_corner_authorization_view.html:54
+#: amelie/members/templates/person_mandate.html:71 amelie/personal_tab/templates/cookie_corner_authorization_view.html:54
 msgid "print"
 msgstr "afdrukken"
 
-#: amelie/members/templates/person_mandate.html:67
+#: amelie/members/templates/person_mandate.html:79
 msgid "Stop "
 msgstr "beëindigen"
+
+#: amelie/members/templates/person_mandate.html:94 amelie/members/templates/person_new_emandate.html:3
+msgid "Add eMandate"
+msgstr "Voeg digitale Incassomachtiging toe"
 
 #: amelie/members/templates/person_membership.html:5
 #, python-format
@@ -6794,6 +6988,79 @@ msgstr "Inschrijven nieuw eerstejaars lid"
 msgid "Enrollment of new member"
 msgstr "Inschrijven nieuw lid"
 
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:5 amelie/members/templates/person_registration_form_preregister_checkout.html:12
+msgid "Checkout"
+msgstr "Kassa"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:17
+msgid "Sign your digital mandate here!"
+msgstr "Teken je digitale Incassomachtiging hier!"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:20
+msgid "You have opted to sign a mandate for the following items:"
+msgstr "Je hebt gekozen om een machtiging te tekenen voor:"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:23
+msgid "Membership Fee"
+msgstr "Contributie"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:26
+msgid "Activities and Consumptions"
+msgstr "Activiteiten en consumpties"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:31
+msgid "After pressing the button below, you will be redirected to your bank. At your bank, you can sign the mandate. "
+msgstr "Zodra je op de onderstaande knop klikt, zul je worden doorverwezen naar de digitale omgeving van jouw bank. Daar kan je de Incassomachtiging tekenen."
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:34
+msgid "The mandate has been signed!"
+msgstr "De machtiging is getekend!"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:41
+#, python-format
+msgid ""
+"The eMandate %(mandate)s is\n"
+"                        activated."
+msgstr "De digitale Incassomachtiging %(mandate)s is geactiveerd."
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:52
+#, python-format
+msgid ""
+"The eMandate %(mandate)s is\n"
+"                        <b>not</b>\n"
+"                        activated yet."
+msgstr "De digitale Incassomachtiging %(mandate)s is nog niet geactiveerd."
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:59
+msgid "Once you signed the mandate at your bank, click \"Refresh activation status\" to check the status."
+msgstr "Zodra je bij de bank je machtiging hebt getekend, klik dan op de \"Ververs activatiestatus\" knop om de status te checken."
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:81
+msgid "Pre-enrollment completed"
+msgstr "Voorinschrijving voltooid"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:85 amelie/members/templates/person_registration_form_preregister_complete.html:18
+msgid "Please check your e-mail for your enrollment form(s) and sign them!"
+msgstr "Controleer je e-mail voor je inschrijvingsformulier(en) en onderteken ze!"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:88
+msgid ""
+"To finalize your enrollment at Inter-<i>Actief</i>, you will need to sign your\n"
+"                membership\n"
+"                form generated with the details you provided in previous steps. By signing this membership form, you\n"
+"                agree\n"
+"                to all terms of membership of the bylaws and the Rules and Regulations of this\n"
+"                association."
+msgstr "Om je inschrijving bij Inter-<i>Actief</i> af te ronden, moet je je lidmaatschapsformulier ondertekenen die is gegenereerd met de details die je in de vorige stappen hebt opgegeven. Door dit formulier te ondertekenen ga je akkoord met alle voorwaarden van het lidmaatschap volgens het Huishoudelijk Regelement en de Statuten van de vereniging."
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:96 amelie/members/templates/person_registration_form_preregister_complete.html:27
+msgid "See you soon at Inter-<em>Actief</em>!"
+msgstr "Tot ziens bij Inter-<em>Actief</em>!"
+
+#: amelie/members/templates/person_registration_form_preregister_checkout.html:102 amelie/members/templates/person_registration_form_preregister_complete.html:40
+msgid "Back to front page"
+msgstr "Terug naar hoofdpagina"
+
 #: amelie/members/templates/person_registration_form_preregister_complete.html:5 amelie/members/templates/person_registration_form_preregister_complete.html:12
 msgid "Pre-enrollment successful"
 msgstr "Voorinschrijving geslaagd"
@@ -6811,22 +7078,14 @@ msgid "To finalize your enrollment at Inter-<i>Actief</i>, you will need to sign
 msgstr "Om je inschrijving bij Inter-<i>Actief</i> af te ronden, moet je je lidmaatschapsformulier ondertekenen die is gegenereerd met de details die je in de vorige stappen hebt opgegeven. Door dit formulier te ondertekenen ga je akkoord met alle voorwaarden van het lidmaatschap volgens het Huishoudelijk Regelement en de Statuten van de vereniging."
 
 #: amelie/members/templates/person_registration_form_preregister_complete.html:24
-msgid "If you opted for one or both mandates to pay for your membership fee and/or consumptions and activities, you will also need to sign these mandates."
-msgstr "Als je hebt gekozen voor een van de, of beide machtigingen om voor je contributie en activiteiten te betalen, dan moet je deze machtigingen ook ondertekenen."
-
-#: amelie/members/templates/person_registration_form_preregister_complete.html:27
-msgid "See you soon at Inter-<em>Actief</em>!"
-msgstr "Tot ziens bij Inter-<em>Actief</em>!"
+msgid "If you opted for paper mandates to pay for your membership fee and/or consumptions and activities, you will also need to sign these."
+msgstr "Als je hebt gekozen voor een papieren machtiging om je contributie en/of activiteiten te betalen, dan moet je deze machtigingen ook ondertekenen."
 
 #: amelie/members/templates/person_registration_form_preregister_complete.html:34
 msgid "Complete!"
 msgstr "Compleet!"
 
-#: amelie/members/templates/person_registration_form_preregister_complete.html:40
-msgid "Back to front page"
-msgstr "Terug naar hoofdpagina"
-
-#: amelie/members/templates/person_registration_form_preregister_freshmen.html:5
+#: amelie/members/templates/person_registration_form_preregister_freshmen.html:5 amelie/members/templates/person_registration_form_preregister_freshmen_emandate.html:5
 msgid "Pre-enroll new freshman member"
 msgstr "Nieuw eerstejaarslid voorinschrijven"
 
@@ -7579,10 +7838,6 @@ msgstr "BIC*"
 msgid "Short description of the reason for the amendment"
 msgstr "Korte omschrijving reden van amendement"
 
-#: amelie/personal_tab/forms.py:95
-msgid "BIC has to be entered for foreign bank accounts."
-msgstr "BIC moet ingevuld worden met een buitenlandse rekening"
-
 #: amelie/personal_tab/forms.py:109
 msgid "Not signed"
 msgstr "Ongetekend"
@@ -7607,11 +7862,11 @@ msgstr "Tabellen:"
 msgid "Find person"
 msgstr "Persoon zoeken"
 
-#: amelie/personal_tab/models.py:19 amelie/personal_tab/models.py:646
+#: amelie/personal_tab/models.py:19 amelie/personal_tab/models.py:681
 msgid "begin"
 msgstr "begin"
 
-#: amelie/personal_tab/models.py:20 amelie/personal_tab/models.py:649
+#: amelie/personal_tab/models.py:20 amelie/personal_tab/models.py:684
 msgid "end"
 msgstr "eind"
 
@@ -7803,47 +8058,71 @@ msgstr "tekst (en)"
 msgid "active"
 msgstr "actief"
 
-#: amelie/personal_tab/models.py:436
+#: amelie/personal_tab/models.py:439
 msgid "membership fee"
 msgstr "contributie"
 
-#: amelie/personal_tab/models.py:439
+#: amelie/personal_tab/models.py:442
 msgid "consumptions"
 msgstr "consumpties"
 
-#: amelie/personal_tab/models.py:442
+#: amelie/personal_tab/models.py:445
 msgid "activities"
 msgstr "activiteiten"
 
-#: amelie/personal_tab/models.py:445
+#: amelie/personal_tab/models.py:448
 msgid "other payments"
 msgstr "overige betalingen"
 
-#: amelie/personal_tab/models.py:470
+#: amelie/personal_tab/models.py:473
 msgid "type of mandate"
 msgstr "machtigingsoort"
 
-#: amelie/personal_tab/models.py:471
+#: amelie/personal_tab/models.py:474
 msgid "types of mandate"
 msgstr "machtigingsoorten"
 
-#: amelie/personal_tab/models.py:485
+#: amelie/personal_tab/models.py:493
+msgid "Success"
+msgstr "Succes"
+
+#: amelie/personal_tab/models.py:494
+msgid "Cancelled"
+msgstr "Geannuleerd"
+
+#: amelie/personal_tab/models.py:495
+msgid "Expired"
+msgstr "Verlopen"
+
+#: amelie/personal_tab/models.py:496
+msgid "Failure"
+msgstr "Mislukt"
+
+#: amelie/personal_tab/models.py:497
+msgid "Open"
+msgstr "Lopend"
+
+#: amelie/personal_tab/models.py:498
+msgid "Pending"
+msgstr "In afwachting"
+
+#: amelie/personal_tab/models.py:505
 msgid "type"
 msgstr "soort"
 
-#: amelie/personal_tab/models.py:497
+#: amelie/personal_tab/models.py:517
 msgid "account holder"
 msgstr "rekeninghouder"
 
-#: amelie/personal_tab/models.py:501
+#: amelie/personal_tab/models.py:521
 msgid "startdate"
 msgstr "begindatum"
 
-#: amelie/personal_tab/models.py:504
+#: amelie/personal_tab/models.py:524
 msgid "enddate"
 msgstr "einddatum"
 
-#: amelie/personal_tab/models.py:507
+#: amelie/personal_tab/models.py:527
 msgid "has been signed"
 msgstr "is getekend"
 
@@ -7851,27 +8130,27 @@ msgstr "is getekend"
 msgid "mandate"
 msgstr "machtiging"
 
-#: amelie/personal_tab/models.py:589
+#: amelie/personal_tab/models.py:624
 msgid "mandates"
 msgstr "machtigingen"
 
-#: amelie/personal_tab/models.py:607
+#: amelie/personal_tab/models.py:642
 msgid "previous IBAN"
 msgstr "vorige IBAN"
 
-#: amelie/personal_tab/models.py:610
+#: amelie/personal_tab/models.py:645
 msgid "previous BIC"
 msgstr "vorige BIC"
 
-#: amelie/personal_tab/models.py:613
+#: amelie/personal_tab/models.py:648
 msgid "other bank"
 msgstr "andere bank"
 
-#: amelie/personal_tab/models.py:616
+#: amelie/personal_tab/models.py:651
 msgid "remark"
 msgstr "opmerking"
 
-#: amelie/personal_tab/models.py:620
+#: amelie/personal_tab/models.py:655
 #, python-format
 msgid "Amendment of %(authorization)s on %(date)s"
 msgstr "Amendement van %(authorization)s op %(date)s"
@@ -7880,15 +8159,15 @@ msgstr "Amendement van %(authorization)s op %(date)s"
 msgid "amendment"
 msgstr "amendement"
 
-#: amelie/personal_tab/models.py:626
+#: amelie/personal_tab/models.py:661
 msgid "amendments"
 msgstr "amendementen"
 
-#: amelie/personal_tab/models.py:643
+#: amelie/personal_tab/models.py:678
 msgid "created on"
 msgstr "aangemaakt op"
 
-#: amelie/personal_tab/models.py:672
+#: amelie/personal_tab/models.py:707
 msgid "Direct withdrawal-task"
 msgstr "incasso-opdracht"
 
@@ -8798,6 +9077,30 @@ msgstr "van %(date_from)s tot %(date_to)s"
 #: amelie/personal_tab/templates/cookie_corner_transactions_new.html:45 amelie/personal_tab/templates/lists/transactions_totals.html:23
 msgid "Alexia"
 msgstr "Alexia"
+
+#: amelie/personal_tab/templates/emandate_status.mail:6
+msgid "[Inter-Actief] eMandate Signed!"
+msgstr "[Inter-Actief] Digitale Incassomachtiging getekend!"
+
+#: amelie/personal_tab/templates/emandate_status.mail:8
+msgid "[Inter-Actief] eMandate Status Updated"
+msgstr "[Inter-Actief] Digitale Incassomachtiging statusupdate"
+
+#: amelie/personal_tab/templates/emandate_status.mail:15
+msgid "You have successfully signed your eMandate!"
+msgstr "Je digitale Incassomachtiging is succesvol ondertekend!"
+
+#: amelie/personal_tab/templates/emandate_status.mail:19
+msgid "Your bank has informed us that the process of signing your eMandate has resulted in a failure. As a result, Inter-<i>Actief</i> will not be able to substract funds from your bank account."
+msgstr "We zijn geinformeerd door jouw bank dat het tekenen van de digitale Incassomachtiging is mislukt. Inter-<i>Actief</i> zal daarom geen kunnen incasseren."
+
+#: amelie/personal_tab/templates/emandate_status.mail:20 amelie/personal_tab/templates/emandate_status.mail:25
+msgid "If you wish to try again or pay using a different payment method, please visit the Inter-<i>Actief</i> room."
+msgstr "Als je opnieuw wilt proberen te tekenen, of een andere betaalmethode wilt gebruiken, vraag dan het bestuur in de i>Actief</i> kamer om hulp."
+
+#: amelie/personal_tab/templates/emandate_status.mail:24
+msgid "You have cancelled the process of signing your eMandate."
+msgstr "Je hebt het tekenen van je digitale Incassomachtiging geannuleerd."
 
 #: amelie/personal_tab/templates/exports/screen.html:17
 msgid "Number negative balance"
@@ -9921,6 +10224,10 @@ msgstr "Uitsluitend toegankelijk voor doegroepouders."
 msgid "Access for the cookie-corner computer only."
 msgstr "Uitsluitend toegankelijk voor de streeplijstcomputer."
 
+#: amelie/tools/mixins.py:185
+msgid "Access for the eMandate server only."
+msgstr "Uitsluitend toegankelijk voor de eMandate server."
+
 #: amelie/tools/models.py:14
 msgid "Profiles"
 msgstr "Profielen"
@@ -9961,23 +10268,23 @@ msgstr "De datum en tijd waarop de export plaatsvond."
 msgid "Separator page"
 msgstr "Scheidingspagina"
 
-#: amelie/tools/pdf.py:56
+#: amelie/tools/pdf.py:57
 msgid "Mandate form"
 msgstr "Machtigingsformulier"
 
-#: amelie/tools/pdf.py:63
+#: amelie/tools/pdf.py:64
 msgid "Membership form"
 msgstr "Lidmaatschapformulier"
 
-#: amelie/tools/pdf.py:81
+#: amelie/tools/pdf.py:82
 msgid "By signing this document I agree to all terms of membership of the bylaws and the Rules and Regulations of this association."
 msgstr "Door dit document te ondertekenen ga ik akkoord met alle voorwaarden van het lidmaatschap volgens het Huishoudelijk Regelement en de Statuten van de vereniging."
 
-#: amelie/tools/pdf.py:93
+#: amelie/tools/pdf.py:94
 msgid "The following personal information will be included in the membership records:"
 msgstr "De volgende gegevens van mij worden opgenomen in de ledenadministratie:"
 
-#: amelie/tools/pdf.py:124
+#: amelie/tools/pdf.py:125
 msgid "E-mail of parent(s)/guardian(s)"
 msgstr "E-mail van ouder(s)/verzorger(s)"
 
@@ -9986,47 +10293,47 @@ msgstr "E-mail van ouder(s)/verzorger(s)"
 msgid "Signed in Enschede on %(datum)s:"
 msgstr "Was getekend in Enschede op %(datum)s:"
 
-#: amelie/tools/pdf.py:292
+#: amelie/tools/pdf.py:293
 msgid "Stamp IA if paid:"
 msgstr "Stempel IA indien betaald:"
 
-#: amelie/tools/pdf.py:312
+#: amelie/tools/pdf.py:313
 msgid "Direct debit mandate"
 msgstr "Doorlopende machtiging"
 
-#: amelie/tools/pdf.py:314
+#: amelie/tools/pdf.py:315
 msgid "SEPA"
 msgstr "SEPA"
 
-#: amelie/tools/pdf.py:332
+#: amelie/tools/pdf.py:333
 msgid "Creditor name"
 msgstr "Naam Incassant"
 
-#: amelie/tools/pdf.py:340
+#: amelie/tools/pdf.py:341
 msgid "Creditor address"
 msgstr "Adres Incassant"
 
-#: amelie/tools/pdf.py:342
+#: amelie/tools/pdf.py:343
 msgid "P.O. Box 217"
 msgstr "Postbus 217"
 
-#: amelie/tools/pdf.py:346
+#: amelie/tools/pdf.py:347
 msgid "Creditor postal code"
 msgstr "Postcode Incassant"
 
-#: amelie/tools/pdf.py:352
+#: amelie/tools/pdf.py:353
 msgid "Creditor city"
 msgstr "Plaats Incassant"
 
-#: amelie/tools/pdf.py:358
+#: amelie/tools/pdf.py:359
 msgid "Creditor country"
 msgstr "Land Incassant"
 
-#: amelie/tools/pdf.py:360
+#: amelie/tools/pdf.py:361
 msgid "Netherlands"
 msgstr "Nederland"
 
-#: amelie/tools/pdf.py:364
+#: amelie/tools/pdf.py:365
 msgid "Creditor identifier"
 msgstr "Incassant ID"
 
@@ -10772,6 +11079,10 @@ msgstr "Nieuw eerstejaars lid toevoegen"
 msgid "Pre-enroll freshman member"
 msgstr "Nieuw eerstejaarslid voorinschrijven"
 
+#: templates/frontpage.html:85
+msgid "Pre-enroll freshman member (EMandate)"
+msgstr "Nieuw eerstejaarslid voorinschrijven (digitale Incassomachtiging)"
+
 #: templates/frontpage.html:117
 msgid "Add new committee"
 msgstr "Nieuwe commissie aanmaken"
@@ -11277,6 +11588,9 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Add video"
 #~ msgstr "Video toevoegen"
+
+#~ msgid "If you opted for one or both authorizations to pay for your membership fee and/or consumptions and activities, you will also need to sign these authorizations."
+#~ msgstr "Als je hebt gekozen voor een van de, of beide machtigingen om voor je contributie en/of activiteiten te betalen, dan moet je deze machtigingen ook ondertekenen."
 
 #~ msgid "Shared Drive"
 #~ msgstr "Gedeelde Drive"

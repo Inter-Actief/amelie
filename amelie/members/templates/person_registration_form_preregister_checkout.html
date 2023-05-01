@@ -1,0 +1,109 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+
+{% block titel %}
+{% trans 'Checkout' %}
+{% endblock titel %}
+
+{% block content %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="ia">
+        <!-- Title -->
+        <h2>{% trans 'Checkout' %}</h2>
+
+        <!-- Content -->
+        <div class="content" id="checkout">
+            {% if not mandate.is_signed %}
+            <p><b>{%trans 'Sign your digital mandate here!'%}</b></p>
+            {% endif %}
+
+            <p>{% trans 'You have opted to sign a mandate for the following items:' %}</p>
+            <ul>
+                {% if mandate.authorization_type.contribution %}
+                <li>{% trans 'Membership Fee' %}</li>
+                {% endif %}
+                {% if mandate.authorization_type.activities or mandate.authorization_type.consumptions or mandate.authorization_type.other %}
+                <li>{% trans 'Activities and Consumptions' %}</li>
+                {% endif %}
+            </ul>
+
+            {% if not mandate.is_signed %}
+            <p>{% trans 'After pressing the button below, you will be redirected to your bank. At your bank, you can sign the mandate. ' %}
+            </p>
+            {% else %}
+            <p>{% trans 'The mandate has been signed!' %}
+            </p>
+            {% endif %}
+
+            <div style="margin-left: 41px">
+                <p>
+                    {% if mandate.is_signed %}
+                    <span class="icon icon-tick">{% blocktrans with mandate=mandate %}The eMandate {{ mandate }} is
+                        activated.{% endblocktrans %}</span>
+                    {% elif mandate.emandate_status == "Open" %}
+                    <span class="icon icon-clock">
+                        {% trans 'We are waiting for confirmation of your bank.' %}
+                    </span>
+                    {% elif mandate.emandate_status == "Pending" %}
+                    <span class="icon icon-clock">
+                        {% trans 'Your eMandate requires confirmation of an authorized user.' %}
+                    </span>
+                    {% else %}
+                    <span class="icon icon-cross">{% blocktrans with mandate=mandate %}The eMandate {{ mandate }} is
+                        <b>not</b>
+                        activated yet.{% endblocktrans %}</span>
+                    {% endif %}
+                </p>
+
+                {% if not mandate.is_signed %}
+                <p>{% trans 'Once you signed the mandate at your bank, click "Refresh activation status" to check the status.' %}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="buttons">
+                {% if not mandate.is_signed %}
+                {% if mandate.emandate_status != "Open" and mandate.emandate_status != "Pending" %}
+                <a class="looks-like-a-button" href="{{ emandate_url }}"
+                    target="_blank">{% trans 'Start activation' %}</a>
+                {% endif %}
+
+                <a href="{% url 'members:person_preregistration_checkout' enrollment.id mandate.id %}"
+                    class="looks-like-a-button ">{% trans 'Refresh activation status' %}</a>
+
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ia">
+        <h2>{% trans 'Pre-enrollment completed' %}</h2>
+
+        <div class="content">
+            <p>
+                <b>{% trans 'Please check your e-mail for your enrollment form(s) and sign them!' %}</b>
+            </p>
+            <p>
+                {% blocktrans %}To finalize your enrollment at Inter-<i>Actief</i>, you will need to sign your
+                membership
+                form generated with the details you provided in previous steps. By signing this membership form, you
+                agree
+                to all terms of membership of the bylaws and the Rules and Regulations of this
+                association.{% endblocktrans %}
+            </p>
+            <p>
+                {% trans 'See you soon at Inter-<em>Actief</em>!' %}
+            </p>
+
+            {% if mandate.is_signed %}
+            <p>
+                <a href="{% url 'frontpage' %}" class="looks-like-a-button">
+                    {% trans 'Back to front page' %}
+                </a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

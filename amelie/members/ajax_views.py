@@ -1,6 +1,9 @@
+import uuid
 from datetime import date
 
 import re
+
+from django.conf import settings
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -8,7 +11,7 @@ from django.template.defaultfilters import slugify
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
     MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
-    SaveNewFirstModelFormSet, StudentForm
+    SaveNewFirstModelFormSet, StudentForm, EMandateForm
 from amelie.members.models import Payment, Committee, Function, Membership, Employee, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
@@ -204,6 +207,26 @@ def person_mandate_new(request, id):
 
 @require_ajax
 @require_board
+def person_emandate_new(request, id):
+    obj = get_object_or_404(Person, id=id)
+    if request.method == "POST":
+        form = EMandateForm(request.POST)
+        if form.is_valid():
+            mandate = form.save(commit=False)
+            mandate.person = obj
+            mandate.emandate_uuid = uuid.uuid4()
+            mandate.save()
+            return render(request, "person_mandate.html", locals())
+        else:
+            response = render(request, "person_new_emandate.html", locals())
+            return response
+    else:
+        form = EMandateForm(initial={"start_date": date.today()})
+        return render(request, "person_new_emandate.html", locals())
+
+
+@require_ajax
+@require_board
 def person_mandate_activate(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
     mandate = get_object_or_404(Authorization, id=mandate, person=obj,
@@ -215,6 +238,34 @@ def person_mandate_activate(request, id, mandate):
         return render(request, "person_mandate.html", locals())
     else:
         return render(request, "person_activate_mandate.html", locals())
+
+
+@require_ajax
+@require_board
+def person_emandate_activate(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
+                                end_date__isnull=True)
+    context = {
+        'obj': obj,
+        'mandate': mandate,
+        'emandate_url': settings.EMANDATE_BACKEND_ACTIVATION_URL.format(token=mandate.emandate_uuid)
+    }
+    return render(request, "person_activate_emandate.html", context)
+
+
+@require_ajax
+@require_board
+def person_emandate_check(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
+                                end_date__isnull=True, is_signed=False)
+    context = {
+        'obj': obj,
+        'mandate': mandate,
+        'emandate_url': settings.EMANDATE_BACKEND_ACTIVATION_URL.format(token=mandate.emandate_uuid)
+    }
+    return render(request, "person_activate_emandate.html", context)
 
 
 @require_ajax

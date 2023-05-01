@@ -39,7 +39,8 @@ def pdf_enrollment_form(file, person, membership, signing_date=None):
         elif isinstance(person, UnverifiedEnrollment):
             # Unverified Pre-enrollment
             for m in person.authorizations.all():
-                pdf_authorization_page(c, (m, person), signing_date=None)
+                if not m.authorization_type.emandate:
+                    pdf_authorization_page(c, (m, person), signing_date=None)
         c.save()
 
 

@@ -824,6 +824,18 @@ CSRF_FAILURE_VIEW = 'amelie.views.csrf_failure'
 # Date on which old (pre-SEPA) authorizations are registered
 DATE_PRE_SEPA_AUTHORIZATIONS = date(2009, 11, 1)
 
+# URL where users will be redirected to when a mandate needs to be activated. Should contain {token} that will be formatted with the activation token.
+EMANDATE_BACKEND_ACTIVATION_URL = "https://localhost:8001/?mandate-uuid={token}"
+
+# IP addresses that are allowed to request mandate information from the website
+EMANDATE_BACKEND_ALLOWED_IPS = ('127.0.0.1', '::1')
+
+# Secret key that the eMandate backend will send with each request
+EMANDATE_REMOTE_SECRET = ""
+
+# Secret key that Amèlie should send to the eMandate backend with every request
+EMANDATE_LOCAL_SECRET = ""
+
 # Which runner to use to run the django tests
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
