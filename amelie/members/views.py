@@ -31,7 +31,7 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 from django.views.generic.edit import DeleteView, FormView
 
-from amelie.claudia.models import Mapping
+from amelie.claudia.models import Mapping, ExtraPerson
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -1388,8 +1388,17 @@ def _person_info_get_person(ia_username=None, ut_username=None, local_username=N
             person = Person.objects.get(account_name=ia_username)
             logger.debug(f"Person found by ia_username {ia_username}: {person}.")
         except Person.DoesNotExist:
-            logger.info(f"Person with ia_username {ia_username} does not exist.")
-            person = None
+            # It could also be an ExtraPerson
+            try:
+                person = ExtraPerson.objects.get(adname=ia_username)
+                logger.debug(f"ExtraPerson found by ia_username {ia_username}: {person}.")
+                if not person.is_active():
+                    person = None
+                    logger.info(f"Account of ExtraPerson {person} is not active (any more), "
+                                f"and thus is no info will be returned for username {ia_username}.")
+            except ExtraPerson.DoesNotExist:
+                logger.info(f"Person or ExtraPerson with ia_username {ia_username} does not exist.")
+                person = None
     elif ut_username is not None:
         try:
             if ut_username[0] == 's':
@@ -1465,7 +1474,7 @@ def person_userinfo(request):
     username = body.get('iaUsername', None) or body.get('utUsername', None) or body.get('localUsername', None)
 
     # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
-    if person is not None:
+    if person is not None and isinstance(person, Person):
         log.info(f"UserInfo retrieved for person {person} using username {username}.")
         email = "{}@{}".format(person.get_adname(), settings.CLAUDIA_GSUITE['PRIMARY_DOMAIN'])
         return HttpJSONResponse({
@@ -1474,6 +1483,15 @@ def person_userinfo(request):
             'studentNumber': f"s{person.student.number}" if person.is_student() else None,
             'employeeNumber': f"m{person.employee.number}" if person.is_employee() else None,
             'externalUsername': person.ut_external_username
+        })
+    elif person is not None and isinstance(person, ExtraPerson):
+        log.info(f"UserInfo retrieved for ExtraPerson {person} using username {username}.")
+        return HttpJSONResponse({
+            'iaUsername': person.get_adname() or None,
+            'iaEmail': person.get_email() or None,
+            'studentNumber': None,
+            'employeeNumber': None,
+            'externalUsername': None
         })
     else:
         log.info(f"UserInfo not found for user iaUsername={body.get('iaUsername', None)}, "
