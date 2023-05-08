@@ -80,3 +80,6 @@ djangosaml2idp>=0.7.2,<0.8
 
 # Single Sign On - OIDC Client
 mozilla-django-oidc
+
+# Sentry error logging
+sentry-sdk>=1.22.1,<1.23
