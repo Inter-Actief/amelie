@@ -37,8 +37,8 @@ IGNORE_NAMES = [
     "account:activate_forwarding_address", "account:add_forwarding_address", "account:check_forwarding_status",
     "account:check_forwarding_verification", "account:deactivate_forwarding_address",
 
-    # Uses YouTube API credentials, does not need to work in development
-    "videos:new_yt_video",
+    # Uses YouTube API credentials / relies on external service, does not need to work in development
+    "videos:new_yt_video", "videos:new_ia_video",
 
     # Room narrowcasting page uses Spotify and Icinga API that is not configured in development.
     "narrowcasting:room_pcstatus", "narrowcasting:room_spotify_callback", "narrowcasting:room_spotify_now_playing",
