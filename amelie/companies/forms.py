@@ -5,7 +5,7 @@ from django.forms import SplitDateTimeField
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, CompanyEvent
+from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, CompanyEvent, VivatBanner
 from amelie.style.forms import inject_style
 from amelie.calendar.forms import EventForm
 from amelie.tools.widgets import DateTimeSelector, DateSelector
@@ -81,6 +81,16 @@ class TelevisionBannerForm(forms.ModelForm):
         fields = ["picture", "name", 'start_date', "end_date", 'active']
 
 
+class VivatBannerForm(forms.ModelForm):
+    picture = forms.FileField(label=_('Vivat banner'), widget=AdminFileWidget)
+    start_date = forms.DateField(widget=DateSelector)
+    end_date = forms.DateField(widget=DateSelector)
+
+    class Meta:
+        model = VivatBanner
+        fields = ["picture", "name", 'start_date', "end_date", 'active', 'url']
+
+
 class CompanyEventForm(EventForm):
     company = forms.ModelChoiceField(queryset=Company.objects.filter(start_date__lte=timezone.now(), end_date__gte=timezone.now()), required=False)
 
@@ -130,4 +140,4 @@ class StatisticsForm(forms.Form):
     end_date = forms.SplitDateTimeField(label=_('End (till)'), widget=DateTimeSelector, required=True)
 
 
-inject_style(CompanyForm, CompanyEventForm, BannerForm, TelevisionBannerForm, StatisticsForm)
+inject_style(CompanyForm, CompanyEventForm, BannerForm, TelevisionBannerForm, VivatBannerForm, StatisticsForm)

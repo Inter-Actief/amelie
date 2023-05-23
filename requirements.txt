@@ -1,4 +1,4 @@
-Django>=3.2.16,<3.3
+Django>=3.2.16,<3.2.18  # Limited because of issue https://github.com/Inter-Actief/amelie/issues/760
 
 importlib-metadata>=1.4.0,<5.0  # importlib-metadata 5+ causes Celery bug: https://github.com/celery/celery/issues/7783
 celery>=5.2.7,<5.3

@@ -11,6 +11,8 @@ urlpatterns = [
     path('banners/<int:id>/', views.banner_edit, name='banner_edit'),
     path('banners/create_web/', views.websitebanner_create, name='websitebanner_create'),
     path('banners/create_tv/', views.televisionbanner_create, name='televisionbanner_create'),
+    path('banners/create_vivat/', views.vivatbanner_create, name='vivatbanner_create'),
+    path('banners/vivat/', views.vivatbanner_get, name='vivatbanner_get'),
 
     path('activities/', views.event_list, name='event_list'),
     path('activities/<int:id>/', views.event_details, name='event_details'),
