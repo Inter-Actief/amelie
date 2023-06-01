@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-{% load i18n banners active_menu compress cached_static provider_name %}
+{% load i18n banners active_menu compress cached_static %}
 {% get_current_language as LANGUAGE_CODE %}
 
 <html lang="{{ LANGUAGE_CODE }}" {% if env == 'STAGING' %} id="staging" {% elif env == 'DEBUG' %} id="debug"{% endif %}>

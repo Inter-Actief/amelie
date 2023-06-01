@@ -26,7 +26,7 @@
 
 		{% if login_voor_meer %}
         <p class="icon icon-information">
-            {% url 'login' as login_url %}
+            {% url 'oidc_authentication_init' as login_url %}
             {% trans "More publications are available if you" %} <a href="{{ login_url }}?next={% url 'publications:list_publications' pk %}">{% trans 'logged in.' %}</a>.
         </p>
         {% endif %}
