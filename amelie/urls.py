@@ -23,6 +23,7 @@ urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('profile/', views.profile_overview, name='profile_overview'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),
     path('oidc/', include('mozilla_django_oidc.urls')),
 
     # General views

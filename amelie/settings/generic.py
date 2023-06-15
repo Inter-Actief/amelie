@@ -79,13 +79,6 @@ DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 # The LDAP host that is used to verify login attempts in the LDAP authentication module
 LDAP_HOST = 'hexia.ia.utwente.nl'
 
-# The RADIUS login details used to verify login attempts in the RADIUS authentication module
-RADIUS_HOST = 'radius1.utsp.utwente.nl'
-RADIUS_PORT = 1645
-RADIUS_SECRET = b'etisbew_ai_www'
-RADIUS_IDENTIFIER = 'interactief.utwente.nl'
-RADIUS_DICT_LOCATION = os.path.join(BASE_PATH, 'amelie', 'tools', 'radius.dict')
-
 # Caches that the website can use
 CACHES = {
     'default': {
@@ -187,8 +180,6 @@ TEMPLATES = [
                 'amelie.style.context_processors.theme_context',  # Injects the website theme if one is active
                 'amelie.api.context_processors.absolute_path_to_site',  # Injects the absolute path to the site for API
                 'amelie.tools.context_processors.environment',  # Injects environment context
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -948,3 +939,4 @@ KEYCLOAK_REALM_NAME = "inter-actief"
 KEYCLOAK_API_CLIENT_ID = "admin-cli"
 KEYCLOAK_API_CLIENT_SECRET = ""
 KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
+KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']

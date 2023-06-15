@@ -12,6 +12,7 @@ You can connect an external account through the following steps:{% endblocktrans
 
 {% onlyhtml %}<ul><li>{% endonlyhtml %}{% onlyplain %}- {% endonlyplain %}{% trans 'Go to our website and click "Login"' %}
 {% onlyhtml %}</li><li>{% endonlyhtml %}{% onlyplain %}- {% endonlyplain %}{% trans 'Choose your preferred login service and log in' %}
+{% onlyhtml %}</li><li>{% endonlyhtml %}{% onlyplain %}- {% endonlyplain %}{% trans 'Choose the option "Try Another Way"' %}
 {% onlyhtml %}</li><li>{% endonlyhtml %}{% onlyplain %}- {% endonlyplain %}{% trans 'Choose the option "I have a link code"' %}
 {% onlyhtml %}</li><li>{% endonlyhtml %}{% onlyplain %}- {% endonlyplain %}{% trans 'Enter the following link code:' %} {% onlyhtml %}<b>{% endonlyhtml %}{{ link_code }}{% onlyhtml %}</b>{% endonlyhtml %}
 {% onlyhtml %}</li><li>{% endonlyhtml %}{% onlyplain %}- {% endonlyplain %}{% trans 'Your account should now be linked.' %}{% onlyhtml %}</li></ul>{% endonlyhtml %}

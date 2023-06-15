@@ -247,7 +247,7 @@ class AccountPasswordResetSuccess(TemplateView):
 class AccountPasswordResetLink(FormView):
     template_name = "accounts/password_reset_link.html"
     form_class = AccountPasswordResetLinkForm
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('oidc_authentication_init')
 
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:

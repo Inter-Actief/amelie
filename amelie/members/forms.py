@@ -44,13 +44,16 @@ class PersonalDetailsEditForm(forms.ModelForm):
             old_person = Person.objects.get(id=self.instance.id)
             for field in self.changed_data:
                 if field == "preferences":
+                    old = [preference.name for preference in getattr(old_person, field).all()]
+                    new = [preference.name for preference in self.cleaned_data[field].all()] + [preference.name for preference in self.instance.preferences.filter(adjustable=False)]
+                    
+                    added = list(set(new)-set(old))
+                    removed = list(set(old)-set(new))
+
                     changes.append({
                         'field': 'Preferences',
-                        'old': ', '.join([preference.name for preference in getattr(old_person, field).all()]),
-                        'new': ', '.join(
-                            [preference.name for preference in self.cleaned_data[field].all()] +
-                            [preference.name for preference in self.instance.preferences.filter(adjustable=False)]
-                        )
+                        'added': '  + ' + '\n  + '.join(added) if added else '',
+                        'removed': '  - ' + '\n  - '.join(removed) if removed else ''
                     })
                 else:
                     changes.append({
