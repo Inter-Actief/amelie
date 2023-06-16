@@ -400,6 +400,8 @@ GRAPHQL_JWT = {
 GRAPHQL_SCHEMAS = [
     "amelie.members.graphql",
     "amelie.news.graphql",
+    "amelie.publications.graphql",
+    "amelie.videos.graphql",
 ]
 
 GRAPHENE_DJANGO_EXTRAS = {

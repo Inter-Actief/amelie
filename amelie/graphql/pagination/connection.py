@@ -8,7 +8,7 @@ from graphene.relay.connection import ConnectionOptions
 from amelie.graphql.pagination.objects_type import PageInfoExtra
 
 
-# Source: https://github.com/instruct-br/graphene-django-pagination
+# Based on: https://github.com/instruct-br/graphene-django-pagination
 class PaginationConnection(Connection):
     class Meta:
         abstract = True

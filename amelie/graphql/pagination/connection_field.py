@@ -12,7 +12,7 @@ from amelie.graphql.pagination.connection import PaginationConnection
 from amelie.graphql.pagination.objects_type import PageInfoExtra
 
 
-# Source: https://github.com/instruct-br/graphene-django-pagination
+# Based on: https://github.com/instruct-br/graphene-django-pagination
 class DjangoPaginationConnectionField(DjangoFilterConnectionField):
     def __init__(
         self,
@@ -91,7 +91,11 @@ def connection_from_list_slice(
             results=list_slice,
             page_info=pageinfo_type(
                 has_previous_page=False,
-                has_next_page=False
+                has_next_page=False,
+                page=1,
+                num_pages=1,
+                limit=limit,
+                offset=offset
             )
         )
     else:
@@ -113,7 +117,11 @@ def connection_from_list_slice(
             results=_slice,
             page_info=pageinfo_type(
                 has_previous_page=page.has_previous(),
-                has_next_page=page.has_next()
+                has_next_page=page.has_next(),
+                page=page_num,
+                num_pages=paginator.num_pages,
+                limit=limit,
+                offset=offset
             )
         )
 
