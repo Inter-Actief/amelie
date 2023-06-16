@@ -11,12 +11,12 @@ from amelie.videos.models import BaseVideo
 
 class VideoFilterSet(django_filters.FilterSet):
     class Meta:
-        Model = BaseVideo
+        model = BaseVideo
         fields = {
             'video_id': ("exact",),
             'title': ("icontains", "iexact"),
             'date_published': ("exact", "gt", "lt"),
-            'publisher': ("icontains", "iexact"),
+            'publisher__name': ("icontains", "iexact"),
             'is_featured': ("exact",),
         }
 
