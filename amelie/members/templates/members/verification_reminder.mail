@@ -1,0 +1,18 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans %}[Inter-Actief] Important information regarding your membership{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans %}In a previous mailing, we asked you to verify your study in order to renew your membership. Unfortunately, the mechanism for verifying your study was broken during the past week, so if you have tried to verify your study during this time, we ask you to log in to the Inter-Actief website using your University account once more to complete the verification.{% endblocktrans %}
+
+{% blocktrans %}If you did not follow those steps yet, and you are still studying Business Information Technology, Technical Computer Science or one of the masters belonging to these studies, please visit our website and log in via University of Twente in order to prolong your membership for free. You have to do this in the next 7 days, otherwise your membership will be terminated as of the 1st of July.{% endblocktrans %}
+
+{% blocktrans %}You can check if your study is verified by visiting your profile on the Inter-Actief website. Under the block "Membership" you can find the verification status. If it says "Your student status has been verified, or we do not need it for your membership type." next to a green checkmark, your membership will be renewed as normal and you do not need to take action. If it says "Your student status has not been verified, while we do need it for your membership type." next to a red cross, you will need to follow the procedure above.{% endblocktrans %}
+
+{% blocktrans %}If you have any questions you can contact us by replying to this email.{% endblocktrans %}
+
+{% blocktrans %}Kind regards,
+
+The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}{% endblock %}
