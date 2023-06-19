@@ -1403,9 +1403,9 @@ def _person_info_get_person(ia_username=None, ut_username=None, local_username=N
                 person = Person.objects.get(student__number=ut_username[1:])
                 logger.debug(f"Person found by student ut_username {ut_username}: {person}.")
 
-                if verify:
+                if verify and person.membership is not None:
                     # Verify studies of person if department data is present in auth request.
-                    logger.debug(f"Verifying study for {person}.")
+                    logger.debug(f"Verifying study for {person} with departments {departments}.")
 
                     # Since UT years are from sept-aug and our year is from jul-jun, there are two months overlap.
                     # Never verify users in July or August, as this could allow members who are done studying to get an
