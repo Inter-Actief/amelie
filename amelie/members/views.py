@@ -159,7 +159,7 @@ def statistics(request):
         num_ex_pools = Committee.objects.filter(
             Q(function__person=member),
             Q(function__end__isnull=True) | Q(function__end__gt=dt),
-            Q(abolished__isnull=True) | Q(abolished__end__gt=dt)
+            Q(abolished__isnull=True) | Q(abolished__gt=dt)
         ).exclude(category__name=settings.POOL_CATEGORY).count()
 
         if num not in members.keys():
