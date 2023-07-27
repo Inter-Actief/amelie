@@ -71,7 +71,7 @@ def statistics(request):
     per_study_rows = sorted(per_study_rows, key=lambda k: -k['count'])
 
     members_count = Person.objects.members_at(dt).count()
-    active_members = Person.objects.active_members()
+    active_members = Person.objects.active_members_at(dt)
     active_members_count = active_members.count()
 
     tcs = Student.objects.filter(studyperiod__study__primary_study=True).exclude(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
@@ -87,7 +87,7 @@ def statistics(request):
 
     percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
 
-    freshmen_bit = Person.objects.members().filter(
+    freshmen_bit = Person.objects.members_at(dt).filter(
         Q(membership__year=current_association_year(dt)),
         Q(student__studyperiod__study__abbreviation='B-BIT'),
         Q(student__studyperiod__begin__year=current_association_year(dt)),
@@ -98,7 +98,7 @@ def statistics(request):
     active_freshmen_bit = [person for person in freshmen_bit if person in active_members]
     active_freshmen_bit_count = len(active_freshmen_bit)
 
-    freshmen_tcs = Person.objects.members().filter(
+    freshmen_tcs = Person.objects.members_at(dt).filter(
         Q(membership__year=current_association_year(dt)),
         Q(student__studyperiod__study__abbreviation='B-CS'),
         Q(student__studyperiod__begin__year=current_association_year(dt)),
