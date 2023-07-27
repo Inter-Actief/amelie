@@ -13,6 +13,8 @@ from io import BytesIO
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
 from django.db.models import Q, Sum
+from django import forms
+from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -50,11 +52,21 @@ from amelie.tools.logic import current_academic_year_with_holidays, current_asso
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
+class DateForm(forms.Form):
+    dt = forms.DateField(label='Date', widget=forms.DateInput(attrs={'type': 'date'}))
 
 @require_board
 def statistics(request):
 
-    dt = datetime.date.today()
+    dateform = DateForm()
+    dt = None
+
+    if 'dt' in request.GET:
+        dt = parse_date(request.GET['dt'])
+    
+    if not dt:
+        # The page will only render the Date input field
+        return render(request, 'statistics/overview.html', locals())
 
     studies = Study.objects.all()
     per_study_total = 0
