@@ -12,7 +12,7 @@ from io import BytesIO
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -53,18 +53,24 @@ from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_author
 
 @require_board
 def statistics(request):
+
+    dt = datetime.date.today()
+
     studies = Study.objects.all()
     per_study_total = 0
     per_study_rows = []
     for study in studies:
-        count = Student.objects.filter(person__membership__year=current_association_year(),
-                                       studyperiod__study=study,
-                                       studyperiod__end__isnull=True).distinct().count()
+        count = Student.objects.filter(
+            Q(person__membership__year=current_association_year(dt)),
+            Q(studyperiod__study=study),
+            Q(studyperiod__end__isnull=True) | Q(studyperiod__end__gt=dt)
+        ).distinct().count()
+
         per_study_total += count
         per_study_rows.append({'name': study.name, 'abbreviation': study.abbreviation, 'count': count})
     per_study_rows = sorted(per_study_rows, key=lambda k: -k['count'])
 
-    members_count = Person.objects.members().count()
+    members_count = Person.objects.members_at(dt).count()
     active_members = Person.objects.active_members()
     active_members_count = active_members.count()
 
@@ -81,18 +87,24 @@ def statistics(request):
 
     percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
 
-    freshmen_bit = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-BIT',
-                                                   student__studyperiod__begin__year=current_association_year(),
-                                                   student__studyperiod__end__isnull=True).distinct()
+    freshmen_bit = Person.objects.members().filter(
+        Q(membership__year=current_association_year(dt)),
+        Q(student__studyperiod__study__abbreviation='B-BIT'),
+        Q(student__studyperiod__begin__year=current_association_year(dt)),
+        Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
+    ).distinct()
+
     freshmen_bit_count = freshmen_bit.count()
     active_freshmen_bit = [person for person in freshmen_bit if person in active_members]
     active_freshmen_bit_count = len(active_freshmen_bit)
 
-    freshmen_tcs = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-CS',
-                                                   student__studyperiod__begin__year=current_association_year(),
-                                                   student__studyperiod__end__isnull=True).distinct()
+    freshmen_tcs = Person.objects.members().filter(
+        Q(membership__year=current_association_year(dt)),
+        Q(student__studyperiod__study__abbreviation='B-CS'),
+        Q(student__studyperiod__begin__year=current_association_year(dt)),
+        Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
+    ).distinct()
+
     freshmen_tcs_count = freshmen_tcs.count()
     active_freshmen_tcs = [person for person in freshmen_tcs if person in active_members]
     active_freshmen_tcs_count = len(active_freshmen_tcs)
@@ -101,23 +113,23 @@ def statistics(request):
 
     percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
 
-    employee_count = Employee.objects.filter(person__membership__year=current_association_year()).count()
+    employee_count = Employee.objects.filter(person__membership__year=current_association_year(dt)).count()
 
     per_committee_total = 0
     per_committee_rows = []
-    committees = Committee.objects.active()
+    committees = Committee.objects.active_at(dt)
     committee_count = 0
     for committee in committees:
-        count = Function.objects.filter(committee=committee, end__isnull=True).count()
+        count = Function.objects.filter(Q(committee=committee), Q(end__isnull=True) | Q(end__gt=dt)).count()
         per_committee_total += count
         if count > 0:
             committee_count += 1
             per_committee_rows.append({'name': committee.name, 'count': count})
 
     per_commitee_total_ex_pools = per_committee_total
-    pools = Committee.objects.active().filter(category__name=settings.POOL_CATEGORY)
+    pools = Committee.objects.active_at(dt).filter(category__name=settings.POOL_CATEGORY)
     for pool in pools:
-        count = Function.objects.filter(committee=pool, end__isnull=True).count()
+        count = Function.objects.filter(Q(committee=pool), Q(end__isnull=True) | Q(end__gt=dt)).count()
         per_commitee_total_ex_pools = per_commitee_total_ex_pools - count
 
     average_committees_ex_pools_per_active_member = '{0:.2f}'.format((per_commitee_total_ex_pools*1.0)/active_members_count)
@@ -135,7 +147,7 @@ def statistics(request):
         per_active_member_total.get(2, 0) - per_active_member_total.get(3, 0) - \
         per_active_member_total.get(4, 0) - per_active_member_total.get(5, 0)
 
-    international_members = Person.objects.members().filter(international_member=Person.InternationalChoices.YES).distinct()
+    international_members = Person.objects.members_at(dt).filter(international_member=Person.InternationalChoices.YES).distinct()
     international_members_count = international_members.count()
 
     active_international_members_count = len([member for member in international_members if member in active_members])
@@ -144,8 +156,12 @@ def statistics(request):
     members_ex_pools = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     for member in active_members:
         num = len(member.current_committees())
-        num_ex_pools = Committee.objects.filter(function__person=member, function__end__isnull=True,
-                                                 abolished__isnull=True).exclude(category__name=settings.POOL_CATEGORY).count()
+        num_ex_pools = Committee.objects.filter(
+            Q(function__person=member),
+            Q(function__end__isnull=True) | Q(function__end__gt=dt),
+            Q(abolished__isnull=True) | Q(abolished__end__gt=dt)
+        ).exclude(category__name=settings.POOL_CATEGORY).count()
+
         if num not in members.keys():
             members[num] = [member]
         else:
