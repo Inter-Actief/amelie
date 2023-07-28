@@ -12,8 +12,7 @@ from io import BytesIO
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
-from django.db.models import Q, Sum
-from django import forms
+from django.db.models import Q, Sum, Max, F
 from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
@@ -52,13 +51,9 @@ from amelie.tools.logic import current_academic_year_with_holidays, current_asso
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
-class DateForm(forms.Form):
-    dt = forms.DateField(label='Date', widget=forms.DateInput(attrs={'type': 'date'}))
-
 @require_board
 def statistics(request):
 
-    dateform = DateForm()
     dt = None
 
     if 'dt' in request.GET:
@@ -86,16 +81,46 @@ def statistics(request):
     active_members = Person.objects.active_members_at(dt)
     active_members_count = active_members.count()
 
-    tcs = Student.objects.filter(studyperiod__study__primary_study=True).exclude(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
-    active_members_tcs = [student.person for student in tcs if student.person in active_members]
+    active_members_tcs = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        # Someone who is not studying anymore, but has studied CS at their latest studyperiod is counted
+        student__latest_studyperiod = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod')),
+        Q(student__studyperiod__study__abbreviation__in=['B-TCS','M-CS'])
+    ).distinct()
     active_members_tcs_count = len(active_members_tcs)
 
-    bit = Student.objects.filter(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
-    active_members_bit = [student.person for student in bit if student.person in active_members]
+    active_members_bit = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        # Someone who is not studying anymore, but has studied BIT at their latest studyperiod is counted
+        student__latest_studyperiod = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod')),
+        Q(student__studyperiod__study__abbreviation__in=['B-BIT','M-BIT'])
+    ).distinct()
     active_members_bit_count = len(active_members_bit)
 
-    other = Student.objects.exclude(studyperiod__study__primary_study=True).distinct()
-    active_members_other_count = len([student.person for student in other if student.person in active_members])
+    other_studies = Study.objects.exclude(abbreviation__in=['B-TCS','M-CS','B-BIT','M-BIT']).values("abbreviation")
+
+    active_members_other = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        student__latest_studyperiod_begin = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod_begin')),
+        # I know this is a very hacky way of excluding CS and BIT studies, but it doesn't work any other way...
+        Q(student__studyperiod__study__abbreviation__in=[other_studies])
+    ).distinct()
+    active_members_other_count = len(active_members_other)
 
     percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
 
@@ -112,7 +137,7 @@ def statistics(request):
 
     freshmen_tcs = Person.objects.members_at(dt).filter(
         Q(membership__year=current_association_year(dt)),
-        Q(student__studyperiod__study__abbreviation='B-CS'),
+        Q(student__studyperiod__study__abbreviation='B-TCS'),
         Q(student__studyperiod__begin__year=current_association_year(dt)),
         Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
     ).distinct()
@@ -125,14 +150,22 @@ def statistics(request):
 
     percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
 
-    employee_count = Employee.objects.filter(person__membership__year=current_association_year(dt)).count()
+    employee_count = Employee.objects.filter(
+        Q(person__membership__year=current_association_year(dt)),
+        Q(person__membership__ended__isnull=True) | Q(person__membership__ended__gt=dt)
+    ).count()
 
     per_committee_total = 0
     per_committee_rows = []
     committees = Committee.objects.active_at(dt)
     committee_count = 0
     for committee in committees:
-        count = Function.objects.filter(Q(committee=committee), Q(end__isnull=True) | Q(end__gt=dt)).count()
+        count = Function.objects.filter(
+            Q(committee=committee),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).count()
         per_committee_total += count
         if count > 0:
             committee_count += 1
@@ -141,7 +174,12 @@ def statistics(request):
     per_commitee_total_ex_pools = per_committee_total
     pools = Committee.objects.active_at(dt).filter(category__name=settings.POOL_CATEGORY)
     for pool in pools:
-        count = Function.objects.filter(Q(committee=pool), Q(end__isnull=True) | Q(end__gt=dt)).count()
+        count = Function.objects.filter(
+            Q(committee=pool),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).count()
         per_commitee_total_ex_pools = per_commitee_total_ex_pools - count
 
     average_committees_ex_pools_per_active_member = '{0:.2f}'.format((per_commitee_total_ex_pools*1.0)/active_members_count)
@@ -149,7 +187,15 @@ def statistics(request):
 
     per_active_member_total = {}
     for person in active_members:
-        num = len(person.current_committees())
+        num = Committee.objects.filter(
+            Q(function__person=person),
+            Q(function__end__isnull=True) | Q(function__end__gt=dt),
+            Q(function__begin__isnull=False),
+            Q(function__begin__lte=dt),
+            Q(abolished__isnull=True) | Q(abolished__gt=dt),
+            Q(founded__isnull=False),
+            Q(founded__lte=dt)
+        ).count()
         if num not in per_active_member_total.keys():
             per_active_member_total[num] = 0
         per_active_member_total[num] += 1
@@ -167,11 +213,23 @@ def statistics(request):
     members = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     members_ex_pools = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     for member in active_members:
-        num = len(member.current_committees())
+        num = Committee.objects.filter(
+            Q(function__person=member),
+            Q(function__end__isnull=True) | Q(function__end__gt=dt),
+            Q(function__begin__isnull=False),
+            Q(function__begin__lte=dt),
+            Q(abolished__isnull=True) | Q(abolished__gt=dt),
+            Q(founded__isnull=False),
+            Q(founded__lte=dt)
+        ).count()
         num_ex_pools = Committee.objects.filter(
             Q(function__person=member),
             Q(function__end__isnull=True) | Q(function__end__gt=dt),
-            Q(abolished__isnull=True) | Q(abolished__gt=dt)
+            Q(function__begin__isnull=False),
+            Q(function__begin__lte=dt),
+            Q(abolished__isnull=True) | Q(abolished__gt=dt),
+            Q(founded__isnull=False),
+            Q(founded__lte=dt)
         ).exclude(category__name=settings.POOL_CATEGORY).count()
 
         if num not in members.keys():
@@ -189,8 +247,24 @@ def statistics(request):
         res = {'n': n,
                'total': len(members[n]),
                'total_ex': len(members_ex_pools[n]),
-               'board': len([x for x in members[n] if x.is_board()]),
-               'board_ex': len([x for x in members_ex_pools[n] if x.is_board()]),
+               'board': len([x for x in members[n] if x.function_set.filter(
+                                                                        Q(committee__superuser=True),
+                                                                        Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
+                                                                        Q(committee__founded__isnull=False),
+                                                                        Q(committee__founded__lte=dt),
+                                                                        Q(end__isnull=True) | Q(end__gt=dt),
+                                                                        Q(begin__isnull=False),
+                                                                        Q(begin__lte=dt)
+                                                                            ).exists()]),
+               'board_ex': len([x for x in members_ex_pools[n] if x.function_set.filter(
+                                                                        Q(committee__superuser=True),
+                                                                        Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
+                                                                        Q(committee__founded__isnull=False),
+                                                                        Q(committee__founded__lte=dt),
+                                                                        Q(end__isnull=True) | Q(end__gt=dt),
+                                                                        Q(begin__isnull=False),
+                                                                        Q(begin__lte=dt)
+                                                                            ).exists()]),
                'freshman': len([x for x in members[n] if x in freshmen_tcs or x in freshmen_bit]),
                'freshman_ex': len([x for x in members_ex_pools[n] if x in freshmen_tcs or x in freshmen_bit]),
                'international': len([x for x in members[n] if x in international_members]),
@@ -210,8 +284,24 @@ def statistics(request):
     res = {'n': _('6 or more'),
            'total': len(six_or_more),
            'total_ex': len(six_or_more_ex),
-           'board': len([x for x in six_or_more if x.is_board()]),
-           'board_ex': len([x for x in six_or_more_ex if x.is_board()]),
+            'board': len([x for x in six_or_more if x.function_set.filter(
+                                                                    Q(committee__superuser=True),
+                                                                    Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
+                                                                    Q(committee__founded__isnull=False),
+                                                                    Q(committee__founded__lte=dt),
+                                                                    Q(end__isnull=True) | Q(end__gt=dt),
+                                                                    Q(begin__isnull=False),
+                                                                    Q(begin__lte=dt)
+                                                                        ).exists()]),
+            'board_ex': len([x for x in six_or_more_ex if x.function_set.filter(
+                                                                    Q(committee__superuser=True),
+                                                                    Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
+                                                                    Q(committee__founded__isnull=False),
+                                                                    Q(committee__founded__lte=dt),
+                                                                    Q(end__isnull=True) | Q(end__gt=dt),
+                                                                    Q(begin__isnull=False),
+                                                                    Q(begin__lte=dt)
+                                                                        ).exists()]),
            'freshman': len([x for x in six_or_more if x in freshmen_tcs or x in freshmen_bit]),
            'freshman_ex': len([x for x in six_or_more_ex if x in freshmen_tcs or x in freshmen_bit]),
            'international': len([x for x in six_or_more if x in international_members]),

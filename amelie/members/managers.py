@@ -30,6 +30,7 @@ class PersonManager(models.Manager):
     def active_members_at(self, dt):
         return self.members_at(dt).filter(
             Q(function__begin__isnull=False),
+            Q(function__begin__lte=dt),
             Q(function__end__isnull=True) | Q(function__end__gt=dt),
             Q(function__committee__abolished__isnull=True) | Q(function__committee__abolished__gt=dt)
         ).distinct()
@@ -64,4 +65,8 @@ class CommitteeManager(models.Manager):
         return super(CommitteeManager, self).filter(abolished__isnull=True)
     
     def active_at(self, dt):
-        return super(CommitteeManager, self).filter(Q(abolished__isnull=True) | Q(abolished__gt=dt))
+        return super(CommitteeManager, self).filter(
+            Q(abolished__isnull=True) | Q(abolished__gt=dt),
+            Q(founded__isnull=False),
+            Q(founded__lte=dt)
+        )

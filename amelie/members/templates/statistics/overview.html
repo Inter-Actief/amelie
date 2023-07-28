@@ -7,17 +7,21 @@
 
 {% block content %}
 
-    <div class="ia">
-        <h2>Date selector</h2>
-        <div class="content">
-            <form method="get">
-                {{ dateform.as_p }}
-                <div class="buttons">
-                    <input type="submit" value="{% trans 'Render' %}" />
-                </form>
-                </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">    
+        <div class="ia">
+            <h2>{% trans 'Date selector' %}</h2>
+            <div class="content">
+                <form method="get">
+                    <label for="dt">{% trans 'Date: ' %}:</label>
+                    <input id="dt" type="date" name="dt" required="">
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Render' %}">
+                    </form>
+                    </div>
+            </div>
         </div>
     </div>
+    
     {% if dt %}
 
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
