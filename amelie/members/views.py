@@ -68,9 +68,12 @@ def statistics(request):
     per_study_rows = []
     for study in studies:
         count = Student.objects.filter(
+            ~Q(person__membership__year=current_association_year(dt)-1),
             Q(person__membership__year=current_association_year(dt)),
-            Q(studyperiod__study=study),
-            Q(studyperiod__end__isnull=True) | Q(studyperiod__end__gt=dt)
+            Q(studyperiod__end__isnull=True) | Q(studyperiod__end__gt=dt),
+            Q(studyperiod__begin__isnull=False),
+            Q(studyperiod__begin__lte=dt),
+            Q(studyperiod__study=study)
         ).distinct().count()
 
         per_study_total += count
