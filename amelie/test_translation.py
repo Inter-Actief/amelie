@@ -44,7 +44,10 @@ TEMPLATE_FOLDERS = [os.path.abspath(x) for x in TEMPLATE_FOLDERS]
 IGNORED_PATHS = [
     "./amelie/personal_tab/templates/pos",
     "./amelie/gmm/templates/gmm_overview.html",
-    "./amelie/tools/templates/tools_mailtemplatetest.html"]
+    "./amelie/tools/templates/tools_mailtemplatetest.html",
+    "./amelie/api/templates/api/doc_index.html",
+    "./amelie/api/templates/api/doc_accordion_method.html"
+]
 IGNORED_PATHS += [get_python_lib()]
 try:
     # Should work better in non virtualenvs

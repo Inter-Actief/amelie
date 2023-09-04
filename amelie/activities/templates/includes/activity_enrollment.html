@@ -134,7 +134,7 @@
         {% endif %}
     {% else %}
         <p class="icon warning">
-            {% url 'login' as login_url %}
+            {% url 'oidc_authentication_init' as login_url %}
             {% blocktrans with login_url=login_url next_url=obj.get_absolute_url %}
                 To view or alter your enrollment, please <a href="{{ login_url }}?next={{ next_url }}">log in</a>.
             {% endblocktrans %}

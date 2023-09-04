@@ -20,7 +20,7 @@
     <div class="content">
 		{% if login_for_more %}
         <p class="icon icon-information">
-            {% url 'login' as login_url %}
+            {% url 'oidc_authentication_init' as login_url %}
             {% trans "More photos are available if you" %} <a href="{{ login_url }}?next={% url 'activities:gallery' pk %}">{% trans 'logged in' %}</a>.
         </p>
         {% endif %}

@@ -15,8 +15,14 @@
                     {% blocktrans %}
                         Inter-<em>Actief</em> has a large number of committees which organize events.
                         Every committee belongs to a specific category.
+                    {% endblocktrans %}
+                    {% if newest_committee_booklet %}
+                        {% blocktrans %}
                         For an overview of all committees, including inactive committees, see our
-                        <a href="https://media.ia.utwente.nl/amelie/data/uploads/2023/02/15/Committee_Booklet_QuirijnV2.pdf">committee booklet</a>.
+                        <a href="{{ newest_committee_booklet_url }}">committee booklet</a>.
+                        {% endblocktrans %}
+                    {% endif %}
+                    {% blocktrans %}
                         At the moment Inter-<em>Actief</em> has the following committees:
                     {% endblocktrans %}
                 </p>

@@ -1,5 +1,3 @@
-import json
-
 from fcm_django.fcm import fcm_send_topic_message
 from fcm_django.models import FCMDevice
 

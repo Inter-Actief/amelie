@@ -1,5 +1,5 @@
 {% extends "basis.html" %}
-{% load i18n provider_name %}
+{% load i18n %}
 
 {% block titel %}{% trans 'Log in' %}{% endblock titel %}
 
@@ -32,29 +32,12 @@
                     {% trans 'If you do not have either of these accounts, you can link an external account, like your Google, GitHub, or Facebook account, by contacting the board.' %}
                 </p>
 
-                <p><a class="looks-like-a-button" href="{% url 'saml2_login' %}?next={% if redirect_to %}{{ redirect_to|urlencode }}{% else %}{{ request.path|urlencode }}{% endif %}"><i class="icon icon-building"></i> <b>{% trans 'Log in with your UTwente account' %}</b></a></p>
+                <p><a class="looks-like-a-button" href="{% url 'oidc_authentication_init' %}?next={% if redirect_to %}{{ redirect_to|urlencode }}{% else %}{{ request.path|urlencode }}{% endif %}"><i class="icon icon-building"></i> <b>{% trans 'Log in with Inter-Actief' %}</b></a></p>
 
                 <h3>{% trans '- or -' %}</h3>
 
                 <form class="big" method="post" action="">
-                    {% if show_oauth %}
-                        <div class="form-row">
-                            <label for="provider">{% trans 'Log in with:' %}</label>
-                            <select id="provider" onchange="if(this.value) { location.href=this.value; $('div#login_elements').css('visibility','hidden') }">
-                                <option value="" selected="selected">{% trans 'Inter-Actief account' %}</option>
-                                {% for backend in backends.backends %}
-                                    <option value="{% url 'social_auth:begin' backend %}">{{ backend|provider_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    {% else %}
-                        <p class="icon error">
-                            {% blocktrans %}
-                                Login with your Inter-<i>Actief</i> or University of Twente account to link it to
-                                your external account.
-                            {% endblocktrans %}
-                        </p>
-                    {% endif %}
+                    <p>{% trans 'Log in with legacy account:' %}</p>
 
                     <div id="login_elements">
                         {% csrf_token %}

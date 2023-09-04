@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="col-xs-12">
+    <div class="current">
+        <h2 id="mheader_{{ method.name|slugify }}">{{ method }}</h2>
+        <div class="content">
+            {% if method.html_doc %}
+                {{ method.html_doc | safe | urlize }}
+            {% else %}
+                <em>No documentation available yet.</em>
+            {% endif %}
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

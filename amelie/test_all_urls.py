@@ -19,7 +19,7 @@ IGNORE_NAMESPACES = ["admin", "djdt", "api", "djangosaml2idp"]
 
 # These specific names will not be tested at all.
 IGNORE_NAMES = [
-    "logout",  # May break some tests if the client is no longer logged in.
+    "legacy_logout",  # May break some tests if the client is no longer logged in.
     "statistics:statistics",  # TODO add transactions to test this one
     "members:data_export",  # Does not allow GET-requests, only POST.
     "activities:photos",  # No pictures in the test database, so the paginator breaks
@@ -27,12 +27,18 @@ IGNORE_NAMES = [
     # SAML URLs do not need to work in development
     "saml2_acs", "saml2_login", "saml2_logout", "saml2_ls", "saml2_ls_post", "saml2_metadata",
 
+    # Cannot test OIDC login
+    "oidc_authentication_callback", "oidc_authentication_init", "oidc_logout",
+
+    # UserInfo / GroupInfo API endpoints need extra configuration
+    "members:person_userinfo", "members:person_groupinfo",
+
     # GSuite forwarding views don't need to work in development
     "account:activate_forwarding_address", "account:add_forwarding_address", "account:check_forwarding_status",
     "account:check_forwarding_verification", "account:deactivate_forwarding_address",
 
-    # Uses YouTube API credentials, does not need to work in development
-    "videos:new_yt_video",
+    # Uses YouTube API credentials / relies on external service, does not need to work in development
+    "videos:new_yt_video", "videos:new_ia_video",
 
     # Room narrowcasting page uses Spotify and Icinga API that is not configured in development.
     "narrowcasting:room_pcstatus", "narrowcasting:room_spotify_callback", "narrowcasting:room_spotify_now_playing",
@@ -47,7 +53,7 @@ IGNORE_RESULT = [
 
 # Names or urls of which the redirects should be followed (namespaces must be prepended).
 REDIRECTS_FOLLOW = [
-    "frontpage", "members:query", "login", "set_language", "personal_tab:my_dashboard", "/"
+    "frontpage", "members:query", "legacy_login", "set_language", "personal_tab:my_dashboard", "/"
 ]
 
 # Names or urls that should at least redirect (namespaces must be prepended).

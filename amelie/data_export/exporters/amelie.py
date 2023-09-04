@@ -5,8 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from oauth2_provider.models import Application, AccessToken, Grant
 from zipfile import ZipFile
 
-from social_django.models import UserSocialAuth
-
 from amelie.claudia.models import Mapping, Timeline, Event as ClaudiaEvent
 from amelie.data_export.exporters.exporter import DataExporter
 from amelie.personal_tab.models import ReversalTransaction, DebtCollectionTransaction, CustomTransaction, \
@@ -310,11 +308,6 @@ class AmelieDataExporter(DataExporter):
                     'expiry_date': str(grant.expires),
                     'scopes': str(grant.scope),
                 } for grant in Grant.objects.filter(user=person.user)],
-                'authentication_providers': [{
-                    'provider': auth.provider,
-                    'uid': auth.uid,
-                    'extra_data': auth.extra_data,
-                } for auth in UserSocialAuth.objects.filter(user=person.user)],
             }
 
         return oauth_data, []

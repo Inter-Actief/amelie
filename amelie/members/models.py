@@ -338,6 +338,11 @@ class Person(models.Model, Mappable):
         MinLengthValidator(2),
         MaxLengthValidator(20),
     ])
+    ut_external_username = models.CharField(
+        max_length=8, blank=True, null=True, verbose_name=_('UT external account name'), validators=[
+            RegexValidator(r'^x[0-9]{7}$', _('You can only enter ^x[0-9]{7}$.'), _('Invalid account name'))
+        ]
+    )
     shell = models.CharField(max_length=10, choices=ShellChoices.choices, default=ShellChoices.DEFAULT, verbose_name=_('Unix shell'))
     webmaster = models.BooleanField(default=False, verbose_name=_('Is web master'))
     nda = models.BooleanField(default=False, verbose_name=_('Has signed NDA'))

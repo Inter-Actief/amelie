@@ -11,6 +11,7 @@ from amelie.members.models import Committee, Person
 from amelie.tools.ariana import send_irc
 from amelie.tools.discord import send_discord
 
+
 class NewsItem(models.Model):
     publication_date = models.DateTimeField(auto_now_add=True)
 
@@ -88,5 +89,6 @@ class NewsItem(models.Model):
                                'day': self.publication_date.day, 'slug': self.slug, })
 
 
-post_save.connect(send_irc, sender=NewsItem)
+# IRC notifications disabled because the bot is broken -- albertskja 2023-03-28
+# post_save.connect(send_irc, sender=NewsItem)
 post_save.connect(send_discord, sender=NewsItem)
