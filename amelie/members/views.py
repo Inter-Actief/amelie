@@ -41,8 +41,6 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
     DogroupGeneration
-from amelie.oauth.models import LoginToken
-from amelie.oauth.views import create_token_and_send_email
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
