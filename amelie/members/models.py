@@ -2,19 +2,19 @@
 
 import datetime
 import uuid
-import os
-from django.apps import apps
 
+import os
+from colorfield.fields import ColorField
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 
@@ -119,6 +119,8 @@ class Dogroup(models.Model):
     e.g. Tegel, TuinfeesT
     """
     name = models.CharField(verbose_name=_('Name'), max_length=50)
+    color = ColorField(verbose_name=_('Color'), help_text=_("What is the color of this dogroup?"),
+                       default="#000000")
 
     class Meta(object):
         ordering = ['name']
@@ -140,11 +142,17 @@ class DogroupGeneration(models.Model, Mappable):
     parents = models.ManyToManyField('Person', verbose_name=_('Introduction parents'), blank=True)
     study = models.ForeignKey(Study, verbose_name=_('Course'), on_delete=models.PROTECT)
     mail_alias = models.EmailField(verbose_name=_('Mailalias'))
+    generation_color = ColorField(verbose_name=_('Generation color'), blank=True, null=True,
+                                  help_text=_("Similar to the dogroup color, however this value can be set in order to override the color for just this generation"))
 
     class Meta(object):
         ordering = ['generation', 'dogroup']
         verbose_name = _('do-group generation')
         verbose_name_plural = _('do-group generations')
+
+    @property
+    def color(self):
+        return self.generation_color if self.generation_color else self.dogroup.color
 
     def __str__(self):
         return '%s %s' % (self.dogroup, self.generation)

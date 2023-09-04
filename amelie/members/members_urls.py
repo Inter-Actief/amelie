@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
 from django.views.generic import RedirectView
 
 from amelie.members import ajax_views, query_views, views
@@ -62,6 +63,9 @@ urlpatterns = [
     path(r'contact_list/', views.contact_list, name='contact_list'),
     path(r'export_csv/primary/', views.csv_student_number_primary, name='csv_studentnumber_primary'),
     path(r'export_csv/withoutbit/', views.csv_student_number_without_bit, name='csv_studentnumber_withoutbit'),
+
+    path(r'dogroups/', views.DoGroupTreeView.as_view(), name='dogroups'),
+    path(r'dogroups/data/', cache_page(60 * 60 * 24 * 30)(views.DoGroupTreeViewData.as_view()), name='dogroups_data'),
 
     path(r'books_list/', views.books_list, name='books_list'),
 
