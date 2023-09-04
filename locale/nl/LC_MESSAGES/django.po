@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-04 19:22+0200\n"
-"PO-Revision-Date: 2023-09-04 19:24+0018\n"
+"POT-Creation-Date: 2023-09-04 22:27+0200\n"
+"PO-Revision-Date: 2023-09-04 22:28+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -36,7 +36,7 @@ msgstr "Pagina"
 msgid "Pages"
 msgstr "Pagina's"
 
-#: amelie/about/templates/page.html:16 amelie/education/templates/awards.html:15 amelie/education/templates/educational_bouquet.html:50 amelie/education/templates/overview.html:58
+#: amelie/about/templates/page.html:16 amelie/education/templates/awards.html:15 amelie/education/templates/educational_bouquet.html:58 amelie/education/templates/overview.html:58
 msgid "Edit Page"
 msgstr "Wijzig pagina"
 
@@ -178,7 +178,7 @@ msgstr "Publiek"
 msgid "Photos are also available without logging in"
 msgstr "Foto's zijn ook beschikbaar zonder in te loggen"
 
-#: amelie/activities/forms.py:245 amelie/activities/templates/activity_list.html:107 amelie/activities/templates/activity_old.html:35 amelie/activities/templates/gallery.html:4 amelie/activities/templates/gallery.html:9 amelie/activities/templates/gallery_overview.html:4 amelie/activities/templates/gallery_overview.html:27 amelie/activities/templates/gallery_overview.html:194 amelie/activities/templates/gallery_photo.html:4 amelie/activities/templates/gallery_photo.html:13 amelie/activities/templates/includes/activity_list_photos.html:4 amelie/activities/templates/photo_upload.html:26 amelie/companies/templates/companies/company_event_old.html:35 amelie/statistics/templates/statistics.html:48
+#: amelie/activities/forms.py:245 amelie/activities/templates/activity_list.html:107 amelie/activities/templates/activity_old.html:35 amelie/activities/templates/gallery.html:4 amelie/activities/templates/gallery.html:9 amelie/activities/templates/gallery_overview.html:4 amelie/activities/templates/gallery_overview.html:34 amelie/activities/templates/gallery_overview.html:201 amelie/activities/templates/gallery_photo.html:4 amelie/activities/templates/gallery_photo.html:13 amelie/activities/templates/includes/activity_list_photos.html:4 amelie/activities/templates/photo_upload.html:26 amelie/companies/templates/companies/company_event_old.html:35 amelie/statistics/templates/statistics.html:48
 msgid "Photos"
 msgstr "Foto's"
 
@@ -1462,27 +1462,27 @@ msgstr "Het maximum per persoon is "
 msgid "All albums"
 msgstr "Alle albums"
 
-#: amelie/activities/templates/gallery.html:24 amelie/activities/templates/gallery_overview.html:179
+#: amelie/activities/templates/gallery.html:24 amelie/activities/templates/gallery_overview.html:186
 msgid "More photos are available if you"
 msgstr "Meer foto's zijn beschikbaar als je bent "
 
-#: amelie/activities/templates/gallery.html:24 amelie/activities/templates/gallery_overview.html:180 amelie/videos/templates/videos/videos.html:34
+#: amelie/activities/templates/gallery.html:24 amelie/activities/templates/gallery_overview.html:187 amelie/videos/templates/videos/videos.html:34
 msgid "logged in"
 msgstr "ingelogd"
 
-#: amelie/activities/templates/gallery_overview.html:67
+#: amelie/activities/templates/gallery_overview.html:74
 msgid "Please enter a search query longer than 2 characters"
 msgstr "Zoek svp. op meer dan 2 tekens"
 
-#: amelie/activities/templates/gallery_overview.html:104
+#: amelie/activities/templates/gallery_overview.html:111
 msgid "There are no results"
 msgstr "Geen resultaten gevonden"
 
-#: amelie/activities/templates/gallery_overview.html:165
+#: amelie/activities/templates/gallery_overview.html:172
 msgid "At least we still have the photos"
 msgstr "Gelukkig hebben we de foto's nog"
 
-#: amelie/activities/templates/gallery_overview.html:169
+#: amelie/activities/templates/gallery_overview.html:176
 msgid ""
 "\n"
 "                    Inter-<i>Actief</i> regularly makes photos during activities.\n"
@@ -1495,19 +1495,19 @@ msgstr ""
 "Voornamelijk de MedIA-commissie zorgt hiervoor.\n"
 "Hieronder vind je foto's van de afgelopen activiteiten."
 
-#: amelie/activities/templates/gallery_overview.html:185
+#: amelie/activities/templates/gallery_overview.html:192
 msgid "Search for pictures"
 msgstr "Zoeken naar foto's"
 
-#: amelie/activities/templates/gallery_overview.html:197 amelie/activities/templates/gallery_overview.html:199
+#: amelie/activities/templates/gallery_overview.html:204 amelie/activities/templates/gallery_overview.html:206
 msgid "albums"
 msgstr "albums"
 
-#: amelie/activities/templates/gallery_overview.html:234
+#: amelie/activities/templates/gallery_overview.html:241
 msgid "Photo archive"
 msgstr "Foto-archief"
 
-#: amelie/activities/templates/gallery_overview.html:238
+#: amelie/activities/templates/gallery_overview.html:245
 msgid ""
 "\n"
 "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
@@ -1984,11 +1984,11 @@ msgstr "Geen activiteit gevonden of je hebt een ongeldige activiteit-id meegegev
 msgid "Invalid activity ID"
 msgstr "Ongeldige activiteit-id."
 
-#: amelie/activities/views.py:1231 amelie/personal_tab/views.py:1356
+#: amelie/activities/views.py:1231 amelie/personal_tab/views.py:1357
 msgid "Could not create data export, because an unknown data-exporttype is provided."
 msgstr "Kon geen data-export maken, omdat er een onbekend data-exporttype is opegeven."
 
-#: amelie/activities/views.py:1238 amelie/members/query_views.py:237 amelie/personal_tab/views.py:1363
+#: amelie/activities/views.py:1238 amelie/members/query_views.py:237 amelie/personal_tab/views.py:1364
 msgid "Could not create data export, because something went wrong while saving information about the export."
 msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van gegevens over de data-export."
 
@@ -2899,7 +2899,7 @@ msgstr "Toevoegen aan:"
 msgid "ID"
 msgstr "ID"
 
-#: amelie/claudia/templates/claudia/mapping_list.html:53 amelie/education/forms.py:91
+#: amelie/claudia/templates/claudia/mapping_list.html:53 amelie/education/forms.py:90
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -3663,7 +3663,7 @@ msgstr "Kon geen data-export download vinden met deze code."
 msgid "Module"
 msgstr "Module"
 
-#: amelie/education/forms.py:45 amelie/education/forms.py:52 amelie/education/forms.py:88 amelie/education/models.py:220 amelie/education/templates/complaints.html:59 amelie/education/templates/complaints.html:119 amelie/members/models.py:143 amelie/members/models.py:738 amelie/members/templates/includes/query/query_study.html:4 amelie/members/templates/members/datablock_html.mail:13 amelie/members/templates/members/datablock_plain.mail:12 amelie/members/templates/person_edit_study.html:12 amelie/members/templates/registration_check.html:44 amelie/members/templates/statistics/overview.html:16 amelie/tools/pdf.py:139 amelie/tools/pdf.py:144 templates/profile_edit.html:80
+#: amelie/education/forms.py:45 amelie/education/forms.py:52 amelie/education/forms.py:87 amelie/education/models.py:220 amelie/education/templates/complaints.html:59 amelie/education/templates/complaints.html:119 amelie/members/models.py:143 amelie/members/models.py:738 amelie/members/templates/includes/query/query_study.html:4 amelie/members/templates/members/datablock_html.mail:13 amelie/members/templates/members/datablock_plain.mail:12 amelie/members/templates/person_edit_study.html:12 amelie/members/templates/registration_check.html:44 amelie/members/templates/statistics/overview.html:16 amelie/tools/pdf.py:139 amelie/tools/pdf.py:144 templates/profile_edit.html:80
 msgid "Course"
 msgstr "Vak"
 
@@ -3683,27 +3683,27 @@ msgstr "Vul een samenvatting en opmerking in."
 msgid "Teacher"
 msgstr "Docent"
 
-#: amelie/education/forms.py:89 amelie/education/templates/dea_nomination.html:25 amelie/personal_tab/templates/cookie_corner/reversal_transaction_detail.html:23 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:149 amelie/tools/templates/data_export_statistics.html:28
+#: amelie/education/forms.py:88 amelie/education/templates/dea_nomination.html:25 amelie/personal_tab/templates/cookie_corner/reversal_transaction_detail.html:23 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:149 amelie/tools/templates/data_export_statistics.html:28
 msgid "Reason"
 msgstr "Reden"
 
-#: amelie/education/forms.py:90 amelie/weekmail/templates/weekmail/weekmail_wizard.html:27
+#: amelie/education/forms.py:89 amelie/weekmail/templates/weekmail/weekmail_wizard.html:27
 msgid "Author"
 msgstr "Auteur"
 
-#: amelie/education/forms.py:157
+#: amelie/education/forms.py:160
 msgid "You've already voted!"
 msgstr "Je hebt al gestemd!"
 
-#: amelie/education/forms.py:184 amelie/education/templates/course_new.html:22
+#: amelie/education/forms.py:187 amelie/education/templates/course_new.html:22
 msgid "Course name"
 msgstr "Vaknaam"
 
-#: amelie/education/forms.py:196 amelie/education/templates/module_new.html:22
+#: amelie/education/forms.py:199 amelie/education/templates/module_new.html:22
 msgid "Module name"
 msgstr "Modulenaam"
 
-#: amelie/education/forms.py:208
+#: amelie/education/forms.py:211
 msgid "Name of course"
 msgstr "Naam vak"
 
@@ -4209,7 +4209,7 @@ msgstr "Je emailadres"
 msgid "Recover all data"
 msgstr "Herstel alle gegevens"
 
-#: amelie/education/templates/dea_nomination.html:39 amelie/education/templates/dea_vote.html:22 amelie/education/templates/educational_bouquet.html:36 amelie/weekmail/templates/weekmail/weekmail_wizard.html:248
+#: amelie/education/templates/dea_nomination.html:39 amelie/education/templates/dea_vote.html:22 amelie/education/templates/educational_bouquet.html:44 amelie/weekmail/templates/weekmail/weekmail_wizard.html:248
 msgid "Send"
 msgstr "Verzenden"
 
@@ -4400,15 +4400,28 @@ msgstr ""
 "Amélie"
 
 #: amelie/education/templates/education/educational_bouquet.mail:4
-msgid "[Educational flower] Submissions educational flower"
+#| msgid "[Educational flower] Submissions educational flower"
+msgid "[Educational bouquet] Submissions educational bouquet"
 msgstr "[Onderwijsbloemetje] Indiening onderwijsbloemetje"
 
 #: amelie/education/templates/education/educational_bouquet.mail:6
 #, python-format
+#| msgid ""
+#| "Dear EC member,\n"
+#| "\n"
+#| "%(author)s has nominated someone for the educational flower!\n"
+#| "\n"
+#| "The email address of the submitter is %(email)s.\n"
+#| "He/she nominated %(teacher)s for the course %(course)s.\n"
+#| "His/her reason is: \"%(reason)s\".\n"
+#| "\n"
+#| "\n"
+#| "Cheers,\n"
+#| "Amélie"
 msgid ""
 "Dear EC member,\n"
 "\n"
-"%(author)s has nominated someone for the educational flower!\n"
+"%(author)s has nominated someone for the educational bouquet!\n"
 "\n"
 "The email address of the submitter is %(email)s.\n"
 "He/she nominated %(teacher)s for the course %(course)s.\n"
@@ -4525,7 +4538,21 @@ msgstr ""
 "\n"
 "Denk bijvoorbeeld aan een docent die extra colleges geeft, of een studentassistent die overuren draait om iedereen te helpen. Je kan iemand nomineren door het volgende formulier in te vullen en te verzenden."
 
-#: amelie/education/templates/educational_bouquet.html:46
+#: amelie/education/templates/educational_bouquet.html:34
+#, python-format
+#| msgid ""
+#| "\n"
+#| "                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
+#| "                    "
+msgid ""
+"\n"
+"                      There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s?next=%(return_url)s\">new course</a> or a <a href=\"%(new_module_url)s?next=%(return_url)s\">new module</a>.\n"
+"                  "
+msgstr ""
+"\n"
+"Het kan zijn dat het vak dat je zoekt nog niet bestaat. Als dat zo is, maak dan a.u.b. een <a href=\"%(new_course_url)s\">nieuw vak</a> of een <a href=\"%(new_module_url)s\">nieuwe module</a> aan."
+
+#: amelie/education/templates/educational_bouquet.html:54
 msgid "Previous bouquets"
 msgstr "Vorige bloemetjes"
 
@@ -4935,7 +4962,6 @@ msgid "Color"
 msgstr "Kleur"
 
 #: amelie/members/models.py:122
-#| msgid "What is the name of the application?"
 msgid "What is the color of this dogroup?"
 msgstr "Wat is de kleur van deze doegroep?"
 
@@ -4960,7 +4986,6 @@ msgid "Mailalias"
 msgstr "Mailalias"
 
 #: amelie/members/models.py:145
-#| msgid "Generation"
 msgid "Generation color"
 msgstr "Generatiekleur"
 
@@ -5517,7 +5542,7 @@ msgstr "Ongeldig onderwerp"
 msgid "Invalid template"
 msgstr "Ongeldig template"
 
-#: amelie/members/query_views.py:153 amelie/personal_tab/views.py:1686
+#: amelie/members/query_views.py:153 amelie/personal_tab/views.py:1687
 msgid "The mails are now being sent one by one. This happens in a background process and might take a while."
 msgstr "De mails worden nu een voor een verstuurd. Dit gebeurt in een achtergrondproces en kan even duren."
 
@@ -5719,7 +5744,6 @@ msgid "There are no committees which have been disbanded."
 msgstr "Er zijn geen commissies opgeheven"
 
 #: amelie/members/templates/dogroups.html:5 templates/basis.html:203
-#| msgid "Dogroup"
 msgid "Dogroups"
 msgstr "Doegroepen"
 
@@ -8561,15 +8585,19 @@ msgstr "Eerdere transacties"
 msgid "History of exam credit"
 msgstr "Geschiedenis tentamentegoed"
 
-#: amelie/personal_tab/templates/cookie_corner_dashboard.html:60
+#: amelie/personal_tab/templates/cookie_corner_dashboard.html:55 amelie/personal_tab/templates/wrapped.html:4 amelie/personal_tab/templates/wrapped_no_transactions.html:4
+msgid "Cookie Corner Wrapped"
+msgstr "Cookie Corner Wrapped"
+
+#: amelie/personal_tab/templates/cookie_corner_dashboard.html:63
 msgid "Add transaction to personal tab"
 msgstr "Streeplijsttransactie toevoegen"
 
-#: amelie/personal_tab/templates/cookie_corner_dashboard.html:63
+#: amelie/personal_tab/templates/cookie_corner_dashboard.html:66
 msgid "Add other transaction"
 msgstr "Overige transactie toevoegen"
 
-#: amelie/personal_tab/templates/cookie_corner_dashboard.html:66 amelie/personal_tab/templates/cookie_corner_exam_cookie_credit.html:54 amelie/personal_tab/templates/cookie_corner_exam_cookie_credit_add.html:5 amelie/personal_tab/templates/info/exam_cookie_credit.html:22
+#: amelie/personal_tab/templates/cookie_corner_dashboard.html:69 amelie/personal_tab/templates/cookie_corner_exam_cookie_credit.html:54 amelie/personal_tab/templates/cookie_corner_exam_cookie_credit_add.html:5 amelie/personal_tab/templates/info/exam_cookie_credit.html:22
 msgid "Add credit for exams"
 msgstr "Tentamenkoekentegoed toevoegen"
 
@@ -9286,10 +9314,6 @@ msgstr "Je wordt over 5 seconden teruggebracht naar het registratiescherm..."
 msgid "Go back now"
 msgstr "Ga nu terug"
 
-#: amelie/personal_tab/templates/wrapped.html:4 amelie/personal_tab/templates/wrapped_no_transactions.html:4
-msgid "Cookie Corner Wrapped"
-msgstr "Cookie Corner Wrapped"
-
 #: amelie/personal_tab/templates/wrapped.html:9 amelie/personal_tab/templates/wrapped_no_transactions.html:9
 msgid "Cookie Corner Wrapped "
 msgstr "Cookie Corner Wrapped "
@@ -9402,7 +9426,7 @@ msgstr "Uitschrijven {activity}"
 msgid "Sale {category}::{article}"
 msgstr "Verkoop {category}::{article}"
 
-#: amelie/personal_tab/views.py:477 amelie/personal_tab/views.py:741 amelie/personal_tab/views.py:772 amelie/personal_tab/views.py:882 amelie/personal_tab/views.py:958 amelie/personal_tab/views.py:992
+#: amelie/personal_tab/views.py:477 amelie/personal_tab/views.py:742 amelie/personal_tab/views.py:773 amelie/personal_tab/views.py:883 amelie/personal_tab/views.py:959 amelie/personal_tab/views.py:993
 msgid "Invalid date`"
 msgstr "Ongeldige datum"
 
@@ -9419,27 +9443,27 @@ msgstr "De transactie '{transaction}' is met success verwijderd."
 msgid "Transaction not deletable."
 msgstr "Transactie niet te verwijderen"
 
-#: amelie/personal_tab/views.py:675 amelie/personal_tab/views.py:839
+#: amelie/personal_tab/views.py:676 amelie/personal_tab/views.py:840
 msgid "Invalid date"
 msgstr "Ongeldige datum"
 
-#: amelie/personal_tab/views.py:836
+#: amelie/personal_tab/views.py:837
 msgid "Invalid statistics list"
 msgstr "Ongeldige statistiekenlijst"
 
-#: amelie/personal_tab/views.py:1140
+#: amelie/personal_tab/views.py:1141
 msgid "End inactive mandates."
 msgstr "Inactieve machtigingen beëindigd."
 
-#: amelie/personal_tab/views.py:1195
+#: amelie/personal_tab/views.py:1196
 msgid "Already has an ongoing amendment"
 msgstr "Al een lopend amendement"
 
-#: amelie/personal_tab/views.py:1403
+#: amelie/personal_tab/views.py:1404
 msgid "Reversal already exists"
 msgstr "Terugboeking bestaat al"
 
-#: amelie/personal_tab/views.py:1568 amelie/personal_tab/views.py:1662 amelie/room_duty/templates/room_duty/pool/persons_change.html:52 amelie/room_duty/templates/room_duty/table/change_persons.html:52
+#: amelie/personal_tab/views.py:1569 amelie/personal_tab/views.py:1663 amelie/room_duty/templates/room_duty/pool/persons_change.html:52 amelie/room_duty/templates/room_duty/table/change_persons.html:52
 msgid "Found nobody."
 msgstr "Geen personen gevonden."
 
