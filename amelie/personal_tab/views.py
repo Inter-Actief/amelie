@@ -633,7 +633,8 @@ def dashboard(request, pk, slug):
         'future_debt_collection_instructions': future_debt_collection_instructions,
         'debt_collection_instructions': debt_collection_instructions,
         'exam_cookie_credits': exam_cookie_credits,
-        'date_old_authorizations': date_old_authorizations
+        'date_old_authorizations': date_old_authorizations,
+        'last_year': datetime.date.today().year - 1
     })
 
 
@@ -1715,7 +1716,7 @@ Cookie Corner Wrapped
 
 @require_lid
 def cookie_corner_wrapped_main(request):
-    COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year
+    COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
 
     person = request.person
     language = get_language()
