@@ -42,7 +42,7 @@ def move_old_course_to_course_complaint(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('education', '0003_complaintcomment_official_squashed_0006_auto_20211211_2116'),
+        ('education', '0003_complaintcomment_official'),
     ]
 
     operations = [

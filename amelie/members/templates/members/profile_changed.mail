@@ -7,7 +7,15 @@
 
 {% blocktrans %}{{ obj }} edited his/her profile in Amélie.{% endblocktrans %}
 {% for c in changes %}
- * {{ c.field }}: {{ c.old }} --> {{ c.new }}{% endfor %}
+{% if c.field == "Preferences" %}
+ * {{ c.field }}:
+{{ c.added }}
+{{ c.removed }}
+{% else %}
+ * {{ c.field }}: {{ c.old }} --> {{ c.new }}
+{% endif%}
+
+{% endfor %}
 
 {% blocktrans %}For more information, see:{% endblocktrans %} {% onlyhtml %}<a href="https://www.inter-actief.utwente.nl{{ url }}">{% endonlyhtml %}https://www.inter-actief.utwente.nl{{ url }}{% onlyhtml %}</a>{% endonlyhtml %}
 

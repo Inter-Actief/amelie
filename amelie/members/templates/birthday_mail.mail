@@ -13,5 +13,5 @@ We wish you a very happy day!
 
 Kind regards,
 The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}
-{% onlyhtml %}<img src="{% attach_static "img/board_happy_birthday.jpg" %}" alt="Happy Birthday!" style="width: 600px; height: 300px;"/>{% endonlyhtml %}
+{% onlyhtml %}<img src="{% attach_static "img/board_happy_birthday.jpg" %}" alt="Happy Birthday!" style="width: 600px; height: 400px;"/>{% endonlyhtml %}
 {% endblock %}

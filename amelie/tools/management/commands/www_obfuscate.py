@@ -5,7 +5,6 @@ from auditlog.models import LogEntry
 from django.contrib.sessions.models import Session
 from fcm_django.models import FCMDevice
 from django.contrib.auth.models import User
-from social_django.models import UserSocialAuth, Association, Code, Nonce, Partial
 from django.utils import timezone
 
 from amelie.claudia.models import Timeline
@@ -101,13 +100,6 @@ class Command(DevelopmentOnlyCommand):
 
         # Delete audits
         LogEntry.objects.all().delete()
-
-        # Delete all oauth authorizations
-        Association.objects.all().delete()
-        Code.objects.all().delete()
-        Nonce.objects.all().delete()
-        Partial.objects.all().delete()
-        UserSocialAuth.objects.all().delete()
 
         # Delete Claudia Timeline
         Timeline.objects.all().delete()

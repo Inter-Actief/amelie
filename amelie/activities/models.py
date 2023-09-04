@@ -523,7 +523,8 @@ def createdishprice(sender, **kwargs):
 
 
 post_save.connect(createdishprice, sender=EnrollmentoptionFood)
-post_save.connect(send_irc, sender=Activity)
+# IRC notifications disabled because the bot is broken -- albertskja 2023-03-28
+# post_save.connect(send_irc, sender=Activity)
 post_save.connect(send_discord, sender=Activity)
 post_save.connect(update_waiting_list, sender=Activity)
 

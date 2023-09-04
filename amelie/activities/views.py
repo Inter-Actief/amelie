@@ -180,7 +180,7 @@ def activity(request, pk, deanonymise=False):
     evt.add('dtend', activity.end)
     evt.add('summary', activity.summary)
 
-    only_show_underage = request.GET.get('underage') == "True"
+    only_show_underage = hasattr(request, 'is_board') and request.is_board and (request.GET.get('underage') == "True")
 
     # Extra check to make sure that no sensitive data will be leaked
     if can_edit:
@@ -542,7 +542,7 @@ def _build_enrollmentoptionsanswers_forms(activity, data, user):
                 unit = EnrollmentoptionCheckboxAnswer.objects.get(enrollmentoption=enrollmentoption, enrollment=participation)
                 checked = unit.answer
             elif form_type == EnrollmentoptionNumericAnswerForm:
-                participation = Participation.objects.get(person__user=request.user, event=activity)
+                participation = Participation.objects.get(person__user=user, event=activity)
                 unit = EnrollmentoptionNumericAnswer.objects.get(enrollmentoption=enrollmentoption, enrollment=participation)
                 checked = unit.answer > 0
         except (EnrollmentoptionCheckboxAnswer.DoesNotExist, EnrollmentoptionNumericAnswer.DoesNotExist, Participation.DoesNotExist):
