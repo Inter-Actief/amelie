@@ -1712,10 +1712,10 @@ def authorization_view(request, authorization_id):
 Cookie Corner Wrapped
 """
 
-COOKIE_CORNER_WRAPPED_YEAR = 2022
 
 @require_lid
 def cookie_corner_wrapped_main(request):
+    COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year
 
     person = request.person
     language = get_language()
@@ -1752,8 +1752,7 @@ def cookie_corner_wrapped_main(request):
 
     for transaction in most_transactions_list:
         total_price += transaction.article.price
-        total_kcal += transaction.article.kcal if transaction.article.kcal is not None else 0 
-
+        total_kcal += transaction.article.kcal if transaction.article.kcal is not None else 0
 
     """
         Products
@@ -1793,7 +1792,7 @@ def cookie_corner_wrapped_main(request):
 
     alexia_transactions = AlexiaTransaction.objects.filter(
         person=person,
-        date__year=COOKIE_CORNER_WRAPPED_YEAR   
+        date__year=COOKIE_CORNER_WRAPPED_YEAR
     )
 
     drink_spend_most = alexia_transactions \
