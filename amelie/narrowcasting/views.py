@@ -1,4 +1,5 @@
 import requests
+import datetime
 from django.conf import settings
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect
@@ -6,12 +7,70 @@ from django.urls import reverse
 from django.views.decorators.cache import cache_page
 from requests.auth import HTTPBasicAuth
 from django.utils.translation import gettext as _
-
+from amelie.tools.decorators import require_board
 from amelie.narrowcasting.models import SpotifyAssociation
+
+from amelie.companies.models import TelevisionBanner
+from amelie.tools.paginator import RangedPaginator
+from amelie.tools import amelie_messages, types
+from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.urls import reverse_lazy
+
+from .forms import PromotionForm
 
 
 def index(request):
     return render(request, 'index.html', locals())
+
+
+@require_board
+def promo_list(request, page=1):
+    # Must be certain access level to access.
+    now = datetime.date.today()
+    banners = TelevisionBanner.objects.all()
+    banners = banners.order_by('-start_date')
+
+    ongoing_promos = banners.filter(
+        start_date__lte=now, end_date__gte=now)
+    old_promos = banners.filter(end_date__lt=now)
+    upcoming_promos = banners.filter(start_date__gt=now)
+
+    # Pagination only on old posters
+    pages = RangedPaginator(old_promos, 10)
+
+    # Get current page
+    try:
+        page = pages.page(page)
+    except PageNotAnInteger:
+        page = pages.page(1)
+    except EmptyPage:
+        page = pages.page(pages.num_pages)
+
+    pages.set_page_range(page, 7)
+    # pages.set_page_range(page, limit)
+    old_promos = page
+
+    return render(request, 'promo_list.html', locals())
+
+
+@require_board
+def promo_create(request):
+    form = PromotionForm()
+    return render(request, 'promotion.html', locals())
+
+
+@require_board
+def promo_update(request, id):
+    banner = TelevisionBanner.objects.get(id=id)
+    form = PromotionForm(instance=banner)
+    return render(request, 'promotion.html', locals())
+
+
+@require_board
+def promo_delete(request, id):
+    banner = TelevisionBanner.objects.get(id=id)
+    form = PromotionForm(instance=banner)
+    return render(request, 'promotion.html', locals())
 
 
 def room(request):
@@ -36,7 +95,7 @@ def room(request):
     return render(request, 'room.html')
 
 
-@cache_page(2 * 60)
+@ cache_page(2 * 60)
 def room_pcstatus(request):
     api_url = settings.ICINGA_API_HOST
 
@@ -50,11 +109,13 @@ def room_pcstatus(request):
     try:
         res = requests.get(api_url + "objects/hosts", verify=settings.ICINGA_API_SSL_VERIFY,
                            auth=HTTPBasicAuth(settings.ICINGA_API_USERNAME, settings.ICINGA_API_PASSWORD))
-        hosts = [x for x in res.json()['results'] if x['name'] in simple_hosts or x['name'] in workstations]
+        hosts = [x for x in res.json()['results'] if x['name']
+                 in simple_hosts or x['name'] in workstations]
 
         res = requests.get(api_url + "objects/services", verify=settings.ICINGA_API_SSL_VERIFY,
                            auth=HTTPBasicAuth(settings.ICINGA_API_USERNAME, settings.ICINGA_API_PASSWORD))
-        services = [x for x in res.json()['results'] if x['attrs']['host_name'] in workstations]
+        services = [x for x in res.json()['results'] if x['attrs']
+                    ['host_name'] in workstations]
     except requests.exceptions.ConnectionError:
         return JsonResponse({})
 
@@ -65,14 +126,16 @@ def room_pcstatus(request):
 
     for service in services:
         if service['attrs']['host_name'] in host_data.keys():
-            host_data[service['attrs']['host_name']]['services'].append(service)
+            host_data[service['attrs']['host_name']
+                      ]['services'].append(service)
 
     # Construct a simple dict with only the info we need
     result = {}
     for host in host_data.keys():
         data = host_data[host]
 
-        isup = not data['last_check_result']['output'].startswith("PING CRITICAL")
+        isup = not data['last_check_result']['output'].startswith(
+            "PING CRITICAL")
 
         login_service_status = None
         user = None
@@ -83,7 +146,8 @@ def room_pcstatus(request):
             if login_service_status.startswith("OK: No one logged in"):
                 user = None
             elif login_service_status.startswith("OK:") and login_service_status.endswith("is logged in."):
-                user = login_service_status.replace("OK:", "").replace("is logged in.", "").strip()
+                user = login_service_status.replace(
+                    "OK:", "").replace("is logged in.", "").strip()
 
         if isup:
             result[host] = "on"
@@ -153,7 +217,8 @@ def _spotify_refresh_token(association):
             raise ValueError(data['error_description'])
     return association
 
-@cache_page(5)
+
+@ cache_page(5)
 def room_spotify_now_playing(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -168,9 +233,10 @@ def room_spotify_now_playing(request):
         raise Http404(_("No association for this identifier"))
 
     res = requests.get("https://api.spotify.com/v1/me/player",
-                        params={"market": "from_token"},
-                        headers={"Authorization": "Bearer {}".format(assoc.access_token)}
-                        )
+                       params={"market": "from_token"},
+                       headers={"Authorization": "Bearer {}".format(
+                           assoc.access_token)}
+                       )
     if res.status_code == 200:
         data = res.json()
         data['error'] = False
@@ -181,12 +247,13 @@ def room_spotify_now_playing(request):
         _spotify_refresh_token(assoc)
         return room_spotify_now_playing(request)
     else:
-        data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
+        data = {'error': True, 'code': res.status_code,
+                'msg': res.content.decode()}
 
     return JsonResponse(data)
 
 
-@cache_page(5)
+@ cache_page(5)
 def room_spotify_pause(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -201,8 +268,9 @@ def room_spotify_pause(request):
         raise Http404(_("No association for this identifier"))
 
     res = requests.put("https://api.spotify.com/v1/me/player/pause",
-                        headers={"Authorization": "Bearer {}".format(assoc.access_token)}
-                        )
+                       headers={"Authorization": "Bearer {}".format(
+                           assoc.access_token)}
+                       )
     if res.status_code == 200:
         data = res.json()
         data['error'] = False
@@ -213,12 +281,13 @@ def room_spotify_pause(request):
         _spotify_refresh_token(assoc)
         return room_spotify_now_playing(request)
     else:
-        data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
+        data = {'error': True, 'code': res.status_code,
+                'msg': res.content.decode()}
 
     return JsonResponse(data)
 
 
-@cache_page(5)
+@ cache_page(5)
 def room_spotify_play(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -233,8 +302,9 @@ def room_spotify_play(request):
         raise Http404(_("No association for this identifier"))
 
     res = requests.put("https://api.spotify.com/v1/me/player/play",
-                        headers={"Authorization": "Bearer {}".format(assoc.access_token)}
-                        )
+                       headers={"Authorization": "Bearer {}".format(
+                           assoc.access_token)}
+                       )
     if res.status_code == 200:
         data = res.json()
         data['error'] = False
@@ -245,7 +315,7 @@ def room_spotify_play(request):
         _spotify_refresh_token(assoc)
         return room_spotify_now_playing(request)
     else:
-        data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
+        data = {'error': True, 'code': res.status_code,
+                'msg': res.content.decode()}
 
     return JsonResponse(data)
-

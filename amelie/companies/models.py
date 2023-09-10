@@ -12,6 +12,7 @@ from amelie.calendar.models import Event
 from amelie.activities.models import ActivityLabel
 from amelie.tools.discord import send_discord
 
+
 class Company(models.Model):
     name_nl = models.CharField(
         max_length=100,
@@ -102,7 +103,8 @@ class Company(models.Model):
             conflicts = conflicts.exclude(pk=self.pk)
 
         if conflicts.exists():
-            raise ValidationError({'name_nl': _("The slug for this name already exists!")})
+            raise ValidationError(
+                {'name_nl': _("The slug for this name already exists!")})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name_nl)
@@ -180,7 +182,8 @@ class TelevisionBanner(BaseBanner):
 
 class CompanyEvent(Event):
     objects = EventManager()
-    company = models.ForeignKey('Company', blank=True, null=True, on_delete=models.SET_NULL)
+    company = models.ForeignKey(
+        'Company', blank=True, null=True, on_delete=models.SET_NULL)
     company_text = models.CharField(max_length=100, blank=True)
     company_url = models.URLField(blank=True)
 
@@ -203,5 +206,6 @@ class CompanyEvent(Event):
 
     def is_visible(self):
         return self.visible_from <= timezone.now() <= self.visible_till
+
 
 post_save.connect(send_discord, sender=CompanyEvent)
