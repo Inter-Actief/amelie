@@ -37,7 +37,7 @@ from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, 
     EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
     EventDeskActivityMatchForm, EnrollmentoptionNumericForm, EnrollmentoptionNumericAnswerForm, PhotoFileUploadForm
-from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail
+from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, activity_send_cancellationmail
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
@@ -210,7 +210,7 @@ def activity(request, pk, deanonymise=False):
         confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if x.person.age(at=activity.end) >= 18]
     else:
         confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
-    
+
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
 
     if hasattr(request, 'person') and waiting_participation_set.filter(person=request.person).exists():
@@ -245,7 +245,7 @@ def activity_random_photo(request, pk, *args, **kwargs):
     raise Http404(_('No photo'))
 
 
-@require_board  # Deleting an activity is only allowed by the board due to possible cookie corner transactions that should be undone.
+@require_board  # Deleting an activity is only allowed by the board due to possible transactions that should be undone.
 @transaction.atomic
 def activity_delete(request, pk):
     """
@@ -274,6 +274,47 @@ def activity_delete(request, pk):
             return redirect(obj)
 
     return render(request, "activity_confirm_delete.html", locals())
+
+
+@require_board  # Cancelling an activity is only allowed by the board due to possible transactions that should be undone.
+@transaction.atomic
+def activity_cancel(request, pk):
+    """
+    Cancels or re-publishes an activity (depending on the current status of this event).
+
+    In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
+    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-openend.
+
+    Asks for a confirmation.
+    """
+    obj = get_object_or_404(Activity, pk=pk)
+    if not obj.can_edit(request.person):
+        raise PermissionDenied
+
+    # If the event is already cancelled, immediately re-publish it without any confirmation screen.
+    if obj.cancelled:
+        obj.cancelled = False
+        obj.save()
+        messages.success(request, _(f"{obj} has been successfully re-opened. If you want people to enroll again, please open the enrollments manually."))
+        return redirect(obj)
+
+    if request.POST:
+        if 'yes' in request.POST:
+            activity_send_cancellationmail(obj.participation_set.all(), obj, request)
+            # Undo transactions and remove participations
+            from amelie.personal_tab import transactions
+            for participation in obj.participation_set.all():
+                transactions.participation_transaction(participation, "Cancelled event", cancel=True, added_by=request.person)
+                # Remove the participation
+                participation.delete()
+
+            obj.cancelled = True
+            obj.enrollment = False
+            obj.save()
+            messages.success(request, _(f"{obj} was cancelled successfully."))
+        return redirect(obj)
+
+    return render(request, "activity_confirm_cancellation.html", locals())
 
 
 @require_POST

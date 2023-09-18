@@ -1,5 +1,6 @@
 from django.utils import translation
 
+from django.conf import settings
 from amelie.iamailer import MailTask
 from amelie.members.models import Preference
 from amelie.tools.calendar import ical_calendar
@@ -52,6 +53,27 @@ def activity_send_enrollmentmail(participation, from_waiting_list=False):
         task.send()
     finally:
         translation.activate(current_language)
+
+
+def activity_send_cancellationmail(participants, activity, request, from_waiting_list=False):
+    """
+    Send a cancellation of enrollment for an activity.
+    """
+
+    template_name = "activities/activity_cancelled.mail"
+    if from_waiting_list:
+        template_name = "activities/activity_cancelled_from_waiting_list.mail"
+
+    task = MailTask(template_name=template_name)
+
+    # If debug is enabled, add a single recipient, the person themselves
+    if settings.DEBUG:
+        task.add_recipient(PersonRecipient(request.person, context={'activity': activity}))
+    else:
+        for person in participants:
+            task.add_recipient(PersonRecipient(person, context={'activity': activity}))
+
+    task.send()
 
 
 def activity_send_on_waiting_listmail(participation):
