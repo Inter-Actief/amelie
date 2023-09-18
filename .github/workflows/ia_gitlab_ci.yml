@@ -9,6 +9,6 @@ jobs:
       uses: appleboy/gitlab-ci-action@master
       with:
         url: "https://gitlab.ia.utwente.nl"
-        token: ${{ secrets.TOKEN }}
+        token: ${{ secrets.IA_GITLAB_CI_TOKEN }}
         project_id: 117
-        ref: ${{ GITHUB_REF }}
+        ref: ${{ github.ref }}
