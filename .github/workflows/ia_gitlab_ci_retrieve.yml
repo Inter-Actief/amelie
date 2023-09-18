@@ -25,8 +25,8 @@ jobs:
       shell: bash
       run: |
         echo "Hello there." >> $GITHUB_STEP_SUMMARY
-        echo "The result of job ${{ inputs.job_id }} was ${{ inputs.result }}." >> $GITHUB_STEP_SUMMARY
-        echo "See more info at ${{ inputs.details_url }}." >> $GITHUB_STEP_SUMMARY
+        echo "The result of job ${{ inputs.job_id }} was `${{ inputs.result }}`." >> $GITHUB_STEP_SUMMARY
+        echo "See more info at [${{ inputs.details_url }}](${{ inputs.details_url }})." >> $GITHUB_STEP_SUMMARY
     - name: Fail if the result is failed
       if: ${{ inputs.result == 'failed' }}
       run: exit 1
