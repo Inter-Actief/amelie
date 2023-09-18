@@ -1,0 +1,10 @@
+name: Retrieve CI job status from Inter-Actief GitLab
+on: [workflow_dispatch]
+jobs:
+  test:
+    name: Retrieve CI job status
+    runs-on: ubuntu-latest
+    steps:
+    - name: Retrieve CI job status from Inter-Actief GitLab
+      shell: bash
+      run: echo "Hello there. If you see this it worked probably."
