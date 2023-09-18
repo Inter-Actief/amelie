@@ -8,7 +8,7 @@ jobs:
     - name: Trigger CI job on Inter-Actief GitLab
       uses: appleboy/gitlab-ci-action@master
       with:
-        url: "https://gitlab.ia.utwente.nl"
+        host: "https://gitlab.ia.utwente.nl"
         token: ${{ secrets.IA_GITLAB_CI_TOKEN }}
         project_id: 117
         ref: ${{ github.ref }}
