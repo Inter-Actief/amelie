@@ -14,6 +14,32 @@ var state = {
 };
 
 /**
+ * A datastructure that holds for each dogroup its generations, parents and colours
+ *
+ * The structure looks as follows:
+ *  dogroup_name: {         # The name of a dogroup (allows for agreggration of generations)
+ *      generation: {       # The year that this dogroup was active
+ *          id,             # The id associated with this generation
+ *          parents: {      # A list of the parents of this dogroup
+ *              id          # The id of the generation from each parent
+ *          },
+ *          color,          # The colour of this generation (by default the color of this dogroup)
+ *      }
+ *  }
+ */
+let data;
+
+/**
+ * All of the years that have at least one active generation of a dogroup
+ */
+let years;
+
+/**
+ * A list of names from all the dogroups
+ */
+let dogroups;
+
+/**
  * Store nodes on a hover event.
  * @param node The node that is being hovered over.
  */
@@ -42,9 +68,9 @@ window.addEventListener('DOMContentLoaded', async function() {
    // Load all the data objects.
    // You want to do this asynchronous, since loading this data might take quite a while
    let response = await fetch("/members/dogroups/data").then(res => res.json());
-   let dogroups = response.dogroups;
-   let years = response.years;
-   let data = response.data;
+   dogroups = response.dogroups;
+   years = response.years;
+   data = response.data;
 
    // Give every dogroup its own x coordinate
    let dogroup_x_coords = {};
@@ -106,8 +132,8 @@ window.addEventListener('DOMContentLoaded', async function() {
       const res = {...data};
 
       if (state.hoveredNeighbours && !state.hoveredNeighbours.includes(node) && state.hoveredNode !== node) {
-         res.label = "";
-         res.color = "#f6f6f6";
+         // Set opacity (but hey that is of course supported :), so hotfix instead!)
+         res.color = res.color.slice(0, 7) + "60";
       }
 
       return res;
