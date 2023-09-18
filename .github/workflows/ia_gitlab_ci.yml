@@ -1,0 +1,14 @@
+name: Trigger CI job on Inter-Actief GitLab
+on: [push, pull_request]
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger CI job on Inter-Actief GitLab
+      uses: appleboy/gitlab-ci-action@master
+      with:
+        url: "https://gitlab.ia.utwente.nl"
+        token: ${{ secrets.TOKEN }}
+        project_id: 117
+        ref: ${{ GITHUB_REF }}
