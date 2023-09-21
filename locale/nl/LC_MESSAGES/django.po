@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-04 22:27+0200\n"
-"PO-Revision-Date: 2023-09-04 22:37+0018\n"
-"Last-Translator: Kevin Alberts <>\n"
+"POT-Creation-Date: 2023-09-21 16:54+0200\n"
+"PO-Revision-Date: 2023-09-21 16:55+0018\n"
+"Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2147,7 +2147,7 @@ msgstr "Geen betaling"
 msgid "Cash at the board/committee"
 msgstr "Contant bij bestuur/commissie"
 
-#: amelie/calendar/models.py:24 amelie/members/query_forms.py:80 amelie/members/templates/includes/query/query_mandate.html:4 amelie/personal_tab/templates/cookie_corner_authorization_view.html:4 amelie/personal_tab/templates/cookie_corner_authorization_view.html:8 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:36 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:92 amelie/personal_tab/templates/cookie_corner_process_batch.html:49 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:11 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:10
+#: amelie/calendar/models.py:24 amelie/members/query_forms.py:82 amelie/members/templates/includes/query/query_mandate.html:4 amelie/personal_tab/templates/cookie_corner_authorization_view.html:4 amelie/personal_tab/templates/cookie_corner_authorization_view.html:8 amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:36 amelie/personal_tab/templates/cookie_corner_debt_collection_view.html:92 amelie/personal_tab/templates/cookie_corner_process_batch.html:49 amelie/personal_tab/templates/lists/debt_collection_proposal_contribution.html:11 amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:10
 msgid "Mandate"
 msgstr "Machtiging"
 
@@ -4400,24 +4400,11 @@ msgstr ""
 "Amélie"
 
 #: amelie/education/templates/education/educational_bouquet.mail:4
-#| msgid "[Educational flower] Submissions educational flower"
 msgid "[Educational bouquet] Submissions educational bouquet"
 msgstr "[Onderwijsbloemetje] Indiening onderwijsbloemetje"
 
 #: amelie/education/templates/education/educational_bouquet.mail:6
 #, python-format
-#| msgid ""
-#| "Dear EC member,\n"
-#| "\n"
-#| "%(author)s has nominated someone for the educational flower!\n"
-#| "\n"
-#| "The email address of the submitter is %(email)s.\n"
-#| "He/she nominated %(teacher)s for the course %(course)s.\n"
-#| "His/her reason is: \"%(reason)s\".\n"
-#| "\n"
-#| "\n"
-#| "Cheers,\n"
-#| "Amélie"
 msgid ""
 "Dear EC member,\n"
 "\n"
@@ -4540,10 +4527,6 @@ msgstr ""
 
 #: amelie/education/templates/educational_bouquet.html:34
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
-#| "                    "
 msgid ""
 "\n"
 "                      There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s?next=%(return_url)s\">new course</a> or a <a href=\"%(new_module_url)s?next=%(return_url)s\">new module</a>.\n"
@@ -4805,7 +4788,7 @@ msgstr "Kon BIC niet automatisch bepalen, vul deze alsjeblieft zelf in."
 msgid "Choose a name from the suggestions."
 msgstr "Kies een naam uit de suggesties."
 
-#: amelie/members/forms.py:322 amelie/members/forms.py:401 amelie/members/forms.py:609 amelie/members/query_forms.py:82 amelie/members/templates/includes/registration/authorizations.html:58 amelie/members/templates/includes/registration/data_overview_employee.html:62 amelie/members/templates/includes/registration/data_overview_external.html:62 amelie/members/templates/includes/registration/data_overview_freshmen.html:94 amelie/members/templates/includes/registration/data_overview_general.html:71 amelie/personal_tab/forms.py:78 amelie/personal_tab/forms.py:118 amelie/personal_tab/models.py:491 amelie/personal_tab/templates/cookie_corner_authorization_view.html:33 amelie/tools/pdf.py:413
+#: amelie/members/forms.py:322 amelie/members/forms.py:401 amelie/members/forms.py:609 amelie/members/query_forms.py:84 amelie/members/templates/includes/registration/authorizations.html:58 amelie/members/templates/includes/registration/data_overview_employee.html:62 amelie/members/templates/includes/registration/data_overview_external.html:62 amelie/members/templates/includes/registration/data_overview_freshmen.html:94 amelie/members/templates/includes/registration/data_overview_general.html:71 amelie/personal_tab/forms.py:78 amelie/personal_tab/forms.py:118 amelie/personal_tab/models.py:491 amelie/personal_tab/templates/cookie_corner_authorization_view.html:33 amelie/tools/pdf.py:413
 msgid "IBAN"
 msgstr "IBAN"
 
@@ -5434,111 +5417,120 @@ msgstr "Was lid in een van deze jaren"
 msgid "Return members who do not have the following options"
 msgstr "Geef de personen die de volgende voorkeuren niet hebben."
 
+#: amelie/members/query_forms.py:60
+#| msgid "Membership start year"
+msgid "Membership is not verified"
+msgstr "Lidmaatschap is niet geverifieerd"
+
 #: amelie/members/query_forms.py:61
+msgid "Membership is verified (or not needed for type)"
+msgstr "Lidmaatschap is geverifieerd (of dat is niet nodig)"
+
+#: amelie/members/query_forms.py:63
 msgid "Is an active member"
 msgstr "Is actief lid"
 
-#: amelie/members/query_forms.py:62
+#: amelie/members/query_forms.py:64
 msgid "Is a not-active member"
 msgstr "Is niet-actief lid"
 
-#: amelie/members/query_forms.py:63
+#: amelie/members/query_forms.py:65
 msgid "Has signed an NDA"
 msgstr "Heeft een getekende NDA"
 
-#: amelie/members/query_forms.py:64
+#: amelie/members/query_forms.py:66
 msgid "Once did"
 msgstr "Zat ooit in"
 
-#: amelie/members/query_forms.py:66
+#: amelie/members/query_forms.py:68
 msgid "Does"
 msgstr "Zit in"
 
-#: amelie/members/query_forms.py:67
+#: amelie/members/query_forms.py:69
 msgid "Was active in"
 msgstr "Was actief in"
 
-#: amelie/members/query_forms.py:69
+#: amelie/members/query_forms.py:71
 msgid "Member is employee"
 msgstr "Persoon is medewerker"
 
-#: amelie/members/query_forms.py:70
+#: amelie/members/query_forms.py:72
 msgid "Belongs to"
 msgstr "Hoort bij"
 
-#: amelie/members/query_forms.py:72
+#: amelie/members/query_forms.py:74
 msgid "Has a dogroup"
 msgstr "Heeft een doegroep"
 
-#: amelie/members/query_forms.py:73
+#: amelie/members/query_forms.py:75
 msgid "Has no dogroup"
 msgstr "Heeft geen doegroep"
 
-#: amelie/members/query_forms.py:81
+#: amelie/members/query_forms.py:83
 msgid "Mandate number"
 msgstr "Machtiging-nummer"
 
-#: amelie/members/query_forms.py:87
+#: amelie/members/query_forms.py:89
 msgid "Students in their second year or higher, including all masters (primary studies)"
 msgstr "Tweedejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:89
+#: amelie/members/query_forms.py:91
 msgid "Students in their third year or higher, including all masters (primary studies)"
 msgstr "Derdejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:91
+#: amelie/members/query_forms.py:93
 msgid "Students in their fourth year or higher, including all masters (primary studies)"
 msgstr "Vierdejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:93
+#: amelie/members/query_forms.py:95
 msgid "Students in their fifth year or higher, including all masters (primary studies)"
 msgstr "Vijfdejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:108
+#: amelie/members/query_forms.py:110
 msgid "Invalid student or employee number."
 msgstr "Ongeldig student- of medewerkernummer."
 
-#: amelie/members/query_forms.py:114
+#: amelie/members/query_forms.py:116
 msgid "Invalid IBAN."
 msgstr "Ongeldig IBAN."
 
-#: amelie/members/query_forms.py:120
+#: amelie/members/query_forms.py:122
 msgid "Invalid characters in name."
 msgstr "Ongeldige karakters in naam."
 
-#: amelie/members/query_forms.py:375
+#: amelie/members/query_forms.py:382
 msgid "Sender's name"
 msgstr "Naam afzender"
 
-#: amelie/members/query_forms.py:376
+#: amelie/members/query_forms.py:383
 msgid "Sender's e-mail"
 msgstr "Afzender e-mail"
 
-#: amelie/members/query_forms.py:377
+#: amelie/members/query_forms.py:384
 msgid "CC"
 msgstr "CC"
 
-#: amelie/members/query_forms.py:378
+#: amelie/members/query_forms.py:385
 msgid "BCC"
 msgstr "BCC"
 
-#: amelie/members/query_forms.py:379
+#: amelie/members/query_forms.py:386
 msgid "Include people on the waiting list"
 msgstr "Ook mensen op de wachtlijst"
 
-#: amelie/members/query_forms.py:385
+#: amelie/members/query_forms.py:392
 msgid "Message (Dutch)"
 msgstr "Bericht (Nederlands)"
 
-#: amelie/members/query_forms.py:387
+#: amelie/members/query_forms.py:394
 msgid "Message (English)"
 msgstr "Bericht (Engels)"
 
-#: amelie/members/query_forms.py:394
+#: amelie/members/query_forms.py:401
 msgid "Invalid subject"
 msgstr "Ongeldig onderwerp"
 
-#: amelie/members/query_forms.py:402 amelie/twitter/forms.py:20
+#: amelie/members/query_forms.py:409 amelie/twitter/forms.py:20
 msgid "Invalid template"
 msgstr "Ongeldig template"
 
@@ -5743,7 +5735,7 @@ msgstr "Opgeheven commissies"
 msgid "There are no committees which have been disbanded."
 msgstr "Er zijn geen commissies opgeheven"
 
-#: amelie/members/templates/dogroups.html:5 templates/basis.html:203
+#: amelie/members/templates/dogroups.html:5 amelie/members/templates/dogroups.html:24 templates/basis.html:203
 msgid "Dogroups"
 msgstr "Doegroepen"
 
