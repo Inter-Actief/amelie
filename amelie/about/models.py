@@ -10,6 +10,7 @@ class Page(models.Model):
     name_en = models.CharField(max_length=100, verbose_name=_('Name (en)'), blank=True)
     slug_nl = models.SlugField(max_length=100, editable=False)
     slug_en = models.SlugField(max_length=100, editable=False)
+    educational = models.BooleanField(default=False, verbose_name=_("Educational page?"))
     content_nl = models.TextField(verbose_name=_('Content'))
     content_en = models.TextField(verbose_name=_('Content (en)'), blank=True)
     last_modified = models.DateTimeField(auto_now=True)

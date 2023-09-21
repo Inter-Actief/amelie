@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-04 22:27+0200\n"
-"PO-Revision-Date: 2023-09-04 22:37+0018\n"
-"Last-Translator: Kevin Alberts <>\n"
+"POT-Creation-Date: 2023-09-21 16:25+0200\n"
+"PO-Revision-Date: 2023-09-21 16:26+0018\n"
+"Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,19 +20,24 @@ msgstr "Naam"
 msgid "Name (en)"
 msgstr "Naam (en)"
 
-#: amelie/about/models.py:13 amelie/education/models.py:51 amelie/news/templates/news_item_form.html:60 amelie/weekmail/templates/weekmail/weekmailnewsarticle_form.html:46
+#: amelie/about/models.py:13
+#| msgid "Educational bouquet"
+msgid "Educational page?"
+msgstr "Onderwijspagina?"
+
+#: amelie/about/models.py:14 amelie/education/models.py:51 amelie/news/templates/news_item_form.html:60 amelie/weekmail/templates/weekmail/weekmailnewsarticle_form.html:46
 msgid "Content"
 msgstr "Inhoud"
 
-#: amelie/about/models.py:14 amelie/education/models.py:52
+#: amelie/about/models.py:15 amelie/education/models.py:52
 msgid "Content (en)"
 msgstr "Inhoud (en)"
 
-#: amelie/about/models.py:19 amelie/education/models.py:58 amelie/statistics/models.py:8
+#: amelie/about/models.py:20 amelie/education/models.py:58 amelie/statistics/models.py:8
 msgid "Page"
 msgstr "Pagina"
 
-#: amelie/about/models.py:20 amelie/education/models.py:59
+#: amelie/about/models.py:21 amelie/education/models.py:59
 msgid "Pages"
 msgstr "Pagina's"
 
@@ -43,6 +48,10 @@ msgstr "Wijzig pagina"
 #: amelie/about/templates/page.html:17 amelie/education/templates/overview.html:62
 msgid "Delete page"
 msgstr "Verwijder pagina"
+
+#: amelie/about/templates/page.html:21
+msgid "This page is not marked as educational page, so you have no edit rights. Think this is an error? Contact the board."
+msgstr "Deze pagina is niet gemarkeerd als onderwijspagina, dus je hebt geen bewerkrechten. Denk je dat dit een fout is? Contacteer dan het bestuur."
 
 #: amelie/about/templates/page_delete.html:13
 msgid "Are you sure you want to remove this message?"
@@ -4400,24 +4409,11 @@ msgstr ""
 "Amélie"
 
 #: amelie/education/templates/education/educational_bouquet.mail:4
-#| msgid "[Educational flower] Submissions educational flower"
 msgid "[Educational bouquet] Submissions educational bouquet"
 msgstr "[Onderwijsbloemetje] Indiening onderwijsbloemetje"
 
 #: amelie/education/templates/education/educational_bouquet.mail:6
 #, python-format
-#| msgid ""
-#| "Dear EC member,\n"
-#| "\n"
-#| "%(author)s has nominated someone for the educational flower!\n"
-#| "\n"
-#| "The email address of the submitter is %(email)s.\n"
-#| "He/she nominated %(teacher)s for the course %(course)s.\n"
-#| "His/her reason is: \"%(reason)s\".\n"
-#| "\n"
-#| "\n"
-#| "Cheers,\n"
-#| "Amélie"
 msgid ""
 "Dear EC member,\n"
 "\n"
@@ -4540,10 +4536,6 @@ msgstr ""
 
 #: amelie/education/templates/educational_bouquet.html:34
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                        There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s\">new course</a> or a <a href=\"%(new_module_url)s\">new module</a>.\n"
-#| "                    "
 msgid ""
 "\n"
 "                      There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href=\"%(new_course_url)s?next=%(return_url)s\">new course</a> or a <a href=\"%(new_module_url)s?next=%(return_url)s\">new module</a>.\n"
@@ -5743,7 +5735,7 @@ msgstr "Opgeheven commissies"
 msgid "There are no committees which have been disbanded."
 msgstr "Er zijn geen commissies opgeheven"
 
-#: amelie/members/templates/dogroups.html:5 templates/basis.html:203
+#: amelie/members/templates/dogroups.html:5 amelie/members/templates/dogroups.html:24 templates/basis.html:203
 msgid "Dogroups"
 msgstr "Doegroepen"
 
