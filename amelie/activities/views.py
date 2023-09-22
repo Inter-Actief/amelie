@@ -180,6 +180,8 @@ def activity(request, pk, deanonymise=False):
     evt.add('dtend', activity.end)
     evt.add('summary', activity.summary)
 
+    current_time = timezone.now()
+
     only_show_underage = hasattr(request, 'is_board') and request.is_board and (request.GET.get('underage') == "True")
 
     # Extra check to make sure that no sensitive data will be leaked
@@ -245,13 +247,13 @@ def activity_random_photo(request, pk, *args, **kwargs):
     raise Http404(_('No photo'))
 
 
-@require_board  # Deleting an activity is only allowed by the board due to possible transactions that should be undone.
+@require_board
 @transaction.atomic
 def activity_delete(request, pk):
     """
     Deletes an activity.
 
-    This removes all enrollments and undoes the corresponding transactions.
+    Activities may only be removed when these do not have any remaining enrollments left.
 
     Asks for a confirmation.
     """
@@ -261,15 +263,12 @@ def activity_delete(request, pk):
 
     if request.POST:
         if 'yes' in request.POST:
-            # Undo transactions and remove participations
-            from amelie.personal_tab import transactions
-            for participation in obj.participation_set.all():
-                transactions.participation_transaction(participation, "Cancelled event", cancel=True, added_by=request.person)
-                # Remove the participation
-                participation.delete()
-
-            obj.delete()
-            return redirect(reverse('activities:activities'))
+            if obj.participation_set.all().count() > 0:
+                messages.error(_(f"One can only delete an activity when there are no more enrollments. (Currently there are still {obj.participation_set.all().count()} enrollments)"))
+                return redirect(obj)
+            else:
+                obj.delete()
+                return redirect(reverse('activities:activities'))
         elif 'no' in request.POST:
             return redirect(obj)
 
@@ -282,36 +281,41 @@ def activity_cancel(request, pk):
     """
     Cancels or re-publishes an activity (depending on the current status of this event).
 
+    Events may only be cancelled if they have not yet started.
+
     In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
     In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-openend.
 
     Asks for a confirmation.
     """
     obj = get_object_or_404(Activity, pk=pk)
-    if not obj.can_edit(request.person):
-        raise PermissionDenied
 
     # If the event is already cancelled, immediately re-publish it without any confirmation screen.
     if obj.cancelled:
         obj.cancelled = False
         obj.save()
-        messages.success(request, _(f"{obj} has been successfully re-opened. If you want people to enroll again, please open the enrollments manually."))
+        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that all previous enrollments are not added again and that enrollments will have to be manually re-opened."))
         return redirect(obj)
 
     if request.POST:
         if 'yes' in request.POST:
-            activity_send_cancellationmail(obj.participation_set.all(), obj, request)
-            # Undo transactions and remove participations
-            from amelie.personal_tab import transactions
-            for participation in obj.participation_set.all():
-                transactions.participation_transaction(participation, "Cancelled event", cancel=True, added_by=request.person)
-                # Remove the participation
-                participation.delete()
 
-            obj.cancelled = True
-            obj.enrollment = False
-            obj.save()
-            messages.success(request, _(f"{obj} was cancelled successfully."))
+            if obj.begin < timezone.now():
+                messages.error(_(f'We were unable to cancel {obj}, since it has already started.'))
+                return redirect(obj)
+            else:
+                activity_send_cancellationmail(obj.participation_set.all(), obj, request)
+                # Undo transactions and remove participations
+                from amelie.personal_tab import transactions
+                for participation in obj.participation_set.all():
+                    transactions.participation_transaction(participation, f"Cancelled {obj}", cancel=True, added_by=request.person)
+                    # Remove the participation
+                    participation.delete()
+
+                obj.cancelled = True
+                obj.enrollment = False
+                obj.save()
+                messages.success(request, _(f"{obj} was cancelled successfully."))
         return redirect(obj)
 
     return render(request, "activity_confirm_cancellation.html", locals())
