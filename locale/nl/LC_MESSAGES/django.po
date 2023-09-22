@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-09-21 15:36+0200\n"
-"PO-Revision-Date: 2023-09-21 15:37+0018\n"
+"PO-Revision-Date: 2023-09-22 10:31+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -10767,7 +10767,7 @@ msgstr "Voorbeeld (EN)"
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:5
 #| msgid "Delete news message of the weekly mail or mastermail"
 msgid "Delete news message of the weekly mail, mastermail or educational mail"
-msgstr "Verwijder weekmail, mastermail of onderwijsmail"
+msgstr "Verwijder nieuwsbericht van weekmail, mastermail of onderwijsmail"
 
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:11
 #, python-format
