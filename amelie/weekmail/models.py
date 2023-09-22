@@ -60,6 +60,7 @@ class WeekMail(models.Model):
     class MailTypes(models.TextChoices):
         WEEKMAIL = 'W', _("Weekly mail")
         MASTERMAIL = 'M', _("Mastermail")
+        EDUCATION_MAIL = 'E', _("Educational mail")
 
     published = models.BooleanField(default=False)
     """

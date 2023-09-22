@@ -161,20 +161,26 @@ def send_weekmail(request, pk):
     weekmail = get_object_or_404(WeekMail, pk=pk)
     preference_weekmail = get_object_or_404(Preference, name="mail_association_html")
     preference_mastermail = get_object_or_404(Preference, name="mail_master")
+    preference_educationalmail = get_object_or_404(Preference, name="mail_educational")
 
     if weekmail.mailtype == WeekMail.MailTypes.WEEKMAIL:
         persons = set(Person.objects.members().filter(preferences__id=preference_weekmail.id))
-    else:
+    elif weekmail.mailtype == WeekMail.MailTypes.MASTERMAIL:
         persons = set(Person.objects.members().filter(preferences__id=preference_mastermail.id))
+    elif weekmail.mailtype == WeekMail.MailTypes.EDUCATION_MAIL:
+        persons = set(Person.objects.members().filter(preferences__id=preference_educationalmail.id))
 
     # Add people who forcefully want the master or weekmail
     preference_weekmail_force = get_object_or_404(Preference, name="mail_association_html_force")
     preference_mastermail_force = get_object_or_404(Preference, name="mail_master_force")
+    preference_educationalmail_force = get_object_or_404(Preference, name="mail_educational_force")
 
     if weekmail.mailtype == WeekMail.MailTypes.WEEKMAIL:
         persons |= set(Person.objects.filter(preferences__id=preference_weekmail_force.id))
-    else:
+    elif weekmail.mailtype == WeekMail.MailTypes.MASTERMAIL:
         persons |= set(Person.objects.filter(preferences__id=preference_mastermail_force.id))
+    elif weekmail.mailtype == WeekMail.MailTypes.EDUCATION_MAIL:
+        persons |= set(Person.objects.filter(preferences__id=preference_educationalmail_force.id))
 
     task = MailTask(template_name='weekmail/weekmail_mail.mail',
                     report_to=weekmail.writer.email_address,

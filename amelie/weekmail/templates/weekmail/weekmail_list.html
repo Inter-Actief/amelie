@@ -2,13 +2,13 @@
 {% load i18n %}
 
 {% block titel %}
-    {% trans 'Weekly mails and mastermails' %}
+    {% trans 'Weekly mails, mastermails and educational mails' %}
 {% endblock titel %}
 
 {% block content %}
     <div class="col-xs-12">
         <div class="current">
-            <h2>{% trans 'Weekly mails and mastermails' %}</h2>
+            <h2>{% trans 'Weekly mails, mastermails and educational mails' %}</h2>
             <div class="content">
                 <div class="table-responsive">
                     <table class="table layout">
@@ -33,7 +33,7 @@
                     </table>
                 </div>
                 {% if request.is_board %}
-                    <a class="looks-like-a-button" href="{% url 'weekmail:new' %}">{% blocktrans %}New weekly mail or mastermail{% endblocktrans %}</a>
+                    <a class="looks-like-a-button" href="{% url 'weekmail:new' %}">{% blocktrans %}New weekly mail, mastermail or educational mail{% endblocktrans %}</a>
                 {% endif %}
             </div>
         </div>

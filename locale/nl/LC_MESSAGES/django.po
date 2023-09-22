@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-21 16:25+0200\n"
-"PO-Revision-Date: 2023-09-21 16:26+0018\n"
+"POT-Creation-Date: 2023-09-21 15:36+0200\n"
+"PO-Revision-Date: 2023-09-22 10:31+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -10605,15 +10605,20 @@ msgstr "Weekmail"
 msgid "Mastermail"
 msgstr "Mastermail"
 
-#: amelie/weekmail/models.py:82
+#: amelie/weekmail/models.py:63 amelie/weekmail/templates/weekmail/weekmail_mail.mail:1 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:31
+#| msgid "Educational activity"
+msgid "Educational mail"
+msgstr "Onderwijsmail"
+
+#: amelie/weekmail/models.py:83
 msgid "new events"
 msgstr "nieuwe activiteiten"
 
-#: amelie/weekmail/models.py:84
+#: amelie/weekmail/models.py:85
 msgid "news articles"
 msgstr "nieuwartikelen"
 
-#: amelie/weekmail/models.py:99
+#: amelie/weekmail/models.py:100
 msgid "Type of mailing"
 msgstr "Type mailing"
 
@@ -10625,25 +10630,33 @@ msgstr "Weekmail wijzigen"
 msgid "Edit mastermail"
 msgstr "Mastermail wijzigen"
 
+#: amelie/weekmail/templates/weekmail/weekmail_form.html:5
+#| msgid "Edit educational activity"
+msgid "Edit educational mail"
+msgstr "Bewerk onderwijsmail"
+
 #: amelie/weekmail/templates/weekmail/weekmail_form.html:5 amelie/weekmail/templates/weekmail/weekmail_form.html:11
-msgid "Add weekly mail or mastermail"
-msgstr "Weekmail of mastermail toevoegen"
+#| msgid "Add weekly mail or mastermail"
+msgid "Add weekly mail, mastermail or educational mail"
+msgstr "Weekmail, mastermail of onderwijsmail toevoegen"
 
 #: amelie/weekmail/templates/weekmail/weekmail_form.html:18
 msgid "Done"
 msgstr "Klaar"
 
 #: amelie/weekmail/templates/weekmail/weekmail_list.html:5 amelie/weekmail/templates/weekmail/weekmail_list.html:11
-msgid "Weekly mails and mastermails"
-msgstr "Weekmails en mastermails"
+#| msgid "Weekly mails and mastermails"
+msgid "Weekly mails, mastermails and educational mails"
+msgstr "Weekmails, mastermails en onderwijsmails"
 
 #: amelie/weekmail/templates/weekmail/weekmail_list.html:19 amelie/weekmail/templates/weekmail/weekmail_wizard.html:42
 msgid "Published"
 msgstr "Gepubliceerd"
 
 #: amelie/weekmail/templates/weekmail/weekmail_list.html:36
-msgid "New weekly mail or mastermail"
-msgstr "Nieuwe weekmail of mastermail"
+#| msgid "New weekly mail or mastermail"
+msgid "New weekly mail, mastermail or educational mail"
+msgstr "Nieuwe weekmail, mastermail of onderwijsmail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:31
 msgid "Week"
@@ -10747,6 +10760,11 @@ msgstr "Verzend weekmail"
 msgid "Send mastermail"
 msgstr "Verzend mastermail"
 
+#: amelie/weekmail/templates/weekmail/weekmail_wizard.html:254
+#| msgid "Send collection mailing"
+msgid "Send educational mail"
+msgstr "Verstuur onderwijsmail"
+
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:265
 msgid "Example (NL)"
 msgstr "Voorbeeld (NL)"
@@ -10756,8 +10774,9 @@ msgid "Example (EN)"
 msgstr "Voorbeeld (EN)"
 
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:5
-msgid "Delete news message of the weekly mail or mastermail"
-msgstr "Verwijder weekmail of mastermail nieuwsartikel"
+#| msgid "Delete news message of the weekly mail or mastermail"
+msgid "Delete news message of the weekly mail, mastermail or educational mail"
+msgstr "Verwijder nieuwsbericht van weekmail, mastermail of onderwijsmail"
 
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:11
 #, python-format
@@ -10780,7 +10799,7 @@ msgstr "Error in het veld inhoud:"
 msgid "Error in the field inhoud_en:"
 msgstr "Error in het veld inhoud_en:"
 
-#: amelie/weekmail/views.py:197
+#: amelie/weekmail/views.py:203
 msgid "{} is being sent"
 msgstr "{} wordt nu verstuurd"
 
