@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-22 16:17+0200\n"
+"POT-Creation-Date: 2023-09-22 16:20+0200\n"
 "PO-Revision-Date: 2023-09-22 10:31+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
@@ -3116,7 +3116,7 @@ msgstr "Geen betaling"
 msgid "Cash at the board/committee"
 msgstr "Contant bij bestuur/commissie"
 
-#: amelie/calendar/models.py:24 amelie/members/query_forms.py:80
+#: amelie/calendar/models.py:24 amelie/members/query_forms.py:82
 #: amelie/members/templates/includes/query/query_mandate.html:4
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:4
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:8
@@ -6582,7 +6582,7 @@ msgid "Choose a name from the suggestions."
 msgstr "Kies een naam uit de suggesties."
 
 #: amelie/members/forms.py:322 amelie/members/forms.py:401
-#: amelie/members/forms.py:609 amelie/members/query_forms.py:82
+#: amelie/members/forms.py:609 amelie/members/query_forms.py:84
 #: amelie/members/templates/includes/registration/authorizations.html:58
 #: amelie/members/templates/includes/registration/data_overview_employee.html:62
 #: amelie/members/templates/includes/registration/data_overview_external.html:62
@@ -7368,7 +7368,6 @@ msgid "Return members who do not have the following options"
 msgstr "Geef de personen die de volgende voorkeuren niet hebben."
 
 #: amelie/members/query_forms.py:60
-#| msgid "Membership start year"
 msgid "Membership is not verified"
 msgstr "Lidmaatschap is niet geverifieerd"
 
@@ -7420,28 +7419,28 @@ msgstr "Heeft geen doegroep"
 msgid "Mandate number"
 msgstr "Machtiging-nummer"
 
-#: amelie/members/query_forms.py:87
+#: amelie/members/query_forms.py:89
 msgid ""
 "Students in their second year or higher, including all masters (primary "
 "studies)"
 msgstr ""
 "Tweedejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:89
+#: amelie/members/query_forms.py:91
 msgid ""
 "Students in their third year or higher, including all masters (primary "
 "studies)"
 msgstr ""
 "Derdejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:91
+#: amelie/members/query_forms.py:93
 msgid ""
 "Students in their fourth year or higher, including all masters (primary "
 "studies)"
 msgstr ""
 "Vierdejaarsstudenten en hoger, inclusief alle masters (alleen hoofdstudies)"
 
-#: amelie/members/query_forms.py:93
+#: amelie/members/query_forms.py:95
 msgid ""
 "Students in their fifth year or higher, including all masters (primary "
 "studies)"
