@@ -1,10 +1,29 @@
 from django.utils import translation
 
 from django.conf import settings
-from amelie.iamailer import MailTask
+from amelie.iamailer import MailTask, Recipient
 from amelie.members.models import Preference
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mail import PersonRecipient
+
+
+def activity_send_cashrefundmail(cash_participants, activity, request):
+    """
+    Notify the treasurer that cash paying participants from a cancelled activity should get their money back.
+    """
+
+    # Send an email to the treasurer
+    template_name = "activities/activity_cancelled_treasurer.mail"
+    context = {
+        "participants": cash_participants,
+        "activity": activity
+    }
+    task = MailTask(template_name=template_name)
+    task.add_recipient(Recipient(
+        tos=['Treasurer Inter-Actief <treasurer@inter-actief.net>'],
+        context=context
+    ))
+    task.send(delay=False)
 
 
 def activity_send_enrollmentmail(participation, from_waiting_list=False):
@@ -65,13 +84,8 @@ def activity_send_cancellationmail(participants, activity, request, from_waiting
         template_name = "activities/activity_cancelled_from_waiting_list.mail"
 
     task = MailTask(template_name=template_name)
-
-    # If debug is enabled, add a single recipient, the person themselves
-    if settings.DEBUG:
-        task.add_recipient(PersonRecipient(request.person, context={'activity': activity}))
-    else:
-        for person in participants:
-            task.add_recipient(PersonRecipient(person, context={'activity': activity}))
+    for participant in participants:
+        task.add_recipient(PersonRecipient(participant.person, context={'activity': activity}))
 
     task.send()
 

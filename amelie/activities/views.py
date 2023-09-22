@@ -37,7 +37,7 @@ from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, 
     EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
     EventDeskActivityMatchForm, EnrollmentoptionNumericForm, EnrollmentoptionNumericAnswerForm, PhotoFileUploadForm
-from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, activity_send_cancellationmail
+from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, activity_send_cancellationmail, activity_send_cashrefundmail
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
@@ -305,10 +305,12 @@ def activity_cancel(request, pk):
                 return redirect(obj)
             else:
                 activity_send_cancellationmail(obj.participation_set.all(), obj, request)
+                activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
                 # Undo transactions and remove participations
                 from amelie.personal_tab import transactions
                 for participation in obj.participation_set.all():
-                    transactions.participation_transaction(participation, f"Cancelled {obj}", cancel=True, added_by=request.person)
+                    if participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
+                        transactions.participation_transaction(participation, f"Cancelled {obj}", cancel=True, added_by=request.person)
                     # Remove the participation
                     participation.delete()
 
