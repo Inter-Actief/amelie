@@ -254,8 +254,26 @@ class PhotoUploadForm(forms.Form):
                                                                      function__end__isnull=True).distinct()
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+
 class PhotoFileUploadForm(forms.Form):
-    photo_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    photo_files = MultipleFileField()
 
     def clean_photo_files(self):
         allowed_extensions = ["jpg", "jpeg", "gif"]
