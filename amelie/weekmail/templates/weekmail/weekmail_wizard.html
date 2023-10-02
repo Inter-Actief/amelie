@@ -251,7 +251,7 @@
                 <div id="weekmail_send" hidden>
                     <form action="{% url 'weekmail:send_weekmail' object.pk %}" method="post">
                         {% csrf_token %}
-                        <button>{% if object.mailtype == 'W' %}{% trans "Send weekly mail" %}{% else %}{% trans "Send mastermail" %}{% endif %}</button>
+                        <button>{% if object.mailtype == 'W' %}{% trans "Send weekly mail" %}{% elif object.mailtype == 'M' %}{% trans "Send mastermail" %}{% else %}{% trans "Send educational mail" %}{% endif %}</button>
                     </form>
                 </div>
             </div>
