@@ -199,6 +199,9 @@
                                 <li>
                                     <a href="{% url 'about:page' 34 'mental-health' %}">{% trans 'Mental health' %}</a>
                                 </li>
+                                <li>
+                                    <a href="{% url 'members:dogroups' %}">{% trans 'Dogroups' %}</a>
+                                </li>
                                 {% if request.person.is_active_member %}
                                     <li>
                                         <a href="https://intra.ia.utwente.nl/">{% trans 'Intraweb' %}</a>
@@ -223,7 +226,7 @@
                                 <li><a href="{% url 'education:overview' %}">{% trans 'Information' %}</a></li>
                                 <li><a href="{% url 'education:news_archive' %}">{% trans 'Education news' %}</a></li>
                                 <li><a href="{% url 'education:event_overview' %}">{% trans 'Activities' %}</a></li>
-                                <li><a href="{% url 'about:page' 35 'book-sales' %}">{% trans 'Books' %}</a></li>
+                                <li><a href="https://wo4you.nl/">{% trans 'Books' %}</a></li>
                                 <li><a href="https://summaries.ia.utwente.nl/">{% trans 'Summaries' %}</a></li>
                                 <li><a href="{% url 'education:complaints' %}">{% trans 'Complaints' %}</a></li>
                                 <li><a href="{% url 'education:bouquet' %}">{% trans 'Educational bouquet' %}</a></li>

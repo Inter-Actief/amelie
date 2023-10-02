@@ -11,11 +11,15 @@
 		<div class="content">
             {{ obj.content|markdown:"unsafe" }}
 
-			{% if is_www %}
+			{% if is_www or is_educational and obj.educational %}
 				<div class="buttons">
 			    	<a class="looks-like-a-button" href="{% url 'about:page_edit' obj.pk obj.slug %}">{% trans 'Edit Page' %}</a>
 			    	<a class="looks-like-a-button" href="{% url 'about:page_delete' obj.pk obj.slug %}">{% trans 'Delete page' %}</a>
 				</div>
+            {% elif is_educational and not obj.educational %}
+                <div class="buttons">
+                    <sub>{% trans 'This page is not marked as educational page, so you have no edit rights. Think this is an error? Contact the board.' %}</sub>
+                </div>
 			{% endif %}
 		</div>
 	</div></div>

@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Cookie Corner Wrapped' %}{% endblock titel %}
+
+{% block content %}
+  <div class="col-xs-12"><div class="ia">
+    <h2>
+      {% trans 'Cookie Corner Wrapped ' %} {{ year }}
+    </h2>
+
+    <div class="content">
+      <p>
+        {% blocktrans with year=year%}
+          Now that the year is over, we can take a look into the usage of the cookie corner in {{ year }}. On this page you can view your personal statistics for the cookie corner.
+        {% endblocktrans %}
+      </p>
+
+      <b>
+        {% blocktrans %}
+          No transactions found
+        {% endblocktrans %}
+      </b>
+    </div>
+  </div></div>
+{% endblock content %}

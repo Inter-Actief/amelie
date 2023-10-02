@@ -21,34 +21,45 @@ def page(request, pk, slug):
     is_www = (hasattr(request, 'is_board') and request.is_board) or \
              (hasattr(request, 'person') and request.person.function_set.filter(committee__abbreviation='WWW',
                                                                                 end__isnull=True))
-    return render(request, 'page.html', {'obj': obj, 'is_www': is_www})
+    is_educational = hasattr(request, 'person') and request.person.function_set.filter(committee__abbreviation='OnderwijsCommissie',
+                                                                                end__isnull=True)
+    return render(request, 'page.html', {'obj': obj, 'is_www': is_www, 'is_educational': is_educational})
 
 
-@require_committee('WWW')
 def page_edit(request, pk, slug):
     obj = get_object_or_404(Page, pk=pk)
-    form = PageForm(instance=obj) if request.method != "POST" else PageForm(request.POST, instance=obj)
-    is_new = False
+    if hasattr(request, 'person') and (
+        request.person.is_board() or request.person.function_set.filter(committee__abbreviation='WWW',
+                                                                        end__isnull=True).exists() or (
+            obj.educational and request.person.function_set.filter(committee__abbreviation='OnderwijsCommissie',
+                                                                   end__isnull=True).exists())):
+        form = PageForm(instance=obj) if request.method != "POST" else PageForm(request.POST, instance=obj)
+        is_new = False
 
-    if request.method == "POST" and form.is_valid():
-        page_obj = form.save()
-        return HttpResponseRedirect(page_obj.get_absolute_url())
+        if request.method == "POST" and form.is_valid():
+            page_obj = form.save()
+            return HttpResponseRedirect(page_obj.get_absolute_url())
 
-    return render(request, 'page_form.html', {
-        'obj': obj,
-        'form': form,
-        'is_new': is_new
-    })
+        return render(request, 'page_form.html', {
+            'obj': obj,
+            'form': form,
+            'is_new': is_new
+        })
+    return render(request, '403.html')
 
 
-@require_committee('WWW')
 def page_delete(request, pk, slug):
     obj = get_object_or_404(Page, pk=pk)
-    if request.method == "POST":
-        obj.delete()
-        return HttpResponseRedirect("/")
-    return render(request, 'page_delete.html', {'obj': obj})
-
+    if hasattr(request, 'person') and (
+        request.person.is_board() or request.person.function_set.filter(committee__abbreviation='WWW',
+                                                                        end__isnull=True).exists() or (
+            obj.educational and request.person.function_set.filter(committee__abbreviation='OnderwijsCommissie',
+                                                                   end__isnull=True).exists())):
+        if request.method == "POST":
+            obj.delete()
+            return HttpResponseRedirect("/")
+        return render(request, 'page_delete.html', {'obj': obj})
+    return render(request, '403.html')
 
 @require_committee('WWW')
 def page_new(request):

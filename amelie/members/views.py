@@ -1,15 +1,15 @@
 import datetime
+import time
 import json
 import re
-import time
 import logging
 
 from datetime import date
 from decimal import Decimal
-
 from functools import lru_cache
 from io import BytesIO
 
+from django.views import View
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
 from django.db.models import Sum
@@ -24,7 +24,7 @@ from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
@@ -39,7 +39,8 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepEmployeeDetails, \
     RegistrationFormPersonalDetailsEmployee, RegistrationFormStepEmployeeMembershipDetails, PreRegistrationPrintAllForm
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
-    Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment
+    Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
+    DogroupGeneration
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
@@ -1403,9 +1404,9 @@ def _person_info_get_person(ia_username=None, ut_username=None, local_username=N
                 person = Person.objects.get(student__number=ut_username[1:])
                 logger.debug(f"Person found by student ut_username {ut_username}: {person}.")
 
-                if verify:
+                if verify and person.membership is not None:
                     # Verify studies of person if department data is present in auth request.
-                    logger.debug(f"Verifying study for {person}.")
+                    logger.debug(f"Verifying study for {person} with departments {departments}.")
 
                     # Since UT years are from sept-aug and our year is from jul-jun, there are two months overlap.
                     # Never verify users in July or August, as this could allow members who are done studying to get an
@@ -1581,3 +1582,50 @@ class PaymentDeleteView(RequireBoardMixin, DeleteMessageMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.membership.member.get_absolute_url()
+
+
+class DoGroupTreeView(TemplateView):
+    template_name = "dogroups.html"
+
+
+# TODO: Add caching to this view! This cache can be kept for a month of so.
+class DoGroupTreeViewData(View):
+
+    def get(self, request, *args, **kwargs):
+        # Create a datastructure that maps connects generations based on parents and children
+        generation_objects = DogroupGeneration.objects.select_related('dogroup').prefetch_related(
+            'studyperiod_set').all().order_by('dogroup', 'generation')
+
+        # A data structure
+        generations = dict()
+
+        # Aggregates all the years that have had dogroups
+        years = set()
+        for generation in generation_objects:
+            years.add(generation.generation)
+            prev = set()
+            for parent in generation.parents.all():
+                if parent.is_student():
+                    parent_prev_dogroups = parent.student.studyperiod_set.filter(dogroup__isnull=False,
+                                                                                 dogroup__generation__lt=generation.generation).order_by(
+                        'dogroup__generation')
+                    if parent_prev_dogroups.exists():
+                        prev.add(parent_prev_dogroups.last().dogroup)
+            generations[generation] = prev
+
+        dogroups = dict()
+        for dogroup in Dogroup.objects.all():
+            dogroups[str(dogroup)] = {}
+        for generation in generations.keys():
+            dogroups[str(generation.dogroup)][generation.generation] = {
+                "id": generation.id,
+                "parents": [{"id": p.id} for p in generations[generation]],
+                "color": generation.color,
+            }
+
+        data = {
+            "years": sorted(list(years)),
+            "dogroups": list(dogroups.keys()),
+            "data": dogroups,
+        }
+        return JsonResponse(data)

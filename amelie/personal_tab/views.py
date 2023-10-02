@@ -10,8 +10,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
+from django.utils.translation import get_language
 from django.db import transaction
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count, Aggregate
+from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import formats, timezone
@@ -28,6 +30,7 @@ from amelie.members.models import Person, Membership
 from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
+from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
     StatisticsForm
@@ -630,7 +633,8 @@ def dashboard(request, pk, slug):
         'future_debt_collection_instructions': future_debt_collection_instructions,
         'debt_collection_instructions': debt_collection_instructions,
         'exam_cookie_credits': exam_cookie_credits,
-        'date_old_authorizations': date_old_authorizations
+        'date_old_authorizations': date_old_authorizations,
+        'last_year': datetime.date.today().year - 1
     })
 
 
@@ -1702,4 +1706,115 @@ Treasurer'''.format(name_treasurer),
 def authorization_view(request, authorization_id):
     return render(request, 'cookie_corner_authorization_view.html', {
         'authorization': get_object_or_404(Authorization, id=authorization_id)
+    })
+
+
+"""
+Cookie Corner Wrapped
+"""
+
+
+@require_lid
+def cookie_corner_wrapped_main(request):
+    COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
+
+    person = request.person
+    language = get_language()
+
+    transactions = CookieCornerTransaction.objects.filter(
+        person=person,
+        date__year=COOKIE_CORNER_WRAPPED_YEAR
+    ).all()
+
+    if len(transactions) == 0:
+        # No transactions found, display the no transactions page
+        return render(request, 'wrapped_no_transactions.html', {
+            'year': COOKIE_CORNER_WRAPPED_YEAR
+        })
+
+    transaction_count = transactions \
+        .annotate(day=TruncDay('date')) \
+        .values('day') \
+        .annotate(c=Count('id')) \
+        .values('day', 'c')
+
+    first_transaction_of_the_year = transactions.earliest('date')
+    last_transaction_of_the_year = transactions[0]
+
+    most_transactions_day = transaction_count.order_by('c').last()
+    most_transactions_date = most_transactions_day['day']
+    most_transactions_list = transactions.filter(
+        date__month=most_transactions_date.month,
+        date__day=most_transactions_date.day
+    ).all()
+
+    total_price = 0
+    total_kcal = 0
+
+    for transaction in most_transactions_list:
+        total_price += transaction.article.price
+        total_kcal += transaction.article.kcal if transaction.article.kcal is not None else 0
+
+    """
+        Products
+    """
+    products_grouped_by_count = {}
+
+    total = {
+        'kcal': 0,
+        'price': 0
+    }
+
+    for transaction in transactions:
+        article = transaction.article
+        amount = transaction.amount
+
+        kcal = transaction.kcal()
+
+        total['kcal'] += kcal if kcal is not None else 0
+        total['price'] += transaction.price
+
+        if article in products_grouped_by_count:
+            products_grouped_by_count[article] += amount
+        else:
+            products_grouped_by_count[article] = amount
+
+    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1])
+
+    products_grouped_by_count.reverse()
+
+    top_5_products = products_grouped_by_count[:5]
+
+    total['equivalent'] = kcal_equivalent(total['kcal'], language)
+
+    """
+        Alexia
+    """
+
+    alexia_transactions = AlexiaTransaction.objects.filter(
+        person=person,
+        date__year=COOKIE_CORNER_WRAPPED_YEAR
+    )
+
+    drink_spend_most = alexia_transactions \
+        .values('description', 'date__day', 'date__month') \
+        .annotate(total_price=Sum('price')) \
+        .order_by('-total_price', '-date__day', '-date__month')
+
+    drinks_total = sum(d['total_price'] for d in drink_spend_most)
+
+    return render(request, 'wrapped.html', {
+        'year': COOKIE_CORNER_WRAPPED_YEAR,
+        'first_transaction_of_the_year': first_transaction_of_the_year,
+        'last_transaction_of_the_year': last_transaction_of_the_year,
+        'most_transactions': {
+            'day': most_transactions_day,
+            'list': most_transactions_list,
+            'total_price': total_price,
+            'total_kcal': total_kcal,
+        },
+        'top_5_products': top_5_products,
+        'total': total,
+        'drink_spend_most': drink_spend_most,
+        'drinks_total': drinks_total
     })

@@ -233,7 +233,7 @@ class GoogleSuitePlugin(ClaudiaPlugin):
                                 # but cannot be deleted by e-mail.
                                 # They can only be deleted by using the unique ID that they get when adding them, so
                                 # we save that as the gsuite ID and use it when deleting it.
-                                if mp.is_contact() or (mp.is_person() and not mp.gsuite_id):
+                                if details is not None and (mp.is_contact() or (mp.is_person() and not mp.gsuite_id)):
                                     mp.gsuite_id = details['id']
                                     mp.save()
                         for group in to_remove_groups:

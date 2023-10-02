@@ -76,6 +76,7 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
 
         # Try to find Person by IA account name
         if ia_username is not None:
+            self.log.debug(f"Trying login with IA Username {ia_username}...")
             # Block login if in list of disallowed users
             if not settings.DEBUG and ia_username in settings.LOGIN_NOT_ALLOWED_USERNAMES:
                 self.log.info(f"User login for {ia_username} blocked because username is in the list of disallowed users.")
@@ -90,6 +91,7 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
 
         # Try to find person by Student number
         if student_username is not None:
+            self.log.debug(f"Trying login with student username {student_username}...")
             s_number = int(student_username[1:])
             try:
                 person = Person.objects.get(student__number=s_number)
@@ -101,6 +103,7 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
 
         # Try to find person by Employee number
         if employee_username is not None:
+            self.log.debug(f"Trying login with employee username {employee_username}...")
             m_number = int(employee_username[1:])
             try:
                 person = Person.objects.get(employee__number=m_number)
@@ -112,6 +115,7 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
 
         # Try to find person by X-account username
         if ut_xaccount is not None:
+            self.log.debug(f"Trying login with X-username {ut_xaccount}...")
             try:
                 person = Person.objects.get(ut_external_username=ut_xaccount)
                 user, created = self._get_or_create_user(ut_xaccount, person)
@@ -122,7 +126,8 @@ class IAOIDCAuthenticationBackend(OIDCAuthenticationBackend):
 
         # Try to find a user based on local username
         if local_username is not None:
-            match = re.match(r'ia(:?<person_id>[0-9]+)', local_username)
+            self.log.debug(f"Trying login with local username {local_username}...")
+            match = re.match(r'ia(?P<person_id>[0-9]+)', local_username)
             if match:
                 person_id = int(match.group('person_id'))
                 try:

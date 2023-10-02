@@ -4,7 +4,7 @@
 {% block titel %}{% trans 'Add course' %}{% endblock titel %}
 
 {% block content %}
-  <form action="" method="post" class="big">
+  <form action="{% if next %}?next={{ next }}{% endif %}" method="post" class="big">
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <div class="current edu">
               <h2>{% trans 'Add course' %}</h2>

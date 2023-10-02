@@ -1,4 +1,4 @@
-Django>=3.2.16,<3.2.18  # Limited because of issue https://github.com/Inter-Actief/amelie/issues/760
+Django>=3.2.16,<3.3
 
 importlib-metadata>=1.4.0,<5.0  # importlib-metadata 5+ causes Celery bug: https://github.com/celery/celery/issues/7783
 celery>=5.2.7,<5.3
@@ -14,6 +14,7 @@ django-formtools>=2.4,<2.5
 django-auditlog>=2.2.0,<2.3
 django-oauth-toolkit>=1.7.1,<1.8  # 2.x has breaking changes.
 django-cors-headers>=3.13.0,<3.14
+django-colorfield
 
 # Django Modern RPC -- For our JSONRPC API
 django-modern-rpc>=1.0.1,<1.1
