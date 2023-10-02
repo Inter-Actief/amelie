@@ -121,18 +121,18 @@ class AccountPasswordResetLinkForm(forms.Form):
 class AccountConfigureForwardingForm(forms.Form):
     step = forms.IntegerField()
 
-class MailAliasForm(forms.Form):
 
+class MailAliasForm(forms.Form):
     def __init__(self, *args, **kwargs):
         current = kwargs.pop('current')
         super(MailAliasForm, self).__init__(*args, **kwargs)
         self.fields['alias_groups'].initial = current
 
     alias_groups = MailAliasModelMultipleChoiceField(AliasGroup.objects.filter(open_to_signup=True), required=False,
-                                                 widget=widgets.CheckboxSelectMultiple, label=_('Alias groups'))
+                                                     widget=widgets.CheckboxSelectMultiple, label=_('Alias groups'))
+
 
 class PersonalAliasCreateForm(forms.Form):
-
     email = forms.EmailField(validators=[ExtraPersonalAliasEmailValidator()])
 
     def clean_email(self):
