@@ -24,11 +24,13 @@
                                 <h3 class="truncate">
                                     <a href="{{ current_activity.get_absolute_url }}">{{ current_activity }}</a>
                                 </h3>
-                                <div title="{% trans 'Dutch-only' %}">
-                                    <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
-                                </div>
-                                <div title={{ current_activity.activity_label.name }}>
-                                    <img src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}">
+                                <div class="activity-list-icons">
+                                    <div title="{% trans 'Dutch-only' %}">
+                                        <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
+                                    </div>
+                                    <div title={{ current_activity.activity_label.name }}>
+                                        <img src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}">
+                                    </div>
                                 </div>
                             </div>
                         </div>
