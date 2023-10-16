@@ -47,6 +47,7 @@ urlpatterns = [
 
     path('<int:pk>/edit/', ActivityUpdateView.as_view(), name='edit'),
     path('new/', ActivityCreateView.as_view(), name='new'),
+    path('<int:pk>/cancel/', views.activity_cancel, name='cancel'),
     path('<int:pk>/delete/', views.activity_delete, name='delete'),
 
     # URLs about enrollments
