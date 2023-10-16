@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-02 21:58+0200\n"
-"PO-Revision-Date: 2023-09-22 10:31+0018\n"
+"POT-Creation-Date: 2023-10-16 21:15+0200\n"
+"PO-Revision-Date: 2023-10-16 21:15+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -606,13 +606,11 @@ msgid "{0:.1f}% certain"
 msgstr "{0:.1f}% zeker"
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:3
-#: amelie/activities/templates/activities/activity_cancelled_cash_participant.mail:3
 #: amelie/activities/templates/activities/activity_cancelled_from_waiting.mail:3
 msgid "Cancellation of "
 msgstr "Annulering van "
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:4
-#: amelie/activities/templates/activities/activity_cancelled_cash_participant.mail:4
 #: amelie/activities/templates/activities/activity_cancelled_from_waiting.mail:4
 #: amelie/activities/templates/activities/activity_enrolled.mail:5
 #: amelie/activities/templates/activities/activity_enrolled_from_waiting_list.mail:5
@@ -634,7 +632,6 @@ msgid "Dear"
 msgstr "Beste"
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:5
-#: amelie/activities/templates/activities/activity_cancelled_cash_participant.mail:5
 #, python-format
 msgid ""
 "\n"
@@ -659,7 +656,6 @@ msgstr ""
 "bij de vereningskamer je geld ophalen."
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:9
-#: amelie/activities/templates/activities/activity_cancelled_cash_participant.mail:9
 #: amelie/activities/templates/activities/activity_cancelled_from_waiting.mail:7
 #: amelie/activities/templates/activities/activity_enrolled_on_waiting_list.mail:15
 msgid ""
@@ -668,15 +664,6 @@ msgid ""
 msgstr ""
 "\n"
 "Met vriendelijke groet,"
-
-#: amelie/activities/templates/activities/activity_cancelled_cash_participant.mail:8
-#, python-format
-msgid ""
-"The total costs were %(costs)s euro. These costs will be refunded on your "
-"personal tab."
-msgstr ""
-"De kosten waren in totaal %(costs)s euro. Deze zullen worden verekend met je "
-"streeplijst."
 
 #: amelie/activities/templates/activities/activity_cancelled_from_waiting.mail:5
 #, python-format
@@ -15078,6 +15065,13 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid ""
+#~ "The total costs were %(costs)s euro. These costs will be refunded on your "
+#~ "personal tab."
+#~ msgstr ""
+#~ "De kosten waren in totaal %(costs)s euro. Deze zullen worden verekend met "
+#~ "je streeplijst."
 
 #~ msgid ""
 #~ "\n"
