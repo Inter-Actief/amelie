@@ -1,0 +1,13 @@
+name: Trigger CI job on Inter-Actief GitLab
+on: [push, pull_request]
+env:
+  GITLAB_TOKEN: ${{ secrets.IA_GITLAB_CI_TOKEN }}
+  GITHUB_REF: ${{ github.ref }}
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger CI job on Inter-Actief GitLab
+      shell: bash
+      run: curl -X POST --fail -F token=$GITLAB_TOKEN -F ref="refs/heads/main" -F "variables[AMELIE_BRANCH_REF]=$GITHUB_REF" https://gitlab.ia.utwente.nl/api/v4/projects/153/trigger/pipeline

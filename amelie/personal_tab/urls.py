@@ -29,6 +29,9 @@ urlpatterns = [
         name='cookie_corner_transaction_update'),
     path('transactions/cookie_corner/<int:pk>/delete/', CookieCornerTransactionDelete.as_view(),
         name='cookie_corner_transaction_delete'),
+
+    path('wrapped', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
+
     path('transactions/reversal/<int:pk>/', ReversalTransactionDetail.as_view(), name='reversal_transaction_detail'),
     path('transactions/<int:pk>/', TransactionDetail.as_view(), name='transaction_detail'),
     path('transactions/<int:pk>/edit/', CustomTransactionUpdate.as_view(), name='transaction_update'),

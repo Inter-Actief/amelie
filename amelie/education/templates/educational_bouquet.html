@@ -27,6 +27,14 @@
                   You can nominate someone filling in and sending the form below.
                   {% endblocktrans %}
               </p>
+              <p class="small">
+                  {% url 'education:course_new' as new_course_url %}
+                  {% url 'education:module_new' as new_module_url %}
+                  {% url 'education:bouquet' as return_url %}
+                  {% blocktrans %}
+                      There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href="{{ new_course_url }}?next={{ return_url }}">new course</a> or a <a href="{{ new_module_url }}?next={{ return_url }}">new module</a>.
+                  {% endblocktrans %}
+              </p>
 
               <form action="" method="POST" class="big">
                   {% csrf_token %}

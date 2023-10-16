@@ -6,7 +6,7 @@ from amelie.claudia.models import ExtraGroup, SharedDrive, ExtraPerson, AliasGro
 from amelie.companies.models import Company, CompanyEvent, BaseBanner, WebsiteBanner, TelevisionBanner
 from amelie.calendar.models import Event
 from amelie.members.models import Person, Committee, Faculty, Department, Study, Dogroup, \
-    DogroupGeneration, Association, PaymentType, CommitteeCategory, Function
+    DogroupGeneration, Association, PaymentType, CommitteeCategory, Function, Payment
 from amelie.news.models import NewsItem
 from amelie.narrowcasting.models import TelevisionPromotion
 from amelie.education.models import Category, Page, EducationEvent, Complaint, ComplaintComment
@@ -74,6 +74,7 @@ auditlog.register(CookieCornerCategory)
 auditlog.register(AuthorizationType)
 auditlog.register(Authorization)
 auditlog.register(Amendment)
+auditlog.register(Payment)
 
 # Week mailing hooks
 auditlog.register(WeekMail)

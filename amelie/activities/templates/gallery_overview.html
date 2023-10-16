@@ -13,6 +13,13 @@
 
             var photoList = document.getElementById("photo-list");
 
+            /* Send requests with content type JSON */
+            $.ajaxSetup({
+               headers:{
+                  'Content-Type': "application/json"
+               }
+            });
+
             function clear() {
                 // If the page is not cleared yet, clear it
                 if (cleared === false) {
