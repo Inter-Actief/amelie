@@ -16,7 +16,7 @@ class PersonManager(models.Manager):
     
     def members_at(self, dt):
         return super(PersonManager, self).get_queryset().filter(
-            Q(membership__year=current_association_year(dt)),
+            Q(membership__year=association_year(dt)),
             Q(membership__ended__isnull=True) | Q(membership__ended__gt=dt)
         )
 

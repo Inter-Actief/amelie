@@ -48,7 +48,7 @@ from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
-from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
+from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
@@ -69,8 +69,7 @@ def statistics(request):
     per_study_rows = []
     for study in studies:
         count = Student.objects.filter(
-            ~Q(person__membership__year=current_association_year(dt)-1),
-            Q(person__membership__year=current_association_year(dt)),
+            Q(person__membership__year=association_year(dt)),
             Q(studyperiod__end__isnull=True) | Q(studyperiod__end__gt=dt),
             Q(studyperiod__begin__isnull=False),
             Q(studyperiod__begin__lte=dt),
@@ -129,9 +128,9 @@ def statistics(request):
     percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
 
     freshmen_bit = Person.objects.members_at(dt).filter(
-        Q(membership__year=current_association_year(dt)),
+        Q(membership__year=association_year(dt)),
         Q(student__studyperiod__study__abbreviation='B-BIT'),
-        Q(student__studyperiod__begin__year=current_association_year(dt)),
+        Q(student__studyperiod__begin__year=association_year(dt)),
         Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
     ).distinct()
 
@@ -140,9 +139,9 @@ def statistics(request):
     active_freshmen_bit_count = len(active_freshmen_bit)
 
     freshmen_tcs = Person.objects.members_at(dt).filter(
-        Q(membership__year=current_association_year(dt)),
+        Q(membership__year=association_year(dt)),
         Q(student__studyperiod__study__abbreviation='B-TCS'),
-        Q(student__studyperiod__begin__year=current_association_year(dt)),
+        Q(student__studyperiod__begin__year=association_year(dt)),
         Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
     ).distinct()
 
@@ -155,7 +154,7 @@ def statistics(request):
     percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
 
     employee_count = Employee.objects.filter(
-        Q(person__membership__year=current_association_year(dt)),
+        Q(person__membership__year=association_year(dt)),
         Q(person__membership__ended__isnull=True) | Q(person__membership__ended__gt=dt)
     ).count()
 
