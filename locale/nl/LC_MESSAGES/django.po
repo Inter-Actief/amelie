@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-22 16:20+0200\n"
-"PO-Revision-Date: 2023-09-22 10:31+0018\n"
+"POT-Creation-Date: 2023-10-16 22:16+0200\n"
+"PO-Revision-Date: 2023-10-16 22:15+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -326,7 +326,7 @@ msgstr "Foto's zijn ook beschikbaar zonder in te loggen"
 msgid "Photos"
 msgstr "Foto's"
 
-#: amelie/activities/forms.py:266
+#: amelie/activities/forms.py:284
 #, python-format
 msgid ""
 "File extension “%(extension)s” is not allowed. Allowed extensions are: "
@@ -335,7 +335,7 @@ msgstr ""
 "Bestandsextensie \"%(extension)s\" is niet toegestaan. Toegestane "
 "bestandsextensies zijn: %(allowed_extensions)s."
 
-#: amelie/activities/forms.py:276
+#: amelie/activities/forms.py:294
 #: amelie/activities/templates/activities/eventdesk/message_list.html:70
 #: amelie/activities/templates/activities/eventdesk/message_list.html:102
 msgid "Activity"
@@ -1135,9 +1135,10 @@ msgstr "Metadata"
 #: amelie/companies/templates/companies/company_statistics.html:137
 #: amelie/education/templates/education_event_overview.html:15
 #: amelie/education/templates/education_event_overview.html:65
-#: amelie/members/models.py:855 amelie/personal_tab/forms.py:16
-#: amelie/personal_tab/forms.py:24 amelie/personal_tab/forms.py:75
-#: amelie/personal_tab/models.py:121
+#: amelie/members/models.py:855
+#: amelie/members/templates/statistics/overview.html:15
+#: amelie/personal_tab/forms.py:16 amelie/personal_tab/forms.py:24
+#: amelie/personal_tab/forms.py:75 amelie/personal_tab/models.py:121
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:66
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:109
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:141
@@ -1859,8 +1860,8 @@ msgstr ""
 #: amelie/activities/templates/activity_enrollment_form.html:102
 #: amelie/activities/templates/activity_enrollment_overview.html:142
 #: amelie/activities/templates/activity_enrollment_print.html:73
-#: amelie/members/templates/statistics/overview.html:26
-#: amelie/members/templates/statistics/overview.html:115
+#: amelie/members/templates/statistics/overview.html:44
+#: amelie/members/templates/statistics/overview.html:133
 #: amelie/members/templates/statistics/payments.html:19
 #: amelie/personal_tab/templates/cookie_corner_balance.html:47
 #: amelie/personal_tab/templates/cookie_corner_balance.html:77
@@ -2046,8 +2047,8 @@ msgstr "Gerecht"
 
 #: amelie/activities/templates/activity_enrollment_overview.html:136
 #: amelie/activities/templates/activity_enrollment_print.html:69
-#: amelie/members/templates/statistics/overview.html:17
-#: amelie/members/templates/statistics/overview.html:106
+#: amelie/members/templates/statistics/overview.html:35
+#: amelie/members/templates/statistics/overview.html:124
 #: amelie/personal_tab/models.py:200
 #: amelie/personal_tab/templates/cookie_corner/alexia_transaction_detail.html:31
 #: amelie/personal_tab/templates/cookie_corner/cookie_corner_transaction_detail.html:18
@@ -4202,7 +4203,7 @@ msgstr "Timeline"
 
 #: amelie/claudia/templates/claudia/mapping_detail.html:78
 #: amelie/members/templates/committee.html:32
-#: amelie/members/templates/statistics/overview.html:73
+#: amelie/members/templates/statistics/overview.html:91
 #: templates/frontpage.html:110
 msgid "Members"
 msgstr "Leden"
@@ -5207,7 +5208,7 @@ msgstr "Module"
 #: amelie/members/templates/members/datablock_plain.mail:12
 #: amelie/members/templates/person_edit_study.html:12
 #: amelie/members/templates/registration_check.html:44
-#: amelie/members/templates/statistics/overview.html:16 amelie/tools/pdf.py:139
+#: amelie/members/templates/statistics/overview.html:34 amelie/tools/pdf.py:139
 #: amelie/tools/pdf.py:144 templates/profile_edit.html:80
 msgid "Course"
 msgstr "Vak"
@@ -5365,7 +5366,7 @@ msgid "Internationalization"
 msgstr "Internationalisering"
 
 #: amelie/education/models.py:239
-#: amelie/members/templates/statistics/overview.html:79
+#: amelie/members/templates/statistics/overview.html:97
 msgid "Otherwise"
 msgstr "Anders"
 
@@ -7298,7 +7299,7 @@ msgstr ""
 #: amelie/members/models.py:1063
 #: amelie/members/templates/includes/person_function_table.html:7
 #: amelie/members/templates/person_edit_functions.html:16
-#: amelie/members/templates/statistics/overview.html:105
+#: amelie/members/templates/statistics/overview.html:123
 #: amelie/statistics/templates/statistics.html:39
 msgid "Committee"
 msgstr "Commissie"
@@ -7717,7 +7718,7 @@ msgstr "Lid sinds"
 #: amelie/members/templates/committees.html:5
 #: amelie/members/templates/committees.html:11
 #: amelie/members/templates/person.html:53
-#: amelie/members/templates/statistics/overview.html:72
+#: amelie/members/templates/statistics/overview.html:90
 #: templates/basis.html:163 templates/profile_overview.html:141
 msgid "Committees"
 msgstr "Commissies"
@@ -9874,15 +9875,23 @@ msgstr "Er zijn geen rfid-kaarten geregistreerd."
 msgid "Member statistics"
 msgstr "Leden statistieken"
 
-#: amelie/members/templates/statistics/overview.html:11
+#: amelie/members/templates/statistics/overview.html:12
+msgid "Date selector"
+msgstr "Datum kiezen"
+
+#: amelie/members/templates/statistics/overview.html:18
+msgid "Render"
+msgstr "Weergeven"
+
+#: amelie/members/templates/statistics/overview.html:29
 msgid "Members per study"
 msgstr "Leden per Studie"
 
-#: amelie/members/templates/statistics/overview.html:36
+#: amelie/members/templates/statistics/overview.html:54
 msgid "General statistics"
 msgstr "Hoofdstatistieken"
 
-#: amelie/members/templates/statistics/overview.html:40
+#: amelie/members/templates/statistics/overview.html:58
 #, python-format
 msgid ""
 "\n"
@@ -9952,31 +9961,31 @@ msgstr ""
 "Aantal internationale leden: %(international_members_count)s<br/>\n"
 "Aantal actieve internationale leden: %(active_international_members_count)s"
 
-#: amelie/members/templates/statistics/overview.html:67
+#: amelie/members/templates/statistics/overview.html:85
 msgid "Number of committees per member"
 msgstr "Aantal commissies per lid"
 
-#: amelie/members/templates/statistics/overview.html:74
+#: amelie/members/templates/statistics/overview.html:92
 msgid "Board/CB"
 msgstr "Bestuur/KB"
 
-#: amelie/members/templates/statistics/overview.html:75
+#: amelie/members/templates/statistics/overview.html:93
 msgid "Freshmen"
 msgstr "Eerstejaars"
 
-#: amelie/members/templates/statistics/overview.html:76
+#: amelie/members/templates/statistics/overview.html:94
 msgid "International"
 msgstr "Internationaal"
 
-#: amelie/members/templates/statistics/overview.html:77
+#: amelie/members/templates/statistics/overview.html:95
 msgid "TCS"
 msgstr "INF"
 
-#: amelie/members/templates/statistics/overview.html:78
+#: amelie/members/templates/statistics/overview.html:96
 msgid "BIT"
 msgstr "BIT"
 
-#: amelie/members/templates/statistics/overview.html:100
+#: amelie/members/templates/statistics/overview.html:118
 msgid "Members per committee"
 msgstr "Leden per Commissie"
 
@@ -9994,19 +10003,19 @@ msgstr "Betalingen"
 msgid "Totals"
 msgstr "Totalen"
 
-#: amelie/members/views.py:183
+#: amelie/members/views.py:287
 msgid "6 or more"
 msgstr "6 of meer"
 
-#: amelie/members/views.py:200
+#: amelie/members/views.py:320
 msgid "total"
 msgstr "Totaal"
 
-#: amelie/members/views.py:271
+#: amelie/members/views.py:391
 msgid "This person still has an active (unterminated) membership."
 msgstr "Deze persoon heeft nog een actief (niet beeindigd) lidmaatschap."
 
-#: amelie/members/views.py:275
+#: amelie/members/views.py:395
 #, python-brace-format
 msgid ""
 "This person has not paid one of their memberships ({year}/{next_year} "
@@ -10015,16 +10024,16 @@ msgstr ""
 "Deze persoon heeft een lidmaatschap nog niet betaald ({year}/{next_year} "
 "{type})."
 
-#: amelie/members/views.py:284
+#: amelie/members/views.py:404
 msgid "This person still has an outstanding balance on their personal tab."
 msgstr "Deze persoon heeft nog een openstaand streeplijstsaldo."
 
-#: amelie/members/views.py:287
+#: amelie/members/views.py:407
 msgid "This person isn't enrolled for one or more future activities."
 msgstr ""
 "Deze persoon staat ingeschreven voor een of meer toekomstige activiteit(en)."
 
-#: amelie/members/views.py:302
+#: amelie/members/views.py:422
 msgid ""
 "This person cannot be anonymized because of the following reasons:\n"
 "{}"
@@ -10032,23 +10041,23 @@ msgstr ""
 "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:\n"
 "{}"
 
-#: amelie/members/views.py:1546
+#: amelie/members/views.py:1666
 #, python-brace-format
 msgid "OAuth link code and instructions were sent to {name}."
 msgstr "OAuth link code en instructies zijn verzonden naar {name}."
 
-#: amelie/members/views.py:1574
+#: amelie/members/views.py:1694
 msgid ""
 "You are not allowed to manually delete the payments of free memberships."
 msgstr ""
 "Je mag van gratis lidmaatschappen de betaling niet handmatig verwijderen."
 
-#: amelie/members/views.py:1577
+#: amelie/members/views.py:1697
 msgid ""
 "You are not allowed to delete payments that are already (being) debited."
 msgstr "Je mag geen betalingen verwijderen die al geïncasseerd zijn/worden."
 
-#: amelie/members/views.py:1581
+#: amelie/members/views.py:1701
 #, python-format
 msgid "Payment %(object)s has been removed"
 msgstr "Betaling %(object)s is verwijderd"
@@ -14927,6 +14936,10 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~| msgid "Date"
+#~ msgid "Date: "
+#~ msgstr "Datum:"
 
 #~ msgid ""
 #~ "\n"
