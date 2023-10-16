@@ -33,6 +33,7 @@ IGNORED_WORDS = [
     "\\bGoogle Maps\\b", "Postcode.nl", "euro?", '\\bSponsored by\\b', '\\binbitween\\b', 'BP', 'Am[eé]lie',
     'https://(www\\.)?inter-actief\\.net', '\\bAccountbeheer\\b', '\\bweek\\b', '\\bEnglish version Nederlandse versie',
     '(?:contact|accountbeheer)@inter-actief\\.net', 'https?://www\\.inter-actief\\.utwente\\.nl(?:/profile/edit)?',
+    '\\bEUR\\b', '\\b-\\b'
 ]
 
 REGEX_ACCEPTED = re.compile('^([^a-zA-Z]|&.*?;|\\b\\w\\b|{})*$'.format('|'.join(IGNORED_WORDS)), re.IGNORECASE)
