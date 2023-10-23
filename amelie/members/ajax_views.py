@@ -1,9 +1,11 @@
 from datetime import date
 
 import re
+
+from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template.defaultfilters import slugify
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
@@ -222,6 +224,10 @@ def person_mandate_activate(request, id, mandate):
 def person_mandate_end(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
     mandate = get_object_or_404(Authorization, id=mandate)
+    if mandate.end_date:
+        # Mandate is already terminated, do nothing and just give back the mandate details
+        # This prevents 'double termination', which would overwrite the original end date of the mandate.
+        return render(request, "person_mandate.html", locals())
     if request.method == "POST":
         form = MandateEndForm(request.POST, instance=mandate)
         if form.is_valid():

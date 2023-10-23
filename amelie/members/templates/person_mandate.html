@@ -60,12 +60,12 @@
                         {%  if request.is_board %}
                         <td>
                             {% if not mandate.is_signed and not mandate.end_date %}
-                                <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'print' %}</a><br />
+                                <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'Print' %}</a><br />
                                 <a href="{% url 'members:person_mandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate' %}</a><br />
                             {% endif %}
-                            <a href="{% url 'members:person_mandate_end' obj.id mandate.id %}" class="icon icon-cancel js-load-block" data-container="person_mandate">
-                                {% trans 'Stop ' %}
-                            </a>
+                            {% if not mandate.end_date %}
+                                <a href="{% url 'members:person_mandate_end' obj.id mandate.id %}" class="icon icon-cancel js-load-block" data-container="person_mandate">{% trans 'Terminate' %}</a>
+                            {% endif %}
                         </td>
                         {% endif %}
                     </tr>
