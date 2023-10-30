@@ -202,7 +202,7 @@ MIDDLEWARE = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'amelie.tools.middleware.PersonMiddleware',  # Adds person, is_board, is_education_committee attributes to request
+    'amelie.tools.middleware.GlobalIAVariablesMiddleware',  # Adds person, is_board, is_education_committee attributes to request
     'auditlog.middleware.AuditlogMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
@@ -901,3 +901,6 @@ KEYCLOAK_API_CLIENT_ID = "admin-cli"
 KEYCLOAK_API_CLIENT_SECRET = ""
 KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
 KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']
+
+# Wo4you personal URL
+BOOK_SALES_URL = "https://wo4you.nl/"
