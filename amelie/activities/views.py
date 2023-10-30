@@ -305,7 +305,12 @@ def activity_cancel(request, pk):
                 return redirect(obj)
             else:
                 activity_send_cancellationmail(obj.participation_set.all(), obj, request)
-                activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
+
+                # Send an email to the treasurer if people have paid in cash.
+                # This email contains the names and amount paid by each person.
+                if obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).exists():
+                    activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
+
                 # Undo transactions and remove participations
                 from amelie.personal_tab import transactions
                 for participation in obj.participation_set.all():

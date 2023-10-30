@@ -5,7 +5,7 @@
 {% blocktrans with summary=activity.summary begindate=activity.begin|date:"l j F Y" begintime=activity.begin|date:"G:i" %}
 You receive this email because you were enrolled for {{ summary }}. This activity has been cancelled.
 {% endblocktrans %}{% endhtmlify %}
-{% with costs=participation.calculate_costs|first paymentmethod=participation.get_payment_method_display %}{% if costs > 0 %}{% htmlify %}{% blocktrans %}The total costs were {{ costs }} euro. Your payment method was {{paymentmethod}}. These costs will be refunded on your personal tab in the case of a mandate or you can collect your cash payment at the association room in the case of a cash payment.{% endblocktrans %}{% endhtmlify %}
-{% endif %}{% endwith %} {% blocktrans %}
+{% if participation_costs > 0 %}{% htmlify %}{% blocktrans %}The total costs were {{ participation_costs }} euro. Your payment method was {{paymentmethod}}. These costs will be refunded on your personal tab in the case of a mandate or you can collect your cash payment at the association room in the case of a cash payment.{% endblocktrans %}{% endhtmlify %}
+{% endif %}{% blocktrans %}
 Kind regards,{% endblocktrans %}
 {% onlyhtml %}<br/>{% endonlyhtml %}Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% endblock %}

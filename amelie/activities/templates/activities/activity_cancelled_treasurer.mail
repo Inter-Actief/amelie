@@ -7,7 +7,7 @@
 The activity {{ activity }} has just been cancelled. However, there have been people enrolled that have made a cash payment. These should be refunded. For your bookkeeping, this email provides you with a list of the people that were enrolled and that have paid in cash:{% endblocktrans %}
 {% onlyhtml %}<ul>{% endonlyhtml %}
 {% for participation in participants %}
-{% onlyhtml %}<li>{% endonlyhtml %}{{participation.person}} - {{ participation.calculate_costs.0 }} EUR{% onlyhtml %}</li>{% endonlyhtml %}
+{% onlyhtml %}<li>{% endonlyhtml %}{{participation.person}} - {{ participation.costs }} EUR{% onlyhtml %}</li>{% endonlyhtml %}
 {% endfor %}
 {% onlyhtml %}</ul>{% endonlyhtml %}
 {% blocktrans %}
