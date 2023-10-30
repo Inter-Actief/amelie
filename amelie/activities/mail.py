@@ -16,7 +16,10 @@ def activity_send_cashrefundmail(cash_participants, activity, request):
     # Send an email to the treasurer
     template_name = "activities/activity_cancelled_treasurer.mail"
     context = {
-        "participants": cash_participants,
+        "participants": [{
+            "person": cash_participant.person,
+            "costs": cash_participant.calculate_costs()[0],
+        } for cash_participant in cash_participants],
         "activity": activity
     }
     task = MailTask(template_name=template_name)
@@ -86,7 +89,11 @@ def activity_send_cancellationmail(participants, activity, request, from_waiting
 
     task = MailTask(template_name=template_name)
     for participant in participants:
-        task.add_recipient(PersonRecipient(participant.person, context={'activity': activity}))
+        task.add_recipient(PersonRecipient(participant.person, context={
+            'activity': activity,
+            'participation_costs': participant.calculate_costs()[0],
+            'paymentmethod': participant.get_payment_method_display()
+        }))
 
     task.send()
 
