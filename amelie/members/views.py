@@ -31,6 +31,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import DeleteView, FormView
 
 from amelie.claudia.models import Mapping, ExtraPerson
+from amelie.iamailer import MailTask
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -48,6 +49,7 @@ from amelie.tools.decorators import require_board, require_superuser, require_li
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
+from amelie.tools.mail import PersonRecipient
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
@@ -392,6 +394,17 @@ def person_anonymize(request, id, slug):
     return render(request, 'person_anonymization_success.html', {'person': person})
 
 
+def send_new_member_email(person: Person):
+    """
+    Send an email to a new member. This function is used for each type of member.
+    """
+    template_name = "members/new_member.mail"
+    task = MailTask(template_name=template_name)
+    task.add_recipient(PersonRecipient(person, context={'membership': person.membership}))
+
+    task.send()
+
+
 class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
     template_name = "person_registration_form_general.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
@@ -499,6 +512,9 @@ class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
             study_period = StudyPeriod(student=student, study=study,
                                        begin=datetime.date(cleaned_data['generation'], 9, 1))
             study_period.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -609,6 +625,9 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         link_code = get_oauth_link_code(person)
         send_oauth_link_code_email(self.request, person, link_code)
 
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
+
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
         buffer = BytesIO()
@@ -715,6 +734,9 @@ class RegisterNewEmployeeWizardView(RequireBoardMixin, SessionWizardView):
         # Add employee details
         employee = Employee(person=person, number=cleaned_data['employee_number'])
         employee.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -837,6 +859,9 @@ class RegisterNewFreshmanWizardView(RequireBoardMixin, SessionWizardView):
                                        begin=datetime.date(current_academic_year_with_holidays(), 9, 1),
                                        dogroup=cleaned_data['dogroup'])
             study_period.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -1072,6 +1097,8 @@ class PreRegistrationStatus(RequireBoardMixin, TemplateView):
 
                 # Delete the pre-enrollment
                 pre_enrollment.delete()
+
+                send_new_member_email(person)
 
                 # Set message
                 messages.info(self.request, "Pre-registration of {} activated!".format(person.incomplete_name()))
