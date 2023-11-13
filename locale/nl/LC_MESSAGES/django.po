@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-13 22:52+0100\n"
-"PO-Revision-Date: 2023-11-13 23:12+0018\n"
+"POT-Creation-Date: 2023-11-13 23:31+0100\n"
+"PO-Revision-Date: 2023-11-13 23:32+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -212,17 +212,14 @@ msgid "A URL that points to the picture gallery for this activity."
 msgstr "Een URL die naar de foto gallerij van deze activiteit wijst."
 
 #: amelie/activities/graphql.py:61
-#| msgid "You cannot enroll for this activity"
 msgid "A link to the ICS file for this activity."
 msgstr "Een link naar het ICS bestand voor deze activiteit."
 
 #: amelie/activities/graphql.py:62
-#| msgid "You cannot enroll for this activity"
 msgid "Whether people can still enroll for this activity."
 msgstr "Of mensen zich nog kunnen inschrijven voor deze activiteit."
 
 #: amelie/activities/graphql.py:63
-#| msgid "You cannot enroll for this activity"
 msgid "Whether people can no longer enroll for this activity."
 msgstr "Of mensen zich niet langer kunnen inschrijven voor deze activiteit."
 
@@ -231,12 +228,10 @@ msgid "Whether the person that is currently signed-in can edit this activity."
 msgstr "Of de persoon die nu is ingelogd deze activeit kan bewerken."
 
 #: amelie/activities/graphql.py:65
-#| msgid "The type of export that was made."
 msgid "The amount of open spots that are still available."
 msgstr "Hoeveel plekken er nog vrij zijn."
 
 #: amelie/activities/graphql.py:66
-#| msgid "The enrollment for this activity is full"
 msgid "Whether this activity is full."
 msgstr "Of deze activiteit vol is."
 
@@ -245,22 +240,14 @@ msgid "Whether this activity has any participations that are on the waiting list
 msgstr "Of deze activiteit inschrijvingen op de wachtlijst heeft staan."
 
 #: amelie/activities/graphql.py:68
-#| msgid ""
-#| "\n"
-#| "For this activity, there is one place left."
-#| msgid_plural ""
-#| "\n"
-#| "For this activity there are %(places)s places left."
 msgid "Whether this activity is almost full (<= 10 places left)."
 msgstr "Of deze activiteit bijna vol is (<= 10 plekken over)."
 
 #: amelie/activities/graphql.py:69
-#| msgid "There are currently no pre-enrollments."
 msgid "If there are any options for enrollments."
 msgstr "Of er inschrijf mogelijkheden zijn."
 
 #: amelie/activities/graphql.py:70
-#| msgid "There are no messages for this activity"
 msgid "If there are any costs associated with this activity."
 msgstr "Of er kosten vastzitten aan deze activiteit."
 
@@ -279,6 +266,10 @@ msgstr "Een promo tekst van deze activiteit in de voorkeurstaal van de gebruiker
 #: amelie/activities/graphql.py:74
 msgid "A brief description of this activity (always in english)."
 msgstr "Een korte beschrijving van deze activiteit (altijd in het Engels)"
+
+#: amelie/activities/mail.py:39 amelie/activities/mail.py:41 amelie/activities/mail.py:84 amelie/activities/mail.py:86
+msgid "Inter-Activity"
+msgstr "Inter-Activiteit"
 
 #: amelie/activities/models.py:27
 msgid "Hexcolor without #"
@@ -1485,7 +1476,7 @@ msgstr "Alleen activiteiten met open inschrijvingen weergeven"
 msgid "iCal document with activity"
 msgstr "iCal-document met activiteit"
 
-#: amelie/activities/templates/activity_list.html:65 amelie/activities/templates/activity_list.html:66 amelie/activities/templates/activity_list.html:118 amelie/calendar/models.py:112 amelie/companies/templates/companies/company_event_list.html:36 amelie/companies/templates/companies/company_event_list.html:86 templates/frontpage.html:28 templates/frontpage.html:54 templates/frontpage.html:55
+#: amelie/activities/templates/activity_list.html:65 amelie/activities/templates/activity_list.html:66 amelie/activities/templates/activity_list.html:118 amelie/calendar/models.py:112 amelie/companies/templates/companies/company_event_list.html:36 amelie/companies/templates/companies/company_event_list.html:86 templates/frontpage.html:28 templates/frontpage.html:29 templates/frontpage.html:56 templates/frontpage.html:57
 msgid "Dutch-only"
 msgstr "Nederlands gesproken"
 
@@ -1597,15 +1588,20 @@ msgid "Photo archive"
 msgstr "Foto-archief"
 
 #: amelie/activities/templates/gallery_overview.html:245
+#| msgid ""
+#| "\n"
+#| "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
+#| "                            <a href=\"https://foto.inter-actief.net/\">foto.inter-actief.net</a>.\n"
+#| "                        "
 msgid ""
 "\n"
 "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
-"                            <a href=\"https://foto.inter-actief.net/\">foto.inter-actief.net</a>.\n"
+"                            <a href=\"https://inter-actief.net/foto\">inter-actief.net/foto</a>.\n"
 "                        "
 msgstr ""
 "\n"
 "Het foto-archief met de foto's van 2000 tot maart 2009 is te vinden\n"
-"op <a href=\"https://foto.inter-actief.net/\">foto.inter-actief.net</a>."
+"op <a href=\"https://inter-actief.net/foto\">inter-actief.net/foto</a>."
 
 #: amelie/activities/templates/gallery_photo.html:15
 msgid "All photos"
@@ -2948,7 +2944,7 @@ msgstr "Verify"
 msgid "Timeline"
 msgstr "Timeline"
 
-#: amelie/claudia/templates/claudia/mapping_detail.html:78 amelie/members/templates/committee.html:32 amelie/members/templates/statistics/overview.html:73 templates/frontpage.html:110
+#: amelie/claudia/templates/claudia/mapping_detail.html:78 amelie/members/templates/committee.html:32 amelie/members/templates/statistics/overview.html:73 templates/frontpage.html:112
 msgid "Members"
 msgstr "Leden"
 
@@ -3340,7 +3336,7 @@ msgstr "Profiel"
 msgid "Add company"
 msgstr "Bedrijf toevoegen"
 
-#: amelie/companies/templates/companies/company_overview.html:6 amelie/companies/templates/companies/company_statistics.html:38 templates/basis.html:217 templates/frontpage.html:74 templates/frontpage.html:79
+#: amelie/companies/templates/companies/company_overview.html:6 amelie/companies/templates/companies/company_statistics.html:38 templates/basis.html:217 templates/frontpage.html:76 templates/frontpage.html:81
 msgid "Company Corner"
 msgstr "Company Corner"
 
@@ -3952,7 +3948,7 @@ msgstr "Periode"
 msgid "Complaint"
 msgstr "Klacht"
 
-#: amelie/education/models.py:270 templates/basis.html:231 templates/frontpage.html:232
+#: amelie/education/models.py:270 templates/basis.html:231 templates/frontpage.html:234
 msgid "Complaints"
 msgstr "Klachten"
 
@@ -4586,7 +4582,7 @@ msgstr "Onderwijsactiviteiten"
 msgid "Educational activity"
 msgstr "Onderwijsactiviteit"
 
-#: amelie/education/templates/education_news.html:5 amelie/news/templates/news_items.html:5 templates/basis.html:138 templates/frontpage.html:144
+#: amelie/education/templates/education_news.html:5 amelie/news/templates/news_items.html:5 templates/basis.html:138 templates/frontpage.html:146
 msgid "News"
 msgstr "Nieuws"
 
@@ -4970,17 +4966,14 @@ msgid "There is no student with this student number."
 msgstr "Student met dit studentnummer bestaat niet."
 
 #: amelie/members/graphql.py:19
-#| msgid "Person"
 msgid "Person name"
 msgstr "Naam van de persoon"
 
 #: amelie/members/graphql.py:20
-#| msgid "Person is already a member of this committee."
 msgid "This person is currently a member of this committee"
 msgstr "Deze persoon zit nu in een commissie"
 
 #: amelie/members/graphql.py:95
-#| msgid "Members per committee"
 msgid "Members of this committee"
 msgstr "Leden van deze commissie"
 
@@ -4989,7 +4982,6 @@ msgid "Committee information (localized for user)"
 msgstr "Commissie informatie (aangepast aan de taal van de gebruiker)"
 
 #: amelie/members/graphql.py:131
-#| msgid "Committees without category"
 msgid "Committees in this category"
 msgstr "Commissies in deze categorie"
 
@@ -5153,7 +5145,7 @@ msgstr "Instelbaar door gebruiker in profiel"
 msgid "Adjustable by the user on login"
 msgstr "Instelbaar door gebruiker bij aanmelding"
 
-#: amelie/members/models.py:255 amelie/room_duty/templates/room_duty/table/overview.html:90
+#: amelie/members/models.py:255 amelie/members/templates/person_mandate.html:63 amelie/room_duty/templates/room_duty/table/overview.html:90
 msgid "Print"
 msgstr "Print"
 
@@ -5169,7 +5161,7 @@ msgstr "Man"
 msgid "Woman"
 msgstr "Vrouw"
 
-#: amelie/members/models.py:290 amelie/personal_tab/templates/cookie_corner_statistics.html:317 amelie/personal_tab/templates/cookie_corner_transactions_new.html:48 amelie/personal_tab/templates/lists/transactions_totals.html:24 templates/frontpage.html:119
+#: amelie/members/models.py:290 amelie/personal_tab/templates/cookie_corner_statistics.html:317 amelie/personal_tab/templates/cookie_corner_transactions_new.html:48 amelie/personal_tab/templates/lists/transactions_totals.html:24 templates/frontpage.html:121
 msgid "Other"
 msgstr "Overig"
 
@@ -5701,19 +5693,19 @@ msgstr ""
 "Met vriendelijke groet,\n"
 "Het bestuur van Inter-Actief"
 
-#: amelie/members/templates/birthdays.html:5 amelie/members/templates/birthdays.html:12 templates/frontpage.html:174 templates/frontpage.html:176
+#: amelie/members/templates/birthdays.html:5 amelie/members/templates/birthdays.html:12 templates/frontpage.html:176 templates/frontpage.html:178
 msgid "Birthdays"
 msgstr "Verjaardagen"
 
-#: amelie/members/templates/birthdays.html:27 templates/frontpage.html:187
+#: amelie/members/templates/birthdays.html:27 templates/frontpage.html:189
 msgid "year"
 msgstr "jaar"
 
-#: amelie/members/templates/birthdays.html:27 amelie/members/templates/includes/person_data_table.html:25 templates/frontpage.html:187
+#: amelie/members/templates/birthdays.html:27 amelie/members/templates/includes/person_data_table.html:25 templates/frontpage.html:189
 msgid "years"
 msgstr "jaren"
 
-#: amelie/members/templates/birthdays.html:30 templates/frontpage.html:190
+#: amelie/members/templates/birthdays.html:30 templates/frontpage.html:192
 msgid "There are no birthdays today"
 msgstr "Er zijn geen jarigen vandaag."
 
@@ -6094,7 +6086,7 @@ msgstr "Resultaten"
 msgid "Add new freshmen"
 msgstr "Nieuwe eerstejaars toevoegen"
 
-#: amelie/members/templates/includes/query/query_results.html:55 templates/frontpage.html:111
+#: amelie/members/templates/includes/query/query_results.html:55 templates/frontpage.html:113
 msgid "Add new member"
 msgstr "Nieuw lid toevoegen"
 
@@ -6985,13 +6977,9 @@ msgstr "Getekend"
 msgid "before September 2013"
 msgstr "voor september 2013"
 
-#: amelie/members/templates/person_mandate.html:63 amelie/personal_tab/templates/cookie_corner_authorization_view.html:54
-msgid "print"
-msgstr "afdrukken"
-
 #: amelie/members/templates/person_mandate.html:67
-msgid "Stop "
-msgstr "beëindigen"
+msgid "Terminate"
+msgstr "Beëindigen"
 
 #: amelie/members/templates/person_membership.html:5
 #, python-format
@@ -7193,7 +7181,7 @@ msgstr "Print die formulieren!"
 msgid "Go back"
 msgstr "Ga terug"
 
-#: amelie/members/templates/preregistration_status.html:5 amelie/members/templates/preregistration_status.html:11 templates/frontpage.html:116
+#: amelie/members/templates/preregistration_status.html:5 amelie/members/templates/preregistration_status.html:11 templates/frontpage.html:118
 msgid "Pre-enrollment status"
 msgstr "Status van voorinschrijvingen"
 
@@ -7589,12 +7577,10 @@ msgid "Publisher"
 msgstr "Uitgever"
 
 #: amelie/news/graphql.py:38
-#| msgid "Message (Dutch)"
 msgid "Message author"
 msgstr "Auteur van dit bericht"
 
 #: amelie/news/graphql.py:39 amelie/videos/graphql.py:54
-#| msgid "Change committee"
 msgid "Publishing committee"
 msgstr "Publiceer commissei"
 
@@ -8600,6 +8586,10 @@ msgstr "(nog) niet actief"
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:13 amelie/tools/pdf.py:370
 msgid "Mandate reference"
 msgstr "Machtigingskenmerk"
+
+#: amelie/personal_tab/templates/cookie_corner_authorization_view.html:54
+msgid "print"
+msgstr "afdrukken"
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:59
 msgid "Amendments"
@@ -9693,7 +9683,7 @@ msgstr "Meer publicaties zijn beschikbaar als je bent "
 msgid "logged in."
 msgstr "ingelogd."
 
-#: amelie/room_duty/models.py:29 amelie/room_duty/models.py:153 templates/frontpage.html:120
+#: amelie/room_duty/models.py:29 amelie/room_duty/models.py:153 templates/frontpage.html:122
 msgid "Office duty"
 msgstr "Kamerdienst"
 
@@ -10560,12 +10550,10 @@ msgid "Streaming.IA video with ID \"%(video_id)s\" doesn't exist."
 msgstr "Streaming.IA video met ID \"%(video_id)s\" bestaat niet."
 
 #: amelie/videos/graphql.py:24
-#| msgid "YouTube ID"
 msgid "YouTube"
 msgstr "YouTube"
 
 #: amelie/videos/graphql.py:25
-#| msgid "Streaming.IA ID"
 msgid "Streaming.IA"
 msgstr "Streaming IA"
 
@@ -10585,7 +10573,7 @@ msgstr "Uitgelicht"
 msgid "Video"
 msgstr "Video"
 
-#: amelie/videos/models.py:26 amelie/videos/templates/videos/videos.html:4 amelie/videos/templates/videos/videos.html:9 templates/basis.html:147 templates/frontpage.html:92
+#: amelie/videos/models.py:26 amelie/videos/templates/videos/videos.html:4 amelie/videos/templates/videos/videos.html:9 templates/basis.html:147 templates/frontpage.html:94
 msgid "Videos"
 msgstr "Video's"
 
@@ -11119,7 +11107,7 @@ msgstr "Intraweb"
 msgid "External Activities"
 msgstr "Externe Activiteiten"
 
-#: templates/basis.html:227 templates/frontpage.html:203
+#: templates/basis.html:227 templates/frontpage.html:205
 msgid "Education news"
 msgstr "Onderwijsnieuws"
 
@@ -11159,83 +11147,83 @@ msgstr "Probleem melden"
 msgid "CVD Policy"
 msgstr "CVD-beleid"
 
-#: templates/frontpage.html:76
+#: templates/frontpage.html:78
 msgid "In the Company Corner you can find information about companies and possible graduation projects or job opportunities."
 msgstr "In de Company Corner kun je informatie vinden over bedrijven en mogelijke afstudeerplekken of vacatures die zij bieden."
 
-#: templates/frontpage.html:82
+#: templates/frontpage.html:84
 msgid "Upcoming activities with external parties"
 msgstr "Komende externe activiteiten"
 
-#: templates/frontpage.html:107
+#: templates/frontpage.html:109
 msgid "Board tasks"
 msgstr "Bestuurstaken"
 
-#: templates/frontpage.html:109
+#: templates/frontpage.html:111
 msgid "Member management"
 msgstr "Ledenbeheer"
 
-#: templates/frontpage.html:112
+#: templates/frontpage.html:114
 msgid "Add new external member"
 msgstr "Nieuw extern lid toevoegen"
 
-#: templates/frontpage.html:113
+#: templates/frontpage.html:115
 msgid "Add new employee"
 msgstr "Nieuwe medewerker toevoegen"
 
-#: templates/frontpage.html:114
+#: templates/frontpage.html:116
 msgid "Add new freshman member"
 msgstr "Nieuw eerstejaars lid toevoegen"
 
-#: templates/frontpage.html:115
+#: templates/frontpage.html:117
 msgid "Pre-enroll freshman member"
 msgstr "Nieuw eerstejaarslid voorinschrijven"
 
-#: templates/frontpage.html:117
+#: templates/frontpage.html:119
 msgid "Add new committee"
 msgstr "Nieuwe commissie aanmaken"
 
-#: templates/frontpage.html:121
+#: templates/frontpage.html:123
 msgid "ClaudIA"
 msgstr "ClaudIA"
 
-#: templates/frontpage.html:122
+#: templates/frontpage.html:124
 msgid "Create new '/over' page"
 msgstr "Nieuwe '/over' pagina maken"
 
-#: templates/frontpage.html:123
+#: templates/frontpage.html:125
 msgid "Register RFID cards"
 msgstr "Registreer RFID-kaarten"
 
-#: templates/frontpage.html:124
+#: templates/frontpage.html:126
 msgid "UT Eventdesk status"
 msgstr "UT Evenementenbureau status"
 
-#: templates/frontpage.html:146 templates/frontpage.html:205
+#: templates/frontpage.html:148 templates/frontpage.html:207
 msgid "Add message"
 msgstr "Bericht toevoegen"
 
-#: templates/frontpage.html:157 templates/frontpage.html:216
+#: templates/frontpage.html:159 templates/frontpage.html:218
 msgid "This message has been pinned."
 msgstr "Dit bericht is vastgepind."
 
-#: templates/frontpage.html:163
+#: templates/frontpage.html:165
 msgid "There are no news posts."
 msgstr "Er zijn geen nieuwsberichten."
 
-#: templates/frontpage.html:222
+#: templates/frontpage.html:224
 msgid "There are no education news posts."
 msgstr "Er zijn geen onderwijsnieuwsberichten."
 
-#: templates/frontpage.html:235
+#: templates/frontpage.html:237
 msgid "Recent complaints"
 msgstr "Recente klachten"
 
-#: templates/frontpage.html:244
+#: templates/frontpage.html:246
 msgid "No public outstanding complaints"
 msgstr "Geen publieke openstaande klachten"
 
-#: templates/frontpage.html:249
+#: templates/frontpage.html:251
 msgid "See all complaints / File complaint"
 msgstr "Bekijk alle klachten / Meld klacht"
 
@@ -11704,6 +11692,9 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid "Stop "
+#~ msgstr "beëindigen"
 
 #~ msgid ""
 #~ "\n"
@@ -12518,6 +12509,21 @@ msgstr "Foto's toevoegen"
 #~ "\n"
 #~ "                                Inloggen met %(backend)s\n"
 #~ "                            "
+
+#~ msgid ""
+#~ "\n"
+#~ "For this activity, there is one place left."
+#~ msgid_plural ""
+#~ "\n"
+#~ "For this activity there are %(places)s places left."
+#~ msgstr[0] ""
+#~ "\n"
+#~ "                       Voor deze activiteit is nog 1 plaats beschikbaar.\n"
+#~ "                    "
+#~ msgstr[1] ""
+#~ "\n"
+#~ "                       Voor deze activiteit zijn nog %(places)s plaatsen beschikbaar.\n"
+#~ "                    "
 
 #~ msgid ""
 #~ "\n"
@@ -13772,9 +13778,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Do you know for use that you want to delete %(obj)s?"
 #~ msgstr "Weet je zeker dat je %(obj)s wilt verwijderen?"
-
-#~ msgid "Seminar"
-#~ msgstr "Werkcollege"
 
 #~ msgid "Working group"
 #~ msgstr "Werkgroep"
