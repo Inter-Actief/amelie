@@ -401,7 +401,9 @@ GRAPHQL_JWT = {
 }
 
 GRAPHQL_SCHEMAS = [
+    "amelie.activities.graphql",
     "amelie.education.graphql",
+    "amelie.files.graphql",
     "amelie.members.graphql",
     "amelie.news.graphql",
     "amelie.publications.graphql",
