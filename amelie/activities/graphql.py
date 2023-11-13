@@ -67,6 +67,11 @@ class ActivityType(DjangoObjectType):
     enrollment_almost_full = graphene.Boolean()
     has_enrollment_options = graphene.Boolean()
     has_costs = graphene.Boolean()
+    summary = graphene.String()
+    description = graphene.String()
+    promo = graphene.String()
+    description_short = graphene.String()
+
     # TODO: Figure out on how to use foreign keys here!
 
     def resolve_absolute_url(self: Activity, info):
@@ -110,7 +115,17 @@ class ActivityType(DjangoObjectType):
     def resolve_has_costs(self: Activity, info):
         return self.has_costs()
 
-    # TODO: Write custom resolvers and attributes for functions defined on the events class (inherited by Activity)
+    def resolve_summary(self: Activity, info):
+        return self.summary
+
+    def resolve_description(self: Activity, info):
+        return self.description
+
+    def resolve_promo(self: Activity, info):
+        return self.promo1
+
+    def resolve_description_short(self: Activity, info):
+        return self.description_short()
 
 
 class ActivityLabelType(DjangoObjectType):
