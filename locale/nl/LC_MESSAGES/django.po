@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-16 22:52+0200\n"
-"PO-Revision-Date: 2023-10-16 22:53+0018\n"
-"Last-Translator: Kevin Alberts <>\n"
+"POT-Creation-Date: 2023-11-13 23:31+0100\n"
+"PO-Revision-Date: 2023-11-13 23:32+0018\n"
+"Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -199,8 +199,75 @@ msgstr "Bestandsextensie \"%(extension)s\" is niet toegestaan. Toegestane bestan
 msgid "Activity"
 msgstr "Activiteit"
 
+#: amelie/activities/graphql.py:58
+msgid "The absolute URL to an activity."
+msgstr "De directe link naar de URL van deze activiteit."
+
+#: amelie/activities/graphql.py:59
+msgid "A URL to a random picture that was made at this activity."
+msgstr "Een URL van een willekeurige foto die gemaakt is op deze activiteit."
+
+#: amelie/activities/graphql.py:60
+msgid "A URL that points to the picture gallery for this activity."
+msgstr "Een URL die naar de foto gallerij van deze activiteit wijst."
+
+#: amelie/activities/graphql.py:61
+msgid "A link to the ICS file for this activity."
+msgstr "Een link naar het ICS bestand voor deze activiteit."
+
+#: amelie/activities/graphql.py:62
+msgid "Whether people can still enroll for this activity."
+msgstr "Of mensen zich nog kunnen inschrijven voor deze activiteit."
+
+#: amelie/activities/graphql.py:63
+msgid "Whether people can no longer enroll for this activity."
+msgstr "Of mensen zich niet langer kunnen inschrijven voor deze activiteit."
+
+#: amelie/activities/graphql.py:64
+msgid "Whether the person that is currently signed-in can edit this activity."
+msgstr "Of de persoon die nu is ingelogd deze activeit kan bewerken."
+
+#: amelie/activities/graphql.py:65
+msgid "The amount of open spots that are still available."
+msgstr "Hoeveel plekken er nog vrij zijn."
+
+#: amelie/activities/graphql.py:66
+msgid "Whether this activity is full."
+msgstr "Of deze activiteit vol is."
+
+#: amelie/activities/graphql.py:67
+msgid "Whether this activity has any participations that are on the waiting list."
+msgstr "Of deze activiteit inschrijvingen op de wachtlijst heeft staan."
+
+#: amelie/activities/graphql.py:68
+msgid "Whether this activity is almost full (<= 10 places left)."
+msgstr "Of deze activiteit bijna vol is (<= 10 plekken over)."
+
+#: amelie/activities/graphql.py:69
+msgid "If there are any options for enrollments."
+msgstr "Of er inschrijf mogelijkheden zijn."
+
+#: amelie/activities/graphql.py:70
+msgid "If there are any costs associated with this activity."
+msgstr "Of er kosten vastzitten aan deze activiteit."
+
+#: amelie/activities/graphql.py:71
+msgid "A summary of this activity in the preferred language of this user."
+msgstr "Een samenvatting van deze activiteit in de voorkeurstaal van de gebruiker."
+
+#: amelie/activities/graphql.py:72
+msgid "A description of this activity in the preferred language of this user."
+msgstr "Een beschrijving van deze activiteit in de voorkeurstaal van de gebruiker."
+
+#: amelie/activities/graphql.py:73
+msgid "Promotional text for this activity in the preferred language of this user."
+msgstr "Een promo tekst van deze activiteit in de voorkeurstaal van de gebruiker."
+
+#: amelie/activities/graphql.py:74
+msgid "A brief description of this activity (always in english)."
+msgstr "Een korte beschrijving van deze activiteit (altijd in het Engels)"
+
 #: amelie/activities/mail.py:39 amelie/activities/mail.py:41 amelie/activities/mail.py:84 amelie/activities/mail.py:86
-#| msgid "Inter-Archive"
 msgid "Inter-Activity"
 msgstr "Inter-Activiteit"
 
@@ -3725,6 +3792,18 @@ msgstr "Modulenaam"
 msgid "Name of course"
 msgstr "Naam vak"
 
+#: amelie/education/graphql.py:28
+msgid "Page name (localized for user)"
+msgstr "Pagina naam (aangepast in de taal van de gebruiker)"
+
+#: amelie/education/graphql.py:29
+msgid "Page content (localized for user)"
+msgstr "Pagina inhoud (aangepast aan de taal van de gebruiker)"
+
+#: amelie/education/graphql.py:50
+msgid "Category name (localized for user)"
+msgstr "Categorie naam (aangepast aan de taal van de gebruiker)"
+
 #: amelie/education/models.py:30 amelie/members/forms.py:735 amelie/members/models.py:902 amelie/personal_tab/models.py:283 amelie/personal_tab/models.py:341 amelie/personal_tab/templates/cookie_corner_statistics.html:58 amelie/personal_tab/templates/price_list.html:14
 msgid "Category"
 msgstr "Categorie"
@@ -4885,6 +4964,26 @@ msgstr "Studentnummer"
 #: amelie/members/forms.py:760
 msgid "There is no student with this student number."
 msgstr "Student met dit studentnummer bestaat niet."
+
+#: amelie/members/graphql.py:19
+msgid "Person name"
+msgstr "Naam van de persoon"
+
+#: amelie/members/graphql.py:20
+msgid "This person is currently a member of this committee"
+msgstr "Deze persoon zit nu in een commissie"
+
+#: amelie/members/graphql.py:95
+msgid "Members of this committee"
+msgstr "Leden van deze commissie"
+
+#: amelie/members/graphql.py:99
+msgid "Committee information (localized for user)"
+msgstr "Commissie informatie (aangepast aan de taal van de gebruiker)"
+
+#: amelie/members/graphql.py:131
+msgid "Committees in this category"
+msgstr "Commissies in deze categorie"
 
 #: amelie/members/models.py:37 amelie/members/models.py:58 amelie/members/models.py:83 amelie/members/models.py:898
 msgid "Abbreviation"
@@ -6879,7 +6978,6 @@ msgid "before September 2013"
 msgstr "voor september 2013"
 
 #: amelie/members/templates/person_mandate.html:67
-#| msgid "Seminar"
 msgid "Terminate"
 msgstr "Beëindigen"
 
@@ -7477,6 +7575,26 @@ msgstr "Deze tekst kan worden opgemaakt in 175 tekens (<a href=\"https://daringf
 #: amelie/news/forms.py:13 amelie/videos/templates/videos/ia_video_form.html:100 amelie/videos/templates/videos/yt_video_form.html:100
 msgid "Publisher"
 msgstr "Uitgever"
+
+#: amelie/news/graphql.py:38
+msgid "Message author"
+msgstr "Auteur van dit bericht"
+
+#: amelie/news/graphql.py:39 amelie/videos/graphql.py:54
+msgid "Publishing committee"
+msgstr "Publiceer commissei"
+
+#: amelie/news/graphql.py:42
+msgid "Message title (localized for user)"
+msgstr "Bericht titel (aangepast aan de taal van de gebruiker)"
+
+#: amelie/news/graphql.py:43
+msgid "Message introduction (localized for user)"
+msgstr "Bericht introductie (aangepast aan de taal van de gebruiker)"
+
+#: amelie/news/graphql.py:44
+msgid "Message content (localized for user)"
+msgstr "Bericht inhoud (aangepast aan de taal van de gebruiker)"
 
 #: amelie/news/models.py:35
 msgid "Choose this option to pin the news item"
@@ -9927,27 +10045,27 @@ msgstr "Er zijn nog geen kamerdienstschema-templates."
 msgid "Add office duty template"
 msgstr "Kamerdienst-template toevoegen"
 
-#: amelie/settings/generic.py:121
+#: amelie/settings/generic.py:123
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: amelie/settings/generic.py:122
+#: amelie/settings/generic.py:124
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:654
+#: amelie/settings/generic.py:701
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:655
+#: amelie/settings/generic.py:702
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:656
+#: amelie/settings/generic.py:703
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:657
+#: amelie/settings/generic.py:704
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -10430,6 +10548,22 @@ msgstr "YouTube video met ID \"%(video_id)s\" bestaat niet."
 #, python-format
 msgid "Streaming.IA video with ID \"%(video_id)s\" doesn't exist."
 msgstr "Streaming.IA video met ID \"%(video_id)s\" bestaat niet."
+
+#: amelie/videos/graphql.py:24
+msgid "YouTube"
+msgstr "YouTube"
+
+#: amelie/videos/graphql.py:25
+msgid "Streaming.IA"
+msgstr "Streaming IA"
+
+#: amelie/videos/graphql.py:55
+msgid "Video type (Youtube or IA)"
+msgstr "Video type (YouTube of IA)"
+
+#: amelie/videos/graphql.py:56
+msgid "URL to the video"
+msgstr "URL van de video"
 
 #: amelie/videos/models.py:18
 msgid "Featured"
@@ -12799,9 +12933,6 @@ msgstr "Foto's toevoegen"
 #~ msgid "This message has to remain visible"
 #~ msgstr "Dit bericht moet zichtbaar blijven"
 
-#~ msgid "The enrollment for this activity is full"
-#~ msgstr "De inschrijving voor deze activiteit is vol."
-
 #~ msgid "There are"
 #~ msgstr "Er zijn nog"
 
@@ -13635,9 +13766,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "You are already enrolled for this activity"
 #~ msgstr "Voor deze acitiviteit ben je al ingeschreven"
-
-#~ msgid "You cannot enroll for this activity"
-#~ msgstr "Voor deze activiteit kun je je niet inschrijven."
 
 #~ msgid "Foreknowledge"
 #~ msgstr "Voorkennis"

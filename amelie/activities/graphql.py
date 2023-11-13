@@ -1,5 +1,6 @@
 import graphene
 from django_filters import FilterSet
+from django.utils.translation import gettext_lazy as _
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel
@@ -54,23 +55,23 @@ class ActivityType(DjangoObjectType):
         ]
         filterset_class = ActivityFilterSet
 
-    absolute_url = graphene.String()
-    random_photo_url = graphene.String()
-    photo_url = graphene.String()
-    calendar_url = graphene.String()
-    enrollment_open = graphene.Boolean()
-    enrollment_closed = graphene.Boolean()
-    can_edit = graphene.Boolean()
-    places_available = graphene.Int()
-    enrollment_full = graphene.Boolean()
-    has_waiting_participants = graphene.Boolean()
-    enrollment_almost_full = graphene.Boolean()
-    has_enrollment_options = graphene.Boolean()
-    has_costs = graphene.Boolean()
-    summary = graphene.String()
-    description = graphene.String()
-    promo = graphene.String()
-    description_short = graphene.String()
+    absolute_url = graphene.String(description=_('The absolute URL to an activity.'))
+    random_photo_url = graphene.String(description=_('A URL to a random picture that was made at this activity.'))
+    photo_url = graphene.String(description=_('A URL that points to the picture gallery for this activity.'))
+    calendar_url = graphene.String(description=_('A link to the ICS file for this activity.'))
+    enrollment_open = graphene.Boolean(description=_('Whether people can still enroll for this activity.'))
+    enrollment_closed = graphene.Boolean(description=_('Whether people can no longer enroll for this activity.'))
+    can_edit = graphene.Boolean(description=_('Whether the person that is currently signed-in can edit this activity.'))
+    places_available = graphene.Int(description=_('The amount of open spots that are still available.'))
+    enrollment_full = graphene.Boolean(description=_('Whether this activity is full.'))
+    has_waiting_participants = graphene.Boolean(description=_('Whether this activity has any participations that are on the waiting list.'))
+    enrollment_almost_full = graphene.Boolean(description=_('Whether this activity is almost full (<= 10 places left).'))
+    has_enrollment_options = graphene.Boolean(description=_('If there are any options for enrollments.'))
+    has_costs = graphene.Boolean(description=_('If there are any costs associated with this activity.'))
+    summary = graphene.String(description=_('A summary of this activity in the preferred language of this user.'))
+    description = graphene.String(description=_('A description of this activity in the preferred language of this user.'))
+    promo = graphene.String(description=_('Promotional text for this activity in the preferred language of this user.'))
+    description_short = graphene.String(description=_('A brief description of this activity (always in english).'))
 
     # TODO: Figure out on how to use foreign keys here!
 
