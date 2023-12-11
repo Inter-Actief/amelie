@@ -76,18 +76,18 @@ class CompaniesQuery(graphene.ObjectType):
         return None
 
     def resolve_website_banner(self, info, id=None, slug=None):
-            if id is not None:
-                return WebsiteBanner.objects.get(pk=id)
-            if slug is not None:
-                return WebsiteBanner.objects.get(slug=slug)
-            return None
+        if id is not None:
+            return WebsiteBanner.objects.get(pk=id)
+        if slug is not None:
+            return WebsiteBanner.objects.get(slug=slug)
+        return None
 
     def resolve_television_banner(self, info, id=None, slug=None):
-            if id is not None:
-                return TelevisionBanner.objects.get(pk=id)
-            if slug is not None:
-                return TelevisionBanner.objects.get(slug=slug)
-            return None
+        if id is not None:
+            return TelevisionBanner.objects.get(pk=id)
+        if slug is not None:
+            return TelevisionBanner.objects.get(slug=slug)
+        return None
 
     def resolve_vivat_banner(self, info, id=None, slug=None):
         if id is not None:
