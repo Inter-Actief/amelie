@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-13 23:31+0100\n"
-"PO-Revision-Date: 2023-11-13 23:32+0018\n"
+"POT-Creation-Date: 2023-12-11 21:10+0100\n"
+"PO-Revision-Date: 2023-12-11 21:12+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -11,6 +11,21 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.9\n"
+
+#: amelie/about/graphql.py:16
+#| msgid "Person name"
+msgid "Page name"
+msgstr "Naam van de pagina"
+
+#: amelie/about/graphql.py:17
+#| msgid "Pages"
+msgid "Page slug"
+msgstr "Pagina slug"
+
+#: amelie/about/graphql.py:18
+#| msgid "Save comment"
+msgid "Page content"
+msgstr "Pagina inhoud"
 
 #: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:62 amelie/activities/templates/activity_enrollment_overview.html:180 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:25 amelie/education/models.py:47 amelie/education/models.py:132 amelie/education/models.py:178 amelie/members/models.py:36 amelie/members/models.py:57 amelie/members/models.py:81 amelie/members/models.py:121 amelie/members/models.py:218 amelie/members/models.py:248 amelie/members/models.py:660 amelie/members/models.py:690 amelie/members/models.py:874 amelie/members/models.py:897 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
 msgid "Name"
@@ -1588,11 +1603,6 @@ msgid "Photo archive"
 msgstr "Foto-archief"
 
 #: amelie/activities/templates/gallery_overview.html:245
-#| msgid ""
-#| "\n"
-#| "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
-#| "                            <a href=\"https://foto.inter-actief.net/\">foto.inter-actief.net</a>.\n"
-#| "                        "
 msgid ""
 "\n"
 "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
@@ -10053,19 +10063,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:701
+#: amelie/settings/generic.py:702
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:702
+#: amelie/settings/generic.py:703
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:703
+#: amelie/settings/generic.py:704
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:704
+#: amelie/settings/generic.py:705
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
