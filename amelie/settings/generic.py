@@ -5,6 +5,7 @@
 import os
 import re
 import saml2
+import datetime
 from datetime import date
 from decimal import Decimal
 
@@ -901,3 +902,5 @@ KEYCLOAK_API_CLIENT_ID = "admin-cli"
 KEYCLOAK_API_CLIENT_SECRET = ""
 KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
 KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']
+
+COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
