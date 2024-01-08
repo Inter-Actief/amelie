@@ -13,31 +13,15 @@ var state = {
    hoveredNeighbours: null
 };
 
-/**
- * A datastructure that holds for each dogroup its generations, parents and colours
- *
- * The structure looks as follows:
- *  dogroup_name: {         # The name of a dogroup (allows for agreggration of generations)
- *      generation: {       # The year that this dogroup was active
- *          id,             # The id associated with this generation
- *          parents: {      # A list of the parents of this dogroup
- *              id          # The id of the generation from each parent
- *          },
- *          color,          # The colour of this generation (by default the color of this dogroup)
- *      }
- *  }
- */
-let data;
-
-/**
- * All of the years that have at least one active generation of a dogroup
- */
-let years;
-
-/**
- * A list of names from all the dogroups
- */
 let dogroups;
+
+
+const config = {
+    gap_x: 1,
+    gap_y: 1,
+    node_size: 5,
+    edge_size: 1,
+};
 
 /**
  * Store nodes on a hover event.
@@ -54,67 +38,117 @@ function setHoveredNode(node) {
    renderer.refresh();
 }
 
-window.addEventListener('DOMContentLoaded', async function() {
+async function init() {
    // Initialize our JS objects.
    container = document.getElementById("do-group-tree");
    graph = new graphology.Graph();
 
-   // Constants that determine the sizes and distances between nodes.
-   let gap_x = 1;
-   let gap_y = 1;
-   let node_size = 5;
-   let edge_size = 1;
-
    // Load all the data objects.
    // You want to do this asynchronous, since loading this data might take quite a while
    let response = await fetch("/members/dogroups/data").then(res => res.json());
-   dogroups = response.dogroups;
-   years = response.years;
-   data = response.data;
+   dogroups = response;
+}
 
-   // Give every dogroup its own x coordinate
-   let dogroup_x_coords = {};
-   let current_x_coord = 0;
-   for (let i in dogroups) {
-      dogroup_x_coords[dogroups[i]] = current_x_coord;
-      current_x_coord += gap_x;
-   }
+function createDoGroupGraph() {
+    let graph = new graphology.Graph();
 
-   // Give every Kick-In year its own y coordinate
-   let year_y_coords = {};
-   let current_y_coord = 0;
-   for (let i in years.reverse()) {
-      year_y_coords[years[i]] = current_y_coord;
-      current_y_coord += gap_y;
-   }
+    /**
+     * Stores the count of relations from a dogroup a to b.
+     * @type {{number: {number: {number}}}}
+     */
+    let connections = {};
+    dogroups.map((dogroup) => {
+        if (!(dogroup.id in connections)) {
+            connections[dogroup.id] = {};
+        }
+        dogroup.generations.map((generation) => {
+            generation.parents.filter((parent) => parent.previous_dogroup !== null).map((parent) => {
+                if (!(parent.previous_dogroup in connections[dogroup.id])) {
+                    connections[dogroup.id][parent.previous_dogroup] = 0;
+                }
+                connections[dogroup.id][parent.previous_dogroup] += 1;
+            });
+        });
+    });
 
-   // Start adding in all the nodes.
-   for(let i in dogroups) {
-      let dogroup = dogroups[i];
-      for (let year in data[dogroup]) {
-         let generation = data[dogroup][year];
-         graph.addNode(generation.id, {x: dogroup_x_coords[dogroup],
-                                          y: year_y_coords[year],
-                                          label: dogroup + " " + year,
-                                          color: generation.color,
-                                          size: node_size});
-      }
-   }
+    // TODO: Figure out automated layouts: https://graphology.github.io/standard-library/layout-force.html
 
-   // Start adding in all the edges.
-   for (let i in dogroups) {
-      let dogroup = dogroups[i];
-      for (let year in data[dogroup]) {
-         let generation = data[dogroup][year];
-         let generation_id = generation['id'];
-         for (let _id in generation['parents']) {
-            let parent_id = generation['parents'][_id]['id'];
-            graph.addEdge(generation_id, parent_id, {size: edge_size})
-         }
-      }
-   }
+    // Add a node for each dogroup.
+    dogroups.map((dogroup, i) => {
+        graph.addNode(dogroup.id, {
+            label: dogroup.name,
+            color: dogroup.color,
+            x: i,
+            y: i,
+        });
+    });
 
-   // Empty the container of all of its child nodes.
+    Object.keys(connections).map((source) => {
+        Object.keys(connections[source]).map((target) => {
+            graph.addEdge(source, target, { size: connections[source][target] });
+        });
+    });
+
+    return graph;
+}
+
+function createTreeGraph() {
+    let graph = new graphology.Graph();
+    let years = dogroups
+        .map((dogroup) => dogroup.generations.map((generation) => generation.year))
+        .reduce((prev, curr) => {
+            curr.map((year) => prev.add(year));
+            return prev;
+        }, new Set())
+    years = [...years].sort((a, b) => b - a);
+
+    // Give every dogroup its own x coordinate
+    let dogroup_x_coords = {};
+    let current_x_coord = 0;
+    dogroups.map((dogroup) => {
+        dogroup_x_coords[dogroup.id] = current_x_coord;
+        current_x_coord += config.gap_x;
+    });
+
+    // Give every Kick-In year its own y coordinate
+    let year_y_coords = {};
+    let current_y_coord = 0;
+    years.map((year) => {
+        year_y_coords[year] = current_y_coord;
+       current_y_coord += config.gap_y;
+    });
+
+    // Start adding in all the nodes.
+    dogroups.map((dogroup) => {
+        dogroup.generations.map((generation) => {
+            graph.addNode(generation.id, {
+                x: dogroup_x_coords[dogroup.id],
+                y: year_y_coords[generation.year],
+                label: dogroup.name + " " + generation.year,
+                color: generation.color,
+                size: config.node_size,
+            });
+        });
+    });
+
+    // Start adding in all the edges.
+    dogroups.map((dogroup) => {
+        dogroup.generations.map((generation) => {
+            createdLinks = new Set();
+            generation.parents.filter((parent) => parent.previous_dogroup_generation !== null).map((parent) => {
+                if (!createdLinks.has(parent.previous_dogroup_generation)) {
+                    graph.addEdge(generation.id, parent.previous_dogroup_generation, {size: config.edge_size});
+                    createdLinks.add(parent.previous_dogroup_generation);
+                }
+            });
+        });
+    });
+
+    return graph;
+}
+
+function render(graph) {
+    // Empty the container of all of its child nodes.
    while (container.hasChildNodes()) {
       container.removeChild(container.firstChild);
    }
@@ -126,7 +160,7 @@ window.addEventListener('DOMContentLoaded', async function() {
    });
    renderer.on("leaveNode", () => {
       setHoveredNode(null);
-   })
+   });
 
    renderer.setSetting("nodeReducer", (node, data) => {
       const res = {...data};
@@ -150,4 +184,12 @@ window.addEventListener('DOMContentLoaded', async function() {
 
    const layout = new ForceSupervisor(graph);
    layout.start();
+}
+
+window.addEventListener('DOMContentLoaded', async function() {
+    await init();
+
+    // let graph = createTreeGraph();
+    let graph = createDoGroupGraph();
+    render(graph);
 });

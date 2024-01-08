@@ -1592,40 +1592,90 @@ class DoGroupTreeView(TemplateView):
 class DoGroupTreeViewData(View):
 
     def get(self, request, *args, **kwargs):
-        # Create a datastructure that maps connects generations based on parents and children
-        generation_objects = DogroupGeneration.objects.select_related('dogroup').prefetch_related(
-            'studyperiod_set').all().order_by('dogroup', 'generation')
-
-        # A data structure
-        generations = dict()
-
-        # Aggregates all the years that have had dogroups
-        years = set()
-        for generation in generation_objects:
-            years.add(generation.generation)
-            prev = set()
-            for parent in generation.parents.all():
-                if parent.is_student():
-                    parent_prev_dogroups = parent.student.studyperiod_set.filter(dogroup__isnull=False,
-                                                                                 dogroup__generation__lt=generation.generation).order_by(
-                        'dogroup__generation')
-                    if parent_prev_dogroups.exists():
-                        prev.add(parent_prev_dogroups.last().dogroup)
-            generations[generation] = prev
-
-        dogroups = dict()
-        for dogroup in Dogroup.objects.all():
-            dogroups[str(dogroup)] = {}
-        for generation in generations.keys():
-            dogroups[str(generation.dogroup)][generation.generation] = {
-                "id": generation.id,
-                "parents": [{"id": p.id} for p in generations[generation]],
-                "color": generation.color,
+        dogroups = []
+        for dogroup in Dogroup.objects.prefetch_related(
+            'dogroupgeneration_set__parents__student__studyperiod_set__dogroup__dogroup',
+        ).all():
+            dogroup_obj = {
+                'id': dogroup.id,
+                'name': dogroup.name,
+                'color': dogroup.color,
+                'generations': [],
             }
 
-        data = {
-            "years": sorted(list(years)),
-            "dogroups": list(dogroups.keys()),
-            "data": dogroups,
-        }
-        return JsonResponse(data)
+            for generation in dogroup.dogroupgeneration_set.all():
+                generation_obj = {
+                    'id': generation.id,
+                    'year': generation.generation,
+                    'color': generation.color,
+                    'parents': [],
+                }
+                for parent in generation.parents.all():
+                    parent_obj = {
+                        'id': parent.id,
+                        'previous_dogroup': None,
+                        'previous_dogroup_generation': None,
+                    }
+                    if parent.is_student():
+                        previous_dogroups = (parent
+                                             .student
+                                             .studyperiod_set
+                                             .filter(
+                                                dogroup__isnull=False,
+                                                dogroup__generation__lte=generation.generation
+                                             )
+                                             .order_by('dogroup__generation'))
+                        if previous_dogroups.exists():
+                            parent_obj['previous_dogroup'] = previous_dogroups.last().dogroup.dogroup.id
+                            parent_obj['previous_dogroup_generation'] = previous_dogroups.last().dogroup.id
+                    generation_obj['parents'].append(parent_obj)
+
+                dogroup_obj['generations'].append(generation_obj)
+            dogroups.append(dogroup_obj)
+
+        return JsonResponse(dogroups, safe=False)
+        # Create a datastructure that maps connects generations based on parents and children
+        # generation_objects = (DogroupGeneration.objects
+        #                       .select_related('dogroup')
+        #                       .prefetch_related('studyperiod_set')
+        #                       .aggregate()
+        #                       .order_by('dogroup', 'generation'))
+
+        # # A data structure
+        # generations = dict()
+        #
+        # # Aggregates all the years that have had dogroups
+        # years = set()
+        # for generation in generation_objects:
+        #     years.add(generation.generation)
+        #     prev = set()
+        #     for parent in generation.parents.all():
+        #         if parent.is_student():
+        #             parent_prev_dogroups = parent.student.studyperiod_set.filter(dogroup__isnull=False,
+        #                                                                          dogroup__generation__lt=generation.generation).order_by(
+        #                 'dogroup__generation')
+        #             if parent_prev_dogroups.exists():
+        #                 prev.add(parent_prev_dogroups.last().dogroup)
+        #     generations[generation] = prev
+        #
+        # data = dict()
+        # dogroups = []
+        # for dogroup in Dogroup.objects.all():
+        #     data[str(dogroup)] = {}
+        #     dogroups.append({
+        #         'id': dogroup.id,
+        #         'name': dogroup.name,
+        #     })
+        # for generation in generations.keys():
+        #     data[str(generation.dogroup)][generation.generation] = {
+        #         "id": generation.id,
+        #         "parents": [{"id": p.id} for p in generations[generation]],
+        #         "color": generation.color,
+        #     }
+        #
+        # data = {
+        #     "years": sorted(list(years)),
+        #     "dogroups": dogroups,
+        #     "data": data,
+        # }
+        # return JsonResponse(data)
