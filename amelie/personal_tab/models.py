@@ -11,9 +11,10 @@ from django.utils.translation import get_language, gettext_lazy as _
 from localflavor.generic.models import BICField, IBANField
 
 from amelie.claudia.tools import verify_instance
-from amelie.members.models import Person, Membership
+from amelie.members.models import Committee, Person, Membership
 from amelie.personal_tab.managers import AuthorizationManager, DebtCollectionInstructionManager
 
+from enum import Enum
 
 class DiscountPeriod(models.Model):
     begin = models.DateTimeField(blank=False, verbose_name=_('begin'))
@@ -878,6 +879,49 @@ class ReversalTransaction(Transaction):
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
 
+class DeclarationPaymentMethodEnum(Enum):
+    CASHBOX = 'cashbox' # Payment through cashbox
+    DEBIT = 'debit' # Payment by debit card of IA
+    BANK = 'bank' # Payment by own bank account
+
+
+class Declaration(models.Model):
+    # Problem with declaration; we want to keep declarations when persons are deleted.
+    # On creation of the declaration, the claimaint details (as string) are filled in.
+    # On deletion of the claimant, filtering is done by these fields.
+
+    # ###################
+    # DETAILS OF CLAIMANT
+    # ###################
+    claimant_person_object = models.ForeignKey(Person, verbose_name=_('person'), on_delete=models.SET_NULL, null=True)
+    claimaint_name = models.TextField(null=True);
+
+    # Same case for the committees
+    claimant_committee_object = models.ForeignObject(Committee, verbose_name=_('committee'), on_delete=models.SET_NULL, null=True)
+    claimant_committee_name = models.TextField(null=True);
+
+    payment_method = models.EnumChoiceField(DeclarationPaymentMethodEnum, default=DeclarationPaymentMethodEnum.BANK)
+
+    # Can be paid back only if their form of declaration payment enum is not DEBIT
+    claimant_iban = IBANField(verbose_name=_('IBAN'), blank=True)
+
+    # ######################
+    # DETAILS OF DECLARATION
+    # ######################
+    # declaration_amount = 
+
+    @property
+    def claimant(self):
+        if self.claimant_person:
+            return self.claimant_person.full_name
+        return self.claimant_name
+
+    @property
+    def claimant_committee(self):
+        if self.claimant_committee_object:
+            return self.claimant_committee_object.name
+        return self.claimant_committee_name
+    
 
 def _complain_with_claudia(sender, **kwargs):
     instance = kwargs.get('instance')
