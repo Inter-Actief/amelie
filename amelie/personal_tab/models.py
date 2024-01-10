@@ -889,10 +889,6 @@ class Declaration(models.Model):
     # Problem with declaration; we want to keep declarations when persons are deleted.
     # On creation of the declaration, the claimaint details (as string) are filled in.
     # On deletion of the claimant, filtering is done by these fields.
-
-    # ###################
-    # DETAILS OF CLAIMANT
-    # ###################
     claimant_person_object = models.ForeignKey(Person, verbose_name=_('person'), on_delete=models.SET_NULL, null=True)
     claimaint_name = models.TextField(null=True);
 
@@ -905,10 +901,20 @@ class Declaration(models.Model):
     # Can be paid back only if their form of declaration payment enum is not DEBIT
     claimant_iban = IBANField(verbose_name=_('IBAN'), blank=True)
 
-    # ######################
-    # DETAILS OF DECLARATION
-    # ######################
-    # declaration_amount = 
+    declaration_amount = models.FloatField(decimal_places=2)
+    
+    declaration_description = models.TextField()
+    
+    declaration_submission_date = models.DateField()
+
+    # Not sure if a signature is needed.
+    # let us assume that it is not.
+
+    # Following details to be filled in by the treasurer:
+    document_number = models.TextField()
+    payment_date = models.DateField()
+
+
 
     @property
     def claimant(self):
