@@ -51,8 +51,8 @@ inject_style(PeriodForm)
 
 class PeriodKeywordForm(forms.Form):
     keywords = forms.CharField(max_length=20, label=_('Keywords'))
-    from_date = forms.DateField(label='Begin date:', initial=timezone.now().date() - timedelta(days=365))
-    to_date = forms.DateField(label='End date:', initial=timezone.now().date())
+    from_date = forms.DateField(label=_('Begin date:'), initial=timezone.now().date() - timedelta(days=365))
+    to_date = forms.DateField(label=_('End date:'), initial=timezone.now().date())
 
     def __init__(self, *args, **kwargs):
         if 'to_date_required' in kwargs:
