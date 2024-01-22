@@ -892,7 +892,14 @@ def gallery(request, pk, page=1):
 
 
 def photos(request, page=1):
-    activities = Activity.objects.filter_public(request).filter(photos__gt=0).distinct().order_by('-end')
+    filters = Q(photos__gt=0)
+    if "q" in request.GET:
+        query = request.GET["q"]
+        # No requirement of 3 characters or more because the request is not a
+        # dynamic input field and will therefore stress the server less.
+        filters &= Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
+
+    activities = Activity.objects.filter_public(request).filter(filters).distinct().order_by('-end')
 
     only_public = not hasattr(request, 'user') or not request.user.is_authenticated
     if only_public:
