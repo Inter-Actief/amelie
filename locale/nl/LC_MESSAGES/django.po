@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-11 21:10+0100\n"
-"PO-Revision-Date: 2023-12-11 21:12+0018\n"
+"POT-Creation-Date: 2023-12-11 22:08+0100\n"
+"PO-Revision-Date: 2024-02-05 20:44+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -3098,6 +3098,21 @@ msgstr "Begin:"
 #: amelie/companies/forms.py:140 amelie/personal_tab/forms.py:158
 msgid "End (till)"
 msgstr "Einde (tot):"
+
+#: amelie/companies/graphql.py:23
+#| msgid "Name (company)"
+msgid "Name of the company"
+msgstr "Naam van het bedrijf"
+
+#: amelie/companies/graphql.py:24
+#| msgid "Subject of the complaint"
+msgid "Profile of the company"
+msgstr "Profiel van het bedrijf"
+
+#: amelie/companies/graphql.py:25
+#| msgid "short description (en)"
+msgid "Short description of the company"
+msgstr "Korte beschrijving van het bedrijf"
 
 #: amelie/companies/models.py:18 amelie/personal_tab/models.py:421
 msgid "name"
