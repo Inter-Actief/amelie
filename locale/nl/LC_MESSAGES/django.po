@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-13 23:31+0100\n"
-"PO-Revision-Date: 2023-11-13 23:32+0018\n"
+"POT-Creation-Date: 2023-12-11 22:08+0100\n"
+"PO-Revision-Date: 2023-12-11 22:09+0018\n"
 "Last-Translator:   <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1588,11 +1588,6 @@ msgid "Photo archive"
 msgstr "Foto-archief"
 
 #: amelie/activities/templates/gallery_overview.html:245
-#| msgid ""
-#| "\n"
-#| "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
-#| "                            <a href=\"https://foto.inter-actief.net/\">foto.inter-actief.net</a>.\n"
-#| "                        "
 msgid ""
 "\n"
 "                            The photo archive with photos from 2000 till march 2009 can be found on\n"
@@ -3088,6 +3083,21 @@ msgstr "Begin:"
 #: amelie/companies/forms.py:140 amelie/personal_tab/forms.py:158
 msgid "End (till)"
 msgstr "Einde (tot):"
+
+#: amelie/companies/graphql.py:23
+#| msgid "Name (company)"
+msgid "Name of the company"
+msgstr "Naam van het bedrijf"
+
+#: amelie/companies/graphql.py:24
+#| msgid "Subject of the complaint"
+msgid "Profile of the company"
+msgstr "Profiel van het bedrijf"
+
+#: amelie/companies/graphql.py:25
+#| msgid "short description (en)"
+msgid "Short description of the company"
+msgstr "Korte beschrijving van het bedrijf"
 
 #: amelie/companies/models.py:18 amelie/personal_tab/models.py:421
 msgid "name"
@@ -10053,19 +10063,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:701
+#: amelie/settings/generic.py:702
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:702
+#: amelie/settings/generic.py:703
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:703
+#: amelie/settings/generic.py:704
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:704
+#: amelie/settings/generic.py:705
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
