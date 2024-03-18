@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save, pre_save
@@ -360,6 +360,9 @@ class EnrollmentoptionAnswer(models.Model):
     def display_answer(self):
         return self.answer
 
+    def is_empty(self):
+        raise NotImplementedError('Cannot be called on base class')
+
     def __str__(self):
         return '%s' % self.content_type
 
@@ -406,6 +409,9 @@ class EnrollmentoptionQuestionAnswer(EnrollmentoptionAnswer):
     def display_answer(self):
         return self.answer or "-"
 
+    def is_empty(self):
+        return EnrollmentoptionQuestionAnswer.objects.filter(id=self.id).filter(answer__exact='').exists()
+
     def clean(self):
         if self.enrollmentoption.enrollmentoptionquestion.required and len(self.answer) == 0:
             raise ValidationError(_('A response is required'))
@@ -418,6 +424,9 @@ class EnrollmentoptionCheckboxAnswer(EnrollmentoptionAnswer):
     @property
     def display_answer(self):
         return _("Yes") if self.answer else _("No")
+
+    def is_empty(self):
+        return EnrollmentoptionCheckboxAnswer.objects.filter(id=self.id).filter(answer=False).exists()
 
     def get_price_extra(self):
         if self.answer:
@@ -434,6 +443,9 @@ class EnrollmentoptionNumericAnswer(EnrollmentoptionAnswer):
     def display_answer(self):
         return self.answer
 
+    def is_empty(self):
+        return EnrollmentoptionNumericAnswer.objects.filter(id=self.id).filter(answer=0).exists()
+
     def get_price_extra(self):
         return self.enrollmentoption.enrollmentoptionnumeric.price_extra * self.answer
 
@@ -445,6 +457,9 @@ class EnrollmentoptionSelectboxAnswer(EnrollmentoptionAnswer):
     @property
     def display_answer(self):
         return self.answer or _("(none)")
+
+    def is_empty(self):
+        return EnrollmentoptionSelectboxAnswer.objects.filter(id=self.id).filter(answer__isnull=True).exists()
 
     def get_price_extra(self):
         return self.answer.price_extra
@@ -509,6 +524,9 @@ class EnrollmentoptionFoodAnswer(EnrollmentoptionAnswer):
     @property
     def display_answer(self):
         return self.answer or _("(none)")
+
+    def is_empty(self):
+        return EnrollmentoptionFoodAnswer.objects.filter(id=self.id).filter(dishprice__isnull=True).exists()
 
     def get_price_extra(self):
         return self.dishprice.price if self.dishprice else super(EnrollmentoptionFoodAnswer, self).get_price_extra()

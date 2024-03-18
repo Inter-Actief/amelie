@@ -210,7 +210,7 @@ def activity(request, pk, deanonymise=False):
         confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if x.person.age(at=activity.end) >= 18]
     else:
         confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
-    
+
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
 
     if hasattr(request, 'person') and waiting_participation_set.filter(person=request.person).exists():
