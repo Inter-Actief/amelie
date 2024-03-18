@@ -37,7 +37,7 @@ from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, 
     EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
     EventDeskActivityMatchForm, EnrollmentoptionNumericForm, EnrollmentoptionNumericAnswerForm, PhotoFileUploadForm
-from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail
+from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, activity_send_cancellationmail, activity_send_cashrefundmail
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
@@ -190,6 +190,8 @@ def activity(request, pk, deanonymise=False):
     evt.add('dtend', activity.end)
     evt.add('summary', activity.summary)
 
+    current_time = timezone.now()
+
     only_show_underage = hasattr(request, 'is_board') and request.is_board and (request.GET.get('underage') == "True")
 
     # Extra check to make sure that no sensitive data will be leaked
@@ -263,13 +265,13 @@ def activity_random_photo(request, pk, *args, **kwargs):
     raise Http404(_('No photo'))
 
 
-@require_board  # Deleting an activity is only allowed by the board due to possible cookie corner transactions that should be undone.
+@require_board
 @transaction.atomic
 def activity_delete(request, pk):
     """
     Deletes an activity.
 
-    This removes all enrollments and undoes the corresponding transactions.
+    Activities may only be removed when these do not have any remaining enrollments left.
 
     Asks for a confirmation.
     """
@@ -293,6 +295,59 @@ def activity_delete(request, pk):
             return redirect(obj)
 
     return render(request, "activity_confirm_delete.html", locals())
+
+
+@require_board  # Cancelling an activity is only allowed by the board due to possible transactions that should be undone.
+@transaction.atomic
+def activity_cancel(request, pk):
+    """
+    Cancels or re-publishes an activity (depending on the current status of this event).
+
+    Events may only be cancelled if they have not yet started.
+
+    In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
+    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-openend.
+
+    Asks for a confirmation.
+    """
+    obj = get_object_or_404(Activity, pk=pk)
+
+    # If the event is already cancelled, immediately re-publish it without any confirmation screen.
+    if obj.cancelled:
+        obj.cancelled = False
+        obj.save()
+        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that all previous enrollments are not added again and that enrollments will have to be manually re-opened."))
+        return redirect(obj)
+
+    if request.POST:
+        if 'yes' in request.POST:
+
+            if obj.begin < timezone.now():
+                messages.error(_(f'We were unable to cancel {obj}, since it has already started.'))
+                return redirect(obj)
+            else:
+                activity_send_cancellationmail(obj.participation_set.all(), obj, request)
+
+                # Send an email to the treasurer if people have paid in cash.
+                # This email contains the names and amount paid by each person.
+                if obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).exists():
+                    activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
+
+                # Undo transactions and remove participations
+                from amelie.personal_tab import transactions
+                for participation in obj.participation_set.all():
+                    if participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
+                        transactions.participation_transaction(participation, f"Cancelled {obj}", cancel=True, added_by=request.person)
+                    # Remove the participation
+                    participation.delete()
+
+                obj.cancelled = True
+                obj.enrollment = False
+                obj.save()
+                messages.success(request, _(f"{obj} was cancelled successfully."))
+        return redirect(obj)
+
+    return render(request, "activity_confirm_cancellation.html", locals())
 
 
 @require_POST

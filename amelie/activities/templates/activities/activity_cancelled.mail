@@ -1,0 +1,11 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+{% block subject %}{% blocktrans %}Cancellation of {% endblocktrans %} {{ activity.summary }} {% endblock %}
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+{% blocktrans with summary=activity.summary begindate=activity.begin|date:"l j F Y" begintime=activity.begin|date:"G:i" %}
+You receive this email because you were enrolled for {{ summary }}. This activity has been cancelled.
+{% endblocktrans %}{% endhtmlify %}
+{% if participation_costs > 0 %}{% htmlify %}{% blocktrans %}The total costs were {{ participation_costs }} euro. Your payment method was {{paymentmethod}}. These costs will be refunded on your personal tab in the case of a mandate or you can collect your cash payment at the association room in the case of a cash payment.{% endblocktrans %}{% endhtmlify %}
+{% endif %}{% blocktrans %}
+Kind regards,{% endblocktrans %}
+{% onlyhtml %}<br/>{% endonlyhtml %}Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% endblock %}

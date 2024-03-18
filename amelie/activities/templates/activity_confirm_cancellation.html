@@ -1,0 +1,27 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Confirmation cancel' %} {{ obj }}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'Confirmation cancel' %} {{ obj }}</h2>
+        <div class="content">
+            <p>
+            {% blocktrans with obj=obj %}
+                Are you sure you want to cancel {{ obj }}?
+            {% endblocktrans %}
+            </p>
+
+            <p><b>{% trans 'All enrollments will be cancelled, the transactions will be undone, and all the participants will receive an email.' %}</b></p>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <p>
+                    <input type="submit" name="yes" value="{% trans 'Yes' %}"/>
+                    <input type="submit" name="no" value="{% trans 'No' %}"/>
+                </p>
+            </form>
+        </div>
+    </div></div>
+{% endblock content %}
