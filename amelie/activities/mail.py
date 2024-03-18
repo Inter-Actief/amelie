@@ -27,7 +27,7 @@ def activity_send_cashrefundmail(cash_participants, activity, request):
         tos=['Treasurer Inter-Actief <treasurer@inter-actief.net>'],
         context=context
     ))
-    task.send(delay=False)
+    task.send()
 
 
 def activity_send_enrollmentmail(participation, from_waiting_list=False):
