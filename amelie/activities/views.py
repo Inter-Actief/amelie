@@ -1100,6 +1100,9 @@ class ActivitySecurityMixin(object):
         elif not self.get_activity().can_edit(request.person):
             return render(request, "403.html", {'reason': _('You do not have permissions to edit this activity')},
                           status=403)
+        elif self.get_activity().cancelled:
+            return render(request, "403.html", {'reason': _('You cannot edit this activity, because it is cancelled')},
+                          status=403)
         else:
             return super(ActivitySecurityMixin, self).dispatch(request, *args, **kwargs)
 
