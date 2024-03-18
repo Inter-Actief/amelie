@@ -52,7 +52,7 @@ from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import MailingForm
 from amelie.tools import amelie_messages, types
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
-from amelie.tools.forms import PeriodForm, ExportForm
+from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mixins import RequireActiveMemberMixin, DeleteMessageMixin, PassesTestMixin, RequireBoardMixin, \
     RequireCommitteeMixin
@@ -126,7 +126,6 @@ def activities(request):
     new_activities = [a.as_leaf_class() for a in new_activities]
     only_open_enrollments = 'openEnrollments' in request.GET
 
-
     return render(request, "activity_list.html", locals())
 
 
@@ -134,14 +133,16 @@ def activities_old(request):
     """
     Gives an overview of past activities.
 
-    You can filter on a date.
+    You can filter on a date and on a few keywords.
     """
-    form = PeriodForm(to_date_required=False, data=request.GET or None)
+    form = PeriodKeywordForm(to_date_required=False, keywords_required=False, data=request.GET or None)
 
     if form.is_valid():
+        keywords = form.cleaned_data['keywords']
         start_date = form.cleaned_data['from_date']
         end_date = form.cleaned_data['to_date'] or timezone.now()
     else:
+        keywords = ""
         start_date = form.fields['from_date'].initial
         end_date = form.fields['to_date'].initial
 
@@ -149,8 +150,17 @@ def activities_old(request):
     start_datetime = timezone.make_aware(datetime.datetime.combine(start_date, datetime.time()))
     end_datetime = timezone.make_aware(datetime.datetime.combine(end_date, datetime.time()))
 
+    # Filter for activities in tim  range
     old_activities = Activity.objects.filter_public(request).filter(end__range=(start_datetime, end_datetime)) \
         .order_by('-end')
+
+    if 'keywords' in form.data.keys():
+        # Filter for activities with keyword
+        old_activities = old_activities.filter(Q(summary_en__icontains=keywords) |
+                                               Q(description_en__icontains=keywords) |
+                                               Q(summary_nl__icontains=keywords) |
+                                               Q(description_nl__icontains=keywords))
+
     return render(request, "activity_old.html", {
         'form': form,
         'old_activities': old_activities,
@@ -195,11 +205,16 @@ def activity(request, pk, deanonymise=False):
         for restaurant in restaurants:
             restaurant.dishes = DishPrice.objects \
                 .filter(enrollmentoptionfoodanswer__enrollmentoption__activity=activity,
-                        dish__restaurant=restaurant, enrollmentoptionfoodanswer__enrollment__waiting_list=False)\
-                .annotate(amount=Count('enrollmentoptionfoodanswer', filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)),
-                          total_price=Sum('price', filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)))
-        total_price = sum([(restaurant.dishes.aggregate(Sum('total_price')).get('total_price__sum')) if restaurant.dishes.aggregate(Sum('total_price')).get('total_price__sum') is not None else 0 for restaurant in restaurants])
-        total_amount = sum([restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants])
+                        dish__restaurant=restaurant, enrollmentoptionfoodanswer__enrollment__waiting_list=False) \
+                .annotate(amount=Count('enrollmentoptionfoodanswer',
+                                       filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)),
+                          total_price=Sum('price',
+                                          filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)))
+        total_price = sum([(restaurant.dishes.aggregate(Sum('total_price')).get(
+            'total_price__sum')) if restaurant.dishes.aggregate(Sum('total_price')).get(
+            'total_price__sum') is not None else 0 for restaurant in restaurants])
+        total_amount = sum(
+            [restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants])
 
     can_view_photos = activity.photos.filter_public(request).count() > 0
     obj = activity  # Template laziness
@@ -208,8 +223,11 @@ def activity(request, pk, deanonymise=False):
     participation_set = activity.participation_set.order_by('added_on')
 
     if only_show_underage:
-        confirmed_participation_set = [x for x in activity.participation_set.filter(waiting_list=False).order_by('added_on') if x.person.age(at=activity.begin) < 18]
-        confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if x.person.age(at=activity.end) >= 18]
+        confirmed_participation_set = [x for x in
+                                       activity.participation_set.filter(waiting_list=False).order_by('added_on') if
+                                       x.person.age(at=activity.begin) < 18]
+        confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if
+                                                             x.person.age(at=activity.end) >= 18]
     else:
         confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
 
@@ -263,12 +281,16 @@ def activity_delete(request, pk):
 
     if request.POST:
         if 'yes' in request.POST:
-            if obj.participation_set.all().count() > 0:
-                messages.error(_(f"One can only delete an activity when there are no more enrollments. (Currently there are still {obj.participation_set.all().count()} enrollments)"))
-                return redirect(obj)
-            else:
-                obj.delete()
-                return redirect(reverse('activities:activities'))
+            # Undo transactions and remove participations
+            from amelie.personal_tab import transactions
+            for participation in obj.participation_set.all():
+                transactions.participation_transaction(participation, "Cancelled event", cancel=True,
+                                                       added_by=request.person)
+                # Remove the participation
+                participation.delete()
+
+            obj.delete()
+            return redirect(reverse('activities:activities'))
         elif 'no' in request.POST:
             return redirect(obj)
 
@@ -351,7 +373,8 @@ def activity_enrollment(request, pk):
     if obj.enrollmentoption_set.count() == 0 and obj.price == 0:
         # Simple enrollment: no questions or costs
         participation = Participation(person=request.person, event=obj,
-                                      payment_method=Participation.PaymentMethodChoices.NONE, added_by=request.person, waiting_list=enrollment_full)
+                                      payment_method=Participation.PaymentMethodChoices.NONE, added_by=request.person,
+                                      waiting_list=enrollment_full)
         participation.save()
 
         # Send mail if preference asks for it
@@ -410,6 +433,7 @@ def activity_unenrollment_self(request, pk):
     # Redirect back to the activity
     return redirect(obj)
 
+
 def activity_editenrollment(request, participation, obj):
     # If necessary, compensate the enrollment costs.
     from amelie.personal_tab import transactions
@@ -432,6 +456,7 @@ def activity_editenrollment(request, participation, obj):
     else:
         participation.delete()
         activity_enrollment_form(request, obj, person=None)
+
 
 @require_lid
 @transaction.atomic
@@ -457,9 +482,11 @@ def activity_editenrollment_self(request, pk):
         return redirect(obj)
     else:
         enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj,
-                                                                        request.POST if request.POST else None, request.user)
+                                                                        request.POST if request.POST else None,
+                                                                        request.user)
         update = True
         return render(request, "activity_enrollment_form.html", locals())
+
 
 @require_board
 @transaction.atomic
@@ -484,9 +511,11 @@ def activity_editenrollment_other(request, pk, person_id):
         return redirect(obj)
     else:
         enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj,
-                                                                        request.POST if request.POST else None, person.user)
+                                                                        request.POST if request.POST else None,
+                                                                        person.user)
         update = True
         return render(request, "activity_enrollment_form.html", locals())
+
 
 @require_board
 @transaction.atomic
@@ -591,24 +620,30 @@ def _build_enrollmentoptionsanswers_forms(activity, data, user):
         try:
             if form_type == EnrollmentoptionCheckboxAnswerForm:
                 participation = Participation.objects.get(person__user=user, event=activity)
-                unit = EnrollmentoptionCheckboxAnswer.objects.get(enrollmentoption=enrollmentoption, enrollment=participation)
+                unit = EnrollmentoptionCheckboxAnswer.objects.get(enrollmentoption=enrollmentoption,
+                                                                  enrollment=participation)
                 checked = unit.answer
             elif form_type == EnrollmentoptionNumericAnswerForm:
                 participation = Participation.objects.get(person__user=user, event=activity)
-                unit = EnrollmentoptionNumericAnswer.objects.get(enrollmentoption=enrollmentoption, enrollment=participation)
+                unit = EnrollmentoptionNumericAnswer.objects.get(enrollmentoption=enrollmentoption,
+                                                                 enrollment=participation)
                 checked = unit.answer > 0
-        except (EnrollmentoptionCheckboxAnswer.DoesNotExist, EnrollmentoptionNumericAnswer.DoesNotExist, Participation.DoesNotExist):
+        except (EnrollmentoptionCheckboxAnswer.DoesNotExist, EnrollmentoptionNumericAnswer.DoesNotExist,
+                Participation.DoesNotExist):
             pass
 
         # If no data is given for this form, fill it from the database if possible
         initial = None
         try:
             participation = Participation.objects.get(person__user=user, event=activity)
-            initial = {"answer": answer_type.objects.get(enrollmentoption=enrollmentoption, enrollment=participation).answer}
+            initial = {
+                "answer": answer_type.objects.get(enrollmentoption=enrollmentoption, enrollment=participation).answer}
         except (Participation.DoesNotExist, answer_type.DoesNotExist):
             pass
 
-        forms.append(form_type(enrollmentoption=enrollmentoption, checked=checked, data=data, prefix=prefix, instance=instance, initial=initial))
+        forms.append(
+            form_type(enrollmentoption=enrollmentoption, checked=checked, data=data, prefix=prefix, instance=instance,
+                      initial=initial))
     return forms
 
 
@@ -643,7 +678,8 @@ def activity_enrollment_form(request, activity, person=None):
     per_mandate = (request.is_board or settings.PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE) \
                   and person.has_mandate_activities()
 
-    enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(activity, request.POST if request.POST else None, person.user)
+    enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(activity, request.POST if request.POST else None,
+                                                                    person.user)
     if request.method == 'POST':
 
         if indirect:
@@ -690,7 +726,8 @@ def activity_enrollment_form(request, activity, person=None):
                 participation.save()
 
             # Make transactions if there is a mandate
-            if participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION and (force_skip_waiting_list or not activity_full):
+            if participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION and (
+                force_skip_waiting_list or not activity_full):
                 from amelie.personal_tab import transactions
                 transactions.add_participation(participation, request.person)
 
@@ -944,7 +981,14 @@ def gallery(request, pk, page=1):
 
 
 def photos(request, page=1):
-    activities = Activity.objects.filter_public(request).filter(photos__gt=0).distinct().order_by('-end')
+    filters = Q(photos__gt=0)
+    if "q" in request.GET:
+        query = request.GET["q"]
+        # No requirement of 3 characters or more because the request is not a
+        # dynamic input field and will therefore stress the server less.
+        filters &= Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
+
+    activities = Activity.objects.filter_public(request).filter(filters).distinct().order_by('-end')
 
     only_public = not hasattr(request, 'user') or not request.user.is_authenticated
     if only_public:
@@ -1168,7 +1212,8 @@ class EnrollmentoptionCreateView(ActivitySecurityMixin, CreateView):
         activity_ins = self.get_activity()
 
         if activity_ins.participants.exists():
-            messages.error(request, _("This activity already has enrollments, therefore options can no longer be added!"))
+            messages.error(request,
+                           _("This activity already has enrollments, therefore options can no longer be added!"))
             return HttpResponseRedirect(activity_ins.get_absolute_url())
         else:
             return super(EnrollmentoptionCreateView, self).get(self, request, args, kwargs)
@@ -1346,9 +1391,11 @@ class EventDeskMessageList(RequireActiveMemberMixin, ListView):
 
         context['ia_event_email'] = settings.EVENT_DESK_NOTICES_DISPLAY_EMAIL
 
-        current_activities = Activity.objects.filter(begin__gte=now).prefetch_related('eventdeskregistrationmessage_set').order_by("begin")
+        current_activities = Activity.objects.filter(begin__gte=now).prefetch_related(
+            'eventdeskregistrationmessage_set').order_by("begin")
         context['current_activities'] = [x for x in current_activities if x.can_edit(self.request.person)]
-        past_activities = Activity.objects.filter(begin__gte=one_week_ago, end__lte=now).prefetch_related('eventdeskregistrationmessage_set').order_by("-begin")
+        past_activities = Activity.objects.filter(begin__gte=one_week_ago, end__lte=now).prefetch_related(
+            'eventdeskregistrationmessage_set').order_by("-begin")
         context['past_activities'] = [x for x in past_activities if x.can_edit(self.request.person)]
 
         unmatched_messages = EventDeskRegistrationMessage.objects.filter(activity__isnull=True)[:15]
@@ -1389,7 +1436,8 @@ class EventDeskMessageDetail(RequireActiveMemberMixin, DetailView):
             scopes=settings.CLAUDIA_GSUITE['SCOPES']['GMAIL_API']
         )
         # Retrieve the message from Google
-        msg_details = gmail_api.users().messages().get(id=self.object.message_id, userId='me', format='metadata').execute()
+        msg_details = gmail_api.users().messages().get(id=self.object.message_id, userId='me',
+                                                       format='metadata').execute()
         msg_raw = gmail_api.users().messages().get(id=self.object.message_id, userId='me', format='raw').execute()
 
         # Get the message from
