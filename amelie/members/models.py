@@ -422,6 +422,19 @@ class Person(models.Model, Mappable):
 
     is_board.boolean = True
 
+    def was_board_at(self, dt):
+        return self.function_set.filter(
+            Q(committee__superuser=True),
+            Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
+            Q(committee__founded__isnull=False),
+            Q(committee__founded__lte=dt),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).exists()
+
+    was_board_at.boolean = True
+
     def is_candidate_board(self):
         try:
             cb = Committee.objects.get(abbreviation="KB", abolished__isnull=True)
@@ -476,6 +489,21 @@ class Person(models.Model, Mappable):
         For the Board and developers (is_staff) you get a list of all active committees.
         """
         return Committee.objects.filter(function__person=self, function__end__isnull=True, abolished__isnull=True)
+
+    def current_committees_at(self, dt):
+        """
+        Returns a queryset with all committees this person was in on the given date.
+        For the Board and developers (is_staff) you get a list of all active committees.
+        """
+        return Committee.objects.filter(
+            Q(function__person=self),
+            Q(function__end__isnull=True) | Q(function__end__gt=dt),
+            Q(function__begin__isnull=False),
+            Q(function__begin__lte=dt),
+            Q(abolished__isnull=True) | Q(abolished__gt=dt),
+            Q(founded__isnull=False),
+            Q(founded__lte=dt)
+        )
 
     def age(self, at=datetime.date.today()):
         """

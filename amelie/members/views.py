@@ -12,7 +12,8 @@ from io import BytesIO
 from django.views import View
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
-from django.db.models import Sum
+from django.db.models import Q, Sum, Max, F
+from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -47,53 +48,103 @@ from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
-from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
+from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
-
 @require_board
 def statistics(request):
+
+    dt = None
+
+    if 'dt' in request.GET:
+        dt = parse_date(request.GET['dt'])
+    
+    if not dt:
+        # The page will only render the Date input field
+        return render(request, 'statistics/overview.html', locals())
+
     studies = Study.objects.all()
     per_study_total = 0
     per_study_rows = []
     for study in studies:
-        count = Student.objects.filter(person__membership__year=current_association_year(),
-                                       studyperiod__study=study,
-                                       studyperiod__end__isnull=True).distinct().count()
+        count = Student.objects.filter(
+            Q(person__membership__year=association_year(dt)),
+            Q(studyperiod__end__isnull=True) | Q(studyperiod__end__gt=dt),
+            Q(studyperiod__begin__isnull=False),
+            Q(studyperiod__begin__lte=dt),
+            Q(studyperiod__study=study)
+        ).distinct().count()
+
         per_study_total += count
         per_study_rows.append({'name': study.name, 'abbreviation': study.abbreviation, 'count': count})
     per_study_rows = sorted(per_study_rows, key=lambda k: -k['count'])
 
-    members_count = Person.objects.members().count()
-    active_members = Person.objects.active_members()
+    members_count = Person.objects.members_at(dt).count()
+    active_members = Person.objects.active_members_at(dt)
     active_members_count = active_members.count()
 
-    tcs = Student.objects.filter(studyperiod__study__primary_study=True).exclude(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
-    active_members_tcs = [student.person for student in tcs if student.person in active_members]
+    active_members_tcs = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        # Someone who is not studying anymore, but has studied CS at their latest studyperiod is counted
+        student__latest_studyperiod = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod')),
+        Q(student__studyperiod__study__abbreviation__in=['B-TCS','M-CS'])
+    ).distinct()
     active_members_tcs_count = len(active_members_tcs)
 
-    bit = Student.objects.filter(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
-    active_members_bit = [student.person for student in bit if student.person in active_members]
+    active_members_bit = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        # Someone who is not studying anymore, but has studied BIT at their latest studyperiod is counted
+        student__latest_studyperiod = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod')),
+        Q(student__studyperiod__study__abbreviation__in=['B-BIT','M-BIT'])
+    ).distinct()
     active_members_bit_count = len(active_members_bit)
 
-    other = Student.objects.exclude(studyperiod__study__primary_study=True).distinct()
-    active_members_other_count = len([student.person for student in other if student.person in active_members])
+    other_studies = Study.objects.exclude(abbreviation__in=['B-TCS','M-CS','B-BIT','M-BIT']).values("abbreviation")
+
+    active_members_other = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        student__latest_studyperiod_begin = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod_begin')),
+        # I know this is a very hacky way of excluding CS and BIT studies, but it doesn't work any other way...
+        Q(student__studyperiod__study__abbreviation__in=[other_studies])
+    ).distinct()
+    active_members_other_count = len(active_members_other)
 
     percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
 
-    freshmen_bit = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-BIT',
-                                                   student__studyperiod__begin__year=current_association_year(),
-                                                   student__studyperiod__end__isnull=True).distinct()
+    freshmen_bit = Person.objects.members_at(dt).filter(
+        Q(membership__year=association_year(dt)),
+        Q(student__studyperiod__study__abbreviation='B-BIT'),
+        Q(student__studyperiod__begin__year=association_year(dt)),
+        Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
+    ).distinct()
+
     freshmen_bit_count = freshmen_bit.count()
     active_freshmen_bit = [person for person in freshmen_bit if person in active_members]
     active_freshmen_bit_count = len(active_freshmen_bit)
 
-    freshmen_tcs = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-TCS',
-                                                   student__studyperiod__begin__year=current_association_year(),
-                                                   student__studyperiod__end__isnull=True).distinct()
+    freshmen_tcs = Person.objects.members_at(dt).filter(
+        Q(membership__year=association_year(dt)),
+        Q(student__studyperiod__study__abbreviation='B-TCS'),
+        Q(student__studyperiod__begin__year=association_year(dt)),
+        Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
+    ).distinct()
+
     freshmen_tcs_count = freshmen_tcs.count()
     active_freshmen_tcs = [person for person in freshmen_tcs if person in active_members]
     active_freshmen_tcs_count = len(active_freshmen_tcs)
@@ -102,23 +153,36 @@ def statistics(request):
 
     percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
 
-    employee_count = Employee.objects.filter(person__membership__year=current_association_year()).count()
+    employee_count = Employee.objects.filter(
+        Q(person__membership__year=association_year(dt)),
+        Q(person__membership__ended__isnull=True) | Q(person__membership__ended__gt=dt)
+    ).count()
 
     per_committee_total = 0
     per_committee_rows = []
-    committees = Committee.objects.active()
+    committees = Committee.objects.active_at(dt)
     committee_count = 0
     for committee in committees:
-        count = Function.objects.filter(committee=committee, end__isnull=True).count()
+        count = Function.objects.filter(
+            Q(committee=committee),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).count()
         per_committee_total += count
         if count > 0:
             committee_count += 1
             per_committee_rows.append({'name': committee.name, 'count': count})
 
     per_commitee_total_ex_pools = per_committee_total
-    pools = Committee.objects.active().filter(category__name=settings.POOL_CATEGORY)
+    pools = Committee.objects.active_at(dt).filter(category__name=settings.POOL_CATEGORY)
     for pool in pools:
-        count = Function.objects.filter(committee=pool, end__isnull=True).count()
+        count = Function.objects.filter(
+            Q(committee=pool),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).count()
         per_commitee_total_ex_pools = per_commitee_total_ex_pools - count
 
     average_committees_ex_pools_per_active_member = '{0:.2f}'.format((per_commitee_total_ex_pools*1.0)/active_members_count)
@@ -126,7 +190,7 @@ def statistics(request):
 
     per_active_member_total = {}
     for person in active_members:
-        num = len(person.current_committees())
+        num = person.current_committees_at(dt).count()
         if num not in per_active_member_total.keys():
             per_active_member_total[num] = 0
         per_active_member_total[num] += 1
@@ -136,7 +200,7 @@ def statistics(request):
         per_active_member_total.get(2, 0) - per_active_member_total.get(3, 0) - \
         per_active_member_total.get(4, 0) - per_active_member_total.get(5, 0)
 
-    international_members = Person.objects.members().filter(international_member=Person.InternationalChoices.YES).distinct()
+    international_members = Person.objects.members_at(dt).filter(international_member=Person.InternationalChoices.YES).distinct()
     international_members_count = international_members.count()
 
     active_international_members_count = len([member for member in international_members if member in active_members])
@@ -144,9 +208,9 @@ def statistics(request):
     members = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     members_ex_pools = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     for member in active_members:
-        num = len(member.current_committees())
-        num_ex_pools = Committee.objects.filter(function__person=member, function__end__isnull=True,
-                                                 abolished__isnull=True).exclude(category__name=settings.POOL_CATEGORY).count()
+        num = member.current_committees_at(dt).count()
+        num_ex_pools = member.current_committees_at(dt).exclude(category__name=settings.POOL_CATEGORY).count()
+
         if num not in members.keys():
             members[num] = [member]
         else:
@@ -162,8 +226,8 @@ def statistics(request):
         res = {'n': n,
                'total': len(members[n]),
                'total_ex': len(members_ex_pools[n]),
-               'board': len([x for x in members[n] if x.is_board()]),
-               'board_ex': len([x for x in members_ex_pools[n] if x.is_board()]),
+               'board': len([x for x in members[n] if x.was_board_at(dt)]),
+               'board_ex': len([x for x in members_ex_pools[n] if x.was_board_at(dt)]),
                'freshman': len([x for x in members[n] if x in freshmen_tcs or x in freshmen_bit]),
                'freshman_ex': len([x for x in members_ex_pools[n] if x in freshmen_tcs or x in freshmen_bit]),
                'international': len([x for x in members[n] if x in international_members]),
@@ -183,8 +247,8 @@ def statistics(request):
     res = {'n': _('6 or more'),
            'total': len(six_or_more),
            'total_ex': len(six_or_more_ex),
-           'board': len([x for x in six_or_more if x.is_board()]),
-           'board_ex': len([x for x in six_or_more_ex if x.is_board()]),
+            'board': len([x for x in six_or_more if x.was_board_at(dt)]),
+            'board_ex': len([x for x in six_or_more_ex if x.was_board_at(dt)]),
            'freshman': len([x for x in six_or_more if x in freshmen_tcs or x in freshmen_bit]),
            'freshman_ex': len([x for x in six_or_more_ex if x in freshmen_tcs or x in freshmen_bit]),
            'international': len([x for x in six_or_more if x in international_members]),
