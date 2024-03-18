@@ -377,9 +377,9 @@ $(document).ready(function() {
 			var commentBody = $(this).siblings('.complaint_comment_value');
 			commentPlace.children('input').toggleClass("complaint_comment_save");
 			commentPlace.prepend(
-				'<textarea cols="60">' + commentBody.val() + '</textarea>'
+				'<textarea cols="60" rows="20">' + commentBody.val() + '</textarea>'
 			);
-			commentPlace.children("p").remove();
+			commentPlace.children("div.comment_content").remove();
 			commentPlace.children('textarea').first().change(function (event) {
 				commentBody.val(event.target.value)
 			});

@@ -5,6 +5,7 @@
 import os
 import re
 import saml2
+import datetime
 from datetime import date
 from decimal import Decimal
 
@@ -414,6 +415,8 @@ COOKIE_CORNER_FREE_COOKIE_DISCOUNT_PERIOD_ID = 3
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_LOW = 0.0  # Chance for first and second year students
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_HIGH = 0.0  # Chance for older years and master students
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_LIMIT = 0  # Limit for the free cookie action (maximum amount of free cookies)
+
+COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
 
 # Conversion table from IBAN bank code to BIC
 COOKIE_CORNER_BANK_CODES = {

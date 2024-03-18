@@ -91,7 +91,7 @@ def statistics(request):
     active_freshmen_bit_count = len(active_freshmen_bit)
 
     freshmen_tcs = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-CS',
+                                                   student__studyperiod__study__abbreviation='B-TCS',
                                                    student__studyperiod__begin__year=current_association_year(),
                                                    student__studyperiod__end__isnull=True).distinct()
     freshmen_tcs_count = freshmen_tcs.count()
