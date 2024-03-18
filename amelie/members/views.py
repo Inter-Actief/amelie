@@ -190,15 +190,7 @@ def statistics(request):
 
     per_active_member_total = {}
     for person in active_members:
-        num = Committee.objects.filter(
-            Q(function__person=person),
-            Q(function__end__isnull=True) | Q(function__end__gt=dt),
-            Q(function__begin__isnull=False),
-            Q(function__begin__lte=dt),
-            Q(abolished__isnull=True) | Q(abolished__gt=dt),
-            Q(founded__isnull=False),
-            Q(founded__lte=dt)
-        ).count()
+        num = person.current_committees_at(dt).count()
         if num not in per_active_member_total.keys():
             per_active_member_total[num] = 0
         per_active_member_total[num] += 1
@@ -216,24 +208,8 @@ def statistics(request):
     members = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     members_ex_pools = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     for member in active_members:
-        num = Committee.objects.filter(
-            Q(function__person=member),
-            Q(function__end__isnull=True) | Q(function__end__gt=dt),
-            Q(function__begin__isnull=False),
-            Q(function__begin__lte=dt),
-            Q(abolished__isnull=True) | Q(abolished__gt=dt),
-            Q(founded__isnull=False),
-            Q(founded__lte=dt)
-        ).count()
-        num_ex_pools = Committee.objects.filter(
-            Q(function__person=member),
-            Q(function__end__isnull=True) | Q(function__end__gt=dt),
-            Q(function__begin__isnull=False),
-            Q(function__begin__lte=dt),
-            Q(abolished__isnull=True) | Q(abolished__gt=dt),
-            Q(founded__isnull=False),
-            Q(founded__lte=dt)
-        ).exclude(category__name=settings.POOL_CATEGORY).count()
+        num = member.current_committees_at(dt).count()
+        num_ex_pools = member.current_committees_at(dt).exclude(category__name=settings.POOL_CATEGORY).count()
 
         if num not in members.keys():
             members[num] = [member]
@@ -250,24 +226,8 @@ def statistics(request):
         res = {'n': n,
                'total': len(members[n]),
                'total_ex': len(members_ex_pools[n]),
-               'board': len([x for x in members[n] if x.function_set.filter(
-                                                                        Q(committee__superuser=True),
-                                                                        Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
-                                                                        Q(committee__founded__isnull=False),
-                                                                        Q(committee__founded__lte=dt),
-                                                                        Q(end__isnull=True) | Q(end__gt=dt),
-                                                                        Q(begin__isnull=False),
-                                                                        Q(begin__lte=dt)
-                                                                            ).exists()]),
-               'board_ex': len([x for x in members_ex_pools[n] if x.function_set.filter(
-                                                                        Q(committee__superuser=True),
-                                                                        Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
-                                                                        Q(committee__founded__isnull=False),
-                                                                        Q(committee__founded__lte=dt),
-                                                                        Q(end__isnull=True) | Q(end__gt=dt),
-                                                                        Q(begin__isnull=False),
-                                                                        Q(begin__lte=dt)
-                                                                            ).exists()]),
+               'board': len([x for x in members[n] if x.was_board_at(dt)]),
+               'board_ex': len([x for x in members_ex_pools[n] if x.was_board_at(dt)]),
                'freshman': len([x for x in members[n] if x in freshmen_tcs or x in freshmen_bit]),
                'freshman_ex': len([x for x in members_ex_pools[n] if x in freshmen_tcs or x in freshmen_bit]),
                'international': len([x for x in members[n] if x in international_members]),
@@ -287,24 +247,8 @@ def statistics(request):
     res = {'n': _('6 or more'),
            'total': len(six_or_more),
            'total_ex': len(six_or_more_ex),
-            'board': len([x for x in six_or_more if x.function_set.filter(
-                                                                    Q(committee__superuser=True),
-                                                                    Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
-                                                                    Q(committee__founded__isnull=False),
-                                                                    Q(committee__founded__lte=dt),
-                                                                    Q(end__isnull=True) | Q(end__gt=dt),
-                                                                    Q(begin__isnull=False),
-                                                                    Q(begin__lte=dt)
-                                                                        ).exists()]),
-            'board_ex': len([x for x in six_or_more_ex if x.function_set.filter(
-                                                                    Q(committee__superuser=True),
-                                                                    Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
-                                                                    Q(committee__founded__isnull=False),
-                                                                    Q(committee__founded__lte=dt),
-                                                                    Q(end__isnull=True) | Q(end__gt=dt),
-                                                                    Q(begin__isnull=False),
-                                                                    Q(begin__lte=dt)
-                                                                        ).exists()]),
+            'board': len([x for x in six_or_more if x.was_board_at(dt)]),
+            'board_ex': len([x for x in six_or_more_ex if x.was_board_at(dt)]),
            'freshman': len([x for x in six_or_more if x in freshmen_tcs or x in freshmen_bit]),
            'freshman_ex': len([x for x in six_or_more_ex if x in freshmen_tcs or x in freshmen_bit]),
            'international': len([x for x in six_or_more if x in international_members]),
