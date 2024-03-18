@@ -13,7 +13,7 @@
             <div class="content">
                 <form method="get">
                     <label for="dt">{% trans 'Date' %}:</label>
-                    <input id="dt" type="date" name="dt" required="">
+		    <input id="dt" type="date" name="dt" required value="{{ dt | date:"Y-m-d" }}" >
                     <div class="buttons">
                         <input type="submit" value="{% trans 'Render' %}">
                     </form>
