@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel
-from amelie.files.models import Attachment
+from amelie.calendar.graphql import EventType
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 
@@ -21,21 +21,13 @@ class ActivityFilterSet(FilterSet):
         }
 
 
-class ActivityType(DjangoObjectType):
+class ActivityType(EventType):
+
     class Meta:
         model = Activity
+
+        # Other fields are inherited from the EventType class
         fields = [
-            "id",
-            "begin",
-            "end",
-            "entire_day",
-            "summary_nl",
-            "summary_en",
-            "promo_nl",
-            "promo_en",
-            "description_nl",
-            "description_en",
-            "organizer",
             "location",
             "public",
             "attachments",
@@ -68,13 +60,8 @@ class ActivityType(DjangoObjectType):
     enrollment_almost_full = graphene.Boolean(description=_('Whether this activity is almost full (<= 10 places left).'))
     has_enrollment_options = graphene.Boolean(description=_('If there are any options for enrollments.'))
     has_costs = graphene.Boolean(description=_('If there are any costs associated with this activity.'))
-    summary = graphene.String(description=_('A summary of this activity in the preferred language of this user.'))
-    description = graphene.String(description=_('A description of this activity in the preferred language of this user.'))
-    promo = graphene.String(description=_('Promotional text for this activity in the preferred language of this user.'))
-    description_short = graphene.String(description=_('A brief description of this activity (always in english).'))
 
     # TODO: Figure out on how to use foreign keys here!
-
     def resolve_absolute_url(self: Activity, info):
         return self.get_absolute_url()
 
@@ -115,18 +102,6 @@ class ActivityType(DjangoObjectType):
 
     def resolve_has_costs(self: Activity, info):
         return self.has_costs()
-
-    def resolve_summary(self: Activity, info):
-        return self.summary
-
-    def resolve_description(self: Activity, info):
-        return self.description
-
-    def resolve_promo(self: Activity, info):
-        return self.promo1
-
-    def resolve_description_short(self: Activity, info):
-        return self.description_short()
 
 
 class ActivityLabelType(DjangoObjectType):
