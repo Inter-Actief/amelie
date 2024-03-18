@@ -145,7 +145,7 @@ class Attachment(models.Model):
     objects = AttachmentManager()
 
     class Meta:
-        ordering = ['file']
+        ordering = ['created', 'file']
         verbose_name = _('Appendix')
         verbose_name_plural = _('Attachments')
 

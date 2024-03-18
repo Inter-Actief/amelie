@@ -4,7 +4,7 @@
 cp "/config/local.py" "/amelie/amelie/settings/local.py"
 
 # Make sure staticfiles are collected into the static volume
-python3 manage.py collectstatic --clear --noinput
+python3 manage.py collectstatic --noinput
 
 # Make sure database is migrated
 python3 manage.py migrate
