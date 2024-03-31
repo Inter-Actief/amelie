@@ -1,10 +1,33 @@
 from django.utils import translation
 
-from amelie.iamailer import MailTask
+from django.conf import settings
+from amelie.iamailer import MailTask, Recipient
 from amelie.members.models import Preference
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mail import PersonRecipient
 from django.utils.translation import gettext_lazy as _
+
+
+def activity_send_cashrefundmail(cash_participants, activity, request):
+    """
+    Notify the treasurer that cash paying participants from a cancelled activity should get their money back.
+    """
+
+    # Send an email to the treasurer
+    template_name = "activities/activity_cancelled_treasurer.mail"
+    context = {
+        "participants": [{
+            "person": cash_participant.person,
+            "costs": cash_participant.calculate_costs()[0],
+        } for cash_participant in cash_participants],
+        "activity": activity
+    }
+    task = MailTask(template_name=template_name)
+    task.add_recipient(Recipient(
+        tos=['Treasurer Inter-Actief <treasurer@inter-actief.net>'],
+        context=context
+    ))
+    task.send()
 
 
 def activity_send_enrollmentmail(participation, from_waiting_list=False):
@@ -53,6 +76,26 @@ def activity_send_enrollmentmail(participation, from_waiting_list=False):
         task.send()
     finally:
         translation.activate(current_language)
+
+
+def activity_send_cancellationmail(participants, activity, request, from_waiting_list=False):
+    """
+    Send a cancellation of enrollment for an activity.
+    """
+
+    template_name = "activities/activity_cancelled.mail"
+    if from_waiting_list:
+        template_name = "activities/activity_cancelled_from_waiting_list.mail"
+
+    task = MailTask(template_name=template_name)
+    for participant in participants:
+        task.add_recipient(PersonRecipient(participant.person, context={
+            'activity': activity,
+            'participation_costs': participant.calculate_costs()[0],
+            'paymentmethod': participant.get_payment_method_display()
+        }))
+
+    task.send()
 
 
 def activity_send_on_waiting_listmail(participation):

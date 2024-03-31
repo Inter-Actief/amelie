@@ -49,6 +49,31 @@ class PeriodForm(forms.Form):
 
 inject_style(PeriodForm)
 
+class PeriodKeywordForm(forms.Form):
+    keywords = forms.CharField(max_length=20, label=_('Keywords'))
+    from_date = forms.DateField(label=_('Begin date:'), initial=timezone.now().date() - timedelta(days=365))
+    to_date = forms.DateField(label=_('End date:'), initial=timezone.now().date())
+
+    def __init__(self, *args, **kwargs):
+        if 'to_date_required' in kwargs:
+            to_date_required = kwargs['to_date_required']
+            del kwargs['to_date_required']
+        else:
+            to_date_required = True
+
+        if 'keywords_required' in kwargs:
+            keywords_required = kwargs['keywords_required']
+            del kwargs['keywords_required']
+        else:
+            keywords_required = True
+
+        super(PeriodKeywordForm, self).__init__(*args, **kwargs)
+
+        self.fields["to_date"].required = to_date_required
+        self.fields["keywords"].required = keywords_required
+
+
+inject_style(PeriodKeywordForm)
 
 class PeriodTimeForm(forms.Form):
     datetime_from = forms.SplitDateTimeField(label='Begin:', initial=timezone.now() - timedelta(days=365), widget=DateTimeSelector)
