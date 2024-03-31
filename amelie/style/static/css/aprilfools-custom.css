@@ -1,0 +1,65 @@
+.modal-content {
+	/* display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
+	align-items: center; */
+	font-family: "Microsoft Sans Serif", sans-serif;
+	background: #c2c6ca;
+	font-size: 12px;
+	-webkit-font-smoothing: none;
+	/* width: 265px;
+	height: 118px; */
+	box-shadow: 0.5px 0.5px 0 0.5px black, inset 1px 1px #C2C6CA, inset -1px -1px #85898d, inset 2px 2px white;
+}
+
+.modal-header {
+	color: white;
+    background: #00a;
+	padding: 2px 3px 3px;
+    margin: 3px 2px 1px 3px;
+}
+
+.modal-footer {
+	text-align: center;
+}
+
+.aprilfools-activity-name {
+	font-style: italic;
+	color: brown;
+}
+
+#aprilFoolsActivityLocation {
+	color:  chartreuse;
+	font-weight: bolder;
+}
+
+#aprilFoolsEnrollNow {
+	cursor: pointer;
+}
+
+.aprilfools-bottom-text {
+	font-size: x-small;
+}
+
+.deactivate-text {
+	cursor: pointer;
+}
+
+.aprilfools-netscape-text {
+	/* padding: 20px; */
+	/* margin-top: 10px */
+	font-family: "Comic Sans MS", "Comic Sans", cursive;
+	background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet, red);
+	color: black; 
+	/* Black against a rainbow gradient is sooo ugly, i love it */
+}
+
+body {
+	background-image: url("/static/img/april-fools/back5.jpg"); 
+	/* background-image: url("/static/img/april-fools/background.png"); 
+	background-size: cover; */
+}
+
+html, body {
+	cursor: url("/static/img/april-fools/cursor.png"), auto;
+}
