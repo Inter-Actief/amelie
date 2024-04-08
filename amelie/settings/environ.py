@@ -181,8 +181,8 @@ LOGGING = {
 }
 
 # Sentry SDK configuration
-DJANGO_SENTRY_DSN = env("DJANGO_SENTRY_DSN", "")
-DJANGO_SENTRY_ENVIRONMENT = env("DJANGO_SENTRY_ENVIRONMENT", "production")
+DJANGO_SENTRY_DSN = env("DJANGO_SENTRY_DSN", default="")
+DJANGO_SENTRY_ENVIRONMENT = env("DJANGO_SENTRY_ENVIRONMENT", default="production")
 if DJANGO_SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
