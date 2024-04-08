@@ -207,7 +207,7 @@ if DJANGO_SENTRY_DSN:
 
 # Django authentication backends
 # Login settings -- only allow login using specified backends
-AUTHENTICATION_BACKENDS = env.list("DJANGO_AUTHENTICATION_BACKENDS", "django.contrib.auth.backends.ModelBackend")
+AUTHENTICATION_BACKENDS = env.list("DJANGO_AUTHENTICATION_BACKENDS", default=["django.contrib.auth.backends.ModelBackend"])
 
 # OIDC Single sign-on configuration
 OIDC_RP_CLIENT_ID = env("OIDC_RP_CLIENT_ID", default="amelie")
@@ -244,7 +244,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key())
 CELERY_BROKER_URL = env('DJANGO_CELERY_BROKER_URI', default='amqp://amelie:amelie@localhost:5672/amelie')
 
 # Django Celery -- True means that tasks will be executed immediately and are not queued!
-CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", False)
+CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
 
 
 ###
@@ -266,7 +266,7 @@ MEDIA_ROOT = '/media'
 MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
 
 # Path to website (needed for pictures via the API among other things)
-ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default=f"http://localhost:8080/")
+ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default="http://localhost:8080/")
 
 
 ###
@@ -291,7 +291,7 @@ if CLAUDIA_ENABLE_DEFAULT_PLUGINS:
 CLAUDIA_PLUGINS.extend(env.list("CLAUDIA_ENABLED_PLUGINS", default=[]))
 
 # Stop if an error is encountered
-CLAUDIA_STOP_ON_ERROR = os.getenv("CLAUDIA_STOP_ON_ERROR", False)
+CLAUDIA_STOP_ON_ERROR = env.bool("CLAUDIA_STOP_ON_ERROR", default=False)
 
 # Claudia Active Directory settings
 CLAUDIA_AD['PASSWORD'] = env("CLAUDIA_AD_PASSWORD", default=CLAUDIA_AD.get('PASSWORD', None))
@@ -358,7 +358,6 @@ COOKIE_CORNER_FREE_COOKIE_DISCOUNT_PERIOD_ID = env.int("COOKIE_CORNER_FREE_COOKI
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_LOW = env.float("COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_LOW", default=(1.0/20.0))
 
 # - Older years and master students
-COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_HIGH = 1.0/20.0
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_HIGH = env.float("COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_HIGH", default=(1.0/20.0))
 
 # -  Limit for the free cookie action (maximum amount of free cookies)
