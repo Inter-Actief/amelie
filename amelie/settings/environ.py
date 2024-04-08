@@ -30,7 +30,7 @@ if DATABASES['default'].get('ENGINE', None) == "django.db.backends.mysql":
     DATABASES['default']['ENGINE'] = 'amelie.tools.utf8mb4_mysql_backend'
 
 # Override database options if environment variable is given (unsupported by django-environ's env.db() function)
-DATABASE_OPTIONS = env.json('DATABASE_OPTIONS', default='{}')
+DATABASE_OPTIONS = env.json('DATABASE_OPTIONS', default={})
 if DATABASE_OPTIONS:
     DATABASES['default']['OPTIONS'] = DATABASE_OPTIONS
 
@@ -53,11 +53,11 @@ MIDDLEWARE = ["allow_cidr.middleware.AllowCIDRMiddleware"] + MIDDLEWARE
 # Allowed hosts -- localhost and 127.0.0.1 are always allowed, the rest comes from an environment variable.
 ALLOWED_HOSTS = [
     "localhost", "127.0.0.1"
-] + env.list("DJANGO_ALLOWED_HOSTS", default="")
+] + env.list("DJANGO_ALLOWED_HOSTS", default=[])
 
 # Allowed CIDR nets -- for kubernetes internal services
 ALLOWED_CIDR_NETS = ['172.30.0.0/16']
-ALLOWED_CIDR_NETS.extend(env.list("DJANGO_ALLOWED_CIDR_NETS", default=""))
+ALLOWED_CIDR_NETS.extend(env.list("DJANGO_ALLOWED_CIDR_NETS", default=[]))
 
 # Add Kubernetes POD IP, if running in Kubernetes
 KUBE_POD_IP = env("THIS_POD_IP", default="")
@@ -219,7 +219,7 @@ OIDC_RP_CLIENT_SECRET = env("OIDC_RP_CLIENT_SECRET", default="")
 ###
 # Userinfo API configuration
 USERINFO_API_CONFIG['api_key'] = env("AMELIE_USERINFO_API_KEY", default="")
-USERINFO_API_CONFIG['allowed_ips'] = env.list("AMELIE_USERINFO_ALLOWED_IPS", default="")
+USERINFO_API_CONFIG['allowed_ips'] = env.list("AMELIE_USERINFO_ALLOWED_IPS", default=[])
 
 # Keycloak API secret
 KEYCLOAK_API_CLIENT_SECRET = env("KEYCLOAK_API_CLIENT_SECRET", default="")
@@ -288,7 +288,7 @@ if CLAUDIA_ENABLE_DEFAULT_PLUGINS:
         'amelie.claudia.plugins.lognotices.LogNoticesPlugin',
         'amelie.claudia.plugins.timeline.TimelinePlugin',
     ])
-CLAUDIA_PLUGINS.extend(env.list("CLAUDIA_ENABLED_PLUGINS", default=""))
+CLAUDIA_PLUGINS.extend(env.list("CLAUDIA_ENABLED_PLUGINS", default=[]))
 
 # Stop if an error is encountered
 CLAUDIA_STOP_ON_ERROR = os.getenv("CLAUDIA_STOP_ON_ERROR", False)
@@ -342,9 +342,9 @@ SPOTIFY_SCOPES = env("SPOTIFY_SCOPES", default=SPOTIFY_SCOPES)
 ###
 #  Discord integration configuration
 ###
-DISCORD["activities_webhooks"] = env.list("DISCORD_ACTIVITY_WEBHOOKS", default="")
-DISCORD["news_webhooks"] = env.list("DISCORD_NEWS_WEBHOOKS", default="")
-DISCORD["pictures_webhooks"] = env.list("DISCORD_PICTURES_WEBHOOKS", default="")
+DISCORD["activities_webhooks"] = env.list("DISCORD_ACTIVITY_WEBHOOKS", default=[])
+DISCORD["news_webhooks"] = env.list("DISCORD_NEWS_WEBHOOKS", default=[])
+DISCORD["pictures_webhooks"] = env.list("DISCORD_PICTURES_WEBHOOKS", default=[])
 
 
 ###
@@ -365,7 +365,7 @@ COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_HIGH = env.float("COOKIE_CORNER_FREE_COO
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_LIMIT = env.int("COOKIE_CORNER_FREE_COOKIE_DISCOUNT_LIMIT", default=30)
 
 COOKIE_CORNER_POS_IP_ALLOWLIST = ['130.89.190.119', '2001:67c:2564:318:c7e6:7fe4:ad28:b5ef']
-COOKIE_CORNER_POS_IP_ALLOWLIST.extend(env.list("COOKIE_CORNER_POS_IP_ALLOWLIST", default=""))
+COOKIE_CORNER_POS_IP_ALLOWLIST.extend(env.list("COOKIE_CORNER_POS_IP_ALLOWLIST", default=[]))
 
 # Maximum price of an activity
 PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal(env("PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE", default="50.00"))
