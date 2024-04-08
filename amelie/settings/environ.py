@@ -178,7 +178,7 @@ LOGGING = {
 }
 
 # Sentry SDK configuration
-DJANGO_SENTRY_DSN = env("DJANGO_SENTRY_DSN", ""):
+DJANGO_SENTRY_DSN = env("DJANGO_SENTRY_DSN", "")
 DJANGO_SENTRY_ENVIRONMENT = env("DJANGO_SENTRY_ENVIRONMENT", "production")
 if DJANGO_SENTRY_DSN:
     import sentry_sdk
