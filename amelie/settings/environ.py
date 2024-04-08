@@ -54,9 +54,7 @@ ALLOWED_HOSTS = [
 
 # Allowed CIDR nets -- for kubernetes internal services
 ALLOWED_CIDR_NETS = ['172.30.0.0/16']
-EXTRA_CIDR_NETS = env.list("DJANGO_ALLOWED_CIDR_NETS", default=""):
-if EXTRA_CIDR_NETS
-  ALLOWED_CIDR_NETS.extend(EXTRA_CIDR_NETS)
+ALLOWED_CIDR_NETS.extend(env.list("DJANGO_ALLOWED_CIDR_NETS", default=""))
 
 # Add Kubernetes POD IP, if running in Kubernetes
 KUBE_POD_IP = env("THIS_POD_IP", default="")
