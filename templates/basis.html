@@ -55,17 +55,42 @@
         {% if request.person.is_candidate_board %}
             {% compress css %}
         	<link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
-            <link rel="stylesheet" type="text/css" href="{% cached_static 'css/clippy.css' %}" media="all"/>
+
+			{% comment %} Bootstrap 3.4.1 to make modal work {% endcomment %}
+            <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
+
             {% endcompress %}
+			
             {% compress js %}
-            <script src="{% cached_static 'js/clippy.min.js' %}"></script>
-            <script type="text/javascript">
-                clippy.load('Clippy', function(agent) {
-                    agent.show();
-                    agent.speak("{% trans 'It seems like you are trying to become a board member. Would you like help?' %}");
-                });
-            </script>
+			{% comment %} Bootstrap modal needed for popup {% endcomment %}
+            <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
+            
+			{% comment %} Clippy {% endcomment %}
+			<script src="{% cached_static 'js/clippy.min.js' %}"></script>
+			
+			{% comment %} CB script {% endcomment %}
+            <script src="{% cached_static 'js/cb.js' %}"></script>
+            <script type="module" src="{% cached_static 'js/cb-clippy-handler.js' %}"></script>
             {% endcompress %}
+
+			{% comment %} Popup for CB {% endcomment %}
+			<div class="modal cb-modal fade" tabindex="-1" role="dialog" id="CbModal">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content cb-modal-content">
+						<div class="modal-header cb-modal-header">
+							<h2>Important message from the board</h2>
+							{% comment %} <img src="{% cached_static 'img/april-fools/anim1282.gif' %}" alt="anim1282" /> {% endcomment %}
+							<p id="cb-header"></p>
+						</div>
+						<div class="modal-body">
+							<h2 id="cb-modal-text"><h2>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="cb-clippy"/>
+
         {% endif %}
 
 		{% block head %}{% endblock head %}
