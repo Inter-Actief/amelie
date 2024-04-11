@@ -9,6 +9,7 @@ let feutText = () => {
 		"Attention is only pulled in 7",
 		"Did you know that if you just send random invoices, some companies will pay them?",
 		"Our phone number is NOT 00534891234!",
+		"Domme sentence - Oliver Davies",
 	];
 
 	return questions[Math.floor(Math.random() * questions.length)];

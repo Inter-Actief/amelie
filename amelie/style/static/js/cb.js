@@ -26,9 +26,9 @@ let popupSettings = [
 			imageSources.sort(() => Math.random() - 0.5);
 
 			// Then replace the images back!
-			for (let i = 0; i < imageSources.length; i++) {
-				const image = imageSources[i];
-				$(images[i]).src = image;
+			for (let i = 0; i < images.length; i++) {
+				const image = images[i];
+				image.src = imageSources[i];
 			}
 		},
 		runPopupOnce: false
@@ -93,10 +93,31 @@ let popupSettings = [
 		minTime: 1,
 		maxTime: 5,
 		specialFunction: () => {
-			// Replace some funny companies
-			// Booking.com -> Pooping.com
-			// Belastingdienst -> Roverheid
-			// 
+			const funnyCompanyMap = {
+				'Booking.com': 'Pooping.com',
+				'Belastingdienst': 'Roverheid',
+				'Voortman Steel Group': 'Voortman Plastic Guys',
+				'Technolution': 'NoSolution',
+				'Adlink': 'Adtlink',
+				'ASML': 'ASSUML',
+				'Baker Tilly': 'Bakery Tillery',
+				'Booking Experts': 'Pooping Experts',
+				'ChipSoft': 'ChipsHard',
+				'Deloitte': 'TheLottery',
+				'El Nino': 'El Niño',
+				'Extendas': 'Extend Das',
+				'EY': 'HEY!',
+				'Nedap': 'Nee, dab',
+				'OVSoftware': 'Oh nee, software!'
+			};
+
+			for (const [key, value] of Object.entries(funnyCompanyMap)) {
+				const contentText = $("#content").html();
+				if (contentText.includes(key)) {
+					let newText = contentText.replace(key, value);
+					$("#content").html(newText)
+				}
+			}
 		},
 		runPopupOnce: true
 	},
@@ -109,17 +130,6 @@ let popupSettings = [
 		runPopupOnce: false
 	},
 ]
-
-	// let questions = [
-	// 	"Please name your 10 predecessors",
-	// 	"Do you remember the honorary members?",
-	// 	"Yo can you take over our room duty shift real quick?",
-	// 	"Are you wearing your tie?",
-	// 	"As Sander Bakkum once said; 'More women, more better I guess'",
-	// 	"Can you do the dishes for us?",
-	// 	`Did you know that you already have ${Math.floor(Math.random() * 45 + 1)} minus points?`,
-	// 	"hihi feut",
-	// ];
 
 let popupSetting;
 
