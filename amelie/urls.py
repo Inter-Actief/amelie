@@ -1,9 +1,8 @@
 import oauth2_provider.views
 
 from django.conf import settings
-from django.conf.urls import include
 from django.contrib import admin
-from django.urls import reverse_lazy, path, re_path
+from django.urls import reverse_lazy, path, re_path, include
 from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
 from django.views.static import serve
@@ -20,7 +19,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('legacy_login/', views.login, name='legacy_login'),
     path('legacy_logout/', LogoutView.as_view(), name='legacy_logout'),
-    path('i18n/', include('django.conf.urls.i18n')),
     path('profile/', views.profile_overview, name='profile_overview'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),

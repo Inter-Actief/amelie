@@ -46,7 +46,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
                 if field == "preferences":
                     old = [preference.name for preference in getattr(old_person, field).all()]
                     new = [preference.name for preference in self.cleaned_data[field].all()] + [preference.name for preference in self.instance.preferences.filter(adjustable=False)]
-                    
+
                     added = list(set(new)-set(old))
                     removed = list(set(old)-set(new))
 
@@ -616,7 +616,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
 
     def clean_bic(self):
         bic = str(self.cleaned_data['bic']).strip()
-        if bic is "":
+        if bic == "":
             return self.cleaned_data['bic']
 
         if not settings.DEBUG:
