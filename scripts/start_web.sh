@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Copy configuration to proper place
-cp "/config/local.py" "/amelie/amelie/settings/local.py"
-
 # Make sure staticfiles are collected into the static volume
 python3 manage.py collectstatic --noinput
 
