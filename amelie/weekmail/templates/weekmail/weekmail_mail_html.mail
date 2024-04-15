@@ -132,12 +132,12 @@
                     <td colspan=2>
                         <table width="100%">
                             <tr>
-                                <td valign="top" style="padding: 0px 20px 0px 20px; font-size: 16px; line-height: 1.4em; height: 6px; color: #666666"  width="100%" colspan=1>
+                                <td valign="top" style="padding: 0px 20px 10px 20px; font-size: 16px; line-height: 1.4em; height: 6px; color: #666666"  width="100%" colspan=1>
                                     {{ activity.begin }} - {{ activity.end }}
                                 </td>
 
                                 {% if activity.location %}
-                                <td valign="top" style="padding: 0px 20px 0px 20px; font-size: 16px; line-height: 1.4em; height: 6px; color: #666666; text-align: right;  width: 1px; white-space: nowrap;" colspan=1>
+                                <td valign="top" style="padding: 0px 20px 10px 20px; font-size: 16px; line-height: 1.4em; height: 6px; color: #666666; text-align: right;  width: 1px; white-space: nowrap;" colspan=1>
                                      {{ activity.location }}
                                 </td>
                                 {% endif %}
@@ -146,20 +146,9 @@
                     </td>
                 </tr>
 
-                <tr>
-                    <td valign="top" style="padding-left: 20px; style="line-height: 1.4em; width: 100%;" colspan=2>
-                        {% if activity.as_leaf_class.activity_label %}
-                        {% comment %} Fancy color box {% endcomment %}
-                        <span style="background: #{{activity.as_leaf_class.activity_label.color}}; color:white; padding-left:10px; padding-right:10px; padding-top: 2px; padding-bottom: 2px; border-radius: 5px; margin-right: 5px;">
-                            {{ activity.activity.activity_label.name }}
-                        </span>
-                        {% endif %} 
-                    </td>
-                </tr>
-
 
                 <tr>
-                    <td valign="top" style="padding: 10px 20px 10px 20px; line-height: 1.4em; width: 100%;" colspan=2>
+                    <td valign="top" style="padding: 10px 20px 20px 20px; line-height: 1.4em; width: 100%;" colspan=2>
                         {% if activity.promo|length > 64 %}
                             {{ activity.promo|markdown:"absolute_urls" }}
                         {% else %}
