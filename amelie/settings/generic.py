@@ -302,7 +302,7 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
 
     # SSL Runserver
-    'sslserver',
+    # 'sslserver',
 
     # Django-celery helper for celery results
     'django_celery_results',
