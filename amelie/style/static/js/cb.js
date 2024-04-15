@@ -87,40 +87,42 @@ let popupSettings = [
 		},
 		runPopupOnce: true
 	},
-	{
-		url: 'companies',
-		specialMessage: "Wow, you actually visited this page?",
-		minTime: 1,
-		maxTime: 5,
-		specialFunction: () => {
-			const funnyCompanyMap = {
-				'Booking.com': 'Pooping.com',
-				'Belastingdienst': 'Roverheid',
-				'Voortman Steel Group': 'Voortman Plastic Guys',
-				'Technolution': 'NoSolution',
-				'Adlink': 'Adtlink',
-				'ASML': 'ASSUML',
-				'Baker Tilly': 'Bakery Tillery',
-				'Booking Experts': 'Pooping Experts',
-				'ChipSoft': 'ChipsHard',
-				'Deloitte': 'TheLottery',
-				'El Nino': 'El Niño',
-				'Extendas': 'Extend Das',
-				'EY': 'HEY!',
-				'Nedap': 'Nee, dab',
-				'OVSoftware': 'Oh nee, software!'
-			};
 
-			for (const [key, value] of Object.entries(funnyCompanyMap)) {
-				const contentText = $("#content").html();
-				if (contentText.includes(key)) {
-					let newText = contentText.replace(key, value);
-					$("#content").html(newText)
-				}
-			}
-		},
-		runPopupOnce: true
-	},
+	// Optional; uncomment with caution
+	// {
+	// 	url: 'companies',
+	// 	specialMessage: "Wow, you actually visited this page?",
+	// 	minTime: 1,
+	// 	maxTime: 5,
+	// 	specialFunction: () => {
+	// 		const funnyCompanyMap = {
+	// 			'Booking.com': 'Pooping.com',
+	// 			'Belastingdienst': 'Roverheid',
+	// 			'Voortman Steel Group': 'Voortman Plastic Guys',
+	// 			'Technolution': 'NoSolution',
+	// 			'Adlink': 'Adtlink',
+	// 			'ASML': 'ASSUML',
+	// 			'Baker Tilly': 'Bakery Tillery',
+	// 			'Booking Experts': 'Pooping Experts',
+	// 			'ChipSoft': 'ChipsHard',
+	// 			'Deloitte': 'TheLottery',
+	// 			'El Nino': 'El Niño',
+	// 			'Extendas': 'Extend Das',
+	// 			'EY': 'HEY!',
+	// 			'Nedap': 'Nee, dab',
+	// 			'OVSoftware': 'Oh nee, software!'
+	// 		};
+
+	// 		for (const [key, value] of Object.entries(funnyCompanyMap)) {
+	// 			const contentText = $("#content").html();
+	// 			if (contentText.includes(key)) {
+	// 				let newText = contentText.replace(key, value);
+	// 				$("#content").html(newText)
+	// 			}
+	// 		}
+	// 	},
+	// 	runPopupOnce: true
+	// },
 	{
 		url: 'claudia',
 		specialMessage: "Heyhey, this page is dangerous! Only for (capable) members, like SysCom!",
@@ -177,11 +179,12 @@ $(() => {
 	// an extra init async function :/
 
 	popupSetting = getPopupSetting();
-	popupSetting.specialFunction();
-
+	
 	if (popupSetting == null) {
 		return // Stop modal-ing
 	}
+
+	popupSetting.specialFunction();
 
 	initAsync();
 })
