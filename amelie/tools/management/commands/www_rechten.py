@@ -1,6 +1,6 @@
 from django.core.management.base import CommandError
 
-from amelie.members.models import Committee
+from amelie.members.models import Committee, Person, Membership
 from amelie.tools.management.base import DevelopmentOnlyCommand
 
 
@@ -28,6 +28,11 @@ class Command(DevelopmentOnlyCommand):
             user.save()
 
             self.stdout.write("%s is now a superuser\n" % www_function.person)
+
+        # Add Beun as a member
+        Person.objects.create(first_name="Beun", last_name_prefix="de", last_name="Beunhaas",
+                              initials="B.", notes="WWW Testuser", gender="Other", international_member="Yes",
+                              address="a", postal_code="b", city="c", account_name="beun")
 
         # Done
         self.stdout.write("Done!\n")

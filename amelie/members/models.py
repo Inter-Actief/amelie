@@ -2,18 +2,19 @@
 
 import datetime
 import uuid
-import os
 
+import os
+from colorfield.fields import ColorField
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 
@@ -118,6 +119,8 @@ class Dogroup(models.Model):
     e.g. Tegel, TuinfeesT
     """
     name = models.CharField(verbose_name=_('Name'), max_length=50)
+    color = ColorField(verbose_name=_('Color'), help_text=_("What is the color of this dogroup?"),
+                       default="#000000")
 
     class Meta(object):
         ordering = ['name']
@@ -139,14 +142,38 @@ class DogroupGeneration(models.Model, Mappable):
     parents = models.ManyToManyField('Person', verbose_name=_('Introduction parents'), blank=True)
     study = models.ForeignKey(Study, verbose_name=_('Course'), on_delete=models.PROTECT)
     mail_alias = models.EmailField(verbose_name=_('Mailalias'))
+    generation_color = ColorField(verbose_name=_('Generation color'), blank=True, null=True,
+                                  help_text=_("Similar to the dogroup color, however this value can be set in order to override the color for just this generation"))
 
     class Meta(object):
         ordering = ['generation', 'dogroup']
         verbose_name = _('do-group generation')
         verbose_name_plural = _('do-group generations')
 
+    @property
+    def color(self):
+        return self.generation_color if self.generation_color else self.dogroup.color
+
     def __str__(self):
         return '%s %s' % (self.dogroup, self.generation)
+
+    def clean(self):
+        super(DogroupGeneration, self).clean()
+        if not any(self.mail_alias.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'The mail alias for a dogroup generation may only point to an Inter-Actief server.'
+            )})
+
+        from amelie.claudia.models import Mapping
+        # Check if the email address is already in use!
+        if self.mail_alias and Mapping.objects.filter(email=self.mail_alias).exists():
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.mail_alias)) > 1 or \
+                Mapping.objects.get(email=self.mail_alias).get_mapped_object() != self:
+                raise ValidationError({'email': _(
+                    'This email address is already in use by another mapping!'
+                )})
 
     # ===== Methods for Claudia-mapping =====
     def get_name(self):
@@ -311,6 +338,11 @@ class Person(models.Model, Mappable):
         MinLengthValidator(2),
         MaxLengthValidator(20),
     ])
+    ut_external_username = models.CharField(
+        max_length=8, blank=True, null=True, verbose_name=_('UT external account name'), validators=[
+            RegexValidator(r'^x[0-9]{7}$', _('You can only enter ^x[0-9]{7}$.'), _('Invalid account name'))
+        ]
+    )
     shell = models.CharField(max_length=10, choices=ShellChoices.choices, default=ShellChoices.DEFAULT, verbose_name=_('Unix shell'))
     webmaster = models.BooleanField(default=False, verbose_name=_('Is web master'))
     nda = models.BooleanField(default=False, verbose_name=_('Has signed NDA'))
@@ -390,6 +422,19 @@ class Person(models.Model, Mappable):
 
     is_board.boolean = True
 
+    def was_board_at(self, dt):
+        return self.function_set.filter(
+            Q(committee__superuser=True),
+            Q(committee__abolished__isnull=True) | Q(committee__abolished__gt=dt),
+            Q(committee__founded__isnull=False),
+            Q(committee__founded__lte=dt),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).exists()
+
+    was_board_at.boolean = True
+
     def is_candidate_board(self):
         try:
             cb = Committee.objects.get(abbreviation="KB", abolished__isnull=True)
@@ -444,6 +489,21 @@ class Person(models.Model, Mappable):
         For the Board and developers (is_staff) you get a list of all active committees.
         """
         return Committee.objects.filter(function__person=self, function__end__isnull=True, abolished__isnull=True)
+
+    def current_committees_at(self, dt):
+        """
+        Returns a queryset with all committees this person was in on the given date.
+        For the Board and developers (is_staff) you get a list of all active committees.
+        """
+        return Committee.objects.filter(
+            Q(function__person=self),
+            Q(function__end__isnull=True) | Q(function__end__gt=dt),
+            Q(function__begin__isnull=False),
+            Q(function__begin__lte=dt),
+            Q(abolished__isnull=True) | Q(abolished__gt=dt),
+            Q(founded__isnull=False),
+            Q(founded__lte=dt)
+        )
 
     def age(self, at=datetime.date.today()):
         """
@@ -907,6 +967,23 @@ class Committee(models.Model, Mappable):
 
     def __str__(self):
         return '%s' % self.name
+
+    def clean(self):
+        super(Committee, self).clean()
+        if not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
+            raise ValidationError({'email': _(
+                'The email address for a committee may only point to an Inter-Actief server.'
+            )})
+
+        from amelie.claudia.models import Mapping
+        # Check if the email address is already in use!
+        if self.email and Mapping.objects.filter(email=self.email).exists():
+
+            # Already in use, if it's us, then it's fine
+            if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(email=self.email).get_mapped_object() != self:
+                raise ValidationError({'error': _(
+                    'This email address is already in use by another mapping!'
+                )})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.__str__())

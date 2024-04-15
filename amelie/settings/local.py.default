@@ -40,6 +40,9 @@ ENABLE_REQUEST_PROFILING = False
 # Allow local accounts to login
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend'] + AUTHENTICATION_BACKENDS
 
+# Single Sign On
+OIDC_RP_CLIENT_SECRET = ""
+
 # Load the debug toolbar -- does not need to be changed in principle
 if DEBUG_TOOLBAR:
     def custom_show_toolbar(request):
@@ -75,9 +78,6 @@ ABSOLUTE_PATH_TO_SITE = "https://beta.ia.utwente.nl:{}".format(UID)
 # Media root for ia-beta
 MEDIA_ROOT = "/data/application_data/amelie/site_media"
 
-# TODO: Add SAML login information
-SAML_CONFIG = None
-
 # TODO: Add YouTube API key
 YOUTUBE_API_KEY = ''
 
@@ -85,19 +85,6 @@ YOUTUBE_API_KEY = ''
 FCM_DJANGO_SETTINGS = {
     'FCM_SERVER_KEY': '',
 }
-
-# TODO: Add keys and secrets for OAuth2 Providers
-SOCIAL_AUTH_GITHUB_KEY = ''
-SOCIAL_AUTH_GITHUB_SECRET = ''
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-
-SOCIAL_AUTH_LINKEDIN_OAUTH2_KEY = ''
-SOCIAL_AUTH_LINKEDIN_OAUTH2_SECRET = ''
-
-SOCIAL_AUTH_FACEBOOK_KEY = ''
-SOCIAL_AUTH_FACEBOOK_SECRET = ''
 
 # Profiling settings (disabled by default)
 # If this is turned on a lot of data will be generated and stored in the database. So only turn it on if you feel bold.

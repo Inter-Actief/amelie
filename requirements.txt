@@ -14,6 +14,10 @@ django-formtools>=2.4,<2.5
 django-auditlog>=2.2.0,<2.3
 django-oauth-toolkit>=1.7.1,<1.8  # 2.x has breaking changes.
 django-cors-headers>=3.13.0,<3.14
+django-colorfield
+
+# Django Modern RPC -- For our JSONRPC API
+django-modern-rpc>=1.0.1,<1.1
 
 # WYSIWYG Editor for Django
 django-ckeditor>=6.3.2,<6.4  # 6.4+ requires Python3.8+ and Django 3.2+
@@ -22,7 +26,6 @@ django-ckeditor>=6.3.2,<6.4  # 6.4+ requires Python3.8+ and Django 3.2+
 fcm-django>=0.3.11,<0.4  # 1.x has breaking changes (old firebase api removed)
 
 # Custom forks or specific commits of django packages
-git+https://github.com/samuraisam/django-json-rpc@a88d744d960e828f3eb21265da0f10a694b8ebcf
 git+https://github.com/Inter-Actief/django-sslserver@204586ce686212a4c2848c12f88f7279802b5dcc
 
 # Other random dependencies, to be documented, see issue #556 ...
@@ -58,8 +61,6 @@ oauth2client>=4.1.3,<4.2
 # Mastodon API wrapper
 Mastodon.py>=1.5.1,<1.6
 
-social-auth-app-django>=5.0.0,<5.1
-
 # Development
 django-debug-toolbar>=3.7,<3.8
 django-rosetta>=0.9.8,<0.10
@@ -68,9 +69,12 @@ pyinotify>=0.9.6,<0.10
 model_bakery>=1.7.0,<1.8
 django-silk>=5.0.1,<5.1
 
-# SAML SP (requires xmlsec1, libssl-dev and libsasl2-dev (on Debian))
-djangosaml2>=1.5.3,<1.6
-
 # SAML IdP (requires xmlsec1 (on Debian))
 pysaml2>=7.2.1,<7.3
 djangosaml2idp>=0.7.2,<0.8
+
+# Single Sign On - OIDC Client
+mozilla-django-oidc
+
+# Sentry error logging
+sentry-sdk>=1.22.1,<1.23

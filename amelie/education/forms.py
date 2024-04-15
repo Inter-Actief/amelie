@@ -84,11 +84,14 @@ class ComplaintForm(forms.ModelForm):
 
 class EducationalBouquetForm(forms.Form):
     teacher = forms.CharField(max_length=60, label=_('Teacher'))
-    course = forms.ModelChoiceField(queryset=BaseCourseModule.objects.all().order_by('name'), empty_label=None,
-                                    label=_('Course'))
+    course = forms.ChoiceField(label=_('Course'))
     reason = forms.CharField(max_length=300, widget=forms.Textarea, label=_('Reason'))
     author = forms.CharField(max_length=40, label=_('Author'))
     email = forms.EmailField(max_length=50, label=_('E-mail'))
+
+    def __init__(self, *args, **kwargs):
+        super(EducationalBouquetForm, self).__init__(*args, **kwargs)
+        self.fields['course'].choices = calc_choices()
 
     def save(self, *args, **kwargs):
         context = {'teacher': self.cleaned_data['teacher'],
@@ -103,6 +106,7 @@ class EducationalBouquetForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -126,6 +130,7 @@ class DEANominationForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
@@ -172,6 +177,7 @@ class DEAVoteForm(forms.Form):
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
+                                     language='en',
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()

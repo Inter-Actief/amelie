@@ -4,6 +4,8 @@ var MINUTE = 60 * SECOND;
 var numActivitiesInitial = 20;
 var numActivities = 20;
 
+const SPOTIFY_DEVICE_ROOM_NAME = 'web player (chrome)';
+
 function initialize() {
     moment.relativeTimeThreshold('s', 60);
     moment.relativeTimeThreshold('ss', -1);
@@ -168,7 +170,7 @@ function setNextEventCountdown() {
             // If spotify is playing, pause it
             spotify_was_playing = ($("#nowplaying_iaroom .nowplaying_artist").html() !== "");
             if (spotify_was_playing){
-                if (spotify_room_device !== null && spotify_room_device.toLowerCase() === "guus") {
+                if (spotify_room_device !== null && spotify_room_device.toLowerCase() === SPOTIFY_DEVICE_ROOM_NAME) {
                     pauseIASpotify();
                     spotify_did_pause = true;
                 }

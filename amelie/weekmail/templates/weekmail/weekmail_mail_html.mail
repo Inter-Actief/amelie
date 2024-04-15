@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>[Inter-Actief {% if weekmail.mailtype == 'W' %}{% trans 'Weekly mail' %}] {% blocktrans %}Week{% endblocktrans %} {{ weekmail.creation_date|date:"W" }}{% else %}{% trans 'Mastermail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% endif %}</title>
+    <title>[Inter-Actief {% if weekmail.mailtype == 'W' %}{% trans 'Weekly mail' %}] {% blocktrans %}Week{% endblocktrans %} {{ weekmail.creation_date|date:"W" }}{% elif weekmail.mailtype == 'M' %}{% trans 'Mastermail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% else %}{% trans 'Educational mail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% endif %}</title>
 </head>
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -28,7 +28,7 @@
         <table align="center" cellspacing="0" style="font-family: Open-Sans, Arial, sans-serif; font-size: 14px; width: 768px; background-color: white; border: 1px solid #ccc;">
             <tr style="background-color: #1d428a; height: 100px; font-size: 50px; margin: 5px; color: white" >
                 <td style="padding-left: 20px; width: 100%" colspan=1>
-                    {% if weekmail.mailtype == 'W' %}{% trans 'Week' %} {{ weekmail.creation_date|date:"W" }}{% else %}{% trans 'Mastermail' %}{% endif %}
+                    {% if weekmail.mailtype == 'W' %}{% trans 'Week' %} {{ weekmail.creation_date|date:"W" }}{% elif weekmail.mailtype == 'M' %}{% trans 'Mastermail' %}{% else %}{% trans 'Educational mail'%}{% endif %}
                 </td>
                 <td style="padding-right: 20px;" colspan=1>
                     <img src="{% attach_static "weekmail/inter-actief-logo-tekst-rechts-wit-randloos.png" %}" height="50" align="right" alt="Inter-Actief logo"/>

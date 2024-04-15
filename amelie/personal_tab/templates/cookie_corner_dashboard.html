@@ -51,6 +51,9 @@
                 <a href="{% url 'personal_tab:person_exam_cookie_credit' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
                     {% trans 'History of exam credit' %}
                 </a>
+                <a href="{% url 'personal_tab:cookie_corner_wrapped' %}" class="looks-like-a-button">
+                    {% trans 'Cookie Corner Wrapped' %} {{ wrapped_year }}
+                </a>
             {% endif %}
         </div>
 

@@ -204,9 +204,9 @@ class YoutubeVideoCreate(RequireCommitteeMixin, CreateView):
     def get(self, request, *args, **kwargs):
         try:
             return super(YoutubeVideoCreate, self).get(request, *args, **kwargs)
-        except (googleapiclient_Error, oauth2client_Error):
-            #from raven.contrib.django.raven_compat.models import client
-            #client.captureException()
+        except (googleapiclient_Error, oauth2client_Error) as e:
+            import sentry_sdk
+            sentry_sdk.capture_exception(e)
 
             messages.error(request, _("Could not connect to Youtube! "
                                       "Please contact the WWW committee if this problem persists."))
@@ -264,9 +264,9 @@ class StreamingVideoCreate(RequireCommitteeMixin, CreateView):
     def get(self, request, *args, **kwargs):
         try:
             return super(StreamingVideoCreate, self).get(request, *args, **kwargs)
-        except (RequestsConnectionError, JSONDecodeError):
-            #from raven.contrib.django.raven_compat.models import client
-            #client.captureException()
+        except (RequestsConnectionError, JSONDecodeError) as e:
+            import sentry_sdk
+            sentry_sdk.capture_exception(e)
 
             messages.error(request, _("Could not connect to Streaming.IA! "
                                       "Please contact the WWW committee if this problem persists."))

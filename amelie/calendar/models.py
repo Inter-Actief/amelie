@@ -115,6 +115,9 @@ class Event(models.Model):
         RegexValidator(regex='^https://.*', message=_('URL has to start with https://')), URLValidator()])
     callback_secret_key = models.CharField(blank=True, default=_generate_callback_secret_key, max_length=255)
 
+    cancelled = models.BooleanField(default=False, verbose_name=_('Cancel event'),
+                                    help_text=_('Whether this event is cancelled, only cancel when needed. Participants will receive an email notification!'))
+
     update_count = models.PositiveIntegerField(default=0)
 
     objects = EventManager()
@@ -147,10 +150,15 @@ class Event(models.Model):
     def summary(self):
         language = get_language()
 
+        summ = None
         if language == "en" and self.summary_en:
-            return self.summary_en
+            summ = self.summary_en
         else:
-            return self.summary_nl
+            summ = self.summary_nl
+
+        if self.cancelled:
+            summ = f"[CANCELLED] {summ}"
+        return summ
 
     @property
     def description(self):

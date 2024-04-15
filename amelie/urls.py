@@ -1,5 +1,4 @@
 import oauth2_provider.views
-import djangosaml2
 
 from django.conf import settings
 from django.conf.urls import include
@@ -13,18 +12,19 @@ from amelie import views
 from amelie.activities.feeds import Activities
 from amelie.news.feeds import LatestNews
 from amelie.oauth.views import RequestOAuth
-from amelie.views import SAMLACSOverrideView
 
 urlpatterns = [
 
     # Site workings
     path('admin/doc/', include('django.contrib.admindocs.urls')),
     path('admin/', admin.site.urls),
-    path('login/', views.login, name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('legacy_login/', views.login, name='legacy_login'),
+    path('legacy_logout/', LogoutView.as_view(), name='legacy_logout'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('profile/', views.profile_overview, name='profile_overview'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),
+    path('oidc/', include('mozilla_django_oidc.urls')),
 
     # General views
     path('', views.frontpage, name='frontpage'),
@@ -56,16 +56,6 @@ urlpatterns = [
     path('publications/', include('amelie.publications.urls')),
     path('participation/', include('amelie.calendar.participation_urls')),
 
-    # Old dutch urls for permalinks and such
-    path('over/<str:path>', RedirectView.as_view(url='/about/%(path)s', permanent=True)),
-    path('nieuws/<str:path>', RedirectView.as_view(url='/news/%(path)s', permanent=True)),
-    path('onderwijs/<str:path>', RedirectView.as_view(url='/education/%(path)s', permanent=True)),
-    path('activiteiten/<str:path>', RedirectView.as_view(url='/activities/%(path)s', permanent=True)),
-    path('nieuws/<str:path>', RedirectView.as_view(url='/news/%(path)s', permanent=True)),
-    path('bedrijven/<str:path>', RedirectView.as_view(url='/companies/%(path)s', permanent=True)),
-    path('statistieken/<str:path>', RedirectView.as_view(url='/statistics/%(path)s', permanent=True)),
-    path('kamerdienst/<str:path>', RedirectView.as_view(url='/room_duty/%(path)s', permanent=True)),
-
     # API
     path('api/', include('amelie.api.urls')),
 
@@ -80,7 +70,7 @@ urlpatterns = [
         namespace='feeds')
     ),
 
-    # OAuth2
+    # OAuth2 provider for legacy API
     path('o/authorize/', oauth2_provider.views.AuthorizationView.as_view(),
         name="authorize"),
     path('o/token/', oauth2_provider.views.TokenView.as_view(),
@@ -90,15 +80,6 @@ urlpatterns = [
         name="revoke-token"),
     # Include oauth request_access url here because the oauth app urls are not included due to old urls.
     path('oauth/request_access/', RequestOAuth.as_view(), name="request_oauth"),
-
-    # OAuth2 (third-party authentication)
-    path('social_auth/', include('social_django.urls', namespace='social_auth')),
-    path('social_auth/', include('amelie.oauth.urls', namespace='oauth')),
-
-    # SAML2 SP
-    # Wrap ACS to catch annoying UnsolicitedResponse exception
-    path('saml2sp/acs/', SAMLACSOverrideView.as_view(), name='saml2_acs'),
-    path('saml2sp/', include('djangosaml2.urls')),
 
     # SAML2 IdP
     path('saml2idp/', include('djangosaml2idp.urls')),
@@ -116,7 +97,15 @@ urlpatterns = [
         name='robots_redirect'),
     path('.well-known/security.txt', views.security_txt, name='security_txt'),
 
-    # Redirects for old dutch URL's
+    # Redirects for old dutch URL's for permalinks and such
+    path('over/<str:path>', RedirectView.as_view(url='/about/%(path)s', permanent=True)),
+    path('nieuws/<str:path>', RedirectView.as_view(url='/news/%(path)s', permanent=True)),
+    path('onderwijs/<str:path>', RedirectView.as_view(url='/education/%(path)s', permanent=True)),
+    path('activiteiten/<str:path>', RedirectView.as_view(url='/activities/%(path)s', permanent=True)),
+    path('nieuws/<str:path>', RedirectView.as_view(url='/news/%(path)s', permanent=True)),
+    path('bedrijven/<str:path>', RedirectView.as_view(url='/companies/%(path)s', permanent=True)),
+    path('statistieken/<str:path>', RedirectView.as_view(url='/statistics/%(path)s', permanent=True)),
+    path('kamerdienst/<str:path>', RedirectView.as_view(url='/room_duty/%(path)s', permanent=True)),
     path('streeplijst/<str:path>', RedirectView.as_view(url='/personal_tab/%(path)s', permanent=True)),
 ]
 admin.autodiscover()
@@ -139,11 +128,6 @@ if settings.DEBUG:
     # Translation application for development
     urlpatterns += [
         path('translations/', include('rosetta.urls'), name='translations')
-    ]
-
-    # SAML test URLs
-    urlpatterns += [
-        path('saml2test/', djangosaml2.views.EchoAttributesView.as_view()),
     ]
 
 

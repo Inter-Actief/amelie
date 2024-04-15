@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from amelie.claudia.clau import Claudia
 from amelie.claudia.google import GoogleSuiteAPI
-from amelie.claudia.models import Mapping, Event, DrivePermission
+from amelie.claudia.models import Mapping, Event, DrivePermission, AliasGroup
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from django.conf import settings
 
@@ -233,7 +233,7 @@ class GoogleSuitePlugin(ClaudiaPlugin):
                                 # but cannot be deleted by e-mail.
                                 # They can only be deleted by using the unique ID that they get when adding them, so
                                 # we save that as the gsuite ID and use it when deleting it.
-                                if mp.is_contact() or (mp.is_person() and not mp.gsuite_id):
+                                if details is not None and (mp.is_contact() or (mp.is_person() and not mp.gsuite_id)):
                                     mp.gsuite_id = details['id']
                                     mp.save()
                         for group in to_remove_groups:
@@ -381,15 +381,34 @@ class GoogleSuitePlugin(ClaudiaPlugin):
         except googleapiclient.errors.HttpError as e:
             logger.warning("Could not get settings info for group {} - Message: {}".format(mp, e))
 
+        # Only allow members to view other members and past messages if the group is not open for signup
+        # We also disable some other features in those cases; allowing posting as the group, etc.
+        # Amelie issue #782 -- https://github.com/Inter-Actief/amelie/issues/782
+        mp_obj = mp.get_mapped_object()
+        if isinstance(mp_obj, AliasGroup) and mp_obj.open_to_signup:
+            logger.debug("This is a public sign-up group, so some GSuite features will be restricted or disabled")
+            who_can_view_membership = "ALL_MANAGERS_CAN_VIEW"  # Only managers can see the other members
+            who_can_view_group = "ALL_MANAGERS_CAN_VIEW"  # Only managers can see the messages in the group
+            allow_web_posting = "false"  # Posts via the web forum are not allowed
+            members_can_post_as_group = "false"  # Do not allow sending messages using the group's address
+            who_can_moderate_content = "OWNERS_AND_MANAGERS"  # Only owners and managers may moderate content (e.g. manage spam)
+            who_can_assist_content = "OWNERS_AND_MANAGERS"  # Only owners and managers may manage content assistant controls
+        else:
+            who_can_view_membership = "ALL_MEMBERS_CAN_VIEW"  # Members can see the other members
+            who_can_view_group = "ALL_MEMBERS_CAN_VIEW"  # Members can see the messages in the group
+            allow_web_posting = "true"  # Posts via the web forum are allowed
+            members_can_post_as_group = "true"  # Members are allowed to send messages using the group's address
+            who_can_moderate_content = "ALL_MEMBERS"  # All members may moderate content (e.g. manage spam)
+            who_can_assist_content = "ALL_MEMBERS"  # All members may manage content assistant controls
+
         default_settings = {
             "kind": "groupsSettings#groups",
             "whoCanJoin": "INVITED_CAN_JOIN",  # Only invited members may join
-            "whoCanViewMembership": "ALL_MEMBERS_CAN_VIEW",  # Members can see the other members
-            "whoCanViewGroup": "ALL_MEMBERS_CAN_VIEW",  # Members can see the messages in the group
-            "whoCanModerateMembers": "NONE",  # No one may moderate members
+            "whoCanViewMembership": who_can_view_membership,  # See above
+            "whoCanViewGroup": who_can_view_group,  # See above
             "allowExternalMembers": "false",  # No external members may view and join the group
             "whoCanPostMessage": "ANYONE_CAN_POST",  # Anyone may e-mail this group
-            "allowWebPosting": "true",  # Posts via the web forum are allowed
+            "allowWebPosting": allow_web_posting,  # See above
             "isArchived": "true",  # Messages sent to this group are kept in an archive
             "archiveOnly": "false",  # This group is not inactive
             "messageModerationLevel": "MODERATE_NONE",  # Messages are not moderated, and sent directly to the group
@@ -397,15 +416,14 @@ class GoogleSuitePlugin(ClaudiaPlugin):
             "replyTo": "REPLY_TO_IGNORE",  # Users may decide where the message reply is sent
             "includeCustomFooter": "false",  # No custom footer on each message
             "sendMessageDenyNotification": "false",  # Do not send a notification to authors if their message was rejected
-            "showInGroupDirectory": "false",  # Do not show this group in the groups directory
-            "allowGoogleCommunication": "false",  # Google may not contact this group's administrators
-            "membersCanPostAsTheGroup": "true",  # Members are allowed to send messages using the group's address
-            "messageDisplayFont": "DEFAULT_FONT",  # Messages are shown using the default font
+            "membersCanPostAsTheGroup": members_can_post_as_group,  # See above
             "includeInGlobalAddressList": "true",  # This group is visible in the address book
             "whoCanLeaveGroup": "NONE_CAN_LEAVE",  # You cannot escape!
             "whoCanContactOwner": "ALL_MEMBERS_CAN_CONTACT",  # Members may contact the group owner (claudia)
-            "whoCanModerateContent": "ALL_MEMBERS",  # All members may moderate content (e.g. manage spam)
-            "whoCanAssistContent": "ALL_MEMBERS",  # All members may manage content assistant controls
+            "whoCanModerateMembers": "NONE",  # No one may moderate members
+            "whoCanModerateContent": who_can_moderate_content,  # See above
+            "whoCanAssistContent": who_can_assist_content,  # See above
+            "whoCanDiscoverGroup": "ALL_MEMBERS_CAN_DISCOVER"  # Only members may discover this group
         }
 
         if group:

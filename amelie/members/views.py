@@ -1,31 +1,37 @@
 import datetime
+import time
+import json
+import re
+import logging
+
 from datetime import date
 from decimal import Decimal
+from functools import lru_cache
 from io import BytesIO
 
+from django.views import View
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, ValidationError
-from django.db.models import Sum
+from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
+from django.db.models import Q, Sum, Max, F
+from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from fcm_django.models import FCMDevice
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
-from social_core.utils import build_absolute_uri
-from social_django.models import UserSocialAuth
 
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 from django.views.generic.edit import DeleteView, FormView
 
-from amelie.claudia.models import Mapping
-from amelie.iamailer import MailTask
+from amelie.claudia.models import Mapping, ExtraPerson
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -34,63 +40,111 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepEmployeeDetails, \
     RegistrationFormPersonalDetailsEmployee, RegistrationFormStepEmployeeMembershipDetails, PreRegistrationPrintAllForm
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
-    Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment
-from amelie.oauth.models import LoginToken
-from amelie.oauth.views import create_token_and_send_email
+    Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
+    DogroupGeneration
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
+from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
-from amelie.tools.http import HttpResponseSendfile
-from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
-from amelie.tools.mail import PersonRecipient
-from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeOrChildCommitteeMixin, \
-    RequireDoGroupParentInCurrentYearMixin
+from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
+from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
+from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
-
 
 @require_board
 def statistics(request):
+
+    dt = None
+
+    if 'dt' in request.GET:
+        dt = parse_date(request.GET['dt'])
+    
+    if not dt:
+        # The page will only render the Date input field
+        return render(request, 'statistics/overview.html', locals())
+
     studies = Study.objects.all()
     per_study_total = 0
     per_study_rows = []
     for study in studies:
-        count = Student.objects.filter(person__membership__year=current_association_year(),
-                                       studyperiod__study=study,
-                                       studyperiod__end__isnull=True).distinct().count()
+        count = Student.objects.filter(
+            Q(person__membership__year=association_year(dt)),
+            Q(studyperiod__end__isnull=True) | Q(studyperiod__end__gt=dt),
+            Q(studyperiod__begin__isnull=False),
+            Q(studyperiod__begin__lte=dt),
+            Q(studyperiod__study=study)
+        ).distinct().count()
+
         per_study_total += count
         per_study_rows.append({'name': study.name, 'abbreviation': study.abbreviation, 'count': count})
     per_study_rows = sorted(per_study_rows, key=lambda k: -k['count'])
 
-    members_count = Person.objects.members().count()
-    active_members = Person.objects.active_members()
+    members_count = Person.objects.members_at(dt).count()
+    active_members = Person.objects.active_members_at(dt)
     active_members_count = active_members.count()
 
-    tcs = Student.objects.filter(studyperiod__study__primary_study=True).exclude(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
-    active_members_tcs = [student.person for student in tcs if student.person in active_members]
+    active_members_tcs = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        # Someone who is not studying anymore, but has studied CS at their latest studyperiod is counted
+        student__latest_studyperiod = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod')),
+        Q(student__studyperiod__study__abbreviation__in=['B-TCS','M-CS'])
+    ).distinct()
     active_members_tcs_count = len(active_members_tcs)
 
-    bit = Student.objects.filter(studyperiod__study__abbreviation__in=['B-BIT', 'M-BIT']).distinct()
-    active_members_bit = [student.person for student in bit if student.person in active_members]
+    active_members_bit = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        # Someone who is not studying anymore, but has studied BIT at their latest studyperiod is counted
+        student__latest_studyperiod = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod')),
+        Q(student__studyperiod__study__abbreviation__in=['B-BIT','M-BIT'])
+    ).distinct()
     active_members_bit_count = len(active_members_bit)
 
-    other = Student.objects.exclude(studyperiod__study__primary_study=True).distinct()
-    active_members_other_count = len([student.person for student in other if student.person in active_members])
+    other_studies = Study.objects.exclude(abbreviation__in=['B-TCS','M-CS','B-BIT','M-BIT']).values("abbreviation")
+
+    active_members_other = active_members.filter(
+        Q(student__studyperiod__begin__isnull=False),
+        Q(student__studyperiod__begin__lte=dt)
+    ).annotate(
+        # This makes sure only the latest studyperiod is used for the filter afterwards
+        student__latest_studyperiod_begin = Max('student__studyperiod__begin')
+    ).filter(
+        Q(student__studyperiod__begin=F('student__latest_studyperiod_begin')),
+        # I know this is a very hacky way of excluding CS and BIT studies, but it doesn't work any other way...
+        Q(student__studyperiod__study__abbreviation__in=[other_studies])
+    ).distinct()
+    active_members_other_count = len(active_members_other)
 
     percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
 
-    freshmen_bit = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-BIT',
-                                                   student__studyperiod__begin__year=current_association_year(),
-                                                   student__studyperiod__end__isnull=True).distinct()
+    freshmen_bit = Person.objects.members_at(dt).filter(
+        Q(membership__year=association_year(dt)),
+        Q(student__studyperiod__study__abbreviation='B-BIT'),
+        Q(student__studyperiod__begin__year=association_year(dt)),
+        Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
+    ).distinct()
+
     freshmen_bit_count = freshmen_bit.count()
     active_freshmen_bit = [person for person in freshmen_bit if person in active_members]
     active_freshmen_bit_count = len(active_freshmen_bit)
 
-    freshmen_tcs = Person.objects.members().filter(membership__year=current_association_year(),
-                                                   student__studyperiod__study__abbreviation='B-CS',
-                                                   student__studyperiod__begin__year=current_association_year(),
-                                                   student__studyperiod__end__isnull=True).distinct()
+    freshmen_tcs = Person.objects.members_at(dt).filter(
+        Q(membership__year=association_year(dt)),
+        Q(student__studyperiod__study__abbreviation='B-TCS'),
+        Q(student__studyperiod__begin__year=association_year(dt)),
+        Q(student__studyperiod__end__isnull=True) | Q(student__studyperiod__end__gt=dt)
+    ).distinct()
+
     freshmen_tcs_count = freshmen_tcs.count()
     active_freshmen_tcs = [person for person in freshmen_tcs if person in active_members]
     active_freshmen_tcs_count = len(active_freshmen_tcs)
@@ -99,23 +153,36 @@ def statistics(request):
 
     percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
 
-    employee_count = Employee.objects.filter(person__membership__year=current_association_year()).count()
+    employee_count = Employee.objects.filter(
+        Q(person__membership__year=association_year(dt)),
+        Q(person__membership__ended__isnull=True) | Q(person__membership__ended__gt=dt)
+    ).count()
 
     per_committee_total = 0
     per_committee_rows = []
-    committees = Committee.objects.active()
+    committees = Committee.objects.active_at(dt)
     committee_count = 0
     for committee in committees:
-        count = Function.objects.filter(committee=committee, end__isnull=True).count()
+        count = Function.objects.filter(
+            Q(committee=committee),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).count()
         per_committee_total += count
         if count > 0:
             committee_count += 1
             per_committee_rows.append({'name': committee.name, 'count': count})
 
     per_commitee_total_ex_pools = per_committee_total
-    pools = Committee.objects.active().filter(category__name=settings.POOL_CATEGORY)
+    pools = Committee.objects.active_at(dt).filter(category__name=settings.POOL_CATEGORY)
     for pool in pools:
-        count = Function.objects.filter(committee=pool, end__isnull=True).count()
+        count = Function.objects.filter(
+            Q(committee=pool),
+            Q(end__isnull=True) | Q(end__gt=dt),
+            Q(begin__isnull=False),
+            Q(begin__lte=dt)
+        ).count()
         per_commitee_total_ex_pools = per_commitee_total_ex_pools - count
 
     average_committees_ex_pools_per_active_member = '{0:.2f}'.format((per_commitee_total_ex_pools*1.0)/active_members_count)
@@ -123,7 +190,7 @@ def statistics(request):
 
     per_active_member_total = {}
     for person in active_members:
-        num = len(person.current_committees())
+        num = person.current_committees_at(dt).count()
         if num not in per_active_member_total.keys():
             per_active_member_total[num] = 0
         per_active_member_total[num] += 1
@@ -133,7 +200,7 @@ def statistics(request):
         per_active_member_total.get(2, 0) - per_active_member_total.get(3, 0) - \
         per_active_member_total.get(4, 0) - per_active_member_total.get(5, 0)
 
-    international_members = Person.objects.members().filter(international_member=Person.InternationalChoices.YES).distinct()
+    international_members = Person.objects.members_at(dt).filter(international_member=Person.InternationalChoices.YES).distinct()
     international_members_count = international_members.count()
 
     active_international_members_count = len([member for member in international_members if member in active_members])
@@ -141,9 +208,9 @@ def statistics(request):
     members = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     members_ex_pools = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
     for member in active_members:
-        num = len(member.current_committees())
-        num_ex_pools = Committee.objects.filter(function__person=member, function__end__isnull=True,
-                                                 abolished__isnull=True).exclude(category__name=settings.POOL_CATEGORY).count()
+        num = member.current_committees_at(dt).count()
+        num_ex_pools = member.current_committees_at(dt).exclude(category__name=settings.POOL_CATEGORY).count()
+
         if num not in members.keys():
             members[num] = [member]
         else:
@@ -159,8 +226,8 @@ def statistics(request):
         res = {'n': n,
                'total': len(members[n]),
                'total_ex': len(members_ex_pools[n]),
-               'board': len([x for x in members[n] if x.is_board()]),
-               'board_ex': len([x for x in members_ex_pools[n] if x.is_board()]),
+               'board': len([x for x in members[n] if x.was_board_at(dt)]),
+               'board_ex': len([x for x in members_ex_pools[n] if x.was_board_at(dt)]),
                'freshman': len([x for x in members[n] if x in freshmen_tcs or x in freshmen_bit]),
                'freshman_ex': len([x for x in members_ex_pools[n] if x in freshmen_tcs or x in freshmen_bit]),
                'international': len([x for x in members[n] if x in international_members]),
@@ -180,8 +247,8 @@ def statistics(request):
     res = {'n': _('6 or more'),
            'total': len(six_or_more),
            'total_ex': len(six_or_more_ex),
-           'board': len([x for x in six_or_more if x.is_board()]),
-           'board_ex': len([x for x in six_or_more_ex if x.is_board()]),
+            'board': len([x for x in six_or_more if x.was_board_at(dt)]),
+            'board_ex': len([x for x in six_or_more_ex if x.was_board_at(dt)]),
            'freshman': len([x for x in six_or_more if x in freshmen_tcs or x in freshmen_bit]),
            'freshman_ex': len([x for x in six_or_more_ex if x in freshmen_tcs or x in freshmen_bit]),
            'international': len([x for x in six_or_more if x in international_members]),
@@ -331,7 +398,6 @@ def person_anonymize(request, id, slug):
     if hasattr(person, 'user'):
         AccessToken.objects.filter(user=person.user).delete()
         Grant.objects.filter(user=person.user).delete()
-        UserSocialAuth.objects.filter(user=person.user).delete()
         FCMDevice.objects.filter(user=person.user).delete()
 
     # Anonymize education
@@ -604,7 +670,8 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         person.get_or_create_user(f"e{person.pk}")
 
         # Send OAuth token to registered email
-        create_token_and_send_email(self.request, person)
+        link_code = get_oauth_link_code(person)
+        send_oauth_link_code_email(self.request, person, link_code)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -1310,6 +1377,240 @@ def person_picture(request, id, slug):
         raise Http404('Picture not found')
 
 
+def _person_info_request_get_body(request, logger=None):
+    if logger is None:
+        logger = logging.getLogger("amelie.members.views._person_info_request_get_body")
+
+    # Settings for userinfo API must be configured
+    if settings.USERINFO_API_CONFIG.get('api_key', None) is None or \
+            settings.USERINFO_API_CONFIG.get('allowed_ips', None) is None:
+        logger.error("UserInfo API config missing from settings.")
+        raise ImproperlyConfigured("UserInfo API config missing from settings.")
+
+    # Must be POST request
+    if request.method != "POST":
+        logger.error(f"Bad request, request method is {request.method}, not POST.")
+        raise BadRequest()
+
+    # Must contain JSON body
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError as e:
+        logger.error(f"Bad request, JSON decoding failed - {e}.")
+        raise BadRequest()
+
+    # Must contain 'apiKey' key, and one of the 'iaUsername', 'utUsername' or 'localUsername' keys
+    if 'apiKey' not in body or ('iaUsername' not in body and 'utUsername' not in body and 'localUsername' not in body):
+        logger.error(f"Bad request, API Key or username key missing.")
+        raise BadRequest()
+
+    # Request must come from a known auth.ia server IP address
+    if request.META['REMOTE_ADDR'] not in settings.USERINFO_API_CONFIG['allowed_ips']:
+        logger.error(f"Permission denied, REMOTE_ADDR {request.META['REMOTE_ADDR']} not in allowed IPs.")
+        raise PermissionDenied()
+
+    # API Key must be valid
+    api_key = body.pop('apiKey')  # Removes apiKey from the returned body
+    if api_key != settings.USERINFO_API_CONFIG['api_key']:
+        logger.error(f"Permission denied, provided API key is incorrect.")
+        raise PermissionDenied()
+
+    # If given, the 'verify' key should be a boolean value
+    if 'verify' in body and not isinstance(body['verify'], bool):
+        logger.error("Bad request, verify key was given but was not a boolean value.")
+        raise BadRequest()
+
+    # If given, the 'departments' key should be a comma separated string value
+    if 'departments' in body and not isinstance(body['departments'], str):
+        logger.error("Bad request, departments key was given but was not a comma separated string value.")
+        raise BadRequest()
+
+    return body
+
+
+def _get_ttl_hash(seconds=3600):
+    return round(time.time() / seconds)
+
+
+# noinspection PyUnusedLocal
+@lru_cache()
+def _person_info_get_person(ia_username=None, ut_username=None, local_username=None, verify=False, departments=None,
+                            ttl_hash=None, logger=None):
+    if logger is None:
+        logger = logging.getLogger("amelie.members.views._person_info_get_person")
+
+    if departments is None:
+        departments = []
+    else:
+        departments = departments.split(",")
+
+    del ttl_hash  # ttl_hash is just to get the lru_cache decorator to keep results for only 1 hour
+    person = None
+    if ia_username is not None:
+        try:
+            person = Person.objects.get(account_name=ia_username)
+            logger.debug(f"Person found by ia_username {ia_username}: {person}.")
+        except Person.DoesNotExist:
+            # It could also be an ExtraPerson
+            try:
+                person = ExtraPerson.objects.get(adname=ia_username)
+                logger.debug(f"ExtraPerson found by ia_username {ia_username}: {person}.")
+                if not person.is_active():
+                    person = None
+                    logger.info(f"Account of ExtraPerson {person} is not active (any more), "
+                                f"and thus is no info will be returned for username {ia_username}.")
+            except ExtraPerson.DoesNotExist:
+                logger.info(f"Person or ExtraPerson with ia_username {ia_username} does not exist.")
+                person = None
+    elif ut_username is not None:
+        try:
+            if ut_username[0] == 's':
+                person = Person.objects.get(student__number=ut_username[1:])
+                logger.debug(f"Person found by student ut_username {ut_username}: {person}.")
+
+                if verify and person.membership is not None:
+                    # Verify studies of person if department data is present in auth request.
+                    logger.debug(f"Verifying study for {person} with departments {departments}.")
+
+                    # Since UT years are from sept-aug and our year is from jul-jun, there are two months overlap.
+                    # Never verify users in July or August, as this could allow members who are done studying to get an
+                    # extra year as study long.
+                    if not person.membership.is_verified() and datetime.date.today().month not in [7, 8]:
+                        primary_studies = Study.objects.filter(primary_study=True).values_list('abbreviation',
+                                                                                               flat=True)
+                        for study in departments:
+                            if study in primary_studies:
+                                person.membership.verify()
+                                break
+
+            elif ut_username[0] == 'm':
+                person = Person.objects.get(employee__number=ut_username[1:])
+                logger.debug(f"Person found by employee ut_username {ut_username}: {person}.")
+            elif ut_username[0] == 'x':
+                person = Person.objects.get(ut_external_username=ut_username)
+                logger.debug(f"Person found by external ut_username {ut_username}: {person}.")
+            else:
+                logger.info(f"Cannot find person with invalid ut_username {ut_username}.")
+                person = None
+        except Person.DoesNotExist:
+            logger.info(f"Person with ut_username {ut_username} does not exist.")
+            person = None
+    elif local_username is not None:
+        match = re.match(r'ia(?P<person_id>[0-9]+)', local_username)
+        person = None
+        if match:
+            person_id = int(match.group('person_id'))
+            try:
+                person = Person.objects.get(pk=person_id)
+                logger.debug(f"Person found by local_username {local_username}: {person}.")
+            except Person.DoesNotExist:
+                logger.info(f"Person with local_username {local_username} does not exist.")
+                person = None
+        else:
+            logger.info(f"Cannot find person with invalid local_username {local_username}.")
+            person = None
+    else:
+        logger.warning(f"Person lookup requested but no IA, UT or local username given?! - "
+                       f"Args: ia_username={ia_username}, ut_username={ut_username}, local_username={local_username}, "
+                       f"verify={verify}, departments={departments}.")
+    return person
+
+
+@csrf_exempt
+def person_userinfo(request):
+    """
+    Retrieves user info about a person based on either their active member username or UT s- or m-number.
+    Used by our authentication platform to determine permissions for external users (UT or social login).
+
+    This endpoint is called whenever a user authenticates to a service via auth.ia that requires IA user details.
+    """
+    log = logging.getLogger("amelie.members.views.person_userinfo")
+    # Verify request and get the JSON body
+    body = _person_info_request_get_body(request, logger=log)
+
+    # Access verified. Find the Person associated with the provided username.
+    person = _person_info_get_person(
+        ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None),
+        local_username=body.get('localUsername', None), ttl_hash=_get_ttl_hash(), logger=log
+    )
+
+    username = body.get('iaUsername', None) or body.get('utUsername', None) or body.get('localUsername', None)
+
+    # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
+    if person is not None and isinstance(person, Person):
+        log.info(f"UserInfo retrieved for person {person} using username {username}.")
+        email = "{}@{}".format(person.get_adname(), settings.CLAUDIA_GSUITE['PRIMARY_DOMAIN'])
+        return HttpJSONResponse({
+            'iaUsername': person.get_adname() or None,
+            'iaEmail': email if person.get_adname() else None,
+            'studentNumber': f"s{person.student.number}" if person.is_student() else None,
+            'employeeNumber': f"m{person.employee.number}" if person.is_employee() else None,
+            'externalUsername': person.ut_external_username
+        })
+    elif person is not None and isinstance(person, ExtraPerson):
+        log.info(f"UserInfo retrieved for ExtraPerson {person} using username {username}.")
+        return HttpJSONResponse({
+            'iaUsername': person.get_adname() or None,
+            'iaEmail': person.get_email() or None,
+            'studentNumber': None,
+            'employeeNumber': None,
+            'externalUsername': None
+        })
+    else:
+        log.info(f"UserInfo not found for user iaUsername={body.get('iaUsername', None)}, "
+                 f"utUsername={body.get('utUsername', None)}, localUsername={body.get('localUsername', None)}.")
+        return HttpJSONResponse({})
+
+
+@csrf_exempt
+def person_groupinfo(request):
+    """
+    Retrieves group info about a person based on either their active member username or UT s- or m-number.
+    Used by our authentication platform to determine permissions for external users (UT or social login).
+
+    This also verifies studies if requested, because the UT department info will be passed to this endpoint in the
+    body if it was received by the authentication platform. This endpoint is called when a user logs in with an
+    external account (UT, Google, GitHub, etc.).
+    """
+    log = logging.getLogger("amelie.members.views.person_groupinfo")
+    # Verify request and get the JSON body
+    body = _person_info_request_get_body(request, logger=log)
+
+    # Access verified. Find the Person associated with the provided username.
+    person = _person_info_get_person(
+        ia_username=body.get('iaUsername', None), ut_username=body.get('utUsername', None),
+        local_username=body.get('localUsername', None), verify=body.get('verify', False),
+        departments=body.get('departments', None), ttl_hash=_get_ttl_hash(), logger=log
+    )
+
+    username = body.get('iaUsername', None) or body.get('utUsername', None) or body.get('localUsername', None)
+
+    # If a person was found, return the userinfo that auth.ia needs. Else return an empty object.
+    if person is not None:
+        mp = Mapping.find(person)
+        if mp is not None:
+            log.info(f"GroupInfo retrieved for person {person} (cid: {mp.id}) using username {username}.")
+            return HttpJSONResponse({
+                "groups": [g.adname for g in mp.all_groups('ad') if g.is_group_active() and g.adname]
+            })
+        else:
+            log.info(f"GroupInfo found no groups for username {username} - User has no mapping.")
+            return HttpJSONResponse({"groups": []})
+    log.info(f"GroupInfo not found for username(s) ia={body.get('iaUsername', None)} "
+             f"ut={body.get('utUsername', None)} local={body.get('localUsername', None)}.")
+    return HttpJSONResponse({})
+
+
+@require_board
+def person_send_link_code(request, person_id):
+    person = get_object_or_404(Person, id=person_id)
+    link_code = get_oauth_link_code(person)
+    send_oauth_link_code_email(request, person, link_code)
+    name = person.incomplete_name()
+    messages.success(request, _(f"OAuth link code and instructions were sent to {name}."))
+    return HttpResponseRedirect(person.get_absolute_url())
+
+
 @require_board
 def books_list(request):
     STUDIES_BIT = (settings.BIT_BSC_ABBR, settings.BIT_MSC_ABBR)
@@ -1345,3 +1646,50 @@ class PaymentDeleteView(RequireBoardMixin, DeleteMessageMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.membership.member.get_absolute_url()
+
+
+class DoGroupTreeView(TemplateView):
+    template_name = "dogroups.html"
+
+
+# TODO: Add caching to this view! This cache can be kept for a month of so.
+class DoGroupTreeViewData(View):
+
+    def get(self, request, *args, **kwargs):
+        # Create a datastructure that maps connects generations based on parents and children
+        generation_objects = DogroupGeneration.objects.select_related('dogroup').prefetch_related(
+            'studyperiod_set').all().order_by('dogroup', 'generation')
+
+        # A data structure
+        generations = dict()
+
+        # Aggregates all the years that have had dogroups
+        years = set()
+        for generation in generation_objects:
+            years.add(generation.generation)
+            prev = set()
+            for parent in generation.parents.all():
+                if parent.is_student():
+                    parent_prev_dogroups = parent.student.studyperiod_set.filter(dogroup__isnull=False,
+                                                                                 dogroup__generation__lt=generation.generation).order_by(
+                        'dogroup__generation')
+                    if parent_prev_dogroups.exists():
+                        prev.add(parent_prev_dogroups.last().dogroup)
+            generations[generation] = prev
+
+        dogroups = dict()
+        for dogroup in Dogroup.objects.all():
+            dogroups[str(dogroup)] = {}
+        for generation in generations.keys():
+            dogroups[str(generation.dogroup)][generation.generation] = {
+                "id": generation.id,
+                "parents": [{"id": p.id} for p in generations[generation]],
+                "color": generation.color,
+            }
+
+        data = {
+            "years": sorted(list(years)),
+            "dogroups": list(dogroups.keys()),
+            "data": dogroups,
+        }
+        return JsonResponse(data)

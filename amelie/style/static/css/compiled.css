@@ -11603,10 +11603,12 @@ li.person .small {
 }
 @media (min-width: 992px) {
   #nav {
-    background-color: #7689ba;
     font-size: 12px;
     margin: 0;
     padding: 0;
+  }
+  #nav li ul li a {
+    color: #1d428a;
   }
   #nav li {
     display: block;
@@ -11619,7 +11621,7 @@ li.person .small {
     font-weight: bold;
     text-decoration: none;
     text-align: left;
-    color: #1d428a;
+    color: white;
     padding: 5px 10px;
     cursor: pointer;
     overflow: hidden;
@@ -11806,7 +11808,7 @@ li.person .small {
     font-size: 18;
     text-decoration: none;
     text-align: left;
-    color: #0433AA;
+    color: white;
     padding: 5px 10px;
     cursor: pointer;
     width: 100%;
@@ -11911,9 +11913,6 @@ body {
 #top {
   padding-top: 5px;
   background: #1d428a;
-  -webkit-box-shadow: 0px -25px 15px -25px #222222 inset;
-  -moz-box-shadow: 0px -25px 15px -25px #222222 inset;
-  box-shadow: 0px -25px 15px -25px #222222 inset;
 }
 @media print {
   #top {
@@ -11971,9 +11970,6 @@ body {
 }
 #bottom {
   width: 100%;
-  -webkit-box-shadow: 0px 25px 15px -25px #000000 inset;
-  -moz-box-shadow: 0px 25px 15px -25px #000000 inset;
-  box-shadow: 0px 25px 15px -25px #000000 inset;
   padding: 20px 0 10px;
   background: #1d428a;
   position: absolute;

@@ -6,6 +6,24 @@
 {% endblock titel %}
 
 {% block content %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">    
+        <div class="ia">
+            <h2>{% trans 'Date selector' %}</h2>
+            <div class="content">
+                <form method="get">
+                    <label for="dt">{% trans 'Date' %}:</label>
+		    <input id="dt" type="date" name="dt" required value="{{ dt | date:"Y-m-d" }}" >
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Render' %}">
+                    </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if dt %}
+
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
         <div class="ia">
             <h2>{% blocktrans %}Members per study{% endblocktrans %}</h2>
@@ -119,5 +137,7 @@
             </div>
         </div>
     </div>
+    
+    {% endif %}
 
 {% endblock content %}

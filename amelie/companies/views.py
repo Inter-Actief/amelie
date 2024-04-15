@@ -2,6 +2,7 @@ import datetime
 import logging
 import random
 
+from django.conf import settings
 from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
@@ -10,26 +11,19 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from amelie.companies.forms import CompanyForm, BannerForm, TelevisionBannerForm, CompanyEventForm, StatisticsForm
-from amelie.companies.models import BaseBanner, Company, CompanyEvent, TelevisionBanner, WebsiteBanner
+from amelie.companies.forms import CompanyForm, BannerForm, TelevisionBannerForm, CompanyEventForm, StatisticsForm, \
+    VivatBannerForm
+from amelie.companies.models import BaseBanner, Company, CompanyEvent, TelevisionBanner, WebsiteBanner, VivatBanner
 from amelie.members.models import Committee
 from amelie.statistics.decorators import track_hits
 from amelie.tools.decorators import require_board
 from amelie.tools.forms import PeriodForm
 from amelie.tools.calendar import ical_calendar
+from amelie.tools.http import HttpJSONResponse
 from amelie.tools.mixins import RequireBoardMixin, RequireCommitteeMixin
 
 logger = logging.getLogger(__name__)
 
-@track_hits("Company Corner")
-def company_list(request):
-    """
-    List of all companies
-    NOTE: Will be deprecated in favour of the `company_overview` view.
-    """
-    is_board = hasattr(request, 'person') and request.is_board
-    companies = Company.objects.active()
-    return render(request, 'companies/company_list.html', {'is_board': is_board, 'companies': companies})
 
 @track_hits("Company Corner")
 def company_overview(request):
@@ -54,6 +48,7 @@ def company_overview(request):
         'sorted': should_sort
     })
 
+
 def company_details(request, slug):
     """ Shows details of a company """
     obj = get_object_or_404(Company, slug=slug)
@@ -66,19 +61,25 @@ def banner_list(request):
     """ List of all banners """
     website_banners = WebsiteBanner.objects.all()
     television_banners = TelevisionBanner.objects.all()
+    vivat_banners = VivatBanner.objects.all()
     today = datetime.date.today()
-    return render(request, 'companies/company_banners.html', {'website_banners': website_banners, 'television_banners': television_banners, 'today': today})
+    return render(request, 'companies/company_banners.html', {
+        'website_banners': website_banners, 'television_banners': television_banners, 'vivat_banners': vivat_banners,
+        'today': today
+    })
 
 
 @require_board
 def banner_edit(request, id):
-    """ Edit either a website banner or television banner. """
+    """ Edit either a website banner, television banner or vivat banner. """
     obj = get_object_or_404(BaseBanner, id=id)
     form = None
 
     if request.method == "POST":
         if hasattr(obj, 'websitebanner'):
             form = BannerForm(request.POST, request.FILES, instance=obj.websitebanner)
+        elif hasattr(obj, 'vivatbanner'):
+            form = VivatBannerForm(request.POST, request.FILES, instance=obj.vivatbanner)
         else:
             form = TelevisionBannerForm(request.POST, request.FILES, instance=obj.televisionbanner)
 
@@ -89,6 +90,8 @@ def banner_edit(request, id):
     else:
         if hasattr(obj, 'websitebanner'):
             form = BannerForm(instance=obj.websitebanner)
+        elif hasattr(obj, 'vivatbanner'):
+            form = VivatBannerForm(instance=obj.vivatbanner)
         else:
             form = TelevisionBannerForm(instance=obj.televisionbanner)
 
@@ -126,10 +129,54 @@ def televisionbanner_create(request):
 
 
 @require_board
+def vivatbanner_create(request):
+    """ Create a vivat banner. """
+    if request.method == "POST":
+        form = VivatBannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('companies:banner_list'))
+
+    else:
+        form = VivatBannerForm()
+
+    return render(request, 'companies/company_banners_form.html', locals())
+
+
+def vivatbanner_get(request):
+    """ Gets a number (3 default) of vivat banners in JSON format for use on the IO Vivat website. """
+    try:
+        # Get amount from argument 'n', default is 3
+        amount = int(request.GET.get("n", "3"))
+        # Clamp amount between 1 and 20
+        amount = max(1, min(amount, 20))
+    except ValueError:
+        # Could not parse argument, use default
+        amount = 3
+
+    # Get banners (only currently active banners, random order)
+    banners = VivatBanner.objects.filter(
+        active=True, start_date__lte=datetime.date.today(), end_date__gte=datetime.date.today()
+    ).order_by('?')[:amount]
+
+    # Return them as JSON data
+    return HttpJSONResponse({
+        'amount': amount,
+        'banners': [
+            {
+                "picture": "{}{}".format(settings.MEDIA_URL, banner.picture),
+                "name": banner.name,
+                "link": banner.url
+            }
+            for banner in banners
+        ]
+    })
+
+
+@require_board
 def company_overview_old(request):
     """
     Overview with all inactive companies
-    NOTE: Will be deprecated in favour of the `company_overview_old` view
     """
     is_board = hasattr(request, 'person') and request.is_board
     companies = Company.objects.inactive()
@@ -138,16 +185,6 @@ def company_overview_old(request):
         'companies': companies,
         'active': False
     })
-
-@require_board
-def company_old(request):
-    """
-    Overview with all inactive companies
-    NOTE: Will be deprecated in favour of the `company_overview_old` view
-    """
-    is_board = hasattr(request, 'person') and request.is_board
-    companies = Company.objects.inactive()
-    return render(request, 'companies/company_list.html', {'is_board': is_board, 'companies': companies})
 
 @require_board
 def company_edit(request, slug):
@@ -176,7 +213,9 @@ def company_create(request):
     return render(request, 'companies/company_form.html', locals())
 
 
-#### Company calendar
+##
+# Company calendar
+##
 @require_board
 def event_create(request):
     """ Create a CompanyEvent. """

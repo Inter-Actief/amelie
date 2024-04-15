@@ -29,15 +29,21 @@
             {% trans 'Number of confirmed participants' %}: {{ number_confirmed_participants }}
         </p>
     </div>
+    {% if request.is_board %}
     <div class="underage-button">
-        <a href=".?underage={% if only_show_underage %}False{% else %}True{% endif %}" class="looks-like-a-button no-margin">
-            {% if only_show_underage %}
-                {% trans 'Show all participants' %}
-            {% else %}
-                {% trans 'Only show underage participants' %}
-            {% endif %}
-        </a>
+            <a href=".?underage={% if only_show_underage %}False{% else %}True{% endif %}" class="looks-like-a-button no-margin">
+                {% if only_show_underage %}
+                    {% trans 'Show all participants' %}
+                {% else %}
+                    {% trans 'Only show underage participants' %}
+                {% endif %}
+            </a>
     </div>
+    {% else %}
+    <div class="underage-button">
+        {% trans 'Need a list of underage participants? Ask the board!' %}
+    </div>
+    {% endif %}
 </div>
 
 {% if only_show_underage %}

@@ -1,16 +1,15 @@
 from django.urls import path
 
-from jsonrpc.site import jsonrpc_site
+from modernrpc.core import Protocol
+from modernrpc.views import RPCEntryPoint
 
-# Load all JSON-RPC methods
-# noinspection PyUnresolvedReferences
-from amelie.api import api, authentication, news, activitystream, committee, company, authentication, push,\
-    narrowcasting, personal_tab, person, education, videos
-
+from amelie.companies.views import vivatbanner_get
 
 app_name = 'api'
 
 
 urlpatterns = [
-    path('', jsonrpc_site.dispatch, name="jsonrpc_mountpoint"),
+    path('', RPCEntryPoint.as_view(protocol=Protocol.JSON_RPC), name="jsonrpc_mountpoint"),
+    path('docs/', RPCEntryPoint.as_view(enable_doc=True, enable_rpc=False, template_name="api/doc_index.html")),
+    path('vivat_banners/', vivatbanner_get, name='vivatbanner_get'),
 ]

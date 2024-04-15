@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _, get_language
 from amelie.companies.managers import CompanyManager
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event
+from amelie.activities.models import ActivityLabel
 from amelie.tools.discord import send_discord
 
 class Company(models.Model):
@@ -177,6 +178,20 @@ class TelevisionBanner(BaseBanner):
         verbose_name_plural = _('Television banners')
 
 
+class VivatBanner(BaseBanner):
+    url = models.URLField()
+    views = models.PositiveIntegerField(editable=False, default=0)
+
+    def save(self, **kwargs):
+        self.slug = slugify(self.name)
+        super(VivatBanner, self).save(**kwargs)
+
+    class Meta:
+        ordering = ['-end_date']
+        verbose_name = _('I/O Vivat banner')
+        verbose_name_plural = _('I/O Vivat banners')
+
+
 class CompanyEvent(Event):
     objects = EventManager()
     company = models.ForeignKey('Company', blank=True, null=True, on_delete=models.SET_NULL)
@@ -185,6 +200,10 @@ class CompanyEvent(Event):
 
     visible_from = models.DateTimeField()
     visible_till = models.DateTimeField()
+
+    @property
+    def activity_label(self):
+        return ActivityLabel.objects.filter(name_en="Career").first()
 
     @property
     def activity_type(self):

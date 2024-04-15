@@ -5,6 +5,7 @@ from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.encoding import force_str
+from django.utils.http import is_safe_url
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 
@@ -376,12 +377,15 @@ def course(request, course_code, slug):
 @require_lid
 def course_new(request):
     form = CourseForm(initial=request.GET)
+    next = request.GET.get("next", None)
 
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
             course_obj = form.save()
             course_obj.save()
+            if next and is_safe_url(next, [request.get_host()]):
+                return redirect(next)
             return redirect("education:complaint_new")
 
     return render(request, "course_new.html", locals())
@@ -390,12 +394,15 @@ def course_new(request):
 @require_lid
 def module_new(request):
     form = ModuleForm(initial=request.GET)
+    next = request.GET.get("next", None)
 
     if request.method == "POST":
         form = ModuleForm(request.POST)
         if form.is_valid():
             module_obj = form.save()
             module_obj.save()
+            if next and is_safe_url(next, [request.get_host()]):
+                return redirect(next)
             return redirect("education:complaint_new")
 
     return render(request, "module_new.html", locals())
@@ -486,6 +493,7 @@ def send_new_complaint_notification(complaint_obj, comment, reporter, url):
 
     task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                  context=context,
+                                 language='en',
                                  headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
     task.send()
@@ -513,6 +521,7 @@ def send_complaint_comment_notification(complaint_obj, comment, reporter, url):
 
     task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                  context=context,
+                                 language='en',
                                  headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
     task.send()
@@ -555,6 +564,7 @@ def send_complaint_closed_notification(complaint_summary, complainant, url):
         Recipient(
             tos=[settings.EDUCATION_COMMITTEE_EMAIL],
             context=context_oc,
+            language='en',
             headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL},
         )
     )

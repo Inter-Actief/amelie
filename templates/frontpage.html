@@ -24,17 +24,19 @@
                                 <h3 class="truncate">
                                     <a href="{{ current_activity.get_absolute_url }}">{{ current_activity }}</a>
                                 </h3>
-
-                                <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
-
-                                <div title={{ current_activity.activity_label.name }}>
-                                    <a
+                                <div class="activity-list-icons">
+                                    <div title="{% trans 'Dutch-only' %}">
+                                        <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
+                                    </div>
+                                    <div title={{ current_activity.activity_label.name }}>
+										<a
                                         {% if current_activity.activity_label.name %}
                                             href="{% url 'activities:activities_type' act_type=current_activity.activity_label.name %}"
                                         {% endif %}
                                         style="margin: 0px;">
                                         <img class="activity-icon" src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}" />
-                                    </a>
+                                    	</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +89,7 @@
             <div class="content">
               <p>{% trans 'In the Company Corner you can find information about companies and possible graduation projects or job opportunities.' %}</p>
             <ul class="no-bullets">
-                <li class="icon icon-building"><a href="{% url 'companies:company_list' %}">
+                <li class="icon icon-building"><a href="{% url 'companies:company_overview' %}">
                     {% trans 'Company Corner' %}
                 </a></li>
                 <li class="icon icon-building"><a href="{% url 'companies:event_list' %}">

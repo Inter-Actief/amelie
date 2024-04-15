@@ -57,6 +57,8 @@ class QueryForm(forms.Form):
                                                 widget=widgets.CheckboxSelectMultiple)
 
     membership = forms.ModelMultipleChoiceField(MembershipType.objects.all(), required=False)
+    not_verified_membership = forms.BooleanField(required=False, label=_("Membership is not verified"))
+    verified_membership = forms.BooleanField(required=False, label=_("Membership is verified (or not needed for type)"))
 
     active = forms.BooleanField(required=False, label=_('Is an active member'))
     not_active = forms.BooleanField(required=False, label=_('Is a not-active member'))
@@ -193,6 +195,11 @@ class QueryForm(forms.Form):
 
         if cleaned_data['membership']:
             memberships = memberships.filter(type__in=cleaned_data['membership'])
+
+        if cleaned_data['not_verified_membership']:
+            memberships = memberships.filter(verified_on__isnull=True, type__needs_verification=True)
+        if cleaned_data['verified_membership']:
+            memberships = memberships.filter(Q(verified_on__isnull=False) | Q(type__needs_verification=False))
 
         persons = persons.filter(membership__in=memberships)
 

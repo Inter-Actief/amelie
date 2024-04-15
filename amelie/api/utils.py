@@ -1,6 +1,6 @@
 import uuid
 
-from jsonrpc.exceptions import InvalidParamsError
+from modernrpc.exceptions import RPCInvalidParams
 from oauth2_provider.backends import OAuth2Backend
 
 from amelie.api.common import parse_datetime
@@ -28,4 +28,4 @@ def parse_datetime_parameter(date):
     try:
         return parse_datetime(date)
     except ValueError:
-        raise InvalidParamsError("Dates should be formatted as ISO 8601 (yyyy-mm-ddThh:mm:ss+hhmm)")
+        raise RPCInvalidParams("Dates should be formatted as ISO 8601 (yyyy-mm-ddThh:mm:ss+hhmm)")

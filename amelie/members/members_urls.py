@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
 from django.views.generic import RedirectView
 
 from amelie.members import ajax_views, query_views, views
@@ -34,6 +35,10 @@ urlpatterns = [
     path(r'ajax/autocomplete/name/', ajax_views.autocomplete_names, name='autocomplete'),
     path(r'ajax/autocomplete/cookie_corner/name/', ajax_views.autocomplete_names_cookie_corner, name='autocomplete_cookie_corner'),
 
+    path(r'userinfo/', views.person_userinfo, name='person_userinfo'),
+    path(r'groupinfo/', views.person_groupinfo, name='person_groupinfo'),
+    path(r'send_link_code/<int:person_id>/', views.person_send_link_code, name='send_oauth_link_code'),
+
     path(r'payment/<int:pk>/delete/', PaymentDeleteView.as_view(), name='payment_delete'),
 
     path(r'birthdays/', views.birthdays, name='birthdays'),
@@ -58,6 +63,9 @@ urlpatterns = [
     path(r'contact_list/', views.contact_list, name='contact_list'),
     path(r'export_csv/primary/', views.csv_student_number_primary, name='csv_studentnumber_primary'),
     path(r'export_csv/withoutbit/', views.csv_student_number_without_bit, name='csv_studentnumber_withoutbit'),
+
+    path(r'dogroups/', views.DoGroupTreeView.as_view(), name='dogroups'),
+    path(r'dogroups/data/', cache_page(60 * 60 * 24 * 30)(views.DoGroupTreeViewData.as_view()), name='dogroups_data'),
 
     path(r'books_list/', views.books_list, name='books_list'),
 

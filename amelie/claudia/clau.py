@@ -263,7 +263,9 @@ class Claudia:
 
                     logger.error('LDAP server down: %s (retrying in 300s)' % str(e))
                     # Requeue the object
+                    self.queue_lock.acquire()
                     self.queue.append(mp)
+                    self.queue_lock.release()
                     # Schedule a new runner in 300s
                     t = Timer(300.0, self.run_queue, [fix])
                     t.start()
