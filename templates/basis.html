@@ -67,8 +67,8 @@
 			
             {% comment %} CB script {% endcomment %}
             <script src="{% cached_static 'js/cb.js' %}"></script>
-            <script type="module" src="{% cached_static 'js/cb-clippy-handler.js' %}"></script>
             {% endcompress %}
+            <script type="module" src="{% cached_static 'js/cb-clippy-handler.js' %}"></script>
 
             {% comment %} Popup for CB {% endcomment %}
             <div class="modal cb-modal fade" tabindex="-1" role="dialog" id="CbModal">
