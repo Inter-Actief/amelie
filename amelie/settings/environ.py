@@ -233,6 +233,10 @@ KEYCLOAK_API_CLIENT_SECRET = env("KEYCLOAK_API_CLIENT_SECRET", default="")
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+# If the proxy tells us the external side is HTTPS, use that
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key())
 
