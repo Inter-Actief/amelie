@@ -11002,6 +11002,9 @@ li.courses-soon {
     overflow-y: auto;
   }
 }
+.ia-datepicker {
+  width: 125px;
+}
 .ia_messages {
   list-style-type: none;
   padding: 0 0 0 20px;
