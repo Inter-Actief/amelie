@@ -616,7 +616,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
 
     def clean_bic(self):
         bic = str(self.cleaned_data['bic']).strip()
-        if bic is "":
+        if bic == "":
             return self.cleaned_data['bic']
 
         if not settings.DEBUG:
