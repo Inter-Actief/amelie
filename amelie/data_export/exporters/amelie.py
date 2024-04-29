@@ -1,7 +1,7 @@
 import os
 
 import json
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from oauth2_provider.models import Application, AccessToken, Grant
 from zipfile import ZipFile
 
@@ -134,7 +134,7 @@ class AmelieDataExporter(DataExporter):
                 enrollment_data['event'] = "{} ({} - {})".format(enrollment.event.summary, enrollment.event.begin,
                                                                  enrollment.event.end)
             else:
-                enrollment_data['event'] = _('deleted activity')
+                enrollment_data['event'] = _l('deleted activity')
 
             for enrollment_option_answer in enrollment.enrollmentoptionanswer_set.all():
                 enrollment_data['enrollment_options'].append({

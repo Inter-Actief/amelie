@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.forms import widgets
 from django.template import Template
 from django.utils import translation
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from functools import reduce
 
 from amelie.api.models import PushNotification
@@ -30,18 +30,18 @@ def _find_years():
 
 class QueryForm(forms.Form):
     name = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'autofocus': 'autofocus'}))
-    id = forms.IntegerField(required=False, label=_('Amelie-number'))
-    sm_number = forms.CharField(max_length=10, required=False, label=_('S/M number'))
-    phone_number = forms.CharField(max_length=20, required=False, label=_('Phonenumber'))
-    email_address = forms.CharField(max_length=100, required=False, label=_('E-mail address'))
+    id = forms.IntegerField(required=False, label=_l('Amelie-number'))
+    sm_number = forms.CharField(max_length=10, required=False, label=_l('S/M number'))
+    phone_number = forms.CharField(max_length=20, required=False, label=_l('Phonenumber'))
+    email_address = forms.CharField(max_length=100, required=False, label=_l('E-mail address'))
     gender = forms.MultipleChoiceField(required=False, choices=Person.GenderTypes.choices,
                                        widget=widgets.CheckboxSelectMultiple)
-    minor = forms.BooleanField(required=False, label=_('Younger than 18 years old'))
+    minor = forms.BooleanField(required=False, label=_l('Younger than 18 years old'))
 
-    member = forms.BooleanField(required=False, label=_('Return former members'))
-    old_member = forms.BooleanField(required=False, label=_('Only return former members'))
-    paid = forms.BooleanField(required=False, label=_('Has not paid yet'))
-    member_in_year = forms.MultipleChoiceField(required=False, label=_('Was a member in one of these years'))
+    member = forms.BooleanField(required=False, label=_l('Return former members'))
+    old_member = forms.BooleanField(required=False, label=_l('Only return former members'))
+    paid = forms.BooleanField(required=False, label=_l('Has not paid yet'))
+    member_in_year = forms.MultipleChoiceField(required=False, label=_l('Was a member in one of these years'))
 
     study = forms.ModelChoiceField(Study.objects.all(), required=False)
     studies = forms.CharField(max_length=200, required=False)
@@ -52,46 +52,46 @@ class QueryForm(forms.Form):
                                                      widget=widgets.CheckboxSelectMultiple)
 
     preference_not = forms.BooleanField(required=False,
-                                        label=_('Return members who do not have the following options'))
+                                        label=_l('Return members who do not have the following options'))
     preference = forms.ModelMultipleChoiceField(Preference.objects.all(), required=False,
                                                 widget=widgets.CheckboxSelectMultiple)
 
     membership = forms.ModelMultipleChoiceField(MembershipType.objects.all(), required=False)
-    not_verified_membership = forms.BooleanField(required=False, label=_("Membership is not verified"))
-    verified_membership = forms.BooleanField(required=False, label=_("Membership is verified (or not needed for type)"))
+    not_verified_membership = forms.BooleanField(required=False, label=_l("Membership is not verified"))
+    verified_membership = forms.BooleanField(required=False, label=_l("Membership is verified (or not needed for type)"))
 
-    active = forms.BooleanField(required=False, label=_('Is an active member'))
-    not_active = forms.BooleanField(required=False, label=_('Is a not-active member'))
-    has_nda = forms.BooleanField(required=False, label=_('Has signed an NDA'))
-    committee = forms.ModelChoiceField(Committee.objects.all(), required=False, label=_('Once did'))
+    active = forms.BooleanField(required=False, label=_l('Is an active member'))
+    not_active = forms.BooleanField(required=False, label=_l('Is a not-active member'))
+    has_nda = forms.BooleanField(required=False, label=_l('Has signed an NDA'))
+    committee = forms.ModelChoiceField(Committee.objects.all(), required=False, label=_l('Once did'))
     committee_now = forms.ModelChoiceField(Committee.objects.filter(abolished__isnull=True), required=False,
-                                           label=_('Does'))
-    active_year = forms.MultipleChoiceField(choices=(), required=False, label=_('Was active in'))
+                                           label=_l('Does'))
+    active_year = forms.MultipleChoiceField(choices=(), required=False, label=_l('Was active in'))
 
-    employee = forms.BooleanField(required=False, label=_('Member is employee'))
-    department = forms.ModelMultipleChoiceField(Department.objects.all(), required=False, label=_('Belongs to'))
+    employee = forms.BooleanField(required=False, label=_l('Member is employee'))
+    department = forms.ModelMultipleChoiceField(Department.objects.all(), required=False, label=_l('Belongs to'))
 
-    has_dogroup = forms.BooleanField(required=False, label=_('Has a dogroup'))
-    has_no_dogroup = forms.BooleanField(required=False, label=_('Has no dogroup'))
+    has_dogroup = forms.BooleanField(required=False, label=_l('Has a dogroup'))
+    has_no_dogroup = forms.BooleanField(required=False, label=_l('Has no dogroup'))
     dogroup = forms.ModelMultipleChoiceField(DogroupGeneration.objects.all(), required=False)
 
     preferred_language = forms.MultipleChoiceField(choices=LANGUAGE_CHOICES, required=False)
 
     # Mandate
     mandates = forms.ModelMultipleChoiceField(
-        AuthorizationType.objects.all(), required=False, label=_('Mandate'))
-    mandate = forms.IntegerField(required=False, label=_('Mandate number'))
-    iban = forms.CharField(max_length=34, required=False, label=_('IBAN'))
+        AuthorizationType.objects.all(), required=False, label=_l('Mandate'))
+    mandate = forms.IntegerField(required=False, label=_l('Mandate number'))
+    iban = forms.CharField(max_length=34, required=False, label=_l('IBAN'))
 
     # Here are the pre-programmed queries
     # Second/Third/Fourth/Fifth years and older
-    second_year_and_older = forms.BooleanField(required=False, label=_(
+    second_year_and_older = forms.BooleanField(required=False, label=_l(
         'Students in their second year or higher, including all masters (primary studies)'))
-    third_year_and_older = forms.BooleanField(required=False, label=_(
+    third_year_and_older = forms.BooleanField(required=False, label=_l(
         'Students in their third year or higher, including all masters (primary studies)'))
-    fourth_year_and_older = forms.BooleanField(required=False, label=_(
+    fourth_year_and_older = forms.BooleanField(required=False, label=_l(
         'Students in their fourth year or higher, including all masters (primary studies)'))
-    fifth_year_and_older = forms.BooleanField(required=False, label=_(
+    fifth_year_and_older = forms.BooleanField(required=False, label=_l(
         'Students in their fifth year or higher, including all masters (primary studies)'))
 
     def __init__(self, *args, **kwargs):
@@ -107,19 +107,19 @@ class QueryForm(forms.Form):
             try:
                 re.compile(cleaned_data['sm_number'])
             except:
-                raise forms.ValidationError(_("Invalid student or employee number."))
+                raise forms.ValidationError(_l("Invalid student or employee number."))
 
         if cleaned_data.get('iban'):
             try:
                 re.compile(cleaned_data['iban'])
             except:
-                raise forms.ValidationError(_("Invalid IBAN."))
+                raise forms.ValidationError(_l("Invalid IBAN."))
 
         if cleaned_data.get('name'):
             try:
                 re.compile(cleaned_data['name'])
             except:
-                raise forms.ValidationError(_("Invalid characters in name."))
+                raise forms.ValidationError(_l("Invalid characters in name."))
 
         return cleaned_data
 
@@ -379,26 +379,26 @@ class QueryForm(forms.Form):
 
 
 class MailingForm(forms.Form):
-    sender = forms.CharField(label=_('Sender\'s name'), widget=widgets.Input(attrs={'size': 40}))
-    email = forms.EmailField(label=_('Sender\'s e-mail'), widget=widgets.EmailInput(attrs={'size': 50}))
-    cc_email = forms.EmailField(required=False, label=_('CC'), widget=widgets.EmailInput(attrs={'size': 50}))
-    bcc_email = forms.EmailField(required=False, label=_('BCC'), widget=widgets.EmailInput(attrs={'size': 50}))
-    include_waiting_list = forms.BooleanField(label=_('Include people on the waiting list'), required=False)
+    sender = forms.CharField(label=_l('Sender\'s name'), widget=widgets.Input(attrs={'size': 40}))
+    email = forms.EmailField(label=_l('Sender\'s e-mail'), widget=widgets.EmailInput(attrs={'size': 50}))
+    cc_email = forms.EmailField(required=False, label=_l('CC'), widget=widgets.EmailInput(attrs={'size': 50}))
+    bcc_email = forms.EmailField(required=False, label=_l('BCC'), widget=widgets.EmailInput(attrs={'size': 50}))
+    include_waiting_list = forms.BooleanField(label=_l('Include people on the waiting list'), required=False)
 
     subject_nl = forms.CharField(widget=widgets.Input(attrs={'size': 100}))
     subject_en = forms.CharField(widget=widgets.Input(attrs={'size': 100}))
 
     template_nl = forms.CharField(widget=widgets.Textarea(attrs={'class': 'characters', 'rows': '20', 'cols': '90'}),
-                                  label=_('Message (Dutch)'))
+                                  label=_l('Message (Dutch)'))
     template_en = forms.CharField(widget=widgets.Textarea(attrs={'class': 'characters', 'rows': '20', 'cols': '90'}),
-                                  label=_('Message (English)'))
+                                  label=_l('Message (English)'))
 
     def clean_subject(self):
         value = self.cleaned_data['subject']
         try:
             Template(value)
         except Exception:
-            raise forms.ValidationError(_("Invalid subject"))
+            raise forms.ValidationError(_l("Invalid subject"))
         return value
 
     def clean_template(self):
@@ -406,7 +406,7 @@ class MailingForm(forms.Form):
         try:
             Template(value)
         except Exception:
-            raise forms.ValidationError(_("Invalid template"))
+            raise forms.ValidationError(_l("Invalid template"))
         return value
 
     def build_template(self):

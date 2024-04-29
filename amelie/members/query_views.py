@@ -15,7 +15,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect, QueryDict
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.cache import never_cache
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.api.models import PushNotification
 from amelie.members.forms import SearchForm
@@ -149,7 +149,7 @@ def send_mailing(request):
             task = form.build_task(persons)
             task.send()
 
-            return render(request, 'message.html', {'message': _(
+            return render(request, 'message.html', {'message': _l(
                 'The mails are now being sent one by one. This happens in a background process and might take a while.'
             )})
 
@@ -191,7 +191,7 @@ class SendNotification(RequireBoardMixin, CreateView):
                                      report_to=self.request.person.email_address,
                                      report_language=self.request.person.preferred_language)
 
-        messages.info(self.request, _(
+        messages.info(self.request, _l(
             'The push notifications are now being sent one by one. This happens in a background process and might '
             'take a while. You will get a delivery report via e-mail when it is complete.'))
 
@@ -222,7 +222,7 @@ class DataExport(RequireBoardMixin, View):
                 return DataExport.email_export(filter_querydict)
             else:
                 # Redirect back to query view with an error message.
-                messages.warning(request, _(
+                messages.warning(request, _l(
                     "Could not make a data export, because an unknown data export type was selected."
                 ))
 
@@ -233,7 +233,7 @@ class DataExport(RequireBoardMixin, View):
 
         else:
             # Redirect back to query view with an error message.
-            messages.warning(request, _(
+            messages.warning(request, _l(
                 "Could not create data export, because something went wrong while saving information about the export."
             ))
             if form.cleaned_data and 'export_details' in form.cleaned_data and form.cleaned_data['export_details']:

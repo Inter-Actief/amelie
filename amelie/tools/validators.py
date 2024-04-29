@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 
 from django.utils.deconstruct import deconstructible
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 
 @deconstructible
@@ -22,7 +22,7 @@ class CheckDigitValidator(object):
             total += digit * factor
 
         if total % 11 != 0:
-            raise ValidationError(_("%d is incorrect according to the check digit.") % number)
+            raise ValidationError(_l("%d is incorrect according to the check digit.") % number)
 
     def __eq__(self, other):
         return self.length == other.length
