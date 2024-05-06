@@ -12,6 +12,18 @@ jobs:
     permissions:
       contents: read
       packages: write
+
+    services:
+      mariadb:
+        image: mariadb:10.2
+        env:
+          MARIADB_USER: amelie_test
+          MARIADB_PASSWORD: amelie_test
+          MYSQL_DATABASE: amelie_test
+          MYSQL_ROOT_PASSWORD: amelie_test
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,3 +49,13 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Verify MariaDB connection
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+            sleep 1
+          done
+
+      - name: Run Amelie tests
+        run: |
+          docker run --rm --entrypoint "/amelie/scripts/run_tests.sh" ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
