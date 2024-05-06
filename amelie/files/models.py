@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.files.managers import AttachmentManager
 from amelie.members.models import Photographer
@@ -146,8 +146,8 @@ class Attachment(models.Model):
 
     class Meta:
         ordering = ['created', 'file']
-        verbose_name = _('Appendix')
-        verbose_name_plural = _('Attachments')
+        verbose_name = _l('Appendix')
+        verbose_name_plural = _l('Attachments')
 
     def __str__(self):
         if self.caption:
@@ -196,7 +196,7 @@ class Attachment(models.Model):
             photo_file = self.file
 
         if photo_file is None:
-            return Http404(_("File not found"))
+            return Http404(_l("File not found"))
 
         # Create a response
         if response == 'json':

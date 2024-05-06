@@ -10,7 +10,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from urllib.parse import quote
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Committee, DogroupGeneration
 from amelie.tools.logic import current_association_year
@@ -46,7 +46,7 @@ class PassesTestMixin(object):
 
 class RequirePersonMixin(PassesTestMixin):
     needs_login = True
-    reason = _('Access for (former) members only.')
+    reason = _l('Access for (former) members only.')
 
     def test_requirement(self, request):
         return hasattr(request, 'person') and request.person
@@ -54,7 +54,7 @@ class RequirePersonMixin(PassesTestMixin):
 
 class RequireBoardMixin(PassesTestMixin):
     needs_login = True
-    reason = _('Access for boardmembers only.')
+    reason = _l('Access for boardmembers only.')
 
     def test_requirement(self, request):
         return hasattr(request, 'is_board') and request.is_board
@@ -62,7 +62,7 @@ class RequireBoardMixin(PassesTestMixin):
 
 class RequireEducationCommitteeMixin(PassesTestMixin):
     needs_login = True
-    reason = _('Access for the Educational Committee only.')
+    reason = _l('Access for the Educational Committee only.')
 
     def test_requirement(self, request):
         return hasattr(request, 'is_education_committee') and request.is_education_committee
@@ -70,7 +70,7 @@ class RequireEducationCommitteeMixin(PassesTestMixin):
 
 class RequireMemberMixin(PassesTestMixin):
     needs_login = True
-    reason = _('For active members only.')
+    reason = _l('For active members only.')
 
     def test_requirement(self, request):
         return hasattr(request, 'person') and request.person.is_member()
@@ -78,7 +78,7 @@ class RequireMemberMixin(PassesTestMixin):
 
 class RequireActiveMemberMixin(PassesTestMixin):
     needs_login = True
-    reason = _('Access for active members only.')
+    reason = _l('Access for active members only.')
 
     def test_requirement(self, request):
         return hasattr(request, 'person') and request.person.is_active_member()
@@ -86,7 +86,7 @@ class RequireActiveMemberMixin(PassesTestMixin):
 
 class RequireSuperuserMixin(PassesTestMixin):
     needs_login = True
-    reason = _('Only accessible by superusers.')
+    reason = _l('Only accessible by superusers.')
 
     def test_requirement(self, request):
         return request.user.is_superuser
@@ -97,7 +97,7 @@ class RequireCommitteeMixin(PassesTestMixin):
     Require a committee based on an abbreviation
     """
     needs_login = True
-    reason = _('Access for members of the committee only.')
+    reason = _l('Access for members of the committee only.')
     abbreviation = None
     """ Abbreviation of the committee required for accessing this page. """
 
@@ -111,7 +111,7 @@ class RequireStrictCommitteeMixin(PassesTestMixin):
     Require a committee based on an abbreviation, board not included.
     """
     needs_login = True
-    reason = _('Access for members of the committee only.')
+    reason = _l('Access for members of the committee only.')
     abbreviation = None
     """ Abbreviation of the committee required for accessing this page. """
 
@@ -126,7 +126,7 @@ class RequireCommitteeOrChildCommitteeMixin(PassesTestMixin):
     Require a committee or child committees of that committee based on an abbreviation
     """
     needs_login = True
-    reason = _('Access for members of the committee only.')
+    reason = _l('Access for members of the committee only.')
     abbreviation = None
     """ Abbreviation of the (parent) committee required for accessing this page. """
 
@@ -154,7 +154,7 @@ class RequireDoGroupParentInCurrentYearMixin(PassesTestMixin):
     Require that the person is a do group parent in this year
     """
     needs_login = True
-    reason = _('Access for do-group parents only.')
+    reason = _l('Access for do-group parents only.')
 
     def test_requirement(self, request):
         if not hasattr(request, 'person'):
@@ -176,7 +176,7 @@ class RequireCookieCornerMixin(PassesTestMixin):
     Require that the request be made from the cookie corner computer (or by a logged-in superuser)
     """
     needs_login = False
-    reason = _("Access for the cookie-corner computer only.")
+    reason = _l("Access for the cookie-corner computer only.")
 
     def test_requirement(self, request):
         return settings.DEBUG or \

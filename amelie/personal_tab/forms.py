@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import TextChoices
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from localflavor.generic.forms import BICFormField, IBANFormField
 
 from amelie.style.forms import inject_style
@@ -13,7 +13,7 @@ from amelie.tools.widgets import DateSelector, DateTimeSelector, MemberSelect
 
 
 class CustomTransactionForm(forms.ModelForm):
-    date = forms.SplitDateTimeField(label=_('Date'), widget=DateTimeSelector, initial=timezone.now)
+    date = forms.SplitDateTimeField(label=_l('Date'), widget=DateTimeSelector, initial=timezone.now)
 
     class Meta:
         model = CustomTransaction
@@ -21,7 +21,7 @@ class CustomTransactionForm(forms.ModelForm):
 
 
 class CookieCornerTransactionForm(forms.ModelForm):
-    date = forms.SplitDateTimeField(label=_('Date'), widget=DateTimeSelector, initial=timezone.now)
+    date = forms.SplitDateTimeField(label=_l('Date'), widget=DateTimeSelector, initial=timezone.now)
 
     class Meta:
         model = CookieCornerTransaction
@@ -29,16 +29,16 @@ class CookieCornerTransactionForm(forms.ModelForm):
 
 
 class ExamCookieCreditForm(forms.Form):
-    price = forms.DecimalField(max_digits=8, decimal_places=2, label=_('Price'))
-    description = forms.CharField(max_length=200, label=_('Description'))
+    price = forms.DecimalField(max_digits=8, decimal_places=2, label=_l('Price'))
+    description = forms.CharField(max_length=200, label=_l('Description'))
 
 
 class DebtCollectionForm(forms.Form):
-    description = forms.CharField(max_length=50, label=_('Description for within Inter-Actief'))
-    execution_date = forms.DateField(label=_('Date of execution'), widget=DateSelector)
-    contribution = forms.BooleanField(required=False, label=_('Membership fee'))
-    cookie_corner = forms.BooleanField(required=False, label=_('Personal tab'))
-    end = forms.SplitDateTimeField(label=_('Transactions until'), widget=DateTimeSelector)
+    description = forms.CharField(max_length=50, label=_l('Description for within Inter-Actief'))
+    execution_date = forms.DateField(label=_l('Date of execution'), widget=DateSelector)
+    contribution = forms.BooleanField(required=False, label=_l('Membership fee'))
+    cookie_corner = forms.BooleanField(required=False, label=_l('Personal tab'))
+    end = forms.SplitDateTimeField(label=_l('Transactions until'), widget=DateTimeSelector)
 
     def __init__(self, minimal_execution_date, *args, **kwargs):
         super(DebtCollectionForm, self).__init__(*args, **kwargs)
@@ -48,9 +48,9 @@ class DebtCollectionForm(forms.Form):
     def clean_execution_date(self):
         data = self.cleaned_data['execution_date']
         if data < self.minimal_execution_date:
-            raise forms.ValidationError(_('Date of execution is too soon'))
+            raise forms.ValidationError(_l('Date of execution is too soon'))
         if data.weekday() >= 5:  # Saturday or sunday
-            raise forms.ValidationError(_('Date of execution cannot be during the weekend'))
+            raise forms.ValidationError(_l('Date of execution cannot be during the weekend'))
 
         # Always return the cleaned data, whether you have changed it or not.
         return data
@@ -72,17 +72,17 @@ class AmendmentForm(forms.Form):
     """Form to enter an amendment"""
 
     """Date of the amendment"""
-    date = forms.DateField(label=_('Date'))
+    date = forms.DateField(label=_l('Date'))
 
     """IBAN for authorization"""
-    iban = IBANFormField(label=_('IBAN'))
+    iban = IBANFormField(label=_l('IBAN'))
 
     """BIC for authorization"""
-    bic = BICFormField(label=_('BIC*'), required=False)
+    bic = BICFormField(label=_l('BIC*'), required=False)
 
     """Short description of the reason of this amendment."""
-    reason = forms.CharField(max_length=250, label=_('Remarks'),
-                             help_text=_('Short description of the reason for the amendment'))
+    reason = forms.CharField(max_length=250, label=_l('Remarks'),
+                             help_text=_l('Short description of the reason for the amendment'))
 
     def clean(self):
         cleaned_data = super(AmendmentForm, self).clean()
@@ -92,11 +92,11 @@ class AmendmentForm(forms.Form):
 
         if not cleaned_data['bic']:
             if not cleaned_data['iban'][:2] == 'NL':
-                self.add_error('bic', _('BIC has to be entered for foreign bank accounts.'))
+                self.add_error('bic', _l('BIC has to be entered for foreign bank accounts.'))
             elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
                 cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
             else:
-                self.add_error('bic', _('BIC could not be generated, please enter yourself.'))
+                self.add_error('bic', _l('BIC could not be generated, please enter yourself.'))
         return cleaned_data
 
 
@@ -106,28 +106,28 @@ inject_style(CustomTransactionForm, CookieCornerTransactionForm, ExamCookieCredi
 
 class SearchAuthorizationForm(forms.Form):
     class AuthorizationStatuses(TextChoices):
-        UNSIGNED = 'unsigned', _("Not signed")
-        ACTIVE = 'active', _("Active")
-        TERMINATED = 'terminated', _("Ended")
+        UNSIGNED = 'unsigned', _l("Not signed")
+        ACTIVE = 'active', _l("Active")
+        TERMINATED = 'terminated', _l("Ended")
 
     class SortOptions(TextChoices):
-        PERSON = 'person', _('Person')
-        ID = 'id', _('Reference')
-        AUTHORIZATION_TYPE = 'authorization_type', _('Type')
-        ACCOUNT_HOLDER_NAME = 'account_holder_name', _('Account holder')
-        IBAN = 'iban', _('IBAN')
-        BIC = 'bic', _('BIC')
-        START_DATE = 'start_date', _('Starts on')
-        END_DATE = 'end_date', _('Ends on')
+        PERSON = 'person', _l('Person')
+        ID = 'id', _l('Reference')
+        AUTHORIZATION_TYPE = 'authorization_type', _l('Type')
+        ACCOUNT_HOLDER_NAME = 'account_holder_name', _l('Account holder')
+        IBAN = 'iban', _l('IBAN')
+        BIC = 'bic', _l('BIC')
+        START_DATE = 'start_date', _l('Starts on')
+        END_DATE = 'end_date', _l('Ends on')
 
-    search = forms.CharField(required=False, label=_('Search'))
+    search = forms.CharField(required=False, label=_l('Search'))
     status = forms.MultipleChoiceField(required=False, choices=AuthorizationStatuses.choices,
-                                       widget=forms.CheckboxSelectMultiple, label=_('Status'))
+                                       widget=forms.CheckboxSelectMultiple, label=_l('Status'))
     authorization_type = forms.ModelMultipleChoiceField(required=False, queryset=AuthorizationType.objects.all(),
-                                                        widget=forms.CheckboxSelectMultiple, label=_('Sort'))
+                                                        widget=forms.CheckboxSelectMultiple, label=_l('Sort'))
     sort_by = forms.ChoiceField(required=False, choices=SortOptions.choices, initial=SortOptions.PERSON.value,
-                                label=_('Sort by'))
-    reverse = forms.BooleanField(required=False, initial=False, label=_('Sort in reverse'))
+                                label=_l('Sort by'))
+    reverse = forms.BooleanField(required=False, initial=False, label=_l('Sort in reverse'))
 
 
 class RFIDCardForm(forms.ModelForm):
@@ -145,7 +145,7 @@ class RFIDCardForm(forms.ModelForm):
 
 class AuthorizationSelectForm(forms.Form):
     authorizations = forms.ModelMultipleChoiceField(queryset=Authorization.objects.all(),
-                                                    widget=forms.CheckboxSelectMultiple, label=_('Mandates'))
+                                                    widget=forms.CheckboxSelectMultiple, label=_l('Mandates'))
 
     def __init__(self, authorizations_queryset, *args, **kwargs):
         super(AuthorizationSelectForm, self).__init__(*args, **kwargs)
@@ -154,9 +154,9 @@ class AuthorizationSelectForm(forms.Form):
 
 
 class StatisticsForm(forms.Form):
-    start_date = forms.SplitDateTimeField(label=_('Beginning:'), widget=DateTimeSelector, required=True)
-    end_date = forms.SplitDateTimeField(label=_('End (till)'), widget=DateTimeSelector, required=True)
-    checkboxes = forms.MultipleChoiceField(label=_('Tables:'), widget=forms.CheckboxSelectMultiple(), required=False)
+    start_date = forms.SplitDateTimeField(label=_l('Beginning:'), widget=DateTimeSelector, required=True)
+    end_date = forms.SplitDateTimeField(label=_l('End (till)'), widget=DateTimeSelector, required=True)
+    checkboxes = forms.MultipleChoiceField(label=_l('Tables:'), widget=forms.CheckboxSelectMultiple(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -164,8 +164,8 @@ class StatisticsForm(forms.Form):
 
 
 class CookieCornerPersonSearchForm(forms.Form):
-    person = forms.IntegerField(widget=MemberSelect(attrs={'autofocus': 'autofocus', 'placeholder': _('Find person')}),
-                                label=_('Person'), error_messages={'required': _('Choose a name from the suggestions.')})
+    person = forms.IntegerField(widget=MemberSelect(attrs={'autofocus': 'autofocus', 'placeholder': _l('Find person')}),
+                                label=_l('Person'), error_messages={'required': _l('Choose a name from the suggestions.')})
 
 
 inject_style(StatisticsForm)

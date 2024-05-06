@@ -5,7 +5,7 @@ from amelie.iamailer import MailTask, Recipient
 from amelie.members.models import Preference
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mail import PersonRecipient
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 
 def activity_send_cashrefundmail(cash_participants, activity, request):
@@ -59,9 +59,9 @@ def activity_send_enrollmentmail(participation, from_waiting_list=False):
         if from_waiting_list:
             template_name = "activities/activity_enrolled_from_waiting_list.mail"
 
-        task = MailTask(from_=_(u'Inter-Activity') + ' <bestuur@inter-actief.net>',
+        task = MailTask(from_=_l(u'Inter-Activity') + ' <bestuur@inter-actief.net>',
                         template_name=template_name,
-                        report_to=_(u'Inter-Activity') + ' <bestuur@inter-actief.net>', report_always=False)
+                        report_to=_l(u'Inter-Activity') + ' <bestuur@inter-actief.net>', report_always=False)
         task.add_recipient(PersonRecipient(
             recipient=person,
             context={'activity': activity,
@@ -124,9 +124,9 @@ def activity_send_on_waiting_listmail(participation):
             invite = False
             attachments = []
 
-        task = MailTask(from_=_('Inter-Activity') + ' <bestuur@inter-actief.net>',
+        task = MailTask(from_=_l('Inter-Activity') + ' <bestuur@inter-actief.net>',
                         template_name='activities/activity_enrolled_on_waiting_list.mail',
-                        report_to=_('Inter-Activity') + ' <bestuur@inter-actief.net>', report_always=False)
+                        report_to=_l('Inter-Activity') + ' <bestuur@inter-actief.net>', report_always=False)
         task.add_recipient(PersonRecipient(
             recipient=person,
             context={'activity': activity,

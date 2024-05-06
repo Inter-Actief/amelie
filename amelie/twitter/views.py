@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.template import RequestContext, Template
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.tools.decorators import require_board
 from amelie.twitter.forms import TweetForm
@@ -22,9 +22,9 @@ def new_tweet(request):
             preview = Template(form.cleaned_data['template']).render(RequestContext(request, {}))
         elif form.is_valid():
             if form.send_tweet():
-                message = _('The tweet has been sent!')
+                message = _l('The tweet has been sent!')
             else:
-                message = _('Unfortunately, an error occurred.')
+                message = _l('Unfortunately, an error occurred.')
 
             return render(request, 'message.html', locals())
 
