@@ -9,7 +9,7 @@ from amelie.settings.generic import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '127.0.0.1',
+        'HOST': '172.17.0.1',
         'NAME': 'amelie_test',
         'USER': 'amelie_test',
         'PASSWORD': 'amelie_test',
