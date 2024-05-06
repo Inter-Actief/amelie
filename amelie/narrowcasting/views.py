@@ -145,12 +145,20 @@ def _spotify_refresh_token(association):
     })
 
     data = res.json()
+    
+    if 'error' in data:
+        raise ValueError(data['error_description'])
+    elif res.status_code != 200:
+        raise ValueError(f"Status code: {res.status_code}")
+        
     try:
         association.access_token = data['access_token']
         association.save()
-    except KeyError:
+    except KeyError as e:
         if 'error' in data:
             raise ValueError(data['error_description'])
+        else:
+            raise e
     return association
 
 @cache_page(5)
