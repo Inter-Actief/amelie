@@ -5,7 +5,7 @@
 import warnings
 import os
 
-from amelie.settings import *
+from amelie.settings.generic import *
 
 # Show error when naive datetime is used.
 warnings.filterwarnings('error', r"DateTimeField .*received a naive datetime",
