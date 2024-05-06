@@ -58,4 +58,4 @@ jobs:
 
       - name: Run Amelie tests
         run: |
-          docker run --rm --entrypoint "/amelie/scripts/run_tests.sh" ${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
+          docker run --rm --entrypoint "/amelie/scripts/run_tests.sh" ghcr.io/inter-actief/amelie@${{ steps.push.outputs.digest }}
