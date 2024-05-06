@@ -3,7 +3,7 @@
 # Print some debugging information about the environment
 # ------------------------------------------------------
 # Python version
-python -V
+python3 -V
 # Path to the python binary being used
 which python
 # Pip version
@@ -19,7 +19,7 @@ pip freeze
 cp ./amelie/settings/tests.py ./amelie/settings/local.py
 
 # Run Django initial checks
-python manage.py check
+python3 manage.py check
 
 # Make sure staticfiles are collected into the static volume
 python3 manage.py collectstatic --noinput
@@ -28,4 +28,4 @@ python3 manage.py collectstatic --noinput
 python3 manage.py migrate
 
 # Run Django tests
-python manage.py test --keepdb
+python3 manage.py test --keepdb
