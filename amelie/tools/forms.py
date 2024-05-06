@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _l
 from amelie.style.forms import inject_style
 from amelie.members.models import LANGUAGE_CHOICES
 from amelie.tools.models import DataExportInformation
-from amelie.tools.widgets import DateTimeSelector
+from amelie.tools.widgets import DateTimeSelector, DateSelector
 
 
 def attach_hidden(form):
@@ -32,8 +32,8 @@ def attach_hidden(form):
 
 
 class PeriodForm(forms.Form):
-    from_date = forms.DateField(label='Begin date:', initial=timezone.now().date() - timedelta(days=365))
-    to_date = forms.DateField(label='End date:', initial=timezone.now().date())
+    from_date = forms.DateField(label='Begin date:', initial=timezone.now().date() - timedelta(days=365), widget=DateSelector)
+    to_date = forms.DateField(label='End date:', initial=timezone.now().date(), widget=DateSelector)
 
     def __init__(self, *args, **kwargs):
         if 'to_date_required' in kwargs:
@@ -51,8 +51,8 @@ inject_style(PeriodForm)
 
 class PeriodKeywordForm(forms.Form):
     keywords = forms.CharField(max_length=20, label=_l('Keywords'))
-    from_date = forms.DateField(label=_l('Begin date:'), initial=timezone.now().date() - timedelta(days=365))
-    to_date = forms.DateField(label=_l('End date:'), initial=timezone.now().date())
+    from_date = forms.DateField(label=_l('Begin date:'), initial=timezone.now().date() - timedelta(days=365), widget=DateSelector)
+    to_date = forms.DateField(label=_l('End date:'), initial=timezone.now().date(), widget=DateSelector)
 
     def __init__(self, *args, **kwargs):
         if 'to_date_required' in kwargs:
