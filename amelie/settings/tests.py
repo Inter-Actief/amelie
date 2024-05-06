@@ -8,11 +8,15 @@ from amelie.settings.generic import *
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'amelie.tools.utf8mb4_mysql_backend',
         'HOST': '172.17.0.1',
         'NAME': 'amelie_test',
         'USER': 'amelie_test',
         'PASSWORD': 'amelie_test',
+        'OPTIONS': {'charset': 'utf8mb4'},
+        'TEST': {
+            'NAME': 'amelie_test',
+        }
     }
 }
 
