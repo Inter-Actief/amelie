@@ -12,7 +12,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from oauth2_provider.views import AuthorizedTokenDeleteView
@@ -256,9 +256,9 @@ def csrf_failure(request, reason=""):
     logger.warning('CSRF-check failed. Reason: %s' % reason, extra={'request': request})
 
     if reason and settings.DEBUG:
-        reason = _('CSRF-check failed. Reason: %s' % reason)
+        reason = _l('CSRF-check failed. Reason: %s' % reason)
     else:
-        reason = _('CSRF-check failed.')
+        reason = _l('CSRF-check failed.')
 
     return render(request, "403.html", {'reason': reason}, status=403)
 

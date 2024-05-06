@@ -1,6 +1,6 @@
 from django.db import connection
 from django.db.models import Count, Sum
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.calendar.models import Event
 from amelie.members.models import MembershipType
@@ -263,7 +263,7 @@ def statistics_alexia_transactions(start, end):
     truncate_date = connection.ops.date_trunc_sql('day', 'date')
     alexia_rows = alexia_transactions.extra({'day': truncate_date}).values('day', 'description').annotate(
         Sum('price')).order_by('day', 'description')
-    return {'header': [_('Name')], 'rows': alexia_rows, 'sum': alexia_sum}
+    return {'header': [_l('Name')], 'rows': alexia_rows, 'sum': alexia_sum}
 
 
 def statistics_alexia_transactions_total(start, end):
@@ -273,22 +273,22 @@ def statistics_alexia_transactions_total(start, end):
 def statistics_functions_ledgers():
     return [(statistics_cookie_corner_ledger_breakdown(ledger),
              'l{}'.format(ledger.pk),
-             _('{} ledger statistics').format(ledger.name.capitalize()),
+             _l('{} ledger statistics').format(ledger.name.capitalize()),
              ledger.default_statistics)
             for ledger in LedgerAccount.objects.all()]
 
 
 def get_functions():
     return [
-        (statistics_cookie_corner_breakdown, 'u', _('Personal tab statistics'), False),
-        (statistics_cookie_corner_totals, 's', _('Personal tab balance'), True),
-        (statistics_activities, 'a', _('Activities'), True),
-        (statistics_alexia_transactions, 'x', _('Alexia transactions'), False),
-        (statistics_contribution_transactions, 'c', _('Contribution transactions'), True),
-        (statistics_discount_periods, 'k', _('Discount offers'), True),
-        (statistics_discount_credits, 'g', _('Discount balances'), True),
-        (statistics_other_transactions, 'o', _('Custom transactions'), True),
-        (statistics_totals, 't', _('Totals'), True),
+        (statistics_cookie_corner_breakdown, 'u', _l('Personal tab statistics'), False),
+        (statistics_cookie_corner_totals, 's', _l('Personal tab balance'), True),
+        (statistics_activities, 'a', _l('Activities'), True),
+        (statistics_alexia_transactions, 'x', _l('Alexia transactions'), False),
+        (statistics_contribution_transactions, 'c', _l('Contribution transactions'), True),
+        (statistics_discount_periods, 'k', _l('Discount offers'), True),
+        (statistics_discount_credits, 'g', _l('Discount balances'), True),
+        (statistics_other_transactions, 'o', _l('Custom transactions'), True),
+        (statistics_totals, 't', _l('Totals'), True),
     ] + statistics_functions_ledgers()
 
 
