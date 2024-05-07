@@ -26,9 +26,6 @@ USER root
 # Install python requirements
 RUN pip3 install -r requirements.txt
 
-# Install default configuration file
-RUN cp "/amelie/amelie/settings/local.py.default" "/amelie/amelie/settings/local.py"
-
 # Correct permissions on directories
 RUN chown -R 1000:1000 /amelie /media /photo_upload /config /var/log
 
