@@ -59,3 +59,25 @@ jobs:
       - name: Run Amelie tests
         run: |
           docker run --rm --entrypoint "/amelie/scripts/run_tests.sh" ghcr.io/inter-actief/amelie@${{ steps.push.outputs.digest }}
+
+      - name: Cleanup untagged images older than 1 week
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: ${{ env.IMAGE_NAME }}
+          cut-off: 1 week ago UTC
+          account-type: personal
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token
+          untagged-only: true
+          dry-run: true
+
+      - name: Cleanup tagged images (except main, production and graphql) older than 1 month
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: ${{ env.IMAGE_NAME }}
+          cut-off: 1 month ago UTC
+          account-type: personal
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token
+          skip-tags: main, production, graphql
+          dry-run: true
