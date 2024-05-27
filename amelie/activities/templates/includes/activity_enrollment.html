@@ -53,26 +53,43 @@
 
     {% if request.person %}
         {% if request.person in obj.participants.all %}
-            <p class="icon pos">
-                {% if not participation.enrollmentoptionanswer_set.all %}
-                    {% if request.person in obj.confirmed_participants.all %}
-                        {% trans 'You have enrolled yourself for this event.' %}
-                    {% else %}
-                        {% trans 'You are enrolled on the waiting list for this event.' %}
-                    {% endif %}
-                {% else %}
+
+            {% if activity.enrollmentoption_set.all %}
+                {# there are enrollment options, display what they have registered for. #}
+                <p class="icon pos">
                     {% if request.person in obj.waiting_participants.all %}
                         {% trans 'You are on the waiting list for this event with the following options:' %}
                     {% else %}
                         {% trans 'You have enrolled for this event with the following options:' %}
                     {% endif %}
-                            <ul>
-                                {% for answer in participation.enrollmentoptionanswer_set.all %}
-                                        <li>{{ answer.enrollmentoption.title }}: {{ answer.display_answer }}</li>
-                                {% endfor %}
-                            </ul>
-                {% endif %}
-            </p>
+                </p>
+
+                <ul>
+                    {% for answer in participation.enrollmentoptionanswer_set.all %}
+                        {% if answer.is_empty %}
+                            {# Hasn't enrolled for these #}
+                            <li class="icon neg">
+                                {% blocktrans with title=answer.enrollmentoption.title %}
+                                    {{ title }}: You have not enrolled for this option
+                                {% endblocktrans %}
+                            </li>
+                        {% else %}
+                            {# Has enrolled for these #}
+                            <li class="icon pos">{{ answer.enrollmentoption.title }}: {{ answer.display_answer }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>>
+
+            {% else %}
+                {# there are no enrollment options #}
+                <p class="icon pos">
+                    {% if request.person in obj.confirmed_participants.all %}
+                        {% trans 'You have enrolled yourself for this event.' %}
+                    {% else %}
+                        {% trans 'You are enrolled on the waiting list for this event.' %}
+                    {% endif %}
+                </p>
+            {% endif %}
 
             {% if request.person in obj.waiting_participants.all %}
                 <p class="icon icon-information">{% trans 'Your spot on the waiting list is' %}: {{ number_on_waiting_list }}</p>
