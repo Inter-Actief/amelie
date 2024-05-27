@@ -27,6 +27,7 @@ app_name = 'activities'
 urlpatterns = [
     # URLs that are not about a specific activity
     path('', views.activities, name='activities'),
+    path('<str:act_type>', views.activities, name='activities_type'),
     path('old/', views.activities_old, name='activities_old'),
     # URLs about the photo gallery
     path('photos/', views.photos, name='photos'),
