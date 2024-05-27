@@ -20,7 +20,7 @@ RUN echo "Updating repostitories..." && \
     echo "Rebuilding locales..." && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     echo "Creating directories for amelie..." && \
-    mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run
+    mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run && \
     echo "Installing python requirements..." && \
     pip3 install -r requirements.txt && \
     echo "Correcting permissions on directories..." && \
