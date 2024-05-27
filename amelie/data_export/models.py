@@ -10,7 +10,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _l, gettext as _
 
 from amelie.data_export.exporters.alexia import AlexiaDataExporter
 from amelie.data_export.exporters.amelie import AmelieDataExporter
@@ -25,30 +25,30 @@ class DataExport(models.Model):
     A data export containing the data for a single person.
     """
 
-    download_code = models.CharField(max_length=50, verbose_name=_("Download code"), unique=True,
-                                     help_text=_("Code with which you can download this export."))
+    download_code = models.CharField(max_length=50, verbose_name=_l("Download code"), unique=True,
+                                     help_text=_l("Code with which you can download this export."))
 
-    person = models.OneToOneField(to=Person, verbose_name=_("Person"), null=True, on_delete=models.SET_NULL,
-                                  help_text=_("The person whose data export this is."))
+    person = models.OneToOneField(to=Person, verbose_name=_l("Person"), null=True, on_delete=models.SET_NULL,
+                                  help_text=_l("The person whose data export this is."))
 
-    filename = models.FilePathField(path=settings.DATA_EXPORT_ROOT, verbose_name=_("Filename"), null=True, blank=True,
-                                    help_text=_("The file name of the exported data."))
+    filename = models.FilePathField(path=settings.DATA_EXPORT_ROOT, verbose_name=_l("Filename"), null=True, blank=True,
+                                    help_text=_l("The file name of the exported data."))
 
-    request_timestamp = models.DateTimeField(verbose_name=_("Timestamp of request"), auto_now_add=True,
-                                             help_text=_("The time that this data export was requested."))
+    request_timestamp = models.DateTimeField(verbose_name=_l("Timestamp of request"), auto_now_add=True,
+                                             help_text=_l("The time that this data export was requested."))
 
-    complete_timestamp = models.DateTimeField(verbose_name=_("Timestamp of completion"), null=True, blank=True,
-                                              help_text=_("The time that this data export was completed."))
+    complete_timestamp = models.DateTimeField(verbose_name=_l("Timestamp of completion"), null=True, blank=True,
+                                              help_text=_l("The time that this data export was completed."))
 
-    download_count = models.IntegerField(verbose_name=_("Number of times downloaded"), default=0,
-                                         help_text=_("How many times this export has been downloaded."))
+    download_count = models.IntegerField(verbose_name=_l("Number of times downloaded"), default=0,
+                                         help_text=_l("How many times this export has been downloaded."))
 
-    is_ready = models.BooleanField(verbose_name=_("Export is complete"), default=False,
-                                   help_text=_("If this export is ready to be downloaded or not."))
+    is_ready = models.BooleanField(verbose_name=_l("Export is complete"), default=False,
+                                   help_text=_l("If this export is ready to be downloaded or not."))
 
     class Meta:
-        verbose_name = _("Data export")
-        verbose_name_plural = _("Data exports")
+        verbose_name = _l("Data export")
+        verbose_name_plural = _l("Data exports")
 
     @property
     def expires_on(self):
@@ -62,7 +62,7 @@ class DataExport(models.Model):
         return self.expires_on < timezone.now()
 
     def __str__(self):
-        return gettext("Data export of {}").format(self.person if self.person else _("<unknown>"))
+        return _("Data export of {}").format(self.person if self.person else _l("<unknown>"))
 
     def get_absolute_url(self):
         return reverse('data_export:export_details', kwargs={'slug': self.download_code})
@@ -71,19 +71,19 @@ class DataExport(models.Model):
 class ApplicationStatus(models.Model):
     # Different choices for the status field.
     class StatusChoices(models.IntegerChoices):
-        NOT_STARTED = 0, _("Not yet started")
-        RUNNING = 1, _("Busy exporting data")
-        SUCCESS = 2, _("Done exporting data")
-        ERROR = 3, _("Error during exporting")
+        NOT_STARTED = 0, _l("Not yet started")
+        RUNNING = 1, _l("Busy exporting data")
+        SUCCESS = 2, _l("Done exporting data")
+        ERROR = 3, _l("Error during exporting")
 
     # Different choices for the application to export data from.
     class ApplicationChoices(models.TextChoices):
-        AMELIE = 'AmelieDataExporter', _("Data in the Inter-/Actief/ website and the members database.")
-        AMELIE_FILES = 'AmelieFileDataExporter', _("Files you have uploaded to the Inter-/Actief/ website "
+        AMELIE = 'AmelieDataExporter', _l("Data in the Inter-/Actief/ website and the members database.")
+        AMELIE_FILES = 'AmelieFileDataExporter', _l("Files you have uploaded to the Inter-/Actief/ website "
                                                    "(warning, may be very large).")
-        ALEXIA = 'AlexiaDataExporter', _("Data from Alexia, the drink management system.")
-        GITLAB = 'GitLabDataExporter', _("Data in GitLab, the version control system.")
-        HOMEDIR = 'HomedirDataExporter', _("The home directory of your Inter-Actief active members account"
+        ALEXIA = 'AlexiaDataExporter', _l("Data from Alexia, the drink management system.")
+        GITLAB = 'GitLabDataExporter', _l("Data in GitLab, the version control system.")
+        HOMEDIR = 'HomedirDataExporter', _l("The home directory of your Inter-Actief active members account"
                                            " (warning, may be very large).")
 
     # Lookup dictionary for application choice string and the actual exporter class.
@@ -95,22 +95,22 @@ class ApplicationStatus(models.Model):
         ApplicationChoices.HOMEDIR.value: HomedirDataExporter,
     }
 
-    data_export = models.ForeignKey(to=DataExport, verbose_name=_("Data export"), on_delete=models.CASCADE,
+    data_export = models.ForeignKey(to=DataExport, verbose_name=_l("Data export"), on_delete=models.CASCADE,
                                     related_name="exported_applications",
-                                    help_text=_("Which data export this status belongs to"))
+                                    help_text=_l("Which data export this status belongs to"))
 
-    application = models.CharField(max_length=40, choices=ApplicationChoices.choices, verbose_name=_("Application"),
-                                   help_text=_("The name of the application you want to export data from."))
+    application = models.CharField(max_length=40, choices=ApplicationChoices.choices, verbose_name=_l("Application"),
+                                   help_text=_l("The name of the application you want to export data from."))
 
-    status = models.IntegerField(choices=StatusChoices.choices, verbose_name=_("Export status"), default=0,
-                                 help_text=_("The status of the export from this application."))
+    status = models.IntegerField(choices=StatusChoices.choices, verbose_name=_l("Export status"), default=0,
+                                 help_text=_l("The status of the export from this application."))
 
     class Meta:
-        verbose_name = _("Application status")
-        verbose_name_plural = _("Application statuses")
+        verbose_name = _l("Application status")
+        verbose_name_plural = _l("Application statuses")
 
     def __str__(self):
-        return gettext("Export status for {} of {} ({})").format(self.get_application_display(), self.data_export, self.get_status_display())
+        return _("Export status for {} of {} ({})").format(self.get_application_display(), self.data_export, self.get_status_display())
 
 
 @receiver(post_delete, sender=DataExport)

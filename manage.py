@@ -4,7 +4,7 @@ import sys
 
 if __name__ == "__main__":
     # Change environment variables
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "amelie.settings.local")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "amelie.settings")
 
     # Execute command
     from django.core.management import execute_from_command_line

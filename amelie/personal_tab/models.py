@@ -7,7 +7,7 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.utils import timezone
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _l
 from localflavor.generic.models import BICField, IBANField
 
 from amelie.claudia.tools import verify_instance
@@ -16,14 +16,14 @@ from amelie.personal_tab.managers import AuthorizationManager, DebtCollectionIns
 
 
 class DiscountPeriod(models.Model):
-    begin = models.DateTimeField(blank=False, verbose_name=_('begin'))
-    end = models.DateTimeField(blank=True, null=True, verbose_name=_('end'))
-    description_nl = models.CharField(max_length=200, blank=False, verbose_name=_('description'))
-    description_en = models.CharField(max_length=200, blank=True, verbose_name=_('description (en)'))
+    begin = models.DateTimeField(blank=False, verbose_name=_l('begin'))
+    end = models.DateTimeField(blank=True, null=True, verbose_name=_l('end'))
+    description_nl = models.CharField(max_length=200, blank=False, verbose_name=_l('description'))
+    description_en = models.CharField(max_length=200, blank=True, verbose_name=_l('description (en)'))
     articles = models.ManyToManyField('Article', related_name='discount_periods', blank=True,
-                                      verbose_name=_('articles'))
-    ledger_account_number = models.CharField(max_length=8, verbose_name=_('ledger account'), default='2500')
-    balance_account_number = models.CharField(max_length=8, verbose_name=_('balance account number'), default='2500')
+                                      verbose_name=_l('articles'))
+    ledger_account_number = models.CharField(max_length=8, verbose_name=_l('ledger account'), default='2500')
+    balance_account_number = models.CharField(max_length=8, verbose_name=_l('balance account number'), default='2500')
 
     @property
     def description(self):
@@ -39,23 +39,23 @@ class DiscountPeriod(models.Model):
 
     class Meta:
         ordering = ['-begin', '-end']
-        verbose_name = _('discount offer')
-        verbose_name_plural = _("discount offers")
+        verbose_name = _l('discount offer')
+        verbose_name_plural = _l("discount offers")
 
 
 class Discount(models.Model):
-    amount = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_('amount'))
-    date = models.DateTimeField(auto_now_add=True, verbose_name=_('date'))
+    amount = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_l('amount'))
+    date = models.DateTimeField(auto_now_add=True, verbose_name=_l('date'))
     discount_period = models.ForeignKey(DiscountPeriod, blank=False, on_delete=models.PROTECT,
-                                        verbose_name=_('discount offer'))
+                                        verbose_name=_l('discount offer'))
 
     def __str__(self):
         return '{} ({})'.format(self.discount_period.description, self.amount)
 
     class Meta:
         ordering = ['-date']
-        verbose_name = _('discount')
-        verbose_name_plural = _("discounts")
+        verbose_name = _l('discount')
+        verbose_name_plural = _l("discounts")
 
 
 class DiscountCredit(models.Model):
@@ -77,22 +77,22 @@ class DiscountCredit(models.Model):
     added_by:           The person that created this object.
     """
 
-    discount_period = models.ForeignKey(DiscountPeriod, on_delete=models.PROTECT, verbose_name=_('discount offer'))
-    date = models.DateTimeField(default=timezone.now, verbose_name=_('date'))
-    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_('amount'))
-    person = models.ForeignKey(Person, verbose_name=_('person'), on_delete=models.PROTECT)
-    description = models.CharField(max_length=200, blank=True, verbose_name=_('description'))
-    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_('discount'), on_delete=models.PROTECT)
+    discount_period = models.ForeignKey(DiscountPeriod, on_delete=models.PROTECT, verbose_name=_l('discount offer'))
+    date = models.DateTimeField(default=timezone.now, verbose_name=_l('date'))
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_l('amount'))
+    person = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.PROTECT)
+    description = models.CharField(max_length=200, blank=True, verbose_name=_l('description'))
+    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.PROTECT)
 
-    added_on = models.DateTimeField(verbose_name=_('added on'), auto_now_add=True)
+    added_on = models.DateTimeField(verbose_name=_l('added on'), auto_now_add=True)
 
     # '+' related_name makes sure no reverse relation is added to Person
-    added_by = models.ForeignKey(Person, blank=True, null=True, related_name="+", verbose_name=_('added by'), on_delete=models.PROTECT)
+    added_by = models.ForeignKey(Person, blank=True, null=True, related_name="+", verbose_name=_l('added by'), on_delete=models.PROTECT)
 
     class Meta:
         ordering = ['-date', '-added_on']
-        verbose_name = _('Discount balance')
-        verbose_name_plural = _("discount balances")
+        verbose_name = _l('Discount balance')
+        verbose_name_plural = _l("discount balances")
 
     def __str__(self):
         return '{} ({})'.format(self.description, self.price)
@@ -118,24 +118,24 @@ class Transaction(models.Model):
     added_by:           The person that created this object.
     """
 
-    date = models.DateTimeField(default=timezone.now, verbose_name=_('Date'))
-    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_('Price'))
-    person = models.ForeignKey(Person, verbose_name=_('Person'), on_delete=models.PROTECT)
-    description = models.CharField(max_length=200, blank=True, verbose_name=_('Description'))
-    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_('discount'), on_delete=models.PROTECT)
+    date = models.DateTimeField(default=timezone.now, verbose_name=_l('Date'))
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_l('Price'))
+    person = models.ForeignKey(Person, verbose_name=_l('Person'), on_delete=models.PROTECT)
+    description = models.CharField(max_length=200, blank=True, verbose_name=_l('Description'))
+    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.PROTECT)
 
-    debt_collection = models.ForeignKey('DebtCollectionInstruction', verbose_name=_('Direct withdrawal'), blank=True, null=True,
+    debt_collection = models.ForeignKey('DebtCollectionInstruction', verbose_name=_l('Direct withdrawal'), blank=True, null=True,
                                         related_name="transactions", on_delete=models.PROTECT)
 
-    added_on = models.DateTimeField(verbose_name=_('Added on'), auto_now_add=True)
+    added_on = models.DateTimeField(verbose_name=_l('Added on'), auto_now_add=True)
 
     # '+' related_name makes sure no reverse relation is added to Person
-    added_by = models.ForeignKey(Person, verbose_name=_('Added by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
+    added_by = models.ForeignKey(Person, verbose_name=_l('Added by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
 
     class Meta:
         ordering = ['-date', '-added_on']
-        verbose_name = _('Transaction')
-        verbose_name_plural = _("Transactions")
+        verbose_name = _l('Transaction')
+        verbose_name_plural = _l("Transactions")
 
     def get_absolute_url(self):
         return reverse('personal_tab:transaction_detail', args=[self.pk])
@@ -176,10 +176,10 @@ class ActivityTransaction(Transaction):
     with_enrollment_options:    If the Participation has any enrollment options that might cost extra.
     """
 
-    event = models.ForeignKey('calendar.Event', verbose_name=_('Activities'), null=True, on_delete=models.SET_NULL)
+    event = models.ForeignKey('calendar.Event', verbose_name=_l('Activities'), null=True, on_delete=models.SET_NULL)
     participation = models.ForeignKey('calendar.Participation', null=True, on_delete=models.SET_NULL,
-                                      verbose_name=_('Enrollment'))
-    with_enrollment_options = models.BooleanField(verbose_name=_('More sign up options'), default=False)
+                                      verbose_name=_l('Enrollment'))
+    with_enrollment_options = models.BooleanField(verbose_name=_l('More sign up options'), default=False)
 
     def get_absolute_url(self):
         return reverse('personal_tab:activity_transaction_detail', args=[self.pk])
@@ -196,8 +196,8 @@ class CookieCornerTransaction(Transaction):
     amount: The amount of this Article that were bought.
     """
 
-    article = models.ForeignKey('Article', verbose_name=_('Article'), null=True, on_delete=models.SET_NULL)
-    amount = models.PositiveIntegerField(verbose_name=_('Amount'))
+    article = models.ForeignKey('Article', verbose_name=_l('Article'), null=True, on_delete=models.SET_NULL)
+    amount = models.PositiveIntegerField(verbose_name=_l('Amount'))
 
     def kcal(self):
         if self.article.kcal is not None:
@@ -221,7 +221,7 @@ class AlexiaTransaction(Transaction):
     transaction_id: The transaction ID of the transaction in Alexia.
     """
 
-    transaction_id = models.PositiveIntegerField(verbose_name=_('Transaction id'))
+    transaction_id = models.PositiveIntegerField(verbose_name=_l('Transaction id'))
 
     def get_absolute_url(self):
         return reverse('personal_tab:alexia_transaction_detail', args=[self.pk])
@@ -237,7 +237,7 @@ class ContributionTransaction(Transaction):
     membership: The Membership object that is being paid with this transaction.
     """
 
-    membership = models.ForeignKey(Membership, verbose_name=_('Membership'), on_delete=models.PROTECT)
+    membership = models.ForeignKey(Membership, verbose_name=_l('Membership'), on_delete=models.PROTECT)
 
 
 class LedgerAccount(models.Model):
@@ -250,16 +250,16 @@ class LedgerAccount(models.Model):
     ledger_account_number:  The ledger account number of this article.
     """
 
-    name = models.CharField(max_length=50, verbose_name=_('Name'))
+    name = models.CharField(max_length=50, verbose_name=_l('Name'))
 
-    ledger_account_number = models.CharField(max_length=8, verbose_name=_('ledger account'), default='2500')
+    ledger_account_number = models.CharField(max_length=8, verbose_name=_l('ledger account'), default='2500')
 
     default_statistics = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['name']
-        verbose_name = _('General ledger account')
-        verbose_name_plural = _("General ledger accounts")
+        verbose_name = _l('General ledger account')
+        verbose_name_plural = _l("General ledger accounts")
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -278,15 +278,15 @@ class Article(models.Model):
     kcal: The amount of kiloCalories this product has. This is used in statistics. Optional.
     """
 
-    name_nl = models.CharField(max_length=50, verbose_name=_('Name'))
-    name_en = models.CharField(max_length=50, verbose_name=_('Name (en)'))
-    category = models.ForeignKey('Category', verbose_name=_('Category'), on_delete=models.PROTECT)
-    ledger_account = models.ForeignKey(LedgerAccount, verbose_name=_('General ledger account'), blank=True, null=True,
+    name_nl = models.CharField(max_length=50, verbose_name=_l('Name'))
+    name_en = models.CharField(max_length=50, verbose_name=_l('Name (en)'))
+    category = models.ForeignKey('Category', verbose_name=_l('Category'), on_delete=models.PROTECT)
+    ledger_account = models.ForeignKey(LedgerAccount, verbose_name=_l('General ledger account'), blank=True, null=True,
                                        on_delete=models.SET_NULL, related_name='articles')
-    price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_('Price'))
-    is_available = models.BooleanField(default=False, verbose_name=_('Available'))
-    image = models.ImageField(upload_to='cookie_corner', max_length=255, blank=False, verbose_name=_('Image'))
-    kcal = models.PositiveSmallIntegerField(verbose_name=_('kCal'), blank=True, null=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price'))
+    is_available = models.BooleanField(default=False, verbose_name=_l('Available'))
+    image = models.ImageField(upload_to='cookie_corner', max_length=255, blank=False, verbose_name=_l('Image'))
+    kcal = models.PositiveSmallIntegerField(verbose_name=_l('kCal'), blank=True, null=True)
 
     @property
     def name(self):
@@ -299,8 +299,8 @@ class Article(models.Model):
 
     class Meta:
         ordering = ['name_nl']
-        verbose_name = _('Article')
-        verbose_name_plural = _("Articles")
+        verbose_name = _l('Article')
+        verbose_name_plural = _l("Articles")
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -316,13 +316,13 @@ class Category(models.Model):
     order: Integer indicating the order this category should be shown in. 1 will be shown before 2, etc.
     """
 
-    name_nl = models.CharField(max_length=50, verbose_name=_('Name'))
-    name_en = models.CharField(max_length=50, verbose_name=_('Name (en)'))
-    is_available = models.BooleanField(default=False, verbose_name=_('Available'))
-    image = models.ImageField(upload_to='cookie_corner', max_length=255, blank=True, verbose_name=_('Image'))
-    order = models.PositiveIntegerField(default=0, null=False, verbose_name=_('Sequence'))
-    show_calculator_in_pos = models.BooleanField(default=False, verbose_name=_('Show the calculator in the Point of Sale instead of the products'),
-                                                 help_text=_('The first active article in the category will be used for calculations.'))
+    name_nl = models.CharField(max_length=50, verbose_name=_l('Name'))
+    name_en = models.CharField(max_length=50, verbose_name=_l('Name (en)'))
+    is_available = models.BooleanField(default=False, verbose_name=_l('Available'))
+    image = models.ImageField(upload_to='cookie_corner', max_length=255, blank=True, verbose_name=_l('Image'))
+    order = models.PositiveIntegerField(default=0, null=False, verbose_name=_l('Sequence'))
+    show_calculator_in_pos = models.BooleanField(default=False, verbose_name=_l('Show the calculator in the Point of Sale instead of the products'),
+                                                 help_text=_l('The first active article in the category will be used for calculations.'))
 
     @property
     def name(self):
@@ -338,8 +338,8 @@ class Category(models.Model):
 
     class Meta:
         ordering = ['order', 'name_nl']
-        verbose_name = _('Category')
-        verbose_name_plural = _('Categories')
+        verbose_name = _l('Category')
+        verbose_name_plural = _l('Categories')
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -355,29 +355,29 @@ class RFIDCard(models.Model):
     # RFID types
     # Source: API Driver Manual of ACR120U Contactless Smart Card Reader
     # https://www.acs.com.hk/download-manual/428/API_ACR120U_v3.00.pdf
-    TYPES = {'01': _('Mifare Light'),
-             '02': _('Mifare 1K (Student card/Building card)'),
-             '03': _('Mifare 4K (Public transit card)'),
-             '04': _('Mifare DESFire'),
-             '05': _('Mifare Ultralight (student card)'),
-             '06': _('JCOP30'),
-             '07': _('Shanghai Transport'),
-             '08': _('MPCOS Combi'),
-             '80': _('ISO Type B, Calypso'),
-             '81': _('ASK CTS256B, Type B'),
-             '82': _('ASK CTS521B, Type B'),
+    TYPES = {'01': _l('Mifare Light'),
+             '02': _l('Mifare 1K (Student card/Building card)'),
+             '03': _l('Mifare 4K (Public transit card)'),
+             '04': _l('Mifare DESFire'),
+             '05': _l('Mifare Ultralight (student card)'),
+             '06': _l('JCOP30'),
+             '07': _l('Shanghai Transport'),
+             '08': _l('MPCOS Combi'),
+             '80': _l('ISO Type B, Calypso'),
+             '81': _l('ASK CTS256B, Type B'),
+             '82': _l('ASK CTS521B, Type B'),
              }
 
-    person = models.ForeignKey(Person, verbose_name=_('Person'), on_delete=models.CASCADE)
-    code = models.CharField(max_length=50, unique=True, verbose_name=_('Rfid code'))
-    active = models.BooleanField(default=False, verbose_name=_('Activated'))
-    last_used = models.DateTimeField(auto_now_add=True, null=True, verbose_name=_('Date last used'))
-    created = models.DateTimeField(auto_now_add=True, null=True, verbose_name=_('Creation date'))
+    person = models.ForeignKey(Person, verbose_name=_l('Person'), on_delete=models.CASCADE)
+    code = models.CharField(max_length=50, unique=True, verbose_name=_l('Rfid code'))
+    active = models.BooleanField(default=False, verbose_name=_l('Activated'))
+    last_used = models.DateTimeField(auto_now_add=True, null=True, verbose_name=_l('Date last used'))
+    created = models.DateTimeField(auto_now_add=True, null=True, verbose_name=_l('Creation date'))
 
     class Meta:
         ordering = ['code']
-        verbose_name = _('RFID card')
-        verbose_name_plural = _('RFID cards')
+        verbose_name = _l('RFID card')
+        verbose_name_plural = _l('RFID cards')
 
     def __str__(self):
         if self.code[:3] == '02,':
@@ -411,38 +411,38 @@ class RFIDCard(models.Model):
 
 
 SEPA_CHAR_VALIDATOR = RegexValidator(regex=r'^[a-zA-Z0-9-?:().,\'+ ]*$',
-                                     message=_('Only alphanumerical signs are allowed'))
+                                     message=_l('Only alphanumerical signs are allowed'))
 
 
 class AuthorizationType(models.Model):
     """A kind of Authorization"""
 
     """Name of the authorization (Dutch)"""
-    name_nl = models.CharField(max_length=50, verbose_name=_('name'))
+    name_nl = models.CharField(max_length=50, verbose_name=_l('name'))
 
     """Name of the authorization (English)"""
-    name_en = models.CharField(blank=True, max_length=50, verbose_name=_('name (en)'))
+    name_en = models.CharField(blank=True, max_length=50, verbose_name=_l('name (en)'))
 
     """Short description of the authorization (Dutch)"""
-    text_nl = models.TextField(verbose_name=_('text'))
+    text_nl = models.TextField(verbose_name=_l('text'))
 
     """Short description of the authorization (English)"""
-    text_en = models.TextField(blank=True, verbose_name=_('text (en)'))
+    text_en = models.TextField(blank=True, verbose_name=_l('text (en)'))
 
     """An authorization of this type may be newly created and signed."""
-    active = models.BooleanField(default=False, verbose_name=_('active'))
+    active = models.BooleanField(default=False, verbose_name=_l('active'))
 
     """Contribution payments may be collected using this authorization."""
-    contribution = models.BooleanField(default=False, verbose_name=_('membership fee'))
+    contribution = models.BooleanField(default=False, verbose_name=_l('membership fee'))
 
     """Consumption payments may be collected using this authorization."""
-    consumptions = models.BooleanField(default=False, verbose_name=_('consumptions'))
+    consumptions = models.BooleanField(default=False, verbose_name=_l('consumptions'))
 
     """Activity payments may be collected using this authorization."""
-    activities = models.BooleanField(default=False, verbose_name=_('activities'))
+    activities = models.BooleanField(default=False, verbose_name=_l('activities'))
 
     """Other payments may be collected using this authorization."""
-    other_payments = models.BooleanField(default=False, verbose_name=_('other payments'))
+    other_payments = models.BooleanField(default=False, verbose_name=_l('other payments'))
 
     @property
     def name(self):
@@ -467,8 +467,8 @@ class AuthorizationType(models.Model):
 
     class Meta:
         ordering = ['name_nl']
-        verbose_name = _('type of mandate')
-        verbose_name_plural = _('types of mandate')
+        verbose_name = _l('type of mandate')
+        verbose_name_plural = _l('types of mandate')
 
 
 class Authorization(models.Model):
@@ -482,29 +482,29 @@ class Authorization(models.Model):
     PREFIX = 'IA-MNDT-'
 
     """Type of authorization"""
-    authorization_type = models.ForeignKey(AuthorizationType, on_delete=models.PROTECT, verbose_name=_('type'))
+    authorization_type = models.ForeignKey(AuthorizationType, on_delete=models.PROTECT, verbose_name=_l('type'))
 
     """Person that gave the authorization"""
-    person = models.ForeignKey(Person, verbose_name=_('person'), null=True, blank=True, on_delete=models.PROTECT)
+    person = models.ForeignKey(Person, verbose_name=_l('person'), null=True, blank=True, on_delete=models.PROTECT)
 
     """IBAN for authorization"""
-    iban = IBANField(verbose_name=_('IBAN'), blank=True)
+    iban = IBANField(verbose_name=_l('IBAN'), blank=True)
 
     """BIC for authorization"""
-    bic = BICField(verbose_name=_('BIC'), blank=True)
+    bic = BICField(verbose_name=_l('BIC'), blank=True)
 
     """Name of the account holder"""
-    account_holder_name = models.CharField(max_length=70, verbose_name=_('account holder'),
+    account_holder_name = models.CharField(max_length=70, verbose_name=_l('account holder'),
                                            validators=[SEPA_CHAR_VALIDATOR], blank=True)
 
     """Start date of the authorization"""
-    start_date = models.DateField(verbose_name=_('startdate'))
+    start_date = models.DateField(verbose_name=_l('startdate'))
 
     """End date of the authorization, is None if the authorization has not ended yet."""
-    end_date = models.DateField(verbose_name=_('enddate'), null=True, blank=True)
+    end_date = models.DateField(verbose_name=_l('enddate'), null=True, blank=True)
 
     """This authorization has been signed"""
-    is_signed = models.BooleanField(default=False, verbose_name=_('has been signed'))
+    is_signed = models.BooleanField(default=False, verbose_name=_l('has been signed'))
 
     objects = AuthorizationManager()
 
@@ -585,8 +585,8 @@ class Authorization(models.Model):
 
     class Meta:
         ordering = ['person', 'start_date']
-        verbose_name = _('mandate')
-        verbose_name_plural = _('mandates')
+        verbose_name = _l('mandate')
+        verbose_name_plural = _l('mandates')
 
 
 class Amendment(models.Model):
@@ -598,32 +598,32 @@ class Amendment(models.Model):
 
     """The authorization that is being changed"""
     authorization = models.ForeignKey(Authorization, related_name='amendments', on_delete=models.PROTECT,
-                                      verbose_name=_('mandate'))
+                                      verbose_name=_l('mandate'))
 
     """Date of the change"""
-    date = models.DateField(verbose_name=_('date'))
+    date = models.DateField(verbose_name=_l('date'))
 
     """IBAN before change"""
-    previous_iban = IBANField(verbose_name=_('previous IBAN'), blank=True)
+    previous_iban = IBANField(verbose_name=_l('previous IBAN'), blank=True)
 
     """BIC before change"""
-    previous_bic = BICField(verbose_name=_('previous BIC'), blank=True)
+    previous_bic = BICField(verbose_name=_l('previous BIC'), blank=True)
 
     """This concerns a change to the bank of the person that gave the authorization."""
-    other_bank = models.BooleanField(default=False, verbose_name=_('other bank'))
+    other_bank = models.BooleanField(default=False, verbose_name=_l('other bank'))
 
     """Short description of the reason of the amendment."""
-    reason = models.CharField(max_length=250, verbose_name=_('remark'),
-                              help_text=_('Short description of the reason for the amendment'))
+    reason = models.CharField(max_length=250, verbose_name=_l('remark'),
+                              help_text=_l('Short description of the reason for the amendment'))
 
     def __str__(self):
-        return _('Amendment of %(authorization)s on %(date)s') % {'authorization': self.authorization,
+        return _l('Amendment of %(authorization)s on %(date)s') % {'authorization': self.authorization,
                                                                     'date': self.date}
 
     class Meta:
         ordering = ['date']
-        verbose_name = _('amendment')
-        verbose_name_plural = _('amendments')
+        verbose_name = _l('amendment')
+        verbose_name_plural = _l('amendments')
 
 
 class DebtCollectionAssignment(models.Model):
@@ -637,16 +637,16 @@ class DebtCollectionAssignment(models.Model):
     PREFIX = 'IA-MSG-'
 
     """Internal description of the assignment. Is not passed on to the bank or the cashed (the person paying)."""
-    description = models.CharField(max_length=50, verbose_name=_('description'))
+    description = models.CharField(max_length=50, verbose_name=_l('description'))
 
     """Date and time this assignment was created."""
-    created_on = models.DateTimeField(verbose_name=_('created on'), auto_now_add=True)
+    created_on = models.DateTimeField(verbose_name=_l('created on'), auto_now_add=True)
 
     """Start date and time of the period this assignment is related to."""
-    start = models.DateTimeField(verbose_name=_('begin'), null=True, blank=True)
+    start = models.DateTimeField(verbose_name=_l('begin'), null=True, blank=True)
 
     """End date and time of the period this assignment is related to."""
-    end = models.DateTimeField(verbose_name=_('end'), null=True, blank=True)
+    end = models.DateTimeField(verbose_name=_l('end'), null=True, blank=True)
 
     def file_identification(self):
         """Returns the file identification with prefix"""
@@ -669,8 +669,8 @@ class DebtCollectionAssignment(models.Model):
 
     class Meta:
         ordering = ['-created_on']
-        verbose_name = _('Direct withdrawal-task')
-        verbose_name_plural = _('Direct withdrawal-tasks')
+        verbose_name = _l('Direct withdrawal-task')
+        verbose_name_plural = _l('Direct withdrawal-tasks')
 
 
 class DebtCollectionBatch(models.Model):
@@ -682,33 +682,33 @@ class DebtCollectionBatch(models.Model):
 
     class StatusChoices(models.TextChoices):
         """Possible sequence types for a debt collection batch."""
-        NEW = 'N', _("New")  # New batch
-        PROCESSED = 'V', _("Processed")  # The batch is processed by the bank and the debt collection is being executed.
-        DECLINED = 'W', _("Declined")  # The batch was declined by the bank.
-        CANCELLED = 'A', _("Cancelled")  # The batch was cancelled.
+        NEW = 'N', _l("New")  # New batch
+        PROCESSED = 'V', _l("Processed")  # The batch is processed by the bank and the debt collection is being executed.
+        DECLINED = 'W', _l("Declined")  # The batch was declined by the bank.
+        CANCELLED = 'A', _l("Cancelled")  # The batch was cancelled.
 
     class SequenceTypes(models.TextChoices):
         """Possible sequence types for a debt collection batch."""
-        FRST = 'FRST', _('First collection')  # First debt collection within a series on the same authorization.
-        RCUR = 'RCUR', _('Continuation of direct withdrawal')  # Continuation debt collection within the same authorization.
-        FNAL = 'FNAL', _('Last collection')  # Final debt collection within the same authorization.
-        OOFF = 'OOFF', _('One-time direct withdrawal')  # Singular debt collection without repetition.
+        FRST = 'FRST', _l('First collection')  # First debt collection within a series on the same authorization.
+        RCUR = 'RCUR', _l('Continuation of direct withdrawal')  # Continuation debt collection within the same authorization.
+        FNAL = 'FNAL', _l('Last collection')  # Final debt collection within the same authorization.
+        OOFF = 'OOFF', _l('One-time direct withdrawal')  # Singular debt collection without repetition.
 
     """Prefix for reference number"""
     PREFIX = 'IA-PMTINF-'
 
     """Assignment that this batch is a part of."""
     assignment = models.ForeignKey(DebtCollectionAssignment, related_name='batches', on_delete=models.PROTECT,
-                                   verbose_name=_('assignment'))
+                                   verbose_name=_l('assignment'))
 
     """The date on which this debt collection batch should be executed."""
-    execution_date = models.DateField(verbose_name=_('date of execution'))
+    execution_date = models.DateField(verbose_name=_l('date of execution'))
 
     """Sequence Type for this debt collection batch."""
-    sequence_type = models.CharField(max_length=4, choices=SequenceTypes.choices, verbose_name=_('sequence type'))
+    sequence_type = models.CharField(max_length=4, choices=SequenceTypes.choices, verbose_name=_l('sequence type'))
 
     """Status of this batch."""
-    status = models.CharField(max_length=1, choices=StatusChoices.choices, verbose_name=_('status'))
+    status = models.CharField(max_length=1, choices=StatusChoices.choices, verbose_name=_l('status'))
 
     def reference_number(self):
         """Returns the reference number with prefix."""
@@ -731,8 +731,8 @@ class DebtCollectionBatch(models.Model):
 
     class Meta:
         ordering = ['assignment', 'execution_date']
-        verbose_name = _('direct withdrawal-batch')
-        verbose_name_plural = _('direct withdrawal-batches')
+        verbose_name = _l('direct withdrawal-batch')
+        verbose_name_plural = _l('direct withdrawal-batches')
 
 
 class DebtCollectionInstruction(models.Model):
@@ -750,24 +750,24 @@ class DebtCollectionInstruction(models.Model):
 
     """Batch this instruction is a part of."""
     batch = models.ForeignKey(DebtCollectionBatch, related_name='instructions', on_delete=models.PROTECT,
-                              verbose_name=_('batch'))
+                              verbose_name=_l('batch'))
 
     """Authorization that is used to collect this debt."""
     authorization = models.ForeignKey(Authorization, related_name='instructions', on_delete=models.PROTECT,
-                                      verbose_name=_('mandate'))
+                                      verbose_name=_l('mandate'))
 
     """End-to-end-id. This will be passed on to the cashed (the person paying)."""
-    end_to_end_id = models.CharField(max_length=35, verbose_name=_('end-to-end-id'), validators=[SEPA_CHAR_VALIDATOR])
+    end_to_end_id = models.CharField(max_length=35, verbose_name=_l('end-to-end-id'), validators=[SEPA_CHAR_VALIDATOR])
 
     """Description rule."""
-    description = models.CharField(max_length=140, verbose_name=_('description'), validators=[SEPA_CHAR_VALIDATOR])
+    description = models.CharField(max_length=140, verbose_name=_l('description'), validators=[SEPA_CHAR_VALIDATOR])
 
     """Amount to be collected."""
-    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_('amount'))
+    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('amount'))
 
     """An amendment given with this instruction."""
     amendment = models.OneToOneField(Amendment, related_name='instruction', on_delete=models.PROTECT,
-                                     verbose_name=_('amendment'), null=True, blank=True)
+                                     verbose_name=_l('amendment'), null=True, blank=True)
 
     objects = DebtCollectionInstructionManager()
 
@@ -784,8 +784,8 @@ class DebtCollectionInstruction(models.Model):
 
     class Meta:
         ordering = ['batch', 'authorization']
-        verbose_name = _('direct withdrawal-instruction')
-        verbose_name_plural = _('direct withdrawal-instructions')
+        verbose_name = _l('direct withdrawal-instruction')
+        verbose_name_plural = _l('direct withdrawal-instructions')
 
 
 class Reversal(models.Model):
@@ -830,27 +830,27 @@ class Reversal(models.Model):
 
     """Debt collection instruction that was reversed."""
     instruction = models.OneToOneField(DebtCollectionInstruction, related_name='reversal', on_delete=models.PROTECT,
-                                       verbose_name=_('instruction'))
+                                       verbose_name=_l('instruction'))
 
     """Date of reversal"""
-    date = models.DateField(verbose_name=_('Processing date'),
-                            help_text=_("Fill out processing date, not rent date. See Rabobank Internet Banking."))
+    date = models.DateField(verbose_name=_l('Processing date'),
+                            help_text=_l("Fill out processing date, not rent date. See Rabobank Internet Banking."))
 
     """Indicates if the reversal is a pre-settlement (REFUSAL) or post-settlement (RETURN or REFUND)."""
-    pre_settlement = models.BooleanField(default=False, verbose_name=_('pre-settlement'),
-                                         help_text=_("A debit reversal is pre-settlement when the withdrawal happens "
+    pre_settlement = models.BooleanField(default=False, verbose_name=_l('pre-settlement'),
+                                         help_text=_l("A debit reversal is pre-settlement when the withdrawal happens "
                                                      "before the crediting of the direct withdrawal has taken place."))
 
     """Reason for reversal"""
-    reason = models.CharField(max_length=4, choices=ReversalReasons.choices, verbose_name=_('reason'))
+    reason = models.CharField(max_length=4, choices=ReversalReasons.choices, verbose_name=_l('reason'))
 
     def __str__(self):
-        return _('Debit reversal %s') % self.instruction.debt_collection_reference()
+        return _l('Debit reversal %s') % self.instruction.debt_collection_reference()
 
     class Meta:
         ordering = ['date']
-        verbose_name = _('debit reversal')
-        verbose_name_plural = _('reversal')
+        verbose_name = _l('debit reversal')
+        verbose_name_plural = _l('reversal')
 
 
 class DebtCollectionTransaction(Transaction):
@@ -873,7 +873,7 @@ class ReversalTransaction(Transaction):
 
     """Reversal that this transaction is related to."""
     reversal = models.OneToOneField(Reversal, related_name='transaction', on_delete=models.PROTECT,
-                                    verbose_name=_('debit reversal'))
+                                    verbose_name=_l('debit reversal'))
 
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
