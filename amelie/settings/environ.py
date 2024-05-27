@@ -265,6 +265,10 @@ LOCALE_PATHS = ('/amelie/locale', )
 ###
 #  URL and Media settings
 ###
+# Path to amelie static files
+STATIC_ROOT = '/static'
+STATIC_URL = env("AMELIE_STATIC_URL", default="/static/")
+
 # Path to amelie media
 MEDIA_ROOT = '/media'
 MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
@@ -325,7 +329,10 @@ TWITTER_OAUTH_SECRET = env("AMELIE_TWITTER_OAUTH_SECRET", default=TWITTER_OAUTH_
 ###
 DATA_HOARDER_CONFIG['key'] = env("DATA_HOARDER_KEY", default=DATA_HOARDER_CONFIG.get('key', None))
 DATA_HOARDER_CONFIG['check_ssl'] = env.bool("DATA_HOARDER_CHECK_SSL", default=True)
+DATA_HOARDER_CONFIG['export_basedir'] = env("DATA_HOARDER_EXPORT_BASEDIR", default="/homedir_exports")
 
+# The location where data exports are saved until they expire
+DATA_EXPORT_ROOT = "/data_exports"
 
 ###
 #  SysCom monitoring configuration (for room narrowcasting PC overview)

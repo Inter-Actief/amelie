@@ -12,7 +12,7 @@ RUN apt-get update && \
     dpkg-reconfigure --frontend=noninteractive locales
 
 # Make directories for amelie
-RUN mkdir -p /amelie /amelie/static /media /photo_upload /config /var/log /var/run
+RUN mkdir -p /amelie /config /amelie/static /media /photo_upload /data_exports /homedir_exports /var/log /var/run
 
 # Copy amelie sources
 COPY . /amelie
@@ -36,10 +36,10 @@ USER 1000:1000
 RUN python3 manage.py check
 
 # Expose volumes
-VOLUME ["/amelie/static", "/media", "/photo_upload", "/config"]
+VOLUME ["/config", "/amelie/static", "/media", "/photo_upload", "/data_exports", "/homedir_exports"]
 
 # Expose the web port
-EXPOSE 80
+EXPOSE 8000
 
 # Start the website
 CMD ["/amelie/scripts/start_web.sh"]
