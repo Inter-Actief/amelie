@@ -12,7 +12,7 @@ RUN apt-get update && \
     dpkg-reconfigure --frontend=noninteractive locales
 
 # Make directories for amelie
-RUN mkdir -p /amelie /config /amelie/static /media /photo_upload /data_exports /homedir_exports /var/log /var/run
+RUN mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run
 
 # Copy amelie sources
 COPY . /amelie
@@ -27,7 +27,7 @@ USER root
 RUN pip3 install -r requirements.txt
 
 # Correct permissions on directories
-RUN chown -R 1000:1000 /amelie /media /photo_upload /config /var/log
+RUN chown -R 1000:1000 /amelie  /config /static /media /photo_upload /data_exports /homedir_exports /var/log
 
 # Switch back to a local user
 USER 1000:1000
@@ -36,7 +36,7 @@ USER 1000:1000
 RUN python3 manage.py check
 
 # Expose volumes
-VOLUME ["/config", "/amelie/static", "/media", "/photo_upload", "/data_exports", "/homedir_exports"]
+VOLUME ["/config", "/static", "/media", "/photo_upload", "/data_exports", "/homedir_exports"]
 
 # Expose the web port
 EXPOSE 8000
