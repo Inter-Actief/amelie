@@ -81,5 +81,5 @@ jobs:
           org-name: Inter-Actief
           token: ${{ secrets.GITHUB_TOKEN }}
           token-type: github-token
-          skip-tags: main, production, graphql
+          skip-tags: main, production, 741-graphql-api
           dry-run: true
