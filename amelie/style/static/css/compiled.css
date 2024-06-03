@@ -11002,6 +11002,15 @@ li.courses-soon {
     overflow-y: auto;
   }
 }
+a.looks-like-a-button.obscure {
+  color: darkgray;
+  background-color: lightgray;
+  opacity: 40%;
+  margin-right: 5px;
+}
+.ia-datepicker {
+  width: 125px;
+}
 .ia_messages {
   list-style-type: none;
   padding: 0 0 0 20px;

@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from django.views.generic import FormView
 
 from amelie.companies.forms import CompanyForm, BannerForm, TelevisionBannerForm, CompanyEventForm, StatisticsForm, \
@@ -336,7 +336,7 @@ def event_old(request):
 def company_events_ics(request):
     """ Will return an ics file containing all the CompanyEvents. """
     resp = HttpResponse(content_type='text/calendar; charset=UTF-8')
-    resp.write(ical_calendar(_('Inter-Actief external activities'), CompanyEvent.objects.filter(
+    resp.write(ical_calendar(_l('Inter-Actief external activities'), CompanyEvent.objects.filter(
         begin__gte=timezone.now() - datetime.timedelta(100)).order_by('begin')))
 
     return resp
@@ -347,7 +347,7 @@ def company_event_ics(request, id):
     event = get_object_or_404(CompanyEvent, id=id)
 
     resp = HttpResponse(content_type='text/calendar; charset=UTF-8')
-    resp.write(ical_calendar(_(event.summary), [event, ]))
+    resp.write(ical_calendar(_l(event.summary), [event, ]))
 
     return resp
 

@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.template.defaultfilters import slugify
 from django.utils.translation import get_language
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.activities.models import Activity
 from amelie.files.models import Attachment
@@ -32,12 +32,12 @@ class NewsItem(models.Model):
     attachments = models.ManyToManyField(Attachment, blank=True)
     activities = models.ManyToManyField(Activity, blank=True)
 
-    pinned = models.BooleanField(default=False, help_text=_('Choose this option to pin the news item'))
+    pinned = models.BooleanField(default=False, help_text=_l('Choose this option to pin the news item'))
 
     class Meta:
         ordering = ['-publication_date']
-        verbose_name = _('News message')
-        verbose_name_plural = _('News messages')
+        verbose_name = _l('News message')
+        verbose_name_plural = _l('News messages')
 
     def __str__(self):
         return '%s' % self.title

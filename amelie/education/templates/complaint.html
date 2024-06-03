@@ -134,7 +134,9 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {{ comment.comment|markdown }}
+                                    <div class="comment_content">
+                                        {{ comment.comment|markdown }}
+                                    </div>
                                     {% if request.is_education_committee or comment.person == request.person %}
                                         <br/>
                                         <input type="submit" class="complaint_comment_save" name="edit" value="{% trans 'Save comment' %}">

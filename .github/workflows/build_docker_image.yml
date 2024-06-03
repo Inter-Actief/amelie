@@ -1,0 +1,85 @@
+name: Build docker image and run tests
+
+on: [push, pull_request]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    services:
+      mariadb:
+        image: mariadb:10.2
+        env:
+          MARIADB_USER: amelie_test
+          MARIADB_PASSWORD: amelie_test
+          MYSQL_DATABASE: amelie_test
+          MYSQL_ROOT_PASSWORD: amelie_test
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Verify MariaDB connection
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+            sleep 1
+          done
+
+      - name: Run Amelie tests
+        run: |
+          docker run --rm --entrypoint "/amelie/scripts/run_tests.sh" ghcr.io/inter-actief/amelie@${{ steps.push.outputs.digest }}
+
+      - name: Cleanup untagged images older than 1 week
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: amelie
+          cut-off: 1 week ago UTC
+          account-type: org
+          org-name: Inter-Actief
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token
+          untagged-only: true
+          dry-run: true
+
+      - name: Cleanup tagged images (except main, production and graphql) older than 1 month
+        uses: snok/container-retention-policy@v2
+        with:
+          image-names: amelie
+          cut-off: 1 month ago UTC
+          account-type: org
+          org-name: Inter-Actief
+          token: ${{ secrets.GITHUB_TOKEN }}
+          token-type: github-token
+          skip-tags: main, production, graphql
+          dry-run: true

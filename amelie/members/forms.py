@@ -13,8 +13,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import Q, TextChoices
 from django.forms import widgets
 from django.forms.models import BaseInlineFormSet
-from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext as _
 from localflavor.generic.forms import BICFormField, IBANFormField
 
 from amelie.iamailer.mailtask import MailTask, Recipient
@@ -30,13 +30,13 @@ from amelie.tools.encodings import normalize_to_ascii
 
 
 class PersonalDetailsEditForm(forms.ModelForm):
-    gender = forms.ChoiceField(choices=Person.GenderTypes.choices, widget=widgets.RadioSelect, label=_('Gender'))
-    preferred_language = forms.ChoiceField(choices=LANGUAGE_CHOICES, widget=widgets.RadioSelect, label=_('Language of preference'))
+    gender = forms.ChoiceField(choices=Person.GenderTypes.choices, widget=widgets.RadioSelect, label=_l('Gender'))
+    preferred_language = forms.ChoiceField(choices=LANGUAGE_CHOICES, widget=widgets.RadioSelect, label=_l('Language of preference'))
     international_member = forms.ChoiceField(choices=Person.InternationalChoices.choices, widget=widgets.RadioSelect,
-                                             label=_("International student"))
-    date_of_birth = forms.DateField(widget=DateSelector, label=_('Birth date'))
+                                             label=_l("International student"))
+    date_of_birth = forms.DateField(widget=DateSelector, label=_l('Birth date'))
     preferences = forms.ModelMultipleChoiceField(Preference.objects.filter(adjustable=True), required=False,
-                                                 widget=widgets.CheckboxSelectMultiple, label=_('Preferences'))
+                                                 widget=widgets.CheckboxSelectMultiple, label=_l('Preferences'))
 
     def save(self, *args, **kwargs):
         if self.has_changed():
@@ -98,13 +98,13 @@ class PersonalDetailsEditForm(forms.ModelForm):
 class PersonalStudyEditForm(forms.Form):
     master = forms.ModelChoiceField(Study.objects.filter(primary_study=True, type=Study.StudyTypes.MSC, active=True),
                                     required=False)
-    finished = forms.DateField(widget=DateSelector, initial=None, required=False, label=_('Bachelor degree'))
-    started = forms.DateField(widget=DateSelector, initial=None, label=_('Started mastereducation'), required=False)
+    finished = forms.DateField(widget=DateSelector, initial=None, required=False, label=_l('Bachelor degree'))
+    started = forms.DateField(widget=DateSelector, initial=None, label=_l('Started mastereducation'), required=False)
 
     def clean(self):
         if 'master' in self.cleaned_data and self.cleaned_data['master'] and (
                         'started' not in self.cleaned_data or not self.cleaned_data['started']):
-            raise forms.ValidationError(_('Please fill in a start date when filling in a mastercourse.'))
+            raise forms.ValidationError(_l('Please fill in a start date when filling in a mastercourse.'))
         return self.cleaned_data
 
     def save(self, study_period):
@@ -141,7 +141,7 @@ class PersonDataForm(forms.ModelForm):
                 self.fields['account_name'].disabled = True
             else:
                 account_name_suggestion = re.sub(r'[^\w\s]', '', normalize_to_ascii(f"{instance.last_name_prefix}{instance.last_name}{instance.initials}")).lower()
-                self.fields['account_name'].help_text = " ".join([gettext("Suggestion:"), account_name_suggestion])
+                self.fields['account_name'].help_text = " ".join([_("Suggestion:"), account_name_suggestion])
 
 
 class PersonPreferencesForm(forms.ModelForm):
@@ -198,7 +198,7 @@ class PersonPreferencesForm(forms.ModelForm):
 
 class EmployeeForm(forms.ModelForm):
     departments = forms.ModelMultipleChoiceField(Department.objects.all(), required=False,
-                                                 widget=widgets.CheckboxSelectMultiple, label=_('Related to'))
+                                                 widget=widgets.CheckboxSelectMultiple, label=_l('Related to'))
 
     class Meta:
         model = Employee
@@ -226,7 +226,7 @@ class PersonPaymentForm(forms.Form):
 
 class MembershipForm(forms.ModelForm):
     year = forms.IntegerField(initial=current_association_year, widget=widgets.RadioSelect())
-    type = forms.ModelChoiceField(MembershipType.objects.filter(active=True), label=_('Type'))
+    type = forms.ModelChoiceField(MembershipType.objects.filter(active=True), label=_l('Type'))
 
     class Meta:
         model = Membership
@@ -234,8 +234,8 @@ class MembershipForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MembershipForm, self).__init__(*args, **kwargs)
-        self.fields['year'].widget.choices = ((current_association_year(), _('Current association year')),
-                                              (current_association_year() + 1, _('Upcoming association year')),)
+        self.fields['year'].widget.choices = ((current_association_year(), _l('Current association year')),
+                                              (current_association_year() + 1, _l('Upcoming association year')),)
 
 
 class MembershipEndForm(forms.ModelForm):
@@ -247,9 +247,9 @@ class MembershipEndForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MembershipEndForm, self).__init__(*args, **kwargs)
-        self.fields['ended'].widget.choices = ((date.today(), _('Immediately')),
+        self.fields['ended'].widget.choices = ((date.today(), _l('Immediately')),
                                                (date(current_association_year() + 1, 7, 1),
-                                                _('At the end of the association year')),)
+                                                _l('At the end of the association year')),)
 
 
 class MandateForm(forms.ModelForm):
@@ -273,11 +273,11 @@ class MandateForm(forms.ModelForm):
 
         if not cleaned_data['bic']:
             if not cleaned_data['iban'][:2] == 'NL':
-                raise forms.ValidationError(_('BIC has to be entered for foreign bankaccounts.'))
+                raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
             elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
                 cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
             else:
-                raise forms.ValidationError(_('BIC could not be generated, please enter yourself.'))
+                raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
         return cleaned_data
 
 
@@ -292,12 +292,12 @@ class MandateEndForm(forms.ModelForm):
 
 
 class PersonSearchForm(forms.Form):
-    person = forms.IntegerField(widget=MemberSelect(attrs={'autofocus': 'autofocus'}), label=_('Person'),
-                                error_messages={'required': _('Choose a name from the suggestions.')})
+    person = forms.IntegerField(widget=MemberSelect(attrs={'autofocus': 'autofocus'}), label=_l('Person'),
+                                error_messages={'required': _l('Choose a name from the suggestions.')})
 
 
 class SearchForm(forms.Form):
-    search = forms.CharField(max_length=40, label=_('Search'),
+    search = forms.CharField(max_length=40, label=_l('Search'),
                              widget=widgets.TextInput(attrs={'accesskey': 'f', 'autofocus': 'autofocus', }))
 
 
@@ -319,8 +319,8 @@ class PersonCreateForm(forms.ModelForm):
         Q(name_nl='Studielang (eerste jaar)') | Q(name_nl='Medewerker jaar')
     ), required=True, empty_label=None, widget=widgets.RadioSelect)
 
-    iban = IBANFormField(label=_('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    bic = BICFormField(label=_('BIC'), required=False)
+    iban = IBANFormField(label=_l('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    bic = BICFormField(label=_l('BIC'), required=False)
     mandate_contribution = forms.BooleanField(required=False)
     mandate_other = forms.BooleanField(required=False)
 
@@ -351,29 +351,29 @@ class PersonCreateForm(forms.ModelForm):
             # Generation is mandatory if study is chosen
             if 'generation' not in cleaned_data or not cleaned_data['generation']:
                 raise forms.ValidationError(
-                    _("A study has been chosen, but no cohort was specified. Enter the missing data to continue.")
+                    _l("A study has been chosen, but no cohort was specified. Enter the missing data to continue.")
                 )
 
         if cleaned_data['mandate_contribution'] or cleaned_data['mandate_other']:
             if not cleaned_data['iban']:
-                raise forms.ValidationError(_('IBAN is required if a mandate is checked!'))
+                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
             if not cleaned_data['bic']:
                 if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_('BIC has to be entered for foreign bankaccounts.'))
+                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
                 elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
                     cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
                 else:
-                    raise forms.ValidationError(_('BIC could not be generated, please enter yourself.'))
+                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
 
         return cleaned_data
 
     def clean_student_number(self):
         if self.cleaned_data['student_number'] and Student.objects.filter(
                 number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("A student with this student number already exists."))
+            raise forms.ValidationError(_l("A student with this student number already exists."))
         if self.cleaned_data['student_number'] and UnverifiedEnrollment.objects.filter(
             student_number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("This student number is already pre-enrolled. A board member can activate your account."))
+            raise forms.ValidationError(_l("This student number is already pre-enrolled. A board member can activate your account."))
         return self.cleaned_data['student_number']
 
     def save(self, *args, **kwargs):
@@ -398,8 +398,8 @@ class RegistrationForm(forms.ModelForm):
             Q(name_nl='Primair jaarlid') | Q(name_nl='Studielang (eerste jaar)')
     ), required=True, empty_label=None, widget=widgets.RadioSelect)
 
-    iban = IBANFormField(label=_('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    bic = BICFormField(label=_('BIC'), required=False)
+    iban = IBANFormField(label=_l('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    bic = BICFormField(label=_l('BIC'), required=False)
     mandate_contribution = forms.BooleanField(required=False)
     mandate_other = forms.BooleanField(required=False)
 
@@ -435,22 +435,22 @@ class RegistrationForm(forms.ModelForm):
 
         if cleaned_data['mandate_contribution'] or cleaned_data['mandate_other']:
             if not cleaned_data['iban']:
-                raise forms.ValidationError(_('IBAN is required if a mandate is checked!'))
+                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
             if not cleaned_data['bic']:
                 if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_('BIC has to be entered for foreign bankaccounts.'))
+                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
                 elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
                     cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
                 else:
-                    raise forms.ValidationError(_('BIC could not be generated, please enter yourself.'))
+                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
 
         return cleaned_data
 
     def clean_student_number(self):
         if Student.objects.filter(number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("A student with this student number already exists."))
+            raise forms.ValidationError(_l("A student with this student number already exists."))
         if UnverifiedEnrollment.objects.filter(student_number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("This student number is already pre-enrolled. A board member can activate your account."))
+            raise forms.ValidationError(_l("This student number is already pre-enrolled. A board member can activate your account."))
         return self.cleaned_data['student_number']
 
     def save(self, *args, **kwargs):
@@ -510,12 +510,12 @@ class RegistrationFormStepParentsContactDetails(forms.ModelForm):
 
         # If we can use the data, but no (basic) data is given, error out.
         if can_use_data and not email_address:
-            raise forms.ValidationError(_("If we can use your parent(s)/guardian(s) data, "
+            raise forms.ValidationError(_l("If we can use your parent(s)/guardian(s) data, "
                                           "then you need to enter at least their e-mail address!"))
 
         # If we cannot use the data, but data is given, error out.
         if not can_use_data and any([address, postal_code, city, country, email_address]):
-            raise forms.ValidationError(_("If we can not use your parent(s)/guardian(s) data, "
+            raise forms.ValidationError(_l("If we can not use your parent(s)/guardian(s) data, "
                                           "then you do not need to enter any data!"))
 
         return cleaned_data
@@ -538,23 +538,23 @@ class RegistrationFormStepGeneralStudyDetails(forms.Form):
         if ('generation' not in cleaned_data.keys() or not cleaned_data['generation']) and \
                 ('study' in cleaned_data.keys() and cleaned_data['study']):
             raise forms.ValidationError(
-                _("A study has been chosen, but no cohort was specified. Enter the missing data to continue.")
+                _l("A study has been chosen, but no cohort was specified. Enter the missing data to continue.")
             )
 
         # Study is mandatory if generation is chosen
         if ('study' not in cleaned_data.keys() or not cleaned_data['study']) and \
                 ('generation' in cleaned_data.keys() and cleaned_data['generation']):
             raise forms.ValidationError(
-                _("A cohort has been chosen, but no study was specified. Enter at least one study to continue.")
+                _l("A cohort has been chosen, but no study was specified. Enter at least one study to continue.")
             )
 
         return cleaned_data
 
     def clean_student_number(self):
         if Student.objects.filter(number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("A student with this student number already exists."))
+            raise forms.ValidationError(_l("A student with this student number already exists."))
         if UnverifiedEnrollment.objects.filter(student_number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("This student number is already pre-enrolled. A board member can activate your account."))
+            raise forms.ValidationError(_l("This student number is already pre-enrolled. A board member can activate your account."))
         return self.cleaned_data['student_number']
 
 
@@ -570,9 +570,9 @@ class RegistrationFormStepFreshmenStudyDetails(forms.Form):
 
     def clean_student_number(self):
         if Student.objects.filter(number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("A student with this student number already exists."))
+            raise forms.ValidationError(_l("A student with this student number already exists."))
         if UnverifiedEnrollment.objects.filter(student_number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_("This student number is already pre-enrolled. A board member can activate your account."))
+            raise forms.ValidationError(_l("This student number is already pre-enrolled. A board member can activate your account."))
         return self.cleaned_data['student_number']
 
 
@@ -581,7 +581,7 @@ class RegistrationFormStepEmployeeDetails(forms.Form):
 
     def clean_employee_number(self):
         if Employee.objects.filter(number=self.cleaned_data['employee_number']).exists():
-            raise forms.ValidationError(_("An employee with this employee number already exists."))
+            raise forms.ValidationError(_l("An employee with this employee number already exists."))
         return self.cleaned_data['employee_number']
 
 
@@ -606,17 +606,17 @@ class RegistrationFormStepFreshmenMembershipDetails(forms.Form):
 class RegistrationFormStepAuthorizationDetails(forms.Form):
     authorization_contribution = forms.BooleanField(required=False)
     authorization_other = forms.BooleanField(required=False)
-    iban = IBANFormField(label=_('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    bic = BICFormField(label=_('BIC'), required=False)
+    iban = IBANFormField(label=_l('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    bic = BICFormField(label=_l('BIC'), required=False)
 
     def clean_iban(self):
         if str(self.cleaned_data['iban']).strip() == "NL18ABNA0484869868":
-            raise forms.ValidationError(_("Please enter your own bank account number!"))
+            raise forms.ValidationError(_l("Please enter your own bank account number!"))
         return self.cleaned_data['iban']
 
     def clean_bic(self):
         bic = str(self.cleaned_data['bic']).strip()
-        if bic is "":
+        if bic == "":
             return self.cleaned_data['bic']
 
         if not settings.DEBUG:
@@ -636,7 +636,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
                 raise IOError(u"Reading file at {} failed (run 'manage.py update_bic_csv' to create it if it does not exist) {}"
                               .format(os.path.join(settings.MEDIA_ROOT, 'bic_list.csv'), e))
 
-            raise forms.ValidationError(_("BIC is not from a SEPA country"))
+            raise forms.ValidationError(_l("BIC is not from a SEPA country"))
 
     def clean(self):
         cleaned_data = super(RegistrationFormStepAuthorizationDetails, self).clean()
@@ -647,14 +647,14 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
 
         if cleaned_data['authorization_contribution'] or cleaned_data['authorization_other']:
             if not cleaned_data['iban']:
-                raise forms.ValidationError(_('IBAN is required if a mandate is checked!'))
+                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
             if not cleaned_data['bic']:
                 if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_('BIC has to be entered for foreign bankaccounts.'))
+                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
                 elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
                     cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
                 else:
-                    raise forms.ValidationError(_('BIC could not be generated, please enter yourself.'))
+                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
 
         return cleaned_data
 
@@ -685,10 +685,10 @@ class RegistrationFormStepFinalCheck(forms.Form):
 
 class PreRegistrationPrintAllForm(forms.Form):
     class SortOptions(TextChoices):
-        LAST_NAME = 'last_name', _('By last name')
-        FIRST_NAME = 'first_name', _('By first name')
-        STUDENT_NUMBER = 'student_number', _('By student number')
-        ID = 'id', _('By order of pre-enrollment')
+        LAST_NAME = 'last_name', _l('By last name')
+        FIRST_NAME = 'first_name', _l('By first name')
+        STUDENT_NUMBER = 'student_number', _l('By student number')
+        ID = 'id', _l('By order of pre-enrollment')
 
     sort_by = forms.ChoiceField(choices=SortOptions.choices, required=True, initial=SortOptions.LAST_NAME)
     group_by_dogroup = forms.BooleanField(required=False, label="Group forms by do-group?", initial=True)
@@ -698,7 +698,7 @@ class PreRegistrationPrintAllForm(forms.Form):
 
 class FunctionForm(forms.ModelForm):
     committee = forms.ModelChoiceField(queryset=Committee.objects.non_parent_committees())
-    function = forms.CharField(max_length=75, label=_('Position'))
+    function = forms.CharField(max_length=75, label=_l('Position'))
 
     class Meta:
         model = Function
@@ -732,9 +732,9 @@ class CommitteeMemberForm(forms.ModelForm):
 class CommitteeForm(forms.ModelForm):
     abbreviation = forms.RegexField(regex="[A-Za-z0-9]+", max_length=20)
     category = forms.ModelChoiceField(CommitteeCategory.objects.all(), widget=forms.Select, required=False,
-                                      label=_('Category'))
+                                      label=_l('Category'))
     parent_committees = forms.ModelMultipleChoiceField(Committee.objects.active(), widget=forms.SelectMultiple,
-                                                       label=_('Parent committee'), required=False)
+                                                       label=_l('Parent committee'), required=False)
 
     class Meta:
         model = Committee
@@ -753,11 +753,11 @@ class SaveNewFirstModelFormSet(BaseInlineFormSet):
 
 
 class StudentNumberForm(forms.Form):
-    student_number = forms.IntegerField(label=_('Student number'))
+    student_number = forms.IntegerField(label=_l('Student number'))
 
     def clean_student_number(self):
         if not Student.objects.filter(number=self.cleaned_data["student_number"]).exists():
-            raise forms.ValidationError(_("There is no student with this student number."))
+            raise forms.ValidationError(_l("There is no student with this student number."))
         return self.cleaned_data["student_number"]
 
 
