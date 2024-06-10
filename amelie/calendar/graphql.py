@@ -4,6 +4,7 @@ from graphene_django import DjangoObjectType
 from amelie.calendar.models import Event
 from django.utils.translation import gettext_lazy as _
 
+from amelie.files.graphql import AttachmentType
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 
@@ -37,7 +38,7 @@ class EventType(DjangoObjectType):
             "participation",
         ]
 
-    attachments = graphene.List(graphene.ID, description="Attachment ids")
+    attachments = graphene.List(AttachmentType, description="Attachment ids")
     summary = graphene.String(description=_('A summary of this activity in the preferred language of this user.'))
     description = graphene.String(
         description=_('A description of this activity in the preferred language of this user.'))

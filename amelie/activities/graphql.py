@@ -28,11 +28,6 @@ class ActivityType(EventType):
 
         # Other fields are inherited from the EventType class
         fields = [
-            "location",
-            "public",
-            "attachments",
-            "dutch_activity",
-            "callback_url",
             "enrollment",
             "enrollment_begin",
             "enrollment_end",
@@ -44,7 +39,7 @@ class ActivityType(EventType):
             "can_unenroll",
             "image_icon",
             "activity_label"
-        ]
+        ].extend(EventType._meta.fields)
         filterset_class = ActivityFilterSet
 
     absolute_url = graphene.String(description=_('The absolute URL to an activity.'))
@@ -61,7 +56,6 @@ class ActivityType(EventType):
     has_enrollment_options = graphene.Boolean(description=_('If there are any options for enrollments.'))
     has_costs = graphene.Boolean(description=_('If there are any costs associated with this activity.'))
 
-    # TODO: Figure out on how to use foreign keys here!
     def resolve_absolute_url(self: Activity, info):
         return self.get_absolute_url()
 
@@ -75,10 +69,10 @@ class ActivityType(EventType):
         return self.get_calendar_url()
 
     def resolve_enrollment_open(self: Activity, info):
-        return self.get_enrollment_open()
+        return self.enrollment_open()
 
     def resolve_enrollment_closed(self: Activity, info):
-        return self.get_enrollment_closed()
+        return self.enrollment_closed()
 
     def resolve_can_edit(self: Activity, info):
         if hasattr(info.context.user, 'person'):
@@ -98,7 +92,7 @@ class ActivityType(EventType):
         return self.enrollment_almost_full()
 
     def resolve_has_enrollment_option(self: Activity, info):
-        return self.has_enrollmentoption()
+        return self.has_enrollmentoptions()
 
     def resolve_has_costs(self: Activity, info):
         return self.has_costs()
