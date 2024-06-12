@@ -2,7 +2,7 @@
 {% load i18n md md2 %}
 
 {% block titel %}
-    {% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% else %}{% trans 'Edit mastermail' %}{% endif %}
+    {% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% elif object.mailtype == 'M' %}{% trans 'Edit mastermail' %}{% elif object.mailtype == 'A' %}{% trans 'Edit active members mail' %}{% else %}{% trans 'Edit educational mail' %}{% endif %}
 {% endblock titel %}
 
 {% block head %}
@@ -251,7 +251,7 @@
                 <div id="weekmail_send" hidden>
                     <form action="{% url 'weekmail:send_weekmail' object.pk %}" method="post">
                         {% csrf_token %}
-                        <button>{% if object.mailtype == 'W' %}{% trans "Send weekly mail" %}{% elif object.mailtype == 'M' %}{% trans "Send mastermail" %}{% else %}{% trans "Send educational mail" %}{% endif %}</button>
+                        <button>{% if object.mailtype == 'W' %}{% trans "Send weekly mail" %}{% elif object.mailtype == 'M' %}{% trans "Send mastermail" %}{% elif object.mailtype == 'A' %}{% trans "Send active members mail" %}{% else %}{% trans "Send educational mail" %}{% endif %}</button>
                     </form>
                 </div>
             </div>
