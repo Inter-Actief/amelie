@@ -39,4 +39,4 @@ VOLUME ["/config", "/static", "/media", "/photo_upload", "/data_exports", "/home
 EXPOSE 8000
 
 # Start the website
-CMD ["/amelie/scripts/start_web.sh"]
+CMD ["/amelie/scripts/start_web_asgi.sh"]

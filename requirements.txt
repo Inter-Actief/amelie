@@ -51,6 +51,8 @@ html2text>=2020.1.16,<2021.2
 
 # Daphne - to run the website in ASGI mode on a proper webserver
 daphne>=3.0,<3.1
+# UWSGI - to run the website in WSGI mode on a proper webserver
+uwsgi>=2.0,<2.1
 
 # QR code generator for personal tab POS (requires Pillow)
 qrcode>=7.3.1,<7.4
