@@ -554,6 +554,7 @@ CLAUDIA_AD = {
     'USER': 'claudia',
     'PASSWORD': '',
     'BASEDN': 'ou=Inter-Actief,dc=ia,dc=utwente,dc=nl',
+    'CACERTFILE': '/certificates/ia_ca.pem',
 }
 
 # Claudia's connection details to GitLab

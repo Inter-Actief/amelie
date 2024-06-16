@@ -302,7 +302,13 @@ CLAUDIA_PLUGINS.extend(env.list("CLAUDIA_ENABLED_PLUGINS", default=[]))
 CLAUDIA_STOP_ON_ERROR = env.bool("CLAUDIA_STOP_ON_ERROR", default=False)
 
 # Claudia Active Directory settings
-CLAUDIA_AD['PASSWORD'] = env("CLAUDIA_AD_PASSWORD", default=CLAUDIA_AD.get('PASSWORD', None))
+CLAUDIA_AD['LDAP'] = env("CLAUDIA_AD_PROTOCOL", default=CLAUDIA_AD.get('LDAP', "ldaps"))
+CLAUDIA_AD['HOST'] = env("CLAUDIA_AD_HOST", default=CLAUDIA_AD.get('HOST', ""))
+CLAUDIA_AD['PORT'] = env.int("CLAUDIA_AD_PORT", default=CLAUDIA_AD.get('PORT', 636))
+CLAUDIA_AD['USER'] = env("CLAUDIA_AD_USER", default=CLAUDIA_AD.get('USER', ""))
+CLAUDIA_AD['PASSWORD'] = env("CLAUDIA_AD_PASSWORD", default=CLAUDIA_AD.get('PASSWORD', ""))
+CLAUDIA_AD['BASEDN'] = env("CLAUDIA_AD_BASE_DN", default=CLAUDIA_AD.get('BASEDN', ""))
+CLAUDIA_AD['CACERTFILE'] = env("CLAUDIA_AD_CA_CERT_FILE", default=CLAUDIA_AD.get('CACERTFILE', None))
 
 # Claudia mail from address -- used as the From address of account management e-mails
 CLAUDIA_MAIL['FROM'] = env("CLAUDIA_MAIL_FROM", default=CLAUDIA_MAIL.get('FROM', None))
