@@ -28,12 +28,12 @@ from amelie.tools.mixins import RequireCookieCornerMixin
 
 
 def require_cookie_corner_pos(func):
-    if settings.DEBUG or request.user.is_superuser:
+    if settings.DEBUG:
         return func
     else:
         def is_cookie_corner_ip(request):
             all_ips, real_ip = get_client_ips(request)
-            access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST
+            access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or request.user.is_superuser
             if not access_allowed:
                 logger = logging.getLogger("amelie.personal_tab.pos_views.require_cookie_corner_pos")
                 logger.warning(f"Client with IP '{real_ip}' was denied access to cookie corner. Not on allowlist. Possible (unchecked) other IPs: {all_ips}")
