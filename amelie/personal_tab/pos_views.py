@@ -22,14 +22,17 @@ from amelie.personal_tab.pos_models import PendingPosToken
 from amelie.personal_tab.transactions import free_cookie_is_winner, free_cookies_allowed, free_cookies_sale, \
     cookie_corner_sale
 from amelie.tools.decorators import request_passes_test
-from amelie.tools.http import HttpJSONResponse
+from amelie.tools.http import HttpJSONResponse, get_client_ips
 from amelie.tools.mixins import RequireCookieCornerMixin
 
 
 def require_cookie_corner_pos(func):
     if not settings.DEBUG:
+        def is_cookie_corner_ip(request):
+            _, real_ip = get_client_ips(request)
+            return real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or r.user.is_superuser
         return request_passes_test(
-            lambda r: (r.META['REMOTE_ADDR'] in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or r.user.is_superuser),
+            is_cookie_corner_ip,
             reden=_l('Access for personal tab only.')
         )(func)
     else:

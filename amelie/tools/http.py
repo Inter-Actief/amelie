@@ -48,3 +48,27 @@ class HttpResponseSendfile(HttpResponse):
 
         # X-Sendfile
         self['X-Sendfile'] = path
+
+def get_client_ips(request):
+    ips = set()
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_real_ip = request.META.get('HTTP_X_REAL_IP')
+    remote_addr = request.META.get('REMOTE_ADDR')
+
+    # Get all IPs
+    if x_forwarded_for:
+        ips.update(x_forwarded_for.split(','))
+    if x_real_ip:
+        ips.add(x_real_ip)
+    if not x_forwarded_for and not x_real_ip:
+        ips.add(remote_addr)
+
+    # Get probable real IP
+    if x_real_ip:
+        probable_external_ip = x_real_ip
+    elif x_forwarded_for:
+        probable_external_ip = x_forwarded_for[0]
+    else:
+        probable_external_ip = remote_addr
+
+    return ips, probable_external_ip
