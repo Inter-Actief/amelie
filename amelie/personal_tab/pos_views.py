@@ -35,7 +35,7 @@ def require_cookie_corner_pos(func):
             all_ips, real_ip = get_client_ips(request)
             access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST
             if not access_allowed:
-                logger = logging.getLogger("amelie.tools.mixins.RequireCookieCornerMixin.test_requirement")
+                logger = logging.getLogger("amelie.personal_tab.pos_views.require_cookie_corner_pos")
                 logger.warning(f"Client with IP '{real_ip}' was denied access to cookie corner. Not on allowlist. Possible (unchecked) other IPs: {all_ips}")
             return access_allowed
         return request_passes_test(
