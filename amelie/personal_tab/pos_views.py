@@ -1,4 +1,5 @@
 import json
+import logging
 import operator
 from functools import reduce
 
@@ -27,16 +28,20 @@ from amelie.tools.mixins import RequireCookieCornerMixin
 
 
 def require_cookie_corner_pos(func):
-    if not settings.DEBUG:
+    if settings.DEBUG or request.user.is_superuser:
+        return func
+    else:
         def is_cookie_corner_ip(request):
-            _, real_ip = get_client_ips(request)
-            return real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or r.user.is_superuser
+            all_ips, real_ip = get_client_ips(request)
+            access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST
+            if not access_allowed:
+                logger = logging.getLogger("amelie.tools.mixins.RequireCookieCornerMixin.test_requirement")
+                logger.warning(f"Client with IP '{real_ip}' was denied access to cookie corner. Not on allowlist. Possible (unchecked) other IPs: {all_ips}")
+            return access_allowed
         return request_passes_test(
             is_cookie_corner_ip,
             reden=_l('Access for personal tab only.')
         )(func)
-    else:
-        return func
 
 
 class PosHomeView(RequireCookieCornerMixin, TemplateView):
