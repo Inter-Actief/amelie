@@ -297,7 +297,7 @@ class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
     def get_context_data(self, **kwargs):
         import os, sys, platform, cgi, socket
 
-        if platform.dist()[0] != '' and platform.dist()[1] != '':
+        if hasattr(platform, 'dist') and platform.dist()[0] != '' and platform.dist()[1] != '':
             os_version = f'{platform.system()} {platform.release()} ({platform.dist()[0].capitalize()} {platform.dist()[1]})'
         else:
             os_version = f'{platform.system()} {platform.release()}'
