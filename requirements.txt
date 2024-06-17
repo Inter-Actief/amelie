@@ -82,3 +82,6 @@ mozilla-django-oidc
 
 # Sentry error logging
 sentry-sdk>=1.22.1,<1.23
+
+# Health checks for Django
+django-health-check>=3.16.5,<3.17

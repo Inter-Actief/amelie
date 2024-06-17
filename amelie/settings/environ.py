@@ -250,6 +250,12 @@ CELERY_BROKER_URL = env('DJANGO_CELERY_BROKER_URI', default='amqp://amelie:ameli
 # Django Celery -- True means that tasks will be executed immediately and are not queued!
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
 
+if CELERY_BROKER_URL:
+    # Add extra health checks if a celery broker is configured.
+    INSTALLED_APPS = INSTALLED_APPS + (
+        'health_check.contrib.celery_ping',  # requires celery, checks if workers are available
+        'health_check.contrib.rabbitmq',     # requires RabbitMQ broker, checks if RabbitMQ is available
+    )
 
 ###
 #  Internationalization
@@ -346,6 +352,12 @@ DATA_HOARDER_CONFIG['export_basedir'] = env("DATA_HOARDER_EXPORT_BASEDIR", defau
 
 # The location where data exports are saved until they expire
 DATA_EXPORT_ROOT = "/data_exports"
+
+###
+#  Health check endpoint config
+###
+# URL token. Is included in the healthcheck URL, should be set to a unique value per environment.
+HEALTH_CHECK_URL_TOKEN = env("HEALTH_CHECK_URL_TOKEN", default=HEALTH_CHECK_URL_TOKEN)
 
 ###
 #  SysCom monitoring configuration (for room narrowcasting PC overview)
