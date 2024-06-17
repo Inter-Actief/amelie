@@ -1404,11 +1404,6 @@ def _person_info_request_get_body(request, logger=None):
         logger.error(f"Bad request, API Key or username key missing.")
         raise BadRequest()
 
-    # Request must come from a known auth.ia server IP address
-    if request.META['REMOTE_ADDR'] not in settings.USERINFO_API_CONFIG['allowed_ips']:
-        logger.error(f"Permission denied, REMOTE_ADDR {request.META['REMOTE_ADDR']} not in allowed IPs.")
-        raise PermissionDenied()
-
     # API Key must be valid
     api_key = body.pop('apiKey')  # Removes apiKey from the returned body
     if api_key != settings.USERINFO_API_CONFIG['api_key']:
