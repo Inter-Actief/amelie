@@ -84,6 +84,11 @@ urlpatterns = [
     # SAML2 IdP
     path('saml2idp/', include('djangosaml2idp.urls')),
 
+    # Health checks
+    path(f'healthz', views.healthz_view, name='healthz_simple'),
+    path(f'sysinfo/', views.SystemInfoView.as_view(), name='system_info'),
+    path(f'ht/{settings.HEALTH_CHECK_URL_TOKEN}/', include('health_check.urls')),
+
     # Other
     path('favicon.ico',
         RedirectView.as_view(
