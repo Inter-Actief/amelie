@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-17 17:22+0200\n"
-"PO-Revision-Date: 2024-06-17 17:25+0018\n"
+"POT-Creation-Date: 2024-06-20 19:16+0200\n"
+"PO-Revision-Date: 2024-06-20 19:17+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1454,10 +1454,6 @@ msgstr "Je hebt je ingeschreven voor deze activiteit met de volgende inschrijfop
 
 #: amelie/activities/templates/includes/activity_enrollment.html:72
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                                %(obj)s doesn't have a profile picture.\n"
-#| "                            "
 msgid ""
 "\n"
 "                                    %(title)s: You have not enrolled for this option\n"
@@ -1836,7 +1832,7 @@ msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van g
 msgid "You are not allowed to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1454 amelie/activities/views.py:1460 amelie/activities/views.py:1466 amelie/personal_tab/templates/info/rfid_cards.html:45 templates/profile_overview.html:213
+#: amelie/activities/views.py:1454 amelie/activities/views.py:1460 amelie/activities/views.py:1466 amelie/members/templates/person_accounts.html:37 amelie/personal_tab/templates/info/rfid_cards.html:45 templates/profile_overview.html:213
 msgid "Unknown"
 msgstr "Onbekend"
 
@@ -5177,25 +5173,78 @@ msgstr "Studentgegevens"
 msgid "Employee data"
 msgstr "Medewerkergegevens"
 
-#: amelie/members/templates/person.html:71
+#: amelie/members/templates/person.html:72 templates/profile_overview.html:170
+msgid "User accounts and login providers"
+msgstr "Gebruikersaccounts en inlogproviders"
+
+#: amelie/members/templates/person.html:82
 msgid "Anonymize person"
 msgstr "Persoon anonimiseren"
 
-#: amelie/members/templates/person.html:74
+#: amelie/members/templates/person.html:85
 msgid "With this button the personal details of this person that the association does not need to keep for legal reasons will be anonymized."
 msgstr "Met deze knop worden alle gegevens van deze persoon die niet wettelijk nodig zijn voor de vereniging geanonimiseerd."
 
-#: amelie/members/templates/person.html:75
+#: amelie/members/templates/person.html:86
 msgid "Warning: Anonymizing a person is irreversible! Only do this if the person themselves have indicated that they want their personal data removed!"
 msgstr "Waarschuwing: Het anonimiseren van een persoon is onomkeerbaar! Doe dit alleen als de persoon zelf aangegeven heeft zijn gegevens te willen verwijderen!"
 
-#: amelie/members/templates/person.html:78
+#: amelie/members/templates/person.html:89
 msgid "Anonymize this person"
 msgstr "Deze persoon anonimiseren"
 
-#: amelie/members/templates/person.html:81
+#: amelie/members/templates/person.html:92
 msgid "This person cannot be anonymized because of the following reasons:"
 msgstr "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:"
+
+#: amelie/members/templates/person_accounts.html:4
+#| msgid "The following user account(s) have been found that are related to you."
+msgid "The following user account(s) have been found that are related to this person."
+msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan deze gebruiker gerelateerd zijn."
+
+#: amelie/members/templates/person_accounts.html:8 amelie/members/templates/person_accounts.html:44 amelie/personal_tab/templates/register/register_card_index.html:19 templates/profile_overview.html:181 templates/profile_overview.html:220
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: amelie/members/templates/person_accounts.html:9 templates/profile_overview.html:182
+msgid "Account type"
+msgstr "Accounttype"
+
+#: amelie/members/templates/person_accounts.html:10 templates/profile_overview.html:183
+msgid "Linked social accounts"
+msgstr "Gekoppelde sociale accounts"
+
+#: amelie/members/templates/person_accounts.html:17 templates/profile_overview.html:190
+msgid "Inter-<i>Actief</i> Active Members account"
+msgstr "Inter-<i>Actief</i>-actieveledenaccount"
+
+#: amelie/members/templates/person_accounts.html:20 templates/profile_overview.html:193
+msgid "TOTP devices:"
+msgstr "TOTP-apparaten:"
+
+#: amelie/members/templates/person_accounts.html:29 templates/profile_overview.html:202
+msgid "No TOTP devices"
+msgstr "Geen TOTP-apparaten"
+
+#: amelie/members/templates/person_accounts.html:33 templates/profile_overview.html:209
+msgid "Integration account"
+msgstr "Integratie-account"
+
+#: amelie/members/templates/person_accounts.html:35 templates/profile_overview.html:211
+msgid "University of Twente account"
+msgstr "Universiteit Twente account"
+
+#: amelie/members/templates/person_accounts.html:43 templates/profile_overview.html:219
+msgid "Provider"
+msgstr "Dienst"
+
+#: amelie/members/templates/person_accounts.html:52 templates/profile_overview.html:234
+msgid "No linked accounts"
+msgstr "Geen gekoppelde accounts"
+
+#: amelie/members/templates/person_accounts.html:59 templates/profile_overview.html:241
+msgid "No user accounts could be retrieved"
+msgstr "Er konden geen accounts opgehaald worden"
 
 #: amelie/members/templates/person_activate_mandate.html:3
 msgid "Activate mandate"
@@ -5797,24 +5846,24 @@ msgstr "6 of meer"
 msgid "total"
 msgstr "Totaal"
 
-#: amelie/members/views.py:335
+#: amelie/members/views.py:340
 msgid "This person still has an active (unterminated) membership."
 msgstr "Deze persoon heeft nog een actief (niet beeindigd) lidmaatschap."
 
-#: amelie/members/views.py:339
+#: amelie/members/views.py:344
 #, python-brace-format
 msgid "This person has not paid one of their memberships ({year}/{next_year} {type})."
 msgstr "Deze persoon heeft een lidmaatschap nog niet betaald ({year}/{next_year} {type})."
 
-#: amelie/members/views.py:348
+#: amelie/members/views.py:353
 msgid "This person still has an outstanding balance on their personal tab."
 msgstr "Deze persoon heeft nog een openstaand streeplijstsaldo."
 
-#: amelie/members/views.py:351
+#: amelie/members/views.py:356
 msgid "This person isn't enrolled for one or more future activities."
 msgstr "Deze persoon staat ingeschreven voor een of meer toekomstige activiteit(en)."
 
-#: amelie/members/views.py:366
+#: amelie/members/views.py:371
 msgid ""
 "This person cannot be anonymized because of the following reasons:\n"
 "{}"
@@ -5822,20 +5871,20 @@ msgstr ""
 "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:\n"
 "{}"
 
-#: amelie/members/views.py:1605
+#: amelie/members/views.py:1610
 #, python-brace-format
 msgid "OAuth link code and instructions were sent to {name}."
 msgstr "OAuth link code en instructies zijn verzonden naar {name}."
 
-#: amelie/members/views.py:1633
+#: amelie/members/views.py:1638
 msgid "You are not allowed to manually delete the payments of free memberships."
 msgstr "Je mag van gratis lidmaatschappen de betaling niet handmatig verwijderen."
 
-#: amelie/members/views.py:1636
+#: amelie/members/views.py:1641
 msgid "You are not allowed to delete payments that are already (being) debited."
 msgstr "Je mag geen betalingen verwijderen die al geïncasseerd zijn/worden."
 
-#: amelie/members/views.py:1640
+#: amelie/members/views.py:1645
 #, python-format
 msgid "Payment %(object)s has been removed"
 msgstr "Betaling %(object)s is verwijderd"
@@ -6099,7 +6148,7 @@ msgstr "Terugboeking incasso {date}"
 msgid "Reversal contribution {membership_type} ({start_year}/{end_year})"
 msgstr "Terugboeking contributie {membership_type} ({start_year}/{end_year})"
 
-#: amelie/personal_tab/pos_views.py:288
+#: amelie/personal_tab/pos_views.py:293
 msgid "The login code is invalid or expired, please try again!."
 msgstr "Deze logincode is ongeldig of verlopen, probeer het opnieuw!"
 
@@ -7188,10 +7237,6 @@ msgstr "Log in om een kaart te registreren"
 msgid "You can log on with your student account (for example: s0123456) or your Inter-<em>Actief</em> account."
 msgstr "Je kunt inloggen met je studentaccount (bijvoorbeeld s0123456) of je Inter-<em>Actief</em>-account."
 
-#: amelie/personal_tab/templates/register/register_card_index.html:19 templates/profile_overview.html:181 templates/profile_overview.html:220
-msgid "Username"
-msgstr "Gebruikersnaam"
-
 #: amelie/personal_tab/templates/register/register_card_index.html:23
 msgid "Password"
 msgstr "Wachtwoord"
@@ -7745,12 +7790,11 @@ msgstr "Er zijn nog geen kamerdienstschema-templates."
 msgid "Add office duty template"
 msgstr "Kamerdienst-template toevoegen"
 
-#: amelie/settings/environ.py:265
-#| msgid "Netherlands"
+#: amelie/settings/environ.py:266
 msgid "Nederlands"
 msgstr "Dutch"
 
-#: amelie/settings/environ.py:266
+#: amelie/settings/environ.py:267
 msgid "Engels"
 msgstr "English"
 
@@ -8473,7 +8517,6 @@ msgid "Frontpage"
 msgstr "Voorpagina"
 
 #: templates/basis.html:82
-#| msgid "Statistics for the board:"
 msgid "Important message from the board"
 msgstr "Belangrijk bericht van het bestuur"
 
@@ -8726,7 +8769,6 @@ msgid "Health checks"
 msgstr "Health checks"
 
 #: templates/health_check/index.html:25 templates/health_check/index.html:28
-#| msgid "Send status"
 msgid "System status"
 msgstr "Systeemstatus"
 
@@ -8735,7 +8777,6 @@ msgid "Service"
 msgstr "Dienst"
 
 #: templates/health_check/index.html:34
-#| msgid "Timetables"
 msgid "Time Taken"
 msgstr "Tijd nodig"
 
@@ -8744,12 +8785,10 @@ msgid "seconds"
 msgstr "seconden"
 
 #: templates/health_check/index.html:52
-#| msgid "No information available"
 msgid "No status available."
 msgstr "Geen status beschikbaar."
 
 #: templates/health_check/index.html:68
-#| msgid "No information available"
 msgid "No info available."
 msgstr "Geen info beschikbaar."
 
@@ -9126,10 +9165,6 @@ msgstr ""
 "\n"
 "Hieronder staat een overzicht van apps die toestemming hebben gekregen om je gegevens te gebruiken of wijzigen."
 
-#: templates/profile_overview.html:170
-msgid "User accounts and login providers"
-msgstr "Gebruikersaccounts en inlogproviders"
-
 #: templates/profile_overview.html:174
 msgid "The following user account(s) have been found that are related to you."
 msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan u gerelateerd zijn."
@@ -9138,29 +9173,9 @@ msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan u gerelateerd zij
 msgid "You can link another account by logging out, and logging back in with the Google, LinkedIn or GitHub account you want to link."
 msgstr "U kunt een ander account koppelen door uit te loggen, en weer in te loggen met het Google-, LinkedIn- of GitHub-account dat u wilt koppelen."
 
-#: templates/profile_overview.html:182
-msgid "Account type"
-msgstr "Accounttype"
-
-#: templates/profile_overview.html:183
-msgid "Linked social accounts"
-msgstr "Gekoppelde sociale accounts"
-
-#: templates/profile_overview.html:190
-msgid "Inter-<i>Actief</i> Active Members account"
-msgstr "Inter-<i>Actief</i>-actieveledenaccount"
-
-#: templates/profile_overview.html:193
-msgid "TOTP devices:"
-msgstr "TOTP-apparaten:"
-
 #: templates/profile_overview.html:197 templates/profile_overview.html:228
 msgid "unlink"
 msgstr "ontkoppelen"
-
-#: templates/profile_overview.html:202
-msgid "No TOTP devices"
-msgstr "Geen TOTP-apparaten"
 
 #: templates/profile_overview.html:203
 msgid ""
@@ -9171,29 +9186,9 @@ msgstr ""
 "\n"
 "Om een TOTP-apparaat te configureren, log in met uw actieve ledenaccount en ga naar <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">deze pagina</a>."
 
-#: templates/profile_overview.html:209
-msgid "Integration account"
-msgstr "Integratie-account"
-
-#: templates/profile_overview.html:211
-msgid "University of Twente account"
-msgstr "Universiteit Twente account"
-
-#: templates/profile_overview.html:219
-msgid "Provider"
-msgstr "Dienst"
-
 #: templates/profile_overview.html:230
 msgid "Cannot unlink"
 msgstr "Kan niet ontkoppelen"
-
-#: templates/profile_overview.html:234
-msgid "No linked accounts"
-msgstr "Geen gekoppelde accounts"
-
-#: templates/profile_overview.html:241
-msgid "No user accounts could be retrieved"
-msgstr "Er konden geen accounts opgehaald worden"
 
 #: templates/profile_unknown.html:5 templates/profile_unknown.html:11
 msgid "Unknown user"
