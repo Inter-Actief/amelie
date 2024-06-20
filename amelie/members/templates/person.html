@@ -67,6 +67,17 @@
             </div>
         </div></div>
 
+        {% if request.user.is_superuser %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_accounts">{% trans 'User accounts and login providers' %}</h2>
+            <div class="content">
+              <div id="person_accounts" hidden>
+                  {% include "person_accounts.html" %}
+              </div>
+            </div>
+        </div></div>
+        {% endif %}
+
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12i"><div class="ia">
             <h2 class="expand" data-target="person_anonymize">{% trans 'Anonymize person' %}</h2>
             <div class="content">
