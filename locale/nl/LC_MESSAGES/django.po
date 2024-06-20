@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-17 17:22+0200\n"
-"PO-Revision-Date: 2024-06-17 17:25+0018\n"
+"POT-Creation-Date: 2024-06-20 18:19+0200\n"
+"PO-Revision-Date: 2024-06-20 18:19+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -1454,10 +1454,6 @@ msgstr "Je hebt je ingeschreven voor deze activiteit met de volgende inschrijfop
 
 #: amelie/activities/templates/includes/activity_enrollment.html:72
 #, python-format
-#| msgid ""
-#| "\n"
-#| "                                %(obj)s doesn't have a profile picture.\n"
-#| "                            "
 msgid ""
 "\n"
 "                                    %(title)s: You have not enrolled for this option\n"
@@ -3806,6 +3802,21 @@ msgstr ""
 "Deze inhoud wordt niet beheerd door Inter-<i>Actief</i>, maar door\n"
 "<a href=\"http://samenvattingen.student.utwente.nl/wiki.php/SamenvattingenWIKI:Info\">SamenvattingenWiki</a>."
 
+#: amelie/gmm/admin.py:13
+#| msgid "GMM documents"
+msgid "GMM Document"
+msgstr "ALV-stuk"
+
+#: amelie/gmm/admin.py:14
+#| msgid "GMM documents"
+msgid "GMM Documents"
+msgstr "ALV-stukken"
+
+#: amelie/gmm/admin.py:24
+#| msgid "GMM documents"
+msgid "# documents"
+msgstr "# documenten"
+
 #: amelie/gmm/templates/gmm_overview.html:5 amelie/gmm/templates/gmm_overview.html:29 templates/basis.html:208
 msgid "GMM documents"
 msgstr "ALV-stukken"
@@ -3838,7 +3849,12 @@ msgstr "Stukken voor aankomende ALV"
 msgid "(date yet unknown)"
 msgstr "(datum nog onbekend)"
 
-#: amelie/gmm/templates/gmm_overview.html:83
+#: amelie/gmm/templates/gmm_overview.html:80 amelie/gmm/templates/gmm_overview.html:101
+#| msgid "For this product, the following keys are available."
+msgid "For this GMM, the following documents are available:"
+msgstr "Voor deze ALV zijn de volgende documenten beschikbaar:"
+
+#: amelie/gmm/templates/gmm_overview.html:94
 #, python-format
 msgid "Document for GMM of %(date)s"
 msgstr "Stukken voor de ALV van %(date)s"
@@ -6099,7 +6115,7 @@ msgstr "Terugboeking incasso {date}"
 msgid "Reversal contribution {membership_type} ({start_year}/{end_year})"
 msgstr "Terugboeking contributie {membership_type} ({start_year}/{end_year})"
 
-#: amelie/personal_tab/pos_views.py:288
+#: amelie/personal_tab/pos_views.py:293
 msgid "The login code is invalid or expired, please try again!."
 msgstr "Deze logincode is ongeldig of verlopen, probeer het opnieuw!"
 
@@ -7745,12 +7761,11 @@ msgstr "Er zijn nog geen kamerdienstschema-templates."
 msgid "Add office duty template"
 msgstr "Kamerdienst-template toevoegen"
 
-#: amelie/settings/environ.py:265
-#| msgid "Netherlands"
+#: amelie/settings/environ.py:266
 msgid "Nederlands"
 msgstr "Dutch"
 
-#: amelie/settings/environ.py:266
+#: amelie/settings/environ.py:267
 msgid "Engels"
 msgstr "English"
 
@@ -8473,7 +8488,6 @@ msgid "Frontpage"
 msgstr "Voorpagina"
 
 #: templates/basis.html:82
-#| msgid "Statistics for the board:"
 msgid "Important message from the board"
 msgstr "Belangrijk bericht van het bestuur"
 
@@ -8726,7 +8740,6 @@ msgid "Health checks"
 msgstr "Health checks"
 
 #: templates/health_check/index.html:25 templates/health_check/index.html:28
-#| msgid "Send status"
 msgid "System status"
 msgstr "Systeemstatus"
 
@@ -8735,7 +8748,6 @@ msgid "Service"
 msgstr "Dienst"
 
 #: templates/health_check/index.html:34
-#| msgid "Timetables"
 msgid "Time Taken"
 msgstr "Tijd nodig"
 
@@ -8744,12 +8756,10 @@ msgid "seconds"
 msgstr "seconden"
 
 #: templates/health_check/index.html:52
-#| msgid "No information available"
 msgid "No status available."
 msgstr "Geen status beschikbaar."
 
 #: templates/health_check/index.html:68
-#| msgid "No information available"
 msgid "No info available."
 msgstr "Geen info beschikbaar."
 
@@ -11491,9 +11501,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Downloads"
 #~ msgstr "Downloads"
-
-#~ msgid "For this product, the following keys are available."
-#~ msgstr "Voor dit product zijn onderstaande downloads beschikbaar."
 
 #~ msgid "MB"
 #~ msgstr "MB"
