@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             name='File',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(max_length=150, upload_to=amelie.files.models.get_file_upload_filename)),
+                ('file', models.FileField(max_length=150, upload_to=amelie.files.models.get_file_upload_filename, validators=[django.core.validators.FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'gif', 'pdf'])])),
                 ('caption', models.CharField(max_length=150)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
