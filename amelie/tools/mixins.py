@@ -1,6 +1,7 @@
 """
 This module contains mixins for Django class-based views handling authorization tests.
 """
+import logging
 
 from abc import abstractmethod
 
@@ -14,6 +15,7 @@ from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Committee, DogroupGeneration
 from amelie.tools.logic import current_association_year
+from amelie.tools.http import get_client_ips
 
 
 class PassesTestMixin(object):
@@ -179,9 +181,15 @@ class RequireCookieCornerMixin(PassesTestMixin):
     reason = _l("Access for the cookie-corner computer only.")
 
     def test_requirement(self, request):
-        return settings.DEBUG or \
-               request.META['REMOTE_ADDR'] in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or \
-               request.user.is_superuser
+        if settings.DEBUG or request.user.is_superuser:
+            return True
+        else:
+            all_ips, real_ip = get_client_ips(request)
+            access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or request.user.is_superuser
+            if not access_allowed:
+                logger = logging.getLogger("amelie.tools.mixins.RequireCookieCornerMixin.test_requirement")
+                logger.warning(f"Client with IP '{real_ip}' was denied access to cookie corner. Not on allowlist. Possible (unchecked) other IPs: {all_ips}")
+            return access_allowed
 
 class DeleteMessageMixin(object):
     """

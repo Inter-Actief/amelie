@@ -200,3 +200,23 @@ class ExportForm(forms.Form):
 
 
 inject_style(MailTemplateTestForm, ExportTypeSelectForm, ExportForm)
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    # From https://docs.djangoproject.com/en/3.2/topics/http/file-uploads/#uploading-multiple-files
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    # From https://docs.djangoproject.com/en/3.2/topics/http/file-uploads/#uploading-multiple-files
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result

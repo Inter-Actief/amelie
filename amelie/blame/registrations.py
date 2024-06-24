@@ -5,6 +5,8 @@ from amelie.activities.models import Activity
 from amelie.claudia.models import ExtraGroup, SharedDrive, ExtraPerson, AliasGroup, Mapping, Contact, ExtraPersonalAlias
 from amelie.companies.models import Company, CompanyEvent, BaseBanner, WebsiteBanner, TelevisionBanner
 from amelie.calendar.models import Event
+from amelie.gmm.models import GMM
+from amelie.files.models import GMMDocument, File
 from amelie.members.models import Person, Committee, Faculty, Department, Study, Dogroup, \
     DogroupGeneration, Association, PaymentType, CommitteeCategory, Function, Payment
 from amelie.news.models import NewsItem
@@ -32,6 +34,13 @@ auditlog.register(TelevisionBanner)
 
 # Calendar hooks
 auditlog.register(Event)
+
+# GMM hooks
+auditlog.register(GMM)
+
+# File hooks
+auditlog.register(GMMDocument, exclude_fields=['created', 'modified'])
+auditlog.register(File, exclude_fields=['created', 'modified'])
 
 # Member hooks
 auditlog.register(Faculty)
