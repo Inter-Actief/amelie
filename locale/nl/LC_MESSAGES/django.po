@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-24 20:23+0200\n"
-"PO-Revision-Date: 2024-06-24 20:26+0018\n"
+"POT-Creation-Date: 2024-06-24 22:06+0200\n"
+"PO-Revision-Date: 2024-06-24 22:10+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -973,7 +973,7 @@ msgstr "Totaal"
 msgid "Update"
 msgstr "Aanpassen"
 
-#: amelie/activities/templates/activity_enrollment_form.html:106 amelie/activities/templates/activity_enrollment_person_search.html:30 amelie/activities/templates/includes/activity_enrollment.html:147
+#: amelie/activities/templates/activity_enrollment_form.html:106 amelie/activities/templates/activity_enrollment_person_search.html:30 amelie/activities/templates/includes/activity_enrollment.html:143
 msgid "Enroll"
 msgstr "Inschrijven"
 
@@ -1077,11 +1077,11 @@ msgstr "Door hier te klikken, bevestig je het complete contante bedrag ontvangen
 msgid "Register cash payment"
 msgstr "Registreer contante betaling"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:114 amelie/activities/templates/activity_enrollment_overview.html:223 amelie/activities/templates/includes/activity_enrollment.html:104
+#: amelie/activities/templates/activity_enrollment_overview.html:114 amelie/activities/templates/activity_enrollment_overview.html:223 amelie/activities/templates/includes/activity_enrollment.html:100
 msgid "Edit enrollment"
 msgstr "Inschrijving aanpassen"
 
-#: amelie/activities/templates/activity_enrollment_overview.html:119 amelie/activities/templates/activity_enrollment_overview.html:228 amelie/activities/templates/activity_enrollment_print.html:53 amelie/activities/templates/includes/activity_enrollment.html:102
+#: amelie/activities/templates/activity_enrollment_overview.html:119 amelie/activities/templates/activity_enrollment_overview.html:228 amelie/activities/templates/activity_enrollment_print.html:53 amelie/activities/templates/includes/activity_enrollment.html:98
 msgid "Deregister"
 msgstr "Uitschrijven"
 
@@ -1354,15 +1354,40 @@ msgid "Large"
 msgstr "Groot"
 
 #: amelie/activities/templates/includes/activity_enrollment.html:7
+#| msgid ""
+#| "\n"
+#| "                    For this activity there is no maximum number of participants\n"
+#| "                "
 msgid ""
 "\n"
-"                    For this activity there is no maximum number of participants\n"
+"                    For this activity there is no maximum number of participants.\n"
 "                "
 msgstr ""
 "\n"
 "Voor deze activiteit is geen maximum aantal plaatsen."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:11
+#: amelie/activities/templates/includes/activity_enrollment.html:13
+#, python-format
+#| msgid ""
+#| "\n"
+#| "                        Your membership type is %(type)s.\n"
+#| "                    "
+msgid ""
+"\n"
+"                        1 person signed up.\n"
+"                    "
+msgid_plural ""
+"\n"
+"                        %(sign_ups)s people signed up.\n"
+"                    "
+msgstr[0] ""
+"\n"
+"1 persoon heeft zich ingeschreven."
+msgstr[1] ""
+"\n"
+"%(sign_ups)s personen hebben zich ingeschreven."
+
+#: amelie/activities/templates/includes/activity_enrollment.html:21
 msgid ""
 "\n"
 "                        If you want to be at this activity, you need to enroll.\n"
@@ -1371,52 +1396,21 @@ msgstr ""
 "\n"
 "Als je er ook bij wilt zijn moet je je inschrijven."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:17
-#, python-format
-msgid ""
-"\n"
-"                       For this activity, there is one place left.\n"
-"                    "
-msgid_plural ""
-"\n"
-"                       For this activity there are %(places)s places left.\n"
-"                    "
-msgstr[0] ""
-"\n"
-"Voor deze activiteit is nog 1 plaats beschikbaar."
-msgstr[1] ""
-"\n"
-"Voor deze activiteit zijn nog %(places)s plaatsen beschikbaar."
-
-#: amelie/activities/templates/includes/activity_enrollment.html:24
-msgid ""
-"\n"
-"                            For this activity, there is one place left.\n"
-"                        "
-msgstr ""
-"\n"
-"Voor deze activiteit is nog 1 plaats beschikbaar."
-
 #: amelie/activities/templates/includes/activity_enrollment.html:28
 #, python-format
+#| msgid ""
+#| "\n"
+#| "                        Last %(amount)s added transactions.\n"
+#| "                    "
 msgid ""
 "\n"
-"                            For this activity, there are %(places)s places left.\n"
-"                        "
+"                        %(sign_ups)s/%(places)s people signed up.\n"
+"                    "
 msgstr ""
 "\n"
-"Voor deze activiteit zijn er nog %(places)s plaatsen beschikbaar."
+"%(sign_ups)s/%(places)s personen hebben zich ingeschreven."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:32
-msgid ""
-"\n"
-"                            For this activity, there are still places left.\n"
-"                        "
-msgstr ""
-"\n"
-"Voor deze activiteit zijn er nog plaatsen beschikbaar."
-
-#: amelie/activities/templates/includes/activity_enrollment.html:37
+#: amelie/activities/templates/includes/activity_enrollment.html:33
 msgid ""
 "\n"
 "                    If you want to be at this activity, you need to enroll.\n"
@@ -1425,7 +1419,7 @@ msgstr ""
 "\n"
 "Als je er ook bij wilt zijn moet je je inschrijven."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:41
+#: amelie/activities/templates/includes/activity_enrollment.html:37
 #, python-format
 msgid ""
 "\n"
@@ -1435,7 +1429,7 @@ msgstr ""
 "\n"
 "Inschrijven kan nog tot uiterlijk %(enddate)s om %(endtime)s."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:48
+#: amelie/activities/templates/includes/activity_enrollment.html:44
 msgid ""
 "\n"
 "                The maximum number of participants for this activity has been reached.\n"
@@ -1444,15 +1438,15 @@ msgstr ""
 "\n"
 "Voor deze activiteit zijn geen plaatsen meer beschikbaar."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:61
+#: amelie/activities/templates/includes/activity_enrollment.html:57
 msgid "You are on the waiting list for this event with the following options:"
 msgstr "Je hebt je ingeschreven voor deze activiteit op de wachtlijst met de volgende inschrijfopties:"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:63
+#: amelie/activities/templates/includes/activity_enrollment.html:59
 msgid "You have enrolled for this event with the following options:"
 msgstr "Je hebt je ingeschreven voor deze activiteit met de volgende inschrijfopties:"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:72
+#: amelie/activities/templates/includes/activity_enrollment.html:68
 #, python-format
 msgid ""
 "\n"
@@ -1462,23 +1456,23 @@ msgstr ""
 "\n"
 "%(title)s: Je bent niet ingeschreven voor deze optie"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:87
+#: amelie/activities/templates/includes/activity_enrollment.html:83
 msgid "You have enrolled yourself for this event."
 msgstr "Je hebt je ingeschreven voor deze activiteit."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:89 amelie/activities/templates/includes/activity_enrollment.html:171
+#: amelie/activities/templates/includes/activity_enrollment.html:85 amelie/activities/templates/includes/activity_enrollment.html:167
 msgid "You are enrolled on the waiting list for this event."
 msgstr "Je hebt je ingeschreven voor deze activiteit op de wachtlijst."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:95 amelie/activities/templates/includes/activity_enrollment.html:172
+#: amelie/activities/templates/includes/activity_enrollment.html:91 amelie/activities/templates/includes/activity_enrollment.html:168
 msgid "Your spot on the waiting list is"
 msgstr "Jouw plek op de wachtlijst is"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:102
+#: amelie/activities/templates/includes/activity_enrollment.html:98
 msgid "Deregister from waiting list"
 msgstr "Uitschrijven van de wachtlijst"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:109
+#: amelie/activities/templates/includes/activity_enrollment.html:105
 #, python-format
 msgid ""
 "\n"
@@ -1488,11 +1482,11 @@ msgstr ""
 "\n"
 "Je kunt je inschrijving nog terugtrekken tot uiterlijk %(date)s om %(time)s."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:115
+#: amelie/activities/templates/includes/activity_enrollment.html:111
 msgid "For this activity, you can only unenroll yourself at the board."
 msgstr "Voor deze activiteit kun je jezelf alleen uitschrijven indien je contact met het bestuur opneemt."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:120
+#: amelie/activities/templates/includes/activity_enrollment.html:116
 msgid ""
 "\n"
 "                    You are not enrolled in this activity yet.\n"
@@ -1501,7 +1495,7 @@ msgstr ""
 "\n"
 "Je doet nog niet mee met deze activiteit."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:128
+#: amelie/activities/templates/includes/activity_enrollment.html:124
 msgid ""
 "\n"
 "                        It's not possible to unenroll yourself for this activity.\n"
@@ -1510,7 +1504,7 @@ msgstr ""
 "\n"
 "Voor deze activiteit is het niet mogelijk jezelf uit te schrijven."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:136
+#: amelie/activities/templates/includes/activity_enrollment.html:132
 msgid ""
 "\n"
 "                        You can no longer enroll, all placed have been filled.<br />\n"
@@ -1523,11 +1517,11 @@ msgstr ""
 "<b>Wil je op de reservelijst? Dat is nog wel mogelijk!</b><br />\n"
 "Wanneer je op de wachtlijst staat, word je vanzelf ingeschreven wanneer er plek is."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:147
+#: amelie/activities/templates/includes/activity_enrollment.html:143
 msgid "Place on waiting list"
 msgstr "Plaats op wachtlijst"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:155
+#: amelie/activities/templates/includes/activity_enrollment.html:151
 #, python-format
 msgid ""
 "\n"
@@ -1537,19 +1531,19 @@ msgstr ""
 "\n"
 "Om je inschrijving te bekijken of te wijzigen moet je <a href=\"%(login_url)s?next=%(next_url)s\">inloggen</a>."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:164
+#: amelie/activities/templates/includes/activity_enrollment.html:160
 msgid "You can only enroll for this activity on the website of this activity"
 msgstr "Je kan je voor deze activiteit alleen inschrijven via de website van deze activiteit"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:168 amelie/activities/templates/includes/activity_list_enrollment.html:5
+#: amelie/activities/templates/includes/activity_enrollment.html:164 amelie/activities/templates/includes/activity_list_enrollment.html:5
 msgid "You have enrolled for this event"
 msgstr "Je hebt je ingeschreven voor deze activiteit"
 
-#: amelie/activities/templates/includes/activity_enrollment.html:175
+#: amelie/activities/templates/includes/activity_enrollment.html:171
 msgid "Unfortunately, you cannot enroll for this activity anymore, as the enrollment period has ended."
 msgstr "Je kunt je helaas niet meer inschrijven voor deze activiteit, de inschrijftermijn is verlopen."
 
-#: amelie/activities/templates/includes/activity_enrollment.html:179
+#: amelie/activities/templates/includes/activity_enrollment.html:175
 #, python-format
 msgid ""
 "\n"
@@ -8306,7 +8300,6 @@ msgid "Edit mastermail"
 msgstr "Mastermail wijzigen"
 
 #: amelie/weekmail/templates/weekmail/weekmail_form.html:5 amelie/weekmail/templates/weekmail/weekmail_form.html:11 amelie/weekmail/templates/weekmail/weekmail_wizard.html:5
-#| msgid "For active members only."
 msgid "Edit active members mail"
 msgstr "Bewerk actieveledenmail"
 
@@ -8319,7 +8312,6 @@ msgid "Add weekly mail, mastermail or educational mail"
 msgstr "Weekmail, mastermail of onderwijsmail toevoegen"
 
 #: amelie/weekmail/templates/weekmail/weekmail_form.html:11
-#| msgid "Add weekly mail, mastermail or educational mail"
 msgid "Add weekly mail, mastermail, active members mail or educational mail"
 msgstr "Weekmail, mastermail, actieveledenmail of onderwijsmail toevoegen"
 
@@ -8340,7 +8332,6 @@ msgid "Published"
 msgstr "Gepubliceerd"
 
 #: amelie/weekmail/templates/weekmail/weekmail_list.html:36
-#| msgid "New weekly mail, mastermail or educational mail"
 msgid "New weekly mail, mastermail, active members mail or educational mail"
 msgstr "Nieuwe weekmail, mastermail, actieveledenmail of onderwijsmail"
 
@@ -8353,7 +8344,6 @@ msgid "Mastermail"
 msgstr "Mastermail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:31
-#| msgid "Active members:"
 msgid "Active members mail"
 msgstr "Actieveledenmail"
 
@@ -8366,7 +8356,6 @@ msgid "Read online"
 msgstr "Lees online"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:163
-#| msgid "You are receiving this e-mail because you recently requested a data export of the personal data that Inter-Actief has about you."
 msgid "You are receiving this e-mail because you are an active member at Inter-Actief. You can not unenroll for these e-mails."
 msgstr "Je ontvangt deze e-mail omdat je een actief lid bent van Inter-Actief. Je kunt je niet uitschrijven voor deze e-mails."
 
@@ -8473,7 +8462,6 @@ msgid "Send mastermail"
 msgstr "Verzend mastermail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:254
-#| msgid "For active members only."
 msgid "Send active members mail"
 msgstr "Stuur actieveledenmail"
 
@@ -8490,7 +8478,6 @@ msgid "Example (EN)"
 msgstr "Voorbeeld (EN)"
 
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:5
-#| msgid "Delete news message of the weekly mail, mastermail or educational mail"
 msgid "Delete news message of the weekly mail, mastermail, active members mail or educational mail"
 msgstr "Verwijder nieuwsbericht van weekmail, mastermail, actieveledenmail of onderwijsmail"
 
@@ -9259,6 +9246,45 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#~ msgid ""
+#~ "\n"
+#~ "                       For this activity, there is one place left.\n"
+#~ "                    "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                       For this activity there are %(places)s places left.\n"
+#~ "                    "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "Voor deze activiteit is nog 1 plaats beschikbaar."
+#~ msgstr[1] ""
+#~ "\n"
+#~ "Voor deze activiteit zijn nog %(places)s plaatsen beschikbaar."
+
+#~ msgid ""
+#~ "\n"
+#~ "                            For this activity, there is one place left.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "Voor deze activiteit is nog 1 plaats beschikbaar."
+
+#~ msgid ""
+#~ "\n"
+#~ "                            For this activity, there are %(places)s places left.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "Voor deze activiteit zijn er nog %(places)s plaatsen beschikbaar."
+
+#~ msgid ""
+#~ "\n"
+#~ "                            For this activity, there are still places left.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "Voor deze activiteit zijn er nog plaatsen beschikbaar."
 
 #~ msgid "Name (en)"
 #~ msgstr "Naam (en)"
