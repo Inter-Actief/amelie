@@ -44,7 +44,7 @@ from amelie.members.models import Payment, PaymentType, Committee, Function, Mem
     DogroupGeneration
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
-from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
+from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
@@ -59,7 +59,7 @@ def statistics(request):
 
     if 'dt' in request.GET:
         dt = parse_date(request.GET['dt'])
-    
+
     if not dt:
         # The page will only render the Date input field
         return render(request, 'statistics/overview.html', locals())
@@ -307,6 +307,11 @@ def person_view(request, id, slug):
     preference_categories = PreferenceCategory.objects.all()
     alters_data = True
     date_old_mandates = settings.DATE_PRE_SEPA_AUTHORIZATIONS
+    try:
+        accounts = get_user_info(request.user.person)
+    except Exception as e:
+        # Keycloak not reachable or running in non-production (not configured)
+        accounts = []
 
     can_be_anonymized, unable_to_anonymize_reasons = _person_can_be_anonymized(obj)
 
