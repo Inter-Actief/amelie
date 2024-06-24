@@ -5,35 +5,31 @@
         <p>
             {% if obj.places_available == None %}
                 {% blocktrans %}
-                    For this activity there is no maximum number of participants
+                    For this activity there is no maximum number of participants.
                 {% endblocktrans %}
-                {% if  obj.price != 0.00 %}
+
+                {# Display how many people signed up. #}
+                {% if obj.participants %}
+                    {% blocktrans count sign_ups=obj.confirmed_participants.count %}
+                        1 person signed up.
+                    {% plural %}
+                        {{ sign_ups }} people signed up.
+                    {% endblocktrans %}
+                {% endif %}
+
+                {% if obj.price != 0.00 %}
                     {% blocktrans %}
                         If you want to be at this activity, you need to enroll.
                     {% endblocktrans %}
                 {% endif %}
             {% else %}
-                {% if request.person %}
-                    {% blocktrans count places=obj.places_available %}
-                       For this activity, there is one place left.
-                    {% plural %}
-                       For this activity there are {{ places }} places left.
-                    {% endblocktrans %}
-                {% else %}
-                    {% if obj.places_available == 1 %}
-                        {% blocktrans  %}
-                            For this activity, there is one place left.
-                        {% endblocktrans %}
-                    {% elif obj.places_available > 1 and obj.places_available <= 10 %}
-                        {% blocktrans with places=obj.places_available %}
-                            For this activity, there are {{ places }} places left.
-                        {% endblocktrans %}
-                    {% else %}
-                        {% blocktrans %}
-                            For this activity, there are still places left.
-                        {% endblocktrans %}
-                    {% endif %}
-                {%  endif %}
+                {# Display how many people signed up. #}
+                {% if obj.participants %}
+                    {% blocktrans with sign_ups=obj.confirmed_participants.count places=obj.maximum %}
+                        {{ sign_ups }}/{{ places }} people signed up.
+                    {%  endblocktrans %}
+                {% endif %}
+
                 {% blocktrans %}
                     If you want to be at this activity, you need to enroll.
                 {% endblocktrans %}
