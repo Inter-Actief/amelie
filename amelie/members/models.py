@@ -16,7 +16,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.translation import get_language
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
@@ -25,7 +25,7 @@ from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.logic import current_association_year
 from amelie.tools.validators import CheckDigitValidator
 
-LANGUAGE_CHOICES = [(l[0], _(l[1])) for l in settings.LANGUAGES]
+LANGUAGE_CHOICES = [(l[0], _l(l[1])) for l in settings.LANGUAGES]
 
 
 class Faculty(models.Model):
@@ -33,13 +33,13 @@ class Faculty(models.Model):
     A faculty, e.g. EEMCS. Studies and research groups are linked using their respective models.
     Because of imports in the education module they are found in the members module.
     """
-    name = models.CharField(max_length=100, verbose_name=_('Name'))
-    abbreviation = models.CharField(max_length=10, verbose_name=_('Abbreviation'))
+    name = models.CharField(max_length=100, verbose_name=_l('Name'))
+    abbreviation = models.CharField(max_length=10, verbose_name=_l('Abbreviation'))
 
     class Meta(object):
         ordering = ['name']
-        verbose_name = _('faculty')
-        verbose_name_plural = _('faculties')
+        verbose_name = _l('faculty')
+        verbose_name_plural = _l('faculties')
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.abbreviation)
@@ -51,18 +51,18 @@ class Department(models.Model):
     Because of imports in the education module they are found in the members module.
     """
     class DepartmentTypes(models.TextChoices):
-        RESEARCH_GROUP = 'researchgroup', _('Chair')
-        SERVICE = 'service', _('Service')
+        RESEARCH_GROUP = 'researchgroup', _l('Chair')
+        SERVICE = 'service', _l('Service')
 
-    name = models.CharField(max_length=100, verbose_name=_('Name'))
-    abbreviation = models.CharField(max_length=10, verbose_name=_('Abbreviation'))
-    faculty = models.ForeignKey(Faculty, null=True, blank=True, verbose_name=_('Faculty'), on_delete=models.SET_NULL)
-    type = models.CharField(max_length=15, choices=DepartmentTypes.choices, verbose_name=_('Type'))
+    name = models.CharField(max_length=100, verbose_name=_l('Name'))
+    abbreviation = models.CharField(max_length=10, verbose_name=_l('Abbreviation'))
+    faculty = models.ForeignKey(Faculty, null=True, blank=True, verbose_name=_l('Faculty'), on_delete=models.SET_NULL)
+    type = models.CharField(max_length=15, choices=DepartmentTypes.choices, verbose_name=_l('Type'))
 
     class Meta(object):
         ordering = ['name']
-        verbose_name = _('department')
-        verbose_name_plural = _('departments')
+        verbose_name = _l('department')
+        verbose_name_plural = _l('departments')
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.abbreviation)
@@ -74,25 +74,25 @@ class Study(models.Model):
     Because of imports in the education module they are found in the members module.
     """
     class StudyTypes(models.TextChoices):
-        BSC = 'BSc', _('Bachelor of Science')
-        MSC = 'MSc', _('Master of Science')
-        IR = 'Ir', _('Engineer')
+        BSC = 'BSc', _l('Bachelor of Science')
+        MSC = 'MSc', _l('Master of Science')
+        IR = 'Ir', _l('Engineer')
 
-    name_nl = models.CharField(max_length=100, verbose_name=_('Name'))
-    name_en = models.CharField(max_length=100, verbose_name=_('Name (en)'), blank=True)
-    abbreviation = models.CharField(max_length=10, verbose_name=_('Abbreviation'))
-    faculties = models.ManyToManyField(Faculty, verbose_name=_('Faculties'))
-    type = models.CharField(max_length=3, choices=StudyTypes.choices, verbose_name=_('Type'))
-    length = models.IntegerField(verbose_name=_('Course length'))
+    name_nl = models.CharField(max_length=100, verbose_name=_l('Name'))
+    name_en = models.CharField(max_length=100, verbose_name=_l('Name (en)'), blank=True)
+    abbreviation = models.CharField(max_length=10, verbose_name=_l('Abbreviation'))
+    faculties = models.ManyToManyField(Faculty, verbose_name=_l('Faculties'))
+    type = models.CharField(max_length=3, choices=StudyTypes.choices, verbose_name=_l('Type'))
+    length = models.IntegerField(verbose_name=_l('Course length'))
     primary_study = models.BooleanField(
         default=False,
-        verbose_name=_("Primary study"),
-        help_text=_("Indicates that this study is one of our primary studies")
+        verbose_name=_l("Primary study"),
+        help_text=_l("Indicates that this study is one of our primary studies")
     )
     active = models.BooleanField(
         default=True,
-        verbose_name=_("Active"),
-        help_text=_("Make a study inactive when the study is not given any more on the University of Twente"),
+        verbose_name=_l("Active"),
+        help_text=_l("Make a study inactive when the study is not given any more on the University of Twente"),
     )
 
     @property
@@ -106,8 +106,8 @@ class Study(models.Model):
 
     class Meta(object):
         ordering = ['abbreviation']
-        verbose_name = _('study')
-        verbose_name_plural = _('studies')
+        verbose_name = _l('study')
+        verbose_name_plural = _l('studies')
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.abbreviation)
@@ -118,14 +118,14 @@ class Dogroup(models.Model):
     A do-group such as these are created over the years:
     e.g. Tegel, TuinfeesT
     """
-    name = models.CharField(verbose_name=_('Name'), max_length=50)
-    color = ColorField(verbose_name=_('Color'), help_text=_("What is the color of this dogroup?"),
+    name = models.CharField(verbose_name=_l('Name'), max_length=50)
+    color = ColorField(verbose_name=_l('Color'), help_text=_l("What is the color of this dogroup?"),
                        default="#000000")
 
     class Meta(object):
         ordering = ['name']
-        verbose_name = _('do-group')
-        verbose_name_plural = _('do-groups')
+        verbose_name = _l('do-group')
+        verbose_name_plural = _l('do-groups')
 
     def __str__(self):
         return self.name
@@ -137,18 +137,18 @@ class DogroupGeneration(models.Model, Mappable):
     privacy regulations. Refer to https://privacy.ia.utwente.nl/ and check whether processing the property is allowed
     for your purpose.
     """
-    generation = models.PositiveIntegerField(verbose_name=_('Generation'))
-    dogroup = models.ForeignKey(Dogroup, verbose_name=_('Dogroup'), on_delete=models.PROTECT)
-    parents = models.ManyToManyField('Person', verbose_name=_('Introduction parents'), blank=True)
-    study = models.ForeignKey(Study, verbose_name=_('Course'), on_delete=models.PROTECT)
-    mail_alias = models.EmailField(verbose_name=_('Mailalias'))
-    generation_color = ColorField(verbose_name=_('Generation color'), blank=True, null=True,
-                                  help_text=_("Similar to the dogroup color, however this value can be set in order to override the color for just this generation"))
+    generation = models.PositiveIntegerField(verbose_name=_l('Generation'))
+    dogroup = models.ForeignKey(Dogroup, verbose_name=_l('Dogroup'), on_delete=models.PROTECT)
+    parents = models.ManyToManyField('Person', verbose_name=_l('Introduction parents'), blank=True)
+    study = models.ForeignKey(Study, verbose_name=_l('Course'), on_delete=models.PROTECT)
+    mail_alias = models.EmailField(verbose_name=_l('Mailalias'))
+    generation_color = ColorField(verbose_name=_l('Generation color'), blank=True, null=True,
+                                  help_text=_l("Similar to the dogroup color, however this value can be set in order to override the color for just this generation"))
 
     class Meta(object):
         ordering = ['generation', 'dogroup']
-        verbose_name = _('do-group generation')
-        verbose_name_plural = _('do-group generations')
+        verbose_name = _l('do-group generation')
+        verbose_name_plural = _l('do-group generations')
 
     @property
     def color(self):
@@ -160,7 +160,7 @@ class DogroupGeneration(models.Model, Mappable):
     def clean(self):
         super(DogroupGeneration, self).clean()
         if not any(self.mail_alias.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
-            raise ValidationError({'email': _(
+            raise ValidationError({'email': _l(
                 'The mail alias for a dogroup generation may only point to an Inter-Actief server.'
             )})
 
@@ -171,7 +171,7 @@ class DogroupGeneration(models.Model, Mappable):
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.mail_alias)) > 1 or \
                 Mapping.objects.get(email=self.mail_alias).get_mapped_object() != self:
-                raise ValidationError({'email': _(
+                raise ValidationError({'email': _l(
                     'This email address is already in use by another mapping!'
                 )})
 
@@ -215,13 +215,13 @@ class Association(models.Model):
     """
     Study assocation for secundary members (e.g. Scintilla).
     """
-    name = models.CharField(max_length=100, verbose_name=_('Name'))
-    studies = models.ManyToManyField(Study, blank=True, verbose_name=_('Courses'))
+    name = models.CharField(max_length=100, verbose_name=_l('Name'))
+    studies = models.ManyToManyField(Study, blank=True, verbose_name=_l('Courses'))
 
     class Meta(object):
         ordering = ['name']
-        verbose_name = _('association')
-        verbose_name_plural = _('associations')
+        verbose_name = _l('association')
+        verbose_name_plural = _l('associations')
 
     def __str__(self):
         return '%s' % self.name
@@ -231,11 +231,11 @@ class PreferenceCategory(models.Model):
     """
     A category for preferences.
     """
-    name = models.CharField(max_length=30, verbose_name=_('Category of preference'))
+    name = models.CharField(max_length=30, verbose_name=_l('Category of preference'))
 
     class Meta(object):
-        verbose_name = _('category of preference')
-        verbose_name_plural = _('categories of preference')
+        verbose_name = _l('category of preference')
+        verbose_name_plural = _l('categories of preference')
 
     def __str__(self):
         return '%s' % self.name
@@ -245,14 +245,14 @@ class Preference(models.Model):
     """
     Preference of a person, e.g. if they want the weekly mail.
     """
-    name = models.CharField(max_length=30, verbose_name=_('Name'))
-    preference_nl = models.CharField(max_length=200, verbose_name=_('Preference'))
-    preference_en = models.CharField(max_length=200, verbose_name=_('Preference(s)'))
+    name = models.CharField(max_length=30, verbose_name=_l('Name'))
+    preference_nl = models.CharField(max_length=200, verbose_name=_l('Preference'))
+    preference_en = models.CharField(max_length=200, verbose_name=_l('Preference(s)'))
     category = models.ForeignKey(PreferenceCategory, on_delete=models.PROTECT)
-    default = models.BooleanField(default=False, verbose_name=_('Standard'))
-    adjustable = models.BooleanField(default=False, verbose_name=_('Adjustable by the user in profile'))
-    first_time = models.BooleanField(default=False, verbose_name=_('Adjustable by the user on login'))
-    print = models.BooleanField(default=False, verbose_name=_('Print'))
+    default = models.BooleanField(default=False, verbose_name=_l('Standard'))
+    adjustable = models.BooleanField(default=False, verbose_name=_l('Adjustable by the user in profile'))
+    first_time = models.BooleanField(default=False, verbose_name=_l('Adjustable by the user on login'))
+    print = models.BooleanField(default=False, verbose_name=_l('Print'))
 
     @property
     def preference(self):
@@ -265,8 +265,8 @@ class Preference(models.Model):
 
     class Meta(object):
         ordering = ['name', 'preference_nl']
-        verbose_name = _('preference')
-        verbose_name_plural = _('preference')
+        verbose_name = _l('preference')
+        verbose_name_plural = _l('preference')
 
     def __str__(self):
         return '%s' % self.preference
@@ -284,84 +284,84 @@ class Person(models.Model, Mappable):
     allowed for your purpose.
     """
     class GenderTypes(models.TextChoices):
-        UNKNOWN = 'Unknown', _('Unknown')
-        MAN = 'Man', _('Man')
-        WOMAN = 'Woman', _('Woman')
-        OTHER = 'Other', _('Other')
+        UNKNOWN = 'Unknown', _l('Unknown')
+        MAN = 'Man', _l('Man')
+        WOMAN = 'Woman', _l('Woman')
+        OTHER = 'Other', _l('Other')
 
     class InternationalChoices(models.TextChoices):
-        YES = 'Yes', _('Yes, I am an international student.')
-        NO = 'No', _('No, I am not an international student.')
-        UNKNOWN = 'Unknown', _('I would rather not say if I\'m an international student or not.')
+        YES = 'Yes', _l('Yes, I am an international student.')
+        NO = 'No', _l('No, I am not an international student.')
+        UNKNOWN = 'Unknown', _l('I would rather not say if I\'m an international student or not.')
 
     class ShellChoices(models.TextChoices):
-        DEFAULT = 'default', _('No preference')
-        BASH = 'bash', _('Bash')
-        ZSH = 'zsh', _('Z shell')
+        DEFAULT = 'default', _l('No preference')
+        BASH = 'bash', _l('Bash')
+        ZSH = 'zsh', _l('Z shell')
 
-    first_name = models.CharField(max_length=50, verbose_name=_('First name'))
-    last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_('Last name pre-fix'))
-    last_name = models.CharField(max_length=50, verbose_name=_('Last name'))
-    initials = models.CharField(max_length=20, blank=True, verbose_name=_('Initials'))
+    first_name = models.CharField(max_length=50, verbose_name=_l('First name'))
+    last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_l('Last name pre-fix'))
+    last_name = models.CharField(max_length=50, verbose_name=_l('Last name'))
+    initials = models.CharField(max_length=20, blank=True, verbose_name=_l('Initials'))
     slug = models.SlugField(max_length=150, editable=False)
-    picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_('Photo'))
-    notes = models.TextField(blank=True, verbose_name=_('Notes'))
+    picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Photo'))
+    notes = models.TextField(blank=True, verbose_name=_l('Notes'))
 
-    gender = models.CharField(max_length=9, choices=GenderTypes.choices, verbose_name=_('Gender'))
+    gender = models.CharField(max_length=9, choices=GenderTypes.choices, verbose_name=_l('Gender'))
     preferred_language = models.CharField(max_length=100, choices=LANGUAGE_CHOICES, default='nl',
-                                          verbose_name=_('Language of preference'))
+                                          verbose_name=_l('Language of preference'))
     international_member = models.CharField(max_length=16, choices=InternationalChoices.choices,
-                                            verbose_name=_("International student"))
+                                            verbose_name=_l("International student"))
 
-    date_of_birth = models.DateField(null=True, blank=True, verbose_name=_('Birth date'))
+    date_of_birth = models.DateField(null=True, blank=True, verbose_name=_l('Birth date'))
 
-    email_address = models.EmailField(verbose_name=_('E-mail address'), null=True)
-    address = models.CharField(max_length=50, verbose_name=_('Address'))
-    postal_code = models.CharField(max_length=8, verbose_name=_('Postal code'))
-    city = models.CharField(max_length=30, verbose_name=_('City'))
-    country = models.CharField(max_length=25, default='Nederland', verbose_name=_('Country'))
-    telephone = models.CharField(max_length=20, blank=True, verbose_name=_('Phonenumber'))
+    email_address = models.EmailField(verbose_name=_l('E-mail address'), null=True)
+    address = models.CharField(max_length=50, verbose_name=_l('Address'))
+    postal_code = models.CharField(max_length=8, verbose_name=_l('Postal code'))
+    city = models.CharField(max_length=30, verbose_name=_l('City'))
+    country = models.CharField(max_length=25, default='Nederland', verbose_name=_l('Country'))
+    telephone = models.CharField(max_length=20, blank=True, verbose_name=_l('Phonenumber'))
 
-    email_address_parents = models.EmailField(verbose_name=_('E-mail address of parent(s)/guardian(s)'), blank=True)
-    address_parents = models.CharField(max_length=50, blank=True, verbose_name=_('Address of parent(s)/guardian(s)'))
+    email_address_parents = models.EmailField(verbose_name=_l('E-mail address of parent(s)/guardian(s)'), blank=True)
+    address_parents = models.CharField(max_length=50, blank=True, verbose_name=_l('Address of parent(s)/guardian(s)'))
     postal_code_parents = models.CharField(max_length=8, blank=True,
-                                           verbose_name=_('Postal code of parent(s)/guardian(s)'))
+                                           verbose_name=_l('Postal code of parent(s)/guardian(s)'))
     city_parents = models.CharField(max_length=30, blank=True,
-                                    verbose_name=_('Residence of parent(s)/guardian(s)'))
+                                    verbose_name=_l('Residence of parent(s)/guardian(s)'))
     country_parents = models.CharField(max_length=25, blank=True, default='Nederland',
-                                       verbose_name=_('Country of parent(s)/guardian(s)'))
-    can_use_parents_address = models.BooleanField(default=False, verbose_name=_("My parents' address details may be "
+                                       verbose_name=_l('Country of parent(s)/guardian(s)'))
+    can_use_parents_address = models.BooleanField(default=False, verbose_name=_l("My parents' address details may be "
                                                                                 "used for the parents day."))
 
-    account_name = models.CharField(max_length=50, blank=True, verbose_name=_('Account name'), validators=[
-        RegexValidator(r'^[a-z]*$', _('You can only enter ^[a-z]*$.'), _('Invalid account name')),
+    account_name = models.CharField(max_length=50, blank=True, verbose_name=_l('Account name'), validators=[
+        RegexValidator(r'^[a-z]*$', _l('You can only enter ^[a-z]*$.'), _l('Invalid account name')),
         MinLengthValidator(2),
         MaxLengthValidator(20),
     ])
     ut_external_username = models.CharField(
-        max_length=8, blank=True, null=True, verbose_name=_('UT external account name'), validators=[
-            RegexValidator(r'^x[0-9]{7}$', _('You can only enter ^x[0-9]{7}$.'), _('Invalid account name'))
+        max_length=8, blank=True, null=True, verbose_name=_l('UT external account name'), validators=[
+            RegexValidator(r'^x[0-9]{7}$', _l('You can only enter ^x[0-9]{7}$.'), _l('Invalid account name'))
         ]
     )
-    shell = models.CharField(max_length=10, choices=ShellChoices.choices, default=ShellChoices.DEFAULT, verbose_name=_('Unix shell'))
-    webmaster = models.BooleanField(default=False, verbose_name=_('Is web master'))
-    nda = models.BooleanField(default=False, verbose_name=_('Has signed NDA'))
+    shell = models.CharField(max_length=10, choices=ShellChoices.choices, default=ShellChoices.DEFAULT, verbose_name=_l('Unix shell'))
+    webmaster = models.BooleanField(default=False, verbose_name=_l('Is web master'))
+    nda = models.BooleanField(default=False, verbose_name=_l('Has signed NDA'))
 
-    preferences = models.ManyToManyField(Preference, blank=True, verbose_name=_('Preferences'))
-    user = models.OneToOneField(User, null=True, blank=True, related_name='person', verbose_name=_('User'),
+    preferences = models.ManyToManyField(Preference, blank=True, verbose_name=_l('Preferences'))
+    user = models.OneToOneField(User, null=True, blank=True, related_name='person', verbose_name=_l('User'),
                                 on_delete=models.SET_NULL)
 
-    password_reset_code = models.CharField(max_length=50, verbose_name=_("Password reset code"),
+    password_reset_code = models.CharField(max_length=50, verbose_name=_l("Password reset code"),
                                            null=True, blank=True, unique=True, editable=False)
-    password_reset_expiry = models.DateTimeField(verbose_name=_('Password reset code expiry'),
+    password_reset_expiry = models.DateTimeField(verbose_name=_l('Password reset code expiry'),
                                                  null=True, blank=True, editable=False)
 
     objects = PersonManager()
 
     class Meta(object):
         ordering = ['last_name']
-        verbose_name = _('person')
-        verbose_name_plural = _('people')
+        verbose_name = _l('person')
+        verbose_name_plural = _l('people')
 
     def __str__(self):
         return self.incomplete_name()
@@ -675,7 +675,7 @@ class Person(models.Model, Mappable):
             if self.email_address and self.email_address.endswith(domain):
                 if any(alias + domain == self.email_address for alias in self.personal_aliases()) \
                         or self.get_adname() + domain == self.email_address:
-                    raise ValidationError({'email_address': _(
+                    raise ValidationError({'email_address': _l(
                         'Your email address is not to point to an Inter-Actief server. If you have a Google Apps '
                         'account please use firstname.lastname@gapps.inter-actief.nl as an alternative.'
                     )})
@@ -685,13 +685,13 @@ class MembershipType(models.Model):
     """
     A membership type, e.g. Primary member, Studylong member, USW.
     """
-    name_nl = models.CharField(max_length=30, unique=True, verbose_name=_('Name'))
-    name_en = models.CharField(max_length=30, verbose_name=_('Name (en)'), blank=True)
-    description = models.TextField(null=True, blank=True, verbose_name=_('Description'))
-    price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('Price'))
-    needs_verification = models.BooleanField(default=False, verbose_name=_('Needs verification'))
+    name_nl = models.CharField(max_length=30, unique=True, verbose_name=_l('Name'))
+    name_en = models.CharField(max_length=30, verbose_name=_l('Name (en)'), blank=True)
+    description = models.TextField(null=True, blank=True, verbose_name=_l('Description'))
+    price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_l('Price'))
+    needs_verification = models.BooleanField(default=False, verbose_name=_l('Needs verification'))
 
-    active = models.BooleanField(default=True, verbose_name=_('Active'))
+    active = models.BooleanField(default=True, verbose_name=_l('Active'))
     """If a membership type is active new memberships of this type can be created."""
 
     @property
@@ -705,8 +705,8 @@ class MembershipType(models.Model):
 
     class Meta(object):
         ordering = ['description']
-        verbose_name = _('membership type')
-        verbose_name_plural = _('membership types')
+        verbose_name = _l('membership type')
+        verbose_name_plural = _l('membership types')
 
     def __str__(self):
         return '{} (€{})'.format(self.name, self.price)
@@ -715,13 +715,13 @@ class PaymentType(models.Model):
     """
     e.g. Cash or Debit transaction
     """
-    name = models.CharField(max_length=20, unique=True, verbose_name=_('Name'))
-    description = models.TextField(verbose_name=_('Description'))
+    name = models.CharField(max_length=20, unique=True, verbose_name=_l('Name'))
+    description = models.TextField(verbose_name=_l('Description'))
 
     class Meta(object):
         ordering = ['description']
-        verbose_name = _('way of payment')
-        verbose_name_plural = _('ways of payment')
+        verbose_name = _l('way of payment')
+        verbose_name_plural = _l('ways of payment')
 
     def __str__(self):
         return '%s' % self.description
@@ -733,13 +733,13 @@ class Student(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
-    person = models.OneToOneField(Person, verbose_name=_('Person'), on_delete=models.CASCADE)
-    number = models.PositiveIntegerField(verbose_name=_('Student number'), null=True, blank=True, unique=True,
+    person = models.OneToOneField(Person, verbose_name=_l('Person'), on_delete=models.CASCADE)
+    number = models.PositiveIntegerField(verbose_name=_l('Student number'), null=True, blank=True, unique=True,
                                          validators=[CheckDigitValidator(7), MaxValueValidator(9999999)])
 
     class Meta(object):
-        verbose_name = _('student')
-        verbose_name_plural = _('students')
+        verbose_name = _l('student')
+        verbose_name_plural = _l('students')
 
     def __str__(self):
         if self.number is not None:
@@ -762,17 +762,17 @@ class StudyPeriod(models.Model):
     processing properties of this model may be subject to privacy regulations. Refer to https://privacy.ia.utwente.nl/
     and check whether processing the property is allowed for your purpose.
     """
-    student = models.ForeignKey(Student, verbose_name=_('Student'), on_delete=models.CASCADE)
-    study = models.ForeignKey(Study, verbose_name=_('Course'), on_delete=models.PROTECT)
-    begin = models.DateField(verbose_name=_('Begin'))
-    end = models.DateField(null=True, blank=True, verbose_name=_('End'))
-    graduated = models.BooleanField(default=False, verbose_name=_('Has graduated'))
-    dogroup = models.ForeignKey(DogroupGeneration, null=True, blank=True, verbose_name=_('Dogroup'),
+    student = models.ForeignKey(Student, verbose_name=_l('Student'), on_delete=models.CASCADE)
+    study = models.ForeignKey(Study, verbose_name=_l('Course'), on_delete=models.PROTECT)
+    begin = models.DateField(verbose_name=_l('Begin'))
+    end = models.DateField(null=True, blank=True, verbose_name=_l('End'))
+    graduated = models.BooleanField(default=False, verbose_name=_l('Has graduated'))
+    dogroup = models.ForeignKey(DogroupGeneration, null=True, blank=True, verbose_name=_l('Dogroup'),
                                 on_delete=models.SET_NULL)
 
     class Meta(object):
-        verbose_name = _('study period')
-        verbose_name_plural = _('study periods')
+        verbose_name = _l('study period')
+        verbose_name_plural = _l('study periods')
 
     def __str__(self):
         return '%s, %s (%s-%s)' % (self.student, self.study, self.begin, self.end)
@@ -784,15 +784,15 @@ class Employee(models.Model):
     subject to privacy regulations. Refer to https://privacy.ia.utwente.nl/ and check whether processing the property is
     allowed for your purpose.
     """
-    person = models.OneToOneField(Person, verbose_name=_('Person'), on_delete=models.CASCADE)
-    number = models.PositiveIntegerField(blank=True, null=True, unique=True, verbose_name=_('Employee number'),
+    person = models.OneToOneField(Person, verbose_name=_l('Person'), on_delete=models.CASCADE)
+    number = models.PositiveIntegerField(blank=True, null=True, unique=True, verbose_name=_l('Employee number'),
                                          validators=[MinValueValidator(7640000), MaxValueValidator(9999999)])
-    end = models.DateField(null=True, blank=True, verbose_name=_('End'))
+    end = models.DateField(null=True, blank=True, verbose_name=_l('End'))
 
     class Meta(object):
         ordering = ['number']
-        verbose_name = _('employee')
-        verbose_name_plural = _('employees')
+        verbose_name = _l('employee')
+        verbose_name_plural = _l('employees')
 
     def __str__(self):
         if self.number is not None:
@@ -811,9 +811,9 @@ class Photographer(models.Model):
     itself. In order to prevent unnecessary data collection this type of account only stores the first- and lastname of
     a person.
     """
-    first_name = models.CharField(max_length=50, blank=True, verbose_name=_('First name'), null=True)
-    last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_('Last name pre-fix'), null=True)
-    last_name = models.CharField(max_length=50, blank=True, verbose_name=_('Last name'), null=True)
+    first_name = models.CharField(max_length=50, blank=True, verbose_name=_l('First name'), null=True)
+    last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_l('Last name pre-fix'), null=True)
+    last_name = models.CharField(max_length=50, blank=True, verbose_name=_l('Last name'), null=True)
     person = models.OneToOneField(Person, on_delete=models.CASCADE, null=True, blank=True)
 
     def clean(self):
@@ -824,7 +824,7 @@ class Photographer(models.Model):
         if self.person is not None:
             return
         if (self.first_name is not None and self.last_name is None) or (self.first_name is None and self.last_name is not None):
-            raise ValidationError(_('External photographers should at least have a first- and lastname.'))
+            raise ValidationError(_l('External photographers should at least have a first- and lastname.'))
 
     def __str__(self):
         if self.person is not None:
@@ -845,16 +845,16 @@ class Membership(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
-    member = models.ForeignKey(Person, verbose_name=_('Member'), on_delete=models.PROTECT)
-    type = models.ForeignKey(MembershipType, verbose_name=_('Type'), on_delete=models.PROTECT)
-    year = models.PositiveIntegerField(verbose_name=_('Year'))
-    ended = models.DateField(null=True, blank=True, verbose_name=_('Ended preliminary'))
-    verified_on = models.DateField(null=True, blank=True, verbose_name=_('Verified on'))
+    member = models.ForeignKey(Person, verbose_name=_l('Member'), on_delete=models.PROTECT)
+    type = models.ForeignKey(MembershipType, verbose_name=_l('Type'), on_delete=models.PROTECT)
+    year = models.PositiveIntegerField(verbose_name=_l('Year'))
+    ended = models.DateField(null=True, blank=True, verbose_name=_l('Ended preliminary'))
+    verified_on = models.DateField(null=True, blank=True, verbose_name=_l('Verified on'))
 
     class Meta(object):
         ordering = ['member', 'year']
-        verbose_name = _('membership')
-        verbose_name_plural = _('memberships')
+        verbose_name = _l('membership')
+        verbose_name_plural = _l('memberships')
 
     def __str__(self):
         return '%s (%s, %s)' % (self.member, self.year, self.type)
@@ -880,16 +880,16 @@ class Payment(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
-    date = models.DateField(null=True, verbose_name=_('Date'))
-    payment_type = models.ForeignKey(PaymentType, verbose_name=_('Payment'), on_delete=models.PROTECT)
-    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_('Price'))
+    date = models.DateField(null=True, verbose_name=_l('Date'))
+    payment_type = models.ForeignKey(PaymentType, verbose_name=_l('Payment'), on_delete=models.PROTECT)
+    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_l('Price'))
 
-    membership = models.OneToOneField(Membership, verbose_name=_('Membership'), on_delete=models.PROTECT)
+    membership = models.OneToOneField(Membership, verbose_name=_l('Membership'), on_delete=models.PROTECT)
 
     class Meta(object):
         ordering = ['date']
-        verbose_name = _('payment')
-        verbose_name_plural = _('payments')
+        verbose_name = _l('payment')
+        verbose_name_plural = _l('payments')
 
     def __str__(self):
         return '%s (%.2f)' % (self.membership, self.amount)
@@ -899,13 +899,13 @@ class CommitteeCategory(models.Model):
     """
     Category in which a committee can be placed (e.g. Activity committees).
     """
-    name = models.CharField(max_length=50, verbose_name=_('Name'))
+    name = models.CharField(max_length=50, verbose_name=_l('Name'))
     slug = models.SlugField(max_length=50, editable=False)
 
     class Meta(object):
         ordering = ['name']
-        verbose_name = _('committee category')
-        verbose_name_plural = _('committee categories')
+        verbose_name = _l('committee category')
+        verbose_name_plural = _l('committee categories')
 
     def __str__(self):
         return '%s' % self.name
@@ -922,35 +922,35 @@ class Committee(models.Model, Mappable):
     Committee of the association. Members are connected via a Function and if the function changes,
     a *new* Function object is created.
     """
-    name = models.CharField(max_length=100, verbose_name=_('Name'))
-    abbreviation = models.CharField(max_length=20, unique=True, verbose_name=_('Abbreviation'), validators=[
-        RegexValidator(r'^[a-zA-Z0-9.-]*$', _('You can only enter ^[a-zA-Z0-9.-]*$.'), _('Invalid account name')),
+    name = models.CharField(max_length=100, verbose_name=_l('Name'))
+    abbreviation = models.CharField(max_length=20, unique=True, verbose_name=_l('Abbreviation'), validators=[
+        RegexValidator(r'^[a-zA-Z0-9.-]*$', _l('You can only enter ^[a-zA-Z0-9.-]*$.'), _l('Invalid account name')),
         MinLengthValidator(2), MaxLengthValidator(20),
     ])
-    category = models.ForeignKey(CommitteeCategory, null=True, blank=True, verbose_name=_('Category'),
+    category = models.ForeignKey(CommitteeCategory, null=True, blank=True, verbose_name=_l('Category'),
                                  on_delete=models.SET_NULL)
-    parent_committees = models.ManyToManyField('self', blank=True, verbose_name=_('Parent committees'),
+    parent_committees = models.ManyToManyField('self', blank=True, verbose_name=_l('Parent committees'),
                                                symmetrical=False)
 
     slug = models.SlugField(max_length=100, editable=False)
 
-    email = models.EmailField(blank=True, verbose_name=_('E-mail address'))
-    founded = models.DateField(verbose_name=_('Started on'), auto_now_add=True)
-    abolished = models.DateField(null=True, blank=True, verbose_name=_('Ended on'))
-    website = models.URLField(blank=True, verbose_name=_('Web site'))
-    information_nl = models.TextField(verbose_name=_('Information'))
-    information_en = models.TextField(verbose_name=_('Information (en)'))
+    email = models.EmailField(blank=True, verbose_name=_l('E-mail address'))
+    founded = models.DateField(verbose_name=_l('Started on'), auto_now_add=True)
+    abolished = models.DateField(null=True, blank=True, verbose_name=_l('Ended on'))
+    website = models.URLField(blank=True, verbose_name=_l('Web site'))
+    information_nl = models.TextField(verbose_name=_l('Information'))
+    information_en = models.TextField(verbose_name=_l('Information (en)'))
 
-    private_email = models.BooleanField(default=False, verbose_name=_('E-mail address is private'),
-                                        help_text=_(
+    private_email = models.BooleanField(default=False, verbose_name=_l('E-mail address is private'),
+                                        help_text=_l(
                                             'The e-mail address of this committee is not displayed on the website'))
 
-    superuser = models.BooleanField(default=False, verbose_name=_('Is board'),
-                                    help_text=_(
+    superuser = models.BooleanField(default=False, verbose_name=_l('Is board'),
+                                    help_text=_l(
                                         'Members of this committee are granted board authorities on this web site'))
 
-    gitlab = models.BooleanField(default=False, verbose_name=_('Create GitLab group'),
-                                 help_text=_('Members of this committee get access to GitLab'))
+    gitlab = models.BooleanField(default=False, verbose_name=_l('Create GitLab group'),
+                                 help_text=_l('Members of this committee get access to GitLab'))
 
     objects = CommitteeManager()
 
@@ -958,12 +958,12 @@ class Committee(models.Model, Mappable):
 
     group_picture = models.ImageField(upload_to='committeeGroupPictures', null=True, blank=True)
 
-    ledger_account_number = models.CharField(max_length=8, verbose_name=_('ledger account'), default='2500')
+    ledger_account_number = models.CharField(max_length=8, verbose_name=_l('ledger account'), default='2500')
 
     class Meta(object):
         ordering = ['name']
-        verbose_name = _('committee')
-        verbose_name_plural = _('committees')
+        verbose_name = _l('committee')
+        verbose_name_plural = _l('committees')
 
     def __str__(self):
         return '%s' % self.name
@@ -971,7 +971,7 @@ class Committee(models.Model, Mappable):
     def clean(self):
         super(Committee, self).clean()
         if not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
-            raise ValidationError({'email': _(
+            raise ValidationError({'email': _l(
                 'The email address for a committee may only point to an Inter-Actief server.'
             )})
 
@@ -981,7 +981,7 @@ class Committee(models.Model, Mappable):
 
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(email=self.email).get_mapped_object() != self:
-                raise ValidationError({'error': _(
+                raise ValidationError({'error': _l(
                     'This email address is already in use by another mapping!'
                 )})
 
@@ -1087,17 +1087,17 @@ class Function(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
-    person = models.ForeignKey(Person, verbose_name=_('Person'), on_delete=models.CASCADE)
-    committee = models.ForeignKey(Committee, verbose_name=_('Committee'), on_delete=models.CASCADE)
-    function = models.CharField(max_length=75, verbose_name=_('Position'))
-    note = models.TextField(blank=True, verbose_name=_('Remarks'))
-    begin = models.DateField(verbose_name=_('Started on'))
-    end = models.DateField(null=True, blank=True, verbose_name=_('Ended on'))
+    person = models.ForeignKey(Person, verbose_name=_l('Person'), on_delete=models.CASCADE)
+    committee = models.ForeignKey(Committee, verbose_name=_l('Committee'), on_delete=models.CASCADE)
+    function = models.CharField(max_length=75, verbose_name=_l('Position'))
+    note = models.TextField(blank=True, verbose_name=_l('Remarks'))
+    begin = models.DateField(verbose_name=_l('Started on'))
+    end = models.DateField(null=True, blank=True, verbose_name=_l('Ended on'))
 
     class Meta(object):
         ordering = ['end', '-begin', 'person']
-        verbose_name = _('position')
-        verbose_name_plural = _('functions')
+        verbose_name = _l('position')
+        verbose_name_plural = _l('functions')
 
     def __str__(self):
         return '%s (%s, %s)' % (self.person, self.committee, self.function)
@@ -1106,60 +1106,60 @@ class Function(models.Model):
         if self.pk:
             if not self.end and Function.objects.filter(person=self.person, end=None, committee=self.committee).exclude(
                     id=self.pk).exists():
-                raise ValidationError(_("Person is already a member of this committee."))
+                raise ValidationError(_l("Person is already a member of this committee."))
         else:
             if not self.end and Function.objects.filter(person=self.person, end=None,
                                                         committee=self.committee).exists():
-                raise ValidationError(_("Person is already a member of this committee."))
+                raise ValidationError(_l("Person is already a member of this committee."))
 
                 # save.alters_data = True  # template security
 
 
 class UnverifiedEnrollment(models.Model):
     # Person details
-    first_name = models.CharField(max_length=50, verbose_name=_('First name'))
-    last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_('Last name pre-fix'))
-    last_name = models.CharField(max_length=50, verbose_name=_('Last name'))
-    initials = models.CharField(max_length=20, blank=True, verbose_name=_('Initials'))
-    gender = models.CharField(max_length=9, choices=Person.GenderTypes.choices, verbose_name=_('Gender'))
+    first_name = models.CharField(max_length=50, verbose_name=_l('First name'))
+    last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_l('Last name pre-fix'))
+    last_name = models.CharField(max_length=50, verbose_name=_l('Last name'))
+    initials = models.CharField(max_length=20, blank=True, verbose_name=_l('Initials'))
+    gender = models.CharField(max_length=9, choices=Person.GenderTypes.choices, verbose_name=_l('Gender'))
     preferred_language = models.CharField(max_length=100, choices=LANGUAGE_CHOICES, default='nl',
-                                          verbose_name=_('Language of preference'))
+                                          verbose_name=_l('Language of preference'))
     international_member = models.CharField(max_length=16, choices=Person.InternationalChoices.choices,
-                                            verbose_name=_("International student"))
-    date_of_birth = models.DateField(null=True, blank=True, verbose_name=_('Birth date'))
-    email_address = models.EmailField(verbose_name=_('E-mail address'), null=True)
-    address = models.CharField(max_length=50, verbose_name=_('Address'))
-    postal_code = models.CharField(max_length=8, verbose_name=_('Postal code'))
-    city = models.CharField(max_length=30, verbose_name=_('City'))
-    country = models.CharField(max_length=25, default='Nederland', verbose_name=_('Country'))
-    telephone = models.CharField(max_length=20, blank=True, verbose_name=_('Phonenumber'))
+                                            verbose_name=_l("International student"))
+    date_of_birth = models.DateField(null=True, blank=True, verbose_name=_l('Birth date'))
+    email_address = models.EmailField(verbose_name=_l('E-mail address'), null=True)
+    address = models.CharField(max_length=50, verbose_name=_l('Address'))
+    postal_code = models.CharField(max_length=8, verbose_name=_l('Postal code'))
+    city = models.CharField(max_length=30, verbose_name=_l('City'))
+    country = models.CharField(max_length=25, default='Nederland', verbose_name=_l('Country'))
+    telephone = models.CharField(max_length=20, blank=True, verbose_name=_l('Phonenumber'))
 
-    email_address_parents = models.EmailField(verbose_name=_('E-mail address of parent(s)/guardian(s)'), blank=True)
-    address_parents = models.CharField(max_length=50, blank=True, verbose_name=_('Address of parent(s)/guardian(s)'))
+    email_address_parents = models.EmailField(verbose_name=_l('E-mail address of parent(s)/guardian(s)'), blank=True)
+    address_parents = models.CharField(max_length=50, blank=True, verbose_name=_l('Address of parent(s)/guardian(s)'))
     postal_code_parents = models.CharField(max_length=8, blank=True,
-                                           verbose_name=_('Postal code of parent(s)/guardian(s)'))
+                                           verbose_name=_l('Postal code of parent(s)/guardian(s)'))
     city_parents = models.CharField(max_length=30, blank=True,
-                                    verbose_name=_('Residence of parent(s)/guardian(s)'))
+                                    verbose_name=_l('Residence of parent(s)/guardian(s)'))
     country_parents = models.CharField(max_length=25, blank=True, default='Nederland',
-                                       verbose_name=_('Country of parent(s)/guardian(s)'))
-    can_use_parents_address = models.BooleanField(default=False, verbose_name=_("My parents' address details may be "
+                                       verbose_name=_l('Country of parent(s)/guardian(s)'))
+    can_use_parents_address = models.BooleanField(default=False, verbose_name=_l("My parents' address details may be "
                                                                                 "used for the parents day."))
-    preferences = models.ManyToManyField(Preference, blank=True, verbose_name=_('Preferences'))
+    preferences = models.ManyToManyField(Preference, blank=True, verbose_name=_l('Preferences'))
 
     # Authorizations that this person wants
-    authorizations = models.ManyToManyField('personal_tab.Authorization', blank=True, verbose_name=_('Authorizations'))
+    authorizations = models.ManyToManyField('personal_tab.Authorization', blank=True, verbose_name=_l('Authorizations'))
 
     # Membership details
-    membership_type = models.ForeignKey(MembershipType, verbose_name=_("Chosen membership type"),
+    membership_type = models.ForeignKey(MembershipType, verbose_name=_l("Chosen membership type"),
                                         on_delete=models.PROTECT)
-    membership_year = models.PositiveIntegerField(verbose_name=_('Membership start year'))
+    membership_year = models.PositiveIntegerField(verbose_name=_l('Membership start year'))
 
     # Student details
-    student_number = models.PositiveIntegerField(verbose_name=_('Student number'), null=True, blank=True, unique=True,
+    student_number = models.PositiveIntegerField(verbose_name=_l('Student number'), null=True, blank=True, unique=True,
                                                  validators=[CheckDigitValidator(7), MaxValueValidator(9999999)])
-    studies = models.ManyToManyField(Study, blank=True, verbose_name=_('Studies'))
-    study_start_date = models.DateField(verbose_name=_('Study start date'))
-    dogroup = models.ForeignKey(DogroupGeneration, null=True, blank=True, verbose_name=_('Dogroup'),
+    studies = models.ManyToManyField(Study, blank=True, verbose_name=_l('Studies'))
+    study_start_date = models.DateField(verbose_name=_l('Study start date'))
+    dogroup = models.ForeignKey(DogroupGeneration, null=True, blank=True, verbose_name=_l('Dogroup'),
                                 on_delete=models.SET_NULL)
 
     def __str__(self):

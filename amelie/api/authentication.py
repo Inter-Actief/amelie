@@ -1,6 +1,6 @@
 from typing import Union, List, Dict
 
-from django.utils.translation import gettext
+from django.utils.translation import gettext as _
 from oauth2_provider.models import AccessToken
 
 from amelie.api.decorators import authentication_optional, authentication_required
@@ -117,7 +117,7 @@ def get_authenticated_apps(**kwargs) -> Union[List[Dict], None]:
         for access_token in person.user.oauth2_provider_accesstoken.order_by('-expires').all():
             translated_scopes = {}
             for s, d in access_token.scopes.items():
-                translated_scopes[s] = gettext(d)
+                translated_scopes[s] = _(d)
 
             result.append({
                 "applicationName": access_token.application.name,

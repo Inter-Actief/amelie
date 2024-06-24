@@ -3,13 +3,13 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.utils import timezone
 from django.utils.timezone import make_aware
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _l
 from oauth2_provider.models import Application
 
 from amelie.activities.utils import setlocale, update_waiting_list
@@ -22,13 +22,13 @@ from amelie.tools.managers import SubclassManager
 
 
 class ActivityLabel(models.Model):
-    name_en = models.CharField(verbose_name=_("Name (en)"), max_length=32)
-    name_nl = models.CharField(verbose_name=_("Name"), max_length=32)
-    color = models.CharField(verbose_name=_("Hexcolor without #"), max_length=6)
-    icon = models.CharField(verbose_name=_("Icon from known icons"), max_length=32)
-    explanation_en = models.TextField(verbose_name=_("Explanation on icon (en)"))
-    explanation_nl = models.TextField(verbose_name=_("Explanation on icon"))
-    active = models.BooleanField(verbose_name=_("Active?"), default=True)
+    name_en = models.CharField(verbose_name=_l("Name (en)"), max_length=32)
+    name_nl = models.CharField(verbose_name=_l("Name"), max_length=32)
+    color = models.CharField(verbose_name=_l("Hexcolor without #"), max_length=6)
+    icon = models.CharField(verbose_name=_l("Icon from known icons"), max_length=32)
+    explanation_en = models.TextField(verbose_name=_l("Explanation on icon (en)"))
+    explanation_nl = models.TextField(verbose_name=_l("Explanation on icon"))
+    active = models.BooleanField(verbose_name=_l("Active?"), default=True)
 
     @property
     def name(self):
@@ -55,21 +55,21 @@ class ActivityLabel(models.Model):
 
 
 class Activity(Event):
-    enrollment = models.BooleanField(default=False, verbose_name=_('enrollment'))
-    enrollment_begin = models.DateTimeField(blank=True, null=True, verbose_name=_('enrollment start'), help_text=_('If you want to add options, make sure your activity isn\'t open for enrollment right away'))
-    enrollment_end = models.DateTimeField(blank=True, null=True, verbose_name=_('enrollment end'))
+    enrollment = models.BooleanField(default=False, verbose_name=_l('enrollment'))
+    enrollment_begin = models.DateTimeField(blank=True, null=True, verbose_name=_l('enrollment start'), help_text=_l('If you want to add options, make sure your activity isn\'t open for enrollment right away'))
+    enrollment_end = models.DateTimeField(blank=True, null=True, verbose_name=_l('enrollment end'))
     maximum = models.PositiveIntegerField(blank=True, null=True)
-    waiting_list_locked = models.BooleanField(default=False, verbose_name=_('Lock waiting list'))
+    waiting_list_locked = models.BooleanField(default=False, verbose_name=_l('Lock waiting list'))
 
     photos = models.ManyToManyField(Attachment, blank=True, related_name='foto_set')
     components = models.ManyToManyField('self', blank=True)
 
-    price = models.DecimalField(default="0.00", max_digits=8, decimal_places=2, verbose_name=_('price'))
-    can_unenroll = models.BooleanField(default=True, verbose_name=_('can unenroll'))
+    price = models.DecimalField(default="0.00", max_digits=8, decimal_places=2, verbose_name=_l('price'))
+    can_unenroll = models.BooleanField(default=True, verbose_name=_l('can unenroll'))
 
-    image_icon = models.ImageField(upload_to='activities/icon/', max_length=255, null=True, blank=True, verbose_name=_('icon'), help_text=_('Image of 175 by 275 pixels.'))
+    image_icon = models.ImageField(upload_to='activities/icon/', max_length=255, null=True, blank=True, verbose_name=_l('icon'), help_text=_l('Image of 175 by 275 pixels.'))
 
-    facebook_event_id = models.CharField(max_length=150, blank=True, help_text=_("Facebook event id, numerical value in the facebook event url."))
+    facebook_event_id = models.CharField(max_length=150, blank=True, help_text=_l("Facebook event id, numerical value in the facebook event url."))
 
     activity_label = models.ForeignKey(ActivityLabel, on_delete=models.PROTECT)
 
@@ -79,8 +79,8 @@ class Activity(Event):
 
     class Meta:
         ordering = ['begin']
-        verbose_name = _('Activities')
-        verbose_name_plural = _('Activities')
+        verbose_name = _l('Activities')
+        verbose_name_plural = _l('Activities')
 
     def __str__(self):
         return self.summary
@@ -110,10 +110,10 @@ class Activity(Event):
 
         if self.enrollment:
             if self.enrollment_begin is None:
-                raise ValidationError(_('There is no enrollment start date entered.'))
+                raise ValidationError(_l('There is no enrollment start date entered.'))
 
             if self.enrollment_end is None:
-                raise ValidationError(_('There is no enrollment end date entered.'))
+                raise ValidationError(_l('There is no enrollment end date entered.'))
 
     def get_absolute_url(self):
         return reverse('activities:activity', args=[self.id])
@@ -216,14 +216,14 @@ class Activity(Event):
 
 class Enrollmentoption(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
-    title = models.CharField(max_length=250, verbose_name=_('Title'))
+    title = models.CharField(max_length=250, verbose_name=_l('Title'))
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
 
     objects = SubclassManager()
 
     class Meta:
-        verbose_name = _('Enrollment option')
-        verbose_name_plural = _('Enrollment options')
+        verbose_name = _l('Enrollment option')
+        verbose_name_plural = _l('Enrollment options')
 
     def __str__(self):
         return '%s (%s)' % (self.title, self.content_type)
@@ -264,7 +264,7 @@ class EnrollmentoptionQuestion(Enrollmentoption):
     Standard option where a question can be filled in, mandatory or not.
     """
 
-    required = models.BooleanField(default=True, verbose_name=_('Required'))
+    required = models.BooleanField(default=True, verbose_name=_l('Required'))
     objects = SubclassManager()
 
 
@@ -277,8 +277,8 @@ class EnrollmentoptionCheckbox(Enrollmentoption):
     price_extra     -- Defines the extra costs (or discount)
     """
 
-    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_('Price extra'), default=0)
-    maximum = models.IntegerField(verbose_name=_("Maximum limit of selections"), help_text=_("Set as 0 for unlimited"), default=0)
+    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price extra'), default=0)
+    maximum = models.IntegerField(verbose_name=_l("Maximum limit of selections"), help_text=_l("Set as 0 for unlimited"), default=0)
     objects = SubclassManager()
 
     def has_extra_costs(self):
@@ -303,9 +303,9 @@ class EnrollmentoptionNumeric(Enrollmentoption):
     price_extra     -- Defines the extra costs (or discount)
     """
 
-    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_('Price extra'), default=0)
-    maximum = models.IntegerField(verbose_name=_("Maximum limit of selections"), help_text=_("Set as 0 for unlimited"), default=0)
-    maximum_per_person = models.IntegerField(verbose_name=_("Maximum per person"), help_text=_("Set as 0 for unlimited"), default=0)
+    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price extra'), default=0)
+    maximum = models.IntegerField(verbose_name=_l("Maximum limit of selections"), help_text=_l("Set as 0 for unlimited"), default=0)
+    maximum_per_person = models.IntegerField(verbose_name=_l("Maximum per person"), help_text=_l("Set as 0 for unlimited"), default=0)
     objects = SubclassManager()
 
     def has_extra_costs(self):
@@ -340,7 +340,7 @@ class SelectboxOption(models.Model):
     """
 
     text = models.CharField(max_length=250)
-    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_('Price extra'), default=0)
+    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price extra'), default=0)
 
     selection_option = models.ForeignKey(EnrollmentoptionSelectbox, on_delete=models.CASCADE)
 
@@ -353,12 +353,15 @@ class EnrollmentoptionAnswer(models.Model):
     objects = SubclassManager()
 
     class Meta:
-        verbose_name = _('Answer to enrollment option')
-        verbose_name_plural = _('Anwers to enrollment option')
+        verbose_name = _l('Answer to enrollment option')
+        verbose_name_plural = _l('Anwers to enrollment option')
 
     @property
     def display_answer(self):
         return self.answer
+
+    def is_empty(self):
+        raise NotImplementedError('Cannot be called on base class')
 
     def __str__(self):
         return '%s' % self.content_type
@@ -399,25 +402,31 @@ class EnrollmentoptionAnswer(models.Model):
 
 
 class EnrollmentoptionQuestionAnswer(EnrollmentoptionAnswer):
-    answer = models.CharField(max_length=250, blank=True, verbose_name=_('Respons'))
+    answer = models.CharField(max_length=250, blank=True, verbose_name=_l('Respons'))
     objects = SubclassManager()
 
     @property
     def display_answer(self):
         return self.answer or "-"
 
+    def is_empty(self):
+        return EnrollmentoptionQuestionAnswer.objects.filter(id=self.id).filter(answer__exact='').exists()
+
     def clean(self):
         if self.enrollmentoption.enrollmentoptionquestion.required and len(self.answer) == 0:
-            raise ValidationError(_('A response is required'))
+            raise ValidationError(_l('A response is required'))
 
 
 class EnrollmentoptionCheckboxAnswer(EnrollmentoptionAnswer):
-    answer = models.BooleanField(default=False, verbose_name=_('Respons'))
+    answer = models.BooleanField(default=False, verbose_name=_l('Respons'))
     objects = SubclassManager()
 
     @property
     def display_answer(self):
-        return _("Yes") if self.answer else _("No")
+        return _l("Yes") if self.answer else _l("No")
+
+    def is_empty(self):
+        return EnrollmentoptionCheckboxAnswer.objects.filter(id=self.id).filter(answer=False).exists()
 
     def get_price_extra(self):
         if self.answer:
@@ -427,24 +436,30 @@ class EnrollmentoptionCheckboxAnswer(EnrollmentoptionAnswer):
 
 
 class EnrollmentoptionNumericAnswer(EnrollmentoptionAnswer):
-    answer = models.IntegerField(default=0, verbose_name=_('Respons'), validators=[MinValueValidator(0)])
+    answer = models.IntegerField(default=0, verbose_name=_l('Respons'), validators=[MinValueValidator(0)])
     objects = SubclassManager()
 
     @property
     def display_answer(self):
         return self.answer
 
+    def is_empty(self):
+        return EnrollmentoptionNumericAnswer.objects.filter(id=self.id).filter(answer=0).exists()
+
     def get_price_extra(self):
         return self.enrollmentoption.enrollmentoptionnumeric.price_extra * self.answer
 
 
 class EnrollmentoptionSelectboxAnswer(EnrollmentoptionAnswer):
-    answer = models.ForeignKey(SelectboxOption, verbose_name=_('Respons'), on_delete=models.CASCADE)
+    answer = models.ForeignKey(SelectboxOption, verbose_name=_l('Respons'), on_delete=models.CASCADE)
     objects = SubclassManager()
 
     @property
     def display_answer(self):
-        return self.answer or _("(none)")
+        return self.answer or _l("(none)")
+
+    def is_empty(self):
+        return EnrollmentoptionSelectboxAnswer.objects.filter(id=self.id).filter(answer__isnull=True).exists()
 
     def get_price_extra(self):
         return self.answer.price_extra
@@ -460,11 +475,11 @@ class Restaurant(models.Model):
 
 
 class Dish(models.Model):
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, verbose_name=_('Restaurant'))
-    name = models.CharField(max_length=64, verbose_name=_('Name'))
-    price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_('Price'))
-    available = models.BooleanField(default=True, verbose_name=_('Available'))
-    allergens = models.TextField(verbose_name=_('Allergens'), default=_('No information available'), blank=True)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, verbose_name=_l('Restaurant'))
+    name = models.CharField(max_length=64, verbose_name=_l('Name'))
+    price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price'))
+    available = models.BooleanField(default=True, verbose_name=_l('Available'))
+    allergens = models.TextField(verbose_name=_l('Allergens'), default=_l('No information available'), blank=True)
 
     def __str__(self):
         if self.available:
@@ -474,8 +489,8 @@ class Dish(models.Model):
 
 
 class EnrollmentoptionFood(Enrollmentoption):
-    required = models.BooleanField(default=True, verbose_name=_('Required'))
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, verbose_name=_('Restaurant'))
+    required = models.BooleanField(default=True, verbose_name=_l('Required'))
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.PROTECT, verbose_name=_l('Restaurant'))
 
     def has_extra_costs(self):
         return any([bool(dishprice.price) for dishprice in self.dishprice_set.all()])
@@ -489,7 +504,7 @@ class DishPriceManager(models.Manager):
 class DishPrice(models.Model):
     dish = models.ForeignKey(Dish, on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    question = models.ForeignKey(EnrollmentoptionFood, verbose_name=_('Enrollment optionquestion'), on_delete=models.CASCADE)
+    question = models.ForeignKey(EnrollmentoptionFood, verbose_name=_l('Enrollment optionquestion'), on_delete=models.CASCADE)
 
     # Hide unavailable options by default
     objects = DishPriceManager()
@@ -500,7 +515,7 @@ class DishPrice(models.Model):
 
 
 class EnrollmentoptionFoodAnswer(EnrollmentoptionAnswer):
-    dishprice = models.ForeignKey(DishPrice, null=True, blank=True, verbose_name=_('Dish cost'), on_delete=models.PROTECT)
+    dishprice = models.ForeignKey(DishPrice, null=True, blank=True, verbose_name=_l('Dish cost'), on_delete=models.PROTECT)
 
     @property
     def answer(self):
@@ -508,7 +523,10 @@ class EnrollmentoptionFoodAnswer(EnrollmentoptionAnswer):
 
     @property
     def display_answer(self):
-        return self.answer or _("(none)")
+        return self.answer or _l("(none)")
+
+    def is_empty(self):
+        return EnrollmentoptionFoodAnswer.objects.filter(id=self.id).filter(dishprice__isnull=True).exists()
 
     def get_price_extra(self):
         return self.dishprice.price if self.dishprice else super(EnrollmentoptionFoodAnswer, self).get_price_extra()
@@ -534,22 +552,22 @@ pre_save.connect(send_discord_presave, sender=Activity)
 
 class EventDeskRegistrationMessage(models.Model):
     class EventRegistrationStates(models.TextChoices):
-        NEW = 'NEW', _("Registered")
-        ACCEPTED = 'ACCEPTED', _("Accepted")
-        UNKOWN = 'UNKNOWN', _("Unknown")
+        NEW = 'NEW', _l("Registered")
+        ACCEPTED = 'ACCEPTED', _l("Accepted")
+        UNKOWN = 'UNKNOWN', _l("Unknown")
 
-    message_id = models.CharField(verbose_name=_("E-mail message ID"), unique=True, max_length=191)
-    message_date = models.DateTimeField(verbose_name=_("E-mail message timestamp"))
+    message_id = models.CharField(verbose_name=_l("E-mail message ID"), unique=True, max_length=191)
+    message_date = models.DateTimeField(verbose_name=_l("E-mail message timestamp"))
     activity = models.ForeignKey(to=Activity, blank=True, null=True, on_delete=models.SET_NULL)
-    state = models.CharField(verbose_name=_("New state of the event registration"),
+    state = models.CharField(verbose_name=_l("New state of the event registration"),
                              choices=EventRegistrationStates.choices, max_length=191)
-    requester = models.CharField(verbose_name=_("Person that requested the registration as stated in the e-mail"),
+    requester = models.CharField(verbose_name=_l("Person that requested the registration as stated in the e-mail"),
                                  max_length=191)
-    event_name = models.CharField(verbose_name=_("Name of the event as stated in the e-mail"), max_length=191)
-    event_start = models.CharField(verbose_name=_("Start date/time of the event as stated in the e-mail"), max_length=191)
-    event_end = models.CharField(verbose_name=_("End date/time of the event as stated in the e-mail"), max_length=191)
-    event_location = models.CharField(verbose_name=_("Location of the event as stated in the e-mail"), max_length=191)
-    match_ratio = models.DecimalField(verbose_name=_("Percentage certainty of match with activity."), decimal_places=3,
+    event_name = models.CharField(verbose_name=_l("Name of the event as stated in the e-mail"), max_length=191)
+    event_start = models.CharField(verbose_name=_l("Start date/time of the event as stated in the e-mail"), max_length=191)
+    event_end = models.CharField(verbose_name=_l("End date/time of the event as stated in the e-mail"), max_length=191)
+    event_location = models.CharField(verbose_name=_l("Location of the event as stated in the e-mail"), max_length=191)
+    match_ratio = models.DecimalField(verbose_name=_l("Percentage certainty of match with activity."), decimal_places=3,
                                       max_digits=6, blank=True, null=True)
 
     class Meta:
@@ -587,9 +605,9 @@ class EventDeskRegistrationMessage(models.Model):
 
     def get_match_ratio_display(self):
         if self.match_ratio is None or self.match_ratio == -1:
-            return _("n/a")
+            return _l("n/a")
         else:
-            return _("{0:.1f}% certain").format(self.match_ratio * 100)
+            return _l("{0:.1f}% certain").format(self.match_ratio * 100)
 
     def ratio_ok(self):
         if self.match_ratio is None or self.match_ratio == -1:

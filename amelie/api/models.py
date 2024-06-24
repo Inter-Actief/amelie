@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _l
 
 from amelie.members.models import Person
 
@@ -16,8 +16,8 @@ class PushNotification(models.Model):
     recipients = models.ManyToManyField(Person, blank=True)
 
     class Meta:
-        verbose_name = _('Push Notification')
-        verbose_name_plural = _('Push Notifications')
+        verbose_name = _l('Push Notification')
+        verbose_name_plural = _l('Push Notifications')
 
     def __str__(self):
         return '%s' % self.title

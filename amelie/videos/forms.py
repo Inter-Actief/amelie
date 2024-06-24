@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.activities.forms import DateTimeSelector, SplitDateTimeField
 from amelie.tools import youtube
@@ -10,7 +10,7 @@ from .models import YouTubeVideo, StreamingIAVideo
 def validate_youtube_video_id(video_id):
     video = youtube.retrieve_video_details(video_id)
     if not video:
-        raise forms.ValidationError(_('YouTube video with ID "%(video_id)s" doesn\'t exist.'), params={
+        raise forms.ValidationError(_l('YouTube video with ID "%(video_id)s" doesn\'t exist.'), params={
             'video_id': video_id
         })
 
@@ -18,7 +18,7 @@ def validate_youtube_video_id(video_id):
 def validate_streaming_video_id(video_id):
     video = streaming_ia.retrieve_video_details(video_id)
     if not video:
-        raise forms.ValidationError(_('Streaming.IA video with ID "%(video_id)s" doesn\'t exist.'), params={
+        raise forms.ValidationError(_l('Streaming.IA video with ID "%(video_id)s" doesn\'t exist.'), params={
             'video_id': video_id
         })
 

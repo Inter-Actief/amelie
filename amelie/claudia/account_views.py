@@ -6,7 +6,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import TemplateView
@@ -51,7 +51,7 @@ def _valid_password(account_name, password):
 
     person = ad.find_person(account_name)
     if not person:
-        return False, _('Enter a correct username and password. Warning: the fields are case-sensitive.')
+        return False, _l('Enter a correct username and password. Warning: the fields are case-sensitive.')
     else:
         # Check if the user needs to change their password
         change_back = not person.has_changed_password()
@@ -64,9 +64,9 @@ def _valid_password(account_name, password):
             ad2.find_person(account_name)
             return True, None
         except ldap.INVALID_CREDENTIALS:
-            return False, _('Enter a correct username and password. Warning: the fields are case-sensitive.')
+            return False, _l('Enter a correct username and password. Warning: the fields are case-sensitive.')
         except ldap.OPERATIONS_ERROR:
-            return False, _('Something went wrong, please contact the system administrators.')
+            return False, _l('Something went wrong, please contact the system administrators.')
         finally:
             if change_back:  # Don't forget the checkbox
                 person.must_change_password()
@@ -96,7 +96,7 @@ def _process_set_password(account_name, new_password):
         person.set_password(new_password)
         return True, None
     except ldap.INSUFFICIENT_ACCESS:
-        return False, _('Something went wrong, please contact the system administrators.')
+        return False, _l('Something went wrong, please contact the system administrators.')
 
 
 def _process_activate(account_name, current_password, new_password):
@@ -115,14 +115,14 @@ def _process_activate(account_name, current_password, new_password):
             ad = _get_ad()
             person = ad.find_person(account_name)
             if person.has_changed_password():
-                return False, _('Your account has already been activated.')
+                return False, _l('Your account has already been activated.')
             else:
                 person.set_password(new_password)
                 return True, None
         except ldap.INSUFFICIENT_ACCESS:
-            return False, _('Something went wrong, please contact the system administrators.')
+            return False, _l('Something went wrong, please contact the system administrators.')
         except ldap.INVALID_CREDENTIALS:
-            return False, _('It looks like you have entered an unknown username and password combination. '
+            return False, _l('It looks like you have entered an unknown username and password combination. '
                             'Please contact the administrators if you are sure you entered a correct combination.')
 
     else:
@@ -145,7 +145,7 @@ class AccountError(TemplateView):
     """
     template_name = 'accounts/error.html'
 
-    error = _("Something went wrong, please contact the system administrators.")
+    error = _l("Something went wrong, please contact the system administrators.")
 
     def get_context_data(self, **kwargs):
         context = super(AccountError, self).get_context_data()
@@ -258,40 +258,40 @@ class AccountPasswordResetLink(FormView):
         # Check reset code kwarg
         reset_code = self.kwargs.get("reset_code")
         if reset_code is None:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Check if person exists with this code
         try:
             person = Person.objects.get(password_reset_code=reset_code)
         except Person.DoesNotExist:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Check if code is not expired
         if timezone.now() > person.password_reset_expiry:
             person.password_reset_code = None
             person.password_reset_expiry = None
             person.save()
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         return super(AccountPasswordResetLink, self).get_context_data(**kwargs)
 
     def form_valid(self, form):
         reset_code = self.kwargs.get("reset_code")
         if reset_code is None:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Get person
         try:
             person = Person.objects.get(password_reset_code=reset_code)
         except Person.DoesNotExist:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Check if code is not expired
         if timezone.now() > person.password_reset_expiry:
             person.password_reset_code = None
             person.password_reset_expiry = None
             person.save()
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Remove reset code
         person.password_reset_code = None
@@ -302,10 +302,10 @@ class AccountPasswordResetLink(FormView):
         res, msg = _process_set_password(person.account_name, form.cleaned_data['new_password'])
         if res:
             messages.add_message(request=self.request, level=messages.INFO,
-                                 message=_("Your password was successfully changed. You may now log in."))
+                                 message=_l("Your password was successfully changed. You may now log in."))
             return super(AccountPasswordResetLink, self).form_valid(form)
         else:
-            raise ValueError(_("Error while changing password. {}".format(msg)))
+            raise ValueError(_l("Error while changing password. {}".format(msg)))
 
 
 class AccountConfigureForwardingView(RequireActiveMemberMixin, LoginRequiredMixin, TemplateView):
@@ -363,7 +363,7 @@ class AccountCheckForwardingStatus(RequireActiveMemberMixin, LoginRequiredMixin,
         if forwarding_emails['enabled']:
             message = forwarding_emails['emailAddress']
         else:
-            message = _("Unknown, please disable and re-enable forwarding!")
+            message = _l("Unknown, please disable and re-enable forwarding!")
 
         return HttpJSONResponse({
             'enabled': forwarding_emails['enabled'],
@@ -385,21 +385,21 @@ class AccountCheckForwardingVerificationStatus(RequireActiveMemberMixin, LoginRe
         if is_verified:
             if initial_check:
                 message = "<div class=\"icon status_icon icon-accept\"></div><span>" +\
-                          str(_("Your personal e-mail address is already known with Google. "
+                          str(_l("Your personal e-mail address is already known with Google. "
                                 "Click below to activate your e-mail forward.")) +\
                           "</span>"
             else:
                 message = "<div class=\"icon status_icon icon-accept\"></div><span>" + \
-                          str(_("Your e-mail address has been verified with Google! "
+                          str(_l("Your e-mail address has been verified with Google! "
                                 "Click below to activate your e-mail forward.")) + \
                           "</span>"
         else:
             if initial_check:
-                message = _("Your personal e-mail address is not known yet with Google. This has to be verified first. "
+                message = _l("Your personal e-mail address is not known yet with Google. This has to be verified first. "
                             "Click below to start the verification process.")
             else:
                 message = "<div class=\"icon status_icon icon-arrow_rotate_clockwise\"></div><span>" + \
-                          str(_("Your e-mail address has not been verified yet. "
+                          str(_l("Your e-mail address has not been verified yet. "
                                 "Please check your e-mail for a verification link.")) + \
                           "</span>"
 
@@ -439,7 +439,7 @@ class AccountActivateForwardingAddress(RequireActiveMemberMixin, LoginRequiredMi
             return HttpJSONResponse({
                 'ok': True,
                 'message': "<div class=\"icon status_icon icon-accept\"></div><span>" +
-                           str(_("Your forward is now activated!")) +
+                           str(_l("Your forward is now activated!")) +
                            "</span>"
             })
         else:
@@ -457,7 +457,7 @@ class AccountDeactivateForwardingAddress(RequireActiveMemberMixin, LoginRequired
         return HttpJSONResponse({
             'ok': True,
             'message': "<div class=\"icon status_icon icon-accept\"></div><span>" +
-                       str(_("Your forward has been deactivated! Don't forget to regularly check "
+                       str(_l("Your forward has been deactivated! Don't forget to regularly check "
                              "your Google Suite e-mail so you don't miss anything important!")) +
                        "</span>"
         })

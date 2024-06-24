@@ -1,6 +1,6 @@
 from django.urls import reverse
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Committee
 from amelie.videos.managers import VideoManager
@@ -15,15 +15,15 @@ class BaseVideo(models.Model):
 
     publisher = models.ForeignKey(Committee, on_delete=models.PROTECT)
 
-    is_featured = models.BooleanField(default=False, verbose_name=_('Featured'))
-    public = models.BooleanField(default=True, verbose_name=_('Public'))
+    is_featured = models.BooleanField(default=False, verbose_name=_l('Featured'))
+    public = models.BooleanField(default=True, verbose_name=_l('Public'))
 
     objects = VideoManager()
 
     class Meta:
         ordering = ['-date_published']
-        verbose_name = _('Video')
-        verbose_name_plural = _('Videos')
+        verbose_name = _l('Video')
+        verbose_name_plural = _l('Videos')
 
     def __str__(self):
         return '%s' % self.title
@@ -55,8 +55,8 @@ class BaseVideo(models.Model):
 class YouTubeVideo(BaseVideo):
     class Meta:
         ordering = ['-date_published']
-        verbose_name = _('YouTube video')
-        verbose_name_plural = _('YouTube videos')
+        verbose_name = _l('YouTube video')
+        verbose_name_plural = _l('YouTube videos')
 
     def get_absolute_url(self):
         return reverse('videos:single_yt_video', args=(), kwargs={'pk': self.video_id})
@@ -65,8 +65,8 @@ class YouTubeVideo(BaseVideo):
 class StreamingIAVideo(BaseVideo):
     class Meta:
         ordering = ['-date_published']
-        verbose_name = _('Streaming.IA video')
-        verbose_name_plural = _('Streaming.IA videos')
+        verbose_name = _l('Streaming.IA video')
+        verbose_name_plural = _l('Streaming.IA videos')
 
     def get_absolute_url(self):
         return reverse('videos:single_ia_video', args=(), kwargs={'pk': self.video_id})

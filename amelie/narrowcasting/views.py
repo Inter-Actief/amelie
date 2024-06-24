@@ -145,12 +145,20 @@ def _spotify_refresh_token(association):
     })
 
     data = res.json()
+    
+    if 'error' in data:
+        raise ValueError(data['error_description'])
+    elif res.status_code != 200:
+        raise ValueError(f"Status code: {res.status_code}")
+        
     try:
         association.access_token = data['access_token']
         association.save()
-    except KeyError:
+    except KeyError as e:
         if 'error' in data:
             raise ValueError(data['error_description'])
+        else:
+            raise e
     return association
 
 @cache_page(5)
@@ -178,8 +186,11 @@ def room_spotify_now_playing(request):
         data = {'error': False, 'is_playing': False}
     elif res.status_code == 401:
         # Access code expired, request a new one and retry the request.
-        _spotify_refresh_token(assoc)
-        return room_spotify_now_playing(request)
+        try:
+            _spotify_refresh_token(assoc)
+            return room_spotify_now_playing(request)
+        except ValueError as e:
+            data = {'error': True, 'code': 500, 'msg': str(e)}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
@@ -210,8 +221,11 @@ def room_spotify_pause(request):
         data = {'error': False, 'is_playing': False}
     elif res.status_code == 401:
         # Access code expired, request a new one and retry the request.
-        _spotify_refresh_token(assoc)
-        return room_spotify_now_playing(request)
+        try:
+            _spotify_refresh_token(assoc)
+            return room_spotify_pause(request)
+        except ValueError as e:
+            data = {'error': True, 'code': 500, 'msg': str(e)}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
@@ -242,10 +256,12 @@ def room_spotify_play(request):
         data = {'error': False, 'is_playing': False}
     elif res.status_code == 401:
         # Access code expired, request a new one and retry the request.
-        _spotify_refresh_token(assoc)
-        return room_spotify_now_playing(request)
+        try:
+            _spotify_refresh_token(assoc)
+            return room_spotify_play(request)
+        except ValueError as e:
+            data = {'error': True, 'code': 500, 'msg': str(e)}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
     return JsonResponse(data)
-

@@ -114,11 +114,15 @@ def activity_ics(request, pk):
     return resp
 
 
-def activities(request):
+def activities(request, act_type=None):
     """
     Gives an overview of all upcoming activities and recent past activities.
     """
     activities = Event.objects.filter_public(request)
+
+    if act_type:
+        activities = activities.filter(Q(activity__activity_label__name_en=act_type) | Q(activity__activity_label__name_nl=act_type))
+
     old_activities = list(activities.filter(end__lt=timezone.now()))[-10:]
     new_activities = list(activities.filter(end__gte=timezone.now()))
 
