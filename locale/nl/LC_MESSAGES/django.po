@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-24 20:16+0200\n"
-"PO-Revision-Date: 2024-06-24 20:18+0018\n"
+"POT-Creation-Date: 2024-06-24 20:23+0200\n"
+"PO-Revision-Date: 2024-06-24 20:26+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -5218,7 +5218,6 @@ msgid "This person cannot be anonymized because of the following reasons:"
 msgstr "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:"
 
 #: amelie/members/templates/person_accounts.html:4
-#| msgid "The following user account(s) have been found that are related to you."
 msgid "The following user account(s) have been found that are related to this person."
 msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan deze persoon gerelateerd zijn."
 
@@ -8306,13 +8305,23 @@ msgstr "Weekmail wijzigen"
 msgid "Edit mastermail"
 msgstr "Mastermail wijzigen"
 
-#: amelie/weekmail/templates/weekmail/weekmail_form.html:5
+#: amelie/weekmail/templates/weekmail/weekmail_form.html:5 amelie/weekmail/templates/weekmail/weekmail_form.html:11 amelie/weekmail/templates/weekmail/weekmail_wizard.html:5
+#| msgid "For active members only."
+msgid "Edit active members mail"
+msgstr "Bewerk actieveledenmail"
+
+#: amelie/weekmail/templates/weekmail/weekmail_form.html:5 amelie/weekmail/templates/weekmail/weekmail_form.html:11 amelie/weekmail/templates/weekmail/weekmail_wizard.html:5
 msgid "Edit educational mail"
 msgstr "Bewerk onderwijsmail"
 
-#: amelie/weekmail/templates/weekmail/weekmail_form.html:5 amelie/weekmail/templates/weekmail/weekmail_form.html:11
+#: amelie/weekmail/templates/weekmail/weekmail_form.html:5
 msgid "Add weekly mail, mastermail or educational mail"
 msgstr "Weekmail, mastermail of onderwijsmail toevoegen"
+
+#: amelie/weekmail/templates/weekmail/weekmail_form.html:11
+#| msgid "Add weekly mail, mastermail or educational mail"
+msgid "Add weekly mail, mastermail, active members mail or educational mail"
+msgstr "Weekmail, mastermail, actieveledenmail of onderwijsmail toevoegen"
 
 #: amelie/weekmail/templates/weekmail/weekmail_form.html:18
 msgid "Done"
@@ -8331,8 +8340,9 @@ msgid "Published"
 msgstr "Gepubliceerd"
 
 #: amelie/weekmail/templates/weekmail/weekmail_list.html:36
-msgid "New weekly mail, mastermail or educational mail"
-msgstr "Nieuwe weekmail, mastermail of onderwijsmail"
+#| msgid "New weekly mail, mastermail or educational mail"
+msgid "New weekly mail, mastermail, active members mail or educational mail"
+msgstr "Nieuwe weekmail, mastermail, actieveledenmail of onderwijsmail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:31
 msgid "Week"
@@ -8343,6 +8353,11 @@ msgid "Mastermail"
 msgstr "Mastermail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:31
+#| msgid "Active members:"
+msgid "Active members mail"
+msgstr "Actieveledenmail"
+
+#: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7 amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:31
 msgid "Educational mail"
 msgstr "Onderwijsmail"
 
@@ -8350,11 +8365,16 @@ msgstr "Onderwijsmail"
 msgid "Read online"
 msgstr "Lees online"
 
-#: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:162 amelie/weekmail/templates/weekmail/weekmail_mail_plain.mail:39
+#: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:163
+#| msgid "You are receiving this e-mail because you recently requested a data export of the personal data that Inter-Actief has about you."
+msgid "You are receiving this e-mail because you are an active member at Inter-Actief. You can not unenroll for these e-mails."
+msgstr "Je ontvangt deze e-mail omdat je een actief lid bent van Inter-Actief. Je kunt je niet uitschrijven voor deze e-mails."
+
+#: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:165 amelie/weekmail/templates/weekmail/weekmail_mail_plain.mail:39
 msgid "You are receiving this e-mail because you have indicated you wanted it. Change your preference in your profile on the Inter-Actief website or contact the board."
 msgstr "Je ontvangt deze mail omdat je dit hebt aangegeven. Indien je deze mail niet meer wenst te ontvangen, verander dan je voorkeur op je profiel op de Inter-Actief website of neem contact op met het bestuur."
 
-#: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:163
+#: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:167
 msgid "I.C.T.S.V. Inter-<i>Actief</i>"
 msgstr "I.C.T.S.V. Inter-<i>Actief</i>"
 
@@ -8453,6 +8473,11 @@ msgid "Send mastermail"
 msgstr "Verzend mastermail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:254
+#| msgid "For active members only."
+msgid "Send active members mail"
+msgstr "Stuur actieveledenmail"
+
+#: amelie/weekmail/templates/weekmail/weekmail_wizard.html:254
 msgid "Send educational mail"
 msgstr "Verstuur onderwijsmail"
 
@@ -8465,8 +8490,9 @@ msgid "Example (EN)"
 msgstr "Voorbeeld (EN)"
 
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:5
-msgid "Delete news message of the weekly mail, mastermail or educational mail"
-msgstr "Verwijder nieuwsbericht van weekmail, mastermail of onderwijsmail"
+#| msgid "Delete news message of the weekly mail, mastermail or educational mail"
+msgid "Delete news message of the weekly mail, mastermail, active members mail or educational mail"
+msgstr "Verwijder nieuwsbericht van weekmail, mastermail, actieveledenmail of onderwijsmail"
 
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_confirm_delete.html:11
 #, python-format
@@ -8489,7 +8515,7 @@ msgstr "Error in het veld inhoud:"
 msgid "Error in the field inhoud_en:"
 msgstr "Error in het veld inhoud_en:"
 
-#: amelie/weekmail/views.py:203
+#: amelie/weekmail/views.py:216
 msgid "{} is being sent"
 msgstr "{} wordt nu verstuurd"
 
@@ -10937,9 +10963,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Access for the Educational Committee only."
 #~ msgstr "Uitsluitend toegankelijk voor de onderwijscommissie."
-
-#~ msgid "For active members only."
-#~ msgstr "Uitsluitend voor leden met een actief lidmaatschap."
 
 #~ msgid "Access for active members only."
 #~ msgstr "Uitsluitend toegankelijk voor actieve leden."

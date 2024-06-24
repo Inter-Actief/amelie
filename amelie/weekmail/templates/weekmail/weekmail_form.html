@@ -2,13 +2,13 @@
 {% load i18n md2 %}
 
 {% block titel %}
-    {% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% elif object.mailtype == 'M' %}{% trans 'Edit mastermail' %}{% else %}{% trans 'Edit educational mail' %}{% endif %}{% else %}{% trans 'Add weekly mail, mastermail or educational mail' %}{% endif %}
+    {% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% elif object.mailtype == 'M' %}{% trans 'Edit mastermail' %}{% elif object.mailtype == 'A' %}{% trans 'Edit active members mail' %}{% else %}{% trans 'Edit educational mail' %}{% endif %}{% else %}{% trans 'Add weekly mail, mastermail or educational mail' %}{% endif %}
 {% endblock titel %}
 
 {% block content %}
     <div class="col-xs-12">
         <div class="current">
-            <h2>{% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% else %}{% trans 'Edit mastermail' %}{% endif %}{% else %}{% trans 'Add weekly mail, mastermail or educational mail' %}{% endif %}</h2>
+            <h2>{% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% elif object.mailtype == 'M' %}{% trans 'Edit mastermail' %}{% elif object.mailtype == 'A' %}{% trans 'Edit active members mail' %}{% else %}{% trans 'Edit educational mail' %}{% endif %}{% else %}{% trans 'Add weekly mail, mastermail, active members mail or educational mail' %}{% endif %}</h2>
             <div class="content">
                 <form method="post">
                     {% csrf_token %}
