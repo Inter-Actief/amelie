@@ -24,6 +24,7 @@
                         <th>{% trans 'Description' %}</th>
                         <th>{% trans 'Active' %}</th>
                         <th>{% trans 'Dogroup' %}</th>
+                        <th>{% trans 'GitLab' %}</th>
                     </tr>
                     {% for group in page_obj %}
                     <tr {% if not group.active %}class="claudia-inactive"{% endif %}>
@@ -33,6 +34,7 @@
                         <td>{{ group.description }}</td>
                         <td>{{ group.active|yesno }}</td>
                         <td>{{ group.dogroup|yesno }}</td>
+                        <td>{{ group.gitlab|yesno }}</td>
                     </tr>
                     {% endfor %}
                 </table>

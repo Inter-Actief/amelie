@@ -29,6 +29,8 @@ class ExtraGroup(models.Model, Mappable):
     adname = models.CharField(max_length=50, blank=True)
     dogroup = models.BooleanField(default=False)
     description = models.TextField(blank=True)
+    gitlab = models.BooleanField(default=False, verbose_name=_l('Create GitLab group'),
+                                 help_text=_l('Members of this group get access to GitLab'))
 
     def clean(self):
         super(ExtraGroup, self).clean()
@@ -69,6 +71,12 @@ class ExtraGroup(models.Model, Mappable):
 
     def get_absolute_url(self):
         return reverse('claudia:extragroup_view', args=(), kwargs={'pk': self.id})
+
+    def get_extra_data(self):
+        """Get extra data of this group"""
+        return {
+            'gitlab': self.gitlab,
+        }
 
     def __str__(self):
         return self.name
