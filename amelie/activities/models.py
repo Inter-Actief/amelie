@@ -318,6 +318,8 @@ class EnrollmentoptionNumeric(Enrollmentoption):
         if self.maximum == 0:
             return -1
         count = self.enrollmentoptionanswer_set.aggregate(Sum('enrollmentoptionnumericanswer__answer'))
+        if count is None or count.get('enrollmentoptionnumericanswer__answer__sum') is None:
+            return self.maximum
         return self.maximum - count.get('enrollmentoptionnumericanswer__answer__sum')
 
     def spots_left(self):

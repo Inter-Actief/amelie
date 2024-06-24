@@ -31,7 +31,7 @@ def _get_ad():
     """
     from amelie.claudia.ad import AD
     a = settings.CLAUDIA_AD
-    return AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"])
+    return AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"], a["CACERTFILE"])
 
 
 def _valid_password(account_name, password):
@@ -60,7 +60,7 @@ def _valid_password(account_name, password):
         try:
             # Try to connect with given username and password
             a = settings.CLAUDIA_AD
-            ad2 = AD(a["LDAP"], a["HOST"], account_name, password, a["BASEDN"], a["PORT"])
+            ad2 = AD(a["LDAP"], a["HOST"], account_name, password, a["BASEDN"], a["PORT"], a["CACERTFILE"])
             ad2.find_person(account_name)
             return True, None
         except ldap.INVALID_CREDENTIALS:
