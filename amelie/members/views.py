@@ -308,7 +308,7 @@ def person_view(request, id, slug):
     alters_data = True
     date_old_mandates = settings.DATE_PRE_SEPA_AUTHORIZATIONS
     try:
-        accounts = get_user_info(request.user.person)
+        accounts = get_user_info(obj)
     except Exception as e:
         # Keycloak not reachable or running in non-production (not configured)
         accounts = []
