@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-20 19:16+0200\n"
-"PO-Revision-Date: 2024-06-20 19:17+0018\n"
+"POT-Creation-Date: 2024-06-24 20:16+0200\n"
+"PO-Revision-Date: 2024-06-24 20:18+0018\n"
 "Last-Translator: Kevin Alberts <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -2329,6 +2329,10 @@ msgstr "Accountnaam"
 msgid "Dogroup"
 msgstr "Doegroep"
 
+#: amelie/claudia/templates/claudia/extragroup_list.html:27
+msgid "GitLab"
+msgstr "GitLab"
+
 #: amelie/claudia/templates/claudia/extraperson_form.html:4 amelie/claudia/templates/claudia/extraperson_form.html:10
 msgid "Create new extra AD person"
 msgstr "Nieuw extra AD persoon aanmaken"
@@ -3802,6 +3806,18 @@ msgstr ""
 "Deze inhoud wordt niet beheerd door Inter-<i>Actief</i>, maar door\n"
 "<a href=\"http://samenvattingen.student.utwente.nl/wiki.php/SamenvattingenWIKI:Info\">SamenvattingenWiki</a>."
 
+#: amelie/gmm/admin.py:13
+msgid "GMM Document"
+msgstr "ALV-stuk"
+
+#: amelie/gmm/admin.py:14
+msgid "GMM Documents"
+msgstr "ALV-stukken"
+
+#: amelie/gmm/admin.py:24
+msgid "# documents"
+msgstr "# documenten"
+
 #: amelie/gmm/templates/gmm_overview.html:5 amelie/gmm/templates/gmm_overview.html:29 templates/basis.html:208
 msgid "GMM documents"
 msgstr "ALV-stukken"
@@ -3834,7 +3850,11 @@ msgstr "Stukken voor aankomende ALV"
 msgid "(date yet unknown)"
 msgstr "(datum nog onbekend)"
 
-#: amelie/gmm/templates/gmm_overview.html:83
+#: amelie/gmm/templates/gmm_overview.html:80 amelie/gmm/templates/gmm_overview.html:101
+msgid "For this GMM, the following documents are available:"
+msgstr "Voor deze ALV zijn de volgende documenten beschikbaar:"
+
+#: amelie/gmm/templates/gmm_overview.html:94
 #, python-format
 msgid "Document for GMM of %(date)s"
 msgstr "Stukken voor de ALV van %(date)s"
@@ -5200,7 +5220,7 @@ msgstr "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:
 #: amelie/members/templates/person_accounts.html:4
 #| msgid "The following user account(s) have been found that are related to you."
 msgid "The following user account(s) have been found that are related to this person."
-msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan deze gebruiker gerelateerd zijn."
+msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan deze persoon gerelateerd zijn."
 
 #: amelie/members/templates/person_accounts.html:8 amelie/members/templates/person_accounts.html:44 amelie/personal_tab/templates/register/register_card_index.html:19 templates/profile_overview.html:181 templates/profile_overview.html:220
 msgid "Username"
@@ -11486,9 +11506,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Downloads"
 #~ msgstr "Downloads"
-
-#~ msgid "For this product, the following keys are available."
-#~ msgstr "Voor dit product zijn onderstaande downloads beschikbaar."
 
 #~ msgid "MB"
 #~ msgstr "MB"

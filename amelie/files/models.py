@@ -1,5 +1,6 @@
 import errno
 import uuid
+from typing import Optional
 
 import os
 import mimetypes
@@ -7,13 +8,15 @@ import shutil
 
 from PIL import Image
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _l
 
+from amelie.gmm.models import GMM
 from amelie.files.managers import AttachmentManager
-from amelie.members.models import Photographer
+from amelie.members.models import Photographer, Person
 from amelie.tools.http import HttpJSONResponse
 
 
@@ -235,3 +238,80 @@ class Attachment(models.Model):
 
         # Done
         return results[:max_results] if max_results else results
+
+
+def get_gmm_upload_filename(_, filename):
+    now = timezone.now()
+    (path, ext) = os.path.splitext(filename)
+    basename = os.path.basename(path)
+    upload_filename = f"uploads/gmm/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{basename}{ext}"
+    # If the filename is too long (150 chars), replace the basename with a UUID.
+    if len(upload_filename) > 150:
+        upload_filename = f"uploads/gmm/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{uuid.uuid4()}{ext}"
+    return upload_filename
+
+
+class GMMDocument(models.Model):
+    """ Class for a PDF GMM document"""
+
+    file = models.FileField(max_length=150, upload_to=get_gmm_upload_filename)
+    caption = models.CharField(max_length=150, null=True, blank=True)
+
+    uploader = models.ForeignKey(Person, null=True, editable=False, on_delete=models.SET_NULL)
+    gmm = models.ForeignKey(GMM, null=False, blank=False, on_delete=models.CASCADE, related_name='documents')
+
+    created = models.DateTimeField(editable=False, auto_now_add=True)
+    modified = models.DateTimeField(editable=False, auto_now=True)
+
+    class Meta:
+        ordering = ['gmm', 'caption', 'created', 'file']
+        verbose_name = _l('GMM Document')
+        verbose_name_plural = _l('GMM Documents')
+
+    def __str__(self):
+        if self.caption:
+            return '%s' % self.caption
+        else:
+            import os
+            return '%s' % os.path.basename(self.file.name)
+
+
+def get_file_upload_filename(_, filename):
+    now = timezone.now()
+    (path, ext) = os.path.splitext(filename)
+    basename = os.path.basename(path)
+    upload_filename = f"uploads/files/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{basename}{ext}"
+    # If the filename is too long (150 chars), replace the basename with a UUID.
+    if len(upload_filename) > 150:
+        upload_filename = f"uploads/files/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{uuid.uuid4()}{ext}"
+    return upload_filename
+
+
+class File(models.Model):
+    """
+    Class for a generic file uploaded to the website
+    (i.e. for inclusion in an About page or News article)
+    """
+
+    file = models.FileField(max_length=150, upload_to=get_file_upload_filename, validators=[
+        # Only allow images or PDF files (for now)
+        FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "gif", "pdf"])
+    ])
+    caption = models.CharField(max_length=150, null=False, blank=False)
+
+    uploader = models.ForeignKey(Person, null=True, editable=False, on_delete=models.SET_NULL)
+
+    created = models.DateTimeField(editable=False, auto_now_add=True)
+    modified = models.DateTimeField(editable=False, auto_now=True)
+
+    class Meta:
+        ordering = ['created', 'caption', 'file']
+        verbose_name = _l('File')
+        verbose_name_plural = _l('Files')
+
+    def __str__(self):
+        if self.caption:
+            return '%s' % self.caption
+        else:
+            import os
+            return '%s' % os.path.basename(self.file.name)

@@ -2,8 +2,8 @@ from datetime import timedelta
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from pathlib import Path
+
+from django.core.validators import FileExtensionValidator
 from django.forms import widgets, SplitDateTimeField
 from django.utils import formats, timezone
 from django.utils.translation import gettext_lazy as _l
@@ -15,6 +15,7 @@ from amelie.activities.models import Activity, EnrollmentoptionQuestion, \
 from amelie.style.forms import inject_style
 from amelie.calendar.models import Participation
 from amelie.members.models import Person, Committee
+from amelie.tools.forms import MultipleFileField
 from amelie.tools.widgets import DateTimeSelector, DateTimeSelectorWithToday
 
 
@@ -254,40 +255,14 @@ class PhotoUploadForm(forms.Form):
                                                                      function__end__isnull=True).distinct()
 
 
-class MultipleFileInput(forms.ClearableFileInput):
-    allow_multiple_selected = True
-
-
-class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput())
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = single_file_clean(data, initial)
-        return result
-
-
 class PhotoFileUploadForm(forms.Form):
     photo_files = MultipleFileField()
 
     def clean_photo_files(self):
         allowed_extensions = ["jpg", "jpeg", "gif"]
         for file in self.files.getlist('photo_files'):
-            extension = Path(file.name).suffix[1:].lower()
-            if extension not in allowed_extensions:
-                raise ValidationError(
-                    message=_l('File extension “%(extension)s” is not allowed. '
-                              'Allowed extensions are: %(allowed_extensions)s.'),
-                    code='invalid_extension',
-                    params={'extension': extension,
-                            'allowed_extensions': ', '.join(allowed_extensions),
-                            'value': file}
-                )
+            # FileExtensionValidator raises ValidationError if an extension is not allowed
+            FileExtensionValidator(allowed_extensions=allowed_extensions)(file)
 
 
 class EventDeskActivityMatchForm(forms.Form):
