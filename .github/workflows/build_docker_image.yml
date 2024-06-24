@@ -15,7 +15,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:10.2
+        image: mariadb:10.4
         env:
           MARIADB_USER: amelie_test
           MARIADB_PASSWORD: amelie_test
