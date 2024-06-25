@@ -31,6 +31,7 @@ urlpatterns = [
         name='cookie_corner_transaction_delete'),
 
     path('wrapped', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
+    path('wrapped/<int:year>/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped_year'),
 
     path('transactions/reversal/<int:pk>/', ReversalTransactionDetail.as_view(), name='reversal_transaction_detail'),
     path('transactions/<int:pk>/', TransactionDetail.as_view(), name='transaction_detail'),
