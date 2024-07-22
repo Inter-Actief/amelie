@@ -17,6 +17,11 @@ from amelie.settings.generic import *
 # Initialize an env object for `django-environ`
 env = environ.Env()
 
+# Proxy function for get_random_secret_key that replaces $ with % (because $ has a special function in django-environ)
+def get_random_secret_key_no_dollar():
+    s = get_random_secret_key()
+    return s.replace('$', '%')
+
 # Set base path of the project, to build paths with.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
@@ -238,7 +243,7 @@ USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key())
+SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key_no_dollar())
 
 
 ###
