@@ -432,3 +432,6 @@ BALCONY_DUTY_WEEK = env.int("AMELIE_BALCONY_DUTY_WEEK", default=0)
 
 # Eventdesk from e-mail config
 EVENT_DESK_FROM_EMAIL = env("AMELIE_EVENT_DESK_FROM_EMAIL", default=EVENT_DESK_FROM_EMAIL)
+
+# Wo4you personal URL
+BOOK_SALES_URL = env("AMELIE_BOOK_SALES_URL", default=BOOK_SALES_URL)
