@@ -1377,7 +1377,7 @@ def person_picture(request, id, slug):
     # Serve file, preferably using Sendfile
     image_file = person.picture
     if image_file:
-        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg', fallback=settings.DEBUG)
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
     else:
         raise Http404('Picture not found')
 

@@ -288,6 +288,10 @@ MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
 # Path to website (needed for pictures via the API among other things)
 ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default="http://localhost:8080/")
 
+# Method used for file download acceleration.
+# Use None for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = env("AMELIE_FILE_DOWNLOAD_METHOD", default="")
+
 
 ###
 #  E-mail settings

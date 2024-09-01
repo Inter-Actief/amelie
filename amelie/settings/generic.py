@@ -840,6 +840,10 @@ USERINFO_API_CONFIG = {
     'allowed_ips': [],
 }
 
+# Method used for file download acceleration.
+# Use None or "" for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = None
+
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
