@@ -4,27 +4,27 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 <html lang="{{ LANGUAGE_CODE }}" {% if env == 'STAGING' %} id="staging" {% elif env == 'DEBUG' %} id="debug"{% endif %}>
-	<head>
-		<!-- SEO -->
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		{% if metadata_enable_opengraph %}
+    <head>
+        <!-- SEO -->
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        {% if metadata_enable_opengraph %}
             {# Make image larger, tricks somewebsites #}
-		    <meta name="twitter:card" content="summary_large_image" />
-		    <meta property="og:type" content="website" />
-		{% else %}
-		    <meta name="description" content="{% trans 'Website of I.C.T.S.V. Inter-Actief, the study association for Technical Computer Science and Business Information Technology students at the University of Twente' %}">
-		    <!-- FB Image -->
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta property="og:type" content="website" />
+        {% else %}
+            <meta name="description" content="{% trans 'Website of I.C.T.S.V. Inter-Actief, the study association for Technical Computer Science and Business Information Technology students at the University of Twente' %}">
+            <!-- FB Image -->
             <meta property="og:image" content="https://{{ request.get_host }}{% cached_static "img/pdf/ialogo.png" %}" />
-		{% endif %}
-		<meta name="keywords" content="{% trans 'inter-actief, utwente, university of twente, computer science, technical computer science, study association, Business Information Technology' %}">
+        {% endif %}
+        <meta name="keywords" content="{% trans 'inter-actief, utwente, university of twente, computer science, technical computer science, study association, Business Information Technology' %}">
         <meta name="apple-itunes-app" content="app-id=586912286">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#1d428a">
 
         <meta name="application-name" content="Inter-Actief" />
-		<title>{% trans 'Study Association Inter-Actief' %} :: {% block titel %}{% trans 'Frontpage' %}{% endblock titel %}</title>
+        <title>{% trans 'Study Association Inter-Actief' %} :: {% block titel %}{% trans 'Frontpage' %}{% endblock titel %}</title>
 
-		<!-- Scripts -->
+        <!-- Scripts -->
         {% compress js %}
             <script src="{% cached_static 'js/jquery-1.8.0.min.js' %}" type="text/javascript"></script>
             <script src="{% cached_static 'js/bootstrap-datepicker.js' %}" type="text/javascript"></script>
@@ -34,8 +34,8 @@
         {% endcompress %}
 
         {% if debug %}
-    	    <link type="text/less" rel="stylesheet" href="{% cached_static 'less/style.less' %}" />
-    		<script src="{% cached_static 'js/less-2.5.3.min.js' %}" type="text/javascript"></script>
+            <link type="text/less" rel="stylesheet" href="{% cached_static 'less/style.less' %}" />
+            <script src="{% cached_static 'js/less-2.5.3.min.js' %}" type="text/javascript"></script>
             <link type="text/css" rel="stylesheet" href="{% cached_static 'css/chosen.min.css' %}" />
         {% else %}
             {% compress css %}
@@ -54,30 +54,49 @@
 
         {% if request.person.is_candidate_board %}
             {% compress css %}
-        	<link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
-            <link rel="stylesheet" type="text/css" href="{% cached_static 'css/clippy.css' %}" media="all"/>
+            <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
+
+            {% comment %} Bootstrap 3.4.1 to make modal work {% endcomment %}
+            <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
+
             {% endcompress %}
+			
             {% compress js %}
-            <script src="{% cached_static 'js/clippy.min.js' %}"></script>
-            <script type="text/javascript">
-                clippy.load('Clippy', function(agent) {
-                    agent.show();
-                    agent.speak("{% trans 'It seems like you are trying to become a board member. Would you like help?' %}");
-                });
-            </script>
+            {% comment %} Bootstrap modal needed for popup {% endcomment %}
+            <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
+			
+            {% comment %} CB script {% endcomment %}
+            <script src="{% cached_static 'js/cb.js' %}"></script>
             {% endcompress %}
+            <script type="module" src="{% cached_static 'js/cb-clippy-handler.js' %}"></script>
+
+            {% comment %} Popup for CB {% endcomment %}
+            <div class="modal cb-modal fade" tabindex="-1" role="dialog" id="CbModal">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content cb-modal-content">
+                        <div class="modal-header cb-modal-header">
+                            <h2>{% trans "Important message from the board" %}</h2>
+                            <p id="cb-header"></p>
+                        </div>
+                        <div class="modal-body">
+                            <h2 id="cb-modal-text"><h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cb-clippy" />
         {% endif %}
 
-		{% block head %}{% endblock head %}
+        {% block head %}{% endblock head %}
 
-		<!-- Feeds -->
-		<link rel="alternate" title="{% trans "News RSS feed" %}" type="application/rss+xml" href="{% url 'feeds:latest-news' %}" />
-   		<link rel="alternate" title="{% trans "Activities RSS-feed" %}" type="application/rss+xml" href="{% url 'feeds:activities' %}" />
-   		<link rel="alternate" title="{% trans "Activities iCal feed" %}" type="text/calendar" href="{% url 'activities:activities_ics_international' lang=LANGUAGE_CODE %}" />
+        <!-- Feeds -->
+        <link rel="alternate" title="{% trans "News RSS feed" %}" type="application/rss+xml" href="{% url 'feeds:latest-news' %}" />
+        <link rel="alternate" title="{% trans "Activities RSS-feed" %}" type="application/rss+xml" href="{% url 'feeds:activities' %}" />
+        <link rel="alternate" title="{% trans "Activities iCal feed" %}" type="text/calendar" href="{% url 'activities:activities_ics_international' lang=LANGUAGE_CODE %}" />
 
-		<!-- Compatibility with older browsers -->
-		<!--[if IE]><script src="https://html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript"></script><![endif]-->
-		<!--[if (gte IE 6)&(lte IE 8)]><script src="https://cdnjs.cloudflare.com/ajax/libs/selectivizr/1.0.2/selectivizr-min.js" type="text/javascript"></script><![endif]-->
+        <!-- Compatibility with older browsers -->
+        <!--[if IE]><script src="https://html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript"></script><![endif]-->
+        <!--[if (gte IE 6)&(lte IE 8)]><script src="https://cdnjs.cloudflare.com/ajax/libs/selectivizr/1.0.2/selectivizr-min.js" type="text/javascript"></script><![endif]-->
 
         <!-- https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color -->
         <meta name="theme-color" content="#1D428A">
@@ -226,7 +245,11 @@
                                 <li><a href="{% url 'education:overview' %}">{% trans 'Information' %}</a></li>
                                 <li><a href="{% url 'education:news_archive' %}">{% trans 'Education news' %}</a></li>
                                 <li><a href="{% url 'education:event_overview' %}">{% trans 'Activities' %}</a></li>
-                                <li><a href="https://wo4you.nl/">{% trans 'Books' %}</a></li>
+								{% if user.is_authenticated %}
+									<li><a href={{ request.book_sales_url }}>{% trans 'Books' %}</a></li>
+								{% else %}
+									<li><a href="https://wo4you.nl/">{% trans 'Books' %}</a></li>
+								{% endif %}
                                 <li><a href="https://summaries.ia.utwente.nl/">{% trans 'Summaries' %}</a></li>
                                 <li><a href="{% url 'education:complaints' %}">{% trans 'Complaints' %}</a></li>
                                 <li><a href="{% url 'education:bouquet' %}">{% trans 'Educational bouquet' %}</a></li>

@@ -114,11 +114,17 @@ class ActivityLabelType(DjangoObjectType):
 
 class ActivitiesQuery(graphene.ObjectType):
     activities = DjangoPaginationConnectionField(ActivityType, organizer=graphene.ID())
+    activity = graphene.Field(ActivityType, id=graphene.ID())
 
     def resolve_activities(self, info, organizer=None, *args, **kwargs):
         if organizer:
             return Activity.objects.filter(organizer__pk=organizer)
         return Activity.objects.all()
+
+    def resolve_activity(self, info, id, *args, **kwargs):
+        if id:
+            return Activity.objects.get(pk=id)
+        return None
 
 # Exports
 GRAPHQL_QUERIES = [ActivitiesQuery]

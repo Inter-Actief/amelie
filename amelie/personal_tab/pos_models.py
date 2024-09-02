@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 import io
 import qrcode
@@ -16,8 +16,8 @@ import qrcode.image.svg
 
 class PendingPosToken(models.Model):
     class TokenTypes(models.TextChoices):
-        LOGIN = 'login', _("Login token")
-        REGISTRATION = 'registration', _("Registration token")
+        LOGIN = 'login', _l("Login token")
+        REGISTRATION = 'registration', _l("Registration token")
 
     token = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, blank=True, null=True, related_name='pending_pos_login_tokens', on_delete=models.CASCADE)

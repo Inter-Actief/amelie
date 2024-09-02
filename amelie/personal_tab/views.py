@@ -4,6 +4,8 @@ import datetime
 import logging
 from decimal import Decimal
 import itertools
+
+import django.conf
 import operator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -634,7 +636,7 @@ def dashboard(request, pk, slug):
         'debt_collection_instructions': debt_collection_instructions,
         'exam_cookie_credits': exam_cookie_credits,
         'date_old_authorizations': date_old_authorizations,
-        'last_year': datetime.date.today().year - 1
+        'wrapped_year': django.conf.settings.COOKIE_CORNER_WRAPPED_YEAR
     })
 
 
@@ -1716,7 +1718,7 @@ Cookie Corner Wrapped
 
 @require_lid
 def cookie_corner_wrapped_main(request):
-    COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
+    COOKIE_CORNER_WRAPPED_YEAR = django.conf.settings.COOKIE_CORNER_WRAPPED_YEAR
 
     person = request.person
     language = get_language()

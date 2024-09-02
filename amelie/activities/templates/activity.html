@@ -35,9 +35,26 @@
 					    	<a class="looks-like-a-button" href="{% url 'activities:edit' obj.id %}">{% trans 'Edit' %}</a>
 	                        <a class="looks-like-a-button" href="{% url 'activities:enrollmentoption_list' obj.id %}">{% trans 'Edit enrollment options' %}</a>
 	                    {% if request.is_board %}
-					    	<a class="looks-like-a-button icon icon-delete" href="{% url 'activities:delete' obj.id %}">{% trans 'Delete' %}</a>
+	                        {% if obj.cancelled %}
+	                        <a href="{% url 'activities:cancel' obj.id %}" class="looks-like-a-button">
+                                {% trans "Undo event cancellation" %}
+                            </a>
+	                        {% elif not obj.cancelled and obj.begin > current_time %}
+	                        <span class="edu">
+                                <a href="{% url 'activities:cancel' obj.id %}" class="icon icon-delete looks-like-a-button">
+                                    {% trans "Cancel event" %}
+                                </a>
+                            </span>
+	                        {% endif %}
+                            {% if obj.cancelled or participation_set|length == 0 %}
+                            <span class="edu">
+	                            <a class="looks-like-a-button icon icon-delete" href="{% url 'activities:delete' obj.id %}">
+	                                {% trans 'Delete' %}
+	                            </a>
+                            </span>
+                            {% endif %}
 	                    {% else %}
-	                        {% trans 'The board can remove activities.' %}
+	                        {% trans 'The board can cancel and remove activities.' %}
 	                    {% endif %}
 					    </div>
 					{% endif %}

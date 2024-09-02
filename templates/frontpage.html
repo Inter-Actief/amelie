@@ -29,7 +29,13 @@
                                         <img class="dutch-indicator" src="{{STATIC_URL}}img/layout/flag_nl.png" alt="{% trans 'Dutch-only' %}">
                                     </div>
                                     <div title={{ current_activity.activity_label.name }}>
-                                        <img src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}">
+										<a
+                                        {% if current_activity.activity_label.name %}
+                                            href="{% url 'activities:activities_type' act_type=current_activity.activity_label.name %}"
+                                        {% endif %}
+                                        style="margin: 0px;">
+                                        <img class="activity-icon" src="{{STATIC_URL}}img/icons/{{ current_activity.activity_label.icon }}.png" alt="{{ current_activity.activity_label.name }}" />
+                                    	</a>
                                     </div>
                                 </div>
                             </div>
@@ -58,7 +64,13 @@
                                     </div>
 
                                     <div title="{{ upcoming_activity.activity_label.name }}" style="">
-                                        <img class="activity-icon" src="{{STATIC_URL}}img/icons/{{ upcoming_activity.activity_label.icon }}.png" alt="{{ upcoming_activity.activity_label.name }}">
+                                        <a
+                                            {% if upcoming_activity.activity_label.name %}
+                                                href="{% url 'activities:activities_type' act_type=upcoming_activity.activity_label.name %}"
+                                            {% endif %}
+                                            style="margin: 0px;">
+                                            <img class="activity-icon" src="{{STATIC_URL}}img/icons/{{ upcoming_activity.activity_label.icon }}.png" alt="{{ upcoming_activity.activity_label.name }}" />
+                                        </a>
                                     </div>
                                 </div>
                             </div>

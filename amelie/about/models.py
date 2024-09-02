@@ -2,23 +2,23 @@ from django.urls import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import get_language
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 
 class Page(models.Model):
-    name_nl = models.CharField(max_length=100, verbose_name=_('Name'))
-    name_en = models.CharField(max_length=100, verbose_name=_('Name (en)'), blank=True)
+    name_nl = models.CharField(max_length=100, verbose_name=_l('Name'))
+    name_en = models.CharField(max_length=100, verbose_name=_l('Name (en)'), blank=True)
     slug_nl = models.SlugField(max_length=100, editable=False)
     slug_en = models.SlugField(max_length=100, editable=False)
-    educational = models.BooleanField(default=False, verbose_name=_("Educational page?"))
-    content_nl = models.TextField(verbose_name=_('Content'))
-    content_en = models.TextField(verbose_name=_('Content (en)'), blank=True)
+    educational = models.BooleanField(default=False, verbose_name=_l("Educational page?"))
+    content_nl = models.TextField(verbose_name=_l('Content'))
+    content_en = models.TextField(verbose_name=_l('Content (en)'), blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['name_nl']
-        verbose_name = _('Page')
-        verbose_name_plural = _("Pages")
+        verbose_name = _l('Page')
+        verbose_name_plural = _l("Pages")
 
     def __str__(self):
         return self.name

@@ -1,13 +1,13 @@
 from django.contrib.syndication.views import Feed
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.news.models import NewsItem
 
 
 class LatestNews(Feed):
-    title = _('IA News')
+    title = _l('IA News')
     link = '/news/'
-    description = _('The news by your favorite Study Association')
+    description = _l('The news by your favorite Study Association')
 
     title_template = "feeds/news_title.html"
     description_template = "feeds/news_content.html"

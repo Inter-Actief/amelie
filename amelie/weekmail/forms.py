@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxSelectMultiple
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.calendar.models import Event
 from amelie.news.models import NewsItem
@@ -11,10 +11,10 @@ from amelie.weekmail.models import WeekMail
 
 class WeekMailForm(ModelForm):
     new_activities = ModelMultipleChoiceField(required=False, queryset=Event.objects.filter(end__gte=timezone.now()), widget=CheckboxSelectMultiple,
-                                              label=_("New events"), help_text=_("Only activities in the future are shown."))
+                                              label=_l("New events"), help_text=_l("Only activities in the future are shown."))
     news_articles = ModelMultipleChoiceField(required=False, queryset=NewsItem.objects.filter(publication_date__gte=(timezone.now() - timedelta(days=31))), widget=CheckboxSelectMultiple,
-                                             label=_("News articles"),
-                                             help_text=_("Only news articles of at most 31 days ago are shown, so it is possible that no articles are shown."))
+                                             label=_l("News articles"),
+                                             help_text=_l("Only news articles of at most 31 days ago are shown, so it is possible that no articles are shown."))
 
     class Meta:
         model = WeekMail

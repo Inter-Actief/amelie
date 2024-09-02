@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.forms import widgets
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from urllib.parse import urljoin
 
 from amelie.claudia.models import Mapping, AliasGroup, ExtraPersonalAliasEmailValidator, ExtraPersonalAlias
@@ -16,17 +16,17 @@ from amelie.members.models import Person
 
 
 class SearchMappingForm(forms.Form):
-    search = forms.CharField(required=False, label=_('Search'))
-    include_inactive = forms.BooleanField(required=False, initial=False, label=_('Also inactive mappings'))
+    search = forms.CharField(required=False, label=_l('Search'))
+    include_inactive = forms.BooleanField(required=False, initial=False, label=_l('Also inactive mappings'))
     types = forms.MultipleChoiceField(required=False, choices=sorted([(t, t) for t in Mapping.RELATED_CLASSES]),
-                                      widget=forms.CheckboxSelectMultiple, label=_('Types'))
+                                      widget=forms.CheckboxSelectMultiple, label=_l('Types'))
 
 
 class AccountActivateForm(forms.Form):
-    account_name = forms.CharField(max_length=50, label=_('Account name'))
-    current_password = forms.CharField(widget=widgets.PasswordInput, label=_('Current password'))
-    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_('New password'))
-    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_('Repeat new password'))
+    account_name = forms.CharField(max_length=50, label=_l('Account name'))
+    current_password = forms.CharField(widget=widgets.PasswordInput, label=_l('Current password'))
+    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_l('New password'))
+    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_l('Repeat new password'))
 
     def clean(self):
         cleaned_data = super(AccountActivateForm, self).clean()
@@ -35,16 +35,16 @@ class AccountActivateForm(forms.Form):
         new_pw2 = cleaned_data.get("new_password2")
 
         if current_pw and new_pw and current_pw == new_pw:
-            self.add_error("new_password", _("New password must differ from present password"))
+            self.add_error("new_password", _l("New password must differ from present password"))
 
         if new_pw and new_pw2 and new_pw != new_pw2:
-            self.add_error("new_password2", _("The new passwords do not match"))
+            self.add_error("new_password2", _l("The new passwords do not match"))
 
 
 class AccountPasswordForm(forms.Form):
-    current_password = forms.CharField(widget=widgets.PasswordInput, label=_('Current password'))
-    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_('New password'))
-    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_('Repeat new password'))
+    current_password = forms.CharField(widget=widgets.PasswordInput, label=_l('Current password'))
+    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_l('New password'))
+    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_l('Repeat new password'))
 
     def clean(self):
         cleaned_data = super(AccountPasswordForm, self).clean()
@@ -53,21 +53,21 @@ class AccountPasswordForm(forms.Form):
         new_pw2 = cleaned_data.get("new_password2")
 
         if current_pw and new_pw and current_pw == new_pw:
-            self.add_error("new_password", _("New password must differ from present password"))
+            self.add_error("new_password", _l("New password must differ from present password"))
 
         if new_pw and new_pw2 and new_pw != new_pw2:
-            self.add_error("new_password2", _("The new passwords do not match"))
+            self.add_error("new_password2", _l("The new passwords do not match"))
 
 
 class AccountPasswordResetForm(forms.Form):
-    account_name = forms.CharField(max_length=50, label=_('Account name'))
+    account_name = forms.CharField(max_length=50, label=_l('Account name'))
 
     def clean(self):
         cleaned_data = super(AccountPasswordResetForm, self).clean()
         try:
             Person.objects.get(account_name=cleaned_data.get("account_name"))
         except Person.DoesNotExist:
-            self.add_error("account_name", _("There is no account with that name."))
+            self.add_error("account_name", _l("There is no account with that name."))
 
     def send_email(self):
         person = Person.objects.get(account_name=self.cleaned_data.get("account_name"))
@@ -106,8 +106,8 @@ class AccountPasswordResetForm(forms.Form):
 
 
 class AccountPasswordResetLinkForm(forms.Form):
-    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_('New password'))
-    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_('Repeat new password'))
+    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_l('New password'))
+    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=8, label=_l('Repeat new password'))
 
     def clean(self):
         cleaned_data = super(AccountPasswordResetLinkForm, self).clean()
@@ -115,7 +115,7 @@ class AccountPasswordResetLinkForm(forms.Form):
         new_pw2 = cleaned_data.get("new_password2")
 
         if new_pw and new_pw2 and new_pw != new_pw2:
-            self.add_error("new_password2", _("The new passwords do not match"))
+            self.add_error("new_password2", _l("The new passwords do not match"))
 
 
 class AccountConfigureForwardingForm(forms.Form):
@@ -129,7 +129,7 @@ class MailAliasForm(forms.Form):
         self.fields['alias_groups'].initial = current
 
     alias_groups = MailAliasModelMultipleChoiceField(AliasGroup.objects.filter(open_to_signup=True), required=False,
-                                                     widget=widgets.CheckboxSelectMultiple, label=_('Alias groups'))
+                                                     widget=widgets.CheckboxSelectMultiple, label=_l('Alias groups'))
 
 
 class PersonalAliasCreateForm(forms.Form):
@@ -137,5 +137,5 @@ class PersonalAliasCreateForm(forms.Form):
 
     def clean_email(self):
         if ExtraPersonalAlias.objects.filter(email=self.cleaned_data['email']).count() > 0:
-            raise ValidationError(_("This mailaddress is not unique! You might want to make a group."))
+            raise ValidationError(_l("This mailaddress is not unique! You might want to make a group."))
         return self.cleaned_data['email']
