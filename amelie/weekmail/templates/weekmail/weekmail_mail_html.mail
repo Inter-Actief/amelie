@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>[Inter-Actief {% if weekmail.mailtype == 'W' %}{% trans 'Weekly mail' %}] {% blocktrans %}Week{% endblocktrans %} {{ weekmail.creation_date|date:"W" }}{% elif weekmail.mailtype == 'M' %}{% trans 'Mastermail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% else %}{% trans 'Educational mail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% endif %}</title>
+    <title>[Inter-Actief {% if weekmail.mailtype == 'W' %}{% trans 'Weekly mail' %}] {% blocktrans %}Week{% endblocktrans %} {{ weekmail.creation_date|date:"W" }}{% elif weekmail.mailtype == 'M' %}{% trans 'Mastermail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% elif weekmail.mailtype == 'A' %}{% trans 'Active members mail'%}] {{ weekmail.creation_date|date:"M"|capfirst }}{% else %}{% trans 'Educational mail'%}] {{ weekmail.creation_date|date:"F"|capfirst }}{% endif %}</title>
 </head>
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -28,7 +28,7 @@
         <table align="center" cellspacing="0" style="font-family: Open-Sans, Arial, sans-serif; font-size: 14px; width: 768px; background-color: white; border: 1px solid #ccc;">
             <tr style="background-color: #1d428a; height: 100px; font-size: 50px; margin: 5px; color: white" >
                 <td style="padding-left: 20px; width: 100%" colspan=1>
-                    {% if weekmail.mailtype == 'W' %}{% trans 'Week' %} {{ weekmail.creation_date|date:"W" }}{% elif weekmail.mailtype == 'M' %}{% trans 'Mastermail' %}{% else %}{% trans 'Educational mail'%}{% endif %}
+                    {% if weekmail.mailtype == 'W' %}{% trans 'Week' %} {{ weekmail.creation_date|date:"W" }}{% elif weekmail.mailtype == 'M' %}{% trans 'Mastermail' %}{% elif weekmail.mailtype == 'A' %}{% trans 'Active members mail' %}{% else %}{% trans 'Educational mail'%}{% endif %}
                 </td>
                 <td style="padding-right: 20px;" colspan=1>
                     <img src="{% attach_static "weekmail/inter-actief-logo-tekst-rechts-wit-randloos.png" %}" height="50" align="right" alt="Inter-Actief logo"/>
@@ -159,7 +159,11 @@
             {% endfor %}
             <tr style="background-color: #1d428a; font-size: 12px; color: white;">
                 <td colspan=2 style="padding: 20px">
+                    {% if weekmail.mailtype == 'A' %}
+                    {% trans "You are receiving this e-mail because you are an active member at Inter-Actief. You can not unenroll for these e-mails." %}<br />
+                    {% else %}
                     {% trans "You are receiving this e-mail because you have indicated you wanted it. Change your preference in your profile on the Inter-Actief website or contact the board." %}<br />
+                    {% endif %}
                     {% trans "I.C.T.S.V. Inter-<i>Actief</i>" %}<br />
                     <a href="mailto:contact@inter-actief.net" style="color:white">contact@inter-actief.net</a><br />
                     <a href="https://www.inter-actief.net/" style="color:white">https://www.inter-actief.net/</a>

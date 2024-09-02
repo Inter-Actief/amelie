@@ -229,13 +229,13 @@ class ExtraGroupList(RequireCommitteeMixin, ListView):
 class ExtraGroupAdd(RequireStrictCommitteeMixin, CreateView):
     abbreviation = SYSADMINS_ABBR
     model = ExtraGroup
-    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description']
+    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description', 'gitlab']
 
 
 class ExtraGroupDetail(RequireStrictCommitteeMixin, UpdateView):
     abbreviation = SYSADMINS_ABBR
     model = ExtraGroup
-    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description']
+    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description', 'gitlab']
 
 
 ##

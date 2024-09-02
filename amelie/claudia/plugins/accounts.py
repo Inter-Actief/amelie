@@ -26,7 +26,7 @@ class AccountsPlugin(ClaudiaPlugin):
 
     def __init__(self):
         a = settings.CLAUDIA_AD
-        self.ad = AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"])
+        self.ad = AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"], a["CACERTFILE"])
 
     # ====== Useraccount-related ====
     def create_account(self, mp):

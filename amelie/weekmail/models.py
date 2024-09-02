@@ -61,6 +61,7 @@ class WeekMail(models.Model):
         WEEKMAIL = 'W', _l("Weekly mail")
         MASTERMAIL = 'M', _l("Mastermail")
         EDUCATION_MAIL = 'E', _l("Educational mail")
+        ACTIVE_MEMBERS_MAIL = 'A', _l("Active members mail")
 
     published = models.BooleanField(default=False)
     """

@@ -322,6 +322,13 @@ INSTALLED_APPS = (
 
     # Color field
     'colorfield',
+
+    # Default health checks (celery and rabbitmq are only added when a broker is configured)
+    'health_check',                      # required
+    'health_check.db',                   # stock Django health checkers
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
 )
 
 # Enable timezone support
@@ -603,6 +610,7 @@ CLAUDIA_AD = {
     'USER': 'claudia',
     'PASSWORD': '',
     'BASEDN': 'ou=Inter-Actief,dc=ia,dc=utwente,dc=nl',
+    'CACERTFILE': '/credentials/ia_ca.pem',
 }
 
 # Claudia's connection details to GitLab
@@ -881,6 +889,10 @@ USERINFO_API_CONFIG = {
     'allowed_ips': [],
 }
 
+# Method used for file download acceleration.
+# Use None or "" for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = None
+
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
@@ -902,6 +914,9 @@ EVENT_DESK_FROM_EMAIL = "events@utwente.nl"
 EVENT_DESK_PROCESSED_LABEL_ID = "Label_5424798960935964974"
 # The Label ID of the label that e-mails with errors should get
 EVENT_DESK_ERROR_LABEL_ID = "Label_5802521922307679990"
+
+# Health checks configuration
+HEALTH_CHECK_URL_TOKEN = "amelie-health"
 
 # The Icinga (Monitoring) host and details (ask the system administrators), used for the room narrowcasting page.
 ICINGA_API_HOST = "https://monitoring.ia.utwente.nl:5665/v1/"
