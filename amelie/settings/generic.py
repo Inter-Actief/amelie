@@ -208,7 +208,7 @@ MIDDLEWARE = [
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
 
-INTERNAL_IPS = ['127.0.0.1', 'localhost']
+INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.17.0.1']
 
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
