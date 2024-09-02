@@ -3,6 +3,14 @@ from django_filters import FilterSet
 
 from graphene_django import DjangoObjectType
 from django.utils.translation import gettext_lazy as _
+from graphene_django.forms.mutation import DjangoFormMutation
+
+from amelie import settings
+from amelie.education.forms import EducationalBouquetForm
+from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
+
+from amelie.education.models import Category, Page
+from amelie.iamailer import MailTask, Recipient
 
 from amelie.activities.graphql import ActivityLabelType
 from amelie.calendar.graphql import EventType
@@ -121,6 +129,15 @@ class EducationQuery(graphene.ObjectType):
         return None
 
 
+class EducationalBouquetMutation(DjangoFormMutation):
+
+    class Meta:
+        form_class = EducationalBouquetForm
+
+class EducationMutation:
+    educational_bouquet = EducationalBouquetMutation.Field()
+
+
 # Exports
 GRAPHQL_QUERIES = [EducationQuery]
-GRAPHQL_MUTATIONS = []
+GRAPHQL_MUTATIONS = [EducationMutation]
