@@ -62,6 +62,8 @@ class PersonalDetailsEditForm(forms.ModelForm):
                         'new': self.cleaned_data[field]
                     })
 
+            print(changes)
+
             task = MailTask(template_name='members/profile_changed.mail',
                             report_to=settings.EMAIL_REPORT_TO,
                             report_always=False)
@@ -92,7 +94,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
         fields = ('gender', 'date_of_birth', 'preferred_language', 'address', 'postal_code', 'city', 'country',
                   'address_parents', 'postal_code_parents', 'city_parents', 'country_parents', 'email_address_parents',
                   'can_use_parents_address', 'telephone', 'email_address', 'preferences',
-                  'shell', 'international_member')
+                  'shell', 'international_member', 'suggested_picture')
 
 
 class PersonalStudyEditForm(forms.Form):

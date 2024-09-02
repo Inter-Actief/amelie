@@ -275,6 +275,8 @@ class Preference(models.Model):
 def person_picture_upload_path(instance, filename):
     return os.path.join('profile_picture/', '{}.{}'.format(uuid.uuid4(), filename.split('.')[-1]))
 
+def person_picture_suggestion_upload_path(instance, filename):
+    return os.path.join('profile_picture_suggestion/', '{}.{}'.format(uuid.uuid4(), filename.split('.')[-1]))
 
 class Person(models.Model, Mappable):
     """
@@ -305,6 +307,7 @@ class Person(models.Model, Mappable):
     initials = models.CharField(max_length=20, blank=True, verbose_name=_l('Initials'))
     slug = models.SlugField(max_length=150, editable=False)
     picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Photo'))
+    suggested_picture = models.ImageField(upload_to=person_picture_suggestion_upload_path, blank=True, null=True, verbose_name=_l('Suggested Photo'))
     notes = models.TextField(blank=True, verbose_name=_l('Notes'))
 
     gender = models.CharField(max_length=9, choices=GenderTypes.choices, verbose_name=_l('Gender'))
