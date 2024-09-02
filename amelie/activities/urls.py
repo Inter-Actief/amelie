@@ -27,7 +27,6 @@ app_name = 'activities'
 urlpatterns = [
     # URLs that are not about a specific activity
     path('', views.activities, name='activities'),
-    path('<str:act_type>', views.activities, name='activities_type'),
     path('old/', views.activities_old, name='activities_old'),
     # URLs about the photo gallery
     path('photos/', views.photos, name='photos'),
@@ -90,4 +89,7 @@ urlpatterns = [
     re_path(r'kalender_(?P<lang>(nl|en))\.ics', RedirectView.as_view(url='/activities/calendar_%(lang)s.ics',
                                                                      permanent=True)),
     path('<int:pk>/activiteit.ics', RedirectView.as_view(url='/activities/%(pk)s/activity.ics', permanent=True)),
+
+    # Activity label filtering (last because it would override other URLs otherwise)
+    path('<str:act_type>', views.activities, name='activities_type'),
 ]

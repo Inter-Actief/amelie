@@ -17,6 +17,11 @@ from amelie.settings.generic import *
 # Initialize an env object for `django-environ`
 env = environ.Env()
 
+# Proxy function for get_random_secret_key that replaces $ with % (because $ has a special function in django-environ)
+def get_random_secret_key_no_dollar():
+    s = get_random_secret_key()
+    return s.replace('$', '%')
+
 # Set base path of the project, to build paths with.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
@@ -238,7 +243,7 @@ USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key())
+SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key_no_dollar())
 
 
 ###
@@ -246,10 +251,17 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key())
 ###
 # Setup broker for celery
 CELERY_BROKER_URL = env('DJANGO_CELERY_BROKER_URI', default='amqp://amelie:amelie@localhost:5672/amelie')
+BROKER_URL = CELERY_BROKER_URL  # Needed for django-health-check RabbitMQ check to work
 
 # Django Celery -- True means that tasks will be executed immediately and are not queued!
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
 
+if CELERY_BROKER_URL:
+    # Add extra health checks if a celery broker is configured.
+    INSTALLED_APPS = INSTALLED_APPS + (
+        'health_check.contrib.celery_ping',  # requires celery, checks if workers are available
+        'health_check.contrib.rabbitmq',     # requires RabbitMQ broker, checks if RabbitMQ is available
+    )
 
 ###
 #  Internationalization
@@ -275,6 +287,10 @@ MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
 
 # Path to website (needed for pictures via the API among other things)
 ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default="http://localhost:8080/")
+
+# Method used for file download acceleration.
+# Use None for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = env("AMELIE_FILE_DOWNLOAD_METHOD", default="")
 
 
 ###
@@ -302,7 +318,13 @@ CLAUDIA_PLUGINS.extend(env.list("CLAUDIA_ENABLED_PLUGINS", default=[]))
 CLAUDIA_STOP_ON_ERROR = env.bool("CLAUDIA_STOP_ON_ERROR", default=False)
 
 # Claudia Active Directory settings
-CLAUDIA_AD['PASSWORD'] = env("CLAUDIA_AD_PASSWORD", default=CLAUDIA_AD.get('PASSWORD', None))
+CLAUDIA_AD['LDAP'] = env("CLAUDIA_AD_PROTOCOL", default=CLAUDIA_AD.get('LDAP', "ldaps"))
+CLAUDIA_AD['HOST'] = env("CLAUDIA_AD_HOST", default=CLAUDIA_AD.get('HOST', ""))
+CLAUDIA_AD['PORT'] = env.int("CLAUDIA_AD_PORT", default=CLAUDIA_AD.get('PORT', 636))
+CLAUDIA_AD['USER'] = env("CLAUDIA_AD_USER", default=CLAUDIA_AD.get('USER', ""))
+CLAUDIA_AD['PASSWORD'] = env("CLAUDIA_AD_PASSWORD", default=CLAUDIA_AD.get('PASSWORD', ""))
+CLAUDIA_AD['BASEDN'] = env("CLAUDIA_AD_BASE_DN", default=CLAUDIA_AD.get('BASEDN', ""))
+CLAUDIA_AD['CACERTFILE'] = env("CLAUDIA_AD_CA_CERT_FILE", default=CLAUDIA_AD.get('CACERTFILE', None))
 
 # Claudia mail from address -- used as the From address of account management e-mails
 CLAUDIA_MAIL['FROM'] = env("CLAUDIA_MAIL_FROM", default=CLAUDIA_MAIL.get('FROM', None))
@@ -314,6 +336,13 @@ CLAUDIA_GITLAB['TOKEN'] = env("CLAUDIA_GITLAB_TOKEN", default=CLAUDIA_GITLAB.get
 CLAUDIA_GSUITE['SERVICE_ACCOUNT_P12_FILE'] = env("CLAUDIA_GSUITE_SERVICE_ACCOUNT_P12_FILE", default=CLAUDIA_GSUITE.get('SERVICE_ACCOUNT_P12_FILE', None))
 CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS'] = env.list("CLAUDIA_GSUITE_ALLOWED_ALIAS_DOMAINS", default=CLAUDIA_GSUITE.get('ALLOWED_ALIAS_DOMAINS', None))
 
+
+###
+#  Alexia settings
+###
+ALEXIA_API['URL'] = env("ALEXIA_API_URL", default=ALEXIA_API.get('URL', None))
+ALEXIA_API['USER'] = env("ALEXIA_API_USERNAME", default=ALEXIA_API.get('USER', None))
+ALEXIA_API['PASSWORD'] = env("ALEXIA_API_PASSWORD", default=ALEXIA_API.get('PASSWORD', None))
 
 ###
 #  Twitter settings (probably broken due to twitter API changes)
@@ -333,6 +362,12 @@ DATA_HOARDER_CONFIG['export_basedir'] = env("DATA_HOARDER_EXPORT_BASEDIR", defau
 
 # The location where data exports are saved until they expire
 DATA_EXPORT_ROOT = "/data_exports"
+
+###
+#  Health check endpoint config
+###
+# URL token. Is included in the healthcheck URL, should be set to a unique value per environment.
+HEALTH_CHECK_URL_TOKEN = env("HEALTH_CHECK_URL_TOKEN", default=HEALTH_CHECK_URL_TOKEN)
 
 ###
 #  SysCom monitoring configuration (for room narrowcasting PC overview)
@@ -401,3 +436,6 @@ BALCONY_DUTY_WEEK = env.int("AMELIE_BALCONY_DUTY_WEEK", default=0)
 
 # Eventdesk from e-mail config
 EVENT_DESK_FROM_EMAIL = env("AMELIE_EVENT_DESK_FROM_EMAIL", default=EVENT_DESK_FROM_EMAIL)
+
+# Wo4you personal URL
+BOOK_SALES_URL = env("AMELIE_BOOK_SALES_URL", default=BOOK_SALES_URL)

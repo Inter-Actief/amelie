@@ -44,7 +44,7 @@ from amelie.members.models import Payment, PaymentType, Committee, Function, Mem
     DogroupGeneration
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
-from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email
+from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
@@ -59,7 +59,7 @@ def statistics(request):
 
     if 'dt' in request.GET:
         dt = parse_date(request.GET['dt'])
-    
+
     if not dt:
         # The page will only render the Date input field
         return render(request, 'statistics/overview.html', locals())
@@ -307,6 +307,11 @@ def person_view(request, id, slug):
     preference_categories = PreferenceCategory.objects.all()
     alters_data = True
     date_old_mandates = settings.DATE_PRE_SEPA_AUTHORIZATIONS
+    try:
+        accounts = get_user_info(obj)
+    except Exception as e:
+        # Keycloak not reachable or running in non-production (not configured)
+        accounts = []
 
     can_be_anonymized, unable_to_anonymize_reasons = _person_can_be_anonymized(obj)
 
@@ -1372,7 +1377,7 @@ def person_picture(request, id, slug):
     # Serve file, preferably using Sendfile
     image_file = person.picture
     if image_file:
-        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg', fallback=settings.DEBUG)
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
     else:
         raise Http404('Picture not found')
 
@@ -1403,11 +1408,6 @@ def _person_info_request_get_body(request, logger=None):
     if 'apiKey' not in body or ('iaUsername' not in body and 'utUsername' not in body and 'localUsername' not in body):
         logger.error(f"Bad request, API Key or username key missing.")
         raise BadRequest()
-
-    # Request must come from a known auth.ia server IP address
-    if request.META['REMOTE_ADDR'] not in settings.USERINFO_API_CONFIG['allowed_ips']:
-        logger.error(f"Permission denied, REMOTE_ADDR {request.META['REMOTE_ADDR']} not in allowed IPs.")
-        raise PermissionDenied()
 
     # API Key must be valid
     api_key = body.pop('apiKey')  # Removes apiKey from the returned body

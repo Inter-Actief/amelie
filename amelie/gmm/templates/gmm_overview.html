@@ -74,6 +74,17 @@
                     <i>{% trans '(date yet unknown)' %}</i></a></h2>
                 <div class="content">
                     {{ gmm.agenda|safe }}
+
+                    {% if gmm.documents.exists %}
+                    <div class="documents">
+                        {% trans "For this GMM, the following documents are available:" %}
+                        <ul>
+                            {% for document in gmm.documents.all %}
+                            <li><a target="_BLANK" href="{{ document.file.url }}">{{ document.caption }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
@@ -84,6 +95,17 @@
                 </a></h2>
                 <div class="content">
                     {{ gmm.agenda|safe }}
+
+                    {% if gmm.documents.exists %}
+                    <div class="documents">
+                        <p><b>{% trans "For this GMM, the following documents are available:" %}</b></p>
+                        <ul>
+                            {% for document in gmm.documents.all %}
+                            <li><a target="_BLANK" href="{{ document.file.url }}">{{ document.caption }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

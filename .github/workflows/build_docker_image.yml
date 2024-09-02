@@ -70,7 +70,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           token-type: github-token
           untagged-only: true
-          dry-run: true
 
       - name: Cleanup tagged images (except main, production and graphql) older than 1 month
         uses: snok/container-retention-policy@v2
@@ -81,5 +80,4 @@ jobs:
           org-name: Inter-Actief
           token: ${{ secrets.GITHUB_TOKEN }}
           token-type: github-token
-          skip-tags: main, production, graphql
-          dry-run: true
+          skip-tags: main, production, 741-graphql-api

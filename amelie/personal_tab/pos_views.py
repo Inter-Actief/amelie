@@ -1,4 +1,5 @@
 import json
+import logging
 import operator
 from functools import reduce
 
@@ -22,18 +23,25 @@ from amelie.personal_tab.pos_models import PendingPosToken
 from amelie.personal_tab.transactions import free_cookie_is_winner, free_cookies_allowed, free_cookies_sale, \
     cookie_corner_sale
 from amelie.tools.decorators import request_passes_test
-from amelie.tools.http import HttpJSONResponse
+from amelie.tools.http import HttpJSONResponse, get_client_ips
 from amelie.tools.mixins import RequireCookieCornerMixin
 
 
 def require_cookie_corner_pos(func):
-    if not settings.DEBUG:
+    if settings.DEBUG:
+        return func
+    else:
+        def is_cookie_corner_ip(request):
+            all_ips, real_ip = get_client_ips(request)
+            access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or request.user.is_superuser
+            if not access_allowed:
+                logger = logging.getLogger("amelie.personal_tab.pos_views.require_cookie_corner_pos")
+                logger.warning(f"Client with IP '{real_ip}' was denied access to cookie corner. Not on allowlist. Possible (unchecked) other IPs: {all_ips}")
+            return access_allowed
         return request_passes_test(
-            lambda r: (r.META['REMOTE_ADDR'] in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or r.user.is_superuser),
+            is_cookie_corner_ip,
             reden=_l('Access for personal tab only.')
         )(func)
-    else:
-        return func
 
 
 class PosHomeView(RequireCookieCornerMixin, TemplateView):
