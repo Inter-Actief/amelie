@@ -1,12 +1,13 @@
 from django.utils.translation import gettext_lazy as _
 import graphene
+from django_filters import FilterSet
 from graphene_django import DjangoObjectType
 
-from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, VivatBanner
+from amelie.activities.graphql import ActivityLabelType
+from amelie.calendar.graphql import EventType
+from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, VivatBanner, CompanyEvent
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
-
-# Note: Company events are implemented in the calendar module (amelie/calendar/graphql.py)
 
 class CompanyType(DjangoObjectType):
     class Meta:
@@ -24,6 +25,53 @@ class CompanyType(DjangoObjectType):
     profile = graphene.String(description=_("Profile of the company"))
     short_description = graphene.String(description=_("Short description of the company"))
 
+
+class CompanyEventFilterSet(FilterSet):
+    class Meta:
+        model = CompanyEvent
+        fields = {
+            'id': ("exact", ),
+            'summary_nl': ("icontains", "iexact"),
+            'summary_en': ("icontains", "iexact"),
+            'begin': ("gt", "lt", "exact"),
+            'end': ("gt", "lt", "exact"),
+            'dutch_activity': ("exact", ),
+        }
+
+
+class CompanyEventType(EventType):
+
+    class Meta:
+        model = CompanyEvent
+        fields = [
+            "company",
+            "company_text",
+            "company_url",
+            "visible_from",
+            "visible_till"
+        ].extend(EventType._meta.fields)
+        filterset_class = CompanyEventFilterSet
+
+    activity_label = graphene.Field(ActivityLabelType, description=_("The label that belongs to this activity"))
+    activity_type = graphene.String(description=_("The type of activity"))
+    calender_url = graphene.String(description=_("The url to the ics for this activity"))
+    absolute_url = graphene.String(description=_("The absolute URL to this event"))
+    is_visible = graphene.Boolean(description=_("Whether this event is visible"))
+
+    def resolve_activity_label(self: CompanyEvent, info):
+        return self.activity_label
+
+    def resolve_activity_type(self: CompanyEvent, info):
+        return self.activity_type
+
+    def resolve_calendar_url(self: CompanyEvent, info):
+        return self.get_calendar_url()
+
+    def resolve_absolute_url(self: CompanyEvent, info):
+        return self.get_absolute_url()
+
+    def resolve_is_visible(self: CompanyEvent, info):
+        return self.is_visible()
 
 class WebsiteBannerType(DjangoObjectType):
     class Meta:
@@ -59,6 +107,9 @@ class CompaniesQuery(graphene.ObjectType):
     company = graphene.Field(CompanyType, id=graphene.ID(), slug=graphene.String())
     companies = DjangoPaginationConnectionField(CompanyType)
 
+    company_event = graphene.Field(CompanyEventType, id=graphene.ID())
+    company_events = DjangoPaginationConnectionField(CompanyEventType)
+
     website_banner = graphene.Field(WebsiteBannerType, id=graphene.ID(), slug=graphene.String())
     website_banners = DjangoPaginationConnectionField(WebsiteBannerType)
 
@@ -80,6 +131,11 @@ class CompaniesQuery(graphene.ObjectType):
             return WebsiteBanner.objects.get(pk=id)
         if slug is not None:
             return WebsiteBanner.objects.get(slug=slug)
+        return None
+
+    def resolve_company_event(self, info, id=None):
+        if id is not None:
+            return CompanyEvent.objects.get(pk=id)
         return None
 
     def resolve_television_banner(self, info, id=None, slug=None):

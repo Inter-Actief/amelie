@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-29 22:12+0200\n"
-"PO-Revision-Date: 2024-05-27 22:34+0018\n"
+"POT-Creation-Date: 2024-06-10 20:45+0200\n"
+"PO-Revision-Date: 2024-09-02 19:19+0018\n"
 "Last-Translator: Tom Meulenkamp <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -12,7 +12,19 @@ msgstr ""
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.9\n"
 
-#: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:62 amelie/activities/templates/activity_enrollment_overview.html:180 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:25 amelie/education/models.py:47 amelie/education/models.py:132 amelie/education/models.py:178 amelie/members/models.py:36 amelie/members/models.py:57 amelie/members/models.py:81 amelie/members/models.py:121 amelie/members/models.py:218 amelie/members/models.py:248 amelie/members/models.py:688 amelie/members/models.py:718 amelie/members/models.py:902 amelie/members/models.py:925 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
+#: amelie/about/graphql.py:16
+msgid "Page name"
+msgstr "Naam van de pagina"
+
+#: amelie/about/graphql.py:17
+msgid "Page slug"
+msgstr "Pagina slug"
+
+#: amelie/about/graphql.py:18
+msgid "Page content"
+msgstr "Pagina inhoud"
+
+#: amelie/about/models.py:9 amelie/activities/models.py:26 amelie/activities/models.py:464 amelie/activities/templates/activity_enrollment_overview.html:62 amelie/activities/templates/activity_enrollment_overview.html:180 amelie/activities/templates/activity_enrollment_print.html:29 amelie/claudia/templates/claudia/aliasgroup_list.html:21 amelie/claudia/templates/claudia/contact_list.html:20 amelie/claudia/templates/claudia/email_detail.html:16 amelie/claudia/templates/claudia/extragroup_list.html:21 amelie/claudia/templates/claudia/extraperson_list.html:20 amelie/claudia/templates/claudia/mapping_detail.html:18 amelie/claudia/templates/claudia/mapping_detail.html:84 amelie/claudia/templates/claudia/mapping_detail.html:139 amelie/claudia/templates/claudia/mapping_timeline.html:21 amelie/claudia/templates/claudia/shareddrive_list.html:21 amelie/claudia/templates/claudia/timeline_list.html:20 amelie/education/models.py:25 amelie/education/models.py:47 amelie/education/models.py:132 amelie/education/models.py:178 amelie/members/models.py:36 amelie/members/models.py:57 amelie/members/models.py:81 amelie/members/models.py:121 amelie/members/models.py:218 amelie/members/models.py:248 amelie/members/models.py:660 amelie/members/models.py:690 amelie/members/models.py:874 amelie/members/models.py:897 amelie/members/templates/committee_members.html:7 amelie/members/templates/includes/registration/personal_details.html:14 amelie/members/templates/includes/registration/personal_details_employee.html:14 amelie/members/templates/registration_check.html:34 amelie/personal_tab/models.py:253 amelie/personal_tab/models.py:281 amelie/personal_tab/models.py:319 amelie/personal_tab/statistics.py:266 amelie/personal_tab/templates/exports/screen.html:67 amelie/room_duty/models.py:17 amelie/tools/pdf.py:98
 msgid "Name"
 msgstr "Naam"
 
@@ -199,7 +211,59 @@ msgstr "Bestandsextensie \"%(extension)s\" is niet toegestaan. Toegestane bestan
 msgid "Activity"
 msgstr "Activiteit"
 
-#: amelie/activities/mail.py:62 amelie/activities/mail.py:64 amelie/activities/mail.py:127 amelie/activities/mail.py:129
+#: amelie/activities/graphql.py:45
+msgid "The absolute URL to an activity."
+msgstr "De directe link naar de URL van deze activiteit."
+
+#: amelie/activities/graphql.py:46
+msgid "A URL to a random picture that was made at this activity."
+msgstr "Een URL van een willekeurige foto die gemaakt is op deze activiteit."
+
+#: amelie/activities/graphql.py:47
+msgid "A URL that points to the picture gallery for this activity."
+msgstr "Een URL die naar de foto gallerij van deze activiteit wijst."
+
+#: amelie/activities/graphql.py:48
+msgid "A link to the ICS file for this activity."
+msgstr "Een link naar het ICS bestand voor deze activiteit."
+
+#: amelie/activities/graphql.py:49
+msgid "Whether people can still enroll for this activity."
+msgstr "Of mensen zich nog kunnen inschrijven voor deze activiteit."
+
+#: amelie/activities/graphql.py:50
+msgid "Whether people can no longer enroll for this activity."
+msgstr "Of mensen zich niet langer kunnen inschrijven voor deze activiteit."
+
+#: amelie/activities/graphql.py:51
+msgid "Whether the person that is currently signed-in can edit this activity."
+msgstr "Of de persoon die nu is ingelogd deze activeit kan bewerken."
+
+#: amelie/activities/graphql.py:52
+msgid "The amount of open spots that are still available."
+msgstr "Hoeveel plekken er nog vrij zijn."
+
+#: amelie/activities/graphql.py:53
+msgid "Whether this activity is full."
+msgstr "Of deze activiteit vol is."
+
+#: amelie/activities/graphql.py:54
+msgid "Whether this activity has any participations that are on the waiting list."
+msgstr "Of deze activiteit inschrijvingen op de wachtlijst heeft staan."
+
+#: amelie/activities/graphql.py:55
+msgid "Whether this activity is almost full (<= 10 places left)."
+msgstr "Of deze activiteit bijna vol is (<= 10 plekken over)."
+
+#: amelie/activities/graphql.py:56
+msgid "If there are any options for enrollments."
+msgstr "Of er inschrijf mogelijkheden zijn."
+
+#: amelie/activities/graphql.py:57
+msgid "If there are any costs associated with this activity."
+msgstr "Of er kosten vastzitten aan deze activiteit."
+
+#: amelie/activities/mail.py:39 amelie/activities/mail.py:41 amelie/activities/mail.py:84 amelie/activities/mail.py:86
 msgid "Inter-Activity"
 msgstr "Inter-Activiteit"
 
@@ -2244,6 +2308,22 @@ msgstr "Kies het model waar je de geschiedenis van wilt zien:"
 msgid "And {} other changes"
 msgstr "En nog {} andere wijzigingen."
 
+#: amelie/calendar/graphql.py:42
+msgid "A summary of this activity in the preferred language of this user."
+msgstr "Een samenvatting van deze activiteit in de voorkeurstaal van de gebruiker."
+
+#: amelie/calendar/graphql.py:44
+msgid "A description of this activity in the preferred language of this user."
+msgstr "Een beschrijving van deze activiteit in de voorkeurstaal van de gebruiker."
+
+#: amelie/calendar/graphql.py:46
+msgid "Promotional text for this activity in the preferred language of this user."
+msgstr "Een promo tekst van deze activiteit in de voorkeurstaal van de gebruiker."
+
+#: amelie/calendar/graphql.py:47
+msgid "A brief description of this activity (always in english)."
+msgstr "Een korte beschrijving van deze activiteit (altijd in het Engels)"
+
 #: amelie/calendar/models.py:22
 msgid "No payment"
 msgstr "Geen betaling"
@@ -3112,6 +3192,43 @@ msgstr "Begin:"
 #: amelie/companies/forms.py:140 amelie/personal_tab/forms.py:158
 msgid "End (till)"
 msgstr "Einde (tot):"
+
+#: amelie/companies/graphql.py:24
+msgid "Name of the company"
+msgstr "Naam van het bedrijf"
+
+#: amelie/companies/graphql.py:25
+msgid "Profile of the company"
+msgstr "Profiel van het bedrijf"
+
+#: amelie/companies/graphql.py:26
+msgid "Short description of the company"
+msgstr "Korte beschrijving van het bedrijf"
+
+#: amelie/companies/graphql.py:55
+#| msgid "There are no messages for this activity"
+msgid "The label that belongs to this activity"
+msgstr "Het label dat bij deze activiteit hoort"
+
+#: amelie/companies/graphql.py:56
+#| msgid "Link to activity"
+msgid "The type of activity"
+msgstr "Het type activiteit"
+
+#: amelie/companies/graphql.py:57
+#| msgid "A link to the ICS file for this activity."
+msgid "The url to the ics for this activity"
+msgstr "Een link naar het ICS bestand voor deze activiteit"
+
+#: amelie/companies/graphql.py:58
+#| msgid "The absolute URL to an activity."
+msgid "The absolute URL to this event"
+msgstr "De directe link naar de URL van deze activiteit"
+
+#: amelie/companies/graphql.py:59
+#| msgid "Whether this activity is full."
+msgid "Whether this event is visible"
+msgstr "Of deze activiteit zichtbaar is"
 
 #: amelie/companies/models.py:18 amelie/personal_tab/models.py:421
 msgid "name"
@@ -10033,19 +10150,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:657
+#: amelie/settings/generic.py:703
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:658
+#: amelie/settings/generic.py:704
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:659
+#: amelie/settings/generic.py:705
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:660
+#: amelie/settings/generic.py:706
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 

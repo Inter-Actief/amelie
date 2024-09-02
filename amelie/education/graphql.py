@@ -1,4 +1,5 @@
 import graphene
+from django_filters import FilterSet
 
 from graphene_django import DjangoObjectType
 from django.utils.translation import gettext_lazy as _
@@ -11,9 +12,11 @@ from amelie.graphql.pagination.connection_field import DjangoPaginationConnectio
 from amelie.education.models import Category, Page
 from amelie.iamailer import MailTask, Recipient
 
+from amelie.activities.graphql import ActivityLabelType
+from amelie.calendar.graphql import EventType
+from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
-# Notice:
-# Education Events are implemented in amelie/calendar/graphql.py as part of the general event interface
+from amelie.education.models import Category, Page, EducationEvent
 
 
 class EducationPageType(DjangoObjectType):
@@ -58,12 +61,52 @@ class EducationPageCategoryType(DjangoObjectType):
         return obj.name
 
 
+class EducationEventFilterSet(FilterSet):
+    class Meta:
+        model = EducationEvent
+        fields = {
+            'id': ("exact",),
+            'summary_nl': ("icontains", "iexact"),
+            'summary_en': ("icontains", "iexact"),
+            'begin': ("gt", "lt", "exact"),
+            'end': ("gt", "lt", "exact"),
+            'dutch_activity': ("exact",),
+        }
+
+
+class EducationEventType(EventType):
+
+    class Meta:
+        model = EducationEvent
+
+        fields = [
+            "education_organizer"
+        ].extend(EventType._meta.fields)
+
+        filterset_class = EducationEventFilterSet
+
+    activity_label = graphene.Field(ActivityLabelType)
+    activity_type = graphene.String(description="The type of event")
+    absolute_url = graphene.String(description="The absolute URL to this event")
+
+    def resolve_activity_label(self: EducationEvent, info):
+        return self.activity_label
+
+    def resolve_activity_type(self: EducationEvent, info):
+        return self.activity_type
+
+    def resolve_absolute_url(self: EducationEvent, info):
+        return self.get_absolute_url()
+
 class EducationQuery(graphene.ObjectType):
     educationpage_category = graphene.Field(EducationPageCategoryType, id=graphene.ID())
     educationpage_categories = DjangoPaginationConnectionField(EducationPageCategoryType)
 
     educationpage = graphene.Field(EducationPageType, id=graphene.ID(), slug=graphene.String())
     educationpages = DjangoPaginationConnectionField(EducationPageType)
+
+    education_event = graphene.Field(EducationEventType, id=graphene.ID())
+    education_events = DjangoPaginationConnectionField(EducationEventType)
 
     def resolve_educationpage_category(root, info, id=None):
         """Find education page category by ID"""
@@ -77,6 +120,12 @@ class EducationQuery(graphene.ObjectType):
             return Page.objects.get(pk=id)
         if slug is not None:
             return Page.objects.get(slug=slug)
+        return None
+
+    def resolve_education_event(self, id=None):
+        """Find education event by ID"""
+        if id is not None:
+            return EducationEvent.objects.get(pk=id)
         return None
 
 
