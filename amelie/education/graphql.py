@@ -13,7 +13,7 @@ from amelie.education.models import Category, Page
 from amelie.iamailer import MailTask, Recipient
 
 from amelie.activities.graphql import ActivityLabelType
-from amelie.calendar.graphql import EventType
+from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 from amelie.education.models import Category, Page, EducationEvent
@@ -81,7 +81,7 @@ class EducationEventType(EventType):
 
         fields = [
             "education_organizer"
-        ].extend(EventType._meta.fields)
+        ] + EVENT_TYPE_BASE_FIELDS
 
         filterset_class = EducationEventFilterSet
 

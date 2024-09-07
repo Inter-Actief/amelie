@@ -4,7 +4,7 @@ from django_filters import FilterSet
 from graphene_django import DjangoObjectType
 
 from amelie.activities.graphql import ActivityLabelType
-from amelie.calendar.graphql import EventType
+from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
 from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, VivatBanner, CompanyEvent
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
@@ -49,7 +49,7 @@ class CompanyEventType(EventType):
             "company_url",
             "visible_from",
             "visible_till"
-        ].extend(EventType._meta.fields)
+        ] + EVENT_TYPE_BASE_FIELDS
         filterset_class = CompanyEventFilterSet
 
     activity_label = graphene.Field(ActivityLabelType, description=_("The label that belongs to this activity"))

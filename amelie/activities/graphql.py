@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel
-from amelie.calendar.graphql import EventType
+from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 
@@ -39,7 +39,7 @@ class ActivityType(EventType):
             "can_unenroll",
             "image_icon",
             "activity_label"
-        ].extend(EventType._meta.fields)
+        ] + EVENT_TYPE_BASE_FIELDS
         filterset_class = ActivityFilterSet
 
     absolute_url = graphene.String(description=_('The absolute URL to an activity.'))
@@ -49,9 +49,7 @@ class ActivityType(EventType):
     enrollment_open = graphene.Boolean(description=_('Whether people can still enroll for this activity.'))
     enrollment_closed = graphene.Boolean(description=_('Whether people can no longer enroll for this activity.'))
     can_edit = graphene.Boolean(description=_('Whether the person that is currently signed-in can edit this activity.'))
-    places_available = graphene.Int(description=_('The amount of open spots that are still available.'))
     enrollment_full = graphene.Boolean(description=_('Whether this activity is full.'))
-    has_waiting_participants = graphene.Boolean(description=_('Whether this activity has any participations that are on the waiting list.'))
     enrollment_almost_full = graphene.Boolean(description=_('Whether this activity is almost full (<= 10 places left).'))
     has_enrollment_options = graphene.Boolean(description=_('If there are any options for enrollments.'))
     has_costs = graphene.Boolean(description=_('If there are any costs associated with this activity.'))
@@ -79,14 +77,8 @@ class ActivityType(EventType):
             return self.can_edit(info.context.user.person)
         return False
 
-    def resolve_places_available(self: Activity, info):
-         return self.places_available()
-
     def resolve_enrollment_full(self: Activity, info):
         return self.enrollment_full()
-
-    def resolve_has_waiting_participants(self: Activity, info):
-        return self.has_waiting_participants()
 
     def resolve_enrollment_almost_full(self: Activity, info):
         return self.enrollment_almost_full()

@@ -77,7 +77,6 @@ class CommitteeType(DjangoObjectType):
         fields = [
             "id",
             "name",
-            "abbreviation",
             "category",
             "parent_committees",
             "slug",

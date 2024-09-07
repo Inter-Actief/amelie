@@ -5,38 +5,39 @@ from amelie.calendar.models import Event
 from django.utils.translation import gettext_lazy as _
 
 from amelie.files.graphql import AttachmentType
-from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
+
+
+# Specified separately from EventType.Meta to be able to use it in the Meta class of subclasses.
+EVENT_TYPE_BASE_FIELDS = [
+    "begin",
+    "end",
+    "entire_day",
+    "summary_nl",
+    "summary_en",
+    "promo_nl",
+    "promo_en",
+    "description_nl",
+    "description_en",
+    "organizer",
+    "location",
+    "public",
+    "dutch_activity",
+    "organizer",
+    "participation",
+]
 
 
 class EventType(DjangoObjectType):
     """
     The event type used for GraphQL operations
     """
+
     class Meta:
         # Make sure that this type is not actually being registered. But it can be used by other types as a base class.
         skip_registry = True
 
         model = Event
-        fields = [
-            "pk",
-            "begin",
-            "end",
-            "entire_day",
-            "summary_nl",
-            "summary_en",
-            "promo_nl",
-            "promo_en",
-            "description_nl",
-            "description_en",
-            "organizer",
-            "location",
-            "public",
-            "dutch_activity",
-            "callback_url",
-            "organizer",
-            "committee",
-            "participation",
-        ]
+        fields = EVENT_TYPE_BASE_FIELDS
 
     attachments = graphene.List(AttachmentType, description="Attachment ids")
     summary = graphene.String(description=_('A summary of this activity in the preferred language of this user.'))
