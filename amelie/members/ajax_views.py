@@ -16,7 +16,7 @@ from amelie.members.models import Payment, Committee, Function, Membership, Empl
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
-from amelie.tools.decorators import require_ajax, require_board, require_actief
+from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):

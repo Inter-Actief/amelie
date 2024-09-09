@@ -45,7 +45,7 @@ from amelie.members.models import Payment, PaymentType, Committee, Function, Mem
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
-from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
+from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth, require_committee
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
