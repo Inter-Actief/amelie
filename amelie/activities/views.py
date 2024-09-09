@@ -570,7 +570,7 @@ def activity_enrollment_person_search(request, pk):
     """
     activity = get_object_or_404(Activity, pk=pk)
     is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
-    if not (activity.can_edit(request.person) and is_rd):
+    if not (activity.can_edit(request.person) or is_rd):
         raise PermissionDenied
 
     form = PersonSearchForm(request.POST if request.POST else None)
