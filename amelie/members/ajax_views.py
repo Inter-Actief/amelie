@@ -264,7 +264,7 @@ def person_functions(request, id):
 
 
 @require_ajax
-@require_committee("RD")
+@require_board
 def person_study(request, id):
     obj = get_object_or_404(Person, id=id)
 
