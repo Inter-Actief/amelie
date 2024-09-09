@@ -42,6 +42,7 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
     DogroupGeneration
+from amelie.members.utils import is_committee
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
@@ -314,7 +315,7 @@ def person_view(request, id, slug):
         accounts = []
 
     can_be_anonymized, unable_to_anonymize_reasons = _person_can_be_anonymized(obj)
-    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+    is_rd = is_committee(request, "RD")
 
     return render(request, "person.html", locals())
 

@@ -24,6 +24,7 @@ from amelie.forms import AmelieAuthenticationForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod
+from amelie.members.utils import is_committee
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount
@@ -237,7 +238,7 @@ def frontpage(request):
                                                                  end__isnull=True).exists()
         
         # Room Duty check
-        context['is_rd'] = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+        context['is_rd'] = is_committee(request, "RD")
 
         # Birthdays
         context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,

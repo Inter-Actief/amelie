@@ -50,6 +50,7 @@ from amelie.calendar.models import Participation, Event
 from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import MailingForm
+from amelie.members.utils import is_committee
 from amelie.tools import amelie_messages, types
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
@@ -252,7 +253,7 @@ def activity(request, pk, deanonymise=False):
 
     # Enable opengraph on this page
     metadata_enable_opengraph = True
-    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+    is_rd = is_committee(request, "RD")
 
     return render(request, "activity.html", locals())
 
@@ -569,7 +570,7 @@ def activity_enrollment_person_search(request, pk):
     Search for a person to enroll for this activity.
     """
     activity = get_object_or_404(Activity, pk=pk)
-    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+    is_rd = is_committee(request, "RD")
     if not (activity.can_edit(request.person) or is_rd):
         raise PermissionDenied
 
@@ -678,7 +679,7 @@ def activity_enrollment_form(request, activity, person=None):
         # Django messages have been set in check_enrollment_allowed
         return redirect(activity)
 
-    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+    is_rd = is_committee(request, "RD")
     if indirect and not (activity.can_edit(request.person) or is_rd):
         raise PermissionDenied
 
@@ -1309,7 +1310,7 @@ class DataExport(PassesTestMixin, View):
 
         is_board = hasattr(request, 'is_board') and request.is_board
         is_organization = obj.organizer in request.person.current_committees()
-        is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+        is_rd = is_committee(request, "RD")
 
         return is_board or is_organization or is_rd
 
