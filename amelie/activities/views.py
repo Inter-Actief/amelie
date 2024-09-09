@@ -1309,8 +1309,9 @@ class DataExport(PassesTestMixin, View):
 
         is_board = hasattr(request, 'is_board') and request.is_board
         is_organization = obj.organizer in request.person.current_committees()
+        is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
 
-        return is_board or is_organization
+        return is_board or is_organization or is_rd
 
     def post(self, request, pk=None):
         if pk is None:
