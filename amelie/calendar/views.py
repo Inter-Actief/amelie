@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _l
 from django.views.generic import TemplateView
 
 from amelie.calendar.models import Participation
-from amelie.tools.mixins import RequireBoardMixin
+from amelie.tools.mixins import RequireBoardMixin, RequireCommitteeMixin
 
 
 class PayParticipationView(RequireCommitteeMixin, TemplateView):

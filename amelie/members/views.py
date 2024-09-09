@@ -49,7 +49,7 @@ from amelie.tools.decorators import require_board, require_superuser, require_li
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
-from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
+from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
 @require_board
