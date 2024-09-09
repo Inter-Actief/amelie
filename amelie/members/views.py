@@ -462,7 +462,7 @@ def person_anonymize(request, id, slug):
 
 
 class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
-    abbrevation = "RD"
+    abbreviation = "RD"
     template_name = "person_registration_form_general.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepGeneralStudyDetails, RegistrationFormStepGeneralMembershipDetails,
