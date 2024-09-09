@@ -57,7 +57,7 @@
                         <td>
                             {{ mandate.end_date|default_if_none:"&mdash;" }}
                         </td>
-                        {%  if request.is_board %}
+                        {%  if request.is_board or is_rd %}
                         <td>
                             {% if not mandate.is_signed and not mandate.end_date %}
                                 <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'Print' %}</a><br />

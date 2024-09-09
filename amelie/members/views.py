@@ -314,6 +314,7 @@ def person_view(request, id, slug):
         accounts = []
 
     can_be_anonymized, unable_to_anonymize_reasons = _person_can_be_anonymized(obj)
+    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
 
     return render(request, "person.html", locals())
 
