@@ -22,7 +22,7 @@
                     <th>{% trans 'Signed' %}</th>
                     <th>{% trans 'Starts on' %}</th>
                     <th>{% trans 'Ends on' %}</th>
-                    {% if request.is_board %}<th></th>{% endif %}
+                    {% if request.is_board or is_rd %}<th></th>{% endif %}
                 </tr>
             </thead>
             <tbody>
