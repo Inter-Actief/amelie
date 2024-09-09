@@ -235,6 +235,9 @@ def frontpage(request):
         # MediaCie check
         context['mediacie'] = request.person.function_set.filter(committee__abbreviation='MediaCie',
                                                                  end__isnull=True).exists()
+        
+        # Room Duty check
+        context['is_rd'] = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
 
         # Birthdays
         context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,

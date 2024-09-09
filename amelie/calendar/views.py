@@ -8,8 +8,9 @@ from amelie.calendar.models import Participation
 from amelie.tools.mixins import RequireBoardMixin
 
 
-class PayParticipationView(RequireBoardMixin, TemplateView):
+class PayParticipationView(RequireCommitteeMixin, TemplateView):
     template_name = "confirm_payment.html"
+    abbreviation = "RD"
 
     def get_context_data(self, **kwargs):
         context = super(PayParticipationView, self).get_context_data()

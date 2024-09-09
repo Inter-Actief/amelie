@@ -301,7 +301,7 @@ def payment_statistics(request, start_year=2012):
     return render(request, 'statistics/payments.html', locals())
 
 
-@require_board
+@require_committee("RD")
 def person_view(request, id, slug):
     obj = get_object_or_404(Person, id=id, slug=slug)
     preference_categories = PreferenceCategory.objects.all()
@@ -318,7 +318,7 @@ def person_view(request, id, slug):
     return render(request, "person.html", locals())
 
 
-@require_board
+@require_committee("RD")
 @transaction.atomic
 def person_edit(request, id, slug):
     person = get_object_or_404(Person, id=id)
@@ -461,7 +461,8 @@ def person_anonymize(request, id, slug):
     return render(request, 'person_anonymization_success.html', {'person': person})
 
 
-class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbrevation = "RD"
     template_name = "person_registration_form_general.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepGeneralStudyDetails, RegistrationFormStepGeneralMembershipDetails,
@@ -576,7 +577,8 @@ class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
         pdf = buffer.getvalue()
         return HttpResponse(pdf, content_type='application/pdf')
 
-class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = "RD"
     template_name = "person_registration_form_external.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepAuthorizationDetails, RegistrationFormStepPersonalPreferences,
@@ -686,7 +688,8 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class RegisterNewEmployeeWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = "RD"
     template_name = "person_registration_form_employee.html"
     form_list = [RegistrationFormPersonalDetailsEmployee, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepEmployeeDetails, RegistrationFormStepEmployeeMembershipDetails,
@@ -793,7 +796,8 @@ class RegisterNewEmployeeWizardView(RequireBoardMixin, SessionWizardView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class RegisterNewFreshmanWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = "RD"
     template_name = "person_registration_form_freshmen.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails,
@@ -1059,8 +1063,9 @@ class PreRegistrationCompleteView(TemplateView):
     template_name = "person_registration_form_preregister_complete.html"
 
 
-class PreRegistrationStatus(RequireBoardMixin, TemplateView):
+class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
     template_name = "preregistration_status.html"
+    abbreviation = "RD"
 
     def get_context_data(self, **kwargs):
         context = super(PreRegistrationStatus, self).get_context_data(**kwargs)
@@ -1173,7 +1178,8 @@ class PreRegistrationStatus(RequireBoardMixin, TemplateView):
         return super(PreRegistrationStatus, self).get(request, *args, **kwargs)
 
 
-class PreRegistrationPrintDogroup(RequireBoardMixin, TemplateView):
+class PreRegistrationPrintDogroup(RequireCommitteeMixin, TemplateView):
+    abbreviation = "RD"
 
     def get(self, request, *args, **kwargs):
         pre_enrollment_dogroup_id = request.GET.get('did', None)
@@ -1200,9 +1206,10 @@ class PreRegistrationPrintDogroup(RequireBoardMixin, TemplateView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class PreRegistrationPrintAll(RequireBoardMixin, FormView):
+class PreRegistrationPrintAll(RequireCommitteeMixin, FormView):
     template_name = "preregistration_print_all.html"
     form_class = PreRegistrationPrintAllForm
+    abbreviation = "RD"
 
     def form_valid(self, form):
         sort_by = form.cleaned_data['sort_by']
@@ -1249,7 +1256,7 @@ class PreRegistrationPrintAll(RequireBoardMixin, FormView):
 
 
 
-@require_board
+@require_committee("RD")
 def registration_form(request, user, membership):
     from amelie.tools.pdf import pdf_enrollment_form
 
@@ -1261,7 +1268,7 @@ def registration_form(request, user, membership):
     return HttpResponse(pdf, content_type='application/pdf')
 
 
-@require_board
+@require_committee("RD")
 def membership_form(request, user, membership):
     from amelie.tools.pdf import pdf_membership_form
 
@@ -1273,7 +1280,7 @@ def membership_form(request, user, membership):
     return HttpResponse(pdf, content_type='application/pdf')
 
 
-@require_board
+@require_committee("RD")
 def mandate_form(request, mandate):
     from amelie.tools.pdf import pdf_authorization_form
 
@@ -1601,7 +1608,7 @@ def person_groupinfo(request):
     return HttpJSONResponse({})
 
 
-@require_board
+@require_committee("RD")
 def person_send_link_code(request, person_id):
     person = get_object_or_404(Person, id=person_id)
     link_code = get_oauth_link_code(person)

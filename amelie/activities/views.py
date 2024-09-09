@@ -252,6 +252,7 @@ def activity(request, pk, deanonymise=False):
 
     # Enable opengraph on this page
     metadata_enable_opengraph = True
+    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
 
     return render(request, "activity.html", locals())
 
@@ -492,7 +493,7 @@ def activity_editenrollment_self(request, pk):
         return render(request, "activity_enrollment_form.html", locals())
 
 
-@require_board
+@require_committee("RD")
 @transaction.atomic
 def activity_editenrollment_other(request, pk, person_id):
     """
@@ -521,7 +522,7 @@ def activity_editenrollment_other(request, pk, person_id):
         return render(request, "activity_enrollment_form.html", locals())
 
 
-@require_board
+@require_committee("RD")
 @transaction.atomic
 def activity_unenrollment(request, pk, person_id):
     """

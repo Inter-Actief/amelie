@@ -30,7 +30,7 @@ from amelie.tools.mixins import RequireBoardMixin
 from amelie.tools.paginator import RangedPaginator
 
 
-@require_board
+@require_committee("RD")
 @never_cache
 def query(request):
     page = types.get_int(request.GET, 'page', default=1, min_value=1)
