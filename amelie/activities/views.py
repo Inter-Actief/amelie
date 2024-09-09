@@ -678,7 +678,8 @@ def activity_enrollment_form(request, activity, person=None):
         # Django messages have been set in check_enrollment_allowed
         return redirect(activity)
 
-    if indirect and not activity.can_edit(request.person):
+    is_rd = request.person.function_set.filter(committee__abbreviation="RD", end__isnull=True).exists()
+    if indirect and not (activity.can_edit(request.person) or is_rd):
         raise PermissionDenied
 
     per_mandate = (request.is_board or settings.PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE) \
