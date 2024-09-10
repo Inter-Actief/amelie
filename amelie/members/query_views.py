@@ -24,13 +24,13 @@ from amelie.members.models import Person, Preference, Student, Employee
 from amelie.members.query_forms import MailingForm, QueryForm, PushNotificationForm
 from amelie.members.tasks import send_push_notification
 from amelie.tools import types
-from amelie.tools.decorators import require_board, require_committee
+from amelie.tools.decorators import require_board, require_room_duty
 from amelie.tools.logic import current_association_year
 from amelie.tools.mixins import RequireBoardMixin
 from amelie.tools.paginator import RangedPaginator
 
 
-@require_committee("RD")
+@require_room_duty()
 @never_cache
 def query(request):
     page = types.get_int(request.GET, 'page', default=1, min_value=1)

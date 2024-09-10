@@ -42,11 +42,10 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
 from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
     DogroupGeneration
-from amelie.members.utils import is_committee
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
-from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth, require_committee
+from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth, require_room_duty
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
@@ -302,7 +301,7 @@ def payment_statistics(request, start_year=2012):
     return render(request, 'statistics/payments.html', locals())
 
 
-@require_committee("RD")
+@require_room_duty()
 def person_view(request, id, slug):
     obj = get_object_or_404(Person, id=id, slug=slug)
     preference_categories = PreferenceCategory.objects.all()
@@ -315,12 +314,12 @@ def person_view(request, id, slug):
         accounts = []
 
     can_be_anonymized, unable_to_anonymize_reasons = _person_can_be_anonymized(obj)
-    is_rd = is_committee(request, "RD")
+    is_rd = request.person.is_room_duty()
 
     return render(request, "person.html", locals())
 
 
-@require_committee("RD")
+@require_room_duty()
 @transaction.atomic
 def person_edit(request, id, slug):
     person = get_object_or_404(Person, id=id)
@@ -1258,7 +1257,7 @@ class PreRegistrationPrintAll(RequireCommitteeMixin, FormView):
 
 
 
-@require_committee("RD")
+@require_room_duty()
 def registration_form(request, user, membership):
     from amelie.tools.pdf import pdf_enrollment_form
 
@@ -1270,7 +1269,7 @@ def registration_form(request, user, membership):
     return HttpResponse(pdf, content_type='application/pdf')
 
 
-@require_committee("RD")
+@require_room_duty()
 def membership_form(request, user, membership):
     from amelie.tools.pdf import pdf_membership_form
 
@@ -1282,7 +1281,7 @@ def membership_form(request, user, membership):
     return HttpResponse(pdf, content_type='application/pdf')
 
 
-@require_committee("RD")
+@require_room_duty()
 def mandate_form(request, mandate):
     from amelie.tools.pdf import pdf_authorization_form
 
@@ -1610,7 +1609,7 @@ def person_groupinfo(request):
     return HttpJSONResponse({})
 
 
-@require_committee("RD")
+@require_room_duty()
 def person_send_link_code(request, person_id):
     person = get_object_or_404(Person, id=person_id)
     link_code = get_oauth_link_code(person)

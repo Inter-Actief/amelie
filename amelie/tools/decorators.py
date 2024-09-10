@@ -90,3 +90,6 @@ def require_committee(abbreviation):
                                    reden=_l('Access for members of the committee only.'))(func)
 
     return _view
+
+def require_room_duty():
+    return require_committee(settings.ROOM_DUTY_ABBREVIATION)
