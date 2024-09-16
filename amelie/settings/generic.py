@@ -725,9 +725,14 @@ OAUTH2_PROVIDER = {
 
 # SAML2 Identity Provider configuration
 SAML_BASE_URL = "https://www.inter-actief.utwente.nl/saml2idp"
+try:
+    xmlsec_binary = get_xmlsec_binary(['/opt/local/bin', '/usr/bin/xmlsec1'])
+except saml2.sigver.SigverError:
+    print("Could not find xmlsec1 binary for SAML. Continuing with no xmlsec configured, SAML2 IDP will not work.")
+    xmlsec_binary = None
 SAML_IDP_CONFIG = {
     'debug': 0,
-    'xmlsec_binary': get_xmlsec_binary(['/opt/local/bin', '/usr/bin/xmlsec1']),
+    'xmlsec_binary': xmlsec_binary,
     'entityid': '%s/metadata' % SAML_BASE_URL,
     'description': 'Inter-Actief SAML IdP',
 

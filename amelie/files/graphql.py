@@ -31,7 +31,8 @@ class FilesQuery(graphene.ObjectType):
     attachment = graphene.Field(AttachmentType, id=graphene.ID())
 
     def resolve_attachment(root, info, id):
-        return Attachment.objects.get(pk=id)
+        # `info.context` is the Django Request object in Graphene
+        return Attachment.objects.filter_public(info.context).get(pk=id)
 
 
 GRAPHQL_QUERIES = [FilesQuery]

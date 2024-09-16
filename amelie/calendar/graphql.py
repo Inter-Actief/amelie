@@ -48,7 +48,8 @@ class EventType(DjangoObjectType):
     description_short = graphene.String(description=_('A brief description of this activity (always in english).'))
 
     def resolve_attachments(self: Event, info):
-        return self.attachments.values_list('id', flat=True)
+        # `info.context` is the Django Request object in Graphene
+        return self.attachments.filter_public(info.context).values_list('id', flat=True)
 
     def resolve_summary(self: Event, info):
         return self.summary

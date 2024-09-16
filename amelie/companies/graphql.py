@@ -80,7 +80,7 @@ class WebsiteBannerType(DjangoObjectType):
         filter_fields = {
             "name": ("icontains", "iexact"),
         }
-        fields = ["picture", "name", "slug", "start_date", "end_date", "active", "url"]
+        fields = ["picture", "name", "slug", "active", "url"]
 
 
 class TelevisionBannerType(DjangoObjectType):
@@ -90,7 +90,7 @@ class TelevisionBannerType(DjangoObjectType):
         filter_fields = {
             "name": ("icontains", "iexact"),
         }
-        fields = ["picture", "name", "slug", "start_date", "end_date", "active"]
+        fields = ["picture", "name", "slug", "active"]
 
 
 class VivatBannerType(DjangoObjectType):
@@ -100,7 +100,7 @@ class VivatBannerType(DjangoObjectType):
         filter_fields = {
             "name": ("icontains", "iexact"),
         }
-        fields = ["picture", "name", "slug", "start_date", "end_date", "active", "url"]
+        fields = ["picture", "name", "slug", "active", "url"]
 
 
 class CompaniesQuery(graphene.ObjectType):
@@ -126,6 +126,11 @@ class CompaniesQuery(graphene.ObjectType):
             return Company.objects.get(slug=slug)
         return None
 
+    def resolve_company_event(self, info, id=None):
+        if id is not None:
+            return CompanyEvent.objects.get(pk=id)
+        return None
+
     def resolve_website_banner(self, info, id=None, slug=None):
         if id is not None:
             return WebsiteBanner.objects.get(pk=id)
@@ -133,10 +138,8 @@ class CompaniesQuery(graphene.ObjectType):
             return WebsiteBanner.objects.get(slug=slug)
         return None
 
-    def resolve_company_event(self, info, id=None):
-        if id is not None:
-            return CompanyEvent.objects.get(pk=id)
-        return None
+    def resolve_website_banners(self, info, *args, **kwargs):
+        return WebsiteBanner.objects.filter(active=True)
 
     def resolve_television_banner(self, info, id=None, slug=None):
         if id is not None:
@@ -145,12 +148,18 @@ class CompaniesQuery(graphene.ObjectType):
             return TelevisionBanner.objects.get(slug=slug)
         return None
 
+    def resolve_television_banners(self, info, *args, **kwargs):
+        return TelevisionBanner.objects.filter(active=True)
+
     def resolve_vivat_banner(self, info, id=None, slug=None):
         if id is not None:
             return VivatBanner.objects.get(pk=id)
         if slug is not None:
             return VivatBanner.objects.get(slug=slug)
         return None
+
+    def resolve_vivat_banners(self, info, *args, **kwargs):
+        return VivatBanner.objects.filter(active=True)
 
 
 # Exports

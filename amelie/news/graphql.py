@@ -43,6 +43,10 @@ class NewsItemType(DjangoObjectType):
     introduction = graphene.String(description=_("Message introduction (localized for user)"))
     content = graphene.String(description=_("Message content (localized for user)"))
 
+    def resolve_attachments(self: NewsItem, info):
+        # `info.context` is the Django Request object in Graphene
+        return self.attachments.filter_public(info.context).all()
+
     def resolve_author(obj: NewsItem, info):
         return obj.author.incomplete_name()
 

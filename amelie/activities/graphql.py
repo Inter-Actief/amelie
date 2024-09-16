@@ -54,6 +54,10 @@ class ActivityType(EventType):
     has_enrollment_options = graphene.Boolean(description=_('If there are any options for enrollments.'))
     has_costs = graphene.Boolean(description=_('If there are any costs associated with this activity.'))
 
+    def resolve_photos(self: Activity, info):
+        # `info.context` is the Django Request object in Graphene
+        return self.photos.filter_public(info.context).all()
+
     def resolve_absolute_url(self: Activity, info):
         return self.get_absolute_url()
 
