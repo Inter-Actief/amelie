@@ -208,6 +208,8 @@ MIDDLEWARE = [
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
 
+INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.17.0.1']
+
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
     'amelie.tools.auth.IAOIDCAuthenticationBackend',  # Logins via OIDC / auth.ia
@@ -302,7 +304,7 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
 
     # SSL Runserver
-    'sslserver',
+    # 'sslserver',
 
     # Django-celery helper for celery results
     'django_celery_results',

@@ -46,7 +46,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
                 if field == "preferences":
                     old = [preference.name for preference in getattr(old_person, field).all()]
                     new = [preference.name for preference in self.cleaned_data[field].all()] + [preference.name for preference in self.instance.preferences.filter(adjustable=False)]
-                    
+
                     added = list(set(new)-set(old))
                     removed = list(set(old)-set(new))
 

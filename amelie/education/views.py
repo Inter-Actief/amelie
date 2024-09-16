@@ -5,7 +5,7 @@ from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.encoding import force_str
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 
@@ -384,7 +384,7 @@ def course_new(request):
         if form.is_valid():
             course_obj = form.save()
             course_obj.save()
-            if next and is_safe_url(next, [request.get_host()]):
+            if next and url_has_allowed_host_and_scheme(next, [request.get_host()]):
                 return redirect(next)
             return redirect("education:complaint_new")
 
@@ -401,7 +401,7 @@ def module_new(request):
         if form.is_valid():
             module_obj = form.save()
             module_obj.save()
-            if next and is_safe_url(next, [request.get_host()]):
+            if next and url_has_allowed_host_and_scheme(next, [request.get_host()]):
                 return redirect(next)
             return redirect("education:complaint_new")
 

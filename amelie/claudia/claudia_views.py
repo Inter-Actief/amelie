@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, View, TemplateView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView, FormView
 from django.views.generic.detail import SingleObjectMixin
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.settings import SYSADMINS_ABBR
 from amelie.tools.mixins import RequireCommitteeMixin, RequireStrictCommitteeMixin
