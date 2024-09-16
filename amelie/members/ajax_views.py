@@ -2,6 +2,7 @@ from datetime import date
 
 import re
 
+from django.conf import settings
 from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse

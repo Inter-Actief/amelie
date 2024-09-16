@@ -3,6 +3,7 @@ import re
 from datetime import date
 import csv
 
+from django.conf import settings
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
