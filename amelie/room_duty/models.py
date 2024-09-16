@@ -61,7 +61,8 @@ class BalconyDutyAssociation(models.Model):
 
     def __init__(self, *args, association=None, **kwargs):
         kwargs['rank'] = BalconyDutyAssociation.count() + 1
-        super(BalconyDutyAssociation, self).__init__(*args, association=association, **kwargs)
+        kwargs['association'] = association
+        super(BalconyDutyAssociation, self).__init__(*args, **kwargs)
 
     def __str__(self):
         return self.association
