@@ -381,6 +381,9 @@ SESSION_COOKIE_NAME = 'amelie_sessionid'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
+# Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
+DATA_UPLOAD_MAX_NUMBER_FILES = 1000
+
 # Modules with JSONRPC API endpoints for autoregistration
 MODERNRPC_METHODS_MODULES = [
     'amelie.api.api',
