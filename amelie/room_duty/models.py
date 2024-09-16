@@ -62,8 +62,13 @@ class BalconyDutyAssociation(models.Model):
     def __init__(self, *args, association=None, **kwargs):
         # Tuples *args and **kwargs are not allowed to be combined (if they overlap).
         # So we extract the information from the kwargs that might overlap and place it in the args.
-        patched_args = (args[0], association if args[1] is None else args[1], args[2], BalconyDutyAssociation.count() + 1)
-        super(BalconyDutyAssociation, self).__init__(*patched_args, **kwargs)
+
+        if not args:
+            kwargs['rank'] = BalconyDutyAssociation.count() + 1
+            kwargs['association'] = association
+            super(BalconyDutyAssociation, self).__init__(*args, **kwargs)
+        else:
+            super(BalconyDutyAssociation, self).__init__(*(args[0], args[1], args[2], BalconyDutyAssociation.count() + 1))
 
     def __str__(self):
         return self.association
