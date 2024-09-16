@@ -93,7 +93,11 @@
                     {% endblocktrans %}
                 </p>
 
-                {{ form.contact_check }}
+
+                <p>
+                    {{ form.contact_check }} <label for="{{ form.contact_check.auto_id }}">{% trans 'I have contacted the teacher or module coordinator and could not resolve this problem with them on my own' %}.</label>
+                </p>
+
 
                 <div class="table-responsive">
                     <table class="table">

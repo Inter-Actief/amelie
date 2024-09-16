@@ -53,7 +53,7 @@ class ComplaintForm(forms.ModelForm):
     part = forms.CharField(max_length=255, required=False, label=_l('Subject'),
                            widget=forms.TextInput(attrs={'placeholder': _l('Subject')}))
     year = forms.IntegerField(min_value=1, required=False, initial=current_academic_year_strict, label=_l('Year'))
-    contact_check = forms.BooleanField(required=True, initial=False, label=_l('I have contacted the teacher or module coordinator and could not resolve this problem with them on my own'))
+    contact_check = forms.BooleanField(required=True, initial=False)
 
     def __init__(self, *args, **kwargs):
         super(ComplaintForm, self).__init__(*args, **kwargs)
