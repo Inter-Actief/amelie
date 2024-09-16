@@ -135,13 +135,9 @@ if settings.DEBUG:
 
 
 if settings.DEBUG_TOOLBAR:
-    # import debug_toolbar
     from debug_toolbar.toolbar import debug_toolbar_urls
     # Django debug toolbar
     urlpatterns += debug_toolbar_urls()
-    # [
-    #     path('__debugtoolbar__/', include(debug_toolbar.urls), name='django_debug_toolbar')
-    # ]
 
 # Redirect for 500 errors
 handler500 = views.server_error
