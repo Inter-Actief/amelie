@@ -59,9 +59,11 @@ class BalconyDutyAssociation(models.Model):
     is_this_association = models.BooleanField(verbose_name=_l("Is Inter-Actief"))
     rank = models.PositiveIntegerField(unique=True)
 
-    def __init__(self, *args, **kwargs):
-        kwargs['rank'] = BalconyDutyAssociation.count() + 1
-        super(BalconyDutyAssociation, self).__init__(*args, **kwargs)
+    def __init__(self, *args, association=None, **kwargs):
+        # Tuples *args and **kwargs are not allowed to be combined (if they overlap).
+        # So we extract the information from the kwargs that might overlap and place it in the args.
+        patched_args = (args[0], association if args[1] is None else args[1], args[2], BalconyDutyAssociation.count() + 1)
+        super(BalconyDutyAssociation, self).__init__(*patched_args, **kwargs)
 
     def __str__(self):
         return self.association
