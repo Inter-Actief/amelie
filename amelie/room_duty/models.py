@@ -59,9 +59,8 @@ class BalconyDutyAssociation(models.Model):
     is_this_association = models.BooleanField(verbose_name=_l("Is Inter-Actief"))
     rank = models.PositiveIntegerField(unique=True)
 
-    def __init__(self, *args, association=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         kwargs['rank'] = BalconyDutyAssociation.count() + 1
-        kwargs['association'] = association
         super(BalconyDutyAssociation, self).__init__(*args, **kwargs)
 
     def __str__(self):
