@@ -147,7 +147,7 @@
 	</div>
 
     {% if obj.enrollment %}
-        {% if obj.organizer in request.person.current_committees or request.is_board or is_rd %}
+        {% if obj.organizer in request.person.current_committees or request.is_board or is_roomduty %}
             <div class="col-xs-12 col-md-12">
                 <div class="current">
                     <h2 class="expand" data-target="export_options">{% trans 'Export enrollments' %}</h2>

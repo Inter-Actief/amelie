@@ -237,7 +237,7 @@ def frontpage(request):
                                                                  end__isnull=True).exists()
         
         # Room Duty check
-        context['is_rd'] = request.person.is_room_duty()
+        context['is_roomduty'] = request.person.is_room_duty()
 
         # Birthdays
         context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,

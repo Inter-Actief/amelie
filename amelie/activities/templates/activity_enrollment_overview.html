@@ -103,7 +103,7 @@
                     {% for answer in participation.enrollmentoptionanswer_set.all %}
                         <td>{{ answer.display_answer }}</td>
                     {% endfor %}
-                    {% if request.is_board or is_rd %}
+                    {% if request.is_board or is_roomduty %}
                         <td>{% if participation.has_paid %}<p class="icon pos">{{ participation.get_payment_method_display }}{% else %}<p class="icon icon-cancel"><a title="{% trans "By clicking here, you confirm to have received the full amount of money." %}" href="{% url 'calendar:pay_participation' participation.pk %}">{% trans "Register cash payment" %}</a>{% endif %}</p></td>
                     {% else %}
                         <td>{{ participation.get_payment_method_display }}</td>

@@ -16,7 +16,7 @@ from amelie.members.models import Payment, Committee, Function, Membership, Empl
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
-from amelie.tools.decorators import require_ajax, require_board, require_actief, require_room_duty
+from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):
@@ -113,7 +113,7 @@ def person_study_new(request, id):
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_payments(request, id, membership):
     obj = get_object_or_404(Person, id=id)
     membership = get_object_or_404(Membership, id=membership)
@@ -135,14 +135,14 @@ def person_payments(request, id, membership):
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership(request, id, option=None):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_membership.html", locals())
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_new(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
@@ -161,7 +161,7 @@ def person_membership_new(request, id):
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_end(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
@@ -178,14 +178,14 @@ def person_membership_end(request, id):
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate(request, id):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_mandate.html", locals())
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_new(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
@@ -205,7 +205,7 @@ def person_mandate_new(request, id):
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_activate(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
     mandate = get_object_or_404(Authorization, id=mandate, person=obj,
@@ -220,7 +220,7 @@ def person_mandate_activate(request, id, mandate):
 
 
 @require_ajax
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_end(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
     mandate = get_object_or_404(Authorization, id=mandate)

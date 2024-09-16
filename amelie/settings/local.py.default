@@ -100,5 +100,3 @@ if ENABLE_REQUEST_PROFILING:
     SILKY_AUTHORISATION = True  # User must be staff
     SILKY_MAX_REQUEST_BODY_SIZE = 0  # Silk takes anything <0 as no limit
     SILKY_MAX_RESPONSE_BODY_SIZE = 0  # If response body>0 bytes, ignore
-
-ROOM_DUTY_ABBREVIATION = "RD"

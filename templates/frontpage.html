@@ -116,7 +116,7 @@
         {# End video things #}
 
         {# Board things #}
-        {% if user.is_authenticated and request.is_board or is_rd %}
+        {% if user.is_authenticated and request.is_board or is_roomduty %}
             <div class="ia">
                 <h2>{% trans 'Board tasks' %}</h2>
                 <ul class="no-bullets">

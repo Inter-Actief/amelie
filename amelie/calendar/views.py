@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
@@ -10,7 +11,7 @@ from amelie.tools.mixins import RequireBoardMixin, RequireCommitteeMixin
 
 class PayParticipationView(RequireCommitteeMixin, TemplateView):
     template_name = "confirm_payment.html"
-    abbreviation = "RD"
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
 
     def get_context_data(self, **kwargs):
         context = super(PayParticipationView, self).get_context_data()

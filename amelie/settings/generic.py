@@ -923,5 +923,5 @@ KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']
 # Wo4you personal URL
 BOOK_SALES_URL = "https://wo4you.nl/"
 
-# Room duty abbreviation setting
-ROOM_DUTY_ABBREVIATION = "RD"
+# Abbreviation of the room duty committee for access checks.
+ROOM_DUTY_ABBREVIATION = "RoomDuty"

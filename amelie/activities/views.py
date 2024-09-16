@@ -51,7 +51,7 @@ from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import MailingForm
 from amelie.tools import amelie_messages, types
-from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board, require_room_duty
+from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mixins import RequireActiveMemberMixin, DeleteMessageMixin, PassesTestMixin, RequireBoardMixin, \
@@ -252,7 +252,7 @@ def activity(request, pk, deanonymise=False):
 
     # Enable opengraph on this page
     metadata_enable_opengraph = True
-    is_rd = request.person.is_room_duty()
+    is_roomduty = request.person.is_room_duty()
 
     return render(request, "activity.html", locals())
 
@@ -493,7 +493,7 @@ def activity_editenrollment_self(request, pk):
         return render(request, "activity_enrollment_form.html", locals())
 
 
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 @transaction.atomic
 def activity_editenrollment_other(request, pk, person_id):
     """
@@ -522,7 +522,7 @@ def activity_editenrollment_other(request, pk, person_id):
         return render(request, "activity_enrollment_form.html", locals())
 
 
-@require_room_duty()
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 @transaction.atomic
 def activity_unenrollment(request, pk, person_id):
     """
@@ -569,8 +569,8 @@ def activity_enrollment_person_search(request, pk):
     Search for a person to enroll for this activity.
     """
     activity = get_object_or_404(Activity, pk=pk)
-    is_rd = request.person.is_room_duty()
-    if not (activity.can_edit(request.person) or is_rd):
+    is_roomduty = request.person.is_room_duty()
+    if not (activity.can_edit(request.person) or is_roomduty):
         raise PermissionDenied
 
     form = PersonSearchForm(request.POST if request.POST else None)
@@ -678,8 +678,8 @@ def activity_enrollment_form(request, activity, person=None):
         # Django messages have been set in check_enrollment_allowed
         return redirect(activity)
 
-    is_rd = request.person.is_room_duty()
-    if indirect and not (activity.can_edit(request.person) or is_rd):
+    is_roomduty = request.person.is_room_duty()
+    if indirect and not (activity.can_edit(request.person) or is_roomduty):
         raise PermissionDenied
 
     per_mandate = (request.is_board or settings.PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE) \
@@ -1309,9 +1309,9 @@ class DataExport(PassesTestMixin, View):
 
         is_board = hasattr(request, 'is_board') and request.is_board
         is_organization = obj.organizer in request.person.current_committees()
-        is_rd = request.person.is_room_duty()
+        is_roomduty = request.person.is_room_duty()
 
-        return is_board or is_organization or is_rd
+        return is_board or is_organization or is_roomduty
 
     def post(self, request, pk=None):
         if pk is None:

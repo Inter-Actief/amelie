@@ -104,9 +104,11 @@ class RequireCommitteeMixin(PassesTestMixin):
     """ Abbreviation of the committee required for accessing this page. """
 
     def test_requirement(self, request):
-        return (hasattr(request, 'person') and
-                (request.is_board or
-                 request.person.function_set.filter(committee__abbreviation=self.abbreviation, end__isnull=True)))
+        return (
+            hasattr(request, 'person') and
+            (request.is_board or request.person.is_in_committee(self.abbreviation))
+        )
+
 
 class RequireStrictCommitteeMixin(PassesTestMixin):
     """
@@ -118,9 +120,10 @@ class RequireStrictCommitteeMixin(PassesTestMixin):
     """ Abbreviation of the committee required for accessing this page. """
 
     def test_requirement(self, request):
-        return (hasattr(request, 'person') and
-                (request.user.is_superuser or
-                 request.person.function_set.filter(committee__abbreviation=self.abbreviation, end__isnull=True)))
+        return (
+            hasattr(request, 'person') and
+            (request.user.is_superuser or request.person.is_in_committee(self.abbreviation))
+        )
 
 
 class RequireCommitteeOrChildCommitteeMixin(PassesTestMixin):
