@@ -83,10 +83,9 @@ def require_committee(abbreviation):
     """
 
     def _view(func):
-        return request_passes_test(lambda r: (hasattr(r, 'person') and
-                                              (r.is_board or r.person.function_set.filter(
-                                                  committee__abbreviation=abbreviation, end__isnull=True))),
-                                   needs_login=True,
-                                   reden=_l('Access for members of the committee only.'))(func)
+        return request_passes_test(
+            lambda r: (r.is_board or r.person.is_in_committee(abbreviation)),
+            needs_login=True, reden=_l('Access for members of the committee only.')
+        )(func)
 
     return _view

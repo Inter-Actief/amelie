@@ -233,8 +233,10 @@ def frontpage(request):
 
     if request.user.is_authenticated:
         # MediaCie check
-        context['mediacie'] = request.person.function_set.filter(committee__abbreviation='MediaCie',
-                                                                 end__isnull=True).exists()
+        context['mediacie'] = request.person.is_in_committee('MediaCie')
+        
+        # Room Duty check
+        context['is_roomduty'] = request.person.is_room_duty()
 
         # Birthdays
         context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,
