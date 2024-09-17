@@ -1308,8 +1308,8 @@ class DataExport(PassesTestMixin, View):
             raise Http404(_("No activity found or invalid activity ID given."))
 
         is_board = hasattr(request, 'is_board') and request.is_board
-        is_organization = obj.organizer in request.person.current_committees()
-        is_roomduty = request.person.is_room_duty()
+        is_organization = hasattr(request, 'person') and obj.organizer in request.person.current_committees()
+        is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
 
         return is_board or is_organization or is_roomduty
 
