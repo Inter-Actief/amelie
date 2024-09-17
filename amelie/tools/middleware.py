@@ -36,5 +36,6 @@ class GlobalIAVariablesMiddleware(MiddlewareMixin):
             request.is_board = request.user.is_superuser or request.person.is_board()
             request.is_education_committee = request.is_board or request.person.is_education_committee()
 
-            preferred_language = request.person.preferred_language
-            translation.activate(preferred_language)
+            if not request.session.get(translation.LANGUAGE_SESSION_KEY, False):
+                preferred_language = request.person.preferred_language
+                translation.activate(preferred_language)
