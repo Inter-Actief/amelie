@@ -252,7 +252,7 @@ def activity(request, pk, deanonymise=False):
 
     # Enable opengraph on this page
     metadata_enable_opengraph = True
-    is_roomduty = request.person.is_room_duty()
+    is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
 
     return render(request, "activity.html", locals())
 
