@@ -1,5 +1,6 @@
 from django.db import connection
 from django.db.models import Count, Sum
+from django.db.models.functions import TruncDay
 from django.utils.translation import gettext_lazy as _l
 
 from amelie.calendar.models import Event
@@ -260,8 +261,7 @@ def statistics_alexia_transactions(start, end):
     alexia_sum = alexia_transactions.aggregate(Sum('price'))['price__sum'] or 0
 
     # https://stackoverflow.com/questions/8746014/django-group-sales-by-month
-    truncate_date = connection.ops.date_trunc_sql('day', 'date')
-    alexia_rows = alexia_transactions.extra({'day': truncate_date}).values('day', 'description').annotate(
+    alexia_rows = alexia_transactions.annotate(day=TruncDay('day')).values('day', 'description').annotate(
         Sum('price')).order_by('day', 'description')
     return {'header': [_l('Name')], 'rows': alexia_rows, 'sum': alexia_sum}
 
