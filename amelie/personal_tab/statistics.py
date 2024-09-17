@@ -261,7 +261,7 @@ def statistics_alexia_transactions(start, end):
     alexia_sum = alexia_transactions.aggregate(Sum('price'))['price__sum'] or 0
 
     # https://stackoverflow.com/questions/8746014/django-group-sales-by-month
-    alexia_rows = alexia_transactions.annotate(day=TruncDay('day')).values('day', 'description').annotate(
+    alexia_rows = alexia_transactions.annotate(day=TruncDay('date')).values('day', 'description').annotate(
         Sum('price')).order_by('day', 'description')
     return {'header': [_l('Name')], 'rows': alexia_rows, 'sum': alexia_sum}
 
