@@ -23,8 +23,8 @@ def statistics(request):
         committee_count = Committee.objects.active().count()
         committee_category_count = CommitteeCategory.objects.all().count()
 
-        begin_study_year = timezone.get_default_timezone().localize(datetime(year=current_academic_year_strict(),
-                                                                             month=9, day=1))
+        begin_study_year = datetime(year=current_academic_year_strict(), month=9, day=1)\
+            .replace(tzinfo=timezone.get_default_timezone())
 
         current_activity_count = Activity.objects.filter(begin__gt=begin_study_year, begin__lt=timezone.now())\
                                                       .count()
@@ -44,7 +44,8 @@ def statistics(request):
                  - CookieCornerTransaction.objects.all().order_by('date')[0].date).days
 
         snacks_average_count = int(snacks_count / days)
-        begin_today = timezone.get_default_timezone().localize(datetime.combine(date.today(), time(0, 0)))
+        begin_today = datetime.combine(date.today(), time(0, 0))\
+            .replace(tzinfo=timezone.get_default_timezone())
         snacks_today_count = CookieCornerTransaction.objects.filter(date__gt=begin_today).count()
 
         transactions = CookieCornerTransaction.objects.values('article').annotate(count=Count('article'))\
@@ -79,7 +80,7 @@ def hits(request):
 
     for values in Hits.objects.distinct().values('page'):
         page = values['page']
-        
+
         pages.append({
             "name": page,
             "today": Hits.objects.filter(page=page, date_start=date.today())
