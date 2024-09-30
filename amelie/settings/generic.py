@@ -393,7 +393,8 @@ GRAPHENE = {
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
         'graphene_django_extras.ExtraGraphQLDirectiveMiddleware',
     ],
-    'RELAY_CONNECTION_MAX_LIMIT': 100
+    'RELAY_CONNECTION_MAX_LIMIT': 100,
+    'TESTING_ENDPOINT': '/graphql/'
 }
 GRAPHENE_DEFAULT_LIMIT = 10
 

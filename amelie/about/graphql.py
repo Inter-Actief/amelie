@@ -4,7 +4,6 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from amelie.about.models import Page
-from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 
 class PageType(DjangoObjectType):

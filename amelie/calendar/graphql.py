@@ -9,6 +9,7 @@ from amelie.files.graphql import AttachmentType
 
 # Specified separately from EventType.Meta to be able to use it in the Meta class of subclasses.
 EVENT_TYPE_BASE_FIELDS = [
+    "id",
     "begin",
     "end",
     "entire_day",

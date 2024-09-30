@@ -114,12 +114,12 @@ class ActivitiesQuery(graphene.ObjectType):
 
     def resolve_activities(self, info, organizer=None, *args, **kwargs):
         if organizer:
-            return Activity.objects.filter(organizer__pk=organizer)
-        return Activity.objects.all()
+            return Activity.objects.filter_public(info.context).filter(organizer__pk=organizer)
+        return Activity.objects.filter_public(info.context)
 
     def resolve_activity(self, info, id, *args, **kwargs):
         if id:
-            return Activity.objects.get(pk=id)
+            return Activity.objects.filter_public(info.context).get(pk=id)
         return None
 
 # Exports
