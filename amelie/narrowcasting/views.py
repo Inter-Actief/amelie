@@ -5,9 +5,8 @@ from django.conf import settings
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.decorators.cache import cache_page
-from requests.auth import HTTPBasicAuth
 from django.utils.translation import gettext as _
+from django.views.decorators.cache import cache_page
 
 from amelie.narrowcasting.models import SpotifyAssociation
 
@@ -36,69 +35,6 @@ def room(request):
         ))
 
     return render(request, 'room.html')
-
-
-@cache_page(2 * 60)
-def room_pcstatus(request):
-    api_url = settings.ICINGA_API_HOST
-
-    if settings.ICINGA_API_PASSWORD == "":
-        raise ValueError(_("Icinga settings not configured."))
-
-    simple_hosts = ["lusky", "stoetenwolf", "guus"]
-    workstations = ["omaduck", "katrien", "cornelis", "prul", "gideon", "woerd", "dagobert", "martje",
-                    "kwik", "kwek", "kwak", "lizzy"]
-
-    try:
-        res = requests.get(api_url + "objects/hosts", verify=settings.ICINGA_API_SSL_VERIFY,
-                           auth=HTTPBasicAuth(settings.ICINGA_API_USERNAME, settings.ICINGA_API_PASSWORD))
-        hosts = [x for x in res.json()['results'] if x['name'] in simple_hosts or x['name'] in workstations]
-
-        res = requests.get(api_url + "objects/services", verify=settings.ICINGA_API_SSL_VERIFY,
-                           auth=HTTPBasicAuth(settings.ICINGA_API_USERNAME, settings.ICINGA_API_PASSWORD))
-        services = [x for x in res.json()['results'] if x['attrs']['host_name'] in workstations]
-    except requests.exceptions.ConnectionError:
-        return JsonResponse({})
-
-    host_data = {}
-    for host in hosts:
-        host_data[host['name']] = host['attrs']
-        host_data[host['name']]['services'] = []
-
-    for service in services:
-        if service['attrs']['host_name'] in host_data.keys():
-            host_data[service['attrs']['host_name']]['services'].append(service)
-
-    # Construct a simple dict with only the info we need
-    result = {}
-    for host in host_data.keys():
-        data = host_data[host]
-
-        isup = not data['last_check_result']['output'].startswith("PING CRITICAL")
-
-        login_service_status = None
-        user = None
-        for service in data['services']:
-            if service['attrs']['display_name'] == "Logged in user":
-                login_service_status = service['attrs']['last_check_result']['output']
-        if login_service_status is not None:
-            if login_service_status.startswith("OK: No one logged in"):
-                user = None
-            elif login_service_status.startswith("OK:") and login_service_status.endswith("is logged in."):
-                user = login_service_status.replace("OK:", "").replace("is logged in.", "").strip()
-
-        if isup:
-            result[host] = "on"
-            if user is not None:
-                if user.lower() == "visitor":
-                    result[host] = "guest"
-                else:
-                    result[host] = "user"
-        else:
-            result[host] = "off"
-
-    return JsonResponse(result)
-
 
 def room_spotify_callback(request):
     auth_code = request.GET.get("code", None)

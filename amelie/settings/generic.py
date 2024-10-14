@@ -874,12 +874,6 @@ EVENT_DESK_ERROR_LABEL_ID = "Label_5802521922307679990"
 # Health checks configuration
 HEALTH_CHECK_URL_TOKEN = "amelie-health"
 
-# The Icinga (Monitoring) host and details (ask the system administrators), used for the room narrowcasting page.
-ICINGA_API_HOST = "https://monitoring.ia.utwente.nl:5665/v1/"
-ICINGA_API_USERNAME = "iawebsite"
-ICINGA_API_PASSWORD = ""
-ICINGA_API_SSL_VERIFY = True
-
 # The Spotify app details for the room narrowcasting page.
 SPOTIFY_CLIENT_ID = "19f600baa77b4223b639088daa62f2f2"
 SPOTIFY_CLIENT_SECRET = ""
