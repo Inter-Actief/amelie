@@ -383,14 +383,6 @@ DATA_EXPORT_ROOT = "/data_exports"
 HEALTH_CHECK_URL_TOKEN = env("HEALTH_CHECK_URL_TOKEN", default=HEALTH_CHECK_URL_TOKEN)
 
 ###
-#  SysCom monitoring configuration (for room narrowcasting PC overview)
-###
-ICINGA_API_HOST = env("ICINGA_API_HOST", default=ICINGA_API_HOST)
-ICINGA_API_USERNAME = env("ICINGA_API_USERNAME", default=ICINGA_API_USERNAME)
-ICINGA_API_PASSWORD = env("ICINGA_API_PASSWORD", default=ICINGA_API_PASSWORD)
-
-
-###
 #  Spotify settings (for room narrowcasting music displays)
 ###
 SPOTIFY_CLIENT_ID = env("SPOTIFY_CLIENT_ID", default=SPOTIFY_CLIENT_ID)

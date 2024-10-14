@@ -23,7 +23,6 @@ $(document).ready(function(){
     updateAndInterval(updateEvent, 5 * MINUTE);
     updateAndInterval(updatePictures, 10 * MINUTE);
     updateAndInterval(updateRoomDuty, 60 * MINUTE);
-    updateAndInterval(updatePCStatus, 20 * SECOND);
     updateAndInterval(updateNowPlaying, 2 * SECOND);
 });
 
@@ -250,16 +249,6 @@ function setNextPicture() {
             }
         }
     }
-}
-
-function updatePCStatus() {
-    $.ajax({
-        url: "./pc_status"
-    }).done(function(data){
-        for (var key in data) {
-            $(".pc_square[data-host="+key+"]").attr('data-state', data[key]);
-        }
-    });
 }
 
 var nowPlayingExclude = [];
