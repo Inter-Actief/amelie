@@ -1,7 +1,9 @@
-from django.utils.translation import gettext_lazy as _
 import graphene
 from django_filters import FilterSet
 from graphene_django import DjangoObjectType
+
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from amelie.activities.graphql import ActivityLabelType
 from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
@@ -30,7 +32,6 @@ class CompanyEventFilterSet(FilterSet):
     class Meta:
         model = CompanyEvent
         fields = {
-            'id': ("exact", ),
             'summary_nl': ("icontains", "iexact"),
             'summary_en': ("icontains", "iexact"),
             'begin': ("gt", "lt", "exact"),
@@ -46,9 +47,7 @@ class CompanyEventType(EventType):
         fields = [
             "company",
             "company_text",
-            "company_url",
-            "visible_from",
-            "visible_till"
+            "company_url"
         ] + EVENT_TYPE_BASE_FIELDS
         filterset_class = CompanyEventFilterSet
 
@@ -108,7 +107,7 @@ class CompaniesQuery(graphene.ObjectType):
     companies = DjangoPaginationConnectionField(CompanyType)
 
     company_event = graphene.Field(CompanyEventType, id=graphene.ID())
-    company_events = DjangoPaginationConnectionField(CompanyEventType)
+    company_events = DjangoPaginationConnectionField(CompanyEventType, id=graphene.ID())
 
     website_banner = graphene.Field(WebsiteBannerType, id=graphene.ID(), slug=graphene.String())
     website_banners = DjangoPaginationConnectionField(WebsiteBannerType)
@@ -127,9 +126,26 @@ class CompaniesQuery(graphene.ObjectType):
         return None
 
     def resolve_company_event(self, info, id=None):
+        now = timezone.now()
+        qs = CompanyEvent.objects.filter_public(info.context)
+        # If the user is not board, filter only visible activities
+        if not (hasattr(info.context, 'user') and info.context.user.is_authenticated and info.context.is_board):
+            qs = qs.filter(visible_from__lt=now, visible_till__gt=now)
+
         if id is not None:
-            return CompanyEvent.objects.get(pk=id)
+            return qs.get(pk=id)
         return None
+
+    def resolve_company_events(self, info, id=None, *args, **kwargs):
+        now = timezone.now()
+        qs = CompanyEvent.objects.filter_public(info.context)
+        # If the user is not board, filter only visible activities
+        if not (hasattr(info.context, 'user') and info.context.user.is_authenticated and info.context.is_board):
+            qs = qs.filter(visible_from__lt=now, visible_till__gt=now)
+
+        if id is not None:
+            qs = qs.filter(pk=id)
+        return qs
 
     def resolve_website_banner(self, info, id=None, slug=None):
         if id is not None:

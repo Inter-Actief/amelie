@@ -23,8 +23,6 @@ EVENT_TYPE_BASE_FIELDS = [
     "location",
     "public",
     "dutch_activity",
-    "organizer",
-    "participation",
 ]
 
 
@@ -50,7 +48,7 @@ class EventType(DjangoObjectType):
 
     def resolve_attachments(self: Event, info):
         # `info.context` is the Django Request object in Graphene
-        return self.attachments.filter_public(info.context).values_list('id', flat=True)
+        return self.attachments.filter_public(info.context)
 
     def resolve_summary(self: Event, info):
         return self.summary

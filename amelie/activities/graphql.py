@@ -12,7 +12,6 @@ class ActivityFilterSet(FilterSet):
     class Meta:
         model = Activity
         fields = {
-            'id': ("exact", ),
             'summary_nl': ("icontains", "iexact"),
             'summary_en': ("icontains", "iexact"),
             'begin': ("gt", "lt", "exact"),
@@ -56,7 +55,7 @@ class ActivityType(EventType):
 
     def resolve_photos(self: Activity, info):
         # `info.context` is the Django Request object in Graphene
-        return self.photos.filter_public(info.context).all()
+        return self.photos.filter_public(info.context)
 
     def resolve_absolute_url(self: Activity, info):
         return self.get_absolute_url()
@@ -109,16 +108,19 @@ class ActivityLabelType(DjangoObjectType):
 
 
 class ActivitiesQuery(graphene.ObjectType):
-    activities = DjangoPaginationConnectionField(ActivityType, organizer=graphene.ID())
+    activities = DjangoPaginationConnectionField(ActivityType, id=graphene.ID(), organizer=graphene.ID())
     activity = graphene.Field(ActivityType, id=graphene.ID())
 
-    def resolve_activities(self, info, organizer=None, *args, **kwargs):
-        if organizer:
-            return Activity.objects.filter_public(info.context).filter(organizer__pk=organizer)
-        return Activity.objects.filter_public(info.context)
+    def resolve_activities(self, info, id=None, organizer=None, *args, **kwargs):
+        qs = Activity.objects.filter_public(info.context)
+        if organizer is not None:
+            qs = qs.filter(organizer__pk=organizer)
+        if id is not None:
+            qs = qs.filter(id=id)
+        return qs
 
     def resolve_activity(self, info, id, *args, **kwargs):
-        if id:
+        if id is not None:
             return Activity.objects.filter_public(info.context).get(pk=id)
         return None
 
