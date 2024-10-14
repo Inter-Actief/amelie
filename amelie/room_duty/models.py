@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _l
@@ -59,9 +59,11 @@ class BalconyDutyAssociation(models.Model):
     is_this_association = models.BooleanField(verbose_name=_l("Is Inter-Actief"))
     rank = models.PositiveIntegerField(unique=True)
 
-    def __init__(self, *args, association=None, **kwargs):
-        kwargs['rank'] = BalconyDutyAssociation.count() + 1
-        super(BalconyDutyAssociation, self).__init__(*args, association=association, **kwargs)
+    def save(self, *args, **kwargs):
+        # If the object is new, set the rank to be the next rank
+        if not self.pk:
+            self.rank = BalconyDutyAssociation.count() + 1
+        super(BalconyDutyAssociation, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.association
@@ -71,7 +73,10 @@ class BalconyDutyAssociation(models.Model):
         return BalconyDutyAssociation.objects.count()
 
     def swap(self, other):
-        self.rank, other.rank = other.rank, self.rank
+        with transaction.atomic():
+            self.rank, other.rank = other.rank, self.rank
+            self.save()
+            other.save()
 
     def move_up(self):
         # Requires that this is not the first item

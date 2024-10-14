@@ -1,9 +1,8 @@
 import oauth2_provider.views
 
 from django.conf import settings
-from django.conf.urls import include
 from django.contrib import admin
-from django.urls import reverse_lazy, path, re_path
+from django.urls import reverse_lazy, path, re_path, include
 from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
 from django.views.static import serve
@@ -20,11 +19,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('legacy_login/', views.login, name='legacy_login'),
     path('legacy_logout/', LogoutView.as_view(), name='legacy_logout'),
-    path('i18n/', include('django.conf.urls.i18n')),
     path('profile/', views.profile_overview, name='profile_overview'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),
     path('oidc/', include('mozilla_django_oidc.urls')),
+    path("i18n/", include("django.conf.urls.i18n")),
 
     # General views
     path('', views.frontpage, name='frontpage'),
@@ -140,11 +139,9 @@ if settings.DEBUG:
 
 
 if settings.DEBUG_TOOLBAR:
-    import debug_toolbar
+    from debug_toolbar.toolbar import debug_toolbar_urls
     # Django debug toolbar
-    urlpatterns += [
-        path('__debugtoolbar__/', include(debug_toolbar.urls), name='django_debug_toolbar')
-    ]
+    urlpatterns += debug_toolbar_urls()
 
 # Redirect for 500 errors
 handler500 = views.server_error

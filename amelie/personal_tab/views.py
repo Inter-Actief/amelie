@@ -176,28 +176,28 @@ def generate_overview_new(request, person, date_from=None, date_to=None):
 
             if overview_type == 'total':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, 1, 1))
+                    return datetime.datetime(t.year, 1, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(datetime.datetime(t.year + 1, 1, 1))
+                    return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'year':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, 1))
+                    return datetime.datetime(t.year, t.month, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(
-                        datetime.datetime(t.year, t.month + 1, 1)) if t.month < 12 else localtz.localize(
-                        datetime.datetime(t.year + 1, 1, 1)
-                    )
+                    if t.month < 12:
+                        return datetime.datetime(t.year, t.month + 1, 1).replace(tzinfo=localtz)
+                    else:
+                        return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'month':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, t.day))
+                    return datetime.datetime(t.year, t.month, t.day).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
                     t2 = t + datetime.timedelta(days=1)
-                    return localtz.localize(datetime.datetime(t2.year, t2.month, t2.day))
+                    return datetime.datetime(t2.year, t2.month, t2.day).replace(tzinfo=localtz)
             else:
                 raise ValueError
 
@@ -345,28 +345,28 @@ def generate_overview_exam_cookie_credit(request, person, date_from=None, date_t
 
             if overview_type == 'total':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, 1, 1))
+                    return datetime.datetime(t.year, 1, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(datetime.datetime(t.year + 1, 1, 1))
+                    return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'year':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, 1))
+                    return datetime.datetime(t.year, t.month, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(
-                        datetime.datetime(t.year, t.month + 1, 1)) if t.month < 12 else localtz.localize(
-                        datetime.datetime(t.year + 1, 1, 1)
-                    )
+                    if t.month < 12:
+                        return datetime.datetime(t.year, t.month + 1, 1).replace(tzinfo=localtz)
+                    else:
+                        return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'month':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, t.day))
+                    return datetime.datetime(t.year, t.month, t.day).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
                     t2 = t + datetime.timedelta(days=1)
-                    return localtz.localize(datetime.datetime(t2.year, t2.month, t2.day))
+                    return datetime.datetime(t2.year, t2.month, t2.day).replace(tzinfo=localtz)
 
             else:
                 raise ValueError

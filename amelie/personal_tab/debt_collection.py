@@ -274,8 +274,7 @@ def save_cookie_corner_instructions(rows, batch):
     timezone_amsterdam = timezone.get_default_timezone()
     execution_date = batch.execution_date
 
-    debt_collection_datetime = timezone_amsterdam.localize(datetime.datetime.combine(execution_date,
-                                                                                     datetime.time(0, 0)))
+    debt_collection_datetime = datetime.datetime.combine(execution_date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
 
     for row in rows:
         person = row['person']
@@ -310,7 +309,7 @@ def process_reversal(reversal, actor):
     instruction = reversal.instruction
     person = instruction.authorization.person
 
-    reversal_datetime = timezone_amsterdam.localize(datetime.datetime.combine(reversal.date, datetime.time(0, 0)))
+    reversal_datetime = datetime.datetime.combine(reversal.date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
     with translation.override(person.preferred_language):
         description = _('Reversal of direct withdrawal {date}').format(date=_date(instruction.batch.execution_date, "j F Y"))
 

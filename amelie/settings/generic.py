@@ -210,6 +210,8 @@ MIDDLEWARE = [
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
 
+INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.17.0.1']
+
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
     'amelie.tools.auth.IAOIDCAuthenticationBackend',  # Logins via OIDC / auth.ia
@@ -309,7 +311,7 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
 
     # SSL Runserver
-    'sslserver',
+    # 'sslserver',
 
     # Django-celery helper for celery results
     'django_celery_results',
@@ -428,6 +430,9 @@ GRAPHENE_DJANGO_EXTRAS = {
     'CACHE_ACTIVE': True,
     'CACHE_TIMEOUT': 300  # seconds
 }
+
+# Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
+DATA_UPLOAD_MAX_NUMBER_FILES = 1000
 
 # Modules with JSONRPC API endpoints for autoregistration
 MODERNRPC_METHODS_MODULES = [
@@ -977,3 +982,6 @@ KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']
 
 # Wo4you personal URL
 BOOK_SALES_URL = "https://wo4you.nl/"
+
+# Abbreviation of the room duty committee for access checks.
+ROOM_DUTY_ABBREVIATION = "RoomDuty"

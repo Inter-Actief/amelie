@@ -252,6 +252,7 @@ def activity(request, pk, deanonymise=False):
 
     # Enable opengraph on this page
     metadata_enable_opengraph = True
+    is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
 
     return render(request, "activity.html", locals())
 
@@ -492,7 +493,7 @@ def activity_editenrollment_self(request, pk):
         return render(request, "activity_enrollment_form.html", locals())
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 @transaction.atomic
 def activity_editenrollment_other(request, pk, person_id):
     """
@@ -521,7 +522,7 @@ def activity_editenrollment_other(request, pk, person_id):
         return render(request, "activity_enrollment_form.html", locals())
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 @transaction.atomic
 def activity_unenrollment(request, pk, person_id):
     """
@@ -568,7 +569,8 @@ def activity_enrollment_person_search(request, pk):
     Search for a person to enroll for this activity.
     """
     activity = get_object_or_404(Activity, pk=pk)
-    if not activity.can_edit(request.person):
+    is_roomduty = request.person.is_room_duty()
+    if not (activity.can_edit(request.person) or is_roomduty):
         raise PermissionDenied
 
     form = PersonSearchForm(request.POST if request.POST else None)
@@ -676,7 +678,8 @@ def activity_enrollment_form(request, activity, person=None):
         # Django messages have been set in check_enrollment_allowed
         return redirect(activity)
 
-    if indirect and not activity.can_edit(request.person):
+    is_roomduty = request.person.is_room_duty()
+    if indirect and not (activity.can_edit(request.person) or is_roomduty):
         raise PermissionDenied
 
     per_mandate = (request.is_board or settings.PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE) \
@@ -1305,9 +1308,10 @@ class DataExport(PassesTestMixin, View):
             raise Http404(_("No activity found or invalid activity ID given."))
 
         is_board = hasattr(request, 'is_board') and request.is_board
-        is_organization = obj.organizer in request.person.current_committees()
+        is_organization = hasattr(request, 'person') and obj.organizer in request.person.current_committees()
+        is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
 
-        return is_board or is_organization
+        return is_board or is_organization or is_roomduty
 
     def post(self, request, pk=None):
         if pk is None:

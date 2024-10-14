@@ -328,7 +328,7 @@ html, body {
  */
 /* Room duty block */
 #room_duty {
-    height: 18vh;
+    height: 30vh;
 }
 
 #room_duty_title {
@@ -339,7 +339,7 @@ html, body {
 }
 
 #room_duty_entries {
-    height: 10vh;
+    height: 16vh;
     overflow: hidden;
     padding-left: 1vw;
 }

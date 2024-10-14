@@ -49,6 +49,19 @@ IGNORE_REQUIRE_SECURE = False
 PYDEV_DEBUGGER        = False
 PYDEV_DEBUGGER_IP     = None
 
+# Load the debug toolbar -- does not need to be changed in principle
+if DEBUG_TOOLBAR:
+    def custom_show_toolbar(request):
+        return True
+
+    # Order is important
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': '%s.%s' % (__name__, custom_show_toolbar.__name__),
+    }
+
 # Do not redirect to HTTPS, because the nginx proxy container only listens on HTTP
 SECURE_SSL_REDIRECT   = False
 
@@ -439,3 +452,6 @@ EVENT_DESK_FROM_EMAIL = env("AMELIE_EVENT_DESK_FROM_EMAIL", default=EVENT_DESK_F
 
 # Wo4you personal URL
 BOOK_SALES_URL = env("AMELIE_BOOK_SALES_URL", default=BOOK_SALES_URL)
+
+# Abbreviation of the room duty committee for access checks.
+ROOM_DUTY_ABBREVIATION = env("AMELIE_ROOM_DUTY_ABBREVIATION", default="RoomDuty")

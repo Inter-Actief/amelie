@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import widgets
-from django.utils.translation import ugettext_lazy as _l
+from django.utils.translation import gettext_lazy as _l
 
 
 class OAuth2RequestForm(forms.Form):
