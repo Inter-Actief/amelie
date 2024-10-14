@@ -4,6 +4,7 @@
 # Keep these imports here!
 import warnings
 import os
+import sys
 
 from amelie.settings.generic import *
 
@@ -30,7 +31,7 @@ DATABASES = {
 # Definitely DON'T put these settings in production!
 ENV = 'DEBUG'
 DEBUG = True
-DEBUG_TOOLBAR = True
+DEBUG_TOOLBAR = True and "test" not in sys.argv
 ALLOWED_HOSTS = ["*"]
 
 # Default setting for enabling profiling (the rest of the config is done in local.py(.default)
