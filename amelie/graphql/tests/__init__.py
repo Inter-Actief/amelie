@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, Union
 
 from django.test import Client
 from graphene_django.utils.testing import GraphQLTestMixin
@@ -30,7 +30,7 @@ class BaseGraphQLPrivateFieldTests(GraphQLTestMixin, TestCase):
         self.load_basic_data()
 
     def _test_private_model(self, query_name: str, public_field_spec: str = "id",
-                            variables: Optional[Dict[str, Tuple[str, str]]] = None,
+                            variables: Optional[Dict[str, Tuple[Union[str, int], str]]] = None,
                             error_regex: Optional[re.Pattern] = None):
         """
         Test if a model instance that should be private is actually not accessible via GraphQL.
