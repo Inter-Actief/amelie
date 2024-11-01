@@ -94,6 +94,9 @@ class CompaniesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         "callback_secret_key": "callbackSecretKey",
         "update_count": "updateCount",
 
+        # Reverse foreign keys (Event)
+        "participation": "participation",
+
         # organizer private subfields
         "organizer.abbreviation": "organizer { abbreviation }",
         "organizer.private_email": "organizer { privateEmail }",

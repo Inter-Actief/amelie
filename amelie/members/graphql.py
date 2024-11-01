@@ -42,7 +42,6 @@ class CommitteeFilterSet(FilterSet):
     class Meta:
         model = Committee
         fields = {
-            'id': ("exact",),
             'name': ("icontains", "iexact"),
             'founded': ("exact", "gt", "lt"),
             'abolished': ("exact", "gt", "lt"),
@@ -124,6 +123,7 @@ class CommitteeCategoryType(DjangoObjectType):
         description = "Type definition for a single CommitteeCategory"
         filter_fields = {
             'name': ("icontains", "iexact"),
+            'id': ("exact",),
         }
         fields = ["id", "name", "slug", "committee_set"]
 
@@ -154,7 +154,7 @@ class MembersQuery(graphene.ObjectType):
     committee_categories = DjangoPaginationConnectionField(CommitteeCategoryType)
 
     committee = graphene.Field(CommitteeType, id=graphene.ID(), slug=graphene.String())
-    committees = DjangoPaginationConnectionField(CommitteeType)
+    committees = DjangoPaginationConnectionField(CommitteeType, id=graphene.ID(), slug=graphene.String())
 
     def resolve_committee_category(root, info, id=None, slug=None):
         """Find committee category by ID or slug"""
@@ -188,6 +188,31 @@ class MembersQuery(graphene.ObjectType):
         if slug is not None:
             return qs.get(slug=slug)
         return None
+
+    def resolve_committees(root, info, id=None, slug=None, *args, **kwargs):
+        """Find committees by ID or slug, if the user is allowed to see it"""
+        # Logged-in users can see more committees than non-logged-in users.
+        if hasattr(info.context, 'user') and info.context.user.is_authenticated:
+            # Board members can see all committees, including abolished ones
+            if info.context.is_board:
+                qs = Committee.objects
+
+            # Logged-in users can see abolished committees that they were a part of
+            else:
+                qs = Committee.objects.filter(
+                    Q(abolished__isnull=True) | Q(function__person=info.context.person)
+                ).distinct()
+
+        # Non-logged in users are only allowed to see active committees
+        else:
+            qs = Committee.objects.filter(abolished__isnull=True)
+
+        # Find the committee by its ID or slug
+        if id is not None:
+            return qs.filter(pk=id)
+        if slug is not None:
+            return qs.filter(slug=slug)
+        return qs
 
 
 # Exports
