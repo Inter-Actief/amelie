@@ -331,7 +331,10 @@ def activity_cancel(request, pk):
                 messages.error(_(f'We were unable to cancel {obj}, since it has already started.'))
                 return redirect(obj)
             else:
-                activity_send_cancellationmail(obj.participation_set.all(), obj, request)
+                # We need to explicitly set the waiting list to false because they are also included in this set.
+                activity_send_cancellationmail(obj.participation_set.filter(waiting_list=False), obj)
+                if obj.waiting_participations.exists():
+                    activity_send_cancellationmail(obj.waiting_participations.all(), obj, from_waiting_list=True)
 
                 # Send an email to the treasurer if people have paid in cash.
                 # This email contains the names and amount paid by each person.
