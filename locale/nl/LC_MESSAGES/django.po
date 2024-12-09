@@ -3,12 +3,15 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-12-09 17:46+0100\n"
-"PO-Revision-Date: 2024-06-25 16:50+0018\n"
-"Last-Translator: Kevin Alberts <>\n"
-"Language: en\n"
+"PO-Revision-Date: 2024-12-09 16:50+0000\n"
+"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
+"Language-Team: Dutch <http://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.5.2\n"
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.9\n"
 
@@ -4166,7 +4169,7 @@ msgstr ""
 
 #: amelie/education/templates/complaint_new.html:98
 msgid "I have contacted the teacher or module coordinator and could not resolve this problem with them on my own"
-msgstr ""
+msgstr "Ik heb contact opgenomen met de docent of de modulecoordinator, en kon dit probleem niet zelf met ze oplossen"
 
 #: amelie/education/templates/complaint_new.html:118
 msgid "Complaint-preferences"
@@ -7296,7 +7299,7 @@ msgstr "Geen authenticatiepoging gevonden, probeer het opnieuw."
 
 #: amelie/narrowcasting/views.py:65 amelie/narrowcasting/views.py:89
 msgid "ConnectionError while refreshing access token:"
-msgstr ""
+msgstr "ConnectionError tijdens het verversen van het access token:"
 
 #: amelie/narrowcasting/views.py:115 amelie/narrowcasting/views.py:158
 #: amelie/narrowcasting/views.py:200
