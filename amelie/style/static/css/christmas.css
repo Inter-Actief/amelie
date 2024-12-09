@@ -18,6 +18,10 @@ ffffff = text
     color: #fff;
 }
 
+#nav li ul li a {
+    color: #FFF !important;
+}
+
 #nav li ul li {
     background: #992114 !important;
 }
