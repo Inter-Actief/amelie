@@ -1,4 +1,4 @@
-from threading import currentThread
+from threading import current_thread
 
 from django.core.cache.backends.locmem import LocMemCache
 from django.utils.deprecation import MiddlewareMixin
@@ -12,13 +12,13 @@ def get_request_cache():
         temp = RequestCacheMiddleware()
         temp.process_request(None)
 
-    return _request_cache[currentThread()]
+    return _request_cache[current_thread()]
 
 
 # LocMemCache is a threadsafe local memory cache
 class RequestCache(LocMemCache):
     def __init__(self):
-        name = 'locmemcache@%i' % hash(currentThread())
+        name = 'locmemcache@%i' % hash(current_thread())
         params = dict()
         super(RequestCache, self).__init__(name, params)
 
@@ -31,7 +31,7 @@ class RequestCacheMiddleware(MiddlewareMixin):
 
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def process_request(self, request):
-        cache = _request_cache.get(currentThread()) or RequestCache()
-        _request_cache[currentThread()] = cache
+        cache = _request_cache.get(current_thread()) or RequestCache()
+        _request_cache[current_thread()] = cache
 
         cache.clear()

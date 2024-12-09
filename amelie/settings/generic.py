@@ -208,6 +208,8 @@ MIDDLEWARE = [
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
 
+INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.17.0.1']
+
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
     'amelie.tools.auth.IAOIDCAuthenticationBackend',  # Logins via OIDC / auth.ia
@@ -302,7 +304,7 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
 
     # SSL Runserver
-    'sslserver',
+    # 'sslserver',
 
     # Django-celery helper for celery results
     'django_celery_results',
@@ -378,6 +380,9 @@ SESSION_COOKIE_NAME = 'amelie_sessionid'
 # Allow Cross Origin requests, but only on the API.
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
+
+# Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
+DATA_UPLOAD_MAX_NUMBER_FILES = 1000
 
 # Modules with JSONRPC API endpoints for autoregistration
 MODERNRPC_METHODS_MODULES = [
@@ -840,6 +845,10 @@ USERINFO_API_CONFIG = {
     'allowed_ips': [],
 }
 
+# Method used for file download acceleration.
+# Use None or "" for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = None
+
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
@@ -864,12 +873,6 @@ EVENT_DESK_ERROR_LABEL_ID = "Label_5802521922307679990"
 
 # Health checks configuration
 HEALTH_CHECK_URL_TOKEN = "amelie-health"
-
-# The Icinga (Monitoring) host and details (ask the system administrators), used for the room narrowcasting page.
-ICINGA_API_HOST = "https://monitoring.ia.utwente.nl:5665/v1/"
-ICINGA_API_USERNAME = "iawebsite"
-ICINGA_API_PASSWORD = ""
-ICINGA_API_SSL_VERIFY = True
 
 # The Spotify app details for the room narrowcasting page.
 SPOTIFY_CLIENT_ID = "19f600baa77b4223b639088daa62f2f2"
@@ -918,3 +921,6 @@ KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']
 
 # Wo4you personal URL
 BOOK_SALES_URL = "https://wo4you.nl/"
+
+# Abbreviation of the room duty committee for access checks.
+ROOM_DUTY_ABBREVIATION = "RoomDuty"

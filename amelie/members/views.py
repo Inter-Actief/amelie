@@ -45,11 +45,11 @@ from amelie.members.models import Payment, PaymentType, Committee, Function, Mem
 from amelie.personal_tab.forms import RFIDCardForm
 from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
-from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth
+from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth, require_committee
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
-from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin
+from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeMixin
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
 @require_board
@@ -301,7 +301,7 @@ def payment_statistics(request, start_year=2012):
     return render(request, 'statistics/payments.html', locals())
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_view(request, id, slug):
     obj = get_object_or_404(Person, id=id, slug=slug)
     preference_categories = PreferenceCategory.objects.all()
@@ -314,11 +314,12 @@ def person_view(request, id, slug):
         accounts = []
 
     can_be_anonymized, unable_to_anonymize_reasons = _person_can_be_anonymized(obj)
+    is_roomduty = request.person.is_room_duty()
 
     return render(request, "person.html", locals())
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 @transaction.atomic
 def person_edit(request, id, slug):
     person = get_object_or_404(Person, id=id)
@@ -461,7 +462,8 @@ def person_anonymize(request, id, slug):
     return render(request, 'person_anonymization_success.html', {'person': person})
 
 
-class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_general.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepGeneralStudyDetails, RegistrationFormStepGeneralMembershipDetails,
@@ -576,7 +578,8 @@ class RegisterNewGeneralWizardView(RequireBoardMixin, SessionWizardView):
         pdf = buffer.getvalue()
         return HttpResponse(pdf, content_type='application/pdf')
 
-class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_external.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepAuthorizationDetails, RegistrationFormStepPersonalPreferences,
@@ -686,7 +689,8 @@ class RegisterNewExternalWizardView(RequireBoardMixin, SessionWizardView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class RegisterNewEmployeeWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_employee.html"
     form_list = [RegistrationFormPersonalDetailsEmployee, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepEmployeeDetails, RegistrationFormStepEmployeeMembershipDetails,
@@ -793,7 +797,8 @@ class RegisterNewEmployeeWizardView(RequireBoardMixin, SessionWizardView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class RegisterNewFreshmanWizardView(RequireBoardMixin, SessionWizardView):
+class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_freshmen.html"
     form_list = [RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails,
                  RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails,
@@ -1059,8 +1064,9 @@ class PreRegistrationCompleteView(TemplateView):
     template_name = "person_registration_form_preregister_complete.html"
 
 
-class PreRegistrationStatus(RequireBoardMixin, TemplateView):
+class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
     template_name = "preregistration_status.html"
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
 
     def get_context_data(self, **kwargs):
         context = super(PreRegistrationStatus, self).get_context_data(**kwargs)
@@ -1173,7 +1179,8 @@ class PreRegistrationStatus(RequireBoardMixin, TemplateView):
         return super(PreRegistrationStatus, self).get(request, *args, **kwargs)
 
 
-class PreRegistrationPrintDogroup(RequireBoardMixin, TemplateView):
+class PreRegistrationPrintDogroup(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
 
     def get(self, request, *args, **kwargs):
         pre_enrollment_dogroup_id = request.GET.get('did', None)
@@ -1200,9 +1207,10 @@ class PreRegistrationPrintDogroup(RequireBoardMixin, TemplateView):
         return HttpResponse(pdf, content_type='application/pdf')
 
 
-class PreRegistrationPrintAll(RequireBoardMixin, FormView):
+class PreRegistrationPrintAll(RequireCommitteeMixin, FormView):
     template_name = "preregistration_print_all.html"
     form_class = PreRegistrationPrintAllForm
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
 
     def form_valid(self, form):
         sort_by = form.cleaned_data['sort_by']
@@ -1249,7 +1257,7 @@ class PreRegistrationPrintAll(RequireBoardMixin, FormView):
 
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def registration_form(request, user, membership):
     from amelie.tools.pdf import pdf_enrollment_form
 
@@ -1261,7 +1269,7 @@ def registration_form(request, user, membership):
     return HttpResponse(pdf, content_type='application/pdf')
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def membership_form(request, user, membership):
     from amelie.tools.pdf import pdf_membership_form
 
@@ -1273,7 +1281,7 @@ def membership_form(request, user, membership):
     return HttpResponse(pdf, content_type='application/pdf')
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def mandate_form(request, mandate):
     from amelie.tools.pdf import pdf_authorization_form
 
@@ -1377,7 +1385,7 @@ def person_picture(request, id, slug):
     # Serve file, preferably using Sendfile
     image_file = person.picture
     if image_file:
-        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg', fallback=settings.DEBUG)
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
     else:
         raise Http404('Picture not found')
 
@@ -1601,7 +1609,7 @@ def person_groupinfo(request):
     return HttpJSONResponse({})
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_send_link_code(request, person_id):
     person = get_object_or_404(Person, id=person_id)
     link_code = get_oauth_link_code(person)

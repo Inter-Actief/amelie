@@ -195,7 +195,7 @@ class Event(models.Model):
 
     def description_short(self):
         char_limit = 150
-        location_prefix = " @" if self.location is not "" else ""
+        location_prefix = " @" if self.location != "" else ""
         activity_prefix = (self.as_leaf_class().activity_label.name_en + " - ") if self.as_leaf_class().activity_label else ""
         total_string = f"{activity_prefix}{self.begin.strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
 

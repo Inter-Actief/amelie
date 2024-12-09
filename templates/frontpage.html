@@ -116,7 +116,7 @@
         {# End video things #}
 
         {# Board things #}
-        {% if user.is_authenticated and request.is_board %}
+        {% if user.is_authenticated and request.is_board or is_roomduty %}
             <div class="ia">
                 <h2>{% trans 'Board tasks' %}</h2>
                 <ul class="no-bullets">
@@ -128,14 +128,18 @@
                     <li class="person"><a href="{% url 'members:person_new_freshman' %}">{% trans 'Add new freshman member' %}</a></li>
                     <li class="person"><a href="{% url 'members:person_preregister_freshman' %}">{% trans 'Pre-enroll freshman member' %}</a></li>
                     <li class="person"><a href="{% url 'members:preregistration_status' %}">{% trans 'Pre-enrollment status' %}</a></li>
+                    {% if request.is_board %}
                     <li class="person"><a href="{% url 'members:committee_new' %}">{% trans 'Add new committee' %}</a></li>
+                    {% endif %}
 
                     <li><b>{% trans 'Other' %}</b></li>
                     <li class="person"><a href="{% url 'room_duty:index' %}">{% trans 'Office duty' %}</a></li>
+                    {% if request.is_board %}
                     <li class="person"><a href="{% url 'claudia:home' %}">{% trans 'ClaudIA' %}</a></li>
                     <li class="person"><a href="{% url 'about:page_new' %}">{% trans "Create new '/over' page" %}</a></li>
                     <li class="person"><a href="{% url 'personal_tab:register_index' %}">{% trans "Register RFID cards" %}</a></li>
                     <li class="person"><a href="{% url 'activities:eventdesk_list' %}">{% trans 'UT Eventdesk status' %}</a></li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}

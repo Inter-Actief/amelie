@@ -17,6 +17,11 @@ from amelie.settings.generic import *
 # Initialize an env object for `django-environ`
 env = environ.Env()
 
+# Proxy function for get_random_secret_key that replaces $ with % (because $ has a special function in django-environ)
+def get_random_secret_key_no_dollar():
+    s = get_random_secret_key()
+    return s.replace('$', '%')
+
 # Set base path of the project, to build paths with.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
@@ -43,6 +48,19 @@ MY_DEBUG_IN_TEMPLATES = False
 IGNORE_REQUIRE_SECURE = False
 PYDEV_DEBUGGER        = False
 PYDEV_DEBUGGER_IP     = None
+
+# Load the debug toolbar -- does not need to be changed in principle
+if DEBUG_TOOLBAR:
+    def custom_show_toolbar(request):
+        return True
+
+    # Order is important
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': '%s.%s' % (__name__, custom_show_toolbar.__name__),
+    }
 
 # Do not redirect to HTTPS, because the nginx proxy container only listens on HTTP
 SECURE_SSL_REDIRECT   = False
@@ -238,7 +256,7 @@ USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key())
+SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key_no_dollar())
 
 
 ###
@@ -282,6 +300,10 @@ MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
 
 # Path to website (needed for pictures via the API among other things)
 ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default="http://localhost:8080/")
+
+# Method used for file download acceleration.
+# Use None for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = env("AMELIE_FILE_DOWNLOAD_METHOD", default="")
 
 
 ###
@@ -361,14 +383,6 @@ DATA_EXPORT_ROOT = "/data_exports"
 HEALTH_CHECK_URL_TOKEN = env("HEALTH_CHECK_URL_TOKEN", default=HEALTH_CHECK_URL_TOKEN)
 
 ###
-#  SysCom monitoring configuration (for room narrowcasting PC overview)
-###
-ICINGA_API_HOST = env("ICINGA_API_HOST", default=ICINGA_API_HOST)
-ICINGA_API_USERNAME = env("ICINGA_API_USERNAME", default=ICINGA_API_USERNAME)
-ICINGA_API_PASSWORD = env("ICINGA_API_PASSWORD", default=ICINGA_API_PASSWORD)
-
-
-###
 #  Spotify settings (for room narrowcasting music displays)
 ###
 SPOTIFY_CLIENT_ID = env("SPOTIFY_CLIENT_ID", default=SPOTIFY_CLIENT_ID)
@@ -427,3 +441,9 @@ BALCONY_DUTY_WEEK = env.int("AMELIE_BALCONY_DUTY_WEEK", default=0)
 
 # Eventdesk from e-mail config
 EVENT_DESK_FROM_EMAIL = env("AMELIE_EVENT_DESK_FROM_EMAIL", default=EVENT_DESK_FROM_EMAIL)
+
+# Wo4you personal URL
+BOOK_SALES_URL = env("AMELIE_BOOK_SALES_URL", default=BOOK_SALES_URL)
+
+# Abbreviation of the room duty committee for access checks.
+ROOM_DUTY_ABBREVIATION = env("AMELIE_ROOM_DUTY_ABBREVIATION", default="RoomDuty")

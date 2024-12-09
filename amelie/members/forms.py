@@ -46,7 +46,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
                 if field == "preferences":
                     old = [preference.name for preference in getattr(old_person, field).all()]
                     new = [preference.name for preference in self.cleaned_data[field].all()] + [preference.name for preference in self.instance.preferences.filter(adjustable=False)]
-                    
+
                     added = list(set(new)-set(old))
                     removed = list(set(old)-set(new))
 
@@ -625,7 +625,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
             # handle if does not exist, throw error showing the command to run
             try:
                 # csv file can be updated with `python manage.py update_bic_csv`
-                with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv')) as csv_file:
+                with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
                     csv_reader = csv.reader(csv_file, delimiter=',')
                     next(csv_reader)  # skip the header
                     for row in csv_reader:
