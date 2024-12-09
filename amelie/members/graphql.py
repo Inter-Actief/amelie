@@ -6,6 +6,8 @@ from graphene_django import DjangoObjectType
 from django_filters import FilterSet
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+
+from amelie.graphql.decorators import check_authorization
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 from amelie.members.models import Committee, Function, CommitteeCategory
 
@@ -69,7 +71,28 @@ class CommitteeFilterSet(FilterSet):
         return qs.filter(abolished__isnull=True)
 
 
+@check_authorization
 class CommitteeType(DjangoObjectType):
+    public_fields = [
+        "id",
+        "name",
+        "category",
+        "parent_committees",
+        "slug",
+        "email",
+        "abolished",
+        "website",
+        "information_nl",
+        "information_en",
+        "group_picture",
+        "function_set"
+    ]
+    committee_fields = [
+        "founded"
+    ]
+    allowed_committees = ["WWW"]
+    private_fields = ["logo", "information"]
+
     class Meta:
         model = Committee
         description = "Type definition for a single Committee"
