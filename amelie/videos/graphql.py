@@ -13,7 +13,6 @@ class VideoFilterSet(django_filters.FilterSet):
     class Meta:
         model = BaseVideo
         fields = {
-            'video_id': ("exact",),
             'title': ("icontains", "iexact"),
             'date_published': ("exact", "gt", "lt"),
             'publisher__name': ("icontains", "iexact"),
@@ -55,10 +54,6 @@ class VideoType(DjangoObjectType):
     video_type = graphene.String(description=_("Video type (Youtube or IA)"))
     video_url = graphene.String(description=_("URL to the video"))
 
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return queryset.filter_public(info.context)
-
     def resolve_publisher(obj: BaseVideo, info):
         return obj.publisher.name
 
@@ -70,11 +65,19 @@ class VideoType(DjangoObjectType):
 
 
 class VideoQuery(graphene.ObjectType):
-    video = graphene.Field(VideoType, id=graphene.ID())
-    videos = DjangoPaginationConnectionField(VideoType)
+    video = graphene.Field(VideoType, video_id=graphene.ID())
+    videos = DjangoPaginationConnectionField(VideoType, video_id=graphene.ID())
 
-    def resolve_video(root, info, id):
-        return BaseVideo.objects.filter_public(info.context).get(pk=id)
+    def resolve_video(root, info, video_id):
+        return BaseVideo.objects.filter_public(info.context).get(video_id=video_id)
+
+    def resolve_videos(root, info, video_id=None, *args, **kwargs):
+        """Find videos by ID"""
+        qs = BaseVideo.objects.filter_public(info.context)
+        # Find the video by its Video ID
+        if video_id is not None:
+            return qs.filter(video_id=video_id)
+        return qs
 
 
 # Exports

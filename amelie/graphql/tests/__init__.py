@@ -86,7 +86,7 @@ class BaseGraphQLPrivateFieldTests(GraphQLTestMixin, TestCase):
             )
 
     def _test_private_model_list(self, query_name: str, public_field_spec: str = "id",
-                                 variables: Optional[Dict[str, Tuple[str, str]]] = None,
+                                 variables: Optional[Dict[str, Tuple[Union[str, int], str]]] = None,
                                  error_regex: Optional[re.Pattern] = None):
         """
         Test if a model instance that should be private is not in the list returned by a GraphQL query.

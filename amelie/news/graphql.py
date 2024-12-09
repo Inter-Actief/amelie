@@ -12,7 +12,6 @@ class NewsItemType(DjangoObjectType):
         model = NewsItem
         description = "Type definition for a single News Item"
         filter_fields = {
-            'id': ("exact", ),
             'title_nl': ("icontains", "iexact"),
             'title_en': ("icontains", "iexact"),
             'publication_date': ("exact", "gt", "lt"),
@@ -47,6 +46,10 @@ class NewsItemType(DjangoObjectType):
         # `info.context` is the Django Request object in Graphene
         return self.attachments.filter_public(info.context).all()
 
+    def resolve_activities(self: NewsItem, info):
+        # `info.context` is the Django Request object in Graphene
+        return self.activities.filter_public(info.context).all()
+
     def resolve_author(obj: NewsItem, info):
         return obj.author.incomplete_name()
 
@@ -65,10 +68,18 @@ class NewsItemType(DjangoObjectType):
 
 class NewsQuery(graphene.ObjectType):
     news_item = graphene.Field(NewsItemType, id=graphene.ID())
-    news_items = DjangoPaginationConnectionField(NewsItemType)
+    news_items = DjangoPaginationConnectionField(NewsItemType, id=graphene.ID())
 
     def resolve_news_item(root, info, id):
         return NewsItem.objects.get(pk=id)
+
+    def resolve_news_items(root, info, id=None, *args, **kwargs):
+        """Find news items by ID"""
+        qs = NewsItem.objects
+        # Find the news item by its ID
+        if id is not None:
+            return qs.filter(pk=id)
+        return qs
 
 
 # Exports

@@ -163,7 +163,7 @@ class ActivitiesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         response = self.query(query, variables={"id": self.public_activity.id})
         content = json.loads(response.content)
 
-        # The request should succeedte
+        # The request should succeed
         self.assertResponseNoErrors(
             response,
             f"Query for 'activities', public field 'photos' returned an error!"
