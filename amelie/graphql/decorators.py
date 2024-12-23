@@ -1,6 +1,7 @@
 from graphql import GraphQLError
 
 from graphql_jwt.decorators import user_passes_test, login_required
+from graphql_jwt.exceptions import PermissionDenied
 
 
 def _get_attribute(obj, dotted_path):
@@ -45,6 +46,40 @@ def no_access():
     return user_passes_test(lambda u: False)
 
 def check_authorization(cls):
+    """
+    Enforces authorization checks when this model is queried.
+
+    There are multiple types of fields, each can be defined on the DjangoObjectType:
+
+    * public_fields: Fields that are accessible for people within being signed in.
+    * login_fields: Fields that are only accessible after being signed in.
+    * committee_fields: Fields that are only accessible by members of a committee, WWW superusers, and board members.
+      * allowed_committees: When committee fields are defined, acronyms of visible committees should be passed.
+    * board_fields: Fields that are only accessible by WWW superusers and board members.
+    * private_fields: Fields that cannot be queried through the GraphQL API.
+    * exempt_fields: Fields that are exempt from these checks,
+                     their resolvers should have their own authorization checking.
+
+    An example class would be:
+    ```python
+    class FooType(DjangoObjectType):
+        public_fields = ['id']
+        login_fields = ['login']
+        committee_fields = ['committee']
+        allowed_committees = ['some-committee']
+        board_fields = ['board']
+        private_fields = ['private']
+        exempt_fields = ['exempt']
+
+        class Meta:
+            model = Foo
+            fields = ['id', 'login', 'committee', 'board', 'private', 'exempt']
+
+        def resolve_exempt(obj: Foo, info):
+            # Custom authorization checks
+            return obj
+    ```
+    """
     # Make sure that at least one of the authorization fields is present.
     if not any(hasattr(cls, authorization_field) for authorization_field in AUTHORIZATION_FIELD_TYPES):
         raise ValueError(f"At least one authorization field type should be defined for a GraphQL type, choose from: {', '.join(AUTHORIZATION_FIELD_TYPES)}")
@@ -54,6 +89,7 @@ def check_authorization(cls):
     committee_fields = getattr(cls, "committee_fields", [])
     board_fields = getattr(cls, "board_fields", [])
     private_fields = getattr(cls, "private_fields", [])
+    exempt_fields = getattr(cls, "exempt_fields", [])
 
     allowed_committees = getattr(cls, "allowed_committees", [])
 
@@ -62,7 +98,7 @@ def check_authorization(cls):
         raise ValueError(f"The following fields are only visible by a committee: \"{','.join(committee_fields)}\", but there are no committees defined that can view this field. Make sure that \"allowed_committees\" has at least a single entry.")
 
     # Make sure that all the fields in the authorization fields are mutually exclusive.
-    authorization_fields = [*public_fields, *login_fields, *committee_fields, *board_fields, *private_fields]
+    authorization_fields = [*public_fields, *login_fields, *committee_fields, *board_fields, *private_fields, *exempt_fields]
     if len(authorization_fields) != len(set(authorization_fields)):
         raise ValueError("Some of the authorization fields have overlapping Django fields. Make sure that they are all mutually exclusive!")
 
@@ -84,6 +120,6 @@ def check_authorization(cls):
 
     # No-one can access these fields
     for private_field in private_fields:
-        setattr(cls, f"resolve_{private_field}", no_access())
+        setattr(cls, f"resolve_{private_field}", no_access()(lambda self, info, field: False))
 
     return cls
