@@ -75,9 +75,9 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
     def setUp(self):
         super(NewsGraphQLPrivateFieldTests, self).setUp()
 
-        # Create required committees for the news module
-        educom = Committee(name="EduCom", abbreviation=settings.EDUCATION_COMMITTEE_ABBR)
-        educom.save()
+        # A committee with the abbreviation of the education committee is required for the news module
+        # functions to work properly. So we get_or_create it here to make sure it exists in the test DB.
+        _ = Committee.objects.get_or_create(name="EduCom", abbreviation=settings.EDUCATION_COMMITTEE_ABBR)
 
         # Generate news article
         self.article = generate_news_article()
@@ -86,7 +86,7 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private attachments are hidden in get view
         query = "query ($id: ID) { newsItem(id: $id) { attachments { public }}}"
         response = self.query(query, variables={"id": self.article.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -107,7 +107,7 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private attachments are hidden in list view
         query = "query ($id: ID) { newsItems(id: $id) { results { attachments { public }}}}"
         response = self.query(query, variables={"id": self.article.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -128,7 +128,7 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private activities are hidden in get view
         query = "query ($id: ID) { newsItem(id: $id) { activities { public }}}"
         response = self.query(query, variables={"id": self.article.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -149,7 +149,7 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private activities are hidden in list view
         query = "query ($id: ID) { newsItems(id: $id) { results { activities { public }}}}"
         response = self.query(query, variables={"id": self.article.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -170,7 +170,7 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if the author and publisher of a news item are a strings in get view
         query = "query ($id: ID) { newsItem(id: $id) { author, publisher }}"
         response = self.query(query, variables={"id": self.article.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -188,7 +188,7 @@ class NewsGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if the author and publisher of a news item are a strings in list view
         query = "query ($id: ID) { newsItems(id: $id) { results { author, publisher }}}"
         response = self.query(query, variables={"id": self.article.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(

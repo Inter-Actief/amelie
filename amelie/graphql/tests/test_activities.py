@@ -98,7 +98,7 @@ class ActivitiesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private activity attachments are hidden in get view
         query = "query ($id: ID) { activity(id: $id) { attachments { public }}}"
         response = self.query(query, variables={"id": self.public_activity.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -119,7 +119,7 @@ class ActivitiesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private activity attachments are hidden in list view
         query = "query ($id: ID) { activities(id: $id) { results { attachments { public }}}}"
         response = self.query(query, variables={"id": self.public_activity.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -140,7 +140,7 @@ class ActivitiesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private activity photos are hidden in get view
         query = "query ($id: ID) { activity(id: $id) { photos { public }}}"
         response = self.query(query, variables={"id": self.public_activity.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -161,7 +161,7 @@ class ActivitiesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private activity photos are hidden in list view
         query = "query ($id: ID) { activities(id: $id) { results { photos { public }}}}"
         response = self.query(query, variables={"id": self.public_activity.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(

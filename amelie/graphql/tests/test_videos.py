@@ -97,7 +97,7 @@ class VideosGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if the publisher of a video is a string in get view
         query = "query ($videoId: ID) { video(videoId: $videoId) { publisher }}"
         response = self.query(query, variables={"videoId": self.public_yt_video.video_id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -113,7 +113,7 @@ class VideosGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if the publisher of a video is a string in list view
         query = "query ($videoId: ID) { videos(videoId: $videoId) { results { publisher }}}"
         response = self.query(query, variables={"videoId": self.public_yt_video.video_id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(

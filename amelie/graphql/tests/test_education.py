@@ -16,11 +16,7 @@ def generate_education_events():
     """
     Generate Education Events for testing.
 
-    It will generate 4 events:
-    - A public event that is visible
-    - A public event that is not visible
-    - A private event that is visible
-    - A private event that is not visible
+    It will generate a public and a private event.
     """
 
     now = timezone.now()
@@ -126,7 +122,7 @@ class EducationGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private event attachments are hidden in get view
         query = "query ($id: ID) { educationEvent(id: $id) { attachments { public }}}"
         response = self.query(query, variables={"id": self.public_event.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -136,7 +132,7 @@ class EducationGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
 
         # Check that all attachments are public, and that the correct amount of attachments are received (1)
         self.assertTrue(all(a['public'] == True for a in content['data']['educationEvent']['attachments']),
-                        f"Query for 'educationEvent', public field 'attachments' returned a private attachment!")
+                        "Query for 'educationEvent', public field 'attachments' returned a private attachment!")
         num_attachments = len(content['data']['educationEvent']['attachments'])
         self.assertEqual(
             num_attachments, 1,
@@ -147,7 +143,7 @@ class EducationGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private event attachments are hidden in list view
         query = "query ($id: ID) { educationEvents(id: $id) { results { attachments { public }}}}"
         response = self.query(query, variables={"id": self.public_event.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(

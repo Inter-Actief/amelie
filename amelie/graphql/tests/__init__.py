@@ -76,7 +76,7 @@ class BaseGraphQLPrivateFieldTests(GraphQLTestMixin, TestCase):
         )
         # Check if the error received has the correct error message format, so we don't
         # accidentally consider a different error as a 'successful' result.
-        content = json.loads(response.content)
+        content = response.json()
         for error in content['errors']:
             # If different error than expected, throw error.
             self.assertRegex(
@@ -132,10 +132,10 @@ class BaseGraphQLPrivateFieldTests(GraphQLTestMixin, TestCase):
         )
 
         # Check if the results list is empty.
-        content = json.loads(response.content)
+        content = response.json()
         num_obj = len(content['data'][query_name]['results'])
         self.assertEqual(
-            content['data'][query_name]['results'], [],
+            num_obj, 0,
             f"Query for '{query_name}', private object '{query_variables}' did not return 0 expected objects (returned {num_obj})!"
         )
 
@@ -180,7 +180,7 @@ class BaseGraphQLPrivateFieldTests(GraphQLTestMixin, TestCase):
         )
         # Check if the error received has the correct error message format, so we don't
         # accidentally consider a different error as a 'successful' result.
-        content = json.loads(response.content)
+        content = response.json()
         for error in content['errors']:
             # If different error than expected, throw error.
             self.assertRegex(

@@ -163,7 +163,7 @@ class CompaniesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private event attachments are hidden in get view
         query = "query ($id: ID) { companyEvent(id: $id) { attachments { public }}}"
         response = self.query(query, variables={"id": self.public_visible_event.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
@@ -184,7 +184,7 @@ class CompaniesGraphQLPrivateFieldTests(BaseGraphQLPrivateFieldTests):
         # Test if private event attachments are hidden in list view
         query = "query ($id: ID) { companyEvents(id: $id) { results { attachments { public }}}}"
         response = self.query(query, variables={"id": self.public_visible_event.id})
-        content = json.loads(response.content)
+        content = response.json()
 
         # The request should succeed
         self.assertResponseNoErrors(
