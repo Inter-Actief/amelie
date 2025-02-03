@@ -1,12 +1,45 @@
 {% extends "iamailer/email_basic.mail" %}
 {% load i18n htmlify only %}
 
-{% block subject %}{% blocktrans %}[Inter-Actief] Welcome human!{% endblocktrans %}{% endblock %}
+{% block subject %}{% blocktrans %}[Inter-Actief] Welcome to our association{% endblocktrans %}{% endblock %}
 
-{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }}
 
-{% blocktrans %}Hereby, Vadim would like to welcome you to our beautiful association. May the cookie corner credit be in your favour.{% endblocktrans %}
+{% blocktrans %}Welcome to {% endblocktrans %}I.C.T.S.V. Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %},{% blocktrans %} the study association for Business Information Technology and Technical Computer Science at the UT! With this mail, we want to give a quick rundown of the various options we offer our members, which are spread over three main points: {% endblocktrans %}
 
-{% blocktrans %}Kind regards,
+{% endhtmlify %}{% onlyhtml %}<ul>
+    <li><b>{% translate "Education" %}</b>: {% blocktrans %}Since we are, of course, a study association, we try to assist our members as much as possible with their studies. This includes discounted study book sales, study evenings, and a database of practice exams from previous years. We also help find tutors for members who are looking for one and help amplify feedback and complaints about the study.{% endblocktrans %}</li>
+    <li><b>{% translate "Career" %}</b>: {% blocktrans %}We also act as a contact point between students and companies. Through activities such as workshops, lunch lectures and an annual symposium, students can get acquainted with the various career options available after their studies. (Or possibly even find a part-time job during their studies!){% endblocktrans %}</li>
+    <li><b>{% translate "Social" %}</b>: {% blocktrans %}Since it's also important to wind down, we organise many fun activities where you can get to know your fellow students. These range from having casual drinks together every Tuesday to sports activities, trips to other countries, and even a yearly puzzle week.{% endblocktrans %}</li>
+</ul>{% endonlyhtml %}
+{% onlyplain %}    * {% translate "Education" %}: {% blocktrans %}Since we are, of course, a study association, we try to assist our members as much as possible with their studies. This includes discounted study book sales, study evenings, and a database of practice exams from previous years. We also help find tutors for members who are looking for one and help amplify feedback and complaints about the study.{% endblocktrans %}
+    * {% translate "Career" %}: {% blocktrans %}We also act as a contact point between students and companies. Through activities such as workshops, lunch lectures and an annual symposium, students can get acquainted with the various career options available after their studies. (Or possibly even find a part-time job during their studies!){% endblocktrans %}
+    * {% translate "Social" %}: {% blocktrans %}Since it's also important to wind down, we organise many fun activities where you can get to know your fellow students. These range from having casual drinks together every Tuesday to sports activities, trips to other countries, and even a yearly puzzle week.{% endblocktrans %}
+{% endonlyplain %}{% htmlify %}
 
-The board of Inter-Actief{% endblocktrans %}{% endhtmlify %}{% endblock %}
+{% blocktrans %}Our association is located in the {% endblocktrans %}Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% blocktrans %} room, which can be found on the balcony above Educafé (where the Starbucks is located). Here, the board is present every day and can be approached with any questions or complaints you might have. We also have {% endblocktrans %}{% onlyhtml %}<b>{% endonlyhtml %}{% translate "free coffee/tea" %}{% onlyhtml %}</b>{% endonlyhtml %}{% blocktrans %} and a little 'Cookie Corner', where we sell snacks without a profit margin, and, of course, you can always just come by to relax for a bit. {% endblocktrans %}
+
+{% blocktrans %}We can only provide these services with the help of our active members, who join {% endblocktrans %}{% onlyhtml %}<b>{% endonlyhtml %}{% translate "committees" %}{% onlyhtml %}</b>{% endonlyhtml %}{% blocktrans %} to take care of various tasks in our association, such as organising activities and keeping our systems online. Would you be interested in joining a committee yourself? Then, be sure to check out our committee market! We organise one around the start of the first and third modules, and you can always contact our {% endblocktrans %}{% onlyhtml %}<a href="mailto:interal@inter-actief.net">{% endonlyhtml %}{% translate "officer of internal affairs" %}{% onlyhtml %}</a>{% endonlyhtml %},{% blocktrans %} to help you find a fun committee that suits you. {% endblocktrans %}
+
+{% blocktrans %}If you have any questions, you can always contact the board through the following channels:{% endblocktrans %}
+
+{% onlyhtml %}<ul><li>{% translate "Telephone" %}: +53 489 3756</li><li>{% translate "Email" %}: <a href="mailto:contact@inter-actief.net">contact@inter-actief.net</a></li><li>{% translate "Website" %}: <a href="https://www.inter-actief.utwente.nl/">https://www.inter-actief.utwente.nl/</a></li></ul>{% endonlyhtml %}{% onlyplain %}
+    * {% translate "Telephone" %}: +53 489 3756
+    * {% translate "Email" %}: contact@inter-actief.net
+    * {% translate "Website" %}: https://www.inter-actief.utwente.nl/
+{% endonlyplain %}
+
+{% blocktrans %}If you don’t want to miss out on any {% endblocktrans %}Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}-{% blocktrans %}related news and announcements, be sure to check out our {% endblocktrans %}{% onlyhtml %}<b>{% endonlyhtml %}{% translate "socials" %}{% onlyhtml %}</b>{% endonlyhtml %}:
+
+{% onlyhtml %}<ul><li>{% blocktrans %}Our WhatsApp community{% endblocktrans %}: <a href="https://ictsv.nl/wa">https://ictsv.nl/wa</a></li><li>{% translate "Discord" %}: <a href="https://ictsv.nl/discord">https://ictsv.nl/discord</a></li><li>{% translate "Instagram" %}: @inter.actief</li><li>{% translate "LinkedIn" %}: <a href="https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/">https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/</a></li></ul>{% endonlyhtml %}{% onlyplain %}
+    * {% blocktrans %}Our WhatsApp community{% endblocktrans %}: https://ictsv.nl/wa
+    * {% translate "Discord" %}: https://ictsv.nl/discord
+    * {% translate "Instagram" %}: @inter.actief
+    * {% translate "LinkedIn" %}: https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/
+{% endonlyplain %}
+
+{% blocktrans %}Hopefully, we’ll see you around soon!{% endblocktrans %}
+
+{% blocktrans %}With kind regards,
+
+The board of {% endblocktrans %}I.C.T.S.V. Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}{% endhtmlify %}{% endblock %}
