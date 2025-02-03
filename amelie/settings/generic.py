@@ -259,7 +259,6 @@ INSTALLED_APPS = (
     'amelie.files',
     'amelie.about',
     'amelie.personal_tab',
-    'amelie.twitter',
     'amelie.style',
     'amelie.narrowcasting',
     'amelie.api',
@@ -657,12 +656,6 @@ FCM_DJANGO_SETTINGS = {
     'FCM_SERVER_KEY': '',
     'DELETE_INACTIVE_DEVICES': True,
 }
-
-# Twitter keys and tokens for 'iawebsite'
-TWITTER_APP_KEY = "empty"
-TWITTER_APP_SECRET = "empty"
-TWITTER_OAUTH_TOKEN = "empty"
-TWITTER_OAUTH_SECRET = "empty"
 
 # Settings for our oAuth2 provider
 OAUTH2_PROVIDER = {
