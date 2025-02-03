@@ -6,12 +6,20 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from amelie.activities.graphql import ActivityLabelType
-from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
+from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS, EVENT_TYPE_BASE_PUBLIC_FIELDS
 from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, VivatBanner, CompanyEvent
+from amelie.graphql.decorators import check_authorization
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 
+@check_authorization
 class CompanyType(DjangoObjectType):
+    public_fields = [
+        "name_nl", "name_en", "name", "slug", "url", "logo", "logo_width", "logo_height", "profile_nl", "profile_en",
+        "profile", "short_description_nl", "short_description_en", "short_description", "start_date", "end_date",
+        "show_in_app", "app_logo", "app_logo_height", "app_logo_width"
+    ]
+
     class Meta:
         model = Company
         description = "Type definition of a single Company"
@@ -40,7 +48,18 @@ class CompanyEventFilterSet(FilterSet):
         }
 
 
+@check_authorization
 class CompanyEventType(EventType):
+    public_fields = [
+        "company",
+        "company_text",
+        "company_url",
+        "activity_label",
+        "activity_type",
+        "calendar_url",
+        "absolute_url",
+        "is_visible"
+    ] + EVENT_TYPE_BASE_PUBLIC_FIELDS
 
     class Meta:
         model = CompanyEvent
@@ -53,7 +72,7 @@ class CompanyEventType(EventType):
 
     activity_label = graphene.Field(ActivityLabelType, description=_("The label that belongs to this activity"))
     activity_type = graphene.String(description=_("The type of activity"))
-    calender_url = graphene.String(description=_("The url to the ics for this activity"))
+    calendar_url = graphene.String(description=_("The url to the ics for this activity"))
     absolute_url = graphene.String(description=_("The absolute URL to this event"))
     is_visible = graphene.Boolean(description=_("Whether this event is visible"))
 
@@ -72,7 +91,10 @@ class CompanyEventType(EventType):
     def resolve_is_visible(self: CompanyEvent, info):
         return self.is_visible()
 
+
+@check_authorization
 class WebsiteBannerType(DjangoObjectType):
+    public_fields = ["picture", "name", "slug", "active", "url"]
     class Meta:
         model = WebsiteBanner
         description = "Type definition of a single Website Banner"
@@ -82,7 +104,9 @@ class WebsiteBannerType(DjangoObjectType):
         fields = ["picture", "name", "slug", "active", "url"]
 
 
+@check_authorization
 class TelevisionBannerType(DjangoObjectType):
+    public_fields = ["picture", "name", "slug", "active"]
     class Meta:
         model = TelevisionBanner
         description = "Type definition of a single Television Banner"
@@ -92,7 +116,9 @@ class TelevisionBannerType(DjangoObjectType):
         fields = ["picture", "name", "slug", "active"]
 
 
+@check_authorization
 class VivatBannerType(DjangoObjectType):
+    public_fields = ["picture", "name", "slug", "active", "url"]
     class Meta:
         model = VivatBanner
         description = "Type definition of a single Vivat Banner"

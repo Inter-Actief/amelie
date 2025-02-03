@@ -2,9 +2,29 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from amelie.files.models import Attachment
+from amelie.graphql.decorators import check_authorization
 
 
+@check_authorization
 class AttachmentType(DjangoObjectType):
+    public_fields = [
+        "file",
+        "caption",
+        "thumb_small",
+        "thumb_medium",
+        "thumb_large",
+        "mimetype",
+        "owner",
+        "created",
+        "modified",
+        "thumb_small_height",
+        "thumb_small_width",
+        "thumb_medium_height",
+        "thumb_medium_width",
+        "thumb_large_height",
+        "thumb_large_width",
+        "public"
+    ]
     class Meta:
         model = Attachment
         fields = [

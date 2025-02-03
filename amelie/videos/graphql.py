@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from graphene_django import DjangoObjectType
 
+from amelie.graphql.decorators import check_authorization
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 from amelie.videos.models import BaseVideo
 
@@ -34,7 +35,20 @@ class VideoFilterSet(django_filters.FilterSet):
             return qs
 
 
+@check_authorization
 class VideoType(DjangoObjectType):
+    public_fields = [
+        "video_id",
+        "title",
+        "description",
+        "date_published",
+        "thumbnail_url",
+        "publisher",
+        "is_featured",
+        "public",
+        "video_type",
+        "video_url"
+    ]
     class Meta:
         model = BaseVideo
         description = "Type definition for a single Video"

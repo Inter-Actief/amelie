@@ -4,7 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel
-from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
+from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS, EVENT_TYPE_BASE_PUBLIC_FIELDS
+from amelie.graphql.decorators import check_authorization
+from amelie.graphql.helpers import is_logged_in
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 
@@ -20,7 +22,32 @@ class ActivityFilterSet(FilterSet):
         }
 
 
+@check_authorization
 class ActivityType(EventType):
+    public_fields = [
+        "enrollment",
+        "enrollment_begin",
+        "enrollment_end",
+        "maximum",
+        "waiting_list_locked",
+        "photos",
+        "components",
+        "price",
+        "can_unenroll",
+        "image_icon",
+        "activity_label",
+        "absolute_url",
+        "random_photo_url",
+        "photo_url",
+        "calendar_url",
+        "enrollment_open",
+        "enrollment_closed",
+        "can_edit",
+        "enrollment_full",
+        "enrollment_almost_full",
+        "has_enrollment_options",
+        "has_costs"
+    ] + EVENT_TYPE_BASE_PUBLIC_FIELDS
 
     class Meta:
         model = Activity
@@ -76,7 +103,7 @@ class ActivityType(EventType):
         return self.enrollment_closed()
 
     def resolve_can_edit(self: Activity, info):
-        if hasattr(info.context.user, 'person'):
+        if is_logged_in(info):
             return self.can_edit(info.context.user.person)
         return False
 
@@ -93,7 +120,17 @@ class ActivityType(EventType):
         return self.has_costs()
 
 
+@check_authorization
 class ActivityLabelType(DjangoObjectType):
+    public_fields = [
+        "name_en",
+        "name_nl",
+        "color",
+        "icon",
+        "explanation_en",
+        "explanation_nl",
+        "active"
+    ]
     class Meta:
         model = ActivityLabel
         fields = [

@@ -3,11 +3,32 @@ import graphene
 from graphene_django import DjangoObjectType
 from django.utils.translation import gettext_lazy as _
 
+from amelie.graphql.decorators import check_authorization
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 from amelie.news.models import NewsItem
 
 
+@check_authorization
 class NewsItemType(DjangoObjectType):
+    public_fields = [
+        "id",
+        "publication_date",
+        "title_nl",
+        "title_en",
+        "title",
+        "slug",
+        "introduction_nl",
+        "introduction_en",
+        "introduction",
+        "content_nl",
+        "content_en",
+        "content",
+        "publisher",
+        "author",
+        "attachments",
+        "activities",
+        "pinned",
+    ]
     class Meta:
         model = NewsItem
         description = "Type definition for a single News Item"

@@ -1,18 +1,22 @@
 import graphene
 import django_filters
 
-from graphql import GraphQLError
 from graphene_django import DjangoObjectType
 from django_filters import FilterSet
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from amelie.graphql.decorators import check_authorization
+from amelie.graphql.helpers import is_board, is_logged_in
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 from amelie.members.models import Committee, Function, CommitteeCategory
 
 
+@check_authorization
 class FunctionType(DjangoObjectType):
+    public_fields = ["person", "committee", "function", "is_current_member"]
+    board_fields = ["begin", "end"]
+
     class Meta:
         model = Function
         description = "Type definition for a single Function"
@@ -26,18 +30,6 @@ class FunctionType(DjangoObjectType):
 
     def resolve_is_current_member(obj: Function, info):
         return obj.end is None and obj.committee.abolished is None
-
-    def resolve_begin(obj: Function, info):
-        # Begin date is only accessible for board members
-        if hasattr(info.context, 'user') and info.context.user.is_authenticated and info.context.is_board:
-            return obj.begin
-        raise GraphQLError("Object access denied.")
-
-    def resolve_end(obj: Function, info):
-        # End date is only accessible for board members
-        if hasattr(info.context, 'user') and info.context.user.is_authenticated and info.context.is_board:
-            return obj.end
-        raise GraphQLError("Object access denied.")
 
 
 class CommitteeFilterSet(FilterSet):
@@ -57,9 +49,9 @@ class CommitteeFilterSet(FilterSet):
         unless specifically asked for by a board member or by someone who was a member of that committee
         """
         # If abolished committees are requested, we need to check if the user is logged in and allowed to see them
-        if value and hasattr(self.request, 'user') and self.request.user.is_authenticated:
+        if value and is_logged_in(self.request.user):
             # If user is a board member, include all committees
-            if self.request.is_board:
+            if is_board(self.request.user):
                 return qs
             # If user was a member of the committee, include active committees and committees in which they were active
             if self.request.user.person is not None:
@@ -79,18 +71,16 @@ class CommitteeType(DjangoObjectType):
         "parent_committees",
         "slug",
         "email",
+        "founded",
         "abolished",
         "website",
+        "information",
         "information_nl",
         "information_en",
+        "logo",
         "group_picture",
         "function_set"
     ]
-    committee_fields = [
-        "founded"
-    ]
-    allowed_committees = ["WWW"]
-    private_fields = ["logo", "information"]
 
     class Meta:
         model = Committee
@@ -121,7 +111,7 @@ class CommitteeType(DjangoObjectType):
 
     def resolve_email(obj: Committee, info):
         """Resolves committee e-mail. Returns None if the e-mail is private and the user is not a board member."""
-        if obj.private_email and not info.context.is_board:
+        if obj.private_email and not is_board(info):
             return None
         return obj.email
 
@@ -131,7 +121,7 @@ class CommitteeType(DjangoObjectType):
         unless specifically asked for by a board member
         """
         # If past members are requested, only include them if the user is a board member
-        if include_past_members and hasattr(info.context, 'user') and info.context.user.is_authenticated and info.context.is_board:
+        if include_past_members and is_board(info):
             return obj.function_set.all()
         # Else only return current members
         return obj.function_set.filter(end__isnull=True)
@@ -140,7 +130,10 @@ class CommitteeType(DjangoObjectType):
         return obj.information
 
 
+@check_authorization
 class CommitteeCategoryType(DjangoObjectType):
+    public_fields = ["id", "name", "slug", "committee_set"]
+
     class Meta:
         model = CommitteeCategory
         description = "Type definition for a single CommitteeCategory"
@@ -159,7 +152,7 @@ class CommitteeCategoryType(DjangoObjectType):
         unless specifically asked for by a board member or by someone who was a member of that committee
         """
         # If abolished committees are requested, we need to check if the user is allowed to see them
-        if include_abolished and hasattr(info.context, 'user') and info.context.user.is_authenticated:
+        if include_abolished and is_logged_in(info):
             # If user is a board member, include all committees
             if info.context.is_board:
                 return obj.committee_set.all()
@@ -190,9 +183,9 @@ class MembersQuery(graphene.ObjectType):
     def resolve_committee(root, info, id=None, slug=None):
         """Find committee by ID or slug, if the user is allowed to see it"""
         # Logged-in users can see more committees than non-logged-in users.
-        if hasattr(info.context, 'user') and info.context.user.is_authenticated:
+        if is_logged_in(info):
             # Board members can see all committees, including abolished ones
-            if info.context.is_board:
+            if is_board(info):
                 qs = Committee.objects
 
             # Logged-in users can see abolished committees that they were a part of
@@ -215,9 +208,9 @@ class MembersQuery(graphene.ObjectType):
     def resolve_committees(root, info, id=None, slug=None, *args, **kwargs):
         """Find committees by ID or slug, if the user is allowed to see it"""
         # Logged-in users can see more committees than non-logged-in users.
-        if hasattr(info.context, 'user') and info.context.user.is_authenticated:
+        if is_logged_in(info):
             # Board members can see all committees, including abolished ones
-            if info.context.is_board:
+            if is_board(info):
                 qs = Committee.objects
 
             # Logged-in users can see abolished committees that they were a part of

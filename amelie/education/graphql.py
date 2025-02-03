@@ -8,13 +8,19 @@ from graphene_django.forms.mutation import DjangoFormMutation
 from amelie.education.forms import EducationalBouquetForm
 
 from amelie.activities.graphql import ActivityLabelType
-from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS
+from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS, EVENT_TYPE_BASE_PUBLIC_FIELDS
+from amelie.graphql.decorators import check_authorization
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 
 from amelie.education.models import Category, Page, EducationEvent
 
 
+@check_authorization
 class EducationPageType(DjangoObjectType):
+    public_fields = [
+        "id", "name_nl", "name_en", "name", "slug", "category",
+        "content_nl", "content_en", "content", "last_changed", "position"
+    ]
     class Meta:
         model = Page
         description = "Type definition for a single Education Page"
@@ -38,7 +44,9 @@ class EducationPageType(DjangoObjectType):
         return obj.content
 
 
+@check_authorization
 class EducationPageCategoryType(DjangoObjectType):
+    public_fields = ["id", "name_nl", "name_en", "name", "page_set"]
     class Meta:
         model = Category
         description = "Type definition for a single education page Category"
@@ -68,7 +76,14 @@ class EducationEventFilterSet(FilterSet):
         }
 
 
+@check_authorization
 class EducationEventType(EventType):
+    public_fields = [
+        "education_organizer",
+        "activity_label",
+        "activity_type",
+        "absolute_url"
+    ] + EVENT_TYPE_BASE_PUBLIC_FIELDS
 
     class Meta:
         model = EducationEvent

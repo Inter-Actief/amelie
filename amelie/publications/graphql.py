@@ -4,11 +4,17 @@ import graphene
 
 from graphene_django import DjangoObjectType
 
+from amelie.graphql.decorators import check_authorization
 from amelie.graphql.pagination.connection_field import DjangoPaginationConnectionField
 from amelie.publications.models import Publication, PublicationType
 
 
+@check_authorization
 class PublicationTypeType(DjangoObjectType):
+    public_fields = [
+        "type_name",
+        "description",
+    ]
     class Meta:
         model = PublicationType
         description = "Type definition for a type of Publication"
@@ -18,7 +24,19 @@ class PublicationTypeType(DjangoObjectType):
         ]
 
 
+@check_authorization
 class PublicationItemType(DjangoObjectType):
+    public_fields = [
+        "id",
+        "name",
+        "description",
+        "date_published",
+        "publication_type",
+        "thumbnail",
+        "file",
+        "is_featured",
+        "public",
+    ]
     class Meta:
         model = Publication
         description = "Type definition for a single Publication"

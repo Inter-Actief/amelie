@@ -4,9 +4,17 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from amelie.about.models import Page
+from amelie.graphql.decorators import check_authorization
 
 
+@check_authorization
 class PageType(DjangoObjectType):
+    public_fields = [
+        "name_nl", "name_en", "name",
+        "slug_nl", "slug_en", "slug",
+        "content_nl", "content_en", "content",
+        "educational", "last_modified"
+    ]
     class Meta:
         model = Page
         description = "Type definition for a single Page"

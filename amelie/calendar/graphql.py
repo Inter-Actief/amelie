@@ -24,12 +24,34 @@ EVENT_TYPE_BASE_FIELDS = [
     "public",
     "dutch_activity",
 ]
+EVENT_TYPE_BASE_PUBLIC_FIELDS = [
+    "id",
+    "begin",
+    "end",
+    "entire_day",
+    "summary_nl",
+    "summary_en",
+    "promo_nl",
+    "promo_en",
+    "description_nl",
+    "description_en",
+    "organizer",
+    "location",
+    "public",
+    "dutch_activity",
+    "attachments",
+    "summary",
+    "description",
+    "promo",
+    "description_short"
+]
 
 
 class EventType(DjangoObjectType):
     """
     The event type used for GraphQL operations
     """
+    public_fields = EVENT_TYPE_BASE_PUBLIC_FIELDS
 
     class Meta:
         # Make sure that this type is not actually being registered. But it can be used by other types as a base class.
