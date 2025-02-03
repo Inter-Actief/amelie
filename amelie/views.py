@@ -12,10 +12,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from oauth2_provider.views import AuthorizedTokenDeleteView
+from health_check.views import MainView as HealthCheckMainView
 
 from amelie.activities.models import Activity
 from amelie.companies.models import CompanyEvent
@@ -26,6 +27,7 @@ from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount
+from amelie.tools.mixins import RequireSuperuserMixin
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
 
@@ -231,8 +233,10 @@ def frontpage(request):
 
     if request.user.is_authenticated:
         # MediaCie check
-        context['mediacie'] = request.person.function_set.filter(committee__abbreviation='MediaCie',
-                                                                 end__isnull=True).exists()
+        context['mediacie'] = request.person.is_in_committee('MediaCie')
+        
+        # Room Duty check
+        context['is_roomduty'] = request.person.is_room_duty()
 
         # Birthdays
         context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,
@@ -256,9 +260,9 @@ def csrf_failure(request, reason=""):
     logger.warning('CSRF-check failed. Reason: %s' % reason, extra={'request': request})
 
     if reason and settings.DEBUG:
-        reason = _('CSRF-check failed. Reason: %s' % reason)
+        reason = _l('CSRF-check failed. Reason: %s' % reason)
     else:
-        reason = _('CSRF-check failed.')
+        reason = _l('CSRF-check failed.')
 
     return render(request, "403.html", {'reason': reason}, status=403)
 
@@ -285,3 +289,70 @@ Preferred-Languages: en, nl
 
 Expires: {month_from_now:%Y-%m-%dT%H:%M:%Sz%z}"""
     return HttpResponse(content, content_type="text/plain")
+
+
+def healthz_view(request):
+    return HttpResponse('ok', content_type="text/plain")
+
+
+class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
+    def get_context_data(self, **kwargs):
+        import os, sys, platform, cgi, socket
+
+        if hasattr(platform, 'dist') and platform.dist()[0] != '' and platform.dist()[1] != '':
+            os_version = f'{platform.system()} {platform.release()} ({platform.dist()[0].capitalize()} {platform.dist()[1]})'
+        else:
+            os_version = f'{platform.system()} {platform.release()}'
+
+        try:
+            ip_address = socket.gethostbyname(socket.gethostname())
+        except Exception:
+            ip_address = None
+
+        try:
+            process_id = f'{os.getpid()} (parent: {os.getppid()})' if hasattr(os, 'getpid') and hasattr(os, 'getppid') else None
+        except Exception:
+            process_id = None
+
+        return {
+            **super().get_context_data(**kwargs),
+            'info_tables': [
+                ('System', {
+                    'Python Version': platform.python_version(),
+                    'Python Subversion': ', '.join(sys.subversion) if hasattr(sys, 'subversion') else None,
+                    'OS Version': os_version,
+                    'Executable': sys.executable if hasattr(sys, 'executable') else None,
+                    'Build Date': platform.python_build()[1],
+                    'Compiler': platform.python_compiler(),
+                    'API Version': sys.api_version if hasattr(sys, 'api_version') else None
+                }),
+                ('Networking', {
+                    'Hostname': socket.gethostname(),
+                    'Hostname (fully qualified)': socket.gethostbyaddr(socket.gethostname())[0],
+                    'IP Address': ip_address,
+                    'IPv6 Support': getattr(socket, 'has_ipv6', False),
+                    'SSL Support': hasattr(socket, 'ssl'),
+                }),
+                ('Python Internals', {
+                    'Built-in Modules': ', '.join(sys.builtin_module_names) if hasattr(sys, 'builtin_module_names') else None,
+                    'Byte Order': f'{sys.byteorder} endian',
+                    'Check Interval': sys.getcheckinterval() if hasattr(sys, 'getcheckinterval') else None,
+                    'File System Encoding': sys.getfilesystemencoding() if hasattr(sys, 'getfilesystemencoding') else None,
+                    'Maximum Recursion Depth': sys.getrecursionlimit() if hasattr(sys, 'getrecursionlimit') else None,
+                    'Maximum Traceback Limit': sys.tracebacklimit if hasattr(sys, 'tracebacklimit') else '1000',
+                    'Maximum Unicode Code Point': sys.maxunicode
+                }),
+                ('OS Internals', {
+                    'Current Working Directory': os.getcwd() if hasattr(os, 'getcwd') else None,
+                    'Effective Group ID': os.getegid() if hasattr(os, 'getegid') else None,
+                    'Effective User ID': os.geteuid() if hasattr(os, 'geteuid') else None,
+                    'Group ID': os.getgid() if hasattr(os, 'getgid') else None,
+                    'Group Membership': ', '.join(map(str, os.getgroups())) if hasattr(os, 'getgroups') else None,
+                    'Line Seperator': repr(os.linesep)[1:-1] if hasattr(os, 'linesep') else None,
+                    'Load Average': ', '.join(map(str, map(lambda x: round(x, 2), os.getloadavg()))) if hasattr(os, 'getloadavg') else None,
+                    'Path Seperator': os.pathsep if hasattr(os, 'pathsep') else None,
+                    'Process ID': process_id,
+                    'User ID': os.getuid() if hasattr(os, 'getuid') else None,
+                }),
+            ]
+        }

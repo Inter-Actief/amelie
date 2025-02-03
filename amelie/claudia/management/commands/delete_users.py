@@ -34,7 +34,7 @@ class Command(BaseCommand):
         mps = [event.mapping for event in events]
 
         a = settings.CLAUDIA_AD
-        ad = AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"])
+        ad = AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"], a["CACERTFILE"])
 
         for mp in mps:
             if mp.get_guid():

@@ -3,7 +3,7 @@ import re
 
 from django import template
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 """
 Source: https://djangosnippets.org/snippets/1349/
@@ -55,7 +55,7 @@ def hide_email(email, name=None):
     mailto_link = '<a href="\'+\'m\'+\'a\'+\'i\'+\'l\'+\'t\'+\'o\'+\':%s">%s</a>' % (
         encode_string(email), encode_string(name))
 
-    return (u"\n<noscript>(%s)</noscript>" % (_("Javascript must be enabled to reveal email address"))) \
+    return (u"\n<noscript>(%s)</noscript>" % (_l("Javascript must be enabled to reveal email address"))) \
            + ('<script type="text/javascript">// <![CDATA[' + "\n"
               + "\tdocument.write('%s')\n"
               + "\t// ]]></script>\n") % mailto_link

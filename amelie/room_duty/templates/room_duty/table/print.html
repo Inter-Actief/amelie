@@ -47,26 +47,6 @@
         </script>
     </head>
     <body>
-        <table class="kamerdienst-table">
-            <tr>
-                <th><!-- Dummy --></th>
-                {% for person in table.persons %}
-                    <th>{{ person.first_name }}</th>
-                {% endfor %}
-            </tr>
-            <tr>
-
-            </tr>
-            {% for room_duty in table.room_duties.all %}
-                <tr class="kamerdienst-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}">
-                    <td class="time">{{ room_duty.begin|date:"D j b H:i" }} - {{ room_duty.end|date:"H:i" }}</td>
-                    {% for person in table.persons %}
-                        <td class="cross">{% if person in room_duty.participant_set.all %}X{% endif %}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-
         <h2>Balcony duty: {{ table.balcony_duty.association|default:"None" }}</h2>
 
         {% if table.balcony_duty %}
@@ -82,7 +62,7 @@
                 </tr>
                 <tr>
                     <td>Open room</td>
-                    <td>Morning</td>
+                    <td>At opening</td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross"></td>
@@ -90,8 +70,17 @@
                     <td colspan="2" class="cross"></td>
                 </tr>
                 <tr>
-                    <td>Clean room</td>
-                    <td>Morning</td>
+                    <td>Clear workspaces</td>
+                    <td>At opening</td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>-
+                </tr>
+                <tr>
+                    <td>Vaccuum floor</td>
+                    <td>At opening</td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross"></td>
@@ -117,7 +106,7 @@
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
                 </tr>
                 <tr>
-                    <td>Check board food</td>
+                    <td>Check food in fridge for mold</td>
                     <td>Morning</td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross disabled"></td>
@@ -135,15 +124,6 @@
                     <td colspan="2" class="cross"></td>
                 </tr>
                 <tr>
-                    <td>Retrieve mail</td>
-                    <td>Morning</td>
-                    <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
-                </tr>
-                <tr>
                     <td>Dishes</td>
                     <td>Morning</td>
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
@@ -153,21 +133,39 @@
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
                 </tr>
                 <tr>
+                    <td>Retrieve mail</td>
+                    <td>After 11:00</td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                </tr>
+                <tr>
                     <td>Water the plants</td>
                     <td>Afternoon</td>
-                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross disabled"></td>
                 </tr>
                 <tr>
-                    <td>Coffee machines</td>
+                    <td>Rinse coffee machines</td>
                     <td>Afternoon</td>
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                </tr>
+                <tr>
+                    <td>Big clean coffee machines</td>
+                    <td>Afternoon</td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross {% if not balcony_duty%}disabled{% endif %}"></td>
                 </tr>
                 <tr>
@@ -198,31 +196,49 @@
                     <td colspan="2" class="cross"></td>
                 </tr>
                 <tr>
-                    <td>Close room</td>
-                    <td>Afternoon</td>
+                    <td>Empty trashcans</td>
+                    <td>At closing</td>
+                    <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
-                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross"></td>
                 </tr>
                 <tr>
-                    <td>Empty trashcans</td>
-                    <td>Afternoon</td>
-                    <td colspan="2" class="cross disabled"></td>
+                    <td>Clean workspaces with soap</td>
+                    <td>At closing</td>
                     <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
+                </tr>
+                <tr>
+                    <td>Mop floor</td>
+                    <td>At closing</td>
+                    <td colspan="2" class="cross disabled"></td>
+                    <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross"></td>
                 </tr>
                 <tr>
                     <td>ASITO</td>
-                    <td>Afternoon</td>
+                    <td>At closing</td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross"></td>
                     <td colspan="2" class="cross disabled"></td>
                     <td colspan="2" class="cross disabled"></td>
+                </tr>
+                <tr>
+                    <td>Close room</td>
+                    <td>At closing</td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
+                    <td colspan="2" class="cross"></td>
                 </tr>
             </table>
             {% endwith %}

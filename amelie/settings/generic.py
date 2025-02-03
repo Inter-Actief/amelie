@@ -5,6 +5,7 @@
 import os
 import re
 import saml2
+import datetime
 from datetime import date
 from decimal import Decimal
 
@@ -202,10 +203,12 @@ MIDDLEWARE = [
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'amelie.tools.middleware.PersonMiddleware',  # Adds person, is_board, is_education_committee attributes to request
+    'amelie.tools.middleware.GlobalIAVariablesMiddleware',  # Adds person, is_board, is_education_committee attributes to request
     'auditlog.middleware.AuditlogMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
+
+INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.17.0.1']
 
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
@@ -301,7 +304,7 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
 
     # SSL Runserver
-    'sslserver',
+    # 'sslserver',
 
     # Django-celery helper for celery results
     'django_celery_results',
@@ -314,6 +317,13 @@ INSTALLED_APPS = (
 
     # Color field
     'colorfield',
+
+    # Default health checks (celery and rabbitmq are only added when a broker is configured)
+    'health_check',                      # required
+    'health_check.db',                   # stock Django health checkers
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
 )
 
 # Enable timezone support
@@ -371,6 +381,9 @@ SESSION_COOKIE_NAME = 'amelie_sessionid'
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
+# Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
+DATA_UPLOAD_MAX_NUMBER_FILES = 1000
+
 # Modules with JSONRPC API endpoints for autoregistration
 MODERNRPC_METHODS_MODULES = [
     'amelie.api.api',
@@ -414,6 +427,8 @@ COOKIE_CORNER_FREE_COOKIE_DISCOUNT_PERIOD_ID = 3
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_LOW = 0.0  # Chance for first and second year students
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_RATE_HIGH = 0.0  # Chance for older years and master students
 COOKIE_CORNER_FREE_COOKIE_DISCOUNT_LIMIT = 0  # Limit for the free cookie action (maximum amount of free cookies)
+
+COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
 
 # Conversion table from IBAN bank code to BIC
 COOKIE_CORNER_BANK_CODES = {
@@ -551,6 +566,7 @@ CLAUDIA_AD = {
     'USER': 'claudia',
     'PASSWORD': '',
     'BASEDN': 'ou=Inter-Actief,dc=ia,dc=utwente,dc=nl',
+    'CACERTFILE': '/credentials/ia_ca.pem',
 }
 
 # Claudia's connection details to GitLab
@@ -829,6 +845,10 @@ USERINFO_API_CONFIG = {
     'allowed_ips': [],
 }
 
+# Method used for file download acceleration.
+# Use None or "" for no acceleration, "apache" for X-Sendfile header or "nginx" for X-Accel-Redirect header.
+FILE_DOWNLOAD_METHOD = None
+
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
@@ -851,11 +871,8 @@ EVENT_DESK_PROCESSED_LABEL_ID = "Label_5424798960935964974"
 # The Label ID of the label that e-mails with errors should get
 EVENT_DESK_ERROR_LABEL_ID = "Label_5802521922307679990"
 
-# The Icinga (Monitoring) host and details (ask the system administrators), used for the room narrowcasting page.
-ICINGA_API_HOST = "https://monitoring.ia.utwente.nl:5665/v1/"
-ICINGA_API_USERNAME = "iawebsite"
-ICINGA_API_PASSWORD = ""
-ICINGA_API_SSL_VERIFY = True
+# Health checks configuration
+HEALTH_CHECK_URL_TOKEN = "amelie-health"
 
 # The Spotify app details for the room narrowcasting page.
 SPOTIFY_CLIENT_ID = "19f600baa77b4223b639088daa62f2f2"
@@ -901,3 +918,9 @@ KEYCLOAK_API_CLIENT_ID = "admin-cli"
 KEYCLOAK_API_CLIENT_SECRET = ""
 KEYCLOAK_API_AUTHN_ENDPOINT = "https://auth.ia.utwente.nl/realms/inter-actief/protocol/openid-connect/token"
 KEYCLOAK_PROVIDERS_UNLINK_ALLOWED = ['github', 'google', 'linkedin']
+
+# Wo4you personal URL
+BOOK_SALES_URL = "https://wo4you.nl/"
+
+# Abbreviation of the room duty committee for access checks.
+ROOM_DUTY_ABBREVIATION = "RoomDuty"

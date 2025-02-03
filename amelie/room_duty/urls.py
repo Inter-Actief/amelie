@@ -33,7 +33,7 @@ urlpatterns = [
     path('balcony_duty/<int:pk>/down/',
         views.balcony_duty_down, name='balcony_duty_down'),
     path('balcony_duty/<int:pk>/up/',
-        views.balcony_duty_down, name='balcony_duty_up'),
+        views.balcony_duty_up, name='balcony_duty_up'),
     path('balcony_duty/<int:pk>/delete/',
         views.balcony_duty_delete, name='balcony_duty_delete'),
 

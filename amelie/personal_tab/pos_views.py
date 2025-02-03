@@ -1,4 +1,5 @@
 import json
+import logging
 import operator
 from functools import reduce
 
@@ -11,8 +12,8 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView, FormView
-from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext as _
 
 from amelie.activities.models import Activity
 from amelie.members.models import Person
@@ -22,18 +23,25 @@ from amelie.personal_tab.pos_models import PendingPosToken
 from amelie.personal_tab.transactions import free_cookie_is_winner, free_cookies_allowed, free_cookies_sale, \
     cookie_corner_sale
 from amelie.tools.decorators import request_passes_test
-from amelie.tools.http import HttpJSONResponse
+from amelie.tools.http import HttpJSONResponse, get_client_ips
 from amelie.tools.mixins import RequireCookieCornerMixin
 
 
 def require_cookie_corner_pos(func):
-    if not settings.DEBUG:
-        return request_passes_test(
-            lambda r: (r.META['REMOTE_ADDR'] in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or r.user.is_superuser),
-            reden=_('Access for personal tab only.')
-        )(func)
-    else:
+    if settings.DEBUG:
         return func
+    else:
+        def is_cookie_corner_ip(request):
+            all_ips, real_ip = get_client_ips(request)
+            access_allowed = real_ip in settings.COOKIE_CORNER_POS_IP_ALLOWLIST or request.user.is_superuser
+            if not access_allowed:
+                logger = logging.getLogger("amelie.personal_tab.pos_views.require_cookie_corner_pos")
+                logger.warning(f"Client with IP '{real_ip}' was denied access to cookie corner. Not on allowlist. Possible (unchecked) other IPs: {all_ips}")
+            return access_allowed
+        return request_passes_test(
+            is_cookie_corner_ip,
+            reden=_l('Access for personal tab only.')
+        )(func)
 
 
 class PosHomeView(RequireCookieCornerMixin, TemplateView):
@@ -64,13 +72,13 @@ class PosProcessRFIDView(RequireCookieCornerMixin, View):
     http_method_names = ['post']
     def post(self, request):
         if 'tags' not in request.POST:
-            messages.error(request, _("Something went wrong, please try again later."))
+            messages.error(request, _l("Something went wrong, please try again later."))
             return redirect('personal_tab:pos_logout')
 
         tags = json.loads(request.POST['tags'])
 
         if not tags:
-            messages.error(request, _('No cards were scanned, please try again.'))
+            messages.error(request, _l('No cards were scanned, please try again.'))
             return redirect('personal_tab:pos_logout')
 
         people = [r.person for r in RFIDCard.objects.filter(code__in=tags, active=True)]
@@ -85,17 +93,17 @@ class PosProcessRFIDView(RequireCookieCornerMixin, View):
                     return redirect("personal_tab:pos_shop")
                 else:
                     messages.error(request,
-                                   _('You do not have a valid mandate or are not a member anymore. Contact the board for help.'))
+                                   _l('You do not have a valid mandate or are not a member anymore. Contact the board for help.'))
                     return redirect('personal_tab:pos_logout')
             else:
-                messages.error(request, _('RFID-cards from multiple people recognised. Please scan one card at a time.'))
+                messages.error(request, _l('RFID-cards from multiple people recognised. Please scan one card at a time.'))
                 return redirect('personal_tab:pos_logout')
         else:
             if len(tags) == 1:
                 request.session['POS_REGISTER_TAG_ID'] = tags[0]
                 return redirect('personal_tab:pos_generate_qr', type="register")
             else:
-                messages.error(request, _('Multiple unknown RFID-cards detected. Please scan one card at a time.'))
+                messages.error(request, _l('Multiple unknown RFID-cards detected. Please scan one card at a time.'))
                 return redirect('personal_tab:pos_logout')
 
 
@@ -113,7 +121,7 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
             # Create new registration token
             context['token'] = PendingPosToken.objects.create(type=PendingPosToken.TokenTypes.REGISTRATION)
         else:
-            raise ValueError(_("Invalid token type requested."))
+            raise ValueError(_l("Invalid token type requested."))
         return context
 
     def get(self, request, *args, **kwargs):
@@ -121,7 +129,7 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
 
         # If type is invalid, raise an error
         if qr_type is None or qr_type not in ['login', 'register']:
-            raise ValueError(_("Invalid token type requested!"))
+            raise ValueError(_l("Invalid token type requested!"))
 
         # If someone was logged in, he's not any more!
         if 'POS_LOGIN_UID' in self.request.session:
@@ -151,23 +159,23 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
 
             # Check the RFID card that was scanned if it can be registered
             if 'POS_REGISTER_TAG_ID' not in request.session:
-                messages.error(request, _("No card was scanned, please try again."))
+                messages.error(request, _l("No card was scanned, please try again."))
                 return redirect('personal_tab:pos_logout')
 
             # Extract card ID and remove from session
             rfid_card = request.session['POS_REGISTER_TAG_ID']
             del request.session['POS_REGISTER_TAG_ID']
             if not rfid_card:
-                messages.error(request, _("Something went wrong while scanning the RFID card. Please try again."))
+                messages.error(request, _l("Something went wrong while scanning the RFID card. Please try again."))
                 return redirect('personal_tab:pos_logout')
 
             # Check if card is already registered
             try:
                 rfid_card_obj = RFIDCard.objects.get(code=rfid_card)
                 if rfid_card_obj.active:
-                    messages.error(request, _("This card is already registered."))
+                    messages.error(request, _l("This card is already registered."))
                 else:
-                    messages.error(request, _("This card has already been registered, "
+                    messages.error(request, _l("This card has already been registered, "
                                               "but has not been activated on the website. "
                                               "Please contact the board."))
                 return redirect('personal_tab:pos_logout')
@@ -187,11 +195,11 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
                 # User has just logged in, check if user has a Person object and is allowed to do stuff.
                 # If the user is allowed to do stuff, do the action that the pending token indicates (register/login).
                 if not pending_token.user.is_active:
-                    messages.error(request, _("This user is inactive. Please contact the board."))
+                    messages.error(request, _l("This user is inactive. Please contact the board."))
                     return redirect('personal_tab:pos_logout')
 
                 if not hasattr(pending_token.user, 'person'):
-                    messages.error(request, _("You are (not yet/ no longer) a member of Inter-Actief. "
+                    messages.error(request, _l("You are (not yet/ no longer) a member of Inter-Actief. "
                                               "Ask the board for a membership form."))
                     return redirect('personal_tab:pos_logout')
 
@@ -203,7 +211,7 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
                 elif pending_token.type == PendingPosToken.TokenTypes.REGISTRATION:
                     # User is OK to register card! Register card to person and return to the main screen.
                     RFIDCard(person=pending_token.user.person, code=rfid_card, active=True).save()
-                    messages.success(request, _("Card successfully registered. Please scan the card again to log in."))
+                    messages.success(request, _l("Card successfully registered. Please scan the card again to log in."))
                     return redirect('personal_tab:pos_logout')
             elif pending_token is not None:
                 # Unused token, delete it anyway, we will create a new one in the get_context_data for safety reasons.
@@ -225,7 +233,7 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
             # Save registration token and RFID card tag to session
             self.request.session['POS_REGISTRATION_TOKEN'] = str(context['token'].token)
         else:
-            raise ValueError(_("Invalid token type requested."))
+            raise ValueError(_l("Invalid token type requested."))
 
         return super(PosGenerateQRView, self).render_to_response(context, **response_kwargs)
 
@@ -236,7 +244,7 @@ class PosVerifyTokenView(TemplateView):
     def render_to_response(self, context, **response_kwargs):
         uuid = self.kwargs.get('uuid', None)
         if uuid is None:
-            context['message'] = _("Invalid login token, please try again!")
+            context['message'] = _l("Invalid login token, please try again!")
             context['success'] = False
 
         # If no user is logged in, redirect to login and then back here.
@@ -249,28 +257,28 @@ class PosVerifyTokenView(TemplateView):
         try:
             pending_login = PendingPosToken.objects.get(token=uuid)
         except PendingPosToken.DoesNotExist:
-            context['message'] = _("Invalid token, please try again!")
+            context['message'] = _l("Invalid token, please try again!")
             context['success'] = False
         except ValidationError:
-            context['message'] = _("Invalid token, please try again!")
+            context['message'] = _l("Invalid token, please try again!")
             context['success'] = False
 
         if pending_login is not None and pending_login.user is not None:
-            context['message'] = _("This token was already used before, please try again!")
+            context['message'] = _l("This token was already used before, please try again!")
             context['success'] = False
         elif pending_login is not None:
             pending_login.user = self.request.user
             pending_login.save()
             if pending_login.type == PendingPosToken.TokenTypes.LOGIN:
-                context['message'] = _("Cookie Corner login verified successfully!")
+                context['message'] = _l("Cookie Corner login verified successfully!")
             elif pending_login.type == PendingPosToken.TokenTypes.REGISTRATION:
-                context['message'] = _("New card registration verified successfully!")
+                context['message'] = _l("New card registration verified successfully!")
             else:
-                context['message'] = _("Unknown token verified successfully!")
+                context['message'] = _l("Unknown token verified successfully!")
             context['success'] = True
 
         if 'message' not in context:
-            context['message'] = _("An unknown error occurred, please try again!")
+            context['message'] = _l("An unknown error occurred, please try again!")
             context['success'] = False
 
         return super(PosVerifyTokenView, self).render_to_response(context, **response_kwargs)
@@ -282,7 +290,7 @@ class PosCheckLoginAjaxView(RequireCookieCornerMixin, View):
             pending_login = PendingPosToken.objects.get(token=uuid)
         except PendingPosToken.DoesNotExist:
             return HttpJSONResponse({
-                'message': str(gettext("The login code is invalid or expired, please try again!.")),
+                'message': str(_("The login code is invalid or expired, please try again!.")),
                 'status': False,
                 'error': True,
             })
@@ -325,9 +333,9 @@ class PosLogoutView(RequireCookieCornerMixin, View):
         msg_preset = self.request.GET.get("msg_preset", None)
         if msg_preset is not None:
             if msg_preset == "timeout":
-                messages.info(request, _("Session timed out. You were logged out."))
+                messages.info(request, _l("Session timed out. You were logged out."))
             elif msg_preset == "cancelled":
-                messages.info(request, _("Purchase cancelled. You are now logged out."))
+                messages.info(request, _l("Purchase cancelled. You are now logged out."))
 
         # Redirect to the home page
         return redirect('personal_tab:pos_index')
@@ -387,11 +395,11 @@ class PosShopView(RequireCookieCornerMixin, TemplateView):
             del request.session['POS_LOGIN_UID']
 
         if person is None:
-            messages.error(request, _("No user was logged in. No products were purchased, please try again."))
+            messages.error(request, _l("No user was logged in. No products were purchased, please try again."))
             return redirect("personal_tab:pos_logout")
 
         if 'cart' not in request.POST:
-            messages.error(request, _("Invalid shopping cart. No products are bought. Please try again. (error 1)"))
+            messages.error(request, _l("Invalid shopping cart. No products are bought. Please try again. (error 1)"))
             return redirect("personal_tab:pos_logout")
 
         cart = json.loads(request.POST['cart'])
@@ -404,22 +412,22 @@ class PosShopView(RequireCookieCornerMixin, TemplateView):
         action_processed = False
 
         if not cart:
-            messages.error(request, _("No products were selected. Please try again."))
+            messages.error(request, _l("No products were selected. Please try again."))
             return redirect("personal_tab:pos_logout")
 
         for i in cart:
             if 'product' not in i or 'amount' not in i:
-                messages.error(request, _("Invalid shopping cart. No products are bought. Please try again. (error 2)"))
+                messages.error(request, _l("Invalid shopping cart. No products are bought. Please try again. (error 2)"))
                 return redirect("personal_tab:pos_logout")
 
             try:
                 item = Article.objects.get(id=i['product'])
             except Article.DoesNotExist:
-                messages.error(request, _("Invalid shopping cart. No products are bought. Please try again. (error 3)"))
+                messages.error(request, _l("Invalid shopping cart. No products are bought. Please try again. (error 3)"))
                 return redirect("personal_tab:pos_logout")
 
             if not item.is_available:
-                messages.error(request, _("Invalid shopping cart. No products are bought. Please try again. (error 4)"))
+                messages.error(request, _l("Invalid shopping cart. No products are bought. Please try again. (error 4)"))
                 return redirect("personal_tab:pos_logout")
 
             amount = i['amount']
@@ -445,7 +453,7 @@ class PosShopView(RequireCookieCornerMixin, TemplateView):
         has_discount = reduce(lambda x, y: x or y, [bool(t['discount']) for t in transactions])
 
         return render(request, 'pos/success.html', {
-            'success_text': _('Purchase registered!'),
+            'success_text': _l('Purchase registered!'),
             'transactions': transactions,
             'discount': has_discount,
             'free_cookie_winner': free_cookie_winner,
@@ -464,7 +472,7 @@ class PosShopView(RequireCookieCornerMixin, TemplateView):
 
         if 'pos_person' not in context:
             # No person was detected, redirect to login screen
-            messages.error(self.request, _("You have been logged out. No purchase was made. Please try again"))
+            messages.error(self.request, _l("You have been logged out. No purchase was made. Please try again"))
             return redirect("personal_tab:pos_logout")
 
         # Keep the user logged in
@@ -496,19 +504,19 @@ class PosRegisterExternalCardView(RequireCookieCornerMixin, FormView):
             rfid_person = Person.objects.get(id=form.cleaned_data['person'])
         except Person.DoesNotExist:
             # ERROR: Person does not exist
-            messages.error(self.request, _("Selected user does not exist, please try again."))
+            messages.error(self.request, _l("Selected user does not exist, please try again."))
             return redirect("personal_tab:pos_logout")
 
         user = rfid_person.user
 
         if user is None or user.is_active is False:
             # ERROR: User does not exist or is inactive
-            messages.error(self.request, _("This person is (not) a member of Inter-Actief (anymore)."))
+            messages.error(self.request, _l("This person is (not) a member of Inter-Actief (anymore)."))
             return redirect("personal_tab:pos_logout")
 
         if not hasattr(user, 'person'):
             # ERROR: User is no member of IA (any more)
-            messages.error(self.request, _("This person is (not) a member of Inter-Actief (anymore)."))
+            messages.error(self.request, _l("This person is (not) a member of Inter-Actief (anymore)."))
             return redirect("personal_tab:pos_logout")
 
         # Go to the card scan step
@@ -530,11 +538,11 @@ class PosRegisterExternalCardView(RequireCookieCornerMixin, FormView):
 
         if 'pos_person' not in context:
             # No person was detected, redirect to login screen
-            messages.error(request, _("You have been logged out. No purchase was made. Please try again"))
+            messages.error(request, _l("You have been logged out. No purchase was made. Please try again"))
             return redirect("personal_tab:pos_logout")
 
         if not context['pos_person'].is_board() and not context['pos_person'].user.is_superuser:
-            messages.error(request, _('You are not a board member of Inter-Actief. '
+            messages.error(request, _l('You are not a board member of Inter-Actief. '
                                          'Ask the board to register your card.'))
             return redirect("personal_tab:pos_logout")
 
@@ -557,14 +565,14 @@ class PosScanExternalCardView(RequireCookieCornerMixin, TemplateView):
 
         if 'POS_LOGIN_UID' not in request.session:
             # No person was detected, redirect to login screen
-            messages.error(request, _("You have been logged out. No card was registered. Please try again"))
+            messages.error(request, _l("You have been logged out. No card was registered. Please try again"))
             return redirect("personal_tab:pos_logout")
 
         return self.render_to_response({})
 
     def post(self, request):
         if 'tags' not in request.POST:
-            messages.error(request, _("Something went wrong, please try again later."))
+            messages.error(request, _l("Something went wrong, please try again later."))
             return redirect('personal_tab:pos_logout')
 
         # Get person
@@ -575,28 +583,28 @@ class PosScanExternalCardView(RequireCookieCornerMixin, TemplateView):
             del self.request.session['POS_RFID_PERSON_ID']
 
         if not person:
-            messages.error(request, _('Something went wrong, please try again later.'))
+            messages.error(request, _l('Something went wrong, please try again later.'))
             return redirect('personal_tab:pos_logout')
 
         tags = json.loads(request.POST['tags'])
 
         if not tags:
-            messages.error(request, _('No cards were scanned, please try again.'))
+            messages.error(request, _l('No cards were scanned, please try again.'))
             return redirect('personal_tab:pos_logout')
 
         people = [r.person for r in RFIDCard.objects.filter(code__in=tags, active=True)]
 
         if people:
             # Card is already registered to one or more people
-            messages.error(request, _('This card is already registered.'))
+            messages.error(request, _l('This card is already registered.'))
             return redirect('personal_tab:pos_logout')
         else:
             if len(tags) == 1:
                 # User is OK to register card! Register card to person and return to the main screen.
                 RFIDCard(person=person, code=tags[0], active=True).save()
-                messages.success(request, _("Card successfully registered. You have been logged out."))
+                messages.success(request, _l("Card successfully registered. You have been logged out."))
                 return redirect('personal_tab:pos_logout')
 
             else:
-                messages.error(request, _('Multiple unknown RFID-cards detected. Please scan one card at a time. You have been logged out.'))
+                messages.error(request, _l('Multiple unknown RFID-cards detected. Please scan one card at a time. You have been logged out.'))
                 return redirect('personal_tab:pos_logout')

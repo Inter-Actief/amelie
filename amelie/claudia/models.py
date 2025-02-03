@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.core.validators import EmailValidator
 from django.db import models
 from django.db.models.signals import post_save, post_delete
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import strip_domains, unify_mail, verify_instance, \
@@ -29,11 +29,13 @@ class ExtraGroup(models.Model, Mappable):
     adname = models.CharField(max_length=50, blank=True)
     dogroup = models.BooleanField(default=False)
     description = models.TextField(blank=True)
+    gitlab = models.BooleanField(default=False, verbose_name=_l('Create GitLab group'),
+                                 help_text=_l('Members of this group get access to GitLab'))
 
     def clean(self):
         super(ExtraGroup, self).clean()
         if self.email and not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
-            raise ValidationError({'email': _(
+            raise ValidationError({'email': _l(
                 'If an email address for an extra group is set, then it may only point to an Inter-Actief server.'
             )})
 
@@ -43,7 +45,7 @@ class ExtraGroup(models.Model, Mappable):
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or \
                 Mapping.objects.get(email=self.email).get_mapped_object() != self:
-                raise ValidationError({'email': _(
+                raise ValidationError({'email': _l(
                     'This email address is already in use by another mapping!'
                 )})
 
@@ -69,6 +71,12 @@ class ExtraGroup(models.Model, Mappable):
 
     def get_absolute_url(self):
         return reverse('claudia:extragroup_view', args=(), kwargs={'pk': self.id})
+
+    def get_extra_data(self):
+        """Get extra data of this group"""
+        return {
+            'gitlab': self.gitlab,
+        }
 
     def __str__(self):
         return self.name
@@ -139,7 +147,7 @@ class ExtraPerson(models.Model, Mappable):
     def clean(self):
         super(ExtraPerson, self).clean()
         if self.email and not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
-            raise ValidationError({'email': _(
+            raise ValidationError({'email': _l(
                 'If an extra person has an email than the email address may only point to an Inter-Actief server.'
             )})
 
@@ -149,7 +157,7 @@ class ExtraPerson(models.Model, Mappable):
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or \
                 Mapping.objects.get(email=self.email).get_mapped_object() != self:
-                raise ValidationError({'email': _(
+                raise ValidationError({'email': _l(
                     'This email address is already in use by another mapping!'
                 )})
 
@@ -166,7 +174,7 @@ class AliasGroup(models.Model, Mappable):
     active = models.BooleanField(default=False)
     email = models.EmailField(unique=True, blank=True)
     description = models.TextField(blank=True)
-    open_to_signup = models.BooleanField(default=False, verbose_name=_("Open to sign up for members"), help_text=_("Note: Description becomes public"))
+    open_to_signup = models.BooleanField(default=False, verbose_name=_l("Open to sign up for members"), help_text=_l("Note: Description becomes public"))
 
     def is_active(self):
         """Is this member an active member?"""
@@ -186,7 +194,7 @@ class AliasGroup(models.Model, Mappable):
     def clean(self):
         super(AliasGroup, self).clean()
         if not any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
-            raise ValidationError({'email': _(
+            raise ValidationError({'email': _l(
                 'An alias group may only point to an Inter-Actief server.'
             )})
 
@@ -196,7 +204,7 @@ class AliasGroup(models.Model, Mappable):
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or \
                 Mapping.objects.get(email=self.email).get_mapped_object() != self:
-                raise ValidationError({'email': _(
+                raise ValidationError({'email': _l(
                     'This email address is already in use by another mapping!'
                 )})
 
@@ -222,7 +230,7 @@ class Contact(models.Model, Mappable):
 
     def clean(self):
         if self.email and any(self.email.endswith(domain) for domain in settings.IA_MAIL_DOMAIN):
-            raise ValidationError({'email': _('A contact address is not to point to an Inter-Actief server.')})
+            raise ValidationError({'email': _l('A contact address is not to point to an Inter-Actief server.')})
 
         # Check if the email address is already in use!
         if self.email and Mapping.objects.filter(email=self.email).exists():
@@ -230,7 +238,7 @@ class Contact(models.Model, Mappable):
             # Already in use, if it's us, then it's fine
             if len(Mapping.objects.filter(email=self.email)) > 1 or Mapping.objects.get(
                 email=self.email).get_mapped_object() != self:
-                raise ValidationError({'email': _(
+                raise ValidationError({'email': _l(
                     'This email address is already in use by another mapping!'
                 )})
 
@@ -605,7 +613,7 @@ post_delete.connect(verify_instance_attr, Membership)
 
 
 class ExtraPersonalAliasEmailValidator(EmailValidator):
-    message = _("E-mail address domain part must be one of {}".format(settings.CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS']))
+    message = _l("E-mail address domain part must be one of {}".format(settings.CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS']))
     domain_allowlist = settings.CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS']
 
     def validate_domain_part(self, domain_part):

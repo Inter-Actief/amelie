@@ -2,6 +2,7 @@ from django.http import HttpResponseNotAllowed
 from django.template import loader
 from django.utils import translation
 from django.utils.deprecation import MiddlewareMixin
+from django.conf import settings
 
 
 class HttpResponseNotAllowedMiddleware(MiddlewareMixin):
@@ -19,19 +20,22 @@ class HttpResponseNotAllowedMiddleware(MiddlewareMixin):
         return response
 
 
-class PersonMiddleware(MiddlewareMixin):
+class GlobalIAVariablesMiddleware(MiddlewareMixin):
     """
     Ties handy functions to the request.
+    This class is designated for passing global Inter-Actief vairables to the frontend.
     """
 
     # noinspection PyMethodMayBeStatic
     def process_request(self, request):
+        request.book_sales_url = settings.BOOK_SALES_URL
+
         user = request.user
         if hasattr(user, 'person'):
             request.person = request.user.person
             request.is_board = request.user.is_superuser or request.person.is_board()
             request.is_education_committee = request.is_board or request.person.is_education_committee()
 
-            if not request.session.get(translation.LANGUAGE_SESSION_KEY, False):
+            if not request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, False):
                 preferred_language = request.person.preferred_language
                 translation.activate(preferred_language)

@@ -4,14 +4,14 @@ from difflib import unified_diff
 from auditlog.models import LogEntry
 from django import template
 from django.utils.encoding import smart_str
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 register = template.Library()
 
 
 @register.filter()
 def action_string(obj):
-    return _(LogEntry.Action.choices[obj.action][1])
+    return _l(LogEntry.Action.choices[obj.action][1])
 
 
 @register.filter()
@@ -41,7 +41,7 @@ def get_url(obj):
 @register.filter()
 def diff_string(obj):
     if obj.action == 2:  # deleted
-        return '<p>{}</p>'.format(_("This object has been removed."))
+        return '<p>{}</p>'.format(_l("This object has been removed."))
     changes = json.loads(obj.changes)
     changes_concat = []
     for i, field in enumerate(sorted(changes), 1):
@@ -58,7 +58,7 @@ def diff_string(obj):
 @register.filter()
 def changes_list(obj):
     if obj.action == 2:  # deleted
-        return '<p>{}</p>'.format(_("This object has been removed."))
+        return '<p>{}</p>'.format(_l("This object has been removed."))
 
     changes = obj.changes_dict
     append = ""
@@ -69,7 +69,7 @@ def changes_list(obj):
 
     if len(changes) > changes_to_show:
         more_changes = len(changes) - changes_to_show
-        append = "<p>{}</p>".format(_("And {} other changes".format(more_changes)))
+        append = "<p>{}</p>".format(_l("And {} other changes".format(more_changes)))
         changes = changes[:changes_to_show]
 
     separator = smart_str(' \u2192 ')

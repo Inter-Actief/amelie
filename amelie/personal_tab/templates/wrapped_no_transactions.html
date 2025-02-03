@@ -21,6 +21,20 @@
           No transactions found
         {% endblocktrans %}
       </b>
+
+      {% if transaction_years %}
+      <p>
+          {% trans 'Look back on a different year?' %}&nbsp;
+          {% for tyear in transaction_years %}
+              {% if forloop.counter0 != 0 %}<span> - </span>{% endif %}
+              {% if year == tyear %}
+                  <b>{{ tyear }}</b>
+              {% else %}
+                  <a href="{% url 'personal_tab:cookie_corner_wrapped_year' year=tyear %}">{{ tyear }}</a>
+              {% endif %}
+          {% endfor %}
+      </p>
+      {% endif %}
     </div>
   </div></div>
 {% endblock content %}

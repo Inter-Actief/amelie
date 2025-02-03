@@ -9,12 +9,12 @@ from django.forms import BoundField
 from django.template.utils import get_app_template_dirs
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.style.forms import inject_style
 from amelie.members.models import LANGUAGE_CHOICES
 from amelie.tools.models import DataExportInformation
-from amelie.tools.widgets import DateTimeSelector
+from amelie.tools.widgets import DateTimeSelector, DateSelector
 
 
 def attach_hidden(form):
@@ -32,8 +32,8 @@ def attach_hidden(form):
 
 
 class PeriodForm(forms.Form):
-    from_date = forms.DateField(label='Begin date:', initial=timezone.now().date() - timedelta(days=365))
-    to_date = forms.DateField(label='End date:', initial=timezone.now().date())
+    from_date = forms.DateField(label='Begin date:', initial=timezone.now().date() - timedelta(days=365), widget=DateSelector)
+    to_date = forms.DateField(label='End date:', initial=timezone.now().date(), widget=DateSelector)
 
     def __init__(self, *args, **kwargs):
         if 'to_date_required' in kwargs:
@@ -49,6 +49,31 @@ class PeriodForm(forms.Form):
 
 inject_style(PeriodForm)
 
+class PeriodKeywordForm(forms.Form):
+    keywords = forms.CharField(max_length=20, label=_l('Keywords'))
+    from_date = forms.DateField(label=_l('Begin date:'), initial=timezone.now().date() - timedelta(days=365), widget=DateSelector)
+    to_date = forms.DateField(label=_l('End date:'), initial=timezone.now().date(), widget=DateSelector)
+
+    def __init__(self, *args, **kwargs):
+        if 'to_date_required' in kwargs:
+            to_date_required = kwargs['to_date_required']
+            del kwargs['to_date_required']
+        else:
+            to_date_required = True
+
+        if 'keywords_required' in kwargs:
+            keywords_required = kwargs['keywords_required']
+            del kwargs['keywords_required']
+        else:
+            keywords_required = True
+
+        super(PeriodKeywordForm, self).__init__(*args, **kwargs)
+
+        self.fields["to_date"].required = to_date_required
+        self.fields["keywords"].required = keywords_required
+
+
+inject_style(PeriodKeywordForm)
 
 class PeriodTimeForm(forms.Form):
     datetime_from = forms.SplitDateTimeField(label='Begin:', initial=timezone.now() - timedelta(days=365), widget=DateTimeSelector)
@@ -104,12 +129,12 @@ def _mail_templates():
 
 class MailTemplateTestForm(forms.Form):
     class Formats(TextChoices):
-        HTML = 'html', _("HTML")
-        PLAIN = 'plain', _("Plain text")
+        HTML = 'html', _l("HTML")
+        PLAIN = 'plain', _l("Plain text")
 
-    template = forms.ChoiceField(label=_('Template'), choices=_mail_templates())
-    language = forms.ChoiceField(label=_('Language'), choices=LANGUAGE_CHOICES, initial='nl')
-    format = forms.ChoiceField(label=_('Template'), choices=Formats.choices)
+    template = forms.ChoiceField(label=_l('Template'), choices=_mail_templates())
+    language = forms.ChoiceField(label=_l('Language'), choices=LANGUAGE_CHOICES, initial='nl')
+    format = forms.ChoiceField(label=_l('Template'), choices=Formats.choices)
 
 
 class ExportTypeSelectForm(forms.Form):
@@ -123,14 +148,14 @@ class ExportTypeSelectForm(forms.Form):
             required=False,
             widget=forms.Select(),
             initial="",
-            label=_("Only show exports of this type")
+            label=_l("Only show exports of this type")
         )
 
 
 class ExportForm(forms.Form):
     export_type = forms.CharField(max_length=100, required=False, widget=widgets.HiddenInput())
     export_details = forms.CharField(max_length=512, required=False, widget=widgets.HiddenInput())
-    reason = forms.CharField(max_length=512, label=_('Reason for export'), widget=widgets.Textarea(attrs={'rows': 3}))
+    reason = forms.CharField(max_length=512, label=_l('Reason for export'), widget=widgets.Textarea(attrs={'rows': 3}))
 
     def __init__(self, *args, rows=None, **kwargs):
         super(ExportForm, self).__init__(*args, **kwargs)
@@ -154,7 +179,7 @@ class ExportForm(forms.Form):
         elif 'activity_export_print' in self.data:
             cleaned_data['export_type'] = 'activity_export_print'
         else:
-            raise forms.ValidationError(_("Unknown data export type."))
+            raise forms.ValidationError(_l("Unknown data export type."))
 
         return cleaned_data
 
@@ -175,3 +200,23 @@ class ExportForm(forms.Form):
 
 
 inject_style(MailTemplateTestForm, ExportTypeSelectForm, ExportForm)
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    # From https://docs.djangoproject.com/en/3.2/topics/http/file-uploads/#uploading-multiple-files
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    # From https://docs.djangoproject.com/en/3.2/topics/http/file-uploads/#uploading-multiple-files
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result

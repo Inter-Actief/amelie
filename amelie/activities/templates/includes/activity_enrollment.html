@@ -2,48 +2,65 @@
 
 {% if obj.enrollment_open and not obj.oauth_application %}
     {% if not obj.enrollment_full %}
+
         <p>
+            {% if request.person %}
+                {# Begin of logged in user #}
+                {% if obj.places_available == None %}
+                    {# Display how many people signed up. #}
+                    {% if obj.participants %}
+                        {% blocktrans count sign_ups=obj.confirmed_participants.count %}
+                            1 person signed up.
+                        {% plural %}
+                            {{ sign_ups }} people signed up.
+                        {% endblocktrans %}
+                    {% endif %}
+                {% else %}
+                    {# Display how many people signed up. #}
+                    {% if obj.participants %}
+                        {% blocktrans with sign_ups=obj.confirmed_participants.count places=obj.maximum %}
+                            {{ sign_ups }}/{{ places }} people signed up.
+                        {%  endblocktrans %}
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {# Begin of guest user, don't display sign-up numbers #}
+                {% if obj.places_available == 1 %}
+                    {% blocktrans  %}
+                        For this activity, there is one place left.
+                    {% endblocktrans %}
+                {% elif obj.places_available > 1 and obj.places_available <= 10 %}
+                    {% blocktrans with places=obj.places_available %}
+                        For this activity, there are {{ places }} places left.
+                    {% endblocktrans %}
+                {% else %}
+                    {% blocktrans %}
+                        For this activity, there are still places left.
+                    {% endblocktrans %}
+                {% endif %}
+            {% endif %}
+
             {% if obj.places_available == None %}
+                {# Some shared text between logged in and logged out #}
                 {% blocktrans %}
-                    For this activity there is no maximum number of participants
-                {% endblocktrans %}
-                {% if  obj.price != 0.00 %}
+                    For this activity there is no maximum number of participants.
+                {%  endblocktrans %}
+                {% if obj.price != 0.00 %}
                     {% blocktrans %}
                         If you want to be at this activity, you need to enroll.
                     {% endblocktrans %}
                 {% endif %}
             {% else %}
-                {% if request.person %}
-                    {% blocktrans count places=obj.places_available %}
-                       For this activity, there is one place left.
-                    {% plural %}
-                       For this activity there are {{ places }} places left.
-                    {% endblocktrans %}
-                {% else %}
-                    {% if obj.places_available == 1 %}
-                        {% blocktrans  %}
-                            For this activity, there is one place left.
-                        {% endblocktrans %}
-                    {% elif obj.places_available > 1 and obj.places_available <= 10 %}
-                        {% blocktrans with places=obj.places_available %}
-                            For this activity, there are {{ places }} places left.
-                        {% endblocktrans %}
-                    {% else %}
-                        {% blocktrans %}
-                            For this activity, there are still places left.
-                        {% endblocktrans %}
-                    {% endif %}
-                {%  endif %}
                 {% blocktrans %}
                     If you want to be at this activity, you need to enroll.
                 {% endblocktrans %}
             {% endif %}
-                {% blocktrans with enddate=obj.enrollment_end|date:"d F Y" endtime=obj.enrollment_end|date:"H:i" %}
-                     You can enroll for this activity until {{ enddate }} at {{ endtime }}.
-                {% endblocktrans %}
 
+            {% blocktrans with enddate=obj.enrollment_end|date:"d F Y" endtime=obj.enrollment_end|date:"H:i" %}
+                   You can enroll for this activity until {{ enddate }} at {{ endtime }}.
+            {% endblocktrans %}
         </p>
-    {% elif not request.person %}
+    {% else %}
         <p>
             {% blocktrans %}
                 The maximum number of participants for this activity has been reached.
@@ -53,26 +70,43 @@
 
     {% if request.person %}
         {% if request.person in obj.participants.all %}
-            <p class="icon pos">
-                {% if not participation.enrollmentoptionanswer_set.all %}
-                    {% if request.person in obj.confirmed_participants.all %}
-                        {% trans 'You have enrolled yourself for this event.' %}
-                    {% else %}
-                        {% trans 'You are enrolled on the waiting list for this event.' %}
-                    {% endif %}
-                {% else %}
+
+            {% if activity.enrollmentoption_set.all %}
+                {# there are enrollment options, display what they have registered for. #}
+                <p class="icon pos">
                     {% if request.person in obj.waiting_participants.all %}
                         {% trans 'You are on the waiting list for this event with the following options:' %}
                     {% else %}
                         {% trans 'You have enrolled for this event with the following options:' %}
                     {% endif %}
-                            <ul>
-                                {% for answer in participation.enrollmentoptionanswer_set.all %}
-                                        <li>{{ answer.enrollmentoption.title }}: {{ answer.display_answer }}</li>
-                                {% endfor %}
-                            </ul>
-                {% endif %}
-            </p>
+                </p>
+
+                <ul>
+                    {% for answer in participation.enrollmentoptionanswer_set.all %}
+                        {% if answer.is_empty %}
+                            {# Hasn't enrolled for these #}
+                            <li class="icon neg">
+                                {% blocktrans with title=answer.enrollmentoption.title %}
+                                    {{ title }}: You have not enrolled for this option
+                                {% endblocktrans %}
+                            </li>
+                        {% else %}
+                            {# Has enrolled for these #}
+                            <li class="icon pos">{{ answer.enrollmentoption.title }}: {{ answer.display_answer }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+            {% else %}
+                {# there are no enrollment options #}
+                <p class="icon pos">
+                    {% if request.person in obj.confirmed_participants.all %}
+                        {% trans 'You have enrolled yourself for this event.' %}
+                    {% else %}
+                        {% trans 'You are enrolled on the waiting list for this event.' %}
+                    {% endif %}
+                </p>
+            {% endif %}
 
             {% if request.person in obj.waiting_participants.all %}
                 <p class="icon icon-information">{% trans 'Your spot on the waiting list is' %}: {{ number_on_waiting_list }}</p>

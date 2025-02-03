@@ -1,9 +1,12 @@
 from datetime import date
 
 import re
+
+from django.conf import settings
+from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template.defaultfilters import slugify
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
@@ -14,7 +17,7 @@ from amelie.members.models import Payment, Committee, Function, Membership, Empl
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
-from amelie.tools.decorators import require_ajax, require_board, require_actief
+from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):
@@ -111,7 +114,7 @@ def person_study_new(request, id):
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_payments(request, id, membership):
     obj = get_object_or_404(Person, id=id)
     membership = get_object_or_404(Membership, id=membership)
@@ -133,14 +136,14 @@ def person_payments(request, id, membership):
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership(request, id, option=None):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_membership.html", locals())
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_new(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
@@ -159,7 +162,7 @@ def person_membership_new(request, id):
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_end(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
@@ -176,14 +179,14 @@ def person_membership_end(request, id):
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate(request, id):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_mandate.html", locals())
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_new(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
@@ -203,7 +206,7 @@ def person_mandate_new(request, id):
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_activate(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
     mandate = get_object_or_404(Authorization, id=mandate, person=obj,
@@ -218,10 +221,14 @@ def person_mandate_activate(request, id, mandate):
 
 
 @require_ajax
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_end(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
     mandate = get_object_or_404(Authorization, id=mandate)
+    if mandate.end_date:
+        # Mandate is already terminated, do nothing and just give back the mandate details
+        # This prevents 'double termination', which would overwrite the original end date of the mandate.
+        return render(request, "person_mandate.html", locals())
     if request.method == "POST":
         form = MandateEndForm(request.POST, instance=mandate)
         if form.is_valid():

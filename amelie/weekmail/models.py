@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.db import models
 from django.utils.translation import get_language
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.calendar.models import Event
 from amelie.news.models import NewsItem
@@ -52,15 +52,16 @@ class WeekMail(models.Model):
     A complete week mail can be generated from this class.
     """
     class StatusOptions(models.TextChoices):
-        UNSENT = 'N', _('Not yet sent'),  # Not yet sent
-        SENDING = 'U', _('Currently sending'),  # Outgoing
-        SENT = 'V', _('Sent'),  # Sent
-        ERROR = 'E', _('Error during sending')  # Error
+        UNSENT = 'N', _l('Not yet sent'),  # Not yet sent
+        SENDING = 'U', _l('Currently sending'),  # Outgoing
+        SENT = 'V', _l('Sent'),  # Sent
+        ERROR = 'E', _l('Error during sending')  # Error
 
     class MailTypes(models.TextChoices):
-        WEEKMAIL = 'W', _("Weekly mail")
-        MASTERMAIL = 'M', _("Mastermail")
-        EDUCATION_MAIL = 'E', _("Educational mail")
+        WEEKMAIL = 'W', _l("Weekly mail")
+        MASTERMAIL = 'M', _l("Mastermail")
+        EDUCATION_MAIL = 'E', _l("Educational mail")
+        ACTIVE_MEMBERS_MAIL = 'A', _l("Active members mail")
 
     published = models.BooleanField(default=False)
     """
@@ -80,9 +81,9 @@ class WeekMail(models.Model):
     """
     The list of activities in this week mail
     """
-    new_activities = models.ManyToManyField(Event, verbose_name=_("new events"), related_name="new_activities", blank=True)
+    new_activities = models.ManyToManyField(Event, verbose_name=_l("new events"), related_name="new_activities", blank=True)
 
-    news_articles = models.ManyToManyField(NewsItem, verbose_name=_("news articles"), blank=True)
+    news_articles = models.ManyToManyField(NewsItem, verbose_name=_l("news articles"), blank=True)
     """
     The list of news articles in this week mail
     """
@@ -97,7 +98,7 @@ class WeekMail(models.Model):
     The writer of this week mail
     """
 
-    mailtype = models.CharField(verbose_name=_("Type of mailing"), max_length=1, choices=MailTypes.choices,
+    mailtype = models.CharField(verbose_name=_l("Type of mailing"), max_length=1, choices=MailTypes.choices,
                                 default=MailTypes.WEEKMAIL)
     """
     Type of this mailing, normal week mail or master mail

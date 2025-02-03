@@ -49,6 +49,7 @@
             </div>
         </div></div>
 
+        {% if request.is_board %}
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
             <h2 class="expand" data-target="person_functions">{% trans 'Committees' %}</h2>
             <div class="content">
@@ -57,7 +58,9 @@
               </div>
             </div>
         </div></div>
+        {% endif %}
 
+        {% if request.is_board %}
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
             <h2 class="expand" data-target="person_preferences">{% trans 'Preferences' %}</h2>
             <div class="content">
@@ -66,7 +69,20 @@
               </div>
             </div>
         </div></div>
+        {% endif %}
 
+        {% if request.user.is_superuser %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+            <h2 class="expand" data-target="person_accounts">{% trans 'User accounts and login providers' %}</h2>
+            <div class="content">
+              <div id="person_accounts" hidden>
+                  {% include "person_accounts.html" %}
+              </div>
+            </div>
+        </div></div>
+        {% endif %}
+
+        {% if request.is_board %}
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12i"><div class="ia">
             <h2 class="expand" data-target="person_anonymize">{% trans 'Anonymize person' %}</h2>
             <div class="content">
@@ -88,5 +104,6 @@
               </div>
             </div>
         </div></div>
+        {% endif %}
     </div>
 {% endblock content %}

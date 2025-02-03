@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.timezone import make_aware
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from django.views.generic import ListView, DetailView, DeleteView, UpdateView, CreateView
 from googleapiclient.errors import Error as googleapiclient_Error
 from oauth2client.client import Error as oauth2client_Error
@@ -208,7 +208,7 @@ class YoutubeVideoCreate(RequireCommitteeMixin, CreateView):
             import sentry_sdk
             sentry_sdk.capture_exception(e)
 
-            messages.error(request, _("Could not connect to Youtube! "
+            messages.error(request, _l("Could not connect to Youtube! "
                                       "Please contact the WWW committee if this problem persists."))
             return redirect("videos:list_videos")
 
@@ -268,7 +268,7 @@ class StreamingVideoCreate(RequireCommitteeMixin, CreateView):
             import sentry_sdk
             sentry_sdk.capture_exception(e)
 
-            messages.error(request, _("Could not connect to Streaming.IA! "
+            messages.error(request, _l("Could not connect to Streaming.IA! "
                                       "Please contact the WWW committee if this problem persists."))
             return redirect("videos:list_videos")
 

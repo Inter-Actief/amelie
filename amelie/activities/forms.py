@@ -2,11 +2,11 @@ from datetime import timedelta
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from pathlib import Path
+
+from django.core.validators import FileExtensionValidator
 from django.forms import widgets, SplitDateTimeField
 from django.utils import formats, timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.activities.models import Activity, EnrollmentoptionQuestion, \
     EnrollmentoptionCheckbox, EnrollmentoptionCheckboxAnswer, \
@@ -15,6 +15,7 @@ from amelie.activities.models import Activity, EnrollmentoptionQuestion, \
 from amelie.style.forms import inject_style
 from amelie.calendar.models import Participation
 from amelie.members.models import Person, Committee
+from amelie.tools.forms import MultipleFileField
 from amelie.tools.widgets import DateTimeSelector, DateTimeSelectorWithToday
 
 
@@ -25,7 +26,7 @@ class PaymentForm(forms.Form):
             (Participation.PaymentMethodChoices.CASH.value,
              Participation.PaymentMethodChoices.CASH.label),
         ],
-        label=_('Method of payment'))
+        label=_l('Method of payment'))
 
     def __init__(self, mandate=False, waiting_list=False, board=False, *args, **kwargs):
         super(PaymentForm, self).__init__(*args, **kwargs)
@@ -38,17 +39,17 @@ class PaymentForm(forms.Form):
 
         if waiting_list:
             self.fields['waiting_list'] = forms.ChoiceField(choices=[
-                ('Wait', _("Place on bottom of waiting list")),
-            ], label=_("Waiting list action"))
+                ('Wait', _l("Place on bottom of waiting list")),
+            ], label=_l("Waiting list action"))
             if board:
                 choices = self.fields['waiting_list'].choices
-                choices.append(('Skip', _("Skip waiting list and enroll immediately")))
+                choices.append(('Skip', _l("Skip waiting list and enroll immediately")))
                 self.fields['waiting_list'].choices = choices
 
 
 class ActivityForm(forms.ModelForm):
 
-    price = forms.DecimalField(required=False, initial="0.00", min_value=0, decimal_places=2, label=_('Price'))
+    price = forms.DecimalField(required=False, initial="0.00", min_value=0, decimal_places=2, label=_l('Price'))
 
     class Meta:
         model = Activity
@@ -93,18 +94,18 @@ class ActivityForm(forms.ModelForm):
             self.cleaned_data['price'] = 0
 
         if self.cleaned_data["price"] > settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE and self.cleaned_data["enrollment"]:
-            raise forms.ValidationError(_("Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity.").format(settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE))
+            raise forms.ValidationError(_l("Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity.").format(settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE))
 
         if self.cleaned_data["enrollment"]:
             if not self.cleaned_data.get('enrollment_begin', None):
-                self.add_error('enrollment_begin', _('There is no enrollment start date entered.'))
+                self.add_error('enrollment_begin', _l('There is no enrollment start date entered.'))
 
             if not self.cleaned_data.get('enrollment_end'):
-                self.add_error('enrollment_end', _('There is no enrollment end date entered.'))
+                self.add_error('enrollment_end', _l('There is no enrollment end date entered.'))
 
             if self.cleaned_data.get('enrollment_begin', None) and self.cleaned_data.get('enrollment_stop', None) \
                     and self.cleaned_data['enrollment_stop'] < self.cleaned_data['enrollment_begin']:
-                self.add_error('enrollment_stop', _("Signup end must be after the signup start."))
+                self.add_error('enrollment_stop', _l("Signup end must be after the signup start."))
 
         return self.cleaned_data
 
@@ -185,7 +186,7 @@ class EnrollmentoptionCheckboxAnswerForm(EnrollmentoptionAnswerForm):
     def clean_answer(self):
         data = self.cleaned_data['answer']
         if data and not self.enrollmentoption.spots_left():
-            self.add_error('answer', _("Sorry, but the last spot has been claimed already!"))
+            self.add_error('answer', _l("Sorry, but the last spot has been claimed already!"))
         return data
 
     class Meta:
@@ -207,9 +208,9 @@ class EnrollmentoptionNumericAnswerForm(EnrollmentoptionAnswerForm):
         if not data:
             data = 0
         if max_per_person is not None and data > max_per_person:
-            self.add_error('answer', _("Sorry, but you cannot exceed the maximum amount per person!"))
+            self.add_error('answer', _l("Sorry, but you cannot exceed the maximum amount per person!"))
         if data > 0 and not self.enrollmentoption.spots_left():
-            self.add_error('answer', _("Sorry, but there are not enough spots left!"))
+            self.add_error('answer', _l("Sorry, but there are not enough spots left!"))
         return data
 
     class Meta:
@@ -232,17 +233,17 @@ class PhotoCheckboxSelectMultiple(widgets.CheckboxSelectMultiple):
 
 
 class PhotoUploadForm(forms.Form):
-    photographer = forms.ModelChoiceField(Person.objects.none(), label=_('Photographer'), required=False)
-    first_name = forms.CharField(max_length=50, label=_('First name'), required=False,
-                                 help_text=_('Use this field if a non-member is the owner of these pictures'))
-    last_name_prefix = forms.CharField(max_length=25, label=_('Last name pre-fix'), required=False,
-                                       help_text=_('Use this field if a non-member is the owner of these pictures'))
-    last_name = forms.CharField(max_length=50, label=_('Last name'), required=False,
-                                help_text=_('Use this field if a non-member is the owner of these pictures'))
-    activity = ActivityModelChoiceField(Activity.objects.none(), label=_('Activities'))
-    public = forms.BooleanField(label=_('Public'), required=False,
-                                help_text=_('Photos are also available without logging in'), initial=True)
-    photos = forms.MultipleChoiceField(widget=PhotoCheckboxSelectMultiple, label=_('Photos'))
+    photographer = forms.ModelChoiceField(Person.objects.none(), label=_l('Photographer'), required=False)
+    first_name = forms.CharField(max_length=50, label=_l('First name'), required=False,
+                                 help_text=_l('Use this field if a non-member is the owner of these pictures'))
+    last_name_prefix = forms.CharField(max_length=25, label=_l('Last name pre-fix'), required=False,
+                                       help_text=_l('Use this field if a non-member is the owner of these pictures'))
+    last_name = forms.CharField(max_length=50, label=_l('Last name'), required=False,
+                                help_text=_l('Use this field if a non-member is the owner of these pictures'))
+    activity = ActivityModelChoiceField(Activity.objects.none(), label=_l('Activities'))
+    public = forms.BooleanField(label=_l('Public'), required=False,
+                                help_text=_l('Photos are also available without logging in'), initial=True)
+    photos = forms.MultipleChoiceField(widget=PhotoCheckboxSelectMultiple, label=_l('Photos'))
 
     def __init__(self, photos, *args, **kwargs):
         super(PhotoUploadForm, self).__init__(*args, **kwargs)
@@ -254,44 +255,18 @@ class PhotoUploadForm(forms.Form):
                                                                      function__end__isnull=True).distinct()
 
 
-class MultipleFileInput(forms.ClearableFileInput):
-    allow_multiple_selected = True
-
-
-class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput())
-        super().__init__(*args, **kwargs)
-
-    def clean(self, data, initial=None):
-        single_file_clean = super().clean
-        if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data]
-        else:
-            result = single_file_clean(data, initial)
-        return result
-
-
 class PhotoFileUploadForm(forms.Form):
     photo_files = MultipleFileField()
 
     def clean_photo_files(self):
         allowed_extensions = ["jpg", "jpeg", "gif"]
         for file in self.files.getlist('photo_files'):
-            extension = Path(file.name).suffix[1:].lower()
-            if extension not in allowed_extensions:
-                raise ValidationError(
-                    message=_('File extension “%(extension)s” is not allowed. '
-                              'Allowed extensions are: %(allowed_extensions)s.'),
-                    code='invalid_extension',
-                    params={'extension': extension,
-                            'allowed_extensions': ', '.join(allowed_extensions),
-                            'value': file}
-                )
+            # FileExtensionValidator raises ValidationError if an extension is not allowed
+            FileExtensionValidator(allowed_extensions=allowed_extensions)(file)
 
 
 class EventDeskActivityMatchForm(forms.Form):
-    activity = ActivityModelChoiceField(Activity.objects.none(), label=_('Activity'))
+    activity = ActivityModelChoiceField(Activity.objects.none(), label=_l('Activity'))
 
     def __init__(self, activities, *args, **kwargs):
         super(EventDeskActivityMatchForm, self).__init__(*args, **kwargs)

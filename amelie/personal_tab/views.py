@@ -4,6 +4,8 @@ import datetime
 import logging
 from decimal import Decimal
 import itertools
+
+import django.conf
 import operator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -174,28 +176,28 @@ def generate_overview_new(request, person, date_from=None, date_to=None):
 
             if overview_type == 'total':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, 1, 1))
+                    return datetime.datetime(t.year, 1, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(datetime.datetime(t.year + 1, 1, 1))
+                    return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'year':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, 1))
+                    return datetime.datetime(t.year, t.month, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(
-                        datetime.datetime(t.year, t.month + 1, 1)) if t.month < 12 else localtz.localize(
-                        datetime.datetime(t.year + 1, 1, 1)
-                    )
+                    if t.month < 12:
+                        return datetime.datetime(t.year, t.month + 1, 1).replace(tzinfo=localtz)
+                    else:
+                        return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'month':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, t.day))
+                    return datetime.datetime(t.year, t.month, t.day).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
                     t2 = t + datetime.timedelta(days=1)
-                    return localtz.localize(datetime.datetime(t2.year, t2.month, t2.day))
+                    return datetime.datetime(t2.year, t2.month, t2.day).replace(tzinfo=localtz)
             else:
                 raise ValueError
 
@@ -343,28 +345,28 @@ def generate_overview_exam_cookie_credit(request, person, date_from=None, date_t
 
             if overview_type == 'total':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, 1, 1))
+                    return datetime.datetime(t.year, 1, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(datetime.datetime(t.year + 1, 1, 1))
+                    return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'year':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, 1))
+                    return datetime.datetime(t.year, t.month, 1).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
-                    return localtz.localize(
-                        datetime.datetime(t.year, t.month + 1, 1)) if t.month < 12 else localtz.localize(
-                        datetime.datetime(t.year + 1, 1, 1)
-                    )
+                    if t.month < 12:
+                        return datetime.datetime(t.year, t.month + 1, 1).replace(tzinfo=localtz)
+                    else:
+                        return datetime.datetime(t.year + 1, 1, 1).replace(tzinfo=localtz)
 
             elif overview_type == 'month':
                 def _datetime_start(t):
-                    return localtz.localize(datetime.datetime(t.year, t.month, t.day))
+                    return datetime.datetime(t.year, t.month, t.day).replace(tzinfo=localtz)
 
                 def _datetime_end(t):
                     t2 = t + datetime.timedelta(days=1)
-                    return localtz.localize(datetime.datetime(t2.year, t2.month, t2.day))
+                    return datetime.datetime(t2.year, t2.month, t2.day).replace(tzinfo=localtz)
 
             else:
                 raise ValueError
@@ -634,7 +636,7 @@ def dashboard(request, pk, slug):
         'debt_collection_instructions': debt_collection_instructions,
         'exam_cookie_credits': exam_cookie_credits,
         'date_old_authorizations': date_old_authorizations,
-        'last_year': datetime.date.today().year - 1
+        'wrapped_year': django.conf.settings.COOKIE_CORNER_WRAPPED_YEAR
     })
 
 
@@ -1715,11 +1717,26 @@ Cookie Corner Wrapped
 
 
 @require_lid
-def cookie_corner_wrapped_main(request):
-    COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
+def cookie_corner_wrapped_main(request, year=None):
+    # Only allow specifying a year if the year is in the past
+    current_year = datetime.date.today().year
+    if year is not None and year < current_year:
+        COOKIE_CORNER_WRAPPED_YEAR = year
+    elif year is not None:
+        # Redirect to the non-year view
+        return redirect("personal_tab:cookie_corner_wrapped")
+    else:
+        COOKIE_CORNER_WRAPPED_YEAR = django.conf.settings.COOKIE_CORNER_WRAPPED_YEAR
 
     person = request.person
     language = get_language()
+
+    transaction_years = sorted(list(set(
+        CookieCornerTransaction.objects.filter(person=person).values_list('date__year', flat=True).distinct()
+    )))
+    # Remove current year if present
+    if current_year in transaction_years:
+        transaction_years.remove(current_year)
 
     transactions = CookieCornerTransaction.objects.filter(
         person=person,
@@ -1729,7 +1746,8 @@ def cookie_corner_wrapped_main(request):
     if len(transactions) == 0:
         # No transactions found, display the no transactions page
         return render(request, 'wrapped_no_transactions.html', {
-            'year': COOKIE_CORNER_WRAPPED_YEAR
+            'year': COOKIE_CORNER_WRAPPED_YEAR,
+            'transaction_years': transaction_years,
         })
 
     transaction_count = transactions \
@@ -1805,6 +1823,7 @@ def cookie_corner_wrapped_main(request):
 
     return render(request, 'wrapped.html', {
         'year': COOKIE_CORNER_WRAPPED_YEAR,
+        'transaction_years': transaction_years,
         'first_transaction_of_the_year': first_transaction_of_the_year,
         'last_transaction_of_the_year': last_transaction_of_the_year,
         'most_transactions': {

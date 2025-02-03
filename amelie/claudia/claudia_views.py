@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, View, TemplateView
 from django.views.generic.edit import UpdateView, CreateView, DeleteView, FormView
 from django.views.generic.detail import SingleObjectMixin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.settings import SYSADMINS_ABBR
 from amelie.tools.mixins import RequireCommitteeMixin, RequireStrictCommitteeMixin
@@ -142,7 +142,7 @@ class AddToMappingView(RequireCommitteeMixin, View):
             # If the member is a Mapping, add the mapping to the group
             if isinstance(self.member, Mapping):
                 if self.group.is_shareddrive() and len(self.group.members()) >= 99:
-                    raise ValueError(_("A Shared Drive can have a maximum of 99 members."))
+                    raise ValueError(_l("A Shared Drive can have a maximum of 99 members."))
                 Membership(member=self.member, group=self.group, ad=True, mail=True, description='').save()
 
             else:
@@ -229,13 +229,13 @@ class ExtraGroupList(RequireCommitteeMixin, ListView):
 class ExtraGroupAdd(RequireStrictCommitteeMixin, CreateView):
     abbreviation = SYSADMINS_ABBR
     model = ExtraGroup
-    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description']
+    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description', 'gitlab']
 
 
 class ExtraGroupDetail(RequireStrictCommitteeMixin, UpdateView):
     abbreviation = SYSADMINS_ABBR
     model = ExtraGroup
-    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description']
+    fields = ['name', 'active', 'email', 'adname', 'dogroup', 'description', 'gitlab']
 
 
 ##
@@ -413,7 +413,7 @@ class PersonalAliasRemoveView(RequireStrictCommitteeMixin, DeleteView):
     template_name = "claudia/extrapersonalalias_delete.html"
 
     def get_delete_message(self):
-        return _('Alias %(object)s has been removed' % {'object': self.get_object()})
+        return _l('Alias %(object)s has been removed' % {'object': self.get_object()})
 
     def get_success_url(self):
         pa = get_object_or_404(ExtraPersonalAlias, pk=self.kwargs['pk'])
