@@ -78,7 +78,7 @@ def activity_send_enrollmentmail(participation, from_waiting_list=False):
         translation.activate(current_language)
 
 
-def activity_send_cancellationmail(participants, activity, request, from_waiting_list=False):
+def activity_send_cancellationmail(participations, activity, from_waiting_list=False):
     """
     Send a cancellation of enrollment for an activity.
     """
@@ -88,11 +88,11 @@ def activity_send_cancellationmail(participants, activity, request, from_waiting
         template_name = "activities/activity_cancelled_from_waiting_list.mail"
 
     task = MailTask(template_name=template_name)
-    for participant in participants:
-        task.add_recipient(PersonRecipient(participant.person, context={
+    for participation in participations:
+        task.add_recipient(PersonRecipient(participation.person, context={
             'activity': activity,
-            'participation_costs': participant.calculate_costs()[0],
-            'paymentmethod': participant.get_payment_method_display()
+            'participation_costs': participation.calculate_costs()[0],
+            'paymentmethod': participation.get_payment_method_display()
         }))
 
     task.send()
