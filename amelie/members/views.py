@@ -125,7 +125,7 @@ def statistics(request):
     ).distinct()
     active_members_other_count = len(active_members_other)
 
-    percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count)
+    percent_active_members = '{0:.2f}'.format((active_members_count*100.0)/members_count) if members_count != 0 else 0
 
     freshmen_bit = Person.objects.members_at(dt).filter(
         Q(membership__year=association_year(dt)),
@@ -151,7 +151,8 @@ def statistics(request):
 
     freshmen_count = freshmen_bit_count + freshmen_tcs_count
 
-    percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count)
+    percent_active_freshmen = '{0:.2f}'.format(((active_freshmen_bit_count + active_freshmen_tcs_count) * 100.0) / active_members_count) if active_members_count != 0 else 0
+
 
     employee_count = Employee.objects.filter(
         Q(person__membership__year=association_year(dt)),
@@ -185,8 +186,8 @@ def statistics(request):
         ).count()
         per_commitee_total_ex_pools = per_commitee_total_ex_pools - count
 
-    average_committees_ex_pools_per_active_member = '{0:.2f}'.format((per_commitee_total_ex_pools*1.0)/active_members_count)
-    average_committees_per_active_member = '{0:.2f}'.format((per_committee_total*1.0)/active_members_count)
+    average_committees_ex_pools_per_active_member = '{0:.2f}'.format((per_commitee_total_ex_pools*1.0)/active_members_count) if active_members_count != 0 else 0
+    average_committees_per_active_member = '{0:.2f}'.format((per_committee_total*1.0)/active_members_count) if active_members_count != 0 else 0
 
     per_active_member_total = {}
     for person in active_members:
