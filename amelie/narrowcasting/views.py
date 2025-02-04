@@ -124,9 +124,9 @@ def room_spotify_now_playing(request):
                             params={"market": "from_token"},
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except ConnectionError:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
-        log.warning(f"ConnectionError while retrieving player info: {e}")
+        log.warning(f"ConnectionError while retrieving player info")
         # Return empty response
         return JsonResponse({})
 
@@ -169,9 +169,9 @@ def room_spotify_pause(request):
         res = requests.put("https://api.spotify.com/v1/me/player/pause",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except ConnectionError:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
-        log.warning(f"ConnectionError while pausing Spotify player: {e}")
+        log.warning(f"ConnectionError while pausing Spotify player")
         # Return empty response
         return JsonResponse({})
 
@@ -214,9 +214,9 @@ def room_spotify_play(request):
         res = requests.put("https://api.spotify.com/v1/me/player/play",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except ConnectionError:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
-        log.warning(f"ConnectionError while unpausing Spotify player: {e}")
+        log.warning(f"ConnectionError while unpausing Spotify player")
         # Return empty response
         return JsonResponse({})
 
