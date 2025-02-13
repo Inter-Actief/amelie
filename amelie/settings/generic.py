@@ -379,7 +379,7 @@ SESSION_COOKIE_NAME = 'amelie_sessionid'
 
 # Allow Cross Origin requests, but only on the API.
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
+CORS_URLS_REGEX = r'^(/api/.*|/i18n/setlang/)$'
 
 # Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
 DATA_UPLOAD_MAX_NUMBER_FILES = 1000
