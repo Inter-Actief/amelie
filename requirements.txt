@@ -23,6 +23,12 @@ django-ckeditor>=6.3.2
 # FCM (Firebase Cloud Messaging)
 fcm-django>=0.3.11,<1  # 1.x has breaking changes (old firebase api removed) # TODO: Breaking
 
+# GraphQL API
+graphene-django
+django-graphql-jwt
+django-filter
+graphene-django-extras
+
 # Used for stripping Markdown notations and indexing the IA Summary website.
 beautifulsoup4>=4.11.1,<4.12
 
