@@ -75,6 +75,7 @@ ALLOWED_HOSTS = [
 # and URLs configured in DJANGO_EXTRA_CORS_ALLOWED_ORIGINS.
 DJANGO_EXTRA_CORS_ALLOWED_ORIGINS = env.list("DJANGO_EXTRA_CORS_ALLOWED_ORIGINS", default=[])
 CORS_ALLOWED_ORIGINS = [f"https://{host}" for host in DJANGO_ALLOWED_HOSTS_ENV] + DJANGO_EXTRA_CORS_ALLOWED_ORIGINS
+CORS_ALLOWED_ORIGIN_REGEXES = env.list("DJANGO_CORS_ALLOWED_ORIGIN_REGEXES", default=[])
 
 # Example: DJANGO_ADMINS="Jan Janssen <j.janssen@inter-actief.net>, Bob de Bouwer <b.bouwer@inter-actief.net>"
 ADMINS = getaddresses([env("DJANGO_ADMINS", default="WWW-committee <amelie-errors@inter-actief.net>")])
