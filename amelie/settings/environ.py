@@ -65,22 +65,10 @@ if DEBUG_TOOLBAR:
 # Do not redirect to HTTPS, because the nginx proxy container only listens on HTTP
 SECURE_SSL_REDIRECT   = False
 
-# Add allow cidr middleware as first middleware
-MIDDLEWARE = ["allow_cidr.middleware.AllowCIDRMiddleware"] + MIDDLEWARE
-
 # Allowed hosts -- localhost and 127.0.0.1 are always allowed, the rest comes from an environment variable.
 ALLOWED_HOSTS = [
     "localhost", "127.0.0.1"
 ] + env.list("DJANGO_ALLOWED_HOSTS", default=[])
-
-# Allowed CIDR nets -- for kubernetes internal services
-ALLOWED_CIDR_NETS = ['172.30.0.0/16']
-ALLOWED_CIDR_NETS.extend(env.list("DJANGO_ALLOWED_CIDR_NETS", default=[]))
-
-# Add Kubernetes POD IP, if running in Kubernetes
-KUBE_POD_IP = env("THIS_POD_IP", default="")
-if KUBE_POD_IP:
-  ALLOWED_CIDR_NETS.append(KUBE_POD_IP)
 
 # Example: DJANGO_ADMINS="Jan Janssen <j.janssen@inter-actief.net>, Bob de Bouwer <b.bouwer@inter-actief.net>"
 ADMINS = getaddresses([env("DJANGO_ADMINS", default="WWW-committee <amelie-errors@inter-actief.net>")])
