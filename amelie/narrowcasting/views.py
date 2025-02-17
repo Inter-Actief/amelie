@@ -105,7 +105,7 @@ def _spotify_refresh_token(association):
             raise e
     return association
 
-@cache_page(5)
+@cache_page(15)
 def room_spotify_now_playing(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -142,13 +142,16 @@ def room_spotify_now_playing(request):
             return room_spotify_now_playing(request)
         except ValueError as e:
             data = {'error': True, 'code': 500, 'msg': str(e)}
+    elif res.status_code == 429:
+        # Since we often exceed the rate limit, do not report as error
+        data = {'error': False, 'is_playing': False}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
     return JsonResponse(data)
 
 
-@cache_page(5)
+@cache_page(15)
 def room_spotify_pause(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -184,13 +187,16 @@ def room_spotify_pause(request):
             return room_spotify_pause(request)
         except ValueError as e:
             data = {'error': True, 'code': 500, 'msg': str(e)}
+    elif res.status_code == 429:
+        # Since we often exceed the rate limit, do not report as error
+        data = {'error': False, 'is_playing': False}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
     return JsonResponse(data)
 
 
-@cache_page(5)
+@cache_page(15)
 def room_spotify_play(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -226,7 +232,11 @@ def room_spotify_play(request):
             return room_spotify_play(request)
         except ValueError as e:
             data = {'error': True, 'code': 500, 'msg': str(e)}
+    elif res.status_code == 429:
+        # Since we often exceed the rate limit, do not report as error
+        data = {'error': False, 'is_playing': False}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
+
 
     return JsonResponse(data)
