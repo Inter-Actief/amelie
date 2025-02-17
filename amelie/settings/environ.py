@@ -66,9 +66,15 @@ if DEBUG_TOOLBAR:
 SECURE_SSL_REDIRECT   = False
 
 # Allowed hosts -- localhost and 127.0.0.1 are always allowed, the rest comes from an environment variable.
+DJANGO_ALLOWED_HOSTS_ENV = env.list("DJANGO_ALLOWED_HOSTS", default=[])
 ALLOWED_HOSTS = [
     "localhost", "127.0.0.1"
-] + env.list("DJANGO_ALLOWED_HOSTS", default=[])
+] + DJANGO_ALLOWED_HOSTS_ENV
+
+# Allow CORS requests from domains configured in DJANGO_ALLOWED_HOSTS environment variable,
+# and URLs configured in DJANGO_EXTRA_CORS_ALLOWED_ORIGINS.
+DJANGO_EXTRA_CORS_ALLOWED_ORIGINS = env.list("DJANGO_EXTRA_CORS_ALLOWED_ORIGINS", default=[])
+CORS_ALLOWED_ORIGINS = [f"https://{host}" for host in DJANGO_ALLOWED_HOSTS_ENV] + DJANGO_EXTRA_CORS_ALLOWED_ORIGINS
 
 # Example: DJANGO_ADMINS="Jan Janssen <j.janssen@inter-actief.net>, Bob de Bouwer <b.bouwer@inter-actief.net>"
 ADMINS = getaddresses([env("DJANGO_ADMINS", default="WWW-committee <amelie-errors@inter-actief.net>")])

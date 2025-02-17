@@ -384,9 +384,10 @@ CSRF_COOKIE_NAME = 'amelie_csrftoken'
 LANGUAGE_COOKIE_NAME = 'amelie_django_language'
 SESSION_COOKIE_NAME = 'amelie_sessionid'
 
-# Allow Cross Origin requests, but only on the JSONRPC or GraphQL APIs.
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/(api|graphql)/.*$'
+# CORS is generally disallowed, but this is overridden in local.py.default and environ.py to allow the ALLOWED_HOSTS.
+# Also, URL-specific CORS rules are handled by the signal handler in `tools/cors.py`.
+CORS_ALLOWED_ORIGINS = []
+CORS_ALLOW_ALL_ORIGINS = False
 
 # GraphQL API settings
 GRAPHENE = {
