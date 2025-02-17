@@ -388,6 +388,9 @@ SESSION_COOKIE_NAME = 'amelie_sessionid'
 # Also, URL-specific CORS rules are handled by the signal handler in `tools/cors.py`.
 CORS_ALLOWED_ORIGINS = []
 CORS_ALLOW_ALL_ORIGINS = False
+# Cookies are allowed to be included in cross-site HTTP requests.
+# Required to pass CSRF tokens and session information from frontend to backend
+CORS_ALLOW_CREDENTIALS = True
 
 # GraphQL API settings
 GRAPHENE = {
