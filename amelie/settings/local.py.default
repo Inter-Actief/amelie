@@ -34,6 +34,7 @@ DEBUG = True
 DEBUG_TOOLBAR = True
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True  # Allow ALL cors requests
+CSRF_TRUSTED_ORIGINS = ["http://*", "https://*"]  # Allow all cross-site CSRF requests
 
 # Debug toolbar does not work during tests, so to make tests work, we exclude the toolbar if we're testing
 DEBUG_TOOLBAR = DEBUG_TOOLBAR and "test" not in sys.argv

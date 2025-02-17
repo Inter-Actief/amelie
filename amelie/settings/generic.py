@@ -394,6 +394,8 @@ CORS_ALLOW_CREDENTIALS = True
 # Send the CSRF cookie with both same-site and cross-site requests
 # Required to pass CSRF tokens and session information from frontend to backend
 CSRF_COOKIE_SAMESITE = "None"
+# Cross-site CSRF is generally disallowed, but this is overridden in local.py.default and environ.py as above.
+CSRF_TRUSTED_ORIGINS = []
 
 # GraphQL API settings
 GRAPHENE = {
