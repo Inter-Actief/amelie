@@ -391,6 +391,9 @@ CORS_ALLOW_ALL_ORIGINS = False
 # Cookies are allowed to be included in cross-site HTTP requests.
 # Required to pass CSRF tokens and session information from frontend to backend
 CORS_ALLOW_CREDENTIALS = True
+# Send the CSRF cookie with both same-site and cross-site requests
+# Required to pass CSRF tokens and session information from frontend to backend
+CSRF_COOKIE_SAMESITE = "None"
 
 # GraphQL API settings
 GRAPHENE = {
