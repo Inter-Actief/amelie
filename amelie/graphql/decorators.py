@@ -60,6 +60,7 @@ def check_authorization(cls):
 
     An example class would be:
     ```python
+    @check_authorization
     class FooType(DjangoObjectType):
         public_fields = ['id']
         login_fields = ['login']

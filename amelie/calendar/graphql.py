@@ -5,7 +5,7 @@ from amelie.calendar.models import Event
 from django.utils.translation import gettext_lazy as _
 
 from amelie.files.graphql import AttachmentType
-
+from amelie.graphql.decorators import check_authorization
 
 # Specified separately from EventType.Meta to be able to use it in the Meta class of subclasses.
 EVENT_TYPE_BASE_FIELDS = [
@@ -47,6 +47,7 @@ EVENT_TYPE_BASE_PUBLIC_FIELDS = [
 ]
 
 
+@check_authorization
 class EventType(DjangoObjectType):
     """
     The event type used for GraphQL operations
