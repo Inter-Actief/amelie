@@ -9,14 +9,14 @@ from amelie.personal_tab.models import LedgerAccount
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('personal_tab', '0007_auto_20210614_2058'),
+        ('personal_tab', '0007_auto_20210614_2058', ''),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='article',
             name='ledger_account',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='articles', to='personal_tab.ledgeraccount', verbose_name='General ledger account', default=LedgerAccount.objects.first().pk),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='articles', to='personal_tab.ledgeraccount', verbose_name='General ledger account'),
             preserve_default=False
         ),
     ]
