@@ -6,12 +6,13 @@ from django.conf import settings
 from graphene_django_extras import all_directives
 
 import amelie.graphql.auth as auth
+import amelie.graphql.i18n as i18n
 
 logger = logging.getLogger("amelie.graphql")
 
 # Basic GraphQL Query and Mutation schemas
-query_subclasses = [auth.AuthenticationQuery, graphene.ObjectType]
-mutation_subclasses = [auth.AuthenticationMutation, graphene.ObjectType]
+query_subclasses = [i18n.InternationalizationQuery, auth.AuthenticationQuery, graphene.ObjectType]
+mutation_subclasses = [i18n.InternationalizationMutation, auth.AuthenticationMutation, graphene.ObjectType]
 
 # Add debug property if the debug toolbar is enabled
 if settings.DEBUG_TOOLBAR:

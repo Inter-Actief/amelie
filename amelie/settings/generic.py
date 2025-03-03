@@ -206,6 +206,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'amelie.tools.middleware.GlobalIAVariablesMiddleware',  # Adds person, is_board, is_education_committee attributes to request
+    'amelie.tools.middleware.LanguageConfigMiddleware',  # Sets the language cookie in the response if the language is changed via GraphQL
     'auditlog.middleware.AuditlogMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
