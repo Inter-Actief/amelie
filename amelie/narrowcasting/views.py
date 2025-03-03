@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 import requests
 from django.conf import settings
@@ -124,9 +125,9 @@ def room_spotify_now_playing(request):
                             params={"market": "from_token"},
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError:
+    except Union[requests.ConnectionError, ConnectionError] as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
-        log.warning(f"ConnectionError while retrieving player info")
+        log.warning(f"ConnectionError while retrieving player info: {e}")
         # Return empty response
         return JsonResponse({})
 
