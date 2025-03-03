@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 import requests
 from django.conf import settings
@@ -124,7 +125,7 @@ def room_spotify_now_playing(request):
                             params={"market": "from_token"},
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except Union[requests.ConnectionError, ConnectionError] as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while retrieving player info: {e}")
         # Return empty response
@@ -169,7 +170,7 @@ def room_spotify_pause(request):
         res = requests.put("https://api.spotify.com/v1/me/player/pause",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except Union[requests.ConnectionError, ConnectionError] as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while pausing Spotify player: {e}")
         # Return empty response
@@ -214,7 +215,7 @@ def room_spotify_play(request):
         res = requests.put("https://api.spotify.com/v1/me/player/play",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except Union[requests.ConnectionError, ConnectionError] as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while unpausing Spotify player: {e}")
         # Return empty response
