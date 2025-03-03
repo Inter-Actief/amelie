@@ -281,8 +281,7 @@ class Article(models.Model):
     name_nl = models.CharField(max_length=50, verbose_name=_l('Name'))
     name_en = models.CharField(max_length=50, verbose_name=_l('Name (en)'))
     category = models.ForeignKey('Category', verbose_name=_l('Category'), on_delete=models.PROTECT)
-    ledger_account = models.ForeignKey(LedgerAccount, verbose_name=_l('General ledger account'), blank=True, null=True,
-                                       on_delete=models.SET_NULL, related_name='articles')
+    ledger_account = models.ForeignKey(LedgerAccount, verbose_name=_l('General ledger account'), on_delete=models.PROTECT, related_name='articles')
     price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price'))
     is_available = models.BooleanField(default=False, verbose_name=_l('Available'))
     image = models.ImageField(upload_to='cookie_corner', max_length=255, blank=False, verbose_name=_l('Image'))
