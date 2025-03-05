@@ -430,8 +430,7 @@ function setupCalculator(calculator) {
                 var inputValue = parseInt(inputfield.attr('value'), 10);
                 if(!isNaN(inputValue) && inputValue > 0){
                     // Add to cart
-                    // We replace the potential ',' by a '.' for the parseFloat function.
-                    addToCart(productId, productName, parseInt(inputfield.attr('value'), 10), parseFloat(productPrice.replace(",", ".")), productImage);
+                    addToCart(productId, productName, parseInt(inputfield.attr('value'), 10), parseFloat(productPrice), productImage);
                     // Clear the input field
                     inputfield.attr('value', '');
                     // Return to main tab
@@ -471,7 +470,7 @@ function setupShopPage(){
         resetCart();
         var article_elem = $(event.currentTarget.parentElement);
         var article_id = article_elem.data('id');
-        var article_price = parseFloat(article_elem.data('price').replace(",", ".")); // Replace the ',' by a '.' for the Dutch website.
+        var article_price = parseFloat(article_elem.data('price'));
         var article_name = article_elem.data('name');
         var article_image = article_elem.data('image');
         addToCartInstant(article_id, article_name, 1, article_price, article_image);
@@ -481,7 +480,7 @@ function setupShopPage(){
         resetCart();
         var article_elem = $(event.currentTarget.parentElement);
         var article_id = article_elem.data('id');
-        var article_price = parseFloat(article_elem.data('price').replace(",", ".")); // Replace the ',' by a '.' for the Dutch website.
+        var article_price = parseFloat(article_elem.data('price'));
         var article_name = article_elem.data('name');
         var article_image = article_elem.data('image');
         addToCartInstant(article_id, article_name, 1, article_price, article_image);
@@ -490,7 +489,7 @@ function setupShopPage(){
     $('.article-addtocart').click(function(event){
         var article_elem = $(event.currentTarget.parentElement);
         var article_id = article_elem.data('id');
-        var article_price = parseFloat(article_elem.data('price').replace(",", ".")); // Replace the ',' by a '.' for the Dutch website.
+        var article_price = parseFloat(article_elem.data('price'));
         var article_name = article_elem.data('name');
         var article_image = article_elem.data('image');
         addToCart(article_id, article_name, 1, article_price, article_image);
