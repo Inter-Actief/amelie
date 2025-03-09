@@ -357,14 +357,6 @@ ALEXIA_API['URL'] = env("ALEXIA_API_URL", default=ALEXIA_API.get('URL', None))
 ALEXIA_API['USER'] = env("ALEXIA_API_USERNAME", default=ALEXIA_API.get('USER', None))
 ALEXIA_API['PASSWORD'] = env("ALEXIA_API_PASSWORD", default=ALEXIA_API.get('PASSWORD', None))
 
-###
-#  Twitter settings (probably broken due to twitter API changes)
-###
-TWITTER_APP_KEY = env("AMELIE_TWITTER_APP_KEY", default=TWITTER_APP_KEY)
-TWITTER_APP_SECRET = env("AMELIE_TWITTER_APP_SECRET", default=TWITTER_APP_SECRET)
-TWITTER_OAUTH_TOKEN = env("AMELIE_TWITTER_OAUTH_TOKEN", default=TWITTER_OAUTH_TOKEN)
-TWITTER_OAUTH_SECRET = env("AMELIE_TWITTER_OAUTH_SECRET", default=TWITTER_OAUTH_SECRET)
-
 
 ###
 #  Data Hoarder settings (GDPR data exporter)
