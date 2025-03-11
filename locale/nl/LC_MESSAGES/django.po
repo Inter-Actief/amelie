@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 12:39+0100\n"
+"POT-Creation-Date: 2025-03-11 12:58+0100\n"
 "PO-Revision-Date: 2025-03-10 20:33+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -6630,7 +6630,6 @@ msgid "TOTP devices:"
 msgstr "TOTP-apparaten:"
 
 #: amelie/members/templates/person_accounts.html:29
-#: templates/profile_overview.html:198
 msgid "No TOTP devices"
 msgstr "Geen TOTP-apparaten"
 
@@ -10999,43 +10998,43 @@ msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan u gerelateerd zij
 msgid "You can link another account by logging out, and logging back in with the Google, LinkedIn or GitHub account you want to link."
 msgstr "U kunt een ander account koppelen door uit te loggen, en weer in te loggen met het Google-, LinkedIn- of GitHub-account dat u wilt koppelen."
 
-#: templates/profile_overview.html:195 templates/profile_overview.html:209
+#: templates/profile_overview.html:195 templates/profile_overview.html:206
 #: templates/profile_overview.html:237
 msgid "unlink"
 msgstr "ontkoppelen"
 
-#: templates/profile_overview.html:199
+#: templates/profile_overview.html:198
 #, fuzzy
-#| msgid ""
-#| "\n"
-#| "                                        To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
-#| "                                    "
-msgid ""
-"\n"
-"                                            To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
-"                                        "
-msgstr ""
-"\n"
-"Om een TOTP-apparaat te configureren, log in met uw actieve ledenaccount en ga naar <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">deze pagina</a>."
+#| msgid "No TOTP devices"
+msgid "No TOTP devices registered"
+msgstr "Geen TOTP-apparaten"
 
-#: templates/profile_overview.html:206
-msgid "Passkey"
-msgstr ""
-
-#: templates/profile_overview.html:212
+#: templates/profile_overview.html:203
 #, fuzzy
 #| msgid "No purchases."
-msgid "No passkeys"
+msgid "Passkeys"
 msgstr "Geen aankopen."
 
-#: templates/profile_overview.html:213
-msgid "To register a passkey, press the button below. You will receive an e-mail with a link to register a passkey."
-msgstr ""
+#: templates/profile_overview.html:209
+#, fuzzy
+#| msgid "No keys have been registered."
+msgid "No passkeys registered"
+msgstr "Er zijn geen keys geregistreerd."
 
 #: templates/profile_overview.html:214
+msgid "To register a new TOTP device or passkey, press one of the buttons below. You will receive an e-mail with a link to register the new device."
+msgstr ""
+
+#: templates/profile_overview.html:215
+#, fuzzy
+#| msgid "Register new RFID card"
+msgid "Register new TOTP device"
+msgstr "Registreer nieuwe RFID-kaart"
+
+#: templates/profile_overview.html:216
 #, fuzzy
 #| msgid "Register cash payment"
-msgid "Register a passkey"
+msgid "Register new passkey"
 msgstr "Registreer contante betaling"
 
 #: templates/profile_overview.html:239
@@ -11065,6 +11064,19 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#, fuzzy
+#~| msgid ""
+#~| "\n"
+#~| "                                        To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
+#~| "                                    "
+#~ msgid ""
+#~ "\n"
+#~ "                                            To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
+#~ "                                        "
+#~ msgstr ""
+#~ "\n"
+#~ "Om een TOTP-apparaat te configureren, log in met uw actieve ledenaccount en ga naar <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">deze pagina</a>."
 
 #~ msgid ""
 #~ "\n"
@@ -13317,9 +13329,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Key(s)"
 #~ msgstr "Key(s)"
-
-#~ msgid "No keys have been registered."
-#~ msgstr "Er zijn geen keys geregistreerd."
 
 #~ msgid "[Inter-Actief] MSDNAA discontinuation & your keys"
 #~ msgstr "[Inter-Actief] Stopzetten MSDNAA & jouw licentiesleutels"

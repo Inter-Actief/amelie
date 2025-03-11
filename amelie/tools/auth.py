@@ -238,6 +238,11 @@ def unlink_passkey(user_id, passkey_id):
     KeycloakAPI().delete_credential(user_id=user_id, credential_id=passkey_id)
 
 
+def register_totp(user_id):
+    # Trigger OTP reset action in KeyCloak
+    KeycloakAPI().register_totp(user_id=user_id)
+
+
 def register_passkey(user_id):
     # Trigger passkey reset action in KeyCloak
     KeycloakAPI().register_passkey(user_id=user_id)

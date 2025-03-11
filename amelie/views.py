@@ -26,7 +26,7 @@ from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
-from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_passkey
+from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
 from amelie.tools.mixins import RequireSuperuserMixin
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
@@ -173,6 +173,9 @@ def profile_actions(request, action, user_id, arg):
     elif action == "unlink_passkey":
         if user_id and arg:
             unlink_passkey(user_id, arg)
+    elif action == "register_totp":
+        if user_id:
+            register_totp(user_id)
     elif action == "register_passkey":
         if user_id:
             register_passkey(user_id)
