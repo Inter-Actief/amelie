@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db.models import Q, Prefetch
 from django.http import Http404
@@ -132,6 +133,7 @@ def educational_bouquet(request):
     is_education = hasattr(request, 'person') and request.is_education_committee
 
     # Temporary disable of the form submission, due to spam flooding because the form has no captcha.
+    messages.warning(request, "The educational bouquet form is currently closed for submissions.")
     #if request.POST:
     #    bouquet_form = EducationalBouquetForm(request.POST)
 
