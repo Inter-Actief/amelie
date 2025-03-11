@@ -166,3 +166,10 @@ class KeycloakAPI:
             return self.delete(f"users/{user_id}/federated-identity/{provider_name}")
         else:
             raise PermissionError(f"Cannot unlink {provider_name} via the website, contact the System Administrators.")
+
+    def register_passkey(self, user_id):
+        return self.put(
+            f"users/{user_id}/execute-actions-email?lifespan=43200",  # Lifespan means the register link is valid for 12h (43200 seconds)
+            data=["webauthn-register-passwordless"]
+        )
+
