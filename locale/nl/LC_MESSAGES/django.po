@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-10 20:50+0100\n"
+"POT-Creation-Date: 2025-03-11 12:58+0100\n"
 "PO-Revision-Date: 2025-03-10 20:33+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -2530,7 +2530,7 @@ msgstr "Je mag deze activiteit niet bewerken"
 #: amelie/activities/views.py:1473
 #: amelie/members/templates/person_accounts.html:37
 #: amelie/personal_tab/templates/info/rfid_cards.html:45
-#: templates/profile_overview.html:213
+#: templates/profile_overview.html:222
 msgid "Unknown"
 msgstr "Onbekend"
 
@@ -6605,7 +6605,7 @@ msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan deze persoon gere
 #: amelie/members/templates/person_accounts.html:8
 #: amelie/members/templates/person_accounts.html:44
 #: amelie/personal_tab/templates/register/register_card_index.html:19
-#: templates/profile_overview.html:181 templates/profile_overview.html:220
+#: templates/profile_overview.html:181 templates/profile_overview.html:229
 msgid "Username"
 msgstr "Gebruikersnaam"
 
@@ -6625,37 +6625,36 @@ msgid "Inter-<i>Actief</i> Active Members account"
 msgstr "Inter-<i>Actief</i>-actieveledenaccount"
 
 #: amelie/members/templates/person_accounts.html:20
-#: templates/profile_overview.html:193
+#: templates/profile_overview.html:192
 msgid "TOTP devices:"
 msgstr "TOTP-apparaten:"
 
 #: amelie/members/templates/person_accounts.html:29
-#: templates/profile_overview.html:202
 msgid "No TOTP devices"
 msgstr "Geen TOTP-apparaten"
 
 #: amelie/members/templates/person_accounts.html:33
-#: templates/profile_overview.html:209
+#: templates/profile_overview.html:218
 msgid "Integration account"
 msgstr "Integratie-account"
 
 #: amelie/members/templates/person_accounts.html:35
-#: templates/profile_overview.html:211
+#: templates/profile_overview.html:220
 msgid "University of Twente account"
 msgstr "Universiteit Twente account"
 
 #: amelie/members/templates/person_accounts.html:43
-#: templates/profile_overview.html:219
+#: templates/profile_overview.html:228
 msgid "Provider"
 msgstr "Dienst"
 
 #: amelie/members/templates/person_accounts.html:52
-#: templates/profile_overview.html:234
+#: templates/profile_overview.html:243
 msgid "No linked accounts"
 msgstr "Geen gekoppelde accounts"
 
 #: amelie/members/templates/person_accounts.html:59
-#: templates/profile_overview.html:241
+#: templates/profile_overview.html:250
 msgid "No user accounts could be retrieved"
 msgstr "Er konden geen accounts opgehaald worden"
 
@@ -10999,20 +10998,46 @@ msgstr "De volgende gebruikersaccount(s) zijn gevonden die aan u gerelateerd zij
 msgid "You can link another account by logging out, and logging back in with the Google, LinkedIn or GitHub account you want to link."
 msgstr "U kunt een ander account koppelen door uit te loggen, en weer in te loggen met het Google-, LinkedIn- of GitHub-account dat u wilt koppelen."
 
-#: templates/profile_overview.html:197 templates/profile_overview.html:228
+#: templates/profile_overview.html:195 templates/profile_overview.html:206
+#: templates/profile_overview.html:237
 msgid "unlink"
 msgstr "ontkoppelen"
 
-#: templates/profile_overview.html:203
-msgid ""
-"\n"
-"                                        To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
-"                                    "
-msgstr ""
-"\n"
-"Om een TOTP-apparaat te configureren, log in met uw actieve ledenaccount en ga naar <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">deze pagina</a>."
+#: templates/profile_overview.html:198
+#, fuzzy
+#| msgid "No TOTP devices"
+msgid "No TOTP devices registered"
+msgstr "Geen TOTP-apparaten"
 
-#: templates/profile_overview.html:230
+#: templates/profile_overview.html:203
+#, fuzzy
+#| msgid "No purchases."
+msgid "Passkeys"
+msgstr "Geen aankopen."
+
+#: templates/profile_overview.html:209
+#, fuzzy
+#| msgid "No keys have been registered."
+msgid "No passkeys registered"
+msgstr "Er zijn geen keys geregistreerd."
+
+#: templates/profile_overview.html:214
+msgid "To register a new TOTP device or passkey, press one of the buttons below. You will receive an e-mail with a link to register the new device."
+msgstr ""
+
+#: templates/profile_overview.html:215
+#, fuzzy
+#| msgid "Register new RFID card"
+msgid "Register new TOTP device"
+msgstr "Registreer nieuwe RFID-kaart"
+
+#: templates/profile_overview.html:216
+#, fuzzy
+#| msgid "Register cash payment"
+msgid "Register new passkey"
+msgstr "Registreer contante betaling"
+
+#: templates/profile_overview.html:239
 msgid "Cannot unlink"
 msgstr "Kan niet ontkoppelen"
 
@@ -11039,6 +11064,19 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
+
+#, fuzzy
+#~| msgid ""
+#~| "\n"
+#~| "                                        To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
+#~| "                                    "
+#~ msgid ""
+#~ "\n"
+#~ "                                            To configure a TOTP device, log in with your active members account and visit <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">this page</a>.\n"
+#~ "                                        "
+#~ msgstr ""
+#~ "\n"
+#~ "Om een TOTP-apparaat te configureren, log in met uw actieve ledenaccount en ga naar <a target=\"_blank\" href=\"https://auth.ia.utwente.nl/realms/inter-actief/account/totp\">deze pagina</a>."
 
 #~ msgid ""
 #~ "\n"
@@ -13291,9 +13329,6 @@ msgstr "Foto's toevoegen"
 
 #~ msgid "Key(s)"
 #~ msgstr "Key(s)"
-
-#~ msgid "No keys have been registered."
-#~ msgstr "Er zijn geen keys geregistreerd."
 
 #~ msgid "[Inter-Actief] MSDNAA discontinuation & your keys"
 #~ msgstr "[Inter-Actief] Stopzetten MSDNAA & jouw licentiesleutels"

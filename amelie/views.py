@@ -26,7 +26,7 @@ from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
-from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount
+from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
 from amelie.tools.mixins import RequireSuperuserMixin
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
@@ -139,6 +139,17 @@ def profile_edit(request):
 def profile_overview(request):
     try:
         users = get_user_info(request.user.person)
+
+        # Extract user credentials of type TOTP and Webauthn-Passwordless into separate lists for rendering in template
+        for user in users:
+            user['credentialsTOTP'] = []
+            user['credentialsPasskey'] = []
+            for credential in user['credentials']:
+                if credential['type'] == "otp":
+                    user['credentialsTOTP'].append(credential)
+                if credential['type'] == "webauthn-passwordless":
+                    user['credentialsPasskey'].append(credential)
+
     except Exception as e:
         logger.exception(e)
         users = []
@@ -159,6 +170,15 @@ def profile_actions(request, action, user_id, arg):
     elif action == "unlink_social":
         if user_id and arg:
             unlink_acount(user_id, arg)
+    elif action == "unlink_passkey":
+        if user_id and arg:
+            unlink_passkey(user_id, arg)
+    elif action == "register_totp":
+        if user_id:
+            register_totp(user_id)
+    elif action == "register_passkey":
+        if user_id:
+            register_passkey(user_id)
     else:
         raise BadRequest("Unknown action.")
 
