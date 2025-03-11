@@ -131,12 +131,13 @@ def educational_bouquet(request):
 
     is_education = hasattr(request, 'person') and request.is_education_committee
 
-    if request.POST:
-        bouquet_form = EducationalBouquetForm(request.POST)
+    # Temporary disable of the form submission, due to spam flooding because the form has no captcha.
+    #if request.POST:
+    #    bouquet_form = EducationalBouquetForm(request.POST)
 
-        if bouquet_form.is_valid():
-            bouquet_form.save()
-            message_sent = True
+    #    if bouquet_form.is_valid():
+    #        bouquet_form.save()
+    #        message_sent = True
 
     return render(request, 'educational_bouquet.html', locals())
 
