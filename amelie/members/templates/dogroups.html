@@ -20,6 +20,9 @@
 {% endblock head %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
 	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
 			<h2>{% trans 'Dogroups' %}</h2>
 

@@ -1,3 +1,5 @@
+import random
+
 from django.http import HttpResponseNotAllowed
 from django.template import loader
 from django.utils import translation
@@ -30,6 +32,8 @@ class GlobalIAVariablesMiddleware(MiddlewareMixin):
     def process_request(self, request):
         request.book_sales_url = settings.BOOK_SALES_URL
         request.april_active = str(request.GET.get('udm', '0')) != "14"
+        request.menubar_order = list(range(1, 18))
+        random.shuffle(request.menubar_order)
 
         user = request.user
         if hasattr(user, 'person'):

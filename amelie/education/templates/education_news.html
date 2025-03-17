@@ -5,6 +5,9 @@
 {% block titel %}{% trans 'News' %}{% endblock titel %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
     {% for news_item in education_news %}
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <div class="edu">

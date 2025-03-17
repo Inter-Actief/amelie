@@ -295,13 +295,23 @@ def event_list(request):
 
     Only if the person viewing is not a board member no event past their visible_till date will be shown.
     """
-    if hasattr(request, 'person') and request.is_board:
-        events = CompanyEvent.objects.all()
-    else:
-        events = CompanyEvent.objects.filter(visible_from__lte=timezone.now(), visible_till__gte=timezone.now())
+    if request.april_active:
+        if hasattr(request, 'person') and request.is_board:
+            events = CompanyEvent.objects.all().order_by("?")
+        else:
+            events = CompanyEvent.objects.filter(visible_from__lte=timezone.now(), visible_till__gte=timezone.now()).order_by("?")
 
-    old_events = list(events.filter(end__lt=timezone.now()))[-10:]
-    new_events = list(events.filter(end__gte=timezone.now()))
+        old_events = list(events[:10])
+        new_events = list(events[:random.randint(5, 10)])
+
+    else:
+        if hasattr(request, 'person') and request.is_board:
+            events = CompanyEvent.objects.all()
+        else:
+            events = CompanyEvent.objects.filter(visible_from__lte=timezone.now(), visible_till__gte=timezone.now())
+
+        old_events = list(events.filter(end__lt=timezone.now()))[-10:]
+        new_events = list(events.filter(end__gte=timezone.now()))
 
     return render(request, "companies/company_event_list.html", locals())
 

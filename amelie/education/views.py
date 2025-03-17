@@ -1,3 +1,5 @@
+import random
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -94,16 +96,24 @@ def page_down(request, page_id):
 def overview(request):
     is_board = hasattr(request, 'person') and request.is_board
     categories = []
-    for category in Category.objects.all():
-        categories.append((category, Page.objects.filter(category=category)))
-    pages = Page.objects.all()
+    if request.april_active:
+        for category in Category.objects.all().order_by("?"):
+            categories.append((category, Page.objects.filter(category=category).order_by("?")))
+        pages = Page.objects.all().order_by("?")
+    else:
+        for category in Category.objects.all():
+            categories.append((category, Page.objects.filter(category=category)))
+        pages = Page.objects.all()
     is_education = hasattr(request, 'person') and request.is_education_committee
     return render(request, 'overview.html', locals())
 
 
 def news_archive(request):
     oc = Committee.education_committee()
-    education_news_list = NewsItem.objects.filter(publisher=oc)
+    if request.april_active:
+        education_news_list = NewsItem.objects.filter(publisher=oc).order_by("?")
+    else:
+        education_news_list = NewsItem.objects.filter(publisher=oc)
 
     # pagination things
     pages = RangedPaginator(education_news_list, 12)
@@ -205,15 +215,26 @@ def complaints(request):
     else:
         complaint_comment_filter = Q(public=True) | Q(person=request.person)
 
-    complaint_objs = Complaint.objects.filter(completed=False).exclude(subject=Complaint.ComplaintChoices.GRADING.value)\
-        .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
-        .prefetch_related('people').prefetch_related('course')
-    expired = Complaint.objects.filter(completed=False, subject=Complaint.ComplaintChoices.GRADING.value)\
-        .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
-        .prefetch_related('people').prefetch_related('course')
-    completed = Complaint.objects.filter(completed=True)\
-        .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
-        .prefetch_related('people').prefetch_related('course')
+    if request.april_active:
+        complaint_objs = Complaint.objects.order_by("?").exclude(subject=Complaint.ComplaintChoices.GRADING.value)\
+            .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
+            .prefetch_related('people').prefetch_related('course')[:random.randint(1, 5)]
+        expired = Complaint.objects.filter(completed=False, subject=Complaint.ComplaintChoices.GRADING.value).order_by("?")\
+            .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
+            .prefetch_related('people').prefetch_related('course')
+        completed = Complaint.objects.filter(completed=True).order_by("?")\
+            .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
+            .prefetch_related('people').prefetch_related('course')
+    else:
+        complaint_objs = Complaint.objects.filter(completed=False).exclude(subject=Complaint.ComplaintChoices.GRADING.value)\
+            .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
+            .prefetch_related('people').prefetch_related('course')
+        expired = Complaint.objects.filter(completed=False, subject=Complaint.ComplaintChoices.GRADING.value)\
+            .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
+            .prefetch_related('people').prefetch_related('course')
+        completed = Complaint.objects.filter(completed=True)\
+            .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
+            .prefetch_related('people').prefetch_related('course')
 
     if not request.is_education_committee:  # power to the correct people
         reporter_q = Q(public=True) | (Q(reporter=request.person))
@@ -468,8 +489,13 @@ def event_delete(request, event_id):
 
 def event_overview(request):
     now = timezone.now()
-    new_events = EducationEvent.objects.filter_public(request).filter(end__gte=now)
-    old_events = EducationEvent.objects.filter_public(request).filter(begin__lte=now).order_by("-begin")[:10]
+
+    if request.april_active:
+        new_events = EducationEvent.objects.filter_public(request).order_by("?")[:random.randint(2, 5)]
+        old_events = EducationEvent.objects.filter_public(request).order_by("?")[:10]
+    else:
+        new_events = EducationEvent.objects.filter_public(request).filter(end__gte=now)
+        old_events = EducationEvent.objects.filter_public(request).filter(begin__lte=now).order_by("-begin")[:10]
 
     return render(request, "education_event_overview.html", locals())
 

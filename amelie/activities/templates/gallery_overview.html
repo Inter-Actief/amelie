@@ -166,6 +166,9 @@
 {% endblock head %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
     {# Search and text #}
     <div class="col-xs-12"><div class="current">
         <h2>

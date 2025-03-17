@@ -14,7 +14,10 @@ class PublicationList(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return self.model.objects.filter_public(self.request)
+        if self.request.april_active:
+            return self.model.objects.filter_public(self.request).order_by("?")
+        else:
+            return self.model.objects.filter_public(self.request)
 
     def get_context_data(self, **kwargs):
         context = super(PublicationList, self).get_context_data(**kwargs)

@@ -6,6 +6,9 @@
 {% endblock titel %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
     <div class="col-xs-12 col-md-3 sticky-list">
         <div class="ia">
             <h2>{% trans 'GMM archive' %}</h2>

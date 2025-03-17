@@ -26,7 +26,7 @@ from amelie.calendar.models import Participation
 from amelie.education.models import EducationEvent
 from amelie.personal_tab import transactions
 
-from modernrpc.core import rpc_method
+from modernrpc.core import rpc_method, REQUEST_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -590,9 +590,14 @@ def search_gallery(query: str, **kwargs) -> List[Dict]:
     if len(query) < 3:
         return result
 
-    activities = list(reversed(Activity.objects.filter_public(not authenticated).filter(photos__gt=0).filter(
-        Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
-    ).distinct()))
+    if kwargs.get(REQUEST_KEY).april_active:
+        activities = list(reversed(Activity.objects.filter_public(not authenticated).filter(photos__gt=0).filter(
+            Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
+        ).order_by("?").distinct()))
+    else:
+        activities = list(reversed(Activity.objects.filter_public(not authenticated).filter(photos__gt=0).filter(
+            Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
+        ).distinct()))
 
     for activity in activities:
         single = get_basic_result(activity)

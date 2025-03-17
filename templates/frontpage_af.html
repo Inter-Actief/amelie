@@ -8,6 +8,9 @@
 {% endblock head %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
     {% for i in block_order %}
     {% if i == 1 %}
     <div class="col-md-4 col-xs-12">

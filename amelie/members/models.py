@@ -419,7 +419,7 @@ class Person(models.Model, Mappable):
     def is_board(self):
         return self.function_set.filter(committee__superuser=True, committee__abolished__isnull=True,
                                         end__isnull=True).exists()
-    
+
     def is_in_committee(self, abbreviation):
         return self.function_set.filter(committee__abbreviation=abbreviation, end__isnull=True).exists()
 

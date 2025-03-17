@@ -1,3 +1,4 @@
+import random
 import shutil
 
 import base64
@@ -118,13 +119,20 @@ def activities(request, act_type=None):
     """
     Gives an overview of all upcoming activities and recent past activities.
     """
-    activities = Event.objects.filter_public(request)
+    if request.april_active:
+        activities = Event.objects.filter_public(request).filter(Q(activity__isnull=False) | Q(companyevent__isnull=False) | Q(educationevent__isnull=False)).order_by("?")
+    else:
+        activities = Event.objects.filter_public(request)
 
     if act_type:
         activities = activities.filter(Q(activity__activity_label__name_en=act_type) | Q(activity__activity_label__name_nl=act_type))
 
-    old_activities = list(activities.filter(end__lt=timezone.now()))[-10:]
-    new_activities = list(activities.filter(end__gte=timezone.now()))
+    if request.april_active:
+        old_activities = list(activities[:10])
+        new_activities = list(activities[:random.randint(5,20)])
+    else:
+        old_activities = list(activities.filter(end__lt=timezone.now()))[-10:]
+        new_activities = list(activities.filter(end__gte=timezone.now()))
 
     old_activities = [a.as_leaf_class() for a in old_activities]
     new_activities = [a.as_leaf_class() for a in new_activities]
@@ -155,8 +163,12 @@ def activities_old(request):
     end_datetime = timezone.make_aware(datetime.datetime.combine(end_date, datetime.time()))
 
     # Filter for activities in tim  range
-    old_activities = Activity.objects.filter_public(request).filter(end__range=(start_datetime, end_datetime)) \
-        .order_by('-end')
+    if request.april_active:
+        old_activities = Activity.objects.filter_public(request).filter(end__range=(start_datetime, end_datetime)) \
+            .order_by('?')
+    else:
+        old_activities = Activity.objects.filter_public(request).filter(end__range=(start_datetime, end_datetime)) \
+            .order_by('-end')
 
     if 'keywords' in form.data.keys():
         # Filter for activities with keyword
@@ -970,7 +982,11 @@ def gallery(request, pk, page=1):
 
     # page = types.get_int(request.GET, 'pagina', default=1, min_value=1) #TODO
     limit = types.get_int(request.GET, 'limiet', default=24, min_value=1, max_value=999)
-    photos = activity.photos.filter_public(request)
+
+    if request.april_active:
+        photos = activity.photos.filter_public(request).order_by("?")
+    else:
+        photos = activity.photos.filter_public(request)
     pages = RangedPaginator(photos, limit)
 
     login_for_more = (len(photos) != len(activity.photos.all()))
@@ -998,7 +1014,11 @@ def photos(request, page=1):
         # dynamic input field and will therefore stress the server less.
         filters &= Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
 
-    activities = Activity.objects.filter_public(request).filter(filters).distinct().order_by('-end')
+    if request.april_active:
+        activities = Activity.objects.filter_public(request).filter(filters).distinct().order_by('?')
+    else:
+        activities = Activity.objects.filter_public(request).filter(filters).distinct().order_by('-end')
+
 
     only_public = not hasattr(request, 'user') or not request.user.is_authenticated
     if only_public:

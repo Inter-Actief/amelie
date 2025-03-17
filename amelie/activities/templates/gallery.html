@@ -4,6 +4,9 @@
 {% block titel %}{% trans "Photos" %} {{ activity }}{% endblock titel %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
 	<div class="col-xs-12"><div class="current">
 		<h2 class="h2-with-buttons">
 		    {% trans "Photos" %} {{ activity }}

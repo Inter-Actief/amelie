@@ -90,7 +90,10 @@ def news_item_new(request):
 
 def overview(request):
     """ Gives an overview of all news items """
-    news_list = NewsItem.objects.all()
+    if request.april_active:
+        news_list = NewsItem.objects.order_by("?").all()
+    else:
+        news_list = NewsItem.objects.all()
 
     pages = RangedPaginator(news_list, 12)
     page = request.GET.get('page')

@@ -17,8 +17,12 @@ from amelie.publications.models import Publication
 
 def committees(request):
     categories = get_list_or_404(CommitteeCategory)
-    committees_without_category = Committee.objects.filter(category__isnull=True).filter(abolished__isnull=True)
-    committees_abolished = Committee.objects.filter(abolished__isnull=False)
+    if request.april_active:
+        committees_without_category = Committee.objects.filter(category__isnull=True).filter(abolished__isnull=True).order_by("?")
+        committees_abolished = Committee.objects.filter(abolished__isnull=False).order_by("?")
+    else:
+        committees_without_category = Committee.objects.filter(category__isnull=True).filter(abolished__isnull=True)
+        committees_abolished = Committee.objects.filter(abolished__isnull=False)
     is_board = hasattr(request, 'person') and request.is_board
 
     newest_committee_booklet = Publication.objects.filter(public=True, publication_type__type_name="Committee Booklet").order_by('date_published').last()

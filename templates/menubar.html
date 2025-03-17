@@ -1,0 +1,145 @@
+{% load i18n banners active_menu compress cached_static %}
+{% get_current_language as LANGUAGE_CODE %}
+<ul id="nav" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 dropdown dropdown-horizontal">
+    <li class="{% active_menu 'home' %}">
+        <a href="{% url 'frontpage' %}">Home</a>
+    </li>
+
+    <li>
+        <a href="#">{% trans 'Current' %}<span class="arrow">&#9660;</span></a>
+        <ul>
+            <li>
+                <a href="{% url 'news:overview' %}">{% trans 'News' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'activities:activities' %}">{% trans 'Activities' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'activities:photos' %}">{% trans 'Photo album' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'videos:list_videos' %}">{% trans "Videos" %}</a>
+            </li>
+            <li>
+                <a href="{% url 'publications:list_publications' %}">{% trans 'Publications' %}</a>
+            </li>
+        </ul>
+    </li>
+
+    <li>
+        <a href="#">{% trans 'Association' %}<span class="arrow">&#9660;</span></a>
+        <ul>
+            <li><a href="{% url 'about:page' 1 'about-the-association-inter-actief' %}">{% trans 'Inter-<em>Actief</em>' %}</a></li>
+            <li><a href="{% url 'about:page' 2 'board' %}">{% trans 'Board' %}</a></li>
+            <li><a href="{% url 'about:page' 6 'former-boards' %}">{% trans 'Former boards' %}</a></li>
+            <li><a href="{% url 'about:page' 8 'honorary-members' %}">{% trans 'Honorary members' %}</a></li>
+            <li><a href="{% url 'about:page' 19 'members-of-merit' %}">{% trans 'Members of Merit' %}</a></li>
+            <li><a href="{% url 'members:committees' %}">{% trans 'Committees' %}</a></li>
+            <li><a href="{% url 'about:page' 3 'membership' %}">{% trans 'Membership' %}</a></li>
+            <li><a href="{% url 'about:page' 26 'graduation-drink' %}">{% trans '(Graduation) drink' %}</a></li>
+            <li><a href="{% url 'about:page' 11 'presentations' %}">{% trans 'Presentations' %}</a></li>
+            <li><a href="{% url 'about:page' 20 'symposia' %}">{% trans 'Symposia' %}</a></li>
+            <li><a href="{% url 'about:page' 28 'study-tours' %}">{% trans 'Study tours' %}</a></li>
+            <li><a href="{% url 'about:page' 14 'members-initiative' %}">{% trans "Members' initiative" %}</a></li>
+            <li><a href="{% url 'about:page' 5 'association-song' %}">{% trans 'Association song' %}</a></li>
+            <li><a href="{% url 'about:page' 16 'alumni-association-eniac' %}">{% trans 'Association ENIAC' %}</a></li>
+            <li><a href="{% url 'about:page' 4 'sister-associations' %}">{% trans 'Sister associations' %}</a></li>
+<li><a href="{% url 'about:page' 27 'the-inter-actief-app' %}">{% trans 'Inter-<i>Actief</i> app' %}</a></li>
+<li><a href="https://inter-archief.net">{% trans 'Inter-Archive' %}</a></li>
+        </ul>
+    </li>
+
+    <li>
+        <a href="#">{% trans 'For members' %}<span class="arrow">&#9660;</span></a>
+        <ul>
+            <li class="{% active_menu 'azure-dev-tools-for-teaching' %}">
+                <a href="{% url 'about:page' 24 'azure-dev-tools-for-teaching' %}">{% trans 'Azure Dev Tools' %}</a>
+            </li>
+            <li class="{% active_menu 'gmm' %}">
+                <a href="{% url 'gmm:index' %}">{% trans 'GMM documents' %}</a>
+            </li>
+            <li class="{% active_menu 'assignments-ut' %}">
+                <a href="{% url 'about:page' 18 'assignments-ut' %}">{% trans 'Assignments by the UT' %}</a>
+            </li>
+            <li>
+                <a href="https://huisstijl.inter-actief.net">{% trans 'Corporate identity' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'about:page' 25 'old-privacy-policies' %}">{% trans 'Old privacy policies' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'about:page' 31 'social-media' %}">{% trans 'Social media' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'about:page' 34 'mental-health' %}">{% trans 'Mental health' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'members:dogroups' %}">{% trans 'Dogroups' %}</a>
+            </li>
+            {% if request.person.is_active_member %}
+                <li>
+                    <a href="https://intra.ia.utwente.nl/">{% trans 'Intraweb' %}</a>
+                </li>
+            {% endif %}
+        </ul>
+    </li>
+
+    <li>
+        <a href="#">{% trans 'Companies' %}<span class="arrow">&#9660;</span></a>
+
+        <ul>
+            <li> <a href="{% url 'companies:company_overview' %}"> {% trans 'Company Corner' %}</a> </li>
+            <li> <a href="{% url 'companies:event_list' %}"> {% trans 'External Activities' %} </a> </li>
+        </ul>
+    </li>
+
+    <li class="{% active_menu 'education' %}">
+        <a href="#">{% trans 'Education' %}<span class="arrow">&#9660;</span></a>
+
+        <ul>
+            <li><a href="{% url 'education:overview' %}">{% trans 'Information' %}</a></li>
+            <li><a href="{% url 'education:news_archive' %}">{% trans 'Education news' %}</a></li>
+            <li><a href="{% url 'education:event_overview' %}">{% trans 'Activities' %}</a></li>
+            <li><a href={{ request.book_sales_url }}>{% trans 'Books' %}</a></li>
+            <li><a href="https://summaries.ia.utwente.nl/">{% trans 'Summaries' %}</a></li>
+            <li><a href="{% url 'education:complaints' %}">{% trans 'Complaints' %}</a></li>
+            <li><a href="{% url 'education:bouquet' %}">{% trans 'Educational bouquet' %}</a></li>
+            <li><a href="{% url 'education:awards' %}">{% trans 'Education awards' %}</a></li>
+<li><a href="{% url 'about:page' 29 'tutoring' %}">{% trans 'Tutoring' %}</a></li>
+        </ul>
+    </li>
+    <li class="{% active_menu 'contact'  %}">
+        <a href="{% url 'about:page' 7 'contact' %}">{% trans 'Contact' %}</a>
+    </li>
+
+    <li class="pull-right" id="nav_flag">
+        {% if LANGUAGE_CODE != "en" %}
+            <a href="#" onclick="document.setLangEnglish.submit();return false;" title="Switch to English language"><img src="{% cached_static 'img/layout/flag_en.png' %}" alt="English"></a>
+        {% endif %}
+        {% if LANGUAGE_CODE != "nl" %}
+            <a href="#" onclick="document.setLangDutch.submit();return false;" title="Wissel taal naar Nederlands"><img src="{% cached_static 'img/layout/flag_nl.png' %}" alt="Nederlands"></a>
+        {% endif %}
+    </li>
+
+    {% if user.is_authenticated %}
+        <li>
+            <a href="#">{{ request.person.incomplete_name }}</a>
+
+            <ul>
+                <li>
+                    <a href="{% url 'profile_overview' %}">{% trans 'My profile' %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'personal_tab:overview' %}">{% trans 'Personal tab' %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'oidc_logout' %}">{% trans 'Log out' %}</a>
+                </li>
+            </ul>
+        </li>
+    {% else %}
+        <li class="{% active_menu 'login'  %}">
+            <a href="{% url 'oidc_authentication_init' %}">{% trans 'Log in' %}</a>
+        </li>
+    {% endif %}
+</ul>

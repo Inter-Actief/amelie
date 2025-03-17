@@ -4,6 +4,10 @@
 {% block titel %}{% trans 'Activities' %}{% endblock titel %}
 
 {% block content %}
+    {% if request.april_active %}
+        {% include 'aprilbanner.html' %}
+    {% endif %}
+
     <div class="col-xs-12 col-md-7">
         <div class="current">
             <h2>{% trans "Activities you don't want to miss" %}</h2>

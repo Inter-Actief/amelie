@@ -1,4 +1,5 @@
 import datetime
+import random
 import time
 import json
 import re
@@ -1689,12 +1690,25 @@ class DoGroupTreeViewData(View):
         dogroups = dict()
         for dogroup in Dogroup.objects.all():
             dogroups[str(dogroup)] = {}
+
+        combinations = []
         for generation in generations.keys():
             dogroups[str(generation.dogroup)][generation.generation] = {
                 "id": generation.id,
                 "parents": [{"id": p.id} for p in generations[generation]],
                 "color": generation.color,
             }
+            if request.april_active:
+                combinations.append((str(generation.dogroup), generation.generation))
+
+        if request.april_active:
+            orig_combinations = combinations[:]
+            random.shuffle(combinations)
+            new_mapping = {old_tuple: combinations[i] for i, old_tuple in enumerate(orig_combinations)}
+            new_dogroups = {dogroup: {} for dogroup in dogroups.keys()}
+            for old_tuple, new_tuple in new_mapping.items():
+                new_dogroups[new_tuple[0]][new_tuple[1]] = dogroups[old_tuple[0]][old_tuple[1]]
+            dogroups = new_dogroups
 
         data = {
             "years": sorted(list(years)),
