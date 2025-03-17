@@ -20,4 +20,26 @@
 
             <p><i>This feature is currently in beta. If you prefer to browse without personalization, you can disable it <a href="https://arstechnica.com/gadgets/2024/05/google-searchs-udm14-trick-lets-you-kill-ai-search-for-good/" target="_blank">in the usual manner.</a></i></p>        </li>
     </ul>
+
+    <form style="display: flex; justify-content: center; gap: 15px">
+        <input style="width: 100%" type="text" class="looks-like-input" placeholder="Message Inter-AI" id="inter-ai-question">
+        <a class="looks-like-a-button" style="background-color: #0b2a40; margin: 0" href="#" onclick="askAI(event)">Submit</a>
+    </form>
 </div>
+
+<script>
+    /**
+     * Query Inter-AI!
+     *
+     * @param {Event} event
+     */
+    function askAI(event) {
+        event.preventDefault();
+
+        /** @type HTMLInputElement */
+        const questionInput = document.getElementById("inter-ai-question")
+        const question = questionInput.value
+
+        window.open(`https://www.bing.com/search?showconv=1&sendquery=1&q=${question}`, '_blank').focus();
+    }
+</script>
