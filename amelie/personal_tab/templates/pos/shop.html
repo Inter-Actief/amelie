@@ -24,7 +24,7 @@
                     <div class="shop-category {% if category.show_calculator_in_pos %}calculator-category{% endif %}" data-id="{{ category.id }}">
                         {% if category.show_calculator_in_pos %}
                             {% with category.active_articles.0 as article %}
-                                <div class="calculator" data-id="{{ article.id }}" data-price="{{ article.price }}" data-name="{{ article.name }}" data-image="{{ article.image.url }}">
+                                <div class="calculator" data-id="{{ article.id }}" data-price="{{ article.price | floatformat:"2u" }}" data-name="{{ article.name }}" data-image="{{ article.image.url }}">
                                     <div class="product-header">
                                         <span class="image" style="background-image: url('{{ article.image.url }}');"></span>
                                         <div class="text">
@@ -46,7 +46,7 @@
                             {% endwith %}
                         {% else %}
                             {% for article in category.active_articles %}
-                                <div class="shop-article-button" data-id="{{ article.id }}" data-price="{{ article.price }}" data-name="{{ article.name }}" data-image="{{ article.image.url }}">
+                                <div class="shop-article-button" data-id="{{ article.id }}" data-price="{{ article.price | floatformat:"2u" }}" data-name="{{ article.name }}" data-image="{{ article.image.url }}">
                                     <a href="#" class="article-instabuy"><i class="fas fa-donate"></i><span>{% trans 'Insta-buy' %}</span></a>
                                     <a href="#" class="article-addtocart">
                                         <div class="article-cover"></div>
@@ -82,7 +82,7 @@
                     {% else %}
                         <div id="top-five-entries">
                             {% for article in top_five_products %}
-                                <div class="top-five-entry" data-id="{{ article.id }}" data-price="{{ article.price }}" data-name="{{ article.name }}" data-image="{{ article.article_image }}">
+                                <div class="top-five-entry" data-id="{{ article.id }}" data-price="{{ article.price | floatformat:"2u" }}" data-name="{{ article.name }}" data-image="{{ article.article_image }}">
                                     <a href="#" class="top-five-instabuy">
                                         <div class="cover"></div>
                                         <span class="image" style="background-image: url('{{ article.article_image }}');"><span class="image-instabuy"><i class="fas fa-donate"></i><span>{% trans 'Insta-buy' %}</span></span></span>
