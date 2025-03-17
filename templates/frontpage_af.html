@@ -232,7 +232,7 @@
                 {% else %}
                     <h2>{% trans 'Birthdays' %}</h2>
                 {% endif %}
-                <div class="content">
+                <div class="birthdays content">
                     <ul class="no-bullets">
                         {% for birthday in birthdays %}
                             <li class="person">
@@ -247,6 +247,10 @@
                             <li>{% trans 'There are no birthdays today' %}</li>
                         {% endfor %}
                     </ul>
+                </div>
+                <div class="inter-ai-loader">
+                    <span class="ai-loader"></span>
+                    <span>Inter-<i>AI</i> is processing...</span>
                 </div>
             </div>
         {% endif %}
@@ -286,6 +290,7 @@
                 <span class="ai-loader"></span>
                 <span>Inter-<i>AI</i> is processing...</span>
             </div>
+
         </div>
         {# End education news things #}
     </div>
@@ -298,7 +303,7 @@
             <div class="edu">
                 <h2><a href="{% url 'education:complaints' %}">{% trans "Complaints" %}</a></h2>
 
-                <div class="content">
+                <div class="edu-complaints content">
                     <h3 class="legend">{% trans 'Recent complaints' %}</h3>
                     <ul>
                         {% for complaint in complaints %}
@@ -328,7 +333,7 @@
     {% endfor %}
 
     <script>
-        const loadableItems = document.querySelectorAll(".activity-list-ul, .featured-video, .board-tasks, #slider-items, #slider-list, .news .content, .edu .content");
+        const loadableItems = document.querySelectorAll(".activity-list-ul, .featured-video, .board-tasks, #slider-items, #slider-list, .ia.news .content, .edu.news .content, .edu-complaints, .birthdays");
 
         for (let loadableItem of loadableItems) {
             loadableItem.style.display = 'none';
