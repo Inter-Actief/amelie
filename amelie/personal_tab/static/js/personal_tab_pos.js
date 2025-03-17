@@ -470,7 +470,7 @@ function setupShopPage(){
         resetCart();
         var article_elem = $(event.currentTarget.parentElement);
         var article_id = article_elem.data('id');
-        var article_price = parseFloat(article_elem.data('price'));
+        var article_price = parseFloat(productPrice);
         var article_name = article_elem.data('name');
         var article_image = article_elem.data('image');
         addToCartInstant(article_id, article_name, 1, article_price, article_image);
@@ -480,7 +480,7 @@ function setupShopPage(){
         resetCart();
         var article_elem = $(event.currentTarget.parentElement);
         var article_id = article_elem.data('id');
-        var article_price = parseFloat(article_elem.data('price'));
+        var article_price = parseFloat(productPrice)
         var article_name = article_elem.data('name');
         var article_image = article_elem.data('image');
         addToCartInstant(article_id, article_name, 1, article_price, article_image);
@@ -489,7 +489,7 @@ function setupShopPage(){
     $('.article-addtocart').click(function(event){
         var article_elem = $(event.currentTarget.parentElement);
         var article_id = article_elem.data('id');
-        var article_price = parseFloat(article_elem.data('price'));
+        var article_price = parseFloat(productPrice);
         var article_name = article_elem.data('name');
         var article_image = article_elem.data('image');
         addToCart(article_id, article_name, 1, article_price, article_image);
