@@ -1,66 +1,15 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 
 import datetime
-import random
 from decimal import Decimal
 
-from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 
-from amelie.activities.models import Activity, EnrollmentoptionQuestion, EnrollmentoptionCheckbox, EnrollmentoptionFood, \
-    Restaurant, ActivityLabel
+from amelie.activities.models import Activity, EnrollmentoptionQuestion, EnrollmentoptionCheckbox, EnrollmentoptionFood
 from amelie.api.common import strip_markdown
-from amelie.members.models import Committee
 from amelie.personal_tab.models import Authorization, AuthorizationType
 from amelie.tools.templatetags import md
-from amelie.tools.tests import APITestCase
-
-
-def _gen_activities(count):
-    """
-    Generate activities.
-
-    Half of the activities is private.
-
-    :param int count: Number of activities to generate.
-    """
-
-    now = timezone.now()
-    committee = Committee.objects.all()[0]
-
-    restaurant = Restaurant(name='Test Restaurant')
-    restaurant.save()
-    restaurant.dish_set.create(name='Dish 1', price=33.42)
-    restaurant.dish_set.create(name='Dish 2', price=13.37)
-    label = ActivityLabel.objects.create(name_en="Test EN", name_nl="Test NL", color="000000", icon="-", explanation_en="-",
-                                         explanation_nl="-")
-
-    for i in range(0, count):
-        public = bool(i % 2)
-
-        start = now + datetime.timedelta(days=i, seconds=random.uniform(0, 5*3600))
-        end = start + datetime.timedelta(seconds=random.uniform(3600, 10*3600))
-
-        activity = Activity(begin=start, end=end, summary_nl='Test Activity %i' % i,
-                            summary_en='Test event %i' % i,
-                            organizer=committee, public=public, activity_label=label)
-        activity.save()
-
-        ct_question = ContentType.objects.get_for_model(EnrollmentoptionQuestion)
-        ct_checkbox = ContentType.objects.get_for_model(EnrollmentoptionCheckbox)
-        ct_food = ContentType.objects.get_for_model(EnrollmentoptionFood)
-
-        EnrollmentoptionQuestion(activity=activity, title='Optional question %i' % i, content_type=ct_question,
-                                 required=False).save()
-        EnrollmentoptionQuestion(activity=activity, title='Mandatory question %i' % i, content_type=ct_question,
-                                 required=True).save()
-        EnrollmentoptionCheckbox(activity=activity, title='Free checkbox %i' % i, content_type=ct_checkbox).save()
-        EnrollmentoptionCheckbox(activity=activity, title='Paid checkbox %i' % i, content_type=ct_checkbox,
-                                 price_extra=42.33).save()
-        EnrollmentoptionFood(activity=activity, title='Voluntary food %i' % i, content_type=ct_food,
-                             restaurant=restaurant, required=False).save()
-        EnrollmentoptionFood(activity=activity, title='Mandatory food %i' % i, content_type=ct_food,
-                             restaurant=restaurant, required=False).save()
+from amelie.tools.tests import APITestCase, generate_activities
 
 
 def _activity_data(activity, signedup=False):
@@ -176,7 +125,7 @@ class GetActivityDetailTest(APITestCase):
         """
         Test the getActivityDetailed() call with public events.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         activities = Activity.objects.filter_public(True)
         for activity in activities:
@@ -191,7 +140,7 @@ class GetActivityDetailTest(APITestCase):
         """
         Test the getActivityDetailed() call with private events.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         activities = Activity.objects.filter_public(False)
         for activity in activities:
@@ -202,7 +151,7 @@ class GetActivityDetailTest(APITestCase):
         """
         Test the getActivityDetailed() call with private events and an invalid token.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         activities = Activity.objects.filter(public=False)
         for activity in activities:
@@ -225,7 +174,7 @@ class GetActivityStreamTest(APITestCase):
         """
         Test the getActivityStream() call with public events.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         activities = Activity.objects.filter_public(True)[2:4]
         start = self.isodate_param(activities[0].begin)
@@ -243,7 +192,7 @@ class GetActivityStreamTest(APITestCase):
         """
         Test the getActivityStream() call with private events.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         activities = Activity.objects.filter_public(True)[4:8]
         start = self.isodate_param(activities[0].begin)
@@ -261,7 +210,7 @@ class GetActivityStreamTest(APITestCase):
         """
         Test the getActivityStream() call with an invalid token.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         start = self.isodate_param(timezone.now())
         end = self.isodate_param(timezone.now() + datetime.timedelta(days=31))
@@ -282,7 +231,7 @@ class GetUpcomingActivitiesTest(APITestCase):
         """
         Test the getUpcomingActivities() call with public events.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         expected_result = [_activity_data(a) for a in Activity.objects.filter_public(True)[:1]]
         self.send_and_compare_request('getUpcomingActivities', [1], None, expected_result)
@@ -297,7 +246,7 @@ class GetUpcomingActivitiesTest(APITestCase):
         """
         Test the getUpcomingActivities() call with private events.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         expected_result = [_activity_data(a) for a in Activity.objects.filter_public(False)[:1]]
         self.send_and_compare_request('getUpcomingActivities', [1], self.data['token1'], expected_result)
@@ -312,7 +261,7 @@ class GetUpcomingActivitiesTest(APITestCase):
         """
         Test the getUpcomingActivities() call with an invalid token.
         """
-        _gen_activities(10)
+        generate_activities(10)
 
         expected_result = [_activity_data(a) for a in Activity.objects.filter_public(True)]
         self.send_and_compare_request('getUpcomingActivities', [10], 'qNPiKNn3McZIC6fWKE1X', expected_result)
@@ -323,7 +272,7 @@ class ActivitySignupTest(APITestCase):
     def setUp(self):
         super(ActivitySignupTest, self).setUp()
 
-        _gen_activities(1)
+        generate_activities(1)
         self.activity = Activity.objects.get()
         self.activity.enrollment = True
         self.activity.enrollment_begin = timezone.now() - datetime.timedelta(hours=1)

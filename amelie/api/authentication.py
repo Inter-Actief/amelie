@@ -6,6 +6,11 @@ from oauth2_provider.models import AccessToken
 from amelie.api.decorators import authentication_optional, authentication_required
 from amelie.api.exceptions import NotLoggedInError
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import get_token
+from django.views.decorators.http import require_GET
+
 from modernrpc.core import rpc_method, REQUEST_KEY
 
 
@@ -129,3 +134,9 @@ def get_authenticated_apps(**kwargs) -> Union[List[Dict], None]:
     else:
         return None
 
+@require_GET
+@ensure_csrf_cookie  # Ensures the CSRF cookie is set
+def get_csrf_token(request):
+    response = JsonResponse({"message": "CSRF cookie set"})
+    response["X-CSRFToken"] = get_token(request)  # Send CSRF token in headers
+    return response

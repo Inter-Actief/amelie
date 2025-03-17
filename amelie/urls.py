@@ -58,6 +58,9 @@ urlpatterns = [
     # API
     path('api/', include('amelie.api.urls')),
 
+    # GraphQL API
+    path('graphql/', include('amelie.graphql.urls')),
+
     # Feeds
     path('feeds/', include(
         ([
