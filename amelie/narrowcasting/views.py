@@ -61,7 +61,7 @@ def room_spotify_callback(request):
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "client_secret": settings.SPOTIFY_CLIENT_SECRET
         })
-    except requests.exceptions.ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         raise ValueError(_("ConnectionError while refreshing access token:") + f" {e}")
 
     data = res.json()
@@ -85,7 +85,7 @@ def _spotify_refresh_token(association):
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "client_secret": settings.SPOTIFY_CLIENT_SECRET
         })
-    except requests.exceptions.ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         raise ValueError(_("ConnectionError while refreshing access token:") + f" {e}")
 
     data = res.json()
@@ -124,7 +124,7 @@ def room_spotify_now_playing(request):
                             params={"market": "from_token"},
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except requests.exceptions.ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while retrieving player info: {e}")
         # Return empty response
@@ -169,7 +169,7 @@ def room_spotify_pause(request):
         res = requests.put("https://api.spotify.com/v1/me/player/pause",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except requests.exceptions.ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while pausing Spotify player: {e}")
         # Return empty response
@@ -214,7 +214,7 @@ def room_spotify_play(request):
         res = requests.put("https://api.spotify.com/v1/me/player/play",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except requests.exceptions.ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while unpausing Spotify player: {e}")
         # Return empty response
