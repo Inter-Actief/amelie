@@ -29,6 +29,7 @@ class GlobalIAVariablesMiddleware(MiddlewareMixin):
     # noinspection PyMethodMayBeStatic
     def process_request(self, request):
         request.book_sales_url = settings.BOOK_SALES_URL
+        request.april_active = str(request.GET.get('udm', '0')) != "14"
 
         user = request.user
         if hasattr(user, 'person'):

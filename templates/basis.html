@@ -60,11 +60,11 @@
             <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
 
             {% endcompress %}
-			
+
             {% compress js %}
             {% comment %} Bootstrap modal needed for popup {% endcomment %}
             <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
-			
+
             {% comment %} CB script {% endcomment %}
             <script src="{% cached_static 'js/cb.js' %}"></script>
             {% endcompress %}
@@ -128,7 +128,7 @@
                             {% elif theme == "valentine" and request.person %}
                                 <img src="{% cached_static 'img/layout/logo_valentine.svg' %}" data-fallback="{% cached_static 'img/layout/logo_valentine.png' %}" alt="Inter-/Actief/"/>
                             {% elif theme == "april-fools" %}
-                                <img src="{% cached_static 'img/layout/logo_production_aprilfools.svg' %}" data-fallback="{% cached_static 'img/layout/logo_production.png' %}" alt="Inter-/Actief/"/>
+                                <img src="{% cached_static 'img/layout/inter-ai.png' %}" data-fallback="{% cached_static 'img/layout/inter-ai.png' %}" alt="Inter-/Actief/"/>
                             {% else %}
                                 {% if env == 'STAGING' %}
                                     <img src="{% cached_static 'img/layout/logo_staging.svg' %}" data-fallback="{% cached_static 'img/layout/logo_staging.png' %}" alt="Inter-/Actief/"/>
@@ -295,6 +295,9 @@
 		<div id="middle">
 			<div class="follow-container"><div id="screenfollow" class="container"></div></div>
 			<div id="content" class="container">
+                {% if request.april_active %}
+                    {% include 'aprilbanner.html' %}
+                {% endif %}
                 {% if messages %}
                     <div class="col-xs-12">
                         <ul class="ia_messages">

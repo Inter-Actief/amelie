@@ -1,5 +1,6 @@
 import datetime
 import logging
+import random
 from datetime import timedelta, date
 
 from django.conf import settings
@@ -200,46 +201,87 @@ def frontpage(request):
     current_activities += list(CompanyEvent.objects.filter(visible_from__lte=now, visible_till__gt=now)
                                .filter(begin__lte=now, end__gt=now))
     current_activities += list(EducationEvent.objects.filter_public(request)
-                                                     .filter(begin__lte=now, end__gt=now))
+                               .filter(begin__lte=now, end__gt=now))
 
     # Cut the list to the maximum and let python sort the list instead of django,
     # since there are multiple model types in the list.
     current_activities = sorted(current_activities[:activity_list_length], key=lambda a: a.begin)
 
-    # Upcoming activities
-    upcoming_activities = list(Activity.objects.filter_public(request)
-                               .filter(begin__gt=now))
-    upcoming_activities += list(CompanyEvent.objects.filter(visible_from__lte=now, visible_till__gt=now)
-                                .filter(begin__gt=now))
-    upcoming_activities += list(EducationEvent.objects.filter_public(request)
-                                .filter(begin__gt=now))
+    if request.april_active:
+        # Shuffle all lists on the frontpage
+        try:
+            company_activity = CompanyEvent.objects.filter(visible_from__lte=now, visible_till__gt=now).order_by("?").first()
+        except CompanyEvent.DoesNotExist:
+            company_activity = None
+        try:
+            edu_activity = EducationEvent.objects.filter_public(request).order_by("?").first()
+        except EducationEvent.DoesNotExist:
+            edu_activity = None
 
-    upcoming_activities = sorted(upcoming_activities,
-                                 key=lambda a: a.begin)[:activity_list_length - len(current_activities)]
+        wanted_length = activity_list_length - (1 if company_activity else 0) - (1 if edu_activity else 0)
 
-    # Picture reel
-    if hasattr(request, 'person'):
-        # Logged in, show all pictures
-        past_activities = Activity.objects.distinct().filter(begin__lt=timezone.now(),
-                                                             photos__gt=0).order_by('-begin')[:3]
+        upcoming_activities = list(Activity.objects.filter_public(request).order_by("?")[:wanted_length])
+        if company_activity:
+            upcoming_activities.append(company_activity)
+        if edu_activity:
+            upcoming_activities.append(edu_activity)
+        random.shuffle(upcoming_activities)
+
+
+        if hasattr(request, 'person'):
+            past_activities = Activity.objects.distinct().filter(photos__gt=0).order_by("?")[:3]
+        else:
+            past_activities = Activity.objects.distinct().filter(begin__lt=timezone.now(),
+                                                                 photos__gt=0,
+                                                                 photos__public=True).order_by("?")[:3]
+
+        # Featured video
+        featured_video = BaseVideo.objects.filter_public(request).order_by("?").first()
+
+        # News
+        education_committee = Committee.education_committee()
+        news = NewsItem.objects.select_related('author', 'publisher').order_by("?")
+        if education_committee:
+            education_news = news.filter(publisher=education_committee)[:3]
+            news = news.exclude(publisher=education_committee)
+        else:
+            education_news = news.none()
+        news = news[:3]
     else:
-        # Only show public pictures
-        past_activities = Activity.objects.distinct().filter(begin__lt=timezone.now(),
-                                                             photos__gt=0,
-                                                             photos__public=True).order_by('-begin')[:3]
+        # Upcoming activities
+        upcoming_activities = list(Activity.objects.filter_public(request)
+                                   .filter(begin__gt=now))
+        upcoming_activities += list(CompanyEvent.objects.filter(visible_from__lte=now, visible_till__gt=now)
+                                    .filter(begin__gt=now))
+        upcoming_activities += list(EducationEvent.objects.filter_public(request)
+                                    .filter(begin__gt=now))
 
-    # Featured video
-    featured_video = BaseVideo.objects.filter_public(request).filter(is_featured=True).first()
+        upcoming_activities = sorted(upcoming_activities,
+                                     key=lambda a: a.begin)[:activity_list_length - len(current_activities)]
 
-    # News
-    education_committee = Committee.education_committee()
-    news = NewsItem.objects.select_related('author', 'publisher').order_by('-pinned', '-publication_date')
-    if education_committee:
-        education_news = news.filter(publisher=education_committee)[:3]
-        news = news.exclude(publisher=education_committee)
-    else:
-        education_news = news.none()
-    news = news[:3]
+        # Picture reel
+        if hasattr(request, 'person'):
+            # Logged in, show all pictures
+            past_activities = Activity.objects.distinct().filter(begin__lt=timezone.now(),
+                                                                 photos__gt=0).order_by('-begin')[:3]
+        else:
+            # Only show public pictures
+            past_activities = Activity.objects.distinct().filter(begin__lt=timezone.now(),
+                                                                 photos__gt=0,
+                                                                 photos__public=True).order_by('-begin')[:3]
+
+        # Featured video
+        featured_video = BaseVideo.objects.filter_public(request).filter(is_featured=True).first()
+
+        # News
+        education_committee = Committee.education_committee()
+        news = NewsItem.objects.select_related('author', 'publisher').order_by('-pinned', '-publication_date')
+        if education_committee:
+            education_news = news.filter(publisher=education_committee)[:3]
+            news = news.exclude(publisher=education_committee)
+        else:
+            education_news = news.none()
+        news = news[:3]
 
     context = {
         'current_activities': current_activities,
@@ -254,22 +296,37 @@ def frontpage(request):
     if request.user.is_authenticated:
         # MediaCie check
         context['mediacie'] = request.person.is_in_committee('MediaCie')
-        
+
         # Room Duty check
         context['is_roomduty'] = request.person.is_room_duty()
 
         # Birthdays
-        context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,
-                                                               date_of_birth__month=date.today().month).distinct()
+        if request.april_active:
+            context['birthdays'] = Person.objects.members().order_by("?").distinct()[:random.randint(2, 5)]
+        else:
+            context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,
+                                                                   date_of_birth__month=date.today().month).distinct()
 
         # Complaints
-        if request.is_board:
-            complaints = Complaint.objects.filter(completed=False)
+        if request.april_active:
+            if request.is_board:
+                complaints = Complaint.objects.all()
+            else:
+                complaints = Complaint.objects.filter(Q(public=True) | Q(reporter=request.person))
+            context['complaints'] = complaints.select_related('course').order_by("?")[:5]
         else:
-            complaints = Complaint.objects.filter(Q(completed=False) & (Q(public=True) | Q(reporter=request.person)))
-        context['complaints'] = complaints.select_related('course').order_by('-published')[:5]
+            if request.is_board:
+                complaints = Complaint.objects.filter(completed=False)
+            else:
+                complaints = Complaint.objects.filter(Q(completed=False) & (Q(public=True) | Q(reporter=request.person)))
+            context['complaints'] = complaints.select_related('course').order_by('-published')[:5]
 
-    return render(request, "frontpage.html", context)
+    if request.april_active:
+        context['block_order'] = [1,2,3,4,5,6,7,8,9]
+        random.shuffle(context['block_order'])
+        return render(request, "frontpage_af.html", context)
+    else:
+        return render(request, "frontpage.html", context)
 
 
 def server_error(request, template_name='500.html'):
