@@ -7,6 +7,12 @@
            href="{% url 'activities:photo_upload' %}">{% trans "Add photos" %}</a>
     {% endif %}
 </h2>
+{% if request.april_active %}
+<div class="inter-ai-loader">
+    <span class="ai-loader"></span>
+    <span>Inter-<i>AI</i> is processing...</span>
+</div>
+{% endif %}
 <div id="slider-items">
     {% for activity in past_activities %}
         <a href="{{ activity.get_photo_url }}" title="{{ activity }}"></a>

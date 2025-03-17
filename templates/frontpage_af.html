@@ -17,7 +17,7 @@
         {# Activity things #}
         <div class="current activity-list">
             <h2><a href="{% url 'activities:activities' %}">{% trans 'Upcoming activities' %}</a></h2>
-            <ul>
+            <ul class="activity-list-ul">
                 {% for current_activity in current_activities %}
                     <li class="activity-{{ current_activity.activity_type }}{% if current_activity.dutch_activity %} dutch-only{% endif %}">
                         <div class="date">
@@ -85,6 +85,10 @@
                     </li>
                 {% endfor %}
             </ul>
+            <div class="inter-ai-loader">
+                <span class="ai-loader"></span>
+                <span>Inter-<i>AI</i> is processing...</span>
+            </div>
         </div>
         {# End activity things #}
     </div>
@@ -124,6 +128,10 @@
                         <iframe src="https://www.youtube-nocookie.com/embed/{{ featured_video.video_id }}?modestbranding=0&amp;rel=0&amp;showinfo=0&amp;vq=hd720&amp;hl={{ LANGUAGE_CODE }}" scrolling="no" frameborder="0" allowfullscreen></iframe>
                     {% endif %}
                 </div>
+                <div class="inter-ai-loader">
+                    <span class="ai-loader"></span>
+                    <span>Inter-<i>AI</i> is processing...</span>
+                </div>
             </div>
         {% endif %}
         {# End video things #}
@@ -137,7 +145,7 @@
         {% if user.is_authenticated and request.is_board or is_roomduty %}
             <div class="ia">
                 <h2>{% trans 'Board tasks' %}</h2>
-                <ul class="no-bullets">
+                <ul class="no-bullets board-tasks">
                     <li><b>{% trans 'Member management' %}</b></li>
                     <li class="person"><a href="{% url 'members:query' %}">{% trans 'Members' %}</a></li>
                     <li class="person"><a href="{% url 'members:person_new_general' %}">{% trans 'Add new member' %}</a></li>
@@ -159,6 +167,10 @@
                     <li class="person"><a href="{% url 'activities:eventdesk_list' %}">{% trans 'UT Eventdesk status' %}</a></li>
                     {% endif %}
                 </ul>
+                <div class="inter-ai-loader">
+                    <span class="ai-loader"></span>
+                    <span>Inter-<i>AI</i> is processing...</span>
+                </div>
             </div>
         {% endif %}
         {# End board things #}
@@ -204,6 +216,10 @@
                     {% endfor %}
                 </ul>
             </div>
+            <div class="inter-ai-loader">
+                <span class="ai-loader"></span>
+                <span>Inter-<i>AI</i> is processing...</span>
+            </div>
         </div>
         {# End news things #}
     </div>
@@ -219,7 +235,7 @@
                 {% else %}
                     <h2>{% trans 'Birthdays' %}</h2>
                 {% endif %}
-                <div class="content">
+                <div class="birthdays content">
                     <ul class="no-bullets">
                         {% for birthday in birthdays %}
                             <li class="person">
@@ -234,6 +250,10 @@
                             <li>{% trans 'There are no birthdays today' %}</li>
                         {% endfor %}
                     </ul>
+                </div>
+                <div class="inter-ai-loader">
+                    <span class="ai-loader"></span>
+                    <span>Inter-<i>AI</i> is processing...</span>
                 </div>
             </div>
         {% endif %}
@@ -269,6 +289,11 @@
                     {% endfor %}
                 </ul>
             </div>
+            <div class="inter-ai-loader">
+                <span class="ai-loader"></span>
+                <span>Inter-<i>AI</i> is processing...</span>
+            </div>
+
         </div>
         {# End education news things #}
     </div>
@@ -281,7 +306,7 @@
             <div class="edu">
                 <h2><a href="{% url 'education:complaints' %}">{% trans "Complaints" %}</a></h2>
 
-                <div class="content">
+                <div class="edu-complaints content">
                     <h3 class="legend">{% trans 'Recent complaints' %}</h3>
                     <ul>
                         {% for complaint in complaints %}
@@ -299,10 +324,31 @@
                         <a class="looks-like-a-button" href="{% url 'education:complaints' %}">{% trans 'See all complaints / File complaint' %}</a>
                     </div>
                 </div>
+                <div class="inter-ai-loader">
+                    <span class="ai-loader"></span>
+                    <span>Inter-<i>AI</i> is processing...</span>
+                </div>
             </div>
         {% endif %}
         {# End education complaint things #}
     </div>
     {% endif %}
     {% endfor %}
+
+    <script>
+        const loadableItems = document.querySelectorAll(".activity-list-ul, .featured-video, .board-tasks, #slider-items, #slider-list, .ia.news .content, .edu.news .content, .edu-complaints, .birthdays");
+
+        for (let loadableItem of loadableItems) {
+            loadableItem.style.display = 'none';
+            const loaders = loadableItem.parentNode.querySelectorAll('.inter-ai-loader');
+            for (let loader of loaders) {
+                setTimeout(() => {
+                    loadableItem.style.display = 'block'
+                    loader.style.display = 'none';
+                }, Math.random() * 5_000 + 2_000);
+            }
+        }
+
+
+    </script>
 {% endblock content %}
