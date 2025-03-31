@@ -15,6 +15,11 @@
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/room_narrowcasting_christmas.css" />
     {% elif theme == "valentine" %}
         <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/room_narrowcasting_valentine.css" />
+    {% elif theme == "april-fools" %}
+        {% if request.april_active %}
+            <link type="text/css" rel="stylesheet" href="{% url 'tools:color_scheme' %}" />
+        {% endif %}
+        <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/narrowcasting_april_fools.css" />
     {% endif %}
 </head>
 <body>

@@ -11,6 +11,11 @@
         <link rel="stylesheet" href="{% static 'css/personal_tab_pos_christmas.css' %}">
     {% elif theme == "valentine" %}
         <link rel="stylesheet" href="{% static 'css/personal_tab_pos_valentine.css' %}">
+    {% elif theme == "april-fools" %}
+        {% if request.april_active %}
+            <link type="text/css" rel="stylesheet" href="{% url 'tools:color_scheme' %}" />
+        {% endif %}
+        <link type="text/css" rel="stylesheet" href="{% static 'css/personal_tab_pos_april_fools.css' %}" />
     {% endif %}
     {% block css %}
     {% endblock %}

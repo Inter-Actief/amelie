@@ -1,0 +1,29 @@
+.header {
+    background: var(--alpha-base);
+}
+
+.footer {
+    background: var(--alpha-base);
+}
+
+:root {
+    --ia-blue-verylight: var(--alpha-light);
+    --ia-blue-light: var(--alpha-lighter);
+    --ia-blue: var(--alpha-base);
+    --ia-blue-dark: var(--alpha-dark);
+    --ia-blue-verydark: var(--alpha-darker);
+    --ia-green-verylight: var(--beta-light);
+    --ia-green-light: var(--beta-lighter);
+    --ia-green: var(--beta-base);
+    --ia-green-dark: var(--beta-dark);
+    --ia-red-verylight: var(--delta-light);
+    --ia-red-light: var(--delta-lighter);
+    --ia-red: var(--delta-base);
+    --ia-red-dark: var(--delta-dark);
+
+    --orange-verylight: rgba(255,128,0,0.8);
+    --yellow-verylight: #ffed54;
+
+    --grey-verylight: var(--grey-lighter);
+    --grey-verydark: var(--grey-darker);
+}
