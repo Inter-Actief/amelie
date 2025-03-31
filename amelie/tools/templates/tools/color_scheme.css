@@ -1,0 +1,196 @@
+:root {
+    --alpha-base: {{ palette.alpha.base|default:"#1d428a" }};
+    --alpha-light: {{ palette.alpha.light|default:"#2450A8" }};
+    --alpha-lighter: {{ palette.alpha.lighter|default:"#2450A8" }};
+    --alpha-dark: {{ palette.alpha.dark|default:"#153065" }};
+    --alpha-darker: {{ palette.alpha.darker|default:"#153065" }};
+
+    --beta-base: {{ palette.beta.base|default:"#077821" }};
+    --beta-light: {{ palette.beta.light|default:"#099A2B" }};
+    --beta-lighter: {{ palette.beta.lighter|default:"#099A2B" }};
+    --beta-dark: {{ palette.beta.dark|default:"#044D15" }};
+    --beta-darker: {{ palette.beta.darker|default:"#044D15" }};
+
+    --delta-base: {{ palette.delta.base|default:"#B8231F" }};
+    --delta-light: {{ palette.delta.light|default:"#DC332E" }};
+    --delta-lighter: {{ palette.delta.lighter|default:"#DC332E" }};
+    --delta-dark: {{ palette.delta.dark|default:"#9D1F1B" }};
+    --delta-darker: {{ palette.delta.darker|default:"#9D1F1B" }};
+
+    --grey-base: {{ palette.grey.base|default:"#B8231F" }};
+    --grey-light: {{ palette.grey.light|default:"#DC332E" }};
+    --grey-lighter: {{ palette.grey.lighter|default:"#DC332E" }};
+    --grey-dark: {{ palette.grey.dark|default:"#9D1F1B" }};
+    --grey-darker: {{ palette.grey.darker|default:"#9D1F1B" }};
+}
+
+/* Randomized color scheme */
+
+/* Base background and text color */
+html, body, #middle {
+    background-color: var(--grey-light) !important;
+    color: var(--grey-darker) !important;
+}
+
+/* header and footer */
+#top, #bottom {
+    background: var(--alpha-base);
+}
+
+/* Navbar button bg and text */
+#nav li > a {
+    background: var(--alpha-base) !important;
+    color: var(--grey-lighter) !important;
+}
+
+/* Hovered navbar button bg and text */
+#nav li:hover > a, #nav li.hover > a {
+    background: var(--alpha-light) !important;
+    color: var(--grey-lighter) !important;
+}
+
+/* Active navbar button bg and text */
+#nav li.active > a {
+    background: var(--grey-lighter) !important;
+    color: var(--alpha-base) !important;
+}
+
+/* Navbar submenu button bg and text */
+#nav li ul li > a {
+    background: var(--grey-lighter) !important;
+    color: var(--alpha-base) !important;
+}
+
+/* Hovered navbar submenu button bg and text */
+#nav li ul li a:hover {
+    background: var(--alpha-light) !important;
+    color: var(--grey-lighter) !important;
+}
+
+/* Nav should be blue tones if we are in collapsed view */
+@media(max-width: 991px) {
+    #nav li:hover > a, #nav li.hover > a, #nav li.active > a {
+        color: var(--grey-lighter);
+    }
+}
+
+/* Claudia navbar active and hover bg */
+#subnavbar ul li:hover, #subnavbar ul li.active {
+    background: var(--alpha-base);
+}
+
+/* Table headers */
+.ia th {
+    background: var(--alpha-base);
+}
+.current th {
+    background: var(--beta-base);
+}
+.edu th {
+    background: var(--delta-base);
+}
+
+/* Paginators on IA pages */
+.ia .paging > .current {
+    background: var(--alpha-base);
+    border: 1px solid var(--alpha-darker);
+    color: var(--grey-lighter);
+}
+.ia .paging > span:not(.current) a {
+    color: var(--alpha-base);
+    border: 1px solid var(--alpha-darker);
+}
+
+/* Paginators on activity pages */
+.current .paging > .current {
+    background: var(--beta-base);
+    border: 1px solid var(--beta-darker);
+    color: var(--grey-lighter);
+}
+.current .paging > span:not(.current) a {
+    color: var(--beta-base);
+    border: 1px solid var(--beta-darker);
+}
+
+/* Paginators on education pages */
+.edu.paging > .current {
+    background: var(--delta-base);
+    border: 1px solid var(--delta-darker);
+    color: var(--grey-lighter);
+}
+.edu.paging > span:not(.current) a {
+    color: var(--delta-base);
+    border: 1px solid var(--delta-darker);
+}
+
+/* Text headings */
+.current h2 {
+    background: var(--alpha-base);
+    color: var(--grey-lighter);
+}
+.ia h2 {
+    background: var(--beta-base);
+    color: var(--grey-lighter);
+}
+.edu h2 {
+    background: var(--delta-base);
+    color: var(--grey-lighter);
+}
+
+/* Frontpage photo slider */
+#slider-list li {
+    background: var(--grey-lighter) !important;
+    color: var(--grey-darker);
+}
+
+#slider-list li.active {
+    background: var(--beta-base) !important;
+    color: var(--grey-lighter);
+}
+
+/* Basic button */
+a.looks-like-a-button {
+    color: var(--grey-lighter);
+    background: var(--grey-base) !important;
+    border-color: var(--grey-lighter);
+}
+
+/* IA style button */
+.ia input[type="button"], .ia input[type="submit"], .ia button, .ia a.looks-like-a-button, .ia input.looks-like-a-button {
+    color: var(--grey-lighter);
+    background: var(--alpha-base) !important;
+    border-color: var(--alpha-darker);
+}
+
+/* Activity style button */
+.current a.looks-like-a-button, .current input[type="submit"], .current input[type="button"], .current button, #slider-carousel-title a.looks-like-a-button, .current a.looks-like-a-button {
+    color: var(--grey-lighter);
+    background: var(--beta-base) !important;
+    border-color: var(--beta-darker);
+}
+
+/* Education style button */
+.edu a.looks-like-a-button, .edu input[type="submit"], .edu input[type="button"], .edu button {
+    color: var(--grey-lighter);
+    background: var(--delta-base) !important;
+    border-color: var(--delta-darker);
+}
+
+/* Link colors */
+.ia a {
+    color: var(--alpha-base);
+}
+.current a {
+    color: var(--beta-base);
+}
+.edu a {
+    color: var(--delta-base);
+}
+
+/* AprilFools loader colors */
+.ai-loader::before , .ai-loader::after {
+    border: 5px solid var(--alpha-light) !important;
+  }
+.ai-loader::after{
+    border-color: var(--alpha-base) !important;
+}

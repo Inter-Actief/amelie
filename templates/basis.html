@@ -49,6 +49,9 @@
         {% elif theme == "valentine" and request.person %}
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/valentine.css" />
         {% elif theme == "april-fools" %}
+            {% if request.april_active %}
+                <link type="text/css" rel="stylesheet" href="{% url 'tools:color_scheme' %}" />
+            {% endif %}
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/april-fools.css" />
         {% endif %}
 

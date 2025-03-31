@@ -1,13 +1,18 @@
 import logging
+import random
 
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.utils import translation
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 
 from amelie.iamailer.mailer import render_mail
+from amelie.tools.color_palette_generator import generate_palette
 from amelie.tools.decorators import require_superuser
 from amelie.tools.forms import MailTemplateTestForm, ExportTypeSelectForm
 from amelie.tools.mail import person_dict
@@ -143,3 +148,15 @@ class DataExportStatistics(RequireBoardMixin, ListView):
         context['model'] = self.model
         context['export_types_form'] = ExportTypeSelectForm(self.request.GET)
         return context
+
+@cache_page(60 * 15)  # Cache colors for 15 minutes
+@vary_on_cookie  # Different cache for each user/browser/session
+def color_scheme(request):
+    h = random.randint(0, 359)  # Any hue is fine
+    s = random.randint(50, 100)  # Make sure saturation is in the upper half (we want at least semi-vibrant colors)
+    l = random.randint(20, 70)  # Make sure the lightness is in the middle half (we want to generate lighter and darker variant colors)
+    palette = generate_palette(h=h, s=s, l=l, shade_variation=30)
+    return HttpResponse(
+        render_to_string(template_name="tools/color_scheme.css", context={"palette": palette}, request=request),
+        content_type='text/css',
+    )

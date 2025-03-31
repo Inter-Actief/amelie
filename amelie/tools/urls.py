@@ -13,4 +13,7 @@ urlpatterns = [
     path('mail/', MailPreview.as_view(), name='mail_preview'),
     re_path(r'^mail/(?P<lang>(nl|en))/(?P<template_name>.*)/$', MailPreview.as_view(), name='mail_preview'),
     path('mailtest/', views.mail_template_test, name='mail_template_test'),
+
+    # April fools color scheme generator
+    path('colors.css', views.color_scheme, name='color_scheme'),
 ]
