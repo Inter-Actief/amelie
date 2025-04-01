@@ -218,7 +218,7 @@ def complaints(request):
     if request.april_active:
         complaint_objs = Complaint.objects.order_by("?").exclude(subject=Complaint.ComplaintChoices.GRADING.value)\
             .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
-            .prefetch_related('people').prefetch_related('course')[:random.randint(1, 5)]
+            .prefetch_related('people').prefetch_related('course')
         expired = Complaint.objects.filter(completed=False, subject=Complaint.ComplaintChoices.GRADING.value).order_by("?")\
             .prefetch_related(Prefetch('complaintcomment_set', queryset=ComplaintComment.objects.filter(complaint_comment_filter)))\
             .prefetch_related('people').prefetch_related('course')
@@ -241,6 +241,10 @@ def complaints(request):
         complaint_objs = complaint_objs.filter(reporter_q)
         expired = expired.filter(reporter_q)
         completed = completed.filter(reporter_q)
+
+    # Fix TypeError("Cannot filter a query once a slice has been taken.")
+    if request.april_active:
+        complaint_objs = complaint_objs[:random.randint(1,5)]
 
     return render(request, "complaints.html", locals())
 
