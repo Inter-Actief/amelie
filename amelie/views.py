@@ -227,6 +227,10 @@ def frontpage(request):
             upcoming_activities.append(edu_activity)
         random.shuffle(upcoming_activities)
 
+        # Add activities today and tomorrow
+        today_activities = Activity.objects.filter_public(request).filter(end__gte=timezone.now(), end__lt=timezone.now() + datetime.timedelta(days=3))
+        upcoming_activities = list(today_activities) + upcoming_activities[:-len(today_activities)]
+
 
         if hasattr(request, 'person'):
             past_activities = Activity.objects.distinct().filter(photos__gt=0).order_by("?")[:3]

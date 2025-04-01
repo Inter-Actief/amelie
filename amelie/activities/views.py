@@ -130,6 +130,9 @@ def activities(request, act_type=None):
     if request.april_active:
         old_activities = list(activities[:10])
         new_activities = list(activities[:random.randint(5,20)])
+        # Add activities today and tomorrow
+        today_activities = Event.objects.filter_public(request).filter(end__gte=timezone.now(), end__lt=timezone.now() + datetime.timedelta(days=2))
+        new_activities = list(today_activities) + new_activities
     else:
         old_activities = list(activities.filter(end__lt=timezone.now()))[-10:]
         new_activities = list(activities.filter(end__gte=timezone.now()))
