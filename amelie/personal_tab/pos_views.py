@@ -2,6 +2,7 @@ import json
 import logging
 import operator
 from functools import reduce
+from typing import List
 
 from django.conf import settings
 from django.contrib import messages
@@ -81,15 +82,19 @@ class PosProcessRFIDView(RequireCookieCornerMixin, View):
             messages.error(request, _l('No cards were scanned, please try again.'))
             return redirect('personal_tab:pos_logout')
 
-        people = [r.person for r in RFIDCard.objects.filter(code__in=tags, active=True)]
+        rfid_cards: List[RFIDCard] = list(RFIDCard.objects.filter(code__in=tags, active=True))
+        people = [r.person for r in rfid_cards]
 
         if people:
             # Found one or more people
             if len(set(people)) == 1:
                 person = Person.objects.get(pk=people[0].id)
+                card = rfid_cards[0]
                 if person.has_mandate_consumptions() and person.is_member():
-                    # Found one person, set username to session and continue to shop
+                    # Found one person, set username to session, update last used time on RFID and continue to shop
                     self.request.session['POS_LOGIN_UID'] = people[0].id
+                    card.last_used = timezone.now()
+                    card.save()
                     return redirect("personal_tab:pos_shop")
                 else:
                     messages.error(request,
