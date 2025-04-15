@@ -101,8 +101,10 @@ class EducationalBouquetForm(forms.Form):
         self.fields['course'].choices = calc_choices()
 
     def save(self, *args, **kwargs):
+        course_id = self.cleaned_data['course']
+        course = Course.objects.get(id=course_id)
         context = {'teacher': self.cleaned_data['teacher'],
-                   'course': self.cleaned_data['course'],
+                   'course': course,
                    'reason': self.cleaned_data['reason'],
                    'author': self.cleaned_data['author'],
                    'email': self.cleaned_data['email'],
