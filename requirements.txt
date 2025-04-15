@@ -86,3 +86,6 @@ sentry-sdk>=1.22.1,<1.23
 
 # Health checks for Django
 django-health-check>=3.16.5,<3.17
+
+# Allows for CAPTCHA support in forms
+django-simple-captcha

@@ -5,7 +5,7 @@ from graphene_django import DjangoObjectType
 from django.utils.translation import gettext_lazy as _
 from graphene_django.forms.mutation import DjangoFormMutation
 
-from amelie.education.forms import EducationalBouquetForm
+from amelie.education.forms import EducationalBouquetForm, EducationalBouquetFormGraphQL
 
 from amelie.activities.graphql import ActivityLabelType
 from amelie.calendar.graphql import EventType, EVENT_TYPE_BASE_FIELDS, EVENT_TYPE_BASE_PUBLIC_FIELDS
@@ -150,7 +150,7 @@ class EducationQuery(graphene.ObjectType):
 class EducationalBouquetMutation(DjangoFormMutation):
 
     class Meta:
-        form_class = EducationalBouquetForm
+        form_class = EducationalBouquetFormGraphQL
 
 class EducationMutation:
     educational_bouquet = EducationalBouquetMutation.Field()

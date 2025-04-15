@@ -91,6 +91,9 @@ urlpatterns = [
     path(f'sysinfo/', views.SystemInfoView.as_view(), name='system_info'),
     path(f'ht/{settings.HEALTH_CHECK_URL_TOKEN}/', include('health_check.urls')),
 
+    # CAPTCHA
+    path(f'captcha', include('captcha.urls')),
+
     # Other
     path('favicon.ico',
         RedirectView.as_view(
