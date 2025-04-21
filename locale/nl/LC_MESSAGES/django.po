@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-04-21 14:57+0200\n"
-"PO-Revision-Date: 2025-03-11 12:08+0000\n"
+"PO-Revision-Date: 2025-04-21 13:01+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -9672,15 +9672,15 @@ msgstr "[EIND] {}"
 
 #: amelie/tools/graphql.py:7 amelie/tools/graphql.py:12
 msgid "The key for this specific CAPTCHA challenge"
-msgstr ""
+msgstr "De referentie voor deze specifieke CAPTCHA challenge"
 
 #: amelie/tools/graphql.py:8
 msgid "The URL to the generated image for this CAPTCHA"
-msgstr ""
+msgstr "De URL naar de gegenereerde afbeelding voor deze CAPTCHA"
 
 #: amelie/tools/graphql.py:13
 msgid "The response to the CAPTCHA challenge"
-msgstr ""
+msgstr "Het antwoord op de CAPTCHA challenge"
 
 #: amelie/tools/pdf.py:17
 msgid "Separator page"
