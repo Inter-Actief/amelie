@@ -75,7 +75,7 @@ model_bakery>=1.7.0,<1.19
 django-silk>=5.0.1,<5.2
 
 # SAML IdP (requires xmlsec1 (on Debian))
-pysaml2>=7.2.1,<7.5
+pysaml2>=7.2.1,<7.6
 djangosaml2idp>=0.7.2,<0.8 #TODO: Officially only supports Django up-and-till 3.0 (not updated for the last 3 years)
 
 # Single Sign On - OIDC Client
