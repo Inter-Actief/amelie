@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
@@ -419,7 +419,7 @@ class Person(models.Model, Mappable):
     def is_board(self):
         return self.function_set.filter(committee__superuser=True, committee__abolished__isnull=True,
                                         end__isnull=True).exists()
-    
+
     def is_in_committee(self, abbreviation):
         return self.function_set.filter(committee__abbreviation=abbreviation, end__isnull=True).exists()
 
@@ -1101,7 +1101,7 @@ class Function(models.Model):
     end = models.DateField(null=True, blank=True, verbose_name=_l('Ended on'))
 
     class Meta(object):
-        ordering = ['end', '-begin', 'person']
+        ordering = [F("end").desc(nulls_first=True), '-begin', 'person']
         verbose_name = _l('position')
         verbose_name_plural = _l('functions')
 
