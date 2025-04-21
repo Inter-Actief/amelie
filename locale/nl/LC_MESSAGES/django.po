@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-11 12:58+0100\n"
+"POT-Creation-Date: 2025-04-21 14:57+0200\n"
 "PO-Revision-Date: 2025-03-11 12:08+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -7435,35 +7435,35 @@ msgstr "Onbekende artiest"
 msgid "Error while getting spotify data"
 msgstr "Fout bij het ophalen van data van spotify"
 
-#: amelie/narrowcasting/views.py:22 amelie/narrowcasting/views.py:44
-#: amelie/narrowcasting/views.py:113 amelie/narrowcasting/views.py:159
-#: amelie/narrowcasting/views.py:204
+#: amelie/narrowcasting/views.py:21 amelie/narrowcasting/views.py:43
+#: amelie/narrowcasting/views.py:112 amelie/narrowcasting/views.py:158
+#: amelie/narrowcasting/views.py:203
 msgid "Spotify settings not configured."
 msgstr "Spotify-instellingen niet gevonden."
 
-#: amelie/narrowcasting/views.py:28
+#: amelie/narrowcasting/views.py:27
 msgid "Association already exists."
 msgstr "Koppeling bestaat al."
 
-#: amelie/narrowcasting/views.py:47
+#: amelie/narrowcasting/views.py:46
 msgid "No auth code or state given."
 msgstr "Geen authorisatiecode of staat gegeven."
 
-#: amelie/narrowcasting/views.py:52
+#: amelie/narrowcasting/views.py:51
 msgid "No such authentication attempt found, try again."
 msgstr "Geen authenticatiepoging gevonden, probeer het opnieuw."
 
-#: amelie/narrowcasting/views.py:66 amelie/narrowcasting/views.py:90
+#: amelie/narrowcasting/views.py:65 amelie/narrowcasting/views.py:89
 msgid "ConnectionError while refreshing access token:"
 msgstr "ConnectionError tijdens het verversen van het access token:"
 
-#: amelie/narrowcasting/views.py:116 amelie/narrowcasting/views.py:162
-#: amelie/narrowcasting/views.py:207
+#: amelie/narrowcasting/views.py:115 amelie/narrowcasting/views.py:161
+#: amelie/narrowcasting/views.py:206
 msgid "Missing identifier"
 msgstr "Missende identificatie"
 
-#: amelie/narrowcasting/views.py:121 amelie/narrowcasting/views.py:167
-#: amelie/narrowcasting/views.py:212
+#: amelie/narrowcasting/views.py:120 amelie/narrowcasting/views.py:166
+#: amelie/narrowcasting/views.py:211
 msgid "No association for this identifier"
 msgstr "Geen koppeling voor deze identificatie"
 
@@ -7648,7 +7648,7 @@ msgstr "Terugboeking incasso {date}"
 msgid "Reversal contribution {membership_type} ({start_year}/{end_year})"
 msgstr "Terugboeking contributie {membership_type} ({start_year}/{end_year})"
 
-#: amelie/personal_tab/pos_views.py:293
+#: amelie/personal_tab/pos_views.py:305
 msgid "The login code is invalid or expired, please try again!."
 msgstr "Deze logincode is ongeldig of verlopen, probeer het opnieuw!"
 
@@ -9539,19 +9539,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:730
+#: amelie/settings/generic.py:734
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:731
+#: amelie/settings/generic.py:735
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:732
+#: amelie/settings/generic.py:736
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:733
+#: amelie/settings/generic.py:737
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -9669,6 +9669,18 @@ msgstr "[START] {}"
 #: amelie/tools/calendar.py:135
 msgid "[END] {}"
 msgstr "[EIND] {}"
+
+#: amelie/tools/graphql.py:7 amelie/tools/graphql.py:12
+msgid "The key for this specific CAPTCHA challenge"
+msgstr ""
+
+#: amelie/tools/graphql.py:8
+msgid "The URL to the generated image for this CAPTCHA"
+msgstr ""
+
+#: amelie/tools/graphql.py:13
+msgid "The response to the CAPTCHA challenge"
+msgstr ""
 
 #: amelie/tools/pdf.py:17
 msgid "Separator page"
