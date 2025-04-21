@@ -102,7 +102,7 @@ class EducationalBouquetForm(forms.Form):
 
     def save(self, *args, **kwargs):
         course_id = self.cleaned_data['course']
-        course = Course.objects.get(id=course_id)
+        course = BaseCourseModule.objects.get(id=course_id)
         context = {'teacher': self.cleaned_data['teacher'],
                    'course': course,
                    'reason': self.cleaned_data['reason'],
