@@ -47,7 +47,7 @@ class AbsoluteURLsProcessor(md.treeprocessors.Treeprocessor):
 
 class AbsoluteURLExtension(md.Extension):
     def extendMarkdown(self, md):
-        md.treeprocessors['absoluteURLs'] = AbsoluteURLsProcessor(md)
+        md.treeprocessors.register(AbsoluteURLsProcessor(md), 'absoluteURLs', 175)
 
 
 class RemoveURLProcessor(md.treeprocessors.Treeprocessor):
@@ -81,7 +81,7 @@ class RemoveURLProcessor(md.treeprocessors.Treeprocessor):
 
 class RemoveURLExtension(md.Extension):
     def extendMarkdown(self, md):
-        md.treeprocessors['removeURLs'] = RemoveURLProcessor(md)
+        md.treeprocessors.register(RemoveURLProcessor(md), 'removeURLs', 175)
 
 
 def markdown(value, arg=""):
