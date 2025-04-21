@@ -49,7 +49,7 @@ from amelie.files.models import Attachment
 from amelie.calendar.models import Participation, Event
 from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
-from amelie.members.query_forms import MailingForm
+from amelie.members.query_forms import ActivityMailingForm
 from amelie.tools import amelie_messages, types
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
@@ -1071,11 +1071,11 @@ def activity_mailing(request, pk):
     longest_student_number = '0123456'
 
     if request.method == "GET":
-        form = MailingForm(initial=initial)
+        form = ActivityMailingForm(initial=initial)
         preview_content = None
         preview_subject = None
     elif request.method == "POST":
-        form = MailingForm(request.POST)
+        form = ActivityMailingForm(request.POST)
         if form.is_valid():
             if not form.cleaned_data['include_waiting_list']:
                 people = obj.confirmed_participants
