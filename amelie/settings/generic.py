@@ -332,6 +332,9 @@ INSTALLED_APPS = (
     'health_check.cache',
     'health_check.storage',
     'health_check.contrib.migrations',
+
+    # CAPTCHA support
+    'captcha',
 )
 
 # Enable timezone support
@@ -431,6 +434,7 @@ GRAPHQL_SCHEMAS = [
     "amelie.news.graphql",
     "amelie.publications.graphql",
     "amelie.videos.graphql",
+    "amelie.tools.graphql",
 ]
 
 GRAPHENE_DJANGO_EXTRAS = {
