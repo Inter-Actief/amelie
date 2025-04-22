@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
                 # Try to update the last used time on the RFID card that was used for the transaction
                 try:
-                    rfid_card = person.rfid_card.get(code=order['rfid'])
+                    rfid_card = person.rfidcard_set.get(code=order['rfid'])
                     rfid_card.last_used = timezone.now()
                     rfid_card.save()
                     self.stdout.write(f"[{i+1}/{num_orders}] Last used date updated for RFID card '{rfid_card}' of {person}.")
