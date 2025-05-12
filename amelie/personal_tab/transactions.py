@@ -31,10 +31,9 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
     date = max(participation.event.begin, timezone.now())
 
     if cancel:
-        try:
-            old_transaction = ActivityTransaction.objects.get(participation=participation, event=participation.event,
-                                                              person=participation.person)
-        except ActivityTransaction.DoesNotExist:
+        old_transaction = ActivityTransaction.objects.filter(participation=participation, event=participation.event,
+                                                          person=participation.person).last()
+        if not old_transaction:
             # A compensation does not need to be created because there is no transaction to compensate.
             return
 
