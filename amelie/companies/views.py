@@ -56,7 +56,7 @@ def company_details(request, slug):
     return render(request, 'companies/company_details.html', {'obj': obj, 'is_board': is_board})
 
 
-@require_board
+@require_committee("KasCo")
 def banner_list(request):
     """ List of all banners """
     website_banners = WebsiteBanner.objects.all()
