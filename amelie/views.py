@@ -23,7 +23,7 @@ from amelie.companies.models import CompanyEvent
 from amelie.forms import AmelieAuthenticationForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
-from amelie.members.models import Person, Committee, StudyPeriod
+from amelie.members.models import Person, Committee, StudyPeriod, Preference
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
@@ -254,13 +254,16 @@ def frontpage(request):
     if request.user.is_authenticated:
         # MediaCie check
         context['mediacie'] = request.person.is_in_committee('MediaCie')
-        
+
         # Room Duty check
         context['is_roomduty'] = request.person.is_room_duty()
 
         # Birthdays
-        context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,
-                                                               date_of_birth__month=date.today().month).distinct()
+        context['birthdays'] = Person.objects.members().filter(
+            date_of_birth__day=date.today().day,
+            date_of_birth__month=date.today().month,
+            preferences__name="birthday_show_frontpage",
+        ).distinct()
 
         # Complaints
         if request.is_board:
