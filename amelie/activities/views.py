@@ -41,7 +41,7 @@ from amelie.activities.mail import activity_send_enrollmentmail, activity_send_o
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
-    EnrollmentoptionNumericAnswer
+    EnrollmentoptionNumericAnswer, EnrollmentoptionAnswer
 from amelie.activities.tasks import save_photos
 from amelie.activities.utils import check_enrollment_allowed, check_unenrollment_allowed, update_waiting_list
 from amelie.claudia.google import GoogleSuiteAPI
@@ -442,28 +442,34 @@ def activity_unenrollment_self(request, pk):
     return redirect(obj)
 
 
-def activity_editenrollment(request, participation, obj):
-    # If necessary, compensate the enrollment costs.
+@transaction.atomic
+def activity_editenrollment(request, participation, obj, edited_by=None):
     from amelie.personal_tab import transactions
-    transactions.remove_participation(participation)
 
-    # Important to not delete the participation, as the spot on the waiting list will be given away.
-    if participation.waiting_list:
-        participation.enrollmentoptionanswer_set.all().delete()
+    # It is important to not delete the participation, because the person's spot in the activity or on the waiting list
+    # could be given away to the next waiting list entry.
+    # So we need to update the enrollment options of the participation in-place
 
-        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj, request.POST if request.POST else None,
-                                                                        participation.person.user)
+    if not participation.waiting_list:
+        # If this is a regular participation, we need to remove the old transaction from
+        # their personal tab to not charge them twice, and to be able to re-add the updated costs later
+        transactions.remove_participation(participation, added_by=edited_by, is_edited_participation=True)
 
-        # Make enrollmentoptions
-        for form in enrollmentoptions_forms:
-            if form.is_valid():
-                answer = form.save(commit=False)
-                answer.enrollment = participation
-                answer.save()
-                form.save_m2m()
-    else:
-        participation.delete()
-        activity_enrollment_form(request, obj, person=None)
+    enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj, request.POST if request.POST else None,
+                                                                    participation.person.user)
+
+    # Make enrollmentoptions
+    for form in enrollmentoptions_forms:
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.enrollment = participation
+            answer.save()
+            form.save_m2m()
+
+    if not participation.waiting_list:
+        # If this is a regular participation, we need to re-add
+        # the transaction to update the costs on the personal tab
+        transactions.add_participation(participation, added_by=edited_by, is_edited_participation=True)
 
 
 @require_lid
@@ -485,7 +491,7 @@ def activity_editenrollment_self(request, pk):
         return redirect(obj)
 
     if request.method == 'POST':
-        activity_editenrollment(request, participation, obj)
+        activity_editenrollment(request, participation, obj, edited_by=None)
         # Redirect back to the activity
         return redirect(obj)
     else:
@@ -502,11 +508,11 @@ def activity_editenrollment_other(request, pk, person_id):
     """
     Edit enrollment of the person that is logged in for this activity.
     """
-
     # Lock the Activity object for updating, prevent concurrent (un)enrollments
     obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
     person = get_object_or_404(Person, pk=person_id)
     activity = obj
+
 
     try:
         participation = Participation.objects.select_for_update().get(person=person, event=obj)
@@ -514,7 +520,8 @@ def activity_editenrollment_other(request, pk, person_id):
         raise Http404
 
     if request.method == 'POST':
-        activity_editenrollment(request, participation, obj)
+        logging.error("Moving to POST action")
+        activity_editenrollment(request, participation, obj, edited_by=request.person)
         # Redirect back to the activity
         return redirect(obj)
     else:
@@ -611,48 +618,43 @@ def activity_enrollment_person(request, pk, person_id):
     return activity_enrollment_form(request, activity, person)
 
 
-def _build_enrollmentoptionsanswers_forms(activity, data, user):
+def _build_enrollmentoptionsanswers_forms(activity_obj, data, user):
     forms = []
 
-    for enrollmentoption in activity.enrollmentoption_set.all():
+    for enrollmentoption in activity_obj.enrollmentoption_set.all():
         prefix = 'enrollmentoption_{}'.format(enrollmentoption.pk)
 
         answer_type = ENROLLMENTOPTION_ANSWER_TYPES[enrollmentoption.content_type.model_class()]
         content_type = ContentType.objects.get_for_model(answer_type)
         instance = answer_type(enrollmentoption=enrollmentoption, content_type=content_type)
 
+        # Try to resolve the instance to an actual object if the person is enrolled for the activity
+        try:
+            participation = Participation.objects.get(person__user=user, event=activity_obj)
+            try:
+                instance = answer_type.objects.get(
+                    enrollment=participation,
+                    enrollmentoption=enrollmentoption,
+                    content_type=content_type
+                )
+            except EnrollmentoptionAnswer.DoesNotExist:
+                pass
+        except Participation.DoesNotExist:
+            pass
+
         form_type = ENROLLMENTOPTIONANSWER_FORM_TYPES[enrollmentoption.content_type.model_class()]
 
-        # Make sure that if someone adjusts their enrollment and they have a spot with a limited capacity,
+        # Make sure that if someone adjusts their enrollment, and they have a spot with a limited capacity,
         # they still have the option to keep their spot.
         checked = False
-        try:
-            if form_type == EnrollmentoptionCheckboxAnswerForm:
-                participation = Participation.objects.get(person__user=user, event=activity)
-                unit = EnrollmentoptionCheckboxAnswer.objects.get(enrollmentoption=enrollmentoption,
-                                                                  enrollment=participation)
-                checked = unit.answer
-            elif form_type == EnrollmentoptionNumericAnswerForm:
-                participation = Participation.objects.get(person__user=user, event=activity)
-                unit = EnrollmentoptionNumericAnswer.objects.get(enrollmentoption=enrollmentoption,
-                                                                 enrollment=participation)
-                checked = unit.answer > 0
-        except (EnrollmentoptionCheckboxAnswer.DoesNotExist, EnrollmentoptionNumericAnswer.DoesNotExist,
-                Participation.DoesNotExist):
-            pass
-
-        # If no data is given for this form, fill it from the database if possible
-        initial = None
-        try:
-            participation = Participation.objects.get(person__user=user, event=activity)
-            initial = {
-                "answer": answer_type.objects.get(enrollmentoption=enrollmentoption, enrollment=participation).answer}
-        except (Participation.DoesNotExist, answer_type.DoesNotExist):
-            pass
+        if form_type == EnrollmentoptionCheckboxAnswerForm:
+            checked = instance.answer
+        elif form_type == EnrollmentoptionNumericAnswerForm:
+            checked = instance.answer > 0
 
         forms.append(
-            form_type(enrollmentoption=enrollmentoption, checked=checked, data=data, prefix=prefix, instance=instance,
-                      initial=initial))
+            form_type(enrollmentoption=enrollmentoption, checked=checked, data=data,
+                      prefix=prefix, instance=instance))
     return forms
 
 
