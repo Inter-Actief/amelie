@@ -520,7 +520,6 @@ def activity_editenrollment_other(request, pk, person_id):
         raise Http404
 
     if request.method == 'POST':
-        logging.error("Moving to POST action")
         activity_editenrollment(request, participation, obj, edited_by=request.person)
         # Redirect back to the activity
         return redirect(obj)
