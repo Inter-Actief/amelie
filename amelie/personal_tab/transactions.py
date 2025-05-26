@@ -32,8 +32,11 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
 
     if cancel:
         try:
-            old_transaction = ActivityTransaction.objects.get(participation=participation, event=participation.event,
-                                                              person=participation.person)
+            # The latest (by create time) positive ActivityTransaction for this participation should be compensated
+            old_transaction = ActivityTransaction.objects.filter(
+                participation=participation, event=participation.event, person=participation.person,
+                price__gte=0  # Positive (or 0) price
+            ).order_by('-added_on').first()  # Latest transaction, by creation time
         except ActivityTransaction.DoesNotExist:
             # A compensation does not need to be created because there is no transaction to compensate.
             return
@@ -52,20 +55,26 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
     transaction.save()
 
 
-def add_participation(participation, added_by=None):
+def add_participation(participation, added_by=None, is_edited_participation=False):
     """Adds a transaction for a participation in an event."""
 
     with translation.override(participation.person.preferred_language):
-        reason = _("Enrolled for {activity}").format(activity=participation.event.summary)
+        if is_edited_participation:
+            reason = _("Edited enrollment for {activity} (addition of updated costs)").format(activity=participation.event.summary)
+        else:
+            reason = _("Enrolled for {activity}").format(activity=participation.event.summary)
 
     participation_transaction(participation, reason, added_by=added_by)
 
 
-def remove_participation(participation, added_by=None):
+def remove_participation(participation, added_by=None, is_edited_participation=False):
     """Adds a transaction to nullify a participation in an event."""
 
     with translation.override(participation.person.preferred_language):
-        reason = _("Unenrolled for {activity}").format(activity=participation.event.summary)
+        if is_edited_participation:
+            reason = _("Edited enrollment for {activity} (reversal of old costs)").format(activity=participation.event.summary)
+        else:
+            reason = _("Unenrolled for {activity}").format(activity=participation.event.summary)
 
     participation_transaction(participation, reason, cancel=True, added_by=added_by)
 
