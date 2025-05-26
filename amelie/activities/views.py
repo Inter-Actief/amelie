@@ -646,10 +646,11 @@ def _build_enrollmentoptionsanswers_forms(activity_obj, data, user):
         # Make sure that if someone adjusts their enrollment, and they have a spot with a limited capacity,
         # they still have the option to keep their spot.
         checked = False
-        if form_type == EnrollmentoptionCheckboxAnswerForm:
-            checked = instance.answer
-        elif form_type == EnrollmentoptionNumericAnswerForm:
-            checked = instance.answer > 0
+        if instance.pk:
+            if form_type == EnrollmentoptionCheckboxAnswerForm:
+                checked = instance.answer
+            elif form_type == EnrollmentoptionNumericAnswerForm:
+                checked = instance.answer > 0
 
         forms.append(
             form_type(enrollmentoption=enrollmentoption, checked=checked, data=data,
