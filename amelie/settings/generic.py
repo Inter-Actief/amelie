@@ -742,6 +742,8 @@ OAUTH2_PROVIDER = {
     # expired refresh tokens and access tokens are cleared with the ``cleartokens`` command
     'REFRESH_TOKEN_EXPIRE_SECONDS': 2630000,
 }
+# Defaults to True since django-oauth-toolkit 2.x, but we probably have clients that don't support it.
+PKCE_REQUIRED = False
 
 # SAML2 Identity Provider configuration
 SAML_BASE_URL = "https://www.inter-actief.utwente.nl/saml2idp"
