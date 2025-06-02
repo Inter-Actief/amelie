@@ -83,7 +83,7 @@ class Command(BaseCommand):
         self.stdout.write("")
         self.stdout.write("================== Amelie Year Transfer Script ==================")
         self.stdout.write("")
-        self.stdout.write("Transferring from assocation year {current_year} to {new_year}.")
+        self.stdout.write(f"Transferring from assocation year {current_year} to {new_year}.")
         self.stdout.write("")
         self.stdout.write("The year transfer script will perform the following prolongations:")
         for from_type, to_type in next_membership_type.items():
@@ -182,6 +182,8 @@ class Command(BaseCommand):
                     if commit:
                         l, created = Membership.objects.get_or_create(member=membership.member, type=next_type,
                                                                       year=new_year)
+                        if not created:
+                            errorfile.write(smart_str(f"{membership.member} ({membership.type}) was already enrolled for the new year\n"))
 
                         if payment_type:
                             if created:
