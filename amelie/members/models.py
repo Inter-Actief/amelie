@@ -518,7 +518,6 @@ class Person(models.Model, Mappable):
         if at is None:
             at = datetime.date.today()
         if self.date_of_birth is not None:
-            # note that the inequal
             not_this_year_yet = (at.month, at.day) < (self.date_of_birth.month, self.date_of_birth.day)
             return at.year - self.date_of_birth.year - not_this_year_yet
         else:
