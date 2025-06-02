@@ -80,6 +80,21 @@ class Command(BaseCommand):
         studylong_continuation = MembershipType.objects.get(name_nl='Studielang (vervolg)')
         next_membership_type[studylong_firstyear] = studylong_continuation
 
+        self.stdout.write("")
+        self.stdout.write("================== Amelie Year Transfer Script ==================")
+        self.stdout.write("")
+        self.stdout.write("Transferring from assocation year {current_year} to {new_year}.")
+        self.stdout.write("")
+        self.stdout.write("The year transfer script will perform the following prolongations:")
+        for from_type, to_type in next_membership_type.items():
+            if from_type in yearmembershiptypes or from_type in studylongmembershiptypes:
+                self.stdout.write(f"  {from_type} -> {to_type}")
+        self.stdout.write("")
+        self.stdout.write("The following other membership types will not be prolonged:")
+        for from_type in next_membership_type.keys():
+            if from_type not in yearmembershiptypes and from_type not in studylongmembershiptypes:
+                self.stdout.write(f"  {from_type}")
+
         # The members that will be in this file have not automatically gotten a new membership.
         discontinued_members_file = open('discontinued.txt', 'w')
         # This file will hold all errors. For these people nothing is created. The reason is also in the file.
@@ -111,12 +126,14 @@ class Command(BaseCommand):
         paymenttype_continuation = PaymentType.objects.filter(name='Studielang (vervolg)')[0]
         paymenttype_sponsored = PaymentType.objects.filter(name='Sponsoring')[0]
 
-        error_already_enrolled = u"{} ({}) was already enrolled for the new year, no payment was created!\n"
-
         if prev_prolong:
             memberships = Membership.objects.filter(year=current_year, type__needs_verification=True)
         else:
             memberships = Membership.objects.filter(year=current_year)
+
+        self.stdout.write("")
+        self.stdout.write("================== YEAR TRANSFER OUTPUT ==================")
+        self.stdout.write("")
 
         for membership in memberships:
             if not membership.ended:
@@ -139,19 +156,17 @@ class Command(BaseCommand):
                 already_exists = False
                 try:
                     new_membership = Membership.objects.get(member=membership.member, year=new_year, ended__isnull=True)
-                except Membership.DoesNotExist:
-                    pass
-                else:
                     next_type = new_membership.type
                     prolong = True
                     already_exists = True
+                except Membership.DoesNotExist:
+                    pass
 
                 if prolong:
                     if already_exists:
-                        self.stdout.write(u"{} ({}) -> {} (already existed)".format(membership.member, membership.type,
-                                                                                    next_type))
+                        self.stdout.write(f"{membership.member} ({membership.type}) -> {next_type} (already existed)")
                     else:
-                        self.stdout.write(u"{} ({}) -> {}".format(membership.member, membership.type, next_type))
+                        self.stdout.write(f"{membership.member} ({membership.type}) -> {next_type}")
 
                     mandate = authorization_contribution(membership.member)
 
@@ -176,40 +191,51 @@ class Command(BaseCommand):
                                                            amount=next_type.price)
                                 b.save()
                             else:
-                                errorfile.write(smart_str(error_already_enrolled.format(membership.member,
-                                                                                        membership.type)))
+                                errorfile.write(smart_str(f"{membership.member} ({membership.type}) was already enrolled for the new year, no payment was created!\n"))
 
                         l.save()
 
                 else:
                     if not prev_prolong and membership.type != ENIAC_MEMBERSHIP:
                         discontinuationmails_first.add_recipient(PersonRecipient(recipient=membership.member))
-                        self.stdout.write(u"!! {} ({}) HAS NO VERIFIED MEMBERSHIP YET".format(membership.member,
-                                                                                              membership.type))
+                        self.stdout.write(f"!! {membership.member} ({membership.type}) HAS NO VERIFIED MEMBERSHIP YET")
                     elif not prev_prolong and membership.type == ENIAC_MEMBERSHIP:
                         discontinuationmails_eniac.add_recipient(PersonRecipient(recipient=membership.member))
-                        self.stdout.write(u"!! {} ({}) CANCELLED BECAUSE OF ENIAC MEMBERSHIP".format(membership.member,
-                                                                                                     membership.type))
+                        self.stdout.write(f"!! {membership.member} ({membership.type}) CANCELLED BECAUSE OF ENIAC MEMBERSHIP")
                     else:
                         discontinuationmails_final.add_recipient(PersonRecipient(recipient=membership.member))
-                        self.stdout.write(u"!! {} ({}) CANCELLED BECAUSE NOT VERIFIED IN TIME".format(membership.member,
-                                                                                                      membership.type))
+                        self.stdout.write(f"!! {membership.member} ({membership.type}) CANCELLED BECAUSE NOT VERIFIED IN TIME")
 
                     if membership.member.last_name_prefix:
-                        last_name = '{} {}'.format(membership.member.last_name_prefix, membership.member.last_name)
+                        last_name = f"{membership.member.last_name_prefix} {membership.member.last_name}"
                     else:
                         last_name = membership.member.last_name
 
                     discontinued_members_file.write(
-                        smart_str(u"{}, {}, {}, {}\n".format(membership.member.first_name,
-                                                             last_name,
-                                                             membership.member.email_address,
-                                                             membership.type.name))
+                        smart_str(f"{membership.member.first_name}, {last_name}, {membership.member.email_address}, {membership.type.name}\n")
                     )
 
         discontinued_members_file.close()
         errorfile.close()
 
+        # Print discontinued and error files out to console, because when running in Kubernetes, when this script finishes the files will be gone.
+        self.stdout.write("")
+        self.stdout.write("================== DISCONTINUED MEMBERS ==================")
+        self.stdout.write("")
+        with open('discontinued.txt', 'r') as discontinued_file:
+            for line in discontinued_file:
+                self.stdout.write(line, ending="")
+
+        self.stdout.write("")
+        self.stdout.write("================== MEMBERS WITH ERRORS ==================")
+        self.stdout.write("")
+        with open('errorfile.txt', 'r') as error_file:
+            for line in error_file:
+                self.stdout.write(line, ending="")
+
+        self.stdout.write("")
+        self.stdout.write("================== END ==================")
+        self.stdout.write("")
         self.stdout.write(u"Sending mails...")
 
         if commit:
