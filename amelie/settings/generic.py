@@ -383,6 +383,10 @@ DATETIME_INPUT_FORMATS = (
     '%Y/%m/%d',
 )
 
+# Only use cookies for HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Rename cookies to prevent collision with other Django installations on our webserver
 CSRF_COOKIE_NAME = 'amelie_csrftoken'
 LANGUAGE_COOKIE_NAME = 'amelie_django_language'
