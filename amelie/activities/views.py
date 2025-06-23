@@ -218,7 +218,7 @@ def activity(request, pk, deanonymise=False):
             'total_price__sum')) if restaurant.dishes.aggregate(Sum('total_price')).get(
             'total_price__sum') is not None else 0 for restaurant in restaurants])
         total_amount = sum(
-            [restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants])
+            [restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants if restaurant is not None])
 
     can_view_photos = activity.photos.filter_public(request).count() > 0
     obj = activity  # Template laziness
