@@ -30,13 +30,17 @@ EXTENSIONS = ['mail', 'html', 'txt', 'py']
 # Add only names or word groups that are best matched with regular expressions. No extra English words should not be added.
 IGNORED_WORDS = [
     "\\bNL\\b", "\\bEN\\b", "inter- *actief\\b", "\\bu?twente\\b", "\\bhome\\b", "\\bcompany corner\\b",
-    "\\bGoogle Maps\\b", "Postcode.nl", "euro?", '\\bSponsored by\\b', '\\binbitween\\b', 'BP', 'Am[eé]lie',
-    'https://(www\\.)?inter-actief\\.net', '\\bAccountbeheer\\b', '\\bweek\\b', '\\bEnglish version Nederlandse versie',
-    '(?:contact|accountbeheer)@inter-actief\\.net', 'https?://www\\.inter-actief\\.utwente\\.nl(?:/profile/edit)?',
-    '\\bEUR\\b', '\\b-\\b', '\\bI\\.C\\.T\\.S\\.V\\.\\b', '\\bInter-\\b', '\\bActief\\b', '\\b\\+53 489 3756\\b', '\\bcontact@inter-actief\\.net\\b',
-    '\\bhttps://ictsv\\.nl/wa\\b', '\\bhttps://ictsv\\.nl/discord\\b', '\\b@inter\\.actief\\b', '\\bhttps://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/\\b',
-    '\\b\\*\\b'
+    "\\bGoogle Maps\\b", "Postcode\\.nl", "euro?", "\\bSponsored by\\b", "\\binbitween\\b", "BP", "Am[eé]lie",
+    "https://(www\\.)?inter-actief\\.net", "\\bAccountbeheer\\b", "\\bweek\\b",
+    "\\bEnglish version Nederlandse versie\\b",
+    "(?:contact|accountbeheer)@inter-actief\\.net",
+    "https?://www\\.inter-actief\\.utwente\\.nl(?:/profile/edit)?",
+    "\\bEUR\\b", "\\b-\\b", "\\bI\\.C\\.T\\.S\\.V\\.\\b", "\\bInter-\\b", "\\bActief\\b",
+    "\\+53 489 3756", "contact@inter-actief\\.net",
+    "https://ictsv\\.nl/wa", "https://ictsv\\.nl/discord", "@inter\\.actief",
+    "https://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/", "\\*"
 ]
+
 
 REGEX_ACCEPTED = re.compile('^([^a-zA-Z]|&.*?;|\\b\\w\\b|{})*$'.format('|'.join(IGNORED_WORDS)), re.IGNORECASE)
 TEMPLATE_FOLDERS = list(Loader(_engine_list(None)).get_dirs())
