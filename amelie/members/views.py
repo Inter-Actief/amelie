@@ -1728,3 +1728,4 @@ class DoGroupTreeViewData(View):
             "data": dogroups,
         }
         return JsonResponse(data)
+
