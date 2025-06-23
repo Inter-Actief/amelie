@@ -33,7 +33,7 @@ IGNORED_WORDS = [
     "\\bGoogle Maps\\b", "Postcode.nl", "euro?", '\\bSponsored by\\b', '\\binbitween\\b', 'BP', 'Am[eé]lie',
     'https://(www\\.)?inter-actief\\.net', '\\bAccountbeheer\\b', '\\bweek\\b', '\\bEnglish version Nederlandse versie',
     '(?:contact|accountbeheer)@inter-actief\\.net', 'https?://www\\.inter-actief\\.utwente\\.nl(?:/profile/edit)?',
-    '\\bEUR\\b', '\\b-\\b', '\\bI.C.T.S.V. Inter-\\b', '\\bActief\\b', '\\b+53 489 3756\\b', '\\bcontact@inter-actief.net\\b',
+    '\\bEUR\\b', '\\b-\\b', '\\bI.C.T.S.V. Inter-\\b', '\\bActief\\b', '\\b\+53 489 3756\\b', '\\bcontact@inter-actief.net\\b',
     '\\bhttps://ictsv.nl/wa\\b', '\\bhttps://ictsv.nl/discord\\b', '\\b@inter.actief\\b', '\\bhttps://www.linkedin.com/company/i.c.t.s.v.-inter-actief/\\b'
 ]
 
