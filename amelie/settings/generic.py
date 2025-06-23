@@ -995,3 +995,7 @@ BOOK_SALES_URL = "https://wo4you.nl/"
 
 # Abbreviation of the room duty committee for access checks.
 ROOM_DUTY_ABBREVIATION = "RoomDuty"
+
+# Set language cookie settings for /graphql language switcher
+LANGUAGE_COOKIE_SAMESITE = "None"
+LANGUAGE_COOKIE_SECURE = "True"  # Cookie is only sent over HTTPS
