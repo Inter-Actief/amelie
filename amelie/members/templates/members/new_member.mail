@@ -23,19 +23,19 @@
 
 {% blocktrans %}If you have any questions, you can always contact the board through the following channels:{% endblocktrans %}
 
-{% onlyhtml %}<ul><li>{% translate "Telephone" %}: +53 489 3756</li><li>{% translate "Email" %}: <a href="mailto:contact@inter-actief.net">contact@inter-actief.net</a></li><li>{% translate "Website" %}: <a href="https://www.inter-actief.utwente.nl/">https://www.inter-actief.utwente.nl/</a></li></ul>{% endonlyhtml %}{% onlyplain %}
-    * {% translate "Telephone" %}: +53 489 3756
-    * {% translate "Email" %}: contact@inter-actief.net
-    * {% translate "Website" %}: https://www.inter-actief.utwente.nl/
+{% onlyhtml %}<ul><li>{% translate "Telephone:" %} +53 489 3756</li><li>{% translate "Email:" %} <a href="mailto:contact@inter-actief.net">contact@inter-actief.net</a></li><li>{% translate "Website" %}: <a href="https://www.inter-actief.utwente.nl/">https://www.inter-actief.utwente.nl/</a></li></ul>{% endonlyhtml %}{% onlyplain %}
+    * {% translate "Telephone:" %} +53 489 3756
+    * {% translate "Email:" %} contact@inter-actief.net
+    * {% translate "Website:" %} https://www.inter-actief.utwente.nl/
 {% endonlyplain %}
 
 {% blocktrans %}If you don’t want to miss out on any {% endblocktrans %}Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}-{% blocktrans %}related news and announcements, be sure to check out our {% endblocktrans %}{% onlyhtml %}<b>{% endonlyhtml %}{% translate "socials" %}{% onlyhtml %}</b>{% endonlyhtml %}:
 
-{% onlyhtml %}<ul><li>{% blocktrans %}Our WhatsApp community{% endblocktrans %}: <a href="https://ictsv.nl/wa">https://ictsv.nl/wa</a></li><li>{% translate "Discord" %}: <a href="https://ictsv.nl/discord">https://ictsv.nl/discord</a></li><li>{% translate "Instagram" %}: @inter.actief</li><li>{% translate "LinkedIn" %}: <a href="https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/">https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/</a></li></ul>{% endonlyhtml %}{% onlyplain %}
-    * {% blocktrans %}Our WhatsApp community{% endblocktrans %}: https://ictsv.nl/wa
-    * {% translate "Discord" %}: https://ictsv.nl/discord
-    * {% translate "Instagram" %}: @inter.actief
-    * {% translate "LinkedIn" %}: https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/
+{% onlyhtml %}<ul><li>{% blocktrans %}Our WhatsApp community:{% endblocktrans %} <a href="https://ictsv.nl/wa">https://ictsv.nl/wa</a></li><li>{% translate "Discord" %}: <a href="https://ictsv.nl/discord">https://ictsv.nl/discord</a></li><li>{% translate "Instagram" %}: @inter.actief</li><li>{% translate "LinkedIn" %}: <a href="https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/">https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/</a></li></ul>{% endonlyhtml %}{% onlyplain %}
+    * {% blocktrans %}Our WhatsApp community:{% endblocktrans %} https://ictsv.nl/wa
+    * {% translate "Discord:" %} https://ictsv.nl/discord
+    * {% translate "Instagram:" %} @inter.actief
+    * {% translate "LinkedIn:" %} https://www.linkedin.com/company/i.c.t.s.v.-inter-actief/
 {% endonlyplain %}
 
 {% blocktrans %}Hopefully, we’ll see you around soon!{% endblocktrans %}
