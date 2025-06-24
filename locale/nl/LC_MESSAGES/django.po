@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-06-24 14:03+0200\n"
-"PO-Revision-Date: 2025-06-23 21:25+0000\n"
-"Last-Translator: s2840529 <d.d.jonker@student.utwente.nl>\n"
+"PO-Revision-Date: 2025-06-24 12:12+0000\n"
+"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -6378,7 +6378,7 @@ msgstr "Onderwijs:"
 #: amelie/members/templates/members/new_member.mail:11
 #: amelie/members/templates/members/new_member.mail:15
 msgid "Since we are, of course, a study association, we try to assist our members as much as possible with their studies. This includes discounted study book sales, study evenings, and a database of practice exams from previous years. We also help find tutors for members who are looking for one and help amplify feedback and complaints about the study."
-msgstr "Since we are, of course, a study association, we try to assist our members as much as possible with their studies. This includes discounted study book sales, study evenings, and a database of practice exams from previous years. We also help find tutors for members who are looking for one and help amplify feedback and complaints about the study."
+msgstr "Omdat we natuurlijk een studievereniging zijn, proberen we onze leden zoveel mogelijk te helpen met hun studie. Denk hierbij aan korting op studieboeken, studieavonden en een database met oefententamens van voorgaande jaren. We helpen onze leden ook met het vinden van bijlessen, en helpen feedback en klachten over de studie te versterken."
 
 #: amelie/members/templates/members/new_member.mail:12
 #: amelie/members/templates/members/new_member.mail:16
@@ -6410,7 +6410,7 @@ msgstr " kamer, die te vinden is op het balkon bovenaan Educafé (waar ook de St
 
 #: amelie/members/templates/members/new_member.mail:20
 msgid "free coffee/tea"
-msgstr "Gratis koffie/thee"
+msgstr "gratis koffie/thee"
 
 #: amelie/members/templates/members/new_member.mail:20
 msgid " and a little 'Cookie Corner', where we sell snacks without a profit margin, and, of course, you can always just come by to relax for a bit. "
@@ -6453,7 +6453,7 @@ msgstr "Mail:"
 #: amelie/members/templates/members/new_member.mail:26
 #: amelie/members/templates/members/new_member.mail:29
 msgid "Website:"
-msgstr "Website"
+msgstr "Website:"
 
 #: amelie/members/templates/members/new_member.mail:32
 msgid "If you don’t want to miss out on any "
