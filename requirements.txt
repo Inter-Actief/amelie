@@ -15,7 +15,7 @@ django-colorfield
 django-environ
 
 # Django Modern RPC -- For our JSONRPC API
-django-modern-rpc>=1.0.1,<1.1
+django-modern-rpc>=1.0.1,<1.2
 
 # WYSIWYG Editor for Django
 django-ckeditor>=6.3.2
