@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-24 14:03+0200\n"
+"POT-Creation-Date: 2025-08-18 16:43+0200\n"
 "PO-Revision-Date: 2025-06-24 12:12+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -2404,7 +2404,7 @@ msgstr "{person} is gepromoveerd van de wachtlijst naar bevestigde deelname voor
 msgid "Events of Inter-Actief"
 msgstr "Activiteiten IA"
 
-#: amelie/activities/views.py:270 amelie/activities/views.py:1043
+#: amelie/activities/views.py:270 amelie/activities/views.py:1045
 msgid "No photo"
 msgstr "Geen foto"
 
@@ -2438,113 +2438,113 @@ msgstr "Je staat nu op de wachtlijst voor {activity}."
 msgid "You are now unenrolled for {activity}."
 msgstr "Je bent nu uitgeschreven voor {activity}."
 
-#: amelie/activities/views.py:558
+#: amelie/activities/views.py:564
 #, python-brace-format
 msgid "{person} is now unenrolled for {activity}."
 msgstr "{person} is nu uitgeschreven voor {activity}."
 
-#: amelie/activities/views.py:753
+#: amelie/activities/views.py:755
 msgid "the waitinglist of"
 msgstr "de wachtlijst voor"
 
-#: amelie/activities/views.py:757
+#: amelie/activities/views.py:759
 #, python-brace-format
 msgid "{person} is now enrolled for {waiting_list} {activity}."
 msgstr "{person} is nu ingeschreven voor {waiting_list} {activity}."
 
-#: amelie/activities/views.py:764
+#: amelie/activities/views.py:766
 #, python-brace-format
 msgid "You are now enrolled for {waiting_list} {activity}."
 msgstr "Je bent nu ingeschreven voor {waiting_list} {activity}."
 
-#: amelie/activities/views.py:833
+#: amelie/activities/views.py:835
 msgid "The photos are being uploaded. This might take while."
 msgstr "De foto's worden verwerkt. Dit kan even duren."
 
-#: amelie/activities/views.py:850 amelie/activities/views.py:855
-#: amelie/activities/views.py:859 amelie/activities/views.py:887
+#: amelie/activities/views.py:852 amelie/activities/views.py:857
+#: amelie/activities/views.py:861 amelie/activities/views.py:889
 msgid "This picture does not exist."
 msgstr "Deze foto bestaat niet."
 
-#: amelie/activities/views.py:1058
+#: amelie/activities/views.py:1060
 msgid "No participants"
 msgstr "Geen deelnemers"
 
-#: amelie/activities/views.py:1111
+#: amelie/activities/views.py:1113
 msgid "You do not have permissions to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1114
+#: amelie/activities/views.py:1116
 msgid "You cannot edit this activity, because it is cancelled"
 msgstr "Je kunt deze activiteit niet aanpassen, omdat hij is geannuleerd"
 
-#: amelie/activities/views.py:1135
+#: amelie/activities/views.py:1137
 msgid "You did not fill in an English summary/description."
 msgstr "Je hebt geen Engelse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1136 amelie/activities/views.py:1143
+#: amelie/activities/views.py:1138 amelie/activities/views.py:1145
 msgid "edit event"
 msgstr "activiteit wijzigen"
 
-#: amelie/activities/views.py:1142
+#: amelie/activities/views.py:1144
 msgid "You did not fill in a Dutch summary/description."
 msgstr "Je hebt geen Nederlandse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1229 amelie/activities/views.py:1239
+#: amelie/activities/views.py:1231 amelie/activities/views.py:1241
 msgid "This activity already has enrollments, therefore options can no longer be added!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties toegevoegd worden!"
 
-#: amelie/activities/views.py:1278 amelie/activities/views.py:1292
+#: amelie/activities/views.py:1280 amelie/activities/views.py:1294
 msgid "This activity already has enrollments, therefore options cannot be deleted!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties verwijderd worden!"
 
-#: amelie/activities/views.py:1284
+#: amelie/activities/views.py:1286
 #, python-format
 msgid "Enrollment options %(object)s has been deleted"
 msgstr "Inschrijfoptie %(object)s is verwijderd"
 
-#: amelie/activities/views.py:1305
+#: amelie/activities/views.py:1307
 msgid "Only accessible for the board and the organisers of this activity."
 msgstr "Uitsluitend toegankelijk voor het bestuur en de organisators van de activiteit."
 
-#: amelie/activities/views.py:1311 amelie/activities/views.py:1326
+#: amelie/activities/views.py:1313 amelie/activities/views.py:1328
 msgid "No activity found or invalid activity ID given."
 msgstr "Geen activiteit gevonden of je hebt een ongeldige activiteit-id meegegeven."
 
-#: amelie/activities/views.py:1321
+#: amelie/activities/views.py:1323
 msgid "Invalid activity ID"
 msgstr "Ongeldige activiteit-id."
 
-#: amelie/activities/views.py:1342 amelie/personal_tab/views.py:1359
+#: amelie/activities/views.py:1344 amelie/personal_tab/views.py:1359
 msgid "Could not create data export, because an unknown data-exporttype is provided."
 msgstr "Kon geen data-export maken, omdat er een onbekend data-exporttype is opegeven."
 
-#: amelie/activities/views.py:1349 amelie/personal_tab/views.py:1366
+#: amelie/activities/views.py:1351 amelie/personal_tab/views.py:1366
 msgid "Could not create data export, because something went wrong while saving information about the export."
 msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van gegevens over de data-export."
 
-#: amelie/activities/views.py:1427 amelie/activities/views.py:1437
-#: amelie/activities/views.py:1439
+#: amelie/activities/views.py:1429 amelie/activities/views.py:1439
+#: amelie/activities/views.py:1441
 msgid "You are not allowed to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1461 amelie/activities/views.py:1467
-#: amelie/activities/views.py:1473
+#: amelie/activities/views.py:1463 amelie/activities/views.py:1469
+#: amelie/activities/views.py:1475
 #: amelie/members/templates/person_accounts.html:37
 #: amelie/personal_tab/templates/info/rfid_cards.html:45
 #: templates/profile_overview.html:222
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: amelie/activities/views.py:1479
+#: amelie/activities/views.py:1481
 msgid "Unknown error occurred."
 msgstr "Er is een onbekende fout opgetreden."
 
-#: amelie/activities/views.py:1495 amelie/activities/views.py:1510
+#: amelie/activities/views.py:1497 amelie/activities/views.py:1512
 msgid "Message is not encoded in UTF-8, Latin-1 or ASCII, giving up..."
 msgstr "Bericht is niet geëncodeerd in UTF-8, Latin-1 of ASCII, ik geef het op..."
 
-#: amelie/activities/views.py:1516
+#: amelie/activities/views.py:1518
 msgid "Could not retrieve this message from Google. {}"
 msgstr "Kon dit bericht niet ophalen bij Google. {}"
 
@@ -9228,18 +9228,30 @@ msgstr ""
 msgid "Look back on a different year?"
 msgstr "Een ander jaar terugkijken?"
 
-#: amelie/personal_tab/transactions.py:59
+#: amelie/personal_tab/transactions.py:63
+#, fuzzy, python-brace-format
+#| msgid "Unenrollment for {activity} is not possible."
+msgid "Edited enrollment for {activity} (addition of updated costs)"
+msgstr "Uitschrijven voor {activity} is niet mogelijk."
+
+#: amelie/personal_tab/transactions.py:65
 #, python-brace-format
 msgid "Enrolled for {activity}"
 msgstr "Inschrijven {activity}"
 
-#: amelie/personal_tab/transactions.py:68
+#: amelie/personal_tab/transactions.py:75
+#, fuzzy, python-brace-format
+#| msgid "Unenrollment for {activity} is not possible."
+msgid "Edited enrollment for {activity} (reversal of old costs)"
+msgstr "Uitschrijven voor {activity} is niet mogelijk."
+
+#: amelie/personal_tab/transactions.py:77
 #, python-brace-format
 msgid "Unenrolled for {activity}"
 msgstr "Uitschrijven {activity}"
 
-#: amelie/personal_tab/transactions.py:111
-#: amelie/personal_tab/transactions.py:211
+#: amelie/personal_tab/transactions.py:120
+#: amelie/personal_tab/transactions.py:220
 #, python-brace-format
 msgid "Sale {category}::{article}"
 msgstr "Verkoop {category}::{article}"
@@ -9693,19 +9705,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:734
+#: amelie/settings/generic.py:738
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:735
+#: amelie/settings/generic.py:739
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:736
+#: amelie/settings/generic.py:740
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:737
+#: amelie/settings/generic.py:741
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
