@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-18 16:43+0200\n"
-"PO-Revision-Date: 2025-06-24 12:12+0000\n"
+"PO-Revision-Date: 2025-08-18 16:05+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -9229,10 +9229,9 @@ msgid "Look back on a different year?"
 msgstr "Een ander jaar terugkijken?"
 
 #: amelie/personal_tab/transactions.py:63
-#, fuzzy, python-brace-format
-#| msgid "Unenrollment for {activity} is not possible."
+#, python-brace-format
 msgid "Edited enrollment for {activity} (addition of updated costs)"
-msgstr "Uitschrijven voor {activity} is niet mogelijk."
+msgstr "Inchrijving voor {activity} aangepast (toevoegen bijgewerkte kosten)"
 
 #: amelie/personal_tab/transactions.py:65
 #, python-brace-format
@@ -9240,10 +9239,9 @@ msgid "Enrolled for {activity}"
 msgstr "Inschrijven {activity}"
 
 #: amelie/personal_tab/transactions.py:75
-#, fuzzy, python-brace-format
-#| msgid "Unenrollment for {activity} is not possible."
+#, python-brace-format
 msgid "Edited enrollment for {activity} (reversal of old costs)"
-msgstr "Uitschrijven voor {activity} is niet mogelijk."
+msgstr "Inchrijving voor {activity} aangepast (terugboeken oude kosten)"
 
 #: amelie/personal_tab/transactions.py:77
 #, python-brace-format
