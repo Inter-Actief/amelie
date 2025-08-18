@@ -746,6 +746,8 @@ OAUTH2_PROVIDER = {
     # expired refresh tokens and access tokens are cleared with the ``cleartokens`` command
     'REFRESH_TOKEN_EXPIRE_SECONDS': 2630000,
 }
+# Defaults to True since django-oauth-toolkit 2.x, but we probably have clients that don't support it.
+PKCE_REQUIRED = False
 
 # SAML2 Identity Provider configuration
 SAML_BASE_URL = "https://www.inter-actief.utwente.nl/saml2idp"
@@ -997,3 +999,7 @@ BOOK_SALES_URL = "https://wo4you.nl/"
 
 # Abbreviation of the room duty committee for access checks.
 ROOM_DUTY_ABBREVIATION = "RoomDuty"
+
+# Set language cookie settings for /graphql language switcher
+LANGUAGE_COOKIE_SAMESITE = "None"
+LANGUAGE_COOKIE_SECURE = "True"  # Cookie is only sent over HTTPS
