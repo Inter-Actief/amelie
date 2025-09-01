@@ -50,7 +50,6 @@ python-ldap>=3.4.3,<3.5
 raven>=6.10.0,<6.11
 reportlab>=3.6.11
 requests>=2.28.1,<2.32
-twython>=3.9.1,<3.10
 html2text>=2020.1.16,<2025.4.16
 
 # Daphne - to run the website in ASGI mode on a proper webserver
