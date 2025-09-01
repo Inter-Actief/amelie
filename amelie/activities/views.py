@@ -1180,19 +1180,17 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
 
         old_obj = self.get_object()
         new_obj = form.instance
-        print(f"Old date: {old_obj.begin}")
-        print(f"New date: {new_obj.begin}")
         if old_obj != None and form.cleaned_data['begin'].date() != old_obj.begin.date():
             # Undo and create new transactions
             from amelie.personal_tab import transactions
             for participation in old_obj.participation_set.all():
 
-                transactions.participation_transaction(participation, f"Moved {old_obj}", cancel=True,
+                transactions.participation_transaction(participation, f"Activity '{old_obj}' was moved (reversal on old date)", cancel=True,
                                                        added_by=person)
 
                 # Create a new transaction
                 price, with_enrollment_options = participation.calculate_costs()
-                reason = _("Enrolled for {activity}").format(activity=new_obj.summary)
+                reason = _("Activity '{activity}' was moved (addition on new date)").format(activity=new_obj.summary)
 
                 transaction = ActivityTransaction(price=price, description=reason,
                                                   participation=participation, event=old_obj,
