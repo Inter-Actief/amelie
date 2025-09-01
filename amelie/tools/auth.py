@@ -231,3 +231,19 @@ def unlink_totp(user_id, totp_id):
 def unlink_acount(user_id, provider_name):
     # Delete TOTP in Keycloak
     KeycloakAPI().delete_federated_identity(user_id=user_id, provider_name=provider_name)
+
+
+def unlink_passkey(user_id, passkey_id):
+    # Delete Passkey in KeyCloak
+    KeycloakAPI().delete_credential(user_id=user_id, credential_id=passkey_id)
+
+
+def register_totp(user_id):
+    # Trigger OTP reset action in KeyCloak
+    KeycloakAPI().register_totp(user_id=user_id)
+
+
+def register_passkey(user_id):
+    # Trigger passkey reset action in KeyCloak
+    KeycloakAPI().register_passkey(user_id=user_id)
+

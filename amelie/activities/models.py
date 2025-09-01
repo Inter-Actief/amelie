@@ -289,11 +289,11 @@ class EnrollmentoptionCheckbox(Enrollmentoption):
 
     def count_spots_left(self):
         if self.maximum == 0:
-            return -1
+            return None
         return self.maximum - self.enrollmentoptionanswer_set.filter(enrollmentoptioncheckboxanswer__answer=True).count()
 
     def spots_left(self):
-        return self.count_spots_left() != 0
+        return self.count_spots_left() is None or self.count_spots_left() > 0
 
 class EnrollmentoptionNumeric(Enrollmentoption):
     """
@@ -316,14 +316,14 @@ class EnrollmentoptionNumeric(Enrollmentoption):
 
     def count_spots_left(self):
         if self.maximum == 0:
-            return -1
+            return None
         count = self.enrollmentoptionanswer_set.aggregate(Sum('enrollmentoptionnumericanswer__answer'))
         if count is None or count.get('enrollmentoptionnumericanswer__answer__sum') is None:
             return self.maximum
         return self.maximum - count.get('enrollmentoptionnumericanswer__answer__sum')
 
     def spots_left(self):
-        return self.count_spots_left() != 0
+        return self.count_spots_left() is None or self.count_spots_left() > 0
 
 class EnrollmentoptionSelectbox(Enrollmentoption):
     """

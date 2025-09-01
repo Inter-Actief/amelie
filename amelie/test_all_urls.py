@@ -30,6 +30,9 @@ IGNORE_NAMES = [
     # Cannot test OIDC login
     "oidc_authentication_callback", "oidc_authentication_init", "oidc_logout",
 
+    # Captcha library urls don't need to be checked
+    "captcha-image", "captcha-image-2x", "captcha-audio", "captcha-refresh",
+
     # UserInfo / GroupInfo API endpoints need extra configuration
     "members:person_userinfo", "members:person_groupinfo",
 

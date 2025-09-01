@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db.models import Q, Prefetch
 from django.http import Http404
@@ -14,7 +15,7 @@ from amelie.news.models import NewsItem
 from amelie.members.models import Committee, Person
 from amelie.education import utils
 from amelie.education.forms import DEANominationForm, DEAVoteForm, ComplaintForm, ComplaintCommentForm, \
-    EducationalBouquetForm, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
+    EducationalBouquetFormHTML, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
 from amelie.education.models import Complaint, ComplaintComment, Page, Course, Category, EducationEvent, Module
 from amelie.statistics.decorators import track_hits
 from amelie.tools.decorators import require_education, require_lid
@@ -123,7 +124,7 @@ def news_archive(request):
 
 
 def educational_bouquet(request):
-    bouquet_form = EducationalBouquetForm()
+    bouquet_form = EducationalBouquetFormHTML()
     try:
         prev_bouquets = AboutPage.objects.get(id=22)
     except AboutPage.DoesNotExist:
@@ -132,11 +133,11 @@ def educational_bouquet(request):
     is_education = hasattr(request, 'person') and request.is_education_committee
 
     if request.POST:
-        bouquet_form = EducationalBouquetForm(request.POST)
+       bouquet_form = EducationalBouquetFormHTML(request.POST)
 
-        if bouquet_form.is_valid():
-            bouquet_form.save()
-            message_sent = True
+       if bouquet_form.is_valid():
+           bouquet_form.save()
+           message_sent = True
 
     return render(request, 'educational_bouquet.html', locals())
 

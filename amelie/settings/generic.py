@@ -14,6 +14,8 @@ from django.views import debug
 from saml2.saml import NAMEID_FORMAT_EMAILADDRESS, NAMEID_FORMAT_UNSPECIFIED
 from saml2.sigver import get_xmlsec_binary
 
+from amelie.graphql.jwt_handlers import allow_none, get_user_from_jwt_username, get_username_from_jwt_payload
+
 # In the passing of years a lot of settings have been added that contain confidential data.
 # These settings need to be unreadable at all times, also in error reports, logs, etc.
 # Unfortunately, Django's own regex is not extensive enough for this, so we add to it here.
@@ -204,6 +206,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'amelie.tools.middleware.GlobalIAVariablesMiddleware',  # Adds person, is_board, is_education_committee attributes to request
+    'amelie.tools.middleware.LanguageConfigMiddleware',  # Sets the language cookie in the response if the language is changed via GraphQL
     'auditlog.middleware.AuditlogMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',  # Verify OIDC session tokens
 ]
@@ -213,6 +216,7 @@ INTERNAL_IPS = ['127.0.0.1', 'localhost', '172.17.0.1']
 # Authentication backends used by the application
 AUTHENTICATION_BACKENDS = [
     'amelie.tools.auth.IAOIDCAuthenticationBackend',  # Logins via OIDC / auth.ia
+    'graphql_jwt.backends.JSONWebTokenBackend',  # API key logins via GraphQL
 ]
 
 # URL to the login page
@@ -262,6 +266,7 @@ INSTALLED_APPS = (
     'amelie.style',
     'amelie.narrowcasting',
     'amelie.api',
+    'amelie.graphql',
     'amelie.claudia',
     'amelie.iamailer',
     'amelie.weekmail',
@@ -276,6 +281,9 @@ INSTALLED_APPS = (
 
     # JSONRPC API
     'modernrpc',
+
+    # GraphQL API
+    'graphene_django',
 
     # FCM (Firebase Cloud Messaging)
     'fcm_django',
@@ -323,6 +331,9 @@ INSTALLED_APPS = (
     'health_check.cache',
     'health_check.storage',
     'health_check.contrib.migrations',
+
+    # CAPTCHA support
+    'captcha',
 )
 
 # Enable timezone support
@@ -371,14 +382,71 @@ DATETIME_INPUT_FORMATS = (
     '%Y/%m/%d',
 )
 
+# Only use cookies for HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 # Rename cookies to prevent collision with other Django installations on our webserver
 CSRF_COOKIE_NAME = 'amelie_csrftoken'
 LANGUAGE_COOKIE_NAME = 'amelie_django_language'
 SESSION_COOKIE_NAME = 'amelie_sessionid'
 
-# Allow Cross Origin requests, but only on the API.
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_URLS_REGEX = r'^/api/.*$'
+# CORS is generally disallowed, but this is overridden in local.py.default and environ.py to allow the ALLOWED_HOSTS.
+# Also, URL-specific CORS rules are handled by the signal handler in `tools/cors.py`.
+CORS_ALLOWED_ORIGINS = []
+CORS_ALLOW_ALL_ORIGINS = False
+# Cookies are allowed to be included in cross-site HTTP requests.
+# Required to pass CSRF tokens and session information from frontend to backend
+CORS_ALLOW_CREDENTIALS = True
+# Send the CSRF cookie with both same-site and cross-site requests
+# Required to pass CSRF tokens and session information from frontend to backend
+CSRF_COOKIE_SAMESITE = "None"
+# Cross-site CSRF is generally disallowed, but this is overridden in local.py.default and environ.py as above.
+CSRF_TRUSTED_ORIGINS = []
+
+# GraphQL API settings
+GRAPHENE = {
+    'SCHEMA': "amelie.graphql.schema.schema",
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+        'graphene_django_extras.ExtraGraphQLDirectiveMiddleware',
+    ],
+    'RELAY_CONNECTION_MAX_LIMIT': 100,
+    'TESTING_ENDPOINT': '/graphql/'
+}
+GRAPHENE_DEFAULT_LIMIT = 10
+
+GRAPHQL_JWT = {
+    'JWT_ALLOW_ANY_HANDLER': allow_none,
+    'JWT_ALGORITHM': "RS256",
+    'JWT_PUBLIC_KEY': "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtAj6EjQ4jYb7n2ipgHHX3EMegOyFMovsTAKOuPKslh5eeckU2aq0Qp/YAGRzXu6HxBXMJ5hFuDE8HgxIS5ZRBxR5AbEpO7YnvpH8CY9jUyFc7caR0L+QmugG649jy8NmkhiFvanKy1AY3DPXwfQS75D4QTrDis4viYF2xn1QAnOzTdtfe3srz2uYk/dAguj2lffAeZ0OoQ20sejO+TGHQeOpXTR7Vk16CPu89JhjWcpnhLWSkBgvwuLrg+3XoMlPum9cSHaIhc9BX1hbqt351XVMZbk8Ui4Kv6elJyMQEklPMDQhPiCCDMTXa51nqyAPkJUceA1IXkP3t1x0HBFkOwIDAQAB\n-----END PUBLIC KEY-----".encode('ascii'),
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_PAYLOAD_GET_USERNAME_HANDLER': get_username_from_jwt_payload,
+    'JWT_GET_USER_BY_NATURAL_KEY_HANDLER': get_user_from_jwt_username,
+}
+
+GRAPHQL_SCHEMAS = [
+    "amelie.about.graphql",
+    "amelie.activities.graphql",
+    "amelie.companies.graphql",
+    "amelie.education.graphql",
+    "amelie.files.graphql",
+    "amelie.members.graphql",
+    "amelie.news.graphql",
+    "amelie.publications.graphql",
+    "amelie.videos.graphql",
+    "amelie.tools.graphql",
+]
+
+GRAPHENE_DJANGO_EXTRAS = {
+    'DEFAULT_PAGINATION_CLASS': 'graphene_django_extras.paginations.LimitOffsetGraphqlPagination',
+    'DEFAULT_PAGE_SIZE': 20,
+    'MAX_PAGE_SIZE': 100,
+    'CACHE_ACTIVE': True,
+    'CACHE_TIMEOUT': 300  # seconds
+}
 
 # Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
 DATA_UPLOAD_MAX_NUMBER_FILES = 1000
@@ -671,12 +739,19 @@ OAUTH2_PROVIDER = {
     # expired refresh tokens and access tokens are cleared with the ``cleartokens`` command
     'REFRESH_TOKEN_EXPIRE_SECONDS': 2630000,
 }
+# Defaults to True since django-oauth-toolkit 2.x, but we probably have clients that don't support it.
+PKCE_REQUIRED = False
 
 # SAML2 Identity Provider configuration
 SAML_BASE_URL = "https://www.inter-actief.utwente.nl/saml2idp"
+try:
+    xmlsec_binary = get_xmlsec_binary(['/opt/local/bin', '/usr/bin/xmlsec1'])
+except saml2.sigver.SigverError:
+    print("Could not find xmlsec1 binary for SAML. Continuing with no xmlsec configured, SAML2 IDP will not work.")
+    xmlsec_binary = None
 SAML_IDP_CONFIG = {
     'debug': 0,
-    'xmlsec_binary': get_xmlsec_binary(['/opt/local/bin', '/usr/bin/xmlsec1']),
+    'xmlsec_binary': xmlsec_binary,
     'entityid': '%s/metadata' % SAML_BASE_URL,
     'description': 'Inter-Actief SAML IdP',
 
@@ -917,3 +992,7 @@ BOOK_SALES_URL = "https://wo4you.nl/"
 
 # Abbreviation of the room duty committee for access checks.
 ROOM_DUTY_ABBREVIATION = "RoomDuty"
+
+# Set language cookie settings for /graphql language switcher
+LANGUAGE_COOKIE_SAMESITE = "None"
+LANGUAGE_COOKIE_SECURE = "True"  # Cookie is only sent over HTTPS

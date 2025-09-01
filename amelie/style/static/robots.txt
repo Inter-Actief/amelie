@@ -30,3 +30,40 @@ Disallow: /api/
 Disallow: /activiteiten/*/*/*/*/*/fotos/willekeurig/
 Disallow: /activities/*/*/*/*/*/photos/random/
 
+# Disallow AI scraping bots from scraping our website for training.
+# Source: https://github.com/ai-robots-txt/ai.robots.txt
+User-agent: AI2Bot
+User-agent: Ai2Bot-Dolma
+User-agent: anthropic-ai
+User-agent: Applebot-Extended
+User-agent: Brightbot 1.0
+User-agent: Bytespider
+User-agent: Claude-Web
+User-agent: ClaudeBot
+User-agent: cohere-training-data-crawler
+User-agent: Crawlspace
+User-agent: Diffbot
+User-agent: FacebookBot
+User-agent: FriendlyCrawler
+User-agent: Google-Extended
+User-agent: GoogleOther
+User-agent: GoogleOther-Image
+User-agent: GoogleOther-Video
+User-agent: GPTBot
+User-agent: ICC-Crawler
+User-agent: ImagesiftBot
+User-agent: img2dataset
+User-agent: ISSCyberRiskCrawler
+User-agent: Kangaroo Bot
+User-agent: Meta-ExternalAgent
+User-agent: omgili
+User-agent: omgilibot
+User-agent: PanguBot
+User-agent: PerplexityBot
+User-agent: Scrapy
+User-agent: Sidetrade indexer bot
+User-agent: Timpibot
+User-agent: VelenPublicWebCrawler
+User-agent: Webzio-Extended
+User-agent: YouBot
+Disallow: /

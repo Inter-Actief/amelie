@@ -61,7 +61,7 @@ def room_spotify_callback(request):
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "client_secret": settings.SPOTIFY_CLIENT_SECRET
         })
-    except ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         raise ValueError(_("ConnectionError while refreshing access token:") + f" {e}")
 
     data = res.json()
@@ -85,7 +85,7 @@ def _spotify_refresh_token(association):
             "client_id": settings.SPOTIFY_CLIENT_ID,
             "client_secret": settings.SPOTIFY_CLIENT_SECRET
         })
-    except ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         raise ValueError(_("ConnectionError while refreshing access token:") + f" {e}")
 
     data = res.json()
@@ -105,7 +105,7 @@ def _spotify_refresh_token(association):
             raise e
     return association
 
-@cache_page(5)
+@cache_page(15)
 def room_spotify_now_playing(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -124,7 +124,7 @@ def room_spotify_now_playing(request):
                             params={"market": "from_token"},
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while retrieving player info: {e}")
         # Return empty response
@@ -142,13 +142,16 @@ def room_spotify_now_playing(request):
             return room_spotify_now_playing(request)
         except ValueError as e:
             data = {'error': True, 'code': 500, 'msg': str(e)}
+    elif res.status_code == 429:
+        # Since we often exceed the rate limit, do not report as error
+        data = {'error': False, 'is_playing': False}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
     return JsonResponse(data)
 
 
-@cache_page(5)
+@cache_page(15)
 def room_spotify_pause(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -166,7 +169,7 @@ def room_spotify_pause(request):
         res = requests.put("https://api.spotify.com/v1/me/player/pause",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while pausing Spotify player: {e}")
         # Return empty response
@@ -184,13 +187,16 @@ def room_spotify_pause(request):
             return room_spotify_pause(request)
         except ValueError as e:
             data = {'error': True, 'code': 500, 'msg': str(e)}
+    elif res.status_code == 429:
+        # Since we often exceed the rate limit, do not report as error
+        data = {'error': False, 'is_playing': False}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
 
     return JsonResponse(data)
 
 
-@cache_page(5)
+@cache_page(15)
 def room_spotify_play(request):
     identifier = request.GET.get('id', None)
     if settings.SPOTIFY_CLIENT_SECRET == "":
@@ -208,7 +214,7 @@ def room_spotify_play(request):
         res = requests.put("https://api.spotify.com/v1/me/player/play",
                             headers={"Authorization": "Bearer {}".format(assoc.access_token)}
                             )
-    except ConnectionError as e:
+    except (requests.exceptions.ConnectionError, ConnectionError) as e:
         log = logging.getLogger("amelie.narrowcasting.views.room_spotify_now_playing")
         log.warning(f"ConnectionError while unpausing Spotify player: {e}")
         # Return empty response
@@ -226,7 +232,11 @@ def room_spotify_play(request):
             return room_spotify_play(request)
         except ValueError as e:
             data = {'error': True, 'code': 500, 'msg': str(e)}
+    elif res.status_code == 429:
+        # Since we often exceed the rate limit, do not report as error
+        data = {'error': False, 'is_playing': False}
     else:
         data = {'error': True, 'code': res.status_code, 'msg': res.content.decode()}
+
 
     return JsonResponse(data)

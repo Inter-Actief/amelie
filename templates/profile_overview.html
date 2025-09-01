@@ -189,22 +189,31 @@
                             {% if 'LDAP_ENTRY_DN' in user.attributes %}
                                 {% trans "Inter-<i>Actief</i> Active Members account" %}<br />
                                 <br />
-                                {% if user.totp %}
-                                    {% trans 'TOTP devices:' %}<br />
-                                    <ul style="margin: 0;">
-                                    {% for credential in user.credentials %}
-                                    {% if credential.type == "otp" %}
-                                        <li>{{ credential.userLabel }} <a href="{% url 'profile_actions' 'unlink_totp' user.id credential.id %}">({% trans 'unlink' %})</a></li>
-                                    {% endif %}
-                                    {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    {% trans 'No TOTP devices' %}<br />
-                                    {% blocktrans %}
-                                        To configure a TOTP device, log in with your active members account and visit <a target="_blank" href="https://auth.ia.utwente.nl/realms/inter-actief/account/totp">this page</a>.
-                                    {% endblocktrans %}
-                                {% endif %}
-
+                                {% trans 'TOTP devices:' %}<br />
+                                <ul style="margin: 0;">
+                                {% for credential in user.credentialsTOTP %}
+                                    <li>{{ credential.userLabel }} <a href="{% url 'profile_actions' 'unlink_totp' user.id credential.id %}">({% trans 'unlink' %})</a></li>
+                                {% empty %}
+                                    <li>
+                                        <b>{% trans "No TOTP devices registered" %}</b><br />
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                                <br />
+                                {% trans "Passkeys" %}<br />
+                                <ul style="margin: 0;">
+                                {% for credential in user.credentialsPasskey %}
+                                    <li>{{ credential.userLabel }} <a href="{% url 'profile_actions' 'unlink_passkey' user.id credential.id %}">({% trans 'unlink' %})</a></li>
+                                {% empty %}
+				    <li>
+                                        <b>{% trans "No passkeys registered" %}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                                <br />
+				{% trans "To register a new TOTP device or passkey, press one of the buttons below. You will receive an e-mail with a link to register the new device." %}<br />
+                                <a class="looks-like-a-button" href="{% url 'profile_actions' 'register_totp' user.id 'register' %}">{% trans "Register new TOTP device" %}</a>
+                                <a class="looks-like-a-button" href="{% url 'profile_actions' 'register_passkey' user.id 'register' %}">{% trans "Register new passkey" %}</a>
                             {% elif 'created_by' in user.attributes and 'amelie' in user.attributes.created_by %}
                                 {% trans "Integration account" %}
                             {% elif 'created_by' in user.attributes and 'ut-saml' in user.attributes.created_by %}

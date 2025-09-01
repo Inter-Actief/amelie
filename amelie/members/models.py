@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
@@ -419,7 +419,7 @@ class Person(models.Model, Mappable):
     def is_board(self):
         return self.function_set.filter(committee__superuser=True, committee__abolished__isnull=True,
                                         end__isnull=True).exists()
-    
+
     def is_in_committee(self, abbreviation):
         return self.function_set.filter(committee__abbreviation=abbreviation, end__isnull=True).exists()
 
@@ -511,13 +511,15 @@ class Person(models.Model, Mappable):
             Q(founded__lte=dt)
         )
 
-    def age(self, at=datetime.date.today()):
+    def age(self, at=None):
         """
         Returns the age of a person, on a given specific data
         """
-        if at is not None and self.date_of_birth is not None:
-            return at.year - self.date_of_birth.year - (
-                        (at.month, at.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        if at is None:
+            at = datetime.date.today()
+        if self.date_of_birth is not None:
+            not_this_year_yet = (at.month, at.day) < (self.date_of_birth.month, self.date_of_birth.day)
+            return at.year - self.date_of_birth.year - not_this_year_yet
         else:
             return None
 
@@ -1101,7 +1103,7 @@ class Function(models.Model):
     end = models.DateField(null=True, blank=True, verbose_name=_l('Ended on'))
 
     class Meta(object):
-        ordering = ['end', '-begin', 'person']
+        ordering = [F("end").desc(nulls_first=True), '-begin', 'person']
         verbose_name = _l('position')
         verbose_name_plural = _l('functions')
 

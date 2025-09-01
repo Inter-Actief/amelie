@@ -52,7 +52,7 @@
                             <td>{{ obj.title }}</td>
                             <td class="align-right">&euro;{{ obj.price_extra }}</td>
                             <td>{% if obj.maximum == 0 %}{% trans "Unlimited" %}{% else %}{{ obj.maximum }}{% endif %}</td>
-                            <td>{% if obj.count_spots_left == -1 %}-{% else %}{{ obj.count_spots_left }}{% endif %}</td>
+                            <td>{% if obj.count_spots_left == None %}-{% else %}{{ obj.count_spots_left }}{% endif %}</td>
                             <td><a href="{% url 'activities:enrollmentoption_edit' obj.pk %}" class="looks-like-a-button">{% trans 'Edit' %}</a></td>
                             {% if add_delete_allowed %}
                                 <td><a href="{% url 'activities:enrollmentoption_delete' obj.pk %}" class="looks-like-a-button">{% trans 'Delete' %}</a></td>

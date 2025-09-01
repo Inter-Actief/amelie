@@ -2,8 +2,10 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 
 import datetime
 import json
+import random
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 from django.test import Client, testcases
@@ -11,9 +13,61 @@ from django.test.utils import override_settings, modify_settings
 from django.utils import timezone
 from oauth2_provider.models import Application, AccessToken
 
+from amelie.activities.models import Restaurant, ActivityLabel, Activity, EnrollmentoptionQuestion, \
+    EnrollmentoptionCheckbox, EnrollmentoptionFood
 from amelie.members.models import Person, Committee, Preference, PreferenceCategory, Membership, MembershipType, Function
 from amelie.tools.logic import current_association_year
 from amelie.tools.models import Profile
+
+
+
+def generate_activities(count):
+    """
+    Generate activities.
+
+    Half of the activities is private.
+
+    :param int count: Number of activities to generate.
+    """
+
+    now = timezone.now()
+    committee = Committee.objects.all()[0]
+
+    restaurant = Restaurant(name='Test Restaurant')
+    restaurant.save()
+    restaurant.dish_set.create(name='Dish 1', price=33.42)
+    restaurant.dish_set.create(name='Dish 2', price=13.37)
+    label = ActivityLabel.objects.create(
+        name_en="Test EN", name_nl="Test NL", color="000000", icon="-",
+        explanation_en="-", explanation_nl="-"
+    )
+
+    for i in range(0, count):
+        public = bool(i % 2)
+
+        start = now + datetime.timedelta(days=i, seconds=random.uniform(0, 5*3600))
+        end = start + datetime.timedelta(seconds=random.uniform(3600, 10*3600))
+
+        activity = Activity(begin=start, end=end, summary_nl='Test Activity %i' % i,
+                            summary_en='Test event %i' % i,
+                            organizer=committee, public=public, activity_label=label)
+        activity.save()
+
+        ct_question = ContentType.objects.get_for_model(EnrollmentoptionQuestion)
+        ct_checkbox = ContentType.objects.get_for_model(EnrollmentoptionCheckbox)
+        ct_food = ContentType.objects.get_for_model(EnrollmentoptionFood)
+
+        EnrollmentoptionQuestion(activity=activity, title='Optional question %i' % i, content_type=ct_question,
+                                 required=False).save()
+        EnrollmentoptionQuestion(activity=activity, title='Mandatory question %i' % i, content_type=ct_question,
+                                 required=True).save()
+        EnrollmentoptionCheckbox(activity=activity, title='Free checkbox %i' % i, content_type=ct_checkbox).save()
+        EnrollmentoptionCheckbox(activity=activity, title='Paid checkbox %i' % i, content_type=ct_checkbox,
+                                 price_extra=42.33).save()
+        EnrollmentoptionFood(activity=activity, title='Voluntary food %i' % i, content_type=ct_food,
+                             restaurant=restaurant, required=False).save()
+        EnrollmentoptionFood(activity=activity, title='Mandatory food %i' % i, content_type=ct_food,
+                             restaurant=restaurant, required=False).save()
 
 
 class SimpleTestCase(testcases.SimpleTestCase):

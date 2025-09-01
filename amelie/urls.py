@@ -57,6 +57,9 @@ urlpatterns = [
     # API
     path('api/', include('amelie.api.urls')),
 
+    # GraphQL API
+    path('graphql/', include('amelie.graphql.urls')),
+
     # Feeds
     path('feeds/', include(
         ([
@@ -86,6 +89,9 @@ urlpatterns = [
     path(f'healthz', views.healthz_view, name='healthz_simple'),
     path(f'sysinfo/', views.SystemInfoView.as_view(), name='system_info'),
     path(f'ht/{settings.HEALTH_CHECK_URL_TOKEN}/', include('health_check.urls')),
+
+    # CAPTCHA
+    path(f'captcha', include('captcha.urls')),
 
     # Other
     path('favicon.ico',

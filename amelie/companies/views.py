@@ -16,7 +16,7 @@ from amelie.companies.forms import CompanyForm, BannerForm, TelevisionBannerForm
 from amelie.companies.models import BaseBanner, Company, CompanyEvent, TelevisionBanner, WebsiteBanner, VivatBanner
 from amelie.members.models import Committee
 from amelie.statistics.decorators import track_hits
-from amelie.tools.decorators import require_board
+from amelie.tools.decorators import require_board, require_committee
 from amelie.tools.forms import PeriodForm
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.http import HttpJSONResponse
@@ -56,7 +56,7 @@ def company_details(request, slug):
     return render(request, 'companies/company_details.html', {'obj': obj, 'is_board': is_board})
 
 
-@require_board
+@require_committee("KasCo")
 def banner_list(request):
     """ List of all banners """
     website_banners = WebsiteBanner.objects.all()

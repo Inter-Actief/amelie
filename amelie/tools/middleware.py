@@ -39,3 +39,32 @@ class GlobalIAVariablesMiddleware(MiddlewareMixin):
             if not request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, False):
                 preferred_language = request.person.preferred_language
                 translation.activate(preferred_language)
+
+
+class LanguageConfigMiddleware:
+    """
+    Middleware that sets the language cookie to a value set in the request object.
+    This is used in the GraphQL set_language Mutation defined in `amelie.graphql.i18n.SetLanguageMutation`.
+    This is a workaround because in Graphene we don't have access to the Response object.
+
+    Copied from SO: https://stackoverflow.com/a/60160915
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        lang_code = getattr(request, "set_language_cookie", None)
+        if lang_code:
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME,
+                lang_code,
+                max_age=settings.LANGUAGE_COOKIE_AGE,
+                path=settings.LANGUAGE_COOKIE_PATH,
+                domain=settings.LANGUAGE_COOKIE_DOMAIN,
+                secure=settings.LANGUAGE_COOKIE_SECURE,
+                httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
+                samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+            )
+
+        return response
