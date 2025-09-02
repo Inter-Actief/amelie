@@ -1,6 +1,11 @@
 # Build the amelie docker image based on Debian 11 (Bullseye)
 FROM debian:bullseye
 
+# Load some build variables from the pipeline
+ARG BUILD_BRANCH=unknown
+ARG BUILD_COMMIT=unknown
+ARG BUILD_DATE=unknown
+
 # Copy amelie sources
 COPY . /amelie
 
@@ -23,6 +28,10 @@ RUN echo "Updating repostitories..." && \
     mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run && \
     echo "Installing python requirements..." && \
     pip3 install -r requirements.txt && \
+    echo "Adding build variable files..." && \
+    echo "${BUILD_BRANCH}" > /amelie/BUILD_BRANCH && \
+    echo "${BUILD_COMMIT}" > /amelie/BUILD_COMMIT && \
+    echo "${BUILD_DATE}" > /amelie/BUILD_DATE && \
     echo "Correcting permissions on directories..." && \
     chown -R 1000:1000 /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log
 
