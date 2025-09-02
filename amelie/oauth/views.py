@@ -36,6 +36,6 @@ class RequestOAuth(FormView):
             tos=['WWW Supers <www-super@inter-actief.net>'],
             context=context
         ))
-        task.send(delay=False)
+        task.send()
 
         return render(self.request, 'request_oauth_sent.html', context)

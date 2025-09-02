@@ -25,7 +25,7 @@ class MailTask(object):
             func = func.delay
 
         func(
-            from_=self.from_,
+            mail_from=self.from_,
             mails=mails,
             template_name=self.template_name,
             template_string=self.template_string,

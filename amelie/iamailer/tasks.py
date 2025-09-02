@@ -1,7 +1,7 @@
 import logging
 import time
 
-from celery import shared_task, group
+from celery import shared_task, group, chord
 from django.conf import settings
 from django.core.mail import get_connection
 from django.template import Template
@@ -55,16 +55,19 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
     logger.info('Sending mails to {} recipients'.format(len(mails)))
 
     # Build a Celery workflow that will send all the mails and then send a delivery report
+    chord(
+        # Send each mail,
+        group(send_single_mail.s(template=template, mail_from=mail_from, maildata=maildata) for maildata in mails),
+        # followed by the delivery report,
+        send_delivery_report.s(
+            mail_from=mail_from, total_mail_count=len(mails), report_to=report_to,
+            report_language=report_language, report_always=report_always
+        )
+    ).delay()  # And execute the workflow (the last two brackets)
 
-    # Send each mail,
-    (group(send_single_mail.s(template=template, mail_from=mail_from, maildata=maildata) for maildata in mails)
-     # followed by the delivery report,
-     | send_delivery_report.s(mail_from=mail_from, total_mail_count=len(mails), report_to=report_to,
-                              report_language=report_language, report_always=report_always)
-     )()  # And execute the workflow (the last two brackets)
 
-
-@shared_task(name="iamailer.send_single_mail")
+# acks_late makes it so that the task is retried if the worker crashes before it finishes.
+@shared_task(name="iamailer.send_single_mail", acks_late=True)
 def send_single_mail(template, mail_from, maildata):
     """
     Execute an exporter for a given Person and ApplicationStatus
@@ -111,13 +114,14 @@ def send_single_mail(template, mail_from, maildata):
     time.sleep(settings.EMAIL_DELAY)
 
     return {
-        'to': maildata.to,
+        'to': maildata['to'],
         'success': success,
         'exception': exception
     }
 
 
-@shared_task(name="iamailer.send_delivery_report")
+# acks_late makes it so that the task is retried if the worker crashes before it finishes.
+@shared_task(name="iamailer.send_delivery_report", acks_late=True)
 def send_delivery_report(results, mail_from, total_mail_count, report_to, report_language, report_always):
     logger = logging.getLogger(__name__)
 
