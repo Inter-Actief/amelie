@@ -60,11 +60,11 @@
             <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
 
             {% endcompress %}
-			
+
             {% compress js %}
             {% comment %} Bootstrap modal needed for popup {% endcomment %}
             <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
-			
+
             {% comment %} CB script {% endcomment %}
             <script src="{% cached_static 'js/cb.js' %}"></script>
             {% endcompress %}
@@ -320,6 +320,10 @@
                     <span>Sponsored by: </span>
                     <img src="{% cached_static 'img/byte_logo.png' %}" alt="Sponsored by Byte" />
                 </div>
+                <span id="build_info" class="right"
+				      title="{% blocktrans with branch=build_info.branch|default:'?' commit=build_info.commit|default:'?' date=build_info.date|default:'?' pid=host_info.pid|default:'?' host=host_info.host|default:'?' %}Amélie {{ branch }} ({{ commit }} built on {{ date }}) rendered by PID {{ pid }} on {{ host }}{% endblocktrans %}">
+                    &pi;
+                </span>
             </div>
         </div>
 
