@@ -16,7 +16,7 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
     """
     Send HTML mails to specified recipients by rendering template.
 
-    Exactly one of parameters template_name or template_string must be provided.
+    Exactly one of the parameters template_name or template_string must be provided.
 
     This task will create and launch a Celery workflow with a new Task for each mail that needs to be sent,
     followed by a single task to send the delivery report mail.
@@ -47,17 +47,21 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
     if template_string and template_name:
         raise ValueError('Both template and template_name are provided')
 
+    # Verify that the template exists/works by trying to load it.
+    logger.debug('Loading template...')
     if template_name:
-        template = get_template(template_name)
+        _ = get_template(template_name)
+        logger.debug("Using template from file '{}'".format(template_name))
     else:
-        template = Template(template_string)
+        _ = Template(template_string)
+        logger.debug('Using template from string')
 
     logger.info('Sending mails to {} recipients'.format(len(mails)))
 
     # Build a Celery workflow that will send all the mails and then send a delivery report
     chord(
         # Send each mail,
-        group(send_single_mail.s(template=template, mail_from=mail_from, maildata=maildata) for maildata in mails),
+        group(send_single_mail.s(mail_from=mail_from, maildata=maildata, template_name=template_name, template_string=template_string) for maildata in mails),
         # followed by the delivery report,
         send_delivery_report.s(
             mail_from=mail_from, total_mail_count=len(mails), report_to=report_to,
@@ -68,12 +72,13 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
 
 # acks_late makes it so that the task is retried if the worker crashes before it finishes.
 @shared_task(name="iamailer.send_single_mail", acks_late=True)
-def send_single_mail(template, mail_from, maildata):
+def send_single_mail(mail_from, maildata, template_name=None, template_string=None):
     """
     Execute an exporter for a given Person and ApplicationStatus
-    :param template: The mail as a Template object.
     :param mail_from: Sender information for mail From header.
     :param maildata: Dictionary of Mail data, as returned by IAMailer's `Recipient.get_maildata()`.
+    :param template_name: The name of the template file to use (only if template_string is not provided).
+    :param template_string: The template string to use (only if template_name is not provided).
     :return: Dictionary with data about the sending:
              {
                'to': maildata.to (Name/email where the mail was sent to),
@@ -89,6 +94,16 @@ def send_single_mail(template, mail_from, maildata):
     context = maildata.get('context', {})
     language = maildata.get('language', None)
     attachments = maildata.get('attachments', None)
+
+    if not template_string and not template_name:
+        raise ValueError('None of template and template_name are provided')
+    if template_string and template_name:
+        raise ValueError('Both template and template_name are provided')
+
+    if template_name:
+        template = get_template(template_name)
+    else:
+        template = Template(template_string)
 
     to_string = ';'.join(to)
     logger.debug('Sending mail to {}'.format(to_string))
@@ -126,7 +141,7 @@ def send_delivery_report(results, mail_from, total_mail_count, report_to, report
     logger = logging.getLogger(__name__)
 
 
-    # If the person sent only one mail, results will be a single dict, if they sent more than one,
+    # If the person sent only one mail, the results will be a single dict, if they sent more than one,
     # it will be al list. Convert the dict into a 1-long list if it is a dict to avoid problems.
     if type(results) == dict:
         results = [results]
@@ -142,11 +157,11 @@ def send_delivery_report(results, mail_from, total_mail_count, report_to, report
     else:
         logger.warning('Sending {} mails succeeded, {} errors reported'.format(sent_count, error_count))
 
-    # Send delivery report
+    # Send the delivery report
     if report_to and (report_always or error_count):
         # noinspection PyBroadException
         try:
-            # Send report
+            # Send the report
             send_single_mail_from_template(
                 template=get_template("iamailer/report.mail"),
                 to=[report_to],
