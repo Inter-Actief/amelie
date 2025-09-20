@@ -632,7 +632,10 @@ CLAUDIA_SHELLS = {
 # Default shell if the 'default' option is selected
 CLAUDIA_SHELL_DEFAULT = 'bash'
 
-# Make Claudia stop processing the queue if an error occurs
+# Make Claudia stop processing sub-mappings if an error occurs
+# If this setting is True, Claudia will stop processing sub-mappings (members) for the mapping where the error occurred.
+#     Any objects that were already in the queue will still be processed.
+# If False, any member objects will be added to the queue, even though verification of their parent failed.
 CLAUDIA_STOP_ON_ERROR = False
 
 # Claudia's connection details to Active Directory

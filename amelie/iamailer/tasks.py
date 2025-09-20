@@ -68,6 +68,7 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
             report_language=report_language, report_always=report_always
         )
     ).delay()  # And execute the workflow (the last two brackets)
+    logger.info('IAMailer task scheduled and started.')
 
 
 # acks_late makes it so that the task is retried if the worker crashes before it finishes.
@@ -123,7 +124,7 @@ def send_single_mail(mail_from, maildata, template_name=None, template_string=No
         exception = str(e)
         logger.exception('Sending mail to {} failed'.format(to_string))
     else:
-        logger.debug('Sending mail to {} succeeded'.format(to_string))
+        logger.info('Sending mail to {} succeeded'.format(to_string))
 
     # Sleep between sending mails
     time.sleep(settings.EMAIL_DELAY)

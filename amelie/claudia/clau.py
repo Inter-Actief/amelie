@@ -1,10 +1,8 @@
 import logging
-from threading import Timer, Lock
 
-import ldap
 from django.conf import settings
 
-from amelie.claudia.models import Mapping
+from amelie.claudia.tasks import verify_object
 
 logger = logging.getLogger(__name__)
 
@@ -65,21 +63,21 @@ class Claudia:
     Claudia
     The Inter-Actief data synchronizer
     """
+    _instance = None
 
     def __init__(self):
         self.plugins = []
-        self.queue = []
-        self.queue_history = []
-        # This lock is acquired by the run_queue method during the entire run.
-        # This ensures that only one queue runner is running at the same time.
-        self.run_queue_lock = Lock()
-        # This lock protects the self.queue, self.queue_history variables
-        self.queue_lock = Lock()
 
         # Load plugins
         for p in settings.CLAUDIA_PLUGINS:
             cls = _get_class(p)
             self.add_plugin(cls())
+
+    @classmethod
+    def get_instance(cls) -> 'Claudia':
+        if cls._instance is None:
+            cls._instance = Claudia()
+        return cls._instance
 
     # ===== Plugin functions =====
 
@@ -124,199 +122,55 @@ class Claudia:
     notify_gitlab_changed = wrap_call_plugins("gitlab_changed")
 
     # ===== Integrity check ======
-
-    def check_integrity(self):
+    @staticmethod
+    def check_integrity():
         """
-        Runs a complete integrity check of all aliases, mappings and other Mappables.
+        Enqueues a complete integrity check of all aliases, mappings and other Mappables.
         In more detail, this will run:
         - Verify on all objects in the linked database
         - Verify on all other cid's in the database
-        - Verify on all e-mail addresses in the alias database
+        These both need to be queued, because a Mapping might not exist for a new object, or a Mapping might still exist for a deleted object.
         """
         logger.info("Start of check_integrity")
+        from amelie.claudia.models import Mapping
+
+        # Generate a cycle ID for the Celery tasks, so that they use the same cache key
+        # to determine whether a Mapping was already verified before or not.
+        # If we would not pass this, each queued object would get a different cycle ID,
+        # resulting in its own separated tree of verified objects, and we would be doing a lot of extra work.
+        import uuid
+        cycle_id = str(uuid.uuid4())
 
         # Keep track of Cid's
         cids = []
         for rc in Mapping.RELATED_CLASSES:
-            logger.debug("Checking %s objects." % rc)
-            for obj in Mapping.RELATED_CLASSES[rc].get_all():
-                cid = self.do_verify_object(obj, enqueue_only=True)
-                if cid:
-                    cids.append(cid)
+            rc_objects = Mapping.RELATED_CLASSES[rc].get_all()
+            logger.debug(f"Queueing verification for {rc_objects.count()} '{rc}' objects.")
+            for obj in rc_objects:
+                mp = Mapping.find(obj)
+                verify_object.delay(object_id=obj.id, object_type=rc, cycle_id=cycle_id)
+                if mp:
+                    cids.append(mp.id)
 
         # Other left-over mappings, should not happen.
         for mp in Mapping.objects.all():
             if mp.id not in cids:
-                self.do_verify_mp(mp, enqueue_only=True)
+                verify_object.delay(object_id=mp.id, object_type=None, cycle_id=cycle_id)
 
-        # The above should have queued all objects for a verify. Let's check them!
-        self.run_queue(fix=True)
+        logger.info("Scheduled all objects for verification. They are now being processed by Celery, this may take a while.")
 
-        logger.info("End of check_integrity")
-
-    # ===== Verify functions ====
-
-    def do_verify(self, obj, enqueue_only=False):
-        if isinstance(obj, Mapping):
-            self.do_verify_mp(obj, enqueue_only)
-        else:
-            self.do_verify_object(obj, enqueue_only)
-
-    def do_verify_object(self, obj, enqueue_only=False):
-        """
-        Checks for an object if its mapping is present
-        :type obj: Mappable & models.Model
-        :type enqueue_only: bool
-        """
-        logger.debug("Verification of object %s requested (type %s, id %s)."
-                     % (obj.get_name(), Mapping.get_type(obj), obj.id))
-
-        # First check if a mapping exists
-        mp = Mapping.find(obj)
-
-        # Check mapping/cmid
-        if mp is None and obj.is_needed():
-            logger.debug('%s has no mapping, but is active, creating' % obj.get_name())
-            mp = Mapping.create(obj)
-
-        if mp is None:
-            logger.debug('%s is not active and has no mapping, skipping.' % obj.get_name())
-            return False
-
-        return self.do_verify_mp(mp, enqueue_only)
-
-    def do_verify_mp(self, mp, enqueue_only=False):
-        """
-        Checks a mapping.
-        :type mp: Mapping
-        :type enqueue_only: bool
-        """
-        logger.debug("Verification of mapping %s requested (type %s, id %s)." % (mp.name, mp.type, mp.ident))
-
-        # Check if the mapping should be active
-        if not mp.active and mp.is_needed():
-            logger.debug("Activating mapping %s (cid %s)" % (mp.name, mp.id))
-            mp.active = True
-            mp.save()
-            self.notify_mapping_created(mp)
-
-        # Enqueue the actual verification
-        self.enqueue(mp)
-        if not enqueue_only:
-            self.run_queue(fix=True)
-
-        # Finally, check if the mapping should be inactive
-        if not mp.is_needed() and mp.active:
-            logger.debug("Deactivating mapping %s (cid %s)" % (mp.name, mp.id))
-            mp.active = False
-            mp.save()
-            self.notify_mapping_deleted(mp)
-
-        return mp.id
-
-    def enqueue(self, mp):
-        """Put the given mapping into the queue to be verified. This will ensure neat sequential verification."""
-
-        # If the mapping is already in the queue history for this session, don't add it,
-        # because it might lead to infinite recursion and we don't want that.
-        with self.queue_lock:
-            if mp.id not in self.queue_history:
-                logger.debug("Enqueueing Mapping %s (id %s) for later verification" % (mp.name, mp.id))
-                self.queue_history.append(mp.id)
-                self.queue.append(mp)
-            else:
-                logger.debug("Not enqueueing Mapping %s (id %s) because it has already been checked"
-                             % (mp.name, mp.id))
-
-    def run_queue(self, fix):
-        """Run verifications for the queue of mappings."""
-
-        # Try to obtain the queue lock (non-blocking). If this fails, there is already a queue runner and
-        # that one will process anything that was added to the queue before now.
-        if self.run_queue_lock.acquire(False):
-            logger.debug("Starting queue run")
-            # Lock the queue_lock. It needs to be locked when checking the while
-            # condition, since that accesses the queue.
-            self.queue_lock.acquire()
-            stop = False
-            while self.queue and not stop:
-                # Get the first object
-                mp = self.queue.pop()
-
-                # Done with the queue for now, release
-                self.queue_lock.release()
-
-                try:
-                    logger.debug("Verifying Mapping %s (cid %s) from queue" % (mp.name, mp.id))
-                    self.verify_mapping(mp, fix)
-
-                except ldap.SERVER_DOWN as e:
-                    # On server connection problems, stop processing and retry
-                    # in five minutes. This is only a partial solution, since
-                    # if any new verification requests come in, they will fail
-                    # before ending up in the queue (because creating a
-                    # ClaudiaObject does some ad calls already). Perhaps we
-                    # should thus also put the (type, id) and addresses in the
-                    # queue, instead of processing those directly in
-                    # do_verify_object / verify_email. Until then, this delay
-                    # code is slightly pointless.
-
-                    logger.error('LDAP server down: %s (retrying in 300s)' % str(e))
-                    # Requeue the object
-                    self.queue_lock.acquire()
-                    self.queue.append(mp)
-                    self.queue_lock.release()
-                    # Schedule a new runner in 300s
-                    t = Timer(300.0, self.run_queue, [fix])
-                    t.start()
-                    # Stop this runner
-                    stop = True
-                except Exception as e:
-                    # Report exception, but continue with the queue
-                    logger.exception(
-                        "Exception raised when verifying Mapping %s (cid %s): %s" % (mp.name, mp.id, str(e)))
-                    if settings.CLAUDIA_STOP_ON_ERROR:
-                        raise
-
-                # Lock again for the while condition
-                self.queue_lock.acquire()
-
-            # Clear the history. The queue might not be empty yet (when a retry
-            # is scheduled), but in that case, redoing some work shouldn't hurt
-            # (and shouldn't lead to infinite loops, since we should stop
-            # rescheduling eventually.
-            self.queue_history = []
-
-            # Release locks. Always release the run_queue lock first, to
-            # prevent the following scenario:
-            # - We see that the queue is empty
-            # - We release queue_lock
-            # - Another thread enqueues something
-            # - Another thread calls run_queue, which returns since we are running already
-            # - We release run_queue_lock
-            # -> No queue is running, but the queue is not empty yet!
-            self.run_queue_lock.release()
-            self.queue_lock.release()
-
-            # Let plugins know we finished processing.
-            self.notify_verify_finished()
-        else:
-            logger.debug("Not starting queue run, one is already running.")
+    # ===== Verify function ====
 
     def verify_mapping(self, mp, fix=False):
         """
-        Check all standard attributes
+        Check all standard attributes, and call all activated plugins to verify this mapping.
         :type mp: Mapping
         :type fix: bool
         """
-        logger.debug("Verifying mapping %s (cid: %s)" % (mp.name, mp.id))
+        logger.debug(f"Verifying mapping '{mp.name}' (cid: {mp.id})")
 
         changes = mp.check_mapping(fix)
         if changes:
             self.notify_mapping_changed(mp, changes)
 
         self.notify_verify_mapping(mp, fix)
-
-        if mp.is_group() or mp.is_shareddrive():
-            for mem in mp.members(old_members=True):
-                self.do_verify_mp(mem, enqueue_only=True)
