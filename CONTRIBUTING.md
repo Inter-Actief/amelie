@@ -43,10 +43,10 @@ Python 3: https://www.python.org/downloads/
     cd amelie/
 
 ##### Setup a virtualenv
-    virtualenv ./venv
-    source ./venv/bin/activate
-    pip install --upgrade pip
-    pip install -r ./requirements.txt
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install --upgrade pip setuptools
+    pip install .
 
 ##### Copy local settings
     cp ./amelie/settings/local.py.localdev ./amelie/settings/local.py

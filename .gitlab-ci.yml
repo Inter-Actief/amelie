@@ -25,7 +25,7 @@ variables:
     # Install Python packages (in virtualenv) required for the Amelie project
     - virtualenv venv
     - source venv/bin/activate
-    - pip install -r requirements.txt
+    - pip install .
     # Print some debugging information about the environment
     - python -V # Python version
     - which python # Path to the python binary being used
