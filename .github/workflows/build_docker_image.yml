@@ -28,6 +28,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      - name: Set build variables
+        id: vars
+        run: |
+          echo "BUILD_BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "BUILD_COMMIT=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -49,6 +56,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_BRANCH=${{ steps.vars.outputs.BUILD_BRANCH }}
+            BUILD_COMMIT=${{ steps.vars.outputs.BUILD_COMMIT }}
+            BUILD_DATE=${{ steps.vars.outputs.BUILD_DATE }}
 
       - name: Verify MariaDB connection
         run: |

@@ -10569,6 +10569,12 @@ li.courses-soon {
 .right {
   float: right;
 }
+#build_info {
+  color: transparent;
+}
+#build_info:hover {
+  color: #2450A8;
+}
 /**
  * This file imports all base classes used in the website, not counting element styling. All related css/less should be placed into the ./classes/ folder.
  **/
