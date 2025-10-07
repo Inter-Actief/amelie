@@ -43,8 +43,8 @@ Python 3: https://www.python.org/downloads/
     cd amelie/
 
 ##### Setup a virtualenv
-    python3 -m venv .venv
-    source .venv/bin/activate
+    python3 -m venv venv
+    source ./venv/bin/activate
     pip install --upgrade pip setuptools
     pip install .
 
