@@ -22,7 +22,7 @@ RUN echo "Updating repostitories..." && \
     echo "Creating directories for amelie..." && \
     mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run && \
     echo "Installing python requirements..." && \
-    pip3 install -r requirements.txt && \
+    pip3 install . && \
     echo "Correcting permissions on directories..." && \
     chown -R 1000:1000 /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log
 
