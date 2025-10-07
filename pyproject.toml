@@ -61,7 +61,7 @@ dependencies = [
     "beautifulsoup4>=4.11.1,<4.12",
 
     # Sanitizing Markdown strings in amelie template tags
-    "bleach>=5.0.1,<5.1",
+    "bleach>=5.0.1,<6.3",
 
     # Other random dependencies, to be documented, see issue #556
     "httplib2>=0.20.4,<0.21",
