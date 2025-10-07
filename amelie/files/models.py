@@ -222,6 +222,18 @@ class Attachment(models.Model):
     thumb_file_medium = property(get_thumb(preferred='medium'))
     thumb_file_small = property(get_thumb(preferred='small'))
 
+    def delete(self):
+        super().delete()
+        def quiet_remove(path):
+            try:
+                os.remove(path)
+            except FileNotFoundError:
+                pass
+        quiet_remove(os.path.join(settings.MEDIA_ROOT, str(self.thumb_file_large)))
+        quiet_remove(os.path.join(settings.MEDIA_ROOT, str(self.thumb_file_medium)))
+        quiet_remove(os.path.join(settings.MEDIA_ROOT, str(self.thumb_file_small)))
+        quiet_remove(self.file.path)
+
     @staticmethod
     def search_images(query, max_results=None):
         results = None

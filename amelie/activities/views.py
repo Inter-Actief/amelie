@@ -33,6 +33,8 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 
+from ..files.models import Attachment
+
 from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, \
     EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
@@ -934,13 +936,10 @@ class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
                     os.remove(os.path.join(upload_dir, file))
         return redirect("activities:photo_upload")
 
-
 def gallery_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
     photo_id = photo
     photo = get_object_or_404(activity.photos, id=photo)
-
-    print(pk, photo)
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
         raise PermissionDenied
@@ -972,21 +971,28 @@ def gallery_photo(request, pk, photo):
 @require_committee('MediaCie')
 def delete_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
-    photo = get_object_or_404(activity.photos, id=photo)
+    photo: Attachment = get_object_or_404(activity.photos, id=photo)
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
         raise PermissionDenied
     
-    # return redirect("activities:photos", pk=pk)
+    photo.delete()
+
+    return redirect(activity)
 
 @require_committee('MediaCie')
 def toggle_visibility(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
-    photo = get_object_or_404(activity.photos, id=photo)
+    photo_id = photo
+    photo: Attachment = get_object_or_404(activity.photos, id=photo_id)
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
         raise PermissionDenied
-    
+
+    photo.public = not photo.public
+    photo.save(create_thumbnails=False)
+
+    return redirect("activities:gallery_photo", pk=pk, photo=photo_id)
 
 def gallery(request, pk, page=1):
     activity = get_object_or_404(Activity, pk=pk)
