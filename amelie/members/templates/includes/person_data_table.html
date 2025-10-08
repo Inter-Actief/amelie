@@ -4,7 +4,7 @@
     <table class="table">
         <tbody>
             <tr>
-                <td class="profile_picture">
+                <td>
                     {% if obj.picture %}
                         <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
                     {% else %}
