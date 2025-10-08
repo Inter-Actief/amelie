@@ -1410,7 +1410,7 @@ class EventDeskMessageList(RequireActiveMemberMixin, ListView):
         current_activities = Activity.objects.filter(begin__gte=now).prefetch_related(
             'eventdeskregistrationmessage_set').order_by("begin")
         context['current_activities'] = [x for x in current_activities if x.can_edit(self.request.person)]
-        past_activities = Activity.objects.filter(begin__gte=one_week_ago, end__lte=now).prefetch_related(
+        past_activities = Activity.objects.filter(begin__gte=one_week_ago, begin__lte=now).prefetch_related(
             'eventdeskregistrationmessage_set').order_by("-begin")
         context['past_activities'] = [x for x in past_activities if x.can_edit(self.request.person)]
 
