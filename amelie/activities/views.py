@@ -797,7 +797,7 @@ def photo_upload(request):
         if "_processing" in dir_path:
             continue
         for filename in filenames:
-            if any(filename.lower().endswith(ext) for ext in ['.jpg', '.gif']):
+            if any(filename.lower().endswith(ext) for ext in PhotoFileUploadForm.allowed_extensions):
                 photos.append(os.path.relpath(os.path.join(dir_path, filename), folder))
 
     photos = list(sorted(
@@ -853,7 +853,7 @@ def photo_upload_preview(request, filename):
 
     # Make sure only JPG or GIF images can be previewed (only those extensions can be uploaded)
     file_extension = Path(file_path).suffix[1:].lower()
-    if file_extension not in ["jpg", "jpeg", "gif"]:
+    if file_extension not in PhotoFileUploadForm.allowed_extensions:
         raise Http404(_("This picture does not exist."))
 
     # Make sure the file actually exists
@@ -863,30 +863,22 @@ def photo_upload_preview(request, filename):
     # Create a small thumbnail for the file and return that as the response data
     image = Image.open(file_path)
     size_pixels = settings.THUMBNAIL_SIZES['small']
+
     # check whether the dimensions of the source are large enough such that a thumbnail is useful.
     if any(map(lambda b, d: b > d, image.size, size_pixels)):
-        if file_extension in ['jpg', 'jpeg']:
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            image.thumbnail(size_pixels, Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/jpeg")
-            image.save(response, "JPEG")
-            return response
-        if file_extension == 'gif':
+        if image.mode != 'RGB' or file_extension == 'gif':
             image = image.convert('RGB')
-            image.thumbnail(size_pixels, Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/jpeg")
-            image.save(response, "JPEG")
-            return response
+        image.thumbnail(size_pixels, Image.ANTIALIAS)
+        response = HttpResponse(content_type="image/jpeg")
+        image.save(response, "JPEG")
+        return response
 
     # In all other cases, just return the image directly.
     with open(file_path, "rb") as image_file:
-        if file_extension in ['jpg', 'jpeg']:
-            return HttpResponse(image_file.read(), content_type="image/jpeg")
-        elif file_extension == "gif":
-            return HttpResponse(image_file.read(), content_type="image/gif")
-        else:
-            raise Http404(_("This picture does not exist."))
+        # Can safely return since file extension was checked earlier on
+        if file_extension == "jpg":
+            file_extension = "jpeg" # image/jpg does not exist
+        return HttpResponse(image_file.read(), content_type=f'image/{file_extension}')
 
 
 class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
