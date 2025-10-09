@@ -296,15 +296,13 @@ class AuthorizedTokenDeleteViewAmelieWrapper(AuthorizedTokenDeleteView):
 
 
 def robots_txt(request):
-    path = os.path.realpath(os.path.join(os.getcwd(), f'amelie/style/robots.{settings.ENV}.txt'))
+    # Return the robots.txt of the configured environment, or PRODUCTION if no specific one exists.
+    path = os.path.join(settings.BASE_PATH, f'amelie/style/robots.{settings.ENV}.txt')
+    if not os.path.isfile(path):
+        path = os.path.join(settings.BASE_PATH, "amelie/style/robots.PRODUCTION.txt")
 
-    try:
-        with open(path, 'r') as f:
-            return HttpResponse(f.read(), content_type='text/plain')
-    except FileNotFoundError as e:
-        path = os.path.realpath(os.path.join(os.getcwd(), f'amelie/style/robots.PRODUCTION.txt'))
-        with open(path, 'r') as f:
-            return HttpResponse(f.read(), content_type='text/plain')
+    with open(path, 'r') as f:
+        return HttpResponse(f.read(), content_type='text/plain')
 
 
 def security_txt(request):
