@@ -100,11 +100,7 @@ urlpatterns = [
             url='%sfavicon.ico' % settings.STATIC_URL,
             permanent=False),
         name='favicon_redirect'),
-    path('robots.txt',
-        RedirectView.as_view(
-            url='%srobots.txt' % settings.STATIC_URL,
-            permanent=False),
-        name='robots_redirect'),
+    path('robots.txt', views.robots_txt, name='robots_redirect'),
     path('.well-known/security.txt', views.security_txt, name='security_txt'),
 
     # Redirects for old dutch URL's for permalinks and such

@@ -1,13 +1,15 @@
 import datetime
 import logging
+import os
 from datetime import timedelta, date
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles import finders
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -292,6 +294,16 @@ def csrf_failure(request, reason=""):
 
 class AuthorizedTokenDeleteViewAmelieWrapper(AuthorizedTokenDeleteView):
     success_url = reverse_lazy('profile_overview')
+
+
+def robots_txt(request):
+    # Return the robots.txt of the configured environment, or PRODUCTION if no specific one exists.
+    path = os.path.join(settings.BASE_PATH, f'amelie/style/robots.{settings.ENV}.txt')
+    if not os.path.isfile(path):
+        path = os.path.join(settings.BASE_PATH, "amelie/style/robots.PRODUCTION.txt")
+
+    with open(path, 'r') as f:
+        return HttpResponse(f.read(), content_type='text/plain')
 
 
 def security_txt(request):
