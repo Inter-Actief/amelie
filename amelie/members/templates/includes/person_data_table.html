@@ -7,11 +7,23 @@
                 <td>
                     {% if obj.picture %}
                         <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                    {% elif obj.unverified_picture %}
+                        <p class="icon icon-user">
+                            {% blocktrans %}
+                                Your picture has not yet been verified. If you would like to change it, upload a new one: 
+                            {% endblocktrans %}
+                            <a class="looks-like-a-button" href="{% url 'portrait_upload' %}">
+                                {% trans 'Upload picture' %}
+                            </a>
+                        </p>
                     {% else %}
                         <p class="icon icon-user">
                             {% blocktrans %}
                                 {{ obj }} doesn't have a profile picture.
                             {% endblocktrans %}
+                            <a class="looks-like-a-button" href="{% url 'portrait_upload' %}">
+                                {% trans 'Upload picture' %}
+                            </a>
                         </p>
                     {% endif %}
                 </td>
