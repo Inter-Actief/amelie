@@ -9,15 +9,17 @@
     <form action="" method="post" class="big" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <div class="col-xs-12"><div class="ia">
-            <h2>{% trans 'Profile picture' %}</h2>
+        <div class="col-xs-12">
+            <div class="ia">
+                <h2>{% trans 'Profile picture' %}</h2>
 
-            <div class="content">
-                <p>
-                    {{ form }}
-                    <input type="submit" value="{% trans 'Upload' %}" />
-                </p>
+                <div class="content">
+                    <p>
+                        {{ form }}
+                        <input type="submit" value="{% trans 'Upload' %}" />
+                    </p>
+                </div>
             </div>
-        </div></div>
+        </div>
     </form>
 {% endblock content %}

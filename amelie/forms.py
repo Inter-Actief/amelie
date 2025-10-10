@@ -19,4 +19,9 @@ class ProfilePictureUploadForm(forms.Form):
             # FileExtensionValidator raises ValidationError if an extension is not allowed
             FileExtensionValidator(allowed_extensions=allowed_extensions)(file)
 
-inject_style(ProfilePictureUploadForm, AmelieAuthenticationForm)
+
+class ProfilePictureVerificationFrom(forms.Form):
+    is_verified = forms.BooleanField(initial=False, required=False, label=_l('Verify'))
+    id = forms.IntegerField(widget=forms.HiddenInput())
+
+inject_style(ProfilePictureVerificationFrom, ProfilePictureUploadForm, AmelieAuthenticationForm)

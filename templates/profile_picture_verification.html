@@ -1,0 +1,72 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% trans 'Verify uploaded profile pictures' %}
+{% endblock titel %}
+
+{% block head %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function addFetchProp(button) {
+                button.addEventListener('click', function() {
+                    const personId = this.dataset.personId;
+                    const isAcceptButton = this.classList.contains('accept-button');
+                    fetch("{% url 'portrait_upload_verification' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `id=${personId}&is_verified=${isAcceptButton}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            this.style.backgroundColor = 'green';
+                        } else {
+                            this.style.backgroundColor = 'red';
+                        }
+                    })
+                });
+            };
+
+            document.querySelectorAll('.deny-button').forEach(addFetchProp);
+            document.querySelectorAll('.accept-button').forEach(addFetchProp);
+        });
+    </script>
+{% endblock head %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <div class="content">
+                
+
+                    <div class="table-responsive">
+                        <table class="table person_table">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Person' %}</th>
+                                    <th>{% trans 'Picture' %}</th>
+                                    <th>{% trans 'Should verify?' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form, person in forms %}
+                                    <tr data-person-id="{{ person.id }}">
+                                        <td>{{ person.full_name }}</td>
+                                        <td><img src="{% url 'members:person_unverified_picture' person.id person.slug %}" alt="{{ person }}" class="profile_picture"/></td>
+                                        <td>
+                                            <button class="accept-button" data-person-id="{{ person.id }}">{% trans "Accept" %}</button>
+                                            <button class="deny-button" data-person-id="{{ person.id }}">{% trans "Deny" %}</button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

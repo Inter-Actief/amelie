@@ -7,7 +7,7 @@
                 <td class="profile_picture">
                     {% if obj.picture %}
                         <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
-                    {% elif obj.portrait_picture and not obj.is_portrait_picture_verified %}
+                    {% elif obj.unverified_picture %}
                         <p class="icon icon-user">
                             {% blocktrans %}
                                 Your picture has not yet been verified. If you would like to change it, upload a new one: 

@@ -1418,6 +1418,22 @@ def person_picture(request, id, slug):
         raise Http404('Picture not found')
 
 
+@require_board
+def person_unverified_picture(request, id, slug):
+    person = get_object_or_404(Person, id=id, slug=slug)
+
+    # Only for the board or the person themselves
+    if not request.is_board and not request.person == person:
+        return HttpResponseForbidden()
+
+    # Serve file, preferably using Sendfile
+    image_file = person.unverified_picture
+    if image_file:
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
+    else:
+        raise Http404('Picture not found')
+
+
 def _person_info_request_get_body(request, logger=None):
     if logger is None:
         logger = logging.getLogger("amelie.members.views._person_info_request_get_body")

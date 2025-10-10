@@ -7,7 +7,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -15,20 +15,21 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
+from amelie.tools.decorators import require_board
 from oauth2_provider.views import AuthorizedTokenDeleteView
 from health_check.views import MainView as HealthCheckMainView
 from django.views.generic.edit import FormView
 
 from amelie.activities.models import Activity
 from amelie.companies.models import CompanyEvent
-from amelie.forms import AmelieAuthenticationForm, ProfilePictureUploadForm
+from amelie.forms import AmelieAuthenticationForm, ProfilePictureUploadForm, ProfilePictureVerificationFrom
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod, Preference
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
-from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
 
@@ -134,7 +135,6 @@ def profile_edit(request):
         'profile': profile,
         'form': form
     })
-
 
 @login_required
 def profile_overview(request):
@@ -319,6 +319,37 @@ def healthz_view(request):
     return HttpResponse('ok', content_type="text/plain")
 
 
+class PortraitUploadVerification(RequireBoardMixin, FormView):
+    http_method_names = ["get", "post"]
+    form_class = ProfilePictureVerificationFrom
+
+    def get(self, request):
+        people = Person.objects.filter(unverified_picture__isnull=False).exclude(unverified_picture='')[:50]
+        forms = [(ProfilePictureVerificationFrom(initial={'id':person.id}), person) for person in people]
+
+        return render(request, 'profile_picture_verification.html', locals())
+
+    def post(self, request):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            person = Person.objects.filter(id=form.data.get("id")).first()
+
+            if person == None:
+                return "error"
+
+            if form.data.get("is_verified") == "true":
+                person.picture = person.unverified_picture
+                person.unverified_picture = None
+                person.save()
+            else:
+                person.unverified_picture = None
+                person.save()
+            return JsonResponse({"status": "success"})
+        else:
+            return JsonResponse({"status": "error"})
+
+
 class PortraitUploadView(RequirePersonMixin, FormView):
     http_method_names = ["get", "post"]
     form_class = ProfilePictureUploadForm
@@ -337,7 +368,7 @@ class PortraitUploadView(RequirePersonMixin, FormView):
             if len(files) == 0:
                 return self.form_invalid(form)
             request.person.is_portrait_picture_verified = False
-            request.person.portrait_picture = files[0]
+            request.person.unverified_picture = files[0]
             request.person.save()
         else:
             return self.form_invalid(form)
