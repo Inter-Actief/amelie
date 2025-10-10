@@ -17,17 +17,18 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from oauth2_provider.views import AuthorizedTokenDeleteView
 from health_check.views import MainView as HealthCheckMainView
+from django.views.generic.edit import FormView
 
 from amelie.activities.models import Activity
 from amelie.companies.models import CompanyEvent
-from amelie.forms import AmelieAuthenticationForm
+from amelie.forms import AmelieAuthenticationForm, ProfilePictureUploadForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod, Preference
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
-from amelie.tools.mixins import RequireSuperuserMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
 
@@ -153,6 +154,7 @@ def profile_overview(request):
     except Exception as e:
         logger.exception(e)
         users = []
+
     return render(request, "profile_overview.html", context={
         'users': users,
         'providers_unlink_allowed': settings.KEYCLOAK_PROVIDERS_UNLINK_ALLOWED
@@ -315,6 +317,32 @@ Expires: {month_from_now:%Y-%m-%dT%H:%M:%Sz%z}"""
 
 def healthz_view(request):
     return HttpResponse('ok', content_type="text/plain")
+
+
+class PortraitUploadView(RequirePersonMixin, FormView):
+    http_method_names = ["get", "post"]
+    form_class = ProfilePictureUploadForm
+
+    def get(self, request):
+        form = ProfilePictureUploadForm()
+        return render(request, 'profile_portrait_upload.html', locals())
+
+    def post(self, request):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        form.clean_photo_files()
+        files = form.files.getlist("profile_picture")
+
+        if form.is_valid():
+            if len(files) == 0:
+                return self.form_invalid(form)
+            request.person.is_portrait_picture_verified = False
+            request.person.portrait_picture = files[0]
+            request.person.save()
+        else:
+            return self.form_invalid(form)
+
+        return redirect('profile_overview')
 
 
 class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):

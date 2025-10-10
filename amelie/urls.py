@@ -20,6 +20,7 @@ urlpatterns = [
     path('legacy_login/', views.login, name='legacy_login'),
     path('legacy_logout/', LogoutView.as_view(), name='legacy_logout'),
     path('profile/', views.profile_overview, name='profile_overview'),
+    path('profile/portrait_upload/', views.PortraitUploadView.as_view(), name='portrait_upload'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),
     path('oidc/', include('mozilla_django_oidc.urls')),

@@ -304,7 +304,13 @@ class Person(models.Model, Mappable):
     last_name = models.CharField(max_length=50, verbose_name=_l('Last name'))
     initials = models.CharField(max_length=20, blank=True, verbose_name=_l('Initials'))
     slug = models.SlugField(max_length=150, editable=False)
+    
+    # old data keep it here
     picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Photo'))
+
+    # new system allows for verifying but keeps old picture for backwards compatability
+    portrait_picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Portrait photo'))
+    is_portrait_picture_verified = models.BooleanField(default=False, verbose_name=_l("Is Picture Verified By Admin"))
     notes = models.TextField(blank=True, verbose_name=_l('Notes'))
 
     gender = models.CharField(max_length=9, choices=GenderTypes.choices, verbose_name=_l('Gender'))
