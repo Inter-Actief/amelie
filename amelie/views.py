@@ -1,13 +1,15 @@
 import datetime
 import logging
+import os
 from datetime import timedelta, date
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles import finders
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -30,6 +32,7 @@ from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
 from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin
+from amelie.tools.buildinfo import get_build_info
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
 
@@ -295,6 +298,16 @@ class AuthorizedTokenDeleteViewAmelieWrapper(AuthorizedTokenDeleteView):
     success_url = reverse_lazy('profile_overview')
 
 
+def robots_txt(request):
+    # Return the robots.txt of the configured environment, or PRODUCTION if no specific one exists.
+    path = os.path.join(settings.BASE_PATH, f'amelie/style/robots.{settings.ENV}.txt')
+    if not os.path.isfile(path):
+        path = os.path.join(settings.BASE_PATH, "amelie/style/robots.PRODUCTION.txt")
+
+    with open(path, 'r') as f:
+        return HttpResponse(f.read(), content_type='text/plain')
+
+
 def security_txt(request):
     month_from_now = datetime.datetime.now() + datetime.timedelta(weeks=4)
     content = f"""# Our security address(es), in order of preference
@@ -380,24 +393,36 @@ class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
     def get_context_data(self, **kwargs):
         import os, sys, platform, cgi, socket
 
+        # Operating system version
         if hasattr(platform, 'dist') and platform.dist()[0] != '' and platform.dist()[1] != '':
             os_version = f'{platform.system()} {platform.release()} ({platform.dist()[0].capitalize()} {platform.dist()[1]})'
         else:
             os_version = f'{platform.system()} {platform.release()}'
 
+        # IP address of host
         try:
             ip_address = socket.gethostbyname(socket.gethostname())
         except Exception:
             ip_address = None
 
+        # Process ID of worker
         try:
             process_id = f'{os.getpid()} (parent: {os.getppid()})' if hasattr(os, 'getpid') and hasattr(os, 'getppid') else None
         except Exception:
             process_id = None
 
+        # Build information
+        build_info = get_build_info()
+
         return {
             **super().get_context_data(**kwargs),
+            # A bunch of other random system information
             'info_tables': [
+                ('Amelie', {
+                    'Build branch': build_info.get("branch", "unknown"),
+                    'Build commit': build_info.get("commit", "unknown"),
+                    'Build date': build_info.get("date", "unknown"),
+                }),
                 ('System', {
                     'Python Version': platform.python_version(),
                     'Python Subversion': ', '.join(sys.subversion) if hasattr(sys, 'subversion') else None,

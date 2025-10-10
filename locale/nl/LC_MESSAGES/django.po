@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-18 16:43+0200\n"
-"PO-Revision-Date: 2025-08-18 16:05+0000\n"
+"POT-Creation-Date: 2025-09-02 19:26+0200\n"
+"PO-Revision-Date: 2025-10-07 09:09+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -10673,6 +10673,11 @@ msgstr "Probleem melden"
 #: templates/basis.html:322
 msgid "CVD Policy"
 msgstr "CVD-beleid"
+
+#: templates/basis.html:328
+#, python-format
+msgid "Amélie %(branch)s (%(commit)s built on %(date)s) rendered by PID %(pid)s on %(host)s"
+msgstr "Amélie %(branch)s (%(commit)s gebouwd op %(date)s) geserveerd door PID %(pid)s op %(host)s"
 
 #: templates/frontpage.html:90
 msgid "In the Company Corner you can find information about companies and possible graduation projects or job opportunities."
