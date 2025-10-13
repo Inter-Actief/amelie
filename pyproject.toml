@@ -66,7 +66,7 @@ dependencies = [
     # Other random dependencies, to be documented, see issue #556
     "httplib2>=0.20.4,<0.21",
     "icalendar>=4.1.0,<4.2",
-    "Markdown>=3.3.7,<3.9",
+    "Markdown>=3.3.7,<3.10",
     "mysqlclient",
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
