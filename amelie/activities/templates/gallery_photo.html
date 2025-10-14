@@ -16,7 +16,7 @@
 
 			{% if with_permissions %}
 			<a class="looks-like-a-button looks-like-a-danger-button" href="{% url 'activities:gellery_photo_delete' pk photo_id  %}">{% trans 'Delete' %}</a>
-			<a class="looks-like-a-button looks-like-a-gray-button" style="background-color: rgba(177, 174, 174, 0.788);" href="{% url 'activities:gallery_photo_toggle_visibility' pk photo_id  %}">{% trans nextVisibility %}</a>
+			<a class="looks-like-a-button looks-like-a-gray-button" href="{% url 'activities:gallery_photo_toggle_visibility' pk photo_id  %}">{% trans nextVisibility %}</a>
 			{% endif %}
 		</h2>
 

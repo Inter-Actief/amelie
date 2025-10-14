@@ -33,8 +33,6 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 
-from ..files.models import Attachment
-
 from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, \
     EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
