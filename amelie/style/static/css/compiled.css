@@ -11536,6 +11536,20 @@ h2.expanded span {
   float: right;
   margin: -3px 0 0;
 }
+.h2-with-buttons .looks-like-a-danger-button,
+.h2-with-buttons input {
+  color: #fff;
+  background: #ea1121 !important;
+  border-color: #fff;
+  position: relative;
+}
+.h2-with-buttons .looks-like-a-gray-button,
+.h2-with-buttons input {
+  color: #fff;
+  background: #948989 !important;
+  border-color: #fff;
+  position: relative;
+}
 h2.h2-with-date {
   line-height: 20px;
 }
