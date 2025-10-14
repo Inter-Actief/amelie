@@ -1,7 +1,9 @@
 import itertools
 import uuid
+import pytz
 
 import logging
+
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, URLValidator
 from django.db import models
@@ -194,10 +196,12 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
 
     def description_short(self):
+        tz = pytz.timezone('Europe/Amsterdam')
+
         char_limit = 150
         location_prefix = " @" if self.location != "" else ""
         activity_prefix = (self.as_leaf_class().activity_label.name_en + " - ") if self.as_leaf_class().activity_label else ""
-        total_string = f"{activity_prefix}{self.begin.strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
+        total_string = f"{activity_prefix}{self.begin.astimezone(tz).strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
 
         if len(total_string) > char_limit:
             total_string = total_string[:char_limit] + '...'
