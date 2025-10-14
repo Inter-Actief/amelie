@@ -5,6 +5,13 @@
 
 {% block head %}
     <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dragndrop.js"></script>
+    <script type="text/javascript">
+		function onClickDanger(e) {
+			if (confirm("Are you sure you want to delete the image?!") == true) {
+				window.location = "{% url 'activities:gellery_photo_delete' pk photo_id  %}"
+			}
+		}
+	</script>
 {% endblock head %}
 
 {% block content %}
@@ -15,7 +22,7 @@
 			<a class="looks-like-a-button" href="{{ obj.get_photo_url }}">{% trans 'All photos' %}</a>
 
 			{% if with_permissions %}
-			<a class="looks-like-a-button looks-like-a-danger-button" href="{% url 'activities:gellery_photo_delete' pk photo_id  %}">{% trans 'Delete' %}</a>
+			<a class="looks-like-a-button looks-like-a-danger-button" onclick="onClickDanger()">{% trans 'Delete' %}</a>
 			<a class="looks-like-a-button looks-like-a-gray-button" href="{% url 'activities:gallery_photo_toggle_visibility' pk photo_id  %}">{% trans nextVisibility %}</a>
 			{% endif %}
 		</h2>
