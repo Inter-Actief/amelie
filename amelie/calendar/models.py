@@ -4,6 +4,7 @@ import pytz
 
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, URLValidator
 from django.db import models
@@ -196,7 +197,7 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
 
     def description_short(self):
-        tz = pytz.timezone('Europe/Amsterdam')
+        tz = pytz.timezone(settings.TIME_ZONE)
 
         char_limit = 150
         location_prefix = " @" if self.location != "" else ""
