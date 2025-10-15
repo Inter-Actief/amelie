@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-02 19:26+0200\n"
+"POT-Creation-Date: 2025-10-15 15:46+0200\n"
 "PO-Revision-Date: 2025-10-07 09:09+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -2404,7 +2404,7 @@ msgstr "{person} is gepromoveerd van de wachtlijst naar bevestigde deelname voor
 msgid "Events of Inter-Actief"
 msgstr "Activiteiten IA"
 
-#: amelie/activities/views.py:270 amelie/activities/views.py:1045
+#: amelie/activities/views.py:270 amelie/activities/views.py:1037
 msgid "No photo"
 msgstr "Geen foto"
 
@@ -2462,89 +2462,89 @@ msgid "The photos are being uploaded. This might take while."
 msgstr "De foto's worden verwerkt. Dit kan even duren."
 
 #: amelie/activities/views.py:852 amelie/activities/views.py:857
-#: amelie/activities/views.py:861 amelie/activities/views.py:889
+#: amelie/activities/views.py:861
 msgid "This picture does not exist."
 msgstr "Deze foto bestaat niet."
 
-#: amelie/activities/views.py:1060
+#: amelie/activities/views.py:1052
 msgid "No participants"
 msgstr "Geen deelnemers"
 
-#: amelie/activities/views.py:1113
+#: amelie/activities/views.py:1105
 msgid "You do not have permissions to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1116
+#: amelie/activities/views.py:1108
 msgid "You cannot edit this activity, because it is cancelled"
 msgstr "Je kunt deze activiteit niet aanpassen, omdat hij is geannuleerd"
 
-#: amelie/activities/views.py:1137
+#: amelie/activities/views.py:1129
 msgid "You did not fill in an English summary/description."
 msgstr "Je hebt geen Engelse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1138 amelie/activities/views.py:1145
+#: amelie/activities/views.py:1130 amelie/activities/views.py:1137
 msgid "edit event"
 msgstr "activiteit wijzigen"
 
-#: amelie/activities/views.py:1144
+#: amelie/activities/views.py:1136
 msgid "You did not fill in a Dutch summary/description."
 msgstr "Je hebt geen Nederlandse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1231 amelie/activities/views.py:1241
+#: amelie/activities/views.py:1223 amelie/activities/views.py:1233
 msgid "This activity already has enrollments, therefore options can no longer be added!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties toegevoegd worden!"
 
-#: amelie/activities/views.py:1280 amelie/activities/views.py:1294
+#: amelie/activities/views.py:1272 amelie/activities/views.py:1286
 msgid "This activity already has enrollments, therefore options cannot be deleted!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties verwijderd worden!"
 
-#: amelie/activities/views.py:1286
+#: amelie/activities/views.py:1278
 #, python-format
 msgid "Enrollment options %(object)s has been deleted"
 msgstr "Inschrijfoptie %(object)s is verwijderd"
 
-#: amelie/activities/views.py:1307
+#: amelie/activities/views.py:1299
 msgid "Only accessible for the board and the organisers of this activity."
 msgstr "Uitsluitend toegankelijk voor het bestuur en de organisators van de activiteit."
 
-#: amelie/activities/views.py:1313 amelie/activities/views.py:1328
+#: amelie/activities/views.py:1305 amelie/activities/views.py:1320
 msgid "No activity found or invalid activity ID given."
 msgstr "Geen activiteit gevonden of je hebt een ongeldige activiteit-id meegegeven."
 
-#: amelie/activities/views.py:1323
+#: amelie/activities/views.py:1315
 msgid "Invalid activity ID"
 msgstr "Ongeldige activiteit-id."
 
-#: amelie/activities/views.py:1344 amelie/personal_tab/views.py:1359
+#: amelie/activities/views.py:1336 amelie/personal_tab/views.py:1359
 msgid "Could not create data export, because an unknown data-exporttype is provided."
 msgstr "Kon geen data-export maken, omdat er een onbekend data-exporttype is opegeven."
 
-#: amelie/activities/views.py:1351 amelie/personal_tab/views.py:1366
+#: amelie/activities/views.py:1343 amelie/personal_tab/views.py:1366
 msgid "Could not create data export, because something went wrong while saving information about the export."
 msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van gegevens over de data-export."
 
-#: amelie/activities/views.py:1429 amelie/activities/views.py:1439
-#: amelie/activities/views.py:1441
+#: amelie/activities/views.py:1421 amelie/activities/views.py:1431
+#: amelie/activities/views.py:1433
 msgid "You are not allowed to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1463 amelie/activities/views.py:1469
-#: amelie/activities/views.py:1475
+#: amelie/activities/views.py:1455 amelie/activities/views.py:1461
+#: amelie/activities/views.py:1467
 #: amelie/members/templates/person_accounts.html:37
 #: amelie/personal_tab/templates/info/rfid_cards.html:45
 #: templates/profile_overview.html:222
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: amelie/activities/views.py:1481
+#: amelie/activities/views.py:1473
 msgid "Unknown error occurred."
 msgstr "Er is een onbekende fout opgetreden."
 
-#: amelie/activities/views.py:1497 amelie/activities/views.py:1512
+#: amelie/activities/views.py:1489 amelie/activities/views.py:1504
 msgid "Message is not encoded in UTF-8, Latin-1 or ASCII, giving up..."
 msgstr "Bericht is niet geëncodeerd in UTF-8, Latin-1 of ASCII, ik geef het op..."
 
-#: amelie/activities/views.py:1518
+#: amelie/activities/views.py:1510
 msgid "Could not retrieve this message from Google. {}"
 msgstr "Kon dit bericht niet ophalen bij Google. {}"
 
