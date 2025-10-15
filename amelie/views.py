@@ -4,6 +4,7 @@ import os
 from datetime import timedelta, date
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles import finders
@@ -24,7 +25,8 @@ from django.views.generic.edit import FormView
 
 from amelie.activities.models import Activity
 from amelie.companies.models import CompanyEvent
-from amelie.forms import AmelieAuthenticationForm, ProfilePictureUploadForm, ProfilePictureVerificationFrom
+from amelie.forms import AmelieAuthenticationForm
+from amelie.members.forms import ProfilePictureUploadForm, ProfilePictureVerificationForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
 from amelie.members.models import Person, Committee, StudyPeriod, Preference
@@ -334,11 +336,11 @@ def healthz_view(request):
 
 class PortraitUploadVerification(RequireBoardMixin, FormView):
     http_method_names = ["get", "post"]
-    form_class = ProfilePictureVerificationFrom
+    form_class = ProfilePictureVerificationForm
 
     def get(self, request):
         people = Person.objects.filter(unverified_picture__isnull=False).exclude(unverified_picture='')[:50]
-        forms = [(ProfilePictureVerificationFrom(initial={'id':person.id}), person) for person in people]
+        forms = [(ProfilePictureVerificationForm(initial={'id':person.id}), person) for person in people]
 
         return render(request, 'profile_picture_verification.html', locals())
 
@@ -348,7 +350,7 @@ class PortraitUploadVerification(RequireBoardMixin, FormView):
         if form.is_valid():
             person = Person.objects.filter(id=form.data.get("id")).first()
 
-            if person == None:
+            if person is None:
                 return "error"
 
             if form.data.get("is_verified") == "true":
@@ -356,6 +358,7 @@ class PortraitUploadVerification(RequireBoardMixin, FormView):
                 person.unverified_picture = None
                 person.save()
             else:
+                os.remove(person.unverified_picture.path)
                 person.unverified_picture = None
                 person.save()
             return JsonResponse({"status": "success"})
@@ -374,7 +377,6 @@ class PortraitUploadView(RequirePersonMixin, FormView):
     def post(self, request):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        form.clean_photo_files()
         files = form.files.getlist("profile_picture")
 
         if form.is_valid():

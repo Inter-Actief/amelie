@@ -276,9 +276,6 @@ def person_picture_upload_path(instance, filename):
     return os.path.join('profile_picture/', '{}.{}'.format(uuid.uuid4(), filename.split('.')[-1]))
 
 
-def person_unverified_picture_upload_path(instance, filename):
-    return os.path.join('profile_picture/', '{}_unverified.{}'.format(uuid.uuid4(), filename.split('.')[-1]))
-
 class Person(models.Model, Mappable):
     """
     Person. This can either be a student, an employee, neither or not even a member.
@@ -307,12 +304,11 @@ class Person(models.Model, Mappable):
     last_name = models.CharField(max_length=50, verbose_name=_l('Last name'))
     initials = models.CharField(max_length=20, blank=True, verbose_name=_l('Initials'))
     slug = models.SlugField(max_length=150, editable=False)
-    
-    # old data keep it here
-    picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Photo'))
 
-    # new system allows for verifying but keeps old picture for backwards compatability
-    unverified_picture = models.ImageField(upload_to=person_unverified_picture_upload_path, blank=True, null=True, verbose_name=_l('Unverified photo'))
+    # Picture stores the 'real' profile picture, unverified_picture stores a new profile picture while the board has not checked it yet.
+    picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Photo'))
+    unverified_picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Unverified photo'))
+
     notes = models.TextField(blank=True, verbose_name=_l('Notes'))
 
     gender = models.CharField(max_length=9, choices=GenderTypes.choices, verbose_name=_l('Gender'))

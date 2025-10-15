@@ -15,6 +15,21 @@
 
                 <div class="content">
                     <p>
+                        {% blocktrans %}
+                            You can upload a new profile picture here. New pictures need to be accepted by the board before they are used.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans %}
+                            Please check that the picture is acceptable before uploading. A good picture should at least show your face clearly.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans %}
+                            Note that pictures may be used for multiple purposes, please see our privacy policy for more information on where profile pictures can be used.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
                         {{ form }}
                         <input type="submit" value="{% trans 'Upload' %}" />
                     </p>
