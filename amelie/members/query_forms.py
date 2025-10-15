@@ -30,7 +30,7 @@ def _find_years():
 
 class QueryForm(forms.Form):
     name = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'autofocus': 'autofocus'}))
-    id = forms.IntegerField(required=False, label=_l('Amelie-number'))
+    id = forms.IntegerField(required=False, label=_l('Amélie-number'))
     sm_number = forms.CharField(max_length=10, required=False, label=_l('S/M number'))
     phone_number = forms.CharField(max_length=20, required=False, label=_l('Phonenumber'))
     email_address = forms.CharField(max_length=100, required=False, label=_l('E-mail address'))
