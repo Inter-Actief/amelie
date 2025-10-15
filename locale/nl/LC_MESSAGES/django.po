@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-10-15 21:45+0200\n"
-"PO-Revision-Date: 2025-10-15 16:27+0000\n"
+"PO-Revision-Date: 2025-10-15 20:42+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -3175,8 +3175,6 @@ msgid "Ends"
 msgstr "Eindigt"
 
 #: amelie/calendar/models.py:93
-#, fuzzy
-#| msgid "All dag"
 msgid "All day"
 msgstr "Hele dag"
 
@@ -6648,10 +6646,8 @@ msgid "Photo"
 msgstr "Foto"
 
 #: amelie/members/models.py:310
-#, fuzzy
-#| msgid "Verified on"
 msgid "Unverified photo"
-msgstr "Geverifiëerd op"
+msgstr "Onbeoordeelde foto"
 
 #: amelie/members/models.py:312
 #: amelie/members/templates/includes/query/query_results.html:65
@@ -7020,8 +7016,6 @@ msgid "Study start date"
 msgstr "Begindatum studie"
 
 #: amelie/members/query_forms.py:33
-#, fuzzy
-#| msgid "Amelie-number"
 msgid "Amélie-number"
 msgstr "Amélie-nummer"
 
@@ -7442,41 +7436,31 @@ msgstr "geleden"
 
 #: amelie/members/templates/includes/person_data_table.html:12
 #: templates/profile_picture_verification.html:67
-#, fuzzy
-#| msgid "Upload pictures"
 msgid "Old picture"
-msgstr "Foto's uploaden"
+msgstr "Oude foto"
 
 #: amelie/members/templates/includes/person_data_table.html:14
 #: templates/profile_picture_verification.html:68
-#, fuzzy
-#| msgid "New page"
 msgid "New picture"
-msgstr "Nieuwe pagina"
+msgstr "Nieuwe foto"
 
 #: amelie/members/templates/includes/person_data_table.html:28
 #: amelie/members/templates/includes/person_data_table.html:50
 msgid "The board has not checked your picture yet. If you would like to change it, upload a new one: "
-msgstr ""
+msgstr "Het bestuur heeft je foto nog niet goedgekeurd. Als je hem wilt wijzigen, upload dan een nieuwe: "
 
 #: amelie/members/templates/includes/person_data_table.html:30
-#, fuzzy
-#| msgid "Upload pictures"
 msgid "Upload different picture"
-msgstr "Foto's uploaden"
+msgstr "Andere foto uploaden"
 
 #: amelie/members/templates/includes/person_data_table.html:36
-#, fuzzy
-#| msgid "Search for pictures"
 msgid "Check pictures"
-msgstr "Zoeken naar foto's"
+msgstr "Foto's bekijken"
 
 #: amelie/members/templates/includes/person_data_table.html:52
 #: amelie/members/templates/includes/person_data_table.html:62
-#, fuzzy
-#| msgid "Upload pictures"
 msgid "Upload picture"
-msgstr "Foto's uploaden"
+msgstr "Foto uploaden"
 
 #: amelie/members/templates/includes/person_data_table.html:58
 #, python-format
@@ -12478,7 +12462,7 @@ msgstr "Uitsluitend toegankelijk voor de onderwijscommissie."
 #: amelie/tools/decorators.py:60 amelie/tools/decorators.py:66
 #: amelie/tools/mixins.py:75
 msgid "Only for members with an active membership."
-msgstr ""
+msgstr "Alleen voor leden met een actief lidmaatschap."
 
 #: amelie/tools/decorators.py:72 amelie/tools/mixins.py:83
 msgid "Access for active members only."
@@ -13551,7 +13535,7 @@ msgstr "Nieuwe commissie aanmaken"
 
 #: templates/frontpage.html:134
 msgid "Verify member profile pictures"
-msgstr ""
+msgstr "Bijgewerkte profielfoto's beoordelen"
 
 #: templates/frontpage.html:140
 msgid "ClaudIA"
@@ -13893,10 +13877,8 @@ msgid "Profile overview"
 msgstr "Profieloverzicht"
 
 #: templates/profile_overview.html:20 templates/profile_portrait_upload.html:5
-#, fuzzy
-#| msgid "Change profile "
 msgid "Change profile picture"
-msgstr "Persoon wijzigen"
+msgstr "Profielfoto wijzigen"
 
 #: templates/profile_overview.html:23
 msgid "Mail alias preferences"
@@ -14052,22 +14034,13 @@ msgstr "Kan niet ontkoppelen"
 
 #: templates/profile_picture_verification.html:5
 msgid "Verify uploaded profile pictures"
-msgstr ""
+msgstr "Beoordelen van geüploade profielfotos"
 
 #: templates/profile_picture_verification.html:46
-#, fuzzy
-#| msgid "Upload pictures"
 msgid "Unapproved profile pictures"
-msgstr "Foto's uploaden"
+msgstr "Onbeoordeelde profielfoto's"
 
 #: templates/profile_picture_verification.html:50
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        You can no longer enroll, all placed have been filled.<br />\n"
-#| "                        <b>Do you want to be on the waiting list? That is still possible!</b><br />\n"
-#| "                        When on the waiting list, you will be automatically enrolled as soon as someone unenrolls.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        The following people have uploaded a new profile picture.\n"
@@ -14076,17 +14049,12 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"Je kunt je niet meer inschrijven, alle plaatsen zijn vergeven.<br />\n"
-"<b>Wil je op de reservelijst? Dat is nog wel mogelijk!</b><br />\n"
-"Wanneer je op de wachtlijst staat, word je vanzelf ingeschreven wanneer er plek is."
+"                        De volgende personen hebben een nieuwe profielfoto geupload.\n"
+"Beoordeel a.u.b. of de foto acceptabel is.\n"
+"Een goede foto moet van de persoon zelf zijn, en het gezicht van de persoon moet duidelijk herkenbaar zijn.\n"
+"                    "
 
 #: templates/profile_picture_verification.html:57
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        The people listed below used to have a mandate, but have had it canceled.\n"
-#| "                        You can still add them to a collection instruction.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Note that pictures could be used for other purposes like yearbooks, publications, age lists, etc.\n"
@@ -14094,91 +14062,67 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"De onderstaande personen hebben wel een machtiging gehad,\n"
-"maar deze is inmiddels aangemerkt als beëindigd. Je kunt\n"
-"deze personen alsnog aan de incasso-opdracht toevoegen."
+"                        Let op dat foto's ook gebruikt kunnen worden voor andere doeleinden zoals jaarboeken, publicaties, leeftijdslijsten, etc.\n"
+"Controleer a.u.b. of de foto duidelijk en fatsoenlijk is.\n"
+"                    "
 
 #: templates/profile_picture_verification.html:69
-#, fuzzy
-#| msgid "Accepted"
 msgid "Accept change?"
-msgstr "Geaccepteerd"
+msgstr "Wijziging accepteren?"
 
 #: templates/profile_picture_verification.html:82
-#, fuzzy
-#| msgid "Upload pictures"
 msgid "No picture"
-msgstr "Foto's uploaden"
+msgstr "Geen foto"
 
 #: templates/profile_picture_verification.html:89
-#, fuzzy
-#| msgid "Accepted"
 msgid "Accept"
-msgstr "Geaccepteerd"
+msgstr "Accepteren"
 
 #: templates/profile_picture_verification.html:92
 msgid "Deny"
-msgstr ""
+msgstr "Afkeuren"
 
 #: templates/profile_picture_verification.html:97
-#, fuzzy
-#| msgid "Upload pictures"
 msgid "No unapproved pictures"
-msgstr "Foto's uploaden"
+msgstr "Geen onbeoordeelde foto's"
 
 #: templates/profile_portrait_upload.html:14
-#, fuzzy
-#| msgid "Profile overview"
 msgid "Profile picture"
-msgstr "Profieloverzicht"
+msgstr "Profielfoto"
 
 #: templates/profile_portrait_upload.html:18
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                            From the people that you have selected, there is no person with a registered push device.\n"
-#| "                        "
 msgid ""
 "\n"
 "                            You can upload a new profile picture here. New pictures need to be accepted by the board before they are used.\n"
 "                        "
 msgstr ""
 "\n"
-"Van alle geselecteerde personen is er geen persoon met een geregistreerd push apparaat."
+"                            Je kunt hier een nieuwe profielfoto uploaden. Nieuwe foto's moeten eerst door het bestuur worden goedgekeurd voordat ze gebruikt worden.\n"
+"                        "
 
 #: templates/profile_portrait_upload.html:23
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                            Check your message before you actually send it.\n"
-#| "                        "
 msgid ""
 "\n"
 "                            Please check that the picture is acceptable before uploading. A good picture should at least show your face clearly.\n"
 "                        "
 msgstr ""
 "\n"
-"Controleer je bericht goed voordat je deze daadwerkelijk verzend."
+"                            Controleer a.u.b. of de foto acceptabel is voor het uploaden. Op een goede profielfoto zou in ieder geval je gezicht duideljik zichtbaar moeten zijn.\n"
+"                        "
 
 #: templates/profile_portrait_upload.html:28
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                            From the people that you have selected, there is no person with a registered push device.\n"
-#| "                        "
 msgid ""
 "\n"
 "                            Note that pictures may be used for multiple purposes, please see our privacy policy for more information on where profile pictures can be used.\n"
 "                        "
 msgstr ""
 "\n"
-"Van alle geselecteerde personen is er geen persoon met een geregistreerd push apparaat."
+"                            Let op dat foto's gebruikt kunnen worden voor meerdere doeleinden, bekijk ons privacybeleid voor meer informatie over waarvoor wij profielfoto's kunnen gebruiken.\n"
+"                        "
 
 #: templates/profile_portrait_upload.html:34
-#, fuzzy
-#| msgid "Upload photos"
 msgid "Upload"
-msgstr "Foto's uploaden"
+msgstr "Upload"
 
 #: templates/profile_unknown.html:5 templates/profile_unknown.html:11
 msgid "Unknown user"
