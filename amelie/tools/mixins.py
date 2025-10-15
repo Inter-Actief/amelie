@@ -72,7 +72,7 @@ class RequireEducationCommitteeMixin(PassesTestMixin):
 
 class RequireMemberMixin(PassesTestMixin):
     needs_login = True
-    reason = _l('For active members only.')
+    reason = _l('Only for members with an active membership.')
 
     def test_requirement(self, request):
         return hasattr(request, 'person') and request.person.is_member()
