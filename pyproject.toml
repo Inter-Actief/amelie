@@ -36,7 +36,7 @@ dependencies = [
     "django-extensions>=3.2.1,<4.2",
     "django-formtools>=2.4,<2.5",
     "django-auditlog>=2.2.0,<3.4",
-    "django-oauth-toolkit>=1.7.1,<3.1",
+    "django-oauth-toolkit>=1.7.1,<3.2",
     "django-cors-headers>=3.13.0,<3.14",
     "django-colorfield",
     "django-environ",
@@ -66,11 +66,11 @@ dependencies = [
     # Other random dependencies, to be documented, see issue #556
     "httplib2>=0.20.4,<0.21",
     "icalendar>=4.1.0,<4.2",
-    "Markdown>=3.3.7,<3.9",
+    "Markdown>=3.3.7,<3.10",
     "mysqlclient",
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
-    "Pillow>=9.2.0,<9.3",
+    "Pillow>=9.2.0,<11.4",
     "python-gitlab>=3.10,<3.11.0",
     "python-dateutil>=2.8.2,<2.10",
 

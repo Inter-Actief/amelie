@@ -906,7 +906,6 @@ class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
         else:
             return self.form_invalid(form)
 
-
 class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
     abbreviation = "MediaCie"
     http_method_names = ['get', 'post']
@@ -927,9 +926,9 @@ class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
                     os.remove(os.path.join(upload_dir, file))
         return redirect("activities:photo_upload")
 
-
 def gallery_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
+    photo_id = photo
     photo = get_object_or_404(activity.photos, id=photo)
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
@@ -954,8 +953,36 @@ def gallery_photo(request, pk, photo):
                 last = photos[total - 1]
 
     obj = activity
+    with_permissions = hasattr(request, "is_board") and request.is_board or hasattr(request, "person") and request.person.is_in_committee("MediaCie")
+    nextVisibility = f'Change to {"Private" if photo.public else "Public"}'
+
     return render(request, "gallery_photo.html", locals())
 
+@require_committee('MediaCie')
+def delete_photo(request, pk, photo):
+    activity = get_object_or_404(Activity, pk=pk)
+    photo: Attachment = get_object_or_404(activity.photos, id=photo)
+
+    if not request.user.is_authenticated and (not activity.public or not photo.public):
+        raise PermissionDenied
+    
+    photo.delete()
+
+    return redirect(activity)
+
+@require_committee('MediaCie')
+def toggle_visibility(request, pk, photo):
+    activity = get_object_or_404(Activity, pk=pk)
+    photo_id = photo
+    photo: Attachment = get_object_or_404(activity.photos, id=photo_id)
+
+    if not request.user.is_authenticated and (not activity.public or not photo.public):
+        raise PermissionDenied
+
+    photo.public = not photo.public
+    photo.save(create_thumbnails=False)
+
+    return redirect("activities:gallery_photo", pk=pk, photo=photo_id)
 
 def gallery(request, pk, page=1):
     activity = get_object_or_404(Activity, pk=pk)
