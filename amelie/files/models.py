@@ -223,16 +223,19 @@ class Attachment(models.Model):
     thumb_file_small = property(get_thumb(preferred='small'))
 
     def delete(self):
-        super().delete()
-        def quiet_remove(path):
-            try:
+        def safe_remove(path):
+            # Only remove the file if it exists and if it is in the MEDIA_ROOT directory.
+            if os.path.isfile(path) and os.path.commonpath([path, settings.MEDIA_ROOT]) == settings.MEDIA_ROOT:
                 os.remove(path)
-            except FileNotFoundError:
-                pass
-        quiet_remove(os.path.join(settings.MEDIA_ROOT, str(self.thumb_file_large)))
-        quiet_remove(os.path.join(settings.MEDIA_ROOT, str(self.thumb_file_medium)))
-        quiet_remove(os.path.join(settings.MEDIA_ROOT, str(self.thumb_file_small)))
-        quiet_remove(self.file.path)
+        if self.thumb_large and self.thumb_large.path:
+            safe_remove(self.thumb_large.path)
+        if self.thumb_medium and self.thumb_medium.path:
+            safe_remove(self.thumb_medium.path)
+        if self.thumb_small and self.thumb_small.path:
+            safe_remove(self.thumb_small.path)
+        if self.file and self.file.path:
+            safe_remove(self.file.path)
+        super().delete()
 
     @staticmethod
     def search_images(query, max_results=None):
