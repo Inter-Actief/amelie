@@ -5,13 +5,62 @@
         <tbody>
             <tr>
                 <td>
-                    {% if obj.picture %}
+                    {% if obj.picture and obj.unverified_picture %}
+                        {# User has both a regular and an unverified picture #}
+                        <table>
+                            <tr>
+                                <th>{% trans 'Old picture' %}</th>
+                                <th></th>
+                                <th>{% trans 'New picture' %}</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                                </td>
+                                <td>&rarr;</td>
+                                <td>
+                                    <img src="{% url 'members:person_unverified_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <p class="icon icon-user">
+                                        {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
+                                        <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
+                                            {% trans 'Upload different picture' %}
+                                        </a>
+                                    </p>
+                                    {% if request.is_board %}
+                                        <span class="current">
+                                            <a class="looks-like-a-button" href="{% url 'portrait_upload_verification' %}">
+                                                {% trans 'Check pictures' %}
+                                            </a>
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    {% elif obj.picture %}
+                        {# User just has a regular picture #}
                         <img src="{% url 'members:person_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                    {% elif obj.unverified_picture %}
+                        {# User just has an unverified picture #}
+                        <img src="{% url 'members:person_unverified_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                        <p class="icon icon-user">
+                            {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
+                            <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
+                                {% trans 'Upload picture' %}
+                            </a>
+                        </p>
                     {% else %}
+                        {# User has no picture #}
                         <p class="icon icon-user">
                             {% blocktrans %}
                                 {{ obj }} doesn't have a profile picture.
                             {% endblocktrans %}
+                            <a class="looks-like-a-button" href="{% url 'portrait_upload' %}">
+                                {% trans 'Upload picture' %}
+                            </a>
                         </p>
                     {% endif %}
                 </td>

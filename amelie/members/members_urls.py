@@ -18,6 +18,7 @@ urlpatterns = [
     path(r'<int:id>/<slug:slug>/edit/', views.person_edit, name='person_edit'),
     path(r'<int:id>/<slug:slug>/anonymize/', views.person_anonymize, name='person_anonymize'),
     path(r'<int:id>/<slug:slug>/picture/', views.person_picture, name='person_picture'),
+    path(r'<int:id>/<slug:slug>/person_unverified_picture/', views.person_unverified_picture, name='person_unverified_picture'),
     path(r'<int:id>/ajax/employee/', ajax_views.person_employee, name='person_employee'),
     path(r'<int:id>/ajax/preferences/', ajax_views.person_preferences, name='person_preferences'),
     path(r'<int:id>/ajax/study/', ajax_views.person_study, name='person_study'),
