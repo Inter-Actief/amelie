@@ -36,7 +36,12 @@
   		    </a>
 
   		    <p>
-  		    	{% trans 'Photographer:' %} {{ photo.owner }}
+  		    	{% trans 'Photographer:' %}
+                {% if photo.owner %}
+                    {{ photo.owner }}
+                {% else %}
+                    {% trans 'Anonymous' %}
+                {% endif %}
   		    </p>
 			<p>{% trans 'If you want to have this photo removed, please contact the board' %}</p>
   		</div>

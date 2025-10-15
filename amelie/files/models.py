@@ -131,7 +131,7 @@ class Attachment(models.Model):
     thumb_medium = models.ImageField(max_length=150, upload_to=get_upload_filename, editable=False, null=True, blank=True, height_field="thumb_medium_height", width_field="thumb_medium_width")
     thumb_large = models.ImageField(max_length=150, upload_to=get_upload_filename, editable=False, null=True, blank=True, height_field="thumb_large_height", width_field="thumb_large_width")
     mimetype = models.CharField(max_length=75, editable=False)
-    owner = models.ForeignKey(Photographer, null=True, editable=False, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(Photographer, null=True, blank=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(editable=False, auto_now_add=True)
     modified = models.DateTimeField(editable=False, auto_now=True)
@@ -159,7 +159,7 @@ class Attachment(models.Model):
             import os
             return '%s' % os.path.basename(self.file.name)
 
-    def save(self, create_thumbnails=True, *args, **kwargs):
+    def save(self, create_thumbnails=False, *args, **kwargs):
         self.mimetype = mimetypes.guess_type(self.file.path)[0]
         if not self.mimetype:
             self.mimetype = "application/octet-stream"
