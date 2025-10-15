@@ -5,6 +5,7 @@ import sys
 from distutils.sysconfig import get_python_lib
 
 import polib
+from amelie.tools.management.commands.makemessages import Command as MakeMessagesCommand
 from django.core.management.commands import makemessages
 from django.core.management.commands.makemessages import settings
 from django.template.loader import _engine_list
@@ -92,7 +93,7 @@ class TranslateTestCase(TestCase):
                     self.warn('Po file {} has not been compiled to {}'.format(POFILE_PATH, MOFILE_PATH))
 
     def test_makemessages_run(self):
-        mmc = makemessages.Command()
+        mmc = MakeMessagesCommand()
         mmc.ignore_patterns = ['bin/*', 'lib/*', 'include/*', 'CVS', '.*', '*~', '*.pyc']
         mmc.symlinks = False
         mmc.locale_paths = list(settings.LOCALE_PATHS)

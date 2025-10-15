@@ -87,7 +87,7 @@ class Event(models.Model):
     """
     begin = models.DateTimeField(verbose_name=_l('Starts'))
     end = models.DateTimeField(verbose_name=_l('Ends'))
-    entire_day = models.BooleanField(default=False, verbose_name=_l('All dag'))
+    entire_day = models.BooleanField(default=False, verbose_name=_l('All day'))
 
     summary_nl = models.CharField(max_length=250, verbose_name=_l('Summary'))
     summary_en = models.CharField(max_length=250, blank=True, null=True, verbose_name=_l("Summary (en)"))

@@ -358,7 +358,7 @@ class RFIDCard(models.Model):
              '02': _l('Mifare 1K (Student card/Building card)'),
              '03': _l('Mifare 4K (Public transit card)'),
              '04': _l('Mifare DESFire'),
-             '05': _l('Mifare Ultralight (student card)'),
+             '05': _l('Mifare Ultralight (Student card/IA keychain)'),
              '06': _l('JCOP30'),
              '07': _l('Shanghai Transport'),
              '08': _l('MPCOS Combi'),
