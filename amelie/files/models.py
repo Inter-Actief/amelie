@@ -159,7 +159,7 @@ class Attachment(models.Model):
             import os
             return '%s' % os.path.basename(self.file.name)
 
-    def save(self, create_thumbnails=True, *args, **kwargs):
+    def save(self, create_thumbnails=False, *args, **kwargs):
         self.mimetype = mimetypes.guess_type(self.file.path)[0]
         if not self.mimetype:
             self.mimetype = "application/octet-stream"
