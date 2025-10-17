@@ -277,6 +277,11 @@
                                     <li>
                                         <a href="{% url 'personal_tab:overview' %}">{% trans 'Personal tab' %}</a>
                                     </li>
+                                    {% if request.person.has_mandate_consumptions or request.person.is_active_member %}
+                                    <li>
+                                        <a href="{% url 'personal_tab:print_index' %}">{% trans 'Print document' %}</a>
+                                    </li>
+                                    {% endif %}
                                     <li>
                                         <a href="{% url 'oidc_logout' %}">{% trans 'Log out' %}</a>
                                     </li>

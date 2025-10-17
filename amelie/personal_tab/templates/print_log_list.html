@@ -1,0 +1,129 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans "Print Log" %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans "Print Log" %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        This page shows all (non-refunded) print jobs submitted through the Inter-Actief website.
+                        Only board members can access this log for administrative and auditing purposes.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        It is also possible to refund any paid prints (where a transaction is listed) if there was any problem with it.
+                        For example, if it wasn't printed, the printer was out of toner, the user forgot to/could not select a committee, etc.
+                    {% endblocktrans %}
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{% trans "Timestamp" %}</th>
+                            <th>{% trans "Actor" %}</th>
+                            <th>{% trans "Document Name" %}</th>
+                            <th>{% trans "Pages" %}</th>
+                            <th>{% trans "Committee / Transaction" %}</th>
+                            <th>{% trans "Source IP" %}</th>
+                            <th>{% trans "User Agent" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in print_logs %}
+                            <tr>
+                                <td>
+                                    {{ entry.timestamp|date:"d-m-Y H:i:s" }}
+                                    <small>
+                                        {% blocktrans with time=entry.timestamp|timesince %}
+                                            {{ time }} ago
+                                        {% endblocktrans %}
+                                    </small>
+                                </td>
+                                <td>
+                                    <a href="{{ entry.actor.get_absolute_url }}">
+                                        <i class="icon icon-user"></i>
+                                        {{ entry.actor }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ entry.document_name }}
+                                </td>
+                                <td>
+                                    <i class="icon icon-page"></i>
+                                    {{ entry.page_count }}
+                                </td>
+                                <td>
+                                    {% if entry.committee %}
+                                        <a href="{{ entry.committee.get_absolute_url }}">
+                                            <i class="icon icon-group"></i>
+                                            {{ entry.committee }}
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ entry.transaction.get_absolute_url }}" title="{% trans 'View transaction' %}">
+                                            <i class="icon personal_tab"></i>
+                                            #{{ entry.transaction.id }}
+                                        </a>
+                                        <small>(&euro; {{ entry.transaction.price }})</small>
+                                        <br />
+                                        <a href="{% url 'personal_tab:print_refund' pk=entry.id %}"
+                                           class="looks-like-a-button" title="{% trans 'Refund this print job' %}">
+                                            <i class="icon icon-money_delete"></i>
+                                            {% trans "Refund" %}
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.source_ip %}
+                                        <code>{{ entry.source_ip }}</code>
+                                    {% else %}
+                                        <em>{% trans "Unknown" %}</em>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.source_useragent %}
+                                        <small title="{{ entry.source_useragent }}">
+                                            <i class="icon icon-world"></i>
+                                            {% if "Chrome" in entry.source_useragent %}
+                                                Chrome
+                                            {% elif "Firefox" in entry.source_useragent %}
+                                                Firefox
+                                            {% elif "Safari" in entry.source_useragent %}
+                                                Safari
+                                            {% elif "Edge" in entry.source_useragent %}
+                                                Edge
+                                            {% else %}
+                                                Browser
+                                            {% endif %}
+                                            <br />
+                                            <small>{{ entry.source_useragent|truncatechars:30 }}</small>
+                                        </small>
+                                    {% else %}
+                                        <em>{% trans "Unknown" %}</em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8">
+                                    <p class="icon icon-information">
+                                        {% trans "No print log entries found." %}
+                                    </p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                {% include "paginator.html" with page=page_obj %}
+
+            </div>
+        </div>
+    </div>
+{% endblock content %}

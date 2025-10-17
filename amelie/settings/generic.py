@@ -569,6 +569,23 @@ COOKIE_CORNER_BANK_CODES = {
     'ZWLB': 'ZWLBNL21'
 }
 
+# Printer configuration
+PERSONAL_TAB_PRINTER_MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB in bytes
+PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = 69  # Article ID of 1 piece of paper (single/dual-sided)
+PERSONAL_TAB_PRINTERS = {
+    # Printer settings template:
+    # "printer": {
+    #     "name": "Printer",
+    #     "ipp_url": "ipps://printer.local:631/ipp/print",
+    #     "settings": {
+    #         # https://ftp.pwg.org/pub/pwg/candidates/cs-pwgmsn21-20230915-5101.1.pdf Page 24, Table 5, column "Self-Describing Name"
+    #         "media_format": "iso_a4_210x297mm",
+    #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
+    #         "document_format": "application/pdf"
+    #     },
+    # }
+}
+
 # Celery task scheduler settings
 CELERY_TASK_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
 CELERY_TASK_EAGER_PROPAGATES = True  # If ALWAYS_EAGER, show the exceptions in the foreground

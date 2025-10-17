@@ -11,7 +11,7 @@ from django.utils.translation import get_language, gettext_lazy as _l
 from localflavor.generic.models import BICField, IBANField
 
 from amelie.claudia.tools import verify_instance
-from amelie.members.models import Person, Membership
+from amelie.members.models import Person, Membership, Committee
 from amelie.personal_tab.managers import AuthorizationManager, DebtCollectionInstructionManager
 
 
@@ -876,6 +876,59 @@ class ReversalTransaction(Transaction):
 
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
+
+
+def get_sentinel_person() -> Person:
+    return Person.objects.get(pk=settings.ANONIMIZATION_SENTINEL_PERSON_ID)
+
+
+class PrintLogEntry(models.Model):
+    """
+    Log entry for a document printed by someone via the IA website.
+    """
+
+    actor = models.ForeignKey(Person, related_name='print_log', on_delete=models.SET(get_sentinel_person),
+                              verbose_name=_l('Actor'))
+    """The person that requested the printed document."""
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    """The timestamp on which the document print was requested."""
+
+    source_ip = models.CharField(max_length=255, blank=True, null=True)
+    """The IP address of the client that requested the document print."""
+
+    source_useragent = models.CharField(max_length=255, blank=True, null=True)
+    """The user agent of the client that requested the document print."""
+
+    document_name = models.CharField(max_length=255, verbose_name=_l('Document name'))
+    """The filename of the document that was printed."""
+
+    page_count = models.IntegerField(verbose_name=_l('Page count'))
+    """The number of pages in the printed document."""
+
+    committee = models.ForeignKey(Committee, blank=True, null=True, default=None, related_name='print_log',
+                                  on_delete=models.PROTECT)
+    """The committee that the print was related to. Prints for committees are free, otherwise a transaction should be linked."""
+
+    transaction = models.ForeignKey(CookieCornerTransaction, blank=True, null=True, default=None,
+                                    related_name='print_log', on_delete=models.CASCADE)
+    """A cookie corner transaction that pays for this print. Can be null if the print was for committee purposes."""
+
+    class Meta:
+        ordering = ['timestamp']
+        verbose_name = _l('print log entry')
+        verbose_name_plural = _l('print log entries')
+
+    def __str__(self):
+        return _l('%(actor)s printed %(pages)s page(s) %(for_str)s') % {
+            'pages': self.page_count,
+            'actor': self.actor,
+            'for_str': (
+                    (_l('for %(committee)s') % {'committee': self.committee})
+                    if self.committee else
+                    _l("for personal use")
+                )
+        }
 
 
 def _complain_with_claudia(sender, **kwargs):
