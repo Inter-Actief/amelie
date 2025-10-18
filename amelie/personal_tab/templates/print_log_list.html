@@ -53,7 +53,7 @@
                                 </td>
                                 <td>
                                     {% if entry.job_id %}<i class="icon icon-printer"></i>
-                                        Job {{ entry.job_id }}
+                                        {% blocktrans with job_id=entry.job_id %}Job {{ job_id }}{% endblocktrans %}
                                     {% else %}
                                         <i class="icon icon-printer_error"></i>
                                         <em>{% trans 'No job id!' %}</em>
