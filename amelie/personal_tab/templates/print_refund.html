@@ -51,7 +51,7 @@
                             <i class="icon personal_tab"></i>
                             #{{ object.transaction.id }}
                         </a>
-                        <small>(&euro; {{ object.transaction.price }})</small>
+                        <small>{% blocktrans with price=object.transaction.price %}(&euro; {{ price }}){% endblocktrans %}</small>
                     </td>
                 </tr>
                 <tr>
@@ -71,15 +71,15 @@
                             <small>
                                 <i class="icon icon-world"></i>
                                 {% if "Chrome" in object.source_useragent %}
-                                    Chrome
+                                    {% trans 'Chrome' %}
                                 {% elif "Firefox" in object.source_useragent %}
-                                    Firefox
+                                    {% trans 'Firefox' %}
                                 {% elif "Safari" in object.source_useragent %}
-                                    Safari
+                                    {% trans 'Safari' %}
                                 {% elif "Edge" in object.source_useragent %}
-                                    Edge
+                                    {% trans 'Edge' %}
                                 {% else %}
-                                    Browser
+                                    {% trans 'Browser' %}
                                 {% endif %}
                                 <br />
                                 <small>{{ object.source_useragent }}</small>
