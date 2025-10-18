@@ -27,7 +27,7 @@
                         <tr>
                             <th>{% trans "Timestamp" %}</th>
                             <th>{% trans "Actor" %}</th>
-                            <th>{% trans "Document Name" %}</th>
+                            <th>{% trans "Job ID / Document Name" %}</th>
                             <th>{% trans "Pages" %}</th>
                             <th>{% trans "Committee / Transaction" %}</th>
                             <th>{% trans "Source IP" %}</th>
@@ -52,7 +52,14 @@
                                     </a>
                                 </td>
                                 <td>
-                                    {{ entry.document_name }}
+                                    {% if entry.job_id %}<i class="icon icon-printer"></i>
+                                        Job {{ entry.job_id }}
+                                    {% else %}
+                                        <i class="icon icon-printer_error"></i>
+                                        <em>No job id!</em>
+                                    {% endif %}
+                                    <br />
+                                    <small>{{ entry.document_name }}</small>
                                 </td>
                                 <td>
                                     <i class="icon icon-page"></i>

@@ -1,4 +1,6 @@
 import json
+import logging
+import traceback
 
 from django.conf import settings
 from django.contrib import messages
@@ -62,6 +64,8 @@ class PrintIndexView(RequirePersonalTabAuthorizationOrActiveMemberMixin, FormVie
                 name=print_log.document_name, pages=print_log.page_count
             ))
         except Exception as e:
+            trace = traceback.format_exc()
+            logging.error(f"Error while printing: {str(e.__class__.__name__)} - {trace}")
             messages.error(self.request, _("Error while submitting print to the printer. No prints were registered. Error: {ex}").format(ex=str(e.__class__.__name__)))
         return super().form_valid(form=form)
 

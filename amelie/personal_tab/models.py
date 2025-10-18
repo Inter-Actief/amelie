@@ -903,6 +903,9 @@ class PrintLogEntry(models.Model):
     document_name = models.CharField(max_length=255, verbose_name=_l('Document name'))
     """The filename of the document that was printed."""
 
+    job_id = models.CharField(max_length=255, verbose_name=_l('Printer Job ID'), blank=True, null=True)
+    """The job ID that the printer assigned to the job. Useful to cross-reference with the logs on the printer."""
+
     page_count = models.IntegerField(verbose_name=_l('Page count'))
     """The number of pages in the printed document."""
 

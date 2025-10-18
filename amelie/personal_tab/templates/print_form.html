@@ -117,6 +117,18 @@
                                     {% endif %}
                                 </td>
                             </tr>
+                            {% if user.person.current_committees.exists %}
+                            <tr>
+                                <th>{{ form.colour.label }}</th>
+                                <td>
+                                    {{ form.colour.errors|safe }}
+                                    <div>{{ form.colour }}</div>
+                                    {% if form.colour.help_text %}
+                                        <small class="help-text">{{ form.colour.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
                         </table>
                     </div>
 

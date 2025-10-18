@@ -3,7 +3,6 @@ import logging
 
 from django.conf import settings
 from pyipp import IPP
-from pyipp.const import DEFAULT_PRINTER_ATTRIBUTES
 from pyipp.enums import IppOperation
 
 
@@ -131,6 +130,7 @@ class IPPPrinter:
     # - https://istopwg.github.io/ipp/ippguide.html#submitting-print-jobs
 
     def __init__(self, printer_key):
+        self.printer_key = printer_key
         self.printer_info = settings.PERSONAL_TAB_PRINTERS[printer_key]
         self.ipp = None
 
@@ -141,13 +141,16 @@ class IPPPrinter:
         if self.ipp is None:
             self.connect()
         loop = get_event_loop()
+        request_data = {
+            "operation-attributes-tag": {
+                "requested-attributes": INFO_ATTRIBUTES,
+            },
+        }
+        logging.debug(request_data)
+        logging.info(f"{self.printer_key} Requesting printer attributes")
         response_data = loop.run_until_complete(self.ipp.execute(
             IppOperation.GET_PRINTER_ATTRIBUTES,
-            {
-                "operation-attributes-tag": {
-                    "requested-attributes": INFO_ATTRIBUTES,
-                },
-            },
+            request_data,
         ))
         return response_data
 
@@ -155,6 +158,7 @@ class IPPPrinter:
         if self.ipp is None:
             self.connect()
         loop = get_event_loop()
+        logging.info(f"{self.printer_key} Requesting job list")
         response_data = loop.run_until_complete(self.ipp.execute(
             IppOperation.GET_JOBS,
             {},
@@ -171,17 +175,20 @@ class IPPPrinter:
         if self.ipp is None:
             self.connect()
         loop = get_event_loop()
+        request_data = {
+            "operation-attributes-tag": {
+                "job-id": job_id
+            },
+        }
+        logging.debug(request_data)
+        logging.info(f"{self.printer_key} Requesting attributes for job '{job_id}'")
         response_data = loop.run_until_complete(self.ipp.execute(
             IppOperation.GET_JOB_ATTRIBUTES,
-            {
-                "operation-attributes-tag": {
-                    "job-id": job_id
-                },
-            },
+            request_data,
         ))
         return response_data
 
-    def create_job(self, job_name, num_copies=1, dual_sided=False):
+    def create_job(self, job_name, num_copies=1, dual_sided=False, colour=False):
         """
         Example request:
         {
@@ -203,22 +210,26 @@ class IPPPrinter:
         if self.ipp is None:
             self.connect()
         loop = get_event_loop()
+        request_data = {
+            "operation-attributes-tag": {
+                "requesting-user-name": "Amelie",
+                "job-name": f"Amelie Print - {job_name}",
+            },
+            "job-attributes-tag": {
+                "media": self.printer_info['settings']['media_format'],
+                "multiple-document-handling": self.printer_info['settings']['multiple_document_handling'],
+                "copies": num_copies,
+                "sides": "two-sided-long-edge" if dual_sided else "one-sided",
+                "print-color-mode": "color" if colour else "monochrome",
+            }
+        }
+        logging.info(f"{self.printer_key} Creating new job '{job_name}' with {num_copies} copies, {dual_sided=}, {colour=}")
+        logging.debug(request_data)
         response_data = loop.run_until_complete(self.ipp.execute(
             IppOperation.CREATE_JOB,
-            {
-                "operation-attributes-tag": {
-                    "requesting-user-name": "Amelie",
-                    "job-name": f"Amelie Print - {job_name}",
-                },
-                "job-attributes-tag": {
-                    "media": self.printer_info['settings']['media_format'],
-                    "multiple-document-handling": "separate-documents-uncollated-copies",
-                    "copies": num_copies,
-                    "sides": "two-sided-long-edge" if dual_sided else "one-sided",
-                }
-            },
+            request_data,
         ))
-        logging.error(response_data)
+        logging.debug(response_data)
         return response_data
 
     def send_document(self, job_id, document):
@@ -243,27 +254,32 @@ class IPPPrinter:
         if self.ipp is None:
             self.connect()
         loop = get_event_loop()
+        request_data = {
+            "operation-attributes-tag": {
+                "job-id": job_id,
+                "requesting-user-name": "Amelie",
+                "document-name": f"{document.name}",
+                "document-format": self.printer_info['settings']['document_format'],
+                "last-document": True,
+            },
+            "data": None
+        }
+        logging.debug(request_data)
+        document.file.seek(0)
+        request_data['data'] = document.file.read()
+        logging.info(f"{self.printer_key}#{job_id} Sending document of {len(request_data['data'])} bytes to printer")
         response_data = loop.run_until_complete(self.ipp.execute(
             IppOperation.SEND_DOCUMENT,
-            {
-                "operation-attributes-tag": {
-                    "job-id": job_id,
-                    "requesting-user-name": "Amelie",
-                    "document-name": f"{document.name}",
-                    "document-format": self.printer_info['settings']['document_format'],
-                    "last-document": True,
-                },
-                "data": document.file.read(),
-            },
+            request_data,
         ))
-        logging.error(response_data)
+        logging.debug(response_data)
         return response_data
 
-    def print_document(self, document, job_name, num_copies=1, dual_sided=False):
+    def print_document(self, document, job_name, num_copies=1, dual_sided=False, colour=False):
         if self.ipp is None:
             self.connect()
         job_name = job_name[:250]  # Job names may not exceed 255 characters, so truncate to 250 if necessary
-        create_response = self.create_job(job_name=job_name, num_copies=num_copies, dual_sided=dual_sided)
+        create_response = self.create_job(job_name=job_name, num_copies=num_copies, dual_sided=dual_sided, colour=colour)
         if create_response['status-code'] != 0:
             status_msg = create_response.get('operation-attributes', {}).get('status-message', '')
             raise ValueError(f"Failed to create print job, status-code {create_response['status-code']}: {status_msg} - {create_response}")
@@ -275,5 +291,7 @@ class IPPPrinter:
             logging.warning(f"Multiple jobs returned for job name {job_name}, using first one.")
             logging.info(f"Jobs: {jobs}")
         job_id = jobs[0]['job-id']
-        # TODO: If printer does not support application/pdf format, convert to the wanted format first.
+        if self.printer_info['settings']['document_format'] != 'application/pdf':
+            # TODO: If printer does not support application/pdf format, convert to the wanted format first.
+            raise ValueError(f"The selected printer does not support printing PDF files.")
         return self.send_document(job_id=job_id, document=document)

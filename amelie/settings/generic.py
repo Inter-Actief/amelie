@@ -575,13 +575,19 @@ PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = 69  # Article ID of 1 piece of paper (sin
 PERSONAL_TAB_PRINTERS = {
     # Printer settings template:
     # "printer": {
+    #     # Printer name as shown to users
     #     "name": "Printer",
+    #     # IPP(S) url to print on the printer
     #     "ipp_url": "ipps://printer.local:631/ipp/print",
+    #     # Various printer settings
     #     "settings": {
-    #         # https://ftp.pwg.org/pub/pwg/candidates/cs-pwgmsn21-20230915-5101.1.pdf Page 24, Table 5, column "Self-Describing Name"
+    #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/media-supported"
     #         "media_format": "iso_a4_210x297mm",
     #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
-    #         "document_format": "application/pdf"
+    #         "document_format": "application/pdf",
+    #         # One of ["single-document", "separate-documents-uncollated-copies", "separate-documents-collated-copies", "single-document-new-sheet"]
+    #         # See RFC-8011, Section-5.2.4 for confusing details. You probably want "separate-documents-collated-copies" or "single-document-new-sheet".
+    #         "multiple_document_handling": "separate-documents-collated-copies",
     #     },
     # }
 }

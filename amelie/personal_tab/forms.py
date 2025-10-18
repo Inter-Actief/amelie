@@ -216,6 +216,12 @@ class PrintDocumentForm(forms.Form):
         label=_l('Dual-sided printing'),
         help_text=_l('Print both sides of the page. Leave unchecked for single-sided printing.')
     )
+    colour = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=_l('Colour printing'),
+        help_text=_l('Print the document in colour. Leave unchecked for black-and-white printing. Only available for prints for committees.')
+    )
 
     def __init__(self, person: Person, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -255,6 +261,10 @@ class PrintDocumentForm(forms.Form):
                    'so we cannot add the costs for this print to your personal tab. Contact the board for help.')
             )
 
+        # Only prints for committees are allowed to be colour
+        if self.cleaned_data.get('colour') and not committee:
+            raise forms.ValidationError(_l('Colour printing is only available for prints for committees.'))
+
         return self.cleaned_data
 
     def save(self, request):
@@ -268,6 +278,7 @@ class PrintDocumentForm(forms.Form):
         printer_key = self.cleaned_data['printer']
         num_copies = self.cleaned_data['copies']
         dual_sided = self.cleaned_data.get('dual_sided')
+        colour = self.cleaned_data.get('colour')
 
         # Get page count from PDF
         import pypdf
@@ -316,13 +327,21 @@ class PrintDocumentForm(forms.Form):
             # Print the document
             try:
                 printer = IPPPrinter(printer_key=printer_key)
-                printer.print_document(
+                print_info = printer.print_document(
                     document=document,
-                    job_name=f"Amelie #{print_log.id} - {print_log.actor}",
-                    num_copies=num_copies, dual_sided=dual_sided
+                    job_name=f"{print_log.id} - {print_log.actor}",
+                    num_copies=num_copies, dual_sided=dual_sided, colour=colour
                 )
                 logging.info(f"Print job submitted: {document.name} ({print_log.page_count} pages) "
                             f"for user {print_log.actor} (Print Log ID: {print_log.id})")
+
+                # Link the job ID to the print log
+                try:
+                    job_id = print_info.get("jobs", [])[0]['job-id']
+                    print_log.job_id = f"{printer_key}#{job_id}"
+                    print_log.save()
+                except IndexError:
+                    raise ValueError("No job ID returned from IPP server.")
             except Exception as e:
                 trace = traceback.format_exc()
                 logging.error(f"Error while printing document: {e} - {trace}")
