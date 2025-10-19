@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 
-from amelie.claudia.tasks import verify_object
+from amelie.claudia.tasks import verify_object, check_integrity as check_integrity_task
 
 logger = logging.getLogger(__name__)
 
@@ -126,38 +126,11 @@ class Claudia:
     def check_integrity():
         """
         Enqueues a complete integrity check of all aliases, mappings and other Mappables.
-        In more detail, this will run:
-        - Verify on all objects in the linked database
-        - Verify on all other cid's in the database
-        These both need to be queued, because a Mapping might not exist for a new object, or a Mapping might still exist for a deleted object.
         """
-        logger.info("Start of check_integrity")
-        from amelie.claudia.models import Mapping
-
-        # Generate a cycle ID for the Celery tasks, so that they use the same cache key
-        # to determine whether a Mapping was already verified before or not.
-        # If we would not pass this, each queued object would get a different cycle ID,
-        # resulting in its own separated tree of verified objects, and we would be doing a lot of extra work.
-        import uuid
-        cycle_id = str(uuid.uuid4())
-
-        # Keep track of Cid's
-        cids = []
-        for rc in Mapping.RELATED_CLASSES:
-            rc_objects = Mapping.RELATED_CLASSES[rc].get_all()
-            logger.debug(f"Queueing verification for {rc_objects.count()} '{rc}' objects.")
-            for obj in rc_objects:
-                mp = Mapping.find(obj)
-                verify_object.delay(object_id=obj.id, object_type=rc, cycle_id=cycle_id)
-                if mp:
-                    cids.append(mp.id)
-
-        # Other left-over mappings, should not happen.
-        for mp in Mapping.objects.all():
-            if mp.id not in cids:
-                verify_object.delay(object_id=mp.id, object_type=None, cycle_id=cycle_id)
-
-        logger.info("Scheduled all objects for verification. They are now being processed by Celery, this may take a while.")
+        logger.info("Scheduling check_integrity task")
+        check_integrity_task.delay()
+        logger.info("All objects are now being scheduled for verification.")
+        logger.info("This is all being processed by Celery, so it may take a while to start and process.")
 
     # ===== Verify function ====
 

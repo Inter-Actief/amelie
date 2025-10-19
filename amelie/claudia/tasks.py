@@ -11,6 +11,64 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
+# ===== Integrity check ======
+@shared_task(name="claudia.check_integrity", acks_late=True)
+def check_integrity():
+    """
+    Enqueues a complete integrity check of all aliases, mappings and other Mappables.
+    In more detail, this will run:
+    - Verify on all objects in the linked database
+    - Verify on all other cid's in the database
+    These both need to be queued, because a Mapping might not exist for a new object, or a Mapping might still exist for a deleted object.
+    """
+    logger.info("Start of check_integrity")
+    from amelie.claudia.models import Mapping
+
+    # Generate a cycle ID for the Celery tasks so that they use the same cache key
+    # to determine whether a Mapping was already verified before or not.
+    # If we did not pass this, each queued object would get a different cycle ID,
+    # resulting in its own separated tree of verified objects, and we would be doing a lot of extra work.
+    import uuid
+    cycle_id = str(uuid.uuid4())
+
+    # Set initial values for the cache keys. Because there is only one claudia queue worker, and both this task and
+    # the verification tasks run in that worker, their cache is guaranteed to be shared. We need to initialize these
+    # caches properly because we are generating a cycle ID for the verification, which means the initialization of the
+    # cache will not happen on the first verification, so we need to initialize them here.
+    checked_objects_cache_key = f"verification_cycle_{cycle_id}_objects"
+    pending_count_cache_key = f"verification_cycle_{cycle_id}_pending"
+    # We set the checked objects to an empty set because no objects have been checked yet.
+    cache.set(checked_objects_cache_key, set(), timeout=7200)
+    # We set the pending counter to 0 because no tasks have been enqueued yet. Later when enqueueing objects, this counter will be increased.
+    cache.set(pending_count_cache_key, 0, timeout=7200)
+
+    # Keep track of Cid's
+    cids = []
+    for rc in Mapping.RELATED_CLASSES:
+        rc_objects = Mapping.RELATED_CLASSES[rc].get_all()
+        logger.debug(f"Queueing verification for {rc_objects.count()} '{rc}' objects.")
+        for obj in rc_objects:
+            mp = Mapping.find(obj)
+            # Increment pending counter
+            current_pending = cache.get(pending_count_cache_key, 0)
+            cache.set(pending_count_cache_key, current_pending + 1, timeout=7200)
+            # Schedule task
+            verify_object.delay(object_id=obj.id, object_type=rc, cycle_id=cycle_id)
+            if mp:
+                cids.append(mp.id)
+
+    # Other left-over mappings (should not happen).
+    for mp in Mapping.objects.all():
+        if mp.id not in cids:
+            # Increment pending counter
+            current_pending = cache.get(pending_count_cache_key, 0)
+            cache.set(pending_count_cache_key, current_pending + 1, timeout=7200)
+            # Schedule task
+            verify_object.delay(object_id=mp.id, object_type=None, cycle_id=cycle_id)
+
+    logger.info("Scheduled all objects for verification. They are now being processed by Celery, this may take a while.")
+
+
 @shared_task(
     name="claudia.verify_object", acks_late=True,
     # Auto-retry when LDAP is down, first time after 1 minute, exponential after that (2m, 4m, 8m, 10m, 10m)
@@ -55,14 +113,14 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
     if object_type is not None:
         obj = Mapping.get_object_from_mapping(object_type, object_id)
         logger.debug(f"Verification of object '{obj.get_name()}' requested. (type {object_type}, oid {object_id})")
-        # First check if a mapping exists
+        # First, check if a mapping exists
         mp = Mapping.find(obj)
         # If no mapping was found, check if one is needed
         if mp is None and obj.is_needed():
             logger.debug(f"{obj.get_name()} has no mapping, but is active, creating.")
             mp = Mapping.create(obj)
             claudia.notify_mapping_created(mp)
-        # If there is no mapping, then this object is not needed and exists nowhere, we can skip it.
+        # If there is no mapping, then this object is not needed and exists nowhere; we can skip it.
         if mp is None:
             logger.debug(f"{obj.get_name()} is not active and has no mapping, skipping.")
             return {"status": "skipped", "object_id": object_id, "object_type": object_type}
@@ -132,7 +190,7 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
 
     except Exception as exc:
         logger.error(f"Failed to verify mapping '{mp.name}' (cid {mp.id}): {exc}")
-        # Remove from queued set so it can be retried in case it is enqueued again in this same run.
+        # Remove from the checked set so it can be retried in case it is enqueued again in this same run.
         already_checked_objects = cache.get(checked_objects_cache_key, set())
         already_checked_objects.discard(object_id)
         cache.set(checked_objects_cache_key, already_checked_objects, timeout=7200)

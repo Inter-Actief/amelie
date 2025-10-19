@@ -580,8 +580,8 @@ CELERY_ACCEPT_CONTENT = ['pickle']  # A list of content-types/serializers to all
 CELERY_BROKER_URL = None  # URL to the RabbitMQ broker (used when ALWAYS_EAGER is False)
 
 # Celery routes. We have three celery instances running that process celery tasks.
-# - The iamailer queue has only 1 instance and runs sequentially. It handles sending e-mails.
-# - The claudia queue has only 1 instance and runs sequentially. It handles Claudia verify tasks.
+# - The iamailer queue should only have 1 instance and should run sequentially. It handles sending e-mails one-by-one.
+# - The claudia queue should only have 1 instance and should run sequentially. It handles Claudia verify tasks one-by-one.
 # - All other tasks get sent to the default queue, which can run concurrently and will have 1-5 instances.
 CELERY_TASK_ROUTES = {
     'iamailer.*': {'queue': 'iamailer'},
