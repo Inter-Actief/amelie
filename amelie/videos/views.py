@@ -3,6 +3,7 @@ from json import JSONDecodeError
 from dateutil import parser
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.timezone import make_aware
@@ -120,8 +121,10 @@ class YoutubeVideoUpdate(RequireCommitteeMixin, UpdateView):
         yt_details = youtube.retrieve_video_details(video.video_id)
         video.title = yt_details['title']
         video.description = yt_details['description']
-        video.thumbnail_url = yt_details['thumbnails']['standard']['url'] if 'standard' in yt_details['thumbnails'] \
-            else yt_details['thumbnails']['default']['url']
+        if 'standard' in yt_details['thumbnails']:
+            video.thumbnail_url = yt_details['thumbnails']['standard']['url']
+        elif 'default' in yt_details['thumbnails']:
+            video.thumbnail_url = yt_details['thumbnails']['default']['url']
 
         video.save()
         return redirect(video.get_absolute_url())
@@ -230,8 +233,13 @@ class YoutubeVideoCreate(RequireCommitteeMixin, CreateView):
         video.title = yt_details['title']
         video.description = yt_details['description']
         video.date_published = yt_details['publishedAt']
-        video.thumbnail_url = yt_details['thumbnails']['standard']['url'] if 'standard' in yt_details['thumbnails'] \
-            else yt_details['thumbnails']['high']['url']
+
+        if 'standard' in yt_details['thumbnails']:
+            video.thumbnail_url = yt_details['thumbnails']['standard']['url']
+        elif 'default' in yt_details['thumbnails']:
+            video.thumbnail_url = yt_details['thumbnails']['default']['url']
+        else:
+            return HttpResponse("Cannot create YouTube video: no thumbnail available; make sure there is a thumbnail associated to the video and try again later", status=400)
 
         video.save()
         return redirect(video.get_absolute_url())
