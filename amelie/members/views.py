@@ -5,6 +5,7 @@ import re
 import logging
 
 from datetime import date
+from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
@@ -350,7 +351,7 @@ def _person_can_be_anonymized(person):
                 year=membership.year, next_year=membership.year + 1, type=membership.type
             )))
     # Date where new SEPA authorizations came into effect.
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
     personal_tab_credit = Transaction.objects.filter(person=person, date__gte=begin).aggregate(Sum('price'))[
         'price__sum'] or Decimal('0.00')
     if personal_tab_credit != 0:

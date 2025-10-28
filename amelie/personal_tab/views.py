@@ -50,6 +50,9 @@ from amelie.tools.forms import PeriodTimeForm, DateTimeForm, ExportForm
 from amelie.tools.logic import current_association_year
 from amelie.tools.mixins import RequirePersonMixin, RequireBoardMixin
 
+from datetime import timezone as tz
+
+
 DATETIMEFORMAT = '%Y%m%d%H%M%S'
 
 logger = logging.getLogger(__name__)
@@ -59,13 +62,13 @@ def _urlize(dt):
     """
     Convert datetime to url format
     """
-    return dt.astimezone(timezone.utc).strftime(DATETIMEFORMAT)
+    return dt.astimezone(tz.utc).strftime(DATETIMEFORMAT)
 
 
 def _parsedatetime(inputstr):
     if isinstance(inputstr, int):
         inputstr = str(inputstr)
-    return datetime.datetime.strptime(inputstr, DATETIMEFORMAT).replace(tzinfo=timezone.utc)
+    return datetime.datetime.strptime(inputstr, DATETIMEFORMAT).replace(tzinfo=tz.utc)
 
 
 @require_lid
@@ -463,8 +466,8 @@ def transaction_overview(request, date_from=False, date_to=False):
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(timezone.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(timezone.utc)
+            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
+            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
 
     if not date_from:
@@ -608,7 +611,7 @@ def dashboard(request, pk, slug):
     personal_transactions = Transaction.objects.filter(person=person).order_by('-added_on')[:5]
 
     # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
     now = timezone.now()
     today = now.astimezone(timezone.get_default_timezone()).date()
 
@@ -660,8 +663,8 @@ def person_transactions(request, pk, slug, date_from=None, date_to=None):
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(timezone.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(timezone.utc)
+            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
+            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:person_transactions', kwargs={
                 'pk': pk, 'slug': slug, 'date_from': _urlize(start), 'date_to': _urlize(end)
             }))
@@ -727,8 +730,8 @@ def exam_cookie_credit(request, date_from=False, date_to=False):
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(timezone.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(timezone.utc)
+            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
+            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:exam_cookie_credit',
                                                 args=[_urlize(start), _urlize(end)]))
 
@@ -757,8 +760,8 @@ def person_exam_cookie_credit(request, person_id, slug, date_from=None, date_to=
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(timezone.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(timezone.utc)
+            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
+            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:person_exam_cookie_credit', kwargs={
                 'person_id': person_id, 'slug': slug, 'date_from': _urlize(start), 'date_to': _urlize(end)
             }))
@@ -803,8 +806,8 @@ def statistics_form(request):
     if request.method == 'POST':
         form = StatisticsForm(data=request.POST)
         if form.is_valid():
-            start = form.cleaned_data['start_date'].astimezone(timezone.utc)
-            end = form.cleaned_data['end_date'].astimezone(timezone.utc)
+            start = form.cleaned_data['start_date'].astimezone(tz.utc)
+            end = form.cleaned_data['end_date'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:statistics', kwargs={
                 'date_from': _urlize(start),
                 'date_to': _urlize(end),
@@ -868,7 +871,7 @@ def balance(request, dt_str=False):
     if request.method == 'POST':
         form = DateTimeForm(request.POST)
         if form.is_valid():
-            dt = form.cleaned_data['datetime'].astimezone(timezone.utc)
+            dt = form.cleaned_data['datetime'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:balance', args=[_urlize(dt)]))
 
     # Redirect to form if no date given
@@ -888,7 +891,7 @@ def balance(request, dt_str=False):
     dt_url = _urlize(dt)
 
     # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
 
     all_transactions = Transaction.objects.filter(date__gte=begin, date__lt=dt)
     all_transactions_aggregated = all_transactions.aggregate(Sum('price'))
@@ -942,8 +945,8 @@ def export(request, date_from=False, date_to=False):
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(timezone.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(timezone.utc)
+            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
+            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:export', args=[_urlize(start), _urlize(end)]))
 
     # Redirect to form if no date given
@@ -1253,7 +1256,7 @@ def debt_collection_new(request):
     if request.method == 'POST':
         form = DebtCollectionForm(minimal_execution_date, request.POST)
         if form.is_valid():
-            end = form.cleaned_data['end'].astimezone(timezone.utc)
+            end = form.cleaned_data['end'].astimezone(tz.utc)
             contribution = form.cleaned_data['contribution']
             cookie_corner = form.cleaned_data['cookie_corner']
 
