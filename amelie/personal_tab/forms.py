@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _l
 from localflavor.generic.forms import BICFormField, IBANFormField
 
+from amelie.members.models import Person
 from amelie.style.forms import inject_style
 from amelie.personal_tab import statistics
 from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, RFIDCard, Reversal, AuthorizationType, \
@@ -31,6 +32,12 @@ class CookieCornerTransactionForm(forms.ModelForm):
 class ExamCookieCreditForm(forms.Form):
     price = forms.DecimalField(max_digits=8, decimal_places=2, label=_l('Price'))
     description = forms.CharField(max_length=200, label=_l('Description'))
+
+
+class PersonSpendingLimitsForm(forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = ('cookie_corner_budget', 'cookie_corner_budget_action')
 
 
 class DebtCollectionForm(forms.Form):

@@ -68,6 +68,9 @@
                 <a href="{% url 'personal_tab:person_exam_cookie_credit_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
                     {% trans 'Add credit for exams' %}
                 </a>
+                <a href="{% url 'personal_tab:person_spending_limits' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                    {% trans 'Manage spending limits' %}
+                </a>
             </div>
         {% endif %}
     </div></div>

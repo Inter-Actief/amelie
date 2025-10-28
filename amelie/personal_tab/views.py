@@ -34,8 +34,9 @@ from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
-    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
-    StatisticsForm
+    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, \
+    AuthorizationSelectForm, \
+    StatisticsForm, PersonSpendingLimitsForm
 from amelie.personal_tab.debt_collection import generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
@@ -796,6 +797,15 @@ def person_exam_cookie_credit_new(request, person_id, slug):
         'person': person,
         'form': form
     })
+
+
+class PersonSpendingLimits(RequirePersonMixin, UpdateView):
+    model = Person
+    form_class = PersonSpendingLimitsForm
+    template_name = 'cookie_corner_spending_limits.html'
+
+    def get_success_url(self):
+        return reverse('personal_tab:dashboard', kwargs={'pk': self.object.pk, 'slug': self.object.slug})
 
 
 @require_board

@@ -7,7 +7,7 @@ from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
     AuthorizationAnonymizeView, CustomTransactionUpdate, CustomTransactionDelete, CookieCornerTransactionUpdate, \
-    CookieCornerTransactionDelete
+    CookieCornerTransactionDelete, PersonSpendingLimits
 
 app_name = 'personal_tab'
 
@@ -58,6 +58,8 @@ urlpatterns = [
         views.person_exam_cookie_credit, name='person_exam_cookie_credit'),
     path('person/<int:person_id>/<slug:slug>/exam_cookie_credit/new/', views.person_exam_cookie_credit_new,
         name='person_exam_cookie_credit_new'),
+
+    path('person/<int:person_id>/<slug:slug>/spending_limits', PersonSpendingLimits.as_view(), name='person_spending_limits'),
 
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),
