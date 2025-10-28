@@ -32,7 +32,9 @@ def update_init(old_init):
     def _update_init(self, *args, **kwargs):
         kwargs_new = {'error_class': DivErrorList}
         kwargs_new.update(kwargs)
+
         old_init(self, *args, **kwargs_new)
+        [f.widget.attrs.update({'class': 'form-row'}) for f in self.fields.values()]
 
     return _update_init
 
@@ -49,6 +51,5 @@ def inject_style(*args):
             raise Exception("%s is not an instance of BaseForm" % form.__name__)
 
         # Inject
-        form.as_div = as_div
         form.__init__ = update_init(form.__init__)
         form.__str__ = as_div
