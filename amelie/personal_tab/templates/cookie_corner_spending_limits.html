@@ -1,0 +1,30 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% trans 'Edit cookie corner spending limits' %}
+{% endblock titel %}
+
+{% block content %}
+    <form action="" method="post" class="big">
+        {% csrf_token %}
+
+        <div class="col-xs-12">
+            <div class="ia">
+                <h2>{% trans 'Cookie corner spending limits' %}</h2>
+
+                <div class="content">
+                    {% fieldset cookie_corner_budget,cookie_corner_budget_action as form_basic from form %}
+                    {{ form_basic }}
+
+                    <p>{% trans 'The specified cookie corner budget is in euros (€)' %}</p>
+
+                    <div class="buttons">
+                        <input type="submit" value="{% trans 'Save' %}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+

@@ -299,6 +299,10 @@ class Person(models.Model, Mappable):
         BASH = 'bash', _l('Bash')
         ZSH = 'zsh', _l('Z shell')
 
+    class CookieCornerBudgetAction(models.TextChoices):
+        WARNING = 'warning', _l('Warning')
+        BLOCK = 'block', _l('Block')
+
     first_name = models.CharField(max_length=50, verbose_name=_l('First name'))
     last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_l('Last name pre-fix'))
     last_name = models.CharField(max_length=50, verbose_name=_l('Last name'))
@@ -359,6 +363,15 @@ class Person(models.Model, Mappable):
                                            null=True, blank=True, unique=True, editable=False)
     password_reset_expiry = models.DateTimeField(verbose_name=_l('Password reset code expiry'),
                                                  null=True, blank=True, editable=False)
+
+    cookie_corner_budget = models.DecimalField(max_digits=8,
+                                               decimal_places=2,
+                                               blank=True,
+                                               null=True)
+    cookie_corner_budget_action = models.CharField(choices=CookieCornerBudgetAction.choices,
+                                                   default=CookieCornerBudgetAction.WARNING,
+                                                   max_length=8,
+                                                   verbose_name=_l('Cookie corner over budget action'))
 
     objects = PersonManager()
 
