@@ -2,17 +2,6 @@ from django.forms.forms import BaseForm
 from django.forms.utils import ErrorList
 
 
-def as_div(self):
-    """Render a form as a div with the correct CSS class"""
-
-    return self._html_output(
-        normal_row='<div class="form-row"%(html_class_attr)s>%(label)s %(field)s %(help_text)s</div>',
-        error_row='<div class="form-row"><label></label>%s</div>',
-        row_ender='</div>',
-        help_text_html=' <span class="note">%s</span>',
-        errors_on_separate_row=True)
-
-
 class DivErrorList(ErrorList):
     """Render errors in a div with the correct css class"""
 
@@ -52,4 +41,3 @@ def inject_style(*args):
 
         # Inject
         form.__init__ = update_init(form.__init__)
-        form.__str__ = as_div
