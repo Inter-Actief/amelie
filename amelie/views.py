@@ -262,7 +262,8 @@ def frontpage(request):
         context['birthdays'] = Person.objects.members().filter(
             date_of_birth__day=date.today().day,
             date_of_birth__month=date.today().month,
-        ).exclude(preferences__name="birthday_show_frontpage").distinct()
+            preferences__name="birthday_show_frontpage",
+        ).distinct()
 
         # Complaints
         if request.is_board:
