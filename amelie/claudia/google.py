@@ -1,8 +1,10 @@
 import logging
 import uuid
+from textwrap import dedent
 
 import googleapiclient
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
 
 from amelie.claudia.models import Mapping, DrivePermission
@@ -103,8 +105,54 @@ class GoogleSuiteAPI:
             # Save the new user ID in the mapping
             mp.set_gsuite_id(user_details['id'])
 
+            # Try to set template, if it fails, just silently log a warning and don't bother
+            try:
+                gmail_api = GoogleSuiteAPI.create_directory_service(
+                    user_email=primary_alias,
+                    api_name="gmail",
+                    api_version="v1",
+                    scopes=settings.CLAUDIA_GSUITE['SCOPES']['GMAIL_API']
+                )
+
+                html_template=dedent(f'''
+                    <p>
+                        Met vriendelijke groet,
+                        <br>
+                        Kind regards,
+                    </p>
+
+                    <p>{mp.givenname() or mp.name} {mp.surname() or ''}</p>
+
+                    <hr>
+
+                    <p><b>I.C.T.S.V. Inter-Actief</b></p>
+                    <p>
+                    <i>
+                        Postbus 217
+                        <br>
+                        7500 AE Enschede
+                    </i>
+                    </p>
+
+                    <p><b>E: </b><a href="mailto:{primary_alias}">{primary_alias}</a></p>
+                    <p><b>W: </b><a href="https://inter-actief.net/">https://www.inter-actief.net/</a></p>
+                ''')
+
+                body = {
+                    "display_name": '',
+                    "signature": html_template
+                }
+
+                gmail_api.users().settings().sendAs().patch(
+                    userId='me',
+                    sendAsEmail=primary_alias,
+                    body=body
+                )
+            except HttpError as e:
+                logger.warning(f"Couldn't setup Gmail signature for {mp} - Message: {e}")
+
             return user_details
-        except googleapiclient.errors.HttpError as e:
+        except HttpError as e:
             logger.warning("Could not create GSuite user for {} - Message: {}".format(mp, e))
 
     def update_user_primary_email(self, mp: Mapping):
