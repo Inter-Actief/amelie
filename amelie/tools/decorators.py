@@ -57,13 +57,13 @@ def require_education(func):
 def require_lid(func):
     return request_passes_test(lambda r: (hasattr(r, 'person') and r.person.is_member()),
                                needs_login=True,
-                               reden=_l('For active members only.'))(func)
+                               reden=_l('Only for members with an active membership.'))(func)
 
 
 def require_lid_or_oauth(func):
     return request_passes_test(lambda r: ((hasattr(r, 'person') and r.person.is_member()) or has_valid_oauth_token(r)),
                                needs_oauth_login=True,
-                               reden=_l('For active members only.'))(func)
+                               reden=_l('Only for members with an active membership.'))(func)
 
 
 def require_actief(func):

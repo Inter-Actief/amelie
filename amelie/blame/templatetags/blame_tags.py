@@ -18,7 +18,10 @@ def action_string(obj):
 def changes_short(obj):
     if obj.action == 2:
         return 'deleted'  # delete
-    changes = json.loads(obj.changes)
+    if isinstance(obj.changes, str):
+        changes = json.loads(obj.changes)
+    else:
+        changes = obj.changes
     s = '' if len(changes) == 1 else 's'
     fields = ', '.join(changes.keys())
     if len(fields) > 75:
@@ -42,7 +45,10 @@ def get_url(obj):
 def diff_string(obj):
     if obj.action == 2:  # deleted
         return '<p>{}</p>'.format(_l("This object has been removed."))
-    changes = json.loads(obj.changes)
+    if isinstance(obj.changes, str):
+        changes = json.loads(obj.changes)
+    else:
+        changes = obj.changes
     changes_concat = []
     for i, field in enumerate(sorted(changes), 1):
         before, after = ['***', '***'] if field == 'password' else changes[field]

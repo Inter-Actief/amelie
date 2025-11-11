@@ -128,8 +128,10 @@
                     <li class="person"><a href="{% url 'members:person_new_freshman' %}">{% trans 'Add new freshman member' %}</a></li>
                     <li class="person"><a href="{% url 'members:person_preregister_freshman' %}">{% trans 'Pre-enroll freshman member' %}</a></li>
                     <li class="person"><a href="{% url 'members:preregistration_status' %}">{% trans 'Pre-enrollment status' %}</a></li>
-                    {% if request.is_board %}
+
+                    {% if request.is_board %} <!-- is this check necessary?? -->
                     <li class="person"><a href="{% url 'members:committee_new' %}">{% trans 'Add new committee' %}</a></li>
+                    <li class="person"><a href="{% url 'portrait_upload_verification' %}">{% trans 'Verify member profile pictures' %}</a></li>
                     {% endif %}
 
                     <li><b>{% trans 'Other' %}</b></li>

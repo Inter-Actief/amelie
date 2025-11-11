@@ -32,6 +32,7 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import DeleteView, FormView
 
 from amelie.claudia.models import Mapping, ExtraPerson
+from amelie.iamailer import MailTask
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -50,6 +51,7 @@ from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
 from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeMixin
+from amelie.tools.mail import PersonRecipient
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
 @require_board
@@ -462,7 +464,18 @@ def person_anonymize(request, id, slug):
 
     return render(request, 'person_anonymization_success.html', {'person': person})
 
+  
+def send_new_member_email(person: Person):
+    """
+    Send an email to a new member. This function is used for each type of member.
+    """
+    template_name = "members/new_member.mail"
+    task = MailTask(template_name=template_name)
+    task.add_recipient(PersonRecipient(person, context={'membership': person.membership}))
 
+    task.send()
+
+    
 class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_general.html"
@@ -571,6 +584,9 @@ class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
             study_period = StudyPeriod(student=student, study=study,
                                        begin=datetime.date(cleaned_data['generation'], 9, 1))
             study_period.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -682,6 +698,9 @@ class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
         link_code = get_oauth_link_code(person)
         send_oauth_link_code_email(self.request, person, link_code)
 
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
+
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
         buffer = BytesIO()
@@ -789,6 +808,9 @@ class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
         # Add employee details
         employee = Employee(person=person, number=cleaned_data['employee_number'])
         employee.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -912,6 +934,9 @@ class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
                                        begin=datetime.date(current_academic_year_with_holidays(), 9, 1),
                                        dogroup=cleaned_data['dogroup'])
             study_period.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -1149,6 +1174,8 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
                 # Delete the pre-enrollment
                 pre_enrollment.delete()
 
+                send_new_member_email(person)
+
                 # Set message
                 messages.info(self.request, "Pre-registration of {} activated!".format(person.incomplete_name()))
 
@@ -1385,6 +1412,22 @@ def person_picture(request, id, slug):
 
     # Serve file, preferably using Sendfile
     image_file = person.picture
+    if image_file:
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
+    else:
+        raise Http404('Picture not found')
+
+
+@require_board
+def person_unverified_picture(request, id, slug):
+    person = get_object_or_404(Person, id=id, slug=slug)
+
+    # Only for the board or the person themselves
+    if not request.is_board and not request.person == person:
+        return HttpResponseForbidden()
+
+    # Serve file, preferably using Sendfile
+    image_file = person.unverified_picture
     if image_file:
         return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
     else:
@@ -1702,3 +1745,4 @@ class DoGroupTreeViewData(View):
             "data": dogroups,
         }
         return JsonResponse(data)
+
