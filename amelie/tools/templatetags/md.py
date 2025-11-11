@@ -100,7 +100,7 @@ def markdown(value, arg=""):
         extensions.append(RemoveURLExtension())
 
     if safe_mode:
-        value = nh3.clean(value, tags=[], attributes={})
+        value = nh3.clean(value, tags=set(), attributes={})
 
     result = md.markdown(force_str(value), extensions=extensions)
 
