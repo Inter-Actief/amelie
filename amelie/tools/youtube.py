@@ -8,7 +8,7 @@ def retrieve_video_details(video_id):
     service_list_response = service.videos().list(
         id=video_id,
         part='snippet',
-        fields='items(snippet(description,publishedAt,thumbnails/high,thumbnails/standard,title))',
+        fields='items(snippet(description,publishedAt,thumbnails/high,thumbnails/standard,thumbnails/default,title))',
     ).execute()
 
     if len(service_list_response['items']) == 0:
