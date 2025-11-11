@@ -7,7 +7,7 @@ from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 
 import markdown as md
-import bleach
+import nh3
 
 register = template.Library()
 
@@ -100,7 +100,7 @@ def markdown(value, arg=""):
         extensions.append(RemoveURLExtension())
 
     if safe_mode:
-        value = bleach.clean(value, tags=[], attributes={})
+        value = nh3.clean(value, tags=[], attributes={})
 
     result = md.markdown(force_str(value), extensions=extensions)
 
