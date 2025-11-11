@@ -42,7 +42,6 @@ urlpatterns = [
     path('companies/', include('amelie.companies.urls')),
     path('narrowcasting/', include('amelie.narrowcasting.urls')),
     path('personal_tab/', include('amelie.personal_tab.urls')),
-    path('twitter/', include('amelie.twitter.urls')),
     path('claudia/', include('amelie.claudia.claudia_urls')),
     path('account/', include('amelie.claudia.account_urls')),
     path('weekmail/', include('amelie.weekmail.urls')),
