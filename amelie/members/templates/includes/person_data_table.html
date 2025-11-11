@@ -26,9 +26,11 @@
                                 <td colspan="3">
                                     <p class="icon icon-user">
                                         {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
+                                        {% if not editing %}
                                         <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
                                             {% trans 'Upload different picture' %}
                                         </a>
+                                        {% endif %}
                                     </p>
                                     {% if request.is_board %}
                                         <span class="current">
@@ -48,9 +50,11 @@
                         <img src="{% url 'members:person_unverified_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
                         <p class="icon icon-user">
                             {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
+                            {% if not editing %}
                             <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
                                 {% trans 'Upload picture' %}
                             </a>
+                            {% endif %}
                         </p>
                     {% else %}
                         {# User has no picture #}
@@ -58,9 +62,11 @@
                             {% blocktrans %}
                                 {{ obj }} doesn't have a profile picture.
                             {% endblocktrans %}
+                            {% if not editing %}
                             <a class="looks-like-a-button" href="{% url 'portrait_upload' %}">
                                 {% trans 'Upload picture' %}
                             </a>
+                            {% endif %}
                         </p>
                     {% endif %}
                 </td>

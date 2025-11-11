@@ -310,6 +310,7 @@ def person_view(request, id, slug):
     preference_categories = PreferenceCategory.objects.all()
     alters_data = True
     date_old_mandates = settings.DATE_PRE_SEPA_AUTHORIZATIONS
+    editing = True
     try:
         accounts = get_user_info(obj)
     except Exception as e:
