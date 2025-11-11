@@ -256,13 +256,15 @@ class PhotoUploadForm(forms.Form):
 
 
 class PhotoFileUploadForm(forms.Form):
-    photo_files = MultipleFileField()
+    allowed_extensions = ["jpg", "jpeg", "gif"]
+    photo_files = MultipleFileField(accept=','.join(map(lambda ext: f'image/{ext}', allowed_extensions)))
 
     def clean_photo_files(self):
-        allowed_extensions = ["jpg", "jpeg", "gif"]
+        validator = FileExtensionValidator(allowed_extensions=self.allowed_extensions)
+
         for file in self.files.getlist('photo_files'):
             # FileExtensionValidator raises ValidationError if an extension is not allowed
-            FileExtensionValidator(allowed_extensions=allowed_extensions)(file)
+            validator(file)
 
 
 class EventDeskActivityMatchForm(forms.Form):

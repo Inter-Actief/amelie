@@ -209,8 +209,8 @@ class MultipleFileInput(forms.ClearableFileInput):
 
 class MultipleFileField(forms.FileField):
     # From https://docs.djangoproject.com/en/3.2/topics/http/file-uploads/#uploading-multiple-files
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault("widget", MultipleFileInput())
+    def __init__(self, accept='*', *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput(attrs={'accept': accept}))
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):

@@ -31,13 +31,13 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
     date = max(participation.event.begin, timezone.now())
 
     if cancel:
-        try:
-            # The latest (by create time) positive ActivityTransaction for this participation should be compensated
-            old_transaction = ActivityTransaction.objects.filter(
-                participation=participation, event=participation.event, person=participation.person,
-                price__gte=0  # Positive (or 0) price
-            ).order_by('-added_on').first()  # Latest transaction, by creation time
-        except ActivityTransaction.DoesNotExist:
+        # The latest (by create time) positive ActivityTransaction for this participation should be compensated
+        old_transaction = ActivityTransaction.objects.filter(
+            participation=participation, event=participation.event, person=participation.person,
+            price__gte=0  # Positive (or 0) price
+        ).order_by('-added_on').first()  # Latest transaction, by creation time, or None if none exists
+
+        if old_transaction is None:
             # A compensation does not need to be created because there is no transaction to compensate.
             return
 
