@@ -1,0 +1,17 @@
+{{ errors }}
+{% if errors and not fields %}
+  <div class="form-row">{% for field in hidden_fields %}{{ field }}{% endfor %}</div>
+{% endif %}
+{% for field, errors in fields %}
+  <div class="form-row{% with classes=field.css_classes %}{% if classes %} {{ classes }}{% endif %}{% endwith %}">
+    {{ field.label }}
+    {{ field.as_field_group }}
+    <span class="note">{{ field.help_text }}</span>
+    {% if forloop.last %}
+      {% for field in hidden_fields %}{{ field }}{% endfor %}
+    {% endif %}
+</div>
+{% endfor %}
+{% if not fields and not errors %}
+  {% for field in hidden_fields %}{{ field }}{% endfor %}
+{% endif %}

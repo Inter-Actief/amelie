@@ -21,9 +21,7 @@ def update_init(old_init):
     def _update_init(self, *args, **kwargs):
         kwargs_new = {'error_class': DivErrorList}
         kwargs_new.update(kwargs)
-
         old_init(self, *args, **kwargs_new)
-        [f.widget.attrs.update({'class': 'form-row'}) for f in self.fields.values()]
 
     return _update_init
 
