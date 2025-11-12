@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
-from amelie.personal_tab import pos_views, views, register
+from amelie.personal_tab import pos_views, views, register, print_views
 from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
@@ -113,6 +113,11 @@ urlpatterns = [
     path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
     path('register/scan/', register.CardRegistrationScan.as_view(), name='register_scan'),
 
+    # Document printing views
+    path('print/', print_views.PrintIndexView.as_view(), name='print_index'),
+    path('print/refund/<int:pk>/', print_views.PrintRefundConfirmView.as_view(), name='print_refund'),
+    path('print/log/', print_views.PrintLogView.as_view(), name='print_log'),
+    path('print/status/<str:printer_key>/', print_views.printer_status, name='printer_status'),
 
     # Redirects for old Dutch URL's that people might have bookmarked
     path('mijn/', RedirectView.as_view(url=reverse_lazy("personal_tab:my_dashboard"), permanent=True)),
