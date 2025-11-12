@@ -5,13 +5,14 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 from django.conf import settings
 from django.utils import timezone
+from datetime import timezone as tz
 
 
 def fill_old_rfid_created_used_dates(apps, schema_editor):
     RFIDCard = apps.get_model('personal_tab', 'RFIDCard')
 
     default_datetime = timezone.datetime(settings.DATE_OLD_RFID_CARDS.year, settings.DATE_OLD_RFID_CARDS.month,
-                                         settings.DATE_OLD_RFID_CARDS.day, 0, 0, 0, 0, timezone.utc)
+                                         settings.DATE_OLD_RFID_CARDS.day, 0, 0, 0, 0, tz.utc)
     default_datetime = default_datetime - timezone.timedelta(days=1)
 
     for card in RFIDCard.objects.all():
