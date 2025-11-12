@@ -1,41 +1,21 @@
-from django.forms.forms import BaseForm
-from django.forms.utils import ErrorList
+from django.forms.renderers import DjangoTemplates
 
 
-class DivErrorList(ErrorList):
-    """Render errors in a div with the correct css class"""
+class AmelieFormRenderer(DjangoTemplates):
+    form_template_name = "style/forms/div.html"
+    field_template_name = "style/forms/field.html"
 
-    def as_divs(self):
-        if not self:
-            return ''
-
-        return '<p class="icon neg">%s</p>' % ''.join(['%s' % e for e in self])
-
-    def __str__(self):
-        return self.as_divs()
-
-
-def update_init(old_init):
-    """Override the __init__ so that the correct error_class is used"""
-
-    def _update_init(self, *args, **kwargs):
-        kwargs_new = {'error_class': DivErrorList}
-        kwargs_new.update(kwargs)
-        old_init(self, *args, **kwargs_new)
-
-    return _update_init
+    def render(self, template_name, context, request = None):
+        # Override the default template used to render errors. This template is determined by a different class,
+        # so we intercept the call in the render function itself.
+        if template_name == "django/forms/errors/list/default.html":
+            template_name = "style/forms/errors.html"
+        return super().render(template_name=template_name, context=context, request=request)
 
 
 def inject_style(*args):
     """
-    Override methods and add new methods so that the new IA style is used everywhere in Forms,
-    without having to change it everywhere.
+    Empty method. Was previously used to inject our styling into forms but is unused now.
+    Stubbed out here because it's a pain to find and remove all usages.
     """
-
-    for form in args:
-        # Type checking
-        if not issubclass(form, BaseForm):
-            raise Exception("%s is not an instance of BaseForm" % form.__name__)
-
-        # Inject
-        form.__init__ = update_init(form.__init__)
+    return
