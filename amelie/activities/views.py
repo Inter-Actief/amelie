@@ -869,7 +869,7 @@ def photo_upload_preview(request, filename):
     if any(map(lambda b, d: b > d, image.size, size_pixels)):
         if image.mode != 'RGB' or file_extension == 'gif':
             image = image.convert('RGB')
-        image.thumbnail(size_pixels, Image.ANTIALIAS)
+        image.thumbnail(size_pixels, Image.LANCZOS)
         response = HttpResponse(content_type="image/jpeg")
         image.save(response, "JPEG")
         return response
