@@ -1,0 +1,4 @@
+{% if field.label %}{{ field.label_tag }}{% endif %}
+{{ field }}
+{% if field.help_text %}<div class="helptext note"{% if field.auto_id %} id="{{ field.auto_id }}_helptext"{% endif %}><small>{{ field.help_text|safe }}</small></div>{% endif %}
+{{ field.errors }}

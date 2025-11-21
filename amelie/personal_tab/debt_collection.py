@@ -1,4 +1,5 @@
 import datetime
+from datetime import timezone as tz
 
 from django.db.models import Sum, Q
 from django.template.defaultfilters import date as _date
@@ -9,6 +10,7 @@ from amelie.members.models import Person, Membership, PaymentType, Payment
 from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
     DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
 from amelie.tools.encodings import normalize_to_ascii
+
 
 
 def authorization_contribution(person):
@@ -181,7 +183,7 @@ def generate_cookie_corner_instructions(end_date):
     all_transactions = Transaction.objects.filter(debt_collection=None)
 
     # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin_date = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin_date = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
 
     all_transactions = all_transactions.filter(date__gte=begin_date, date__lt=end_date)
 
