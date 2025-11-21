@@ -5,6 +5,7 @@ import string
 
 from django.conf import settings
 import gitlab
+import gitlab.const
 
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.claudia.tools import unify_mail
@@ -115,7 +116,7 @@ class GitlabPlugin(ClaudiaPlugin):
                                 # noinspection PyUnresolvedReferences
                                 gitlab_group.members.create({
                                     'user_id': user.id,
-                                    'access_level': gitlab.DEVELOPER_ACCESS,
+                                    'access_level': gitlab.const.DEVELOPER_ACCESS,
                                 })
                             else:
                                 logger.error("Could not find GitLab group {} with id {}!".format(group.name, group.id))
@@ -148,19 +149,16 @@ class GitlabPlugin(ClaudiaPlugin):
 
     @staticmethod
     def get_group(git, path):
-        groups = git.groups.list(per_page=100)
-        if groups is not None:
-            for group in groups:
-                if group.path == path:
-                    return group
+        for group in git.groups.list(iterator=True):
+            if group.path == path:
+                return group
         return None
 
     @staticmethod
     def get_groups_for_member(git, user):
-        groups = git.groups.list(per_page=100)
         res = []
-        for group in groups:
-            for member in group.members.list(per_page=100):
+        for group in git.groups.list(iterator=True):
+            for member in group.members.list(iterator=True):
                 if member.username == user.username:
                     res.append(group)
         return res
@@ -172,6 +170,7 @@ class GitlabPlugin(ClaudiaPlugin):
 
         Returns None if the user is not found.
         """
-        users = git.users.list(username=username)
+        users = git.users.list(username=username, get_all=False)
         if len(users) > 0:
             return users[0]
+        return None
