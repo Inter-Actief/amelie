@@ -1,7 +1,10 @@
 import itertools
 import uuid
+import pytz
 
 import logging
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, URLValidator
 from django.db import models
@@ -87,7 +90,7 @@ class Event(models.Model):
     """
     begin = models.DateTimeField(verbose_name=_l('Starts'))
     end = models.DateTimeField(verbose_name=_l('Ends'))
-    entire_day = models.BooleanField(default=False, verbose_name=_l('All dag'))
+    entire_day = models.BooleanField(default=False, verbose_name=_l('All day'))
 
     summary_nl = models.CharField(max_length=250, verbose_name=_l('Summary'))
     summary_en = models.CharField(max_length=250, blank=True, null=True, verbose_name=_l("Summary (en)"))
@@ -194,10 +197,12 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
 
     def description_short(self):
+        tz = pytz.timezone(settings.TIME_ZONE)
+
         char_limit = 150
         location_prefix = " @" if self.location != "" else ""
         activity_prefix = (self.as_leaf_class().activity_label.name_en + " - ") if self.as_leaf_class().activity_label else ""
-        total_string = f"{activity_prefix}{self.begin.strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
+        total_string = f"{activity_prefix}{self.begin.astimezone(tz).strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
 
         if len(total_string) > char_limit:
             total_string = total_string[:char_limit] + '...'

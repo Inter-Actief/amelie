@@ -263,7 +263,6 @@ INSTALLED_APPS = (
     'amelie.files',
     'amelie.about',
     'amelie.personal_tab',
-    'amelie.twitter',
     'amelie.style',
     'amelie.narrowcasting',
     'amelie.api',
@@ -332,6 +331,9 @@ INSTALLED_APPS = (
     'health_check.cache',
     'health_check.storage',
     'health_check.contrib.migrations',
+
+    # CAPTCHA support
+    'captcha',
 )
 
 # Enable timezone support
@@ -379,6 +381,10 @@ DATETIME_INPUT_FORMATS = (
     '%Y/%m/%d %H:%M',
     '%Y/%m/%d',
 )
+
+# Only use cookies for HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # Rename cookies to prevent collision with other Django installations on our webserver
 CSRF_COOKIE_NAME = 'amelie_csrftoken'
@@ -431,6 +437,7 @@ GRAPHQL_SCHEMAS = [
     "amelie.news.graphql",
     "amelie.publications.graphql",
     "amelie.videos.graphql",
+    "amelie.tools.graphql",
 ]
 
 GRAPHENE_DJANGO_EXTRAS = {
@@ -718,12 +725,6 @@ FCM_DJANGO_SETTINGS = {
     'DELETE_INACTIVE_DEVICES': True,
 }
 
-# Twitter keys and tokens for 'iawebsite'
-TWITTER_APP_KEY = "empty"
-TWITTER_APP_SECRET = "empty"
-TWITTER_OAUTH_TOKEN = "empty"
-TWITTER_OAUTH_SECRET = "empty"
-
 # Settings for our oAuth2 provider
 OAUTH2_PROVIDER = {
     'SCOPES': {
@@ -738,6 +739,8 @@ OAUTH2_PROVIDER = {
     # expired refresh tokens and access tokens are cleared with the ``cleartokens`` command
     'REFRESH_TOKEN_EXPIRE_SECONDS': 2630000,
 }
+# Defaults to True since django-oauth-toolkit 2.x, but we probably have clients that don't support it.
+PKCE_REQUIRED = False
 
 # SAML2 Identity Provider configuration
 SAML_BASE_URL = "https://www.inter-actief.utwente.nl/saml2idp"
@@ -989,3 +992,7 @@ BOOK_SALES_URL = "https://wo4you.nl/"
 
 # Abbreviation of the room duty committee for access checks.
 ROOM_DUTY_ABBREVIATION = "RoomDuty"
+
+# Set language cookie settings for /graphql language switcher
+LANGUAGE_COOKIE_SAMESITE = "None"
+LANGUAGE_COOKIE_SECURE = "True"  # Cookie is only sent over HTTPS

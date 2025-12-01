@@ -1,13 +1,16 @@
 import datetime
 import logging
+import os
 from datetime import timedelta, date
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles import finders
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -15,19 +18,23 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
+from amelie.tools.decorators import require_board
 from oauth2_provider.views import AuthorizedTokenDeleteView
 from health_check.views import MainView as HealthCheckMainView
+from django.views.generic.edit import FormView
 
 from amelie.activities.models import Activity
 from amelie.companies.models import CompanyEvent
 from amelie.forms import AmelieAuthenticationForm
+from amelie.members.forms import ProfilePictureUploadForm, ProfilePictureVerificationForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
-from amelie.members.models import Person, Committee, StudyPeriod
+from amelie.members.models import Person, Committee, StudyPeriod, Preference
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
-from amelie.tools.mixins import RequireSuperuserMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin
+from amelie.tools.buildinfo import get_build_info
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
 
@@ -134,7 +141,6 @@ def profile_edit(request):
         'form': form
     })
 
-
 @login_required
 def profile_overview(request):
     try:
@@ -153,6 +159,7 @@ def profile_overview(request):
     except Exception as e:
         logger.exception(e)
         users = []
+
     return render(request, "profile_overview.html", context={
         'users': users,
         'providers_unlink_allowed': settings.KEYCLOAK_PROVIDERS_UNLINK_ALLOWED
@@ -254,13 +261,15 @@ def frontpage(request):
     if request.user.is_authenticated:
         # MediaCie check
         context['mediacie'] = request.person.is_in_committee('MediaCie')
-        
+
         # Room Duty check
         context['is_roomduty'] = request.person.is_room_duty()
 
         # Birthdays
-        context['birthdays'] = Person.objects.members().filter(date_of_birth__day=date.today().day,
-                                                               date_of_birth__month=date.today().month).distinct()
+        context['birthdays'] = Person.objects.members().filter(
+            date_of_birth__day=date.today().day,
+            date_of_birth__month=date.today().month,
+        ).exclude(preferences__name="birthday_show_frontpage").distinct()
 
         # Complaints
         if request.is_board:
@@ -291,6 +300,16 @@ class AuthorizedTokenDeleteViewAmelieWrapper(AuthorizedTokenDeleteView):
     success_url = reverse_lazy('profile_overview')
 
 
+def robots_txt(request):
+    # Return the robots.txt of the configured environment, or PRODUCTION if no specific one exists.
+    path = os.path.join(settings.BASE_PATH, f'amelie/style/robots.{settings.ENV}.txt')
+    if not os.path.isfile(path):
+        path = os.path.join(settings.BASE_PATH, "amelie/style/robots.PRODUCTION.txt")
+
+    with open(path, 'r') as f:
+        return HttpResponse(f.read(), content_type='text/plain')
+
+
 def security_txt(request):
     month_from_now = datetime.datetime.now() + datetime.timedelta(weeks=4)
     content = f"""# Our security address(es), in order of preference
@@ -315,28 +334,97 @@ def healthz_view(request):
     return HttpResponse('ok', content_type="text/plain")
 
 
+class PortraitUploadVerification(RequireBoardMixin, FormView):
+    http_method_names = ["get", "post"]
+    form_class = ProfilePictureVerificationForm
+
+    def get(self, request):
+        people = Person.objects.filter(unverified_picture__isnull=False).exclude(unverified_picture='')[:50]
+        forms = [(ProfilePictureVerificationForm(initial={'id':person.id}), person) for person in people]
+
+        return render(request, 'profile_picture_verification.html', locals())
+
+    def post(self, request):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            person = Person.objects.filter(id=form.data.get("id")).first()
+
+            if person is None:
+                return "error"
+
+            if form.data.get("is_verified") == "true":
+                person.picture = person.unverified_picture
+                person.unverified_picture = None
+                person.save()
+            else:
+                os.remove(person.unverified_picture.path)
+                person.unverified_picture = None
+                person.save()
+            return JsonResponse({"status": "success"})
+        else:
+            return JsonResponse({"status": "error"})
+
+
+class PortraitUploadView(RequirePersonMixin, FormView):
+    http_method_names = ["get", "post"]
+    form_class = ProfilePictureUploadForm
+
+    def get(self, request):
+        form = ProfilePictureUploadForm()
+        return render(request, 'profile_portrait_upload.html', locals())
+
+    def post(self, request):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        files = form.files.getlist("profile_picture")
+
+        if form.is_valid():
+            if len(files) == 0:
+                return self.form_invalid(form)
+            request.person.is_portrait_picture_verified = False
+            request.person.unverified_picture = files[0]
+            request.person.save()
+        else:
+            return self.form_invalid(form)
+
+        return redirect('profile_overview')
+
+
 class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
     def get_context_data(self, **kwargs):
         import os, sys, platform, cgi, socket
 
+        # Operating system version
         if hasattr(platform, 'dist') and platform.dist()[0] != '' and platform.dist()[1] != '':
             os_version = f'{platform.system()} {platform.release()} ({platform.dist()[0].capitalize()} {platform.dist()[1]})'
         else:
             os_version = f'{platform.system()} {platform.release()}'
 
+        # IP address of host
         try:
             ip_address = socket.gethostbyname(socket.gethostname())
         except Exception:
             ip_address = None
 
+        # Process ID of worker
         try:
             process_id = f'{os.getpid()} (parent: {os.getppid()})' if hasattr(os, 'getpid') and hasattr(os, 'getppid') else None
         except Exception:
             process_id = None
 
+        # Build information
+        build_info = get_build_info()
+
         return {
             **super().get_context_data(**kwargs),
+            # A bunch of other random system information
             'info_tables': [
+                ('Amelie', {
+                    'Build branch': build_info.get("branch", "unknown"),
+                    'Build commit': build_info.get("commit", "unknown"),
+                    'Build date': build_info.get("date", "unknown"),
+                }),
                 ('System', {
                     'Python Version': platform.python_version(),
                     'Python Subversion': ', '.join(sys.subversion) if hasattr(sys, 'subversion') else None,

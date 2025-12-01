@@ -70,7 +70,7 @@ def _create_thumbnail(file, size, source, target):
                 thumb = open(target, 'w')
                 if image.mode != 'RGB':
                     image = image.convert('RGB')
-                image.thumbnail(size_pixels, Image.ANTIALIAS)
+                image.thumbnail(size_pixels, Image.LANCZOS)
                 image.save(thumb, 'JPEG')
                 thumb.close()
                 return target
@@ -78,7 +78,7 @@ def _create_thumbnail(file, size, source, target):
                 from amelie.files import images2gif
                 frames = images2gif.readGif(source, False)
                 for frame in frames:
-                    frame.thumbnail(size_pixels, Image.ANTIALIAS)
+                    frame.thumbnail(size_pixels, Image.LANCZOS)
                 images2gif.writeGif(target, frames)
                 return target
     # Save was not successful
@@ -131,7 +131,7 @@ class Attachment(models.Model):
     thumb_medium = models.ImageField(max_length=150, upload_to=get_upload_filename, editable=False, null=True, blank=True, height_field="thumb_medium_height", width_field="thumb_medium_width")
     thumb_large = models.ImageField(max_length=150, upload_to=get_upload_filename, editable=False, null=True, blank=True, height_field="thumb_large_height", width_field="thumb_large_width")
     mimetype = models.CharField(max_length=75, editable=False)
-    owner = models.ForeignKey(Photographer, null=True, editable=False, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(Photographer, null=True, blank=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(editable=False, auto_now_add=True)
     modified = models.DateTimeField(editable=False, auto_now=True)
@@ -159,7 +159,7 @@ class Attachment(models.Model):
             import os
             return '%s' % os.path.basename(self.file.name)
 
-    def save(self, create_thumbnails=True, *args, **kwargs):
+    def save(self, create_thumbnails=False, *args, **kwargs):
         self.mimetype = mimetypes.guess_type(self.file.path)[0]
         if not self.mimetype:
             self.mimetype = "application/octet-stream"
@@ -221,6 +221,21 @@ class Attachment(models.Model):
     thumb_file_large = property(get_thumb(preferred='large'))
     thumb_file_medium = property(get_thumb(preferred='medium'))
     thumb_file_small = property(get_thumb(preferred='small'))
+
+    def delete(self):
+        def safe_remove(path):
+            # Only remove the file if it exists and if it is in the MEDIA_ROOT directory.
+            if os.path.isfile(path) and os.path.commonpath([path, settings.MEDIA_ROOT]) == settings.MEDIA_ROOT:
+                os.remove(path)
+        if self.thumb_large and self.thumb_large.path:
+            safe_remove(self.thumb_large.path)
+        if self.thumb_medium and self.thumb_medium.path:
+            safe_remove(self.thumb_medium.path)
+        if self.thumb_small and self.thumb_small.path:
+            safe_remove(self.thumb_small.path)
+        if self.file and self.file.path:
+            safe_remove(self.file.path)
+        super().delete()
 
     @staticmethod
     def search_images(query, max_results=None):

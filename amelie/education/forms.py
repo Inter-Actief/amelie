@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.forms import widgets
+from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _l
 
@@ -12,6 +14,10 @@ from amelie.education.models import Complaint, ComplaintComment, Page, Vote, Cou
     EducationEvent, BaseCourseModule, Module
 from amelie.tools.logic import current_academic_year_strict
 from amelie.tools.widgets import DateTimeSelector
+
+from captcha.fields import CaptchaField
+from captcha.models import CaptchaStore
+from captcha.helpers import captcha_image_url
 
 
 class PageForm(forms.ModelForm):
@@ -95,8 +101,10 @@ class EducationalBouquetForm(forms.Form):
         self.fields['course'].choices = calc_choices()
 
     def save(self, *args, **kwargs):
+        course_id = self.cleaned_data['course']
+        course = BaseCourseModule.objects.get(id=course_id)
         context = {'teacher': self.cleaned_data['teacher'],
-                   'course': self.cleaned_data['course'],
+                   'course': course,
                    'reason': self.cleaned_data['reason'],
                    'author': self.cleaned_data['author'],
                    'email': self.cleaned_data['email'],
@@ -111,6 +119,30 @@ class EducationalBouquetForm(forms.Form):
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
+
+
+class EducationalBouquetFormHTML(EducationalBouquetForm):
+    captcha = CaptchaField()
+
+class EducationalBouquetFormGraphQL(EducationalBouquetForm):
+    captcha = forms.CharField(max_length=32, label=_l('Captcha'), help_text=_l("The response to the captcha challenge"))
+    captcha_hash = forms.CharField(max_length=40, label=_l('Captcha key'), help_text=_l("The key that uniquely identifies this captcha test"))
+
+    def __init__(self, *args, **kwargs):
+        super(EducationalBouquetFormGraphQL, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned = super().clean()
+        captcha = cleaned.get('captcha')
+        captcha_key = cleaned.get('captcha_hash')
+
+        # Logic borrowed from CaptchaField
+        try:
+            CaptchaStore.objects.get(
+                hashkey=captcha_key, response=captcha, expiration__gt=timezone.now()
+            ).delete()
+        except CaptchaStore.DoesNotExist:
+            raise ValidationError(_l("Incorrect captcha"))
 
 
 class DEANominationForm(forms.Form):

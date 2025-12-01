@@ -5,6 +5,7 @@ import sys
 from distutils.sysconfig import get_python_lib
 
 import polib
+from amelie.tools.management.commands.makemessages import Command as MakeMessagesCommand
 from django.core.management.commands import makemessages
 from django.core.management.commands.makemessages import settings
 from django.template.loader import _engine_list
@@ -30,11 +31,17 @@ EXTENSIONS = ['mail', 'html', 'txt', 'py']
 # Add only names or word groups that are best matched with regular expressions. No extra English words should not be added.
 IGNORED_WORDS = [
     "\\bNL\\b", "\\bEN\\b", "inter- *actief\\b", "\\bu?twente\\b", "\\bhome\\b", "\\bcompany corner\\b",
-    "\\bGoogle Maps\\b", "Postcode.nl", "euro?", '\\bSponsored by\\b', '\\binbitween\\b', 'BP', 'Am[eé]lie',
-    'https://(www\\.)?inter-actief\\.net', '\\bAccountbeheer\\b', '\\bweek\\b', '\\bEnglish version Nederlandse versie',
-    '(?:contact|accountbeheer)@inter-actief\\.net', 'https?://www\\.inter-actief\\.utwente\\.nl(?:/profile/edit)?',
-    '\\bEUR\\b', '\\b-\\b'
+    "\\bGoogle Maps\\b", "Postcode\\.nl", "euro?", "\\bSponsored by\\b", "\\binbitween\\b", "BP", "Am[eé]lie",
+    "https://(www\\.)?inter-actief\\.net", "\\bAccountbeheer\\b", "\\bweek\\b",
+    "\\bEnglish version Nederlandse versie\\b",
+    "(?:contact|accountbeheer)@inter-actief\\.net",
+    "https?://www\\.inter-actief\\.utwente\\.nl(?:/profile/edit)?",
+    "\\bEUR\\b", "\\b-\\b", "\\bI\\.C\\.T\\.S\\.V\\.\\b", "\\bInter-\\b", "\\bActief\\b",
+    "\\+53 489 3756", "contact@inter-actief\\.net",
+    "https://ictsv\\.nl/wa", "https://ictsv\\.nl/discord", "@inter\\.actief",
+    "https://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/", "\\*"
 ]
+
 
 REGEX_ACCEPTED = re.compile('^([^a-zA-Z]|&.*?;|\\b\\w\\b|{})*$'.format('|'.join(IGNORED_WORDS)), re.IGNORECASE)
 TEMPLATE_FOLDERS = list(Loader(_engine_list(None)).get_dirs())
@@ -86,7 +93,7 @@ class TranslateTestCase(TestCase):
                     self.warn('Po file {} has not been compiled to {}'.format(POFILE_PATH, MOFILE_PATH))
 
     def test_makemessages_run(self):
-        mmc = makemessages.Command()
+        mmc = MakeMessagesCommand()
         mmc.ignore_patterns = ['bin/*', 'lib/*', 'include/*', 'CVS', '.*', '*~', '*.pyc']
         mmc.symlinks = False
         mmc.locale_paths = list(settings.LOCALE_PATHS)

@@ -30,6 +30,9 @@ IGNORE_NAMES = [
     # Cannot test OIDC login
     "oidc_authentication_callback", "oidc_authentication_init", "oidc_logout",
 
+    # Captcha library urls don't need to be checked
+    "captcha-image", "captcha-image-2x", "captcha-audio", "captcha-refresh",
+
     # UserInfo / GroupInfo API endpoints need extra configuration
     "members:person_userinfo", "members:person_groupinfo",
 
@@ -58,7 +61,7 @@ REDIRECTS_FOLLOW = [
 
 # Names or urls that should at least redirect (namespaces must be prepended).
 REDIRECTS = REDIRECTS_FOLLOW + [
-    "favicon_redirect", "robots_redirect",  # Static files can't be checked, so we will just
+    "favicon_redirect",  # Static files can't be checked, so we will just
     "personal_tab:pos_logout", "personal_tab:pos_register_external", "personal_tab:pos_scan_external",
     "personal_tab:pos_shop", "personal_tab:register_scan", "personal_tab:my_dashboard",
     "account:password_reset", "account:password_reset_success"

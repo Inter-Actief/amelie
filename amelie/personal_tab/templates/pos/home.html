@@ -15,7 +15,7 @@
                     <input name="tags" id="rfid-form-tags" type="hidden" value="">
                 </form>
             </div>
-            {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+            {% if beta_mode %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
             {% if messages %}
                 <div id="messages">
                     <ul>
