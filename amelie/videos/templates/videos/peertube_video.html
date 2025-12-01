@@ -16,7 +16,7 @@
             </h2>
 
             <div class="video-wrapper">
-                <iframe src='{{ streaming_base_url }}/play/{{ object.video_id }}?embedded=True&autoplay=False' frameborder="0" allowfullscreen></iframe>
+                <iframe width="100%" height="100%" src="{{ peertube_base_url }}/videos/embed/{{ object.video_id }}?title=0&warningTitle=0&peertubeLink=0&p2p=0" style="border: 0px; position: absolute; inset: 0px;" allow="fullscreen" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
             </div>
 
             <div class="content">
@@ -24,7 +24,7 @@
 
                 {% if delete_allowed %}
                     <div class="buttons">
-                        <a class="looks-like-a-button" href="{% url 'videos:edit_iaold_video' object.video_id %}">{% trans 'Edit video' %} &raquo;</a>
+                        <a class="looks-like-a-button" href="{% url 'videos:edit_ia_video' object.video_id %}">{% trans 'Edit video' %} &raquo;</a>
                         <a class="looks-like-a-button" href="{% url 'videos:delete_video' object.video_id %}">{% trans 'Delete video' %} &raquo;</a>
                     </div>
                 {% endif %}
