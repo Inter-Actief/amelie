@@ -23,6 +23,7 @@ class VideoFilterSet(django_filters.FilterSet):
     class VideoTypes(models.TextChoices):
         YOUTUBE = 'youtube', _('YouTube')
         STREAMING_IA = 'streamingia', _('Streaming.IA')
+        PEERTUBE_IA = 'peertubeia', _('Video.IA')
 
     video_type = django_filters.ChoiceFilter(method='video_type_filter', choices=VideoTypes.choices)
 
@@ -31,6 +32,8 @@ class VideoFilterSet(django_filters.FilterSet):
             return qs.filter(youtubevideo__isnull=False)
         elif value == "streamingia":
             return qs.filter(streamingiavideo__isnull=False)
+        elif value == "peertubeia":
+            return qs.filter(peertubeiavideo__isnull=False)
         else:
             return qs
 

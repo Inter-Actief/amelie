@@ -8,9 +8,15 @@ from modernrpc.core import rpc_method
 
 
 def get_basic_result(video):
+    if hasattr(video, 'streamingiavideo'):
+        video_type = "ia"
+    elif hasattr(video, 'peertubeiavideo'):
+        video_type = "pt"
+    else:
+        video_type = "yt"
     return {
         "id": video.video_id,
-        "type": "ia" if hasattr(video, 'streamingiavideo') else "yt",
+        "type": video_type,
         "title": video.title,
         "thumbnail": video.thumbnail_url,
         "featured": video.is_featured,
@@ -44,7 +50,7 @@ def get_video_stream(offset: int, length: int, **kwargs) -> List[Dict]:
       Each returned element in the list has the following fields:
 
         - id: The identifier for this video
-        - type: The type of video, one of "yt" (YouTube) or "ia" (Streaming.IA)
+        - type: The type of video, one of "yt" (YouTube), "ia" (Streaming.IA), or "pt" (PeerTube)
         - title: The title of this video
         - thumbnail: The URL to the thumbnail of this video
         - featured: Boolean, true if the video is currently being featured, false if not.
@@ -117,7 +123,7 @@ def get_video_details(video_id: str, **kwargs) -> Dict:
       Each returned element in the list has the following fields:
 
         - id: The identifier for this video
-        - type: The type of video, one of "yt" (YouTube) or "ia" (Streaming.IA)
+        - type: The type of video, one of "yt" (YouTube), "ia" (Streaming.IA), or "pt" (PeerTube)
         - title: The title of this video
         - thumbnail: The URL to the thumbnail of this video
         - featured: Boolean, true if the video is currently being featured, false if not.

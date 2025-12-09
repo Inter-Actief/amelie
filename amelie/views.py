@@ -254,6 +254,7 @@ def frontpage(request):
         'past_activities': past_activities,
         'featured_video': featured_video,
         'streaming_base_url': settings.STREAMING_BASE_URL,
+        'peertube_base_url': settings.PEERTUBE_BASE_URL,
         'news': news,
         'education_news': education_news,
     }

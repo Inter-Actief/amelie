@@ -4,7 +4,8 @@ from django.utils.translation import gettext_lazy as _l
 from amelie.activities.forms import DateTimeSelector, SplitDateTimeField
 from amelie.tools import youtube
 from amelie.tools import streaming_ia
-from .models import YouTubeVideo, StreamingIAVideo
+from amelie.tools import peertube
+from .models import YouTubeVideo, StreamingIAVideo, PeertubeIAVideo
 
 
 def validate_youtube_video_id(video_id):
@@ -19,6 +20,14 @@ def validate_streaming_video_id(video_id):
     video = streaming_ia.retrieve_video_details(video_id)
     if not video:
         raise forms.ValidationError(_l('Streaming.IA video with ID "%(video_id)s" doesn\'t exist.'), params={
+            'video_id': video_id
+        })
+
+
+def validate_peertube_video_id(video_id):
+    video = peertube.retrieve_video_details(video_id)
+    if not video:
+        raise forms.ValidationError(_l('Video.IA video with ID "%(video_id)s" doesn\'t exist.'), params={
             'video_id': video_id
         })
 
@@ -50,6 +59,22 @@ class StreamingVideoForm(forms.ModelForm):
 class StreamingVideoProcessedForm(forms.ModelForm):
     class Meta:
         model = StreamingIAVideo
+        fields = ('date_published', 'publisher', "public", 'is_featured')
+        field_classes = {'date_published': SplitDateTimeField}
+        widgets = {'date_published': DateTimeSelector}
+
+
+class PeertubeVideoForm(forms.ModelForm):
+    video_id = forms.CharField(max_length=38, validators=[validate_peertube_video_id])
+
+    class Meta:
+        model = PeertubeIAVideo
+        fields = ('video_id', 'publisher', "public", 'is_featured')
+
+
+class PeertubeVideoProcessedForm(forms.ModelForm):
+    class Meta:
+        model = PeertubeIAVideo
         fields = ('date_published', 'publisher', "public", 'is_featured')
         field_classes = {'date_published': SplitDateTimeField}
         widgets = {'date_published': DateTimeSelector}

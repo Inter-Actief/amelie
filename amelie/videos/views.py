@@ -17,9 +17,11 @@ from amelie.members.models import Committee
 from amelie.tools.mixins import RequireCommitteeMixin
 from amelie.tools import youtube
 from amelie.tools import streaming_ia
+from amelie.tools import peertube
 
-from .models import BaseVideo, YouTubeVideo, StreamingIAVideo
-from .forms import YouTubeVideoForm, YouTubeVideoProcessedForm, StreamingVideoForm, StreamingVideoProcessedForm
+from .models import BaseVideo, YouTubeVideo, StreamingIAVideo, PeertubeIAVideo
+from .forms import YouTubeVideoForm, YouTubeVideoProcessedForm, StreamingVideoForm, StreamingVideoProcessedForm, \
+                   PeertubeVideoForm, PeertubeVideoProcessedForm
 
 
 class VideoList(ListView):
@@ -85,6 +87,30 @@ class StreamingVideoDetail(DetailView):
             return redirect('videos:list_videos')
 
         return super(StreamingVideoDetail, self).get(request, *args, **kwargs)
+
+
+class PeertubeVideoDetail(DetailView):
+    template_name = "videos/peertube_video.html"
+    model = PeertubeIAVideo
+
+    def get_context_data(self, **kwargs):
+        context = super(PeertubeVideoDetail, self).get_context_data(**kwargs)
+
+        context['peertube_base_url'] = settings.PEERTUBE_BASE_URL
+
+        if hasattr(self.request, 'person'):
+            obj = self.get_object()
+            context['edit_allowed'] = obj.can_edit(self.request.person)
+            context['delete_allowed'] = obj.can_delete(self.request.person)
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.public and (not hasattr(request, 'user') or not request.user.is_authenticated):
+            return redirect('videos:list_videos')
+
+        return super(PeertubeVideoDetail, self).get(request, *args, **kwargs)
 
 
 class VideoDelete(RequireCommitteeMixin, DeleteView):
@@ -178,6 +204,44 @@ class StreamingVideoUpdate(RequireCommitteeMixin, UpdateView):
             return redirect(obj)
 
         return super(StreamingVideoUpdate, self).get(request, *args, **kwargs)
+
+
+class PeertubeVideoUpdate(RequireCommitteeMixin, UpdateView):
+    model = PeertubeIAVideo
+    template_name = "videos/peertube_video_form.html"
+    abbreviation = "MediaCie"
+    form_class = PeertubeVideoProcessedForm
+
+    def get_form(self, form_class=None):
+        form = super(PeertubeVideoUpdate, self).get_form(form_class=form_class)
+        if not self.request.is_board:
+            form.fields['publisher'].queryset = self.request.person.current_committees()
+
+        return form
+
+    def form_valid(self, form):
+        video = form.save(commit=False)
+
+        # Do some Peertube API data processing
+        video_details = peertube.retrieve_video_details(video.video_id)
+        video.title = video_details['name']
+        video.description = video_details['description'] or "-"
+        video.thumbnail_url = f"{settings.PEERTUBE_BASE_URL}{video_details['thumbnailPath']}"
+
+        video.save()
+        return redirect(video.get_absolute_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(PeertubeVideoUpdate, self).get_context_data(**kwargs)
+        context['is_new'] = False
+        return context
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not obj.can_edit(request.person):
+            return redirect(obj)
+
+        return super(PeertubeVideoUpdate, self).get(request, *args, **kwargs)
 
 
 class YoutubeVideoCreate(RequireCommitteeMixin, CreateView):
@@ -299,6 +363,65 @@ class StreamingVideoCreate(RequireCommitteeMixin, CreateView):
         video.description = ia_details['description'] or "-"
         video.date_published = make_aware(parser.parse(ia_details['videoDate']))
         video.thumbnail_url = f"{settings.STREAMING_BASE_URL}/{ia_details['thumbnailLocation']}"
+
+        video.save()
+        return redirect(video.get_absolute_url())
+
+
+class PeertubeVideoCreate(RequireCommitteeMixin, CreateView):
+    model = PeertubeIAVideo
+    template_name = "videos/peertube_video_form.html"
+    form_class = PeertubeVideoForm
+    abbreviation = "MediaCie"
+
+    def get_form(self, form_class=None):
+        form = super(PeertubeVideoCreate, self).get_form(form_class=form_class)
+        mediacie = Committee.objects.get(abbreviation="MediaCie", abolished__isnull=True)
+
+        video_id = None
+        if 'video_id' in self.kwargs:
+            video_id = self.kwargs['video_id']
+
+        if video_id is not None:
+            form.fields['video_id'].initial = video_id
+
+        if self.request.person in mediacie.members():
+            form.fields['publisher'].initial = mediacie
+        if not self.request.is_board:
+            form.fields['publisher'].queryset = self.request.person.current_committees()
+
+        return form
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(PeertubeVideoCreate, self).get(request, *args, **kwargs)
+        except (RequestsConnectionError, JSONDecodeError) as e:
+            import sentry_sdk
+            sentry_sdk.capture_exception(e)
+
+            messages.error(request, _l("Could not connect to Video.IA! "
+                                      "Please contact the WWW committee if this problem persists."))
+            return redirect("videos:list_videos")
+
+    def get_context_data(self, **kwargs):
+        context = super(PeertubeVideoCreate, self).get_context_data(**kwargs)
+
+        listed_ids = PeertubeIAVideo.objects.values_list('pk', flat=True)
+        recent_uploads = peertube.retrieve_video_list()
+        context['filtered_uploads'] = [v for v in recent_uploads if str(v['id']) not in listed_ids][:5]
+        context['is_new'] = True
+
+        return context
+
+    def form_valid(self, form):
+        video = form.save(commit=False)
+
+        # Do some Video.IA API data processing
+        video_details = peertube.retrieve_video_details(video.video_id)
+        video.title = video_details['name']
+        video.description = video_details['description'] or "-"
+        video.date_published = parser.parse(video_details['originallyPublishedAt'] or video_details['publishedAt'] or video_details['createdAt'])
+        video.thumbnail_url = f"{settings.PEERTUBE_BASE_URL}{video_details['thumbnailPath']}"
 
         video.save()
         return redirect(video.get_absolute_url())
