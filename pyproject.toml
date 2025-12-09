@@ -58,7 +58,7 @@ dependencies = [
     "graphene-django-extras",
 
     # Used for stripping Markdown notations and indexing the IA Summary website.
-    "beautifulsoup4>=4.11.1,<4.12",
+    "beautifulsoup4>=4.11.1,<4.15",
 
     # Sanitizing Markdown strings in amelie template tags
     "nh3>=0.3.2,<0.4",
