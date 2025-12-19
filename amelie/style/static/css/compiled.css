@@ -12340,6 +12340,20 @@ table.totals tr:nth-last-child(2) td {
   background-position-x: 4px;
   background-position-y: 4px;
 }
+.claudia-PasswordVault {
+  padding-left: 18px;
+  min-height: 16px;
+  background-repeat: no-repeat;
+  line-height: 1.5;
+  background: transparent url("/static/img/icons/group_key.png") no-repeat;
+}
+.claudia-PasswordVault[type="button"],
+.claudia-PasswordVault[type="submit"],
+.claudia-PasswordVault.looks-like-a-button {
+  padding-left: 26px;
+  background-position-x: 4px;
+  background-position-y: 4px;
+}
 .claudia-AliasGroup {
   padding-left: 18px;
   min-height: 16px;

@@ -73,7 +73,7 @@
         </div>
     </div></div>
 
-    {% if object.is_group or object.is_shareddrive %}
+    {% if object.is_group or object.is_shareddrive or object.is_passwordvault %}
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
         <h2>{% trans 'Members' %}</h2>
 
@@ -86,6 +86,8 @@
                     <th>{% trans 'Description' %}</th>
                     <th>{% trans 'AD' %}</th>
                     <th>{% trans 'Email' %}</th>
+                    <th>{% trans 'Drive' %}</th>
+                    <th>{% trans 'Vault' %}</th>
                     <th></th>
                 </tr>
                 {% for member in auto_members %}
@@ -95,6 +97,8 @@
                     <td><i>{% trans 'automatic' %}</i></td>
                     <td><i>{% trans 'yes' %}</i></td>
                     <td><i>{% trans 'yes' %}</i></td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
                     <td></td>
                 </tr>
                 {% endfor %}
@@ -105,6 +109,8 @@
                     <td>{{ mem.description }}</td>
                     <td>{{ mem.ad|yesno }}</td>
                     <td>{{ mem.mail|yesno }}</td>
+                    <td>{{ mem.shared_drive|yesno }}</td>
+                    <td>{{ mem.password_vault|yesno }}</td>
                     <td>{{ mem|clau_editlinks }}</td>
                 </tr>
                 {% endfor %}
@@ -115,6 +121,8 @@
                     <td>{{ ga.description }}</td>
                     <td>&mdash;</td>
                     <td><i>{% trans 'yes' %}</i></td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
                     <td>{{ ga|clau_editlinks }}</td>
                 </tr>
                 {% endfor %}
@@ -141,6 +149,8 @@
                     <th>{% trans 'Description' %}</th>
                     <th>{% trans 'AD' %}</th>
                     <th>{% trans 'Email' %}</th>
+                    <th>{% trans 'Drive' %}</th>
+                    <th>{% trans 'Vault' %}</th>
                     <th></th>
                 </tr>
                 {% for group in auto_groups %}
@@ -150,6 +160,8 @@
                     <td><i>{% trans 'automatic' %}</i></td>
                     <td><i>{% trans 'yes' %}</i></td>
                     <td><i>{% trans 'yes' %}</i></td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
                     <td></td>
                 </tr>
                 {% endfor %}
@@ -160,6 +172,8 @@
                     <td>{{ mem.description }}</td>
                     <td>{{ mem.ad|yesno }}</td>
                     <td>{{ mem.mail|yesno }}</td>
+                    <td>{{ mem.shared_drive|yesno }}</td>
+                    <td>{{ mem.password_vault|yesno }}</td>
                     <td>{{ mem|clau_editlinks }}</td>
                 </tr>
                 {% endfor %}
@@ -170,6 +184,8 @@
                     <td>{{ ao.description }}</td>
                     <td>&mdash;</td>
                     <td><i>{% trans 'yes' %}</i></td>
+                    <td>&mdash;</td>
+                    <td>&mdash;</td>
                     <td>{{ ao|clau_editlinks }}</td>
                 </tr>
                 {% endfor %}

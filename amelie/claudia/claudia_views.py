@@ -13,7 +13,7 @@ from amelie.tools.mixins import RequireCommitteeMixin, RequireStrictCommitteeMix
 
 from amelie.claudia.forms import SearchMappingForm, PersonalAliasCreateForm
 from amelie.claudia.models import Mapping, CLAUDIA_GROUP_POSTFIX, Membership, ExtraGroup, ExtraPerson, \
-    AliasGroup, Contact, Timeline, SharedDrive, ExtraPersonalAlias
+    AliasGroup, Contact, Timeline, SharedDrive, ExtraPersonalAlias, PasswordVault
 
 
 ##
@@ -143,7 +143,12 @@ class AddToMappingView(RequireCommitteeMixin, View):
             if isinstance(self.member, Mapping):
                 if self.group.is_shareddrive() and len(self.group.members()) >= 99:
                     raise ValueError(_l("A Shared Drive can have a maximum of 99 members."))
-                Membership(member=self.member, group=self.group, ad=True, mail=True, description='').save()
+                if self.group.is_shareddrive():
+                    Membership(member=self.member, group=self.group, ad=False, mail=False, shared_drive=True, description='').save()
+                elif self.group.is_passwordvault():
+                    Membership(member=self.member, group=self.group, ad=False, mail=False, password_vault=True, description='').save()
+                else:
+                    Membership(member=self.member, group=self.group, ad=True, mail=True, description='').save()
 
             else:
                 raise ValueError
@@ -257,6 +262,27 @@ class SharedDriveDetail(RequireStrictCommitteeMixin, UpdateView):
     abbreviation = SYSADMINS_ABBR
     model = SharedDrive
     fields = ['name', 'description']
+
+
+##
+# Password Vaults
+##
+class PasswordVaultList(RequireCommitteeMixin, ListView):
+    abbreviation = SYSADMINS_ABBR
+    paginate_by = 100
+    model = PasswordVault
+
+
+class PasswordVaultAdd(RequireStrictCommitteeMixin, CreateView):
+    abbreviation = SYSADMINS_ABBR
+    model = PasswordVault
+    fields = ['name', 'description', 'vaultwarden_uuid']
+
+
+class PasswordVaultDetail(RequireStrictCommitteeMixin, UpdateView):
+    abbreviation = SYSADMINS_ABBR
+    model = PasswordVault
+    fields = ['name', 'description', 'vaultwarden_uuid']
 
 
 ##

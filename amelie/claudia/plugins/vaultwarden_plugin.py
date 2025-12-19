@@ -2,11 +2,13 @@
 import logging
 import random
 import string
+from typing import Optional, List
 
 from django.conf import settings
 from vaultwarden.clients.vaultwarden import VaultwardenAdminClient
 from vaultwarden.models.enum import CipherType, OrganizationUserType
 from vaultwarden.models.bitwarden import get_organization, Organization
+from vaultwarden.models.sync import VaultwardenUser, ProfileOrganization
 
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.claudia.tools import unify_mail
@@ -47,7 +49,10 @@ class VaultwardenPlugin(ClaudiaPlugin):
             logger.debug("Mapping is a person, checking Vaultwarden account and its groups.")
             if mp.adname:
                 # Get groups a user should be in
-                vaultwarden_user = client.get_user(mp.email)
+                groups = [g for g in mp.all_groups('ad') if g.is_group() and g.extra_data().get('vaultwarden', False) and g.adname and (self.get_group(client, g.adname) is not None)]
+
+                # Get groups a user should be in
+                vaultwarden_user = self.get_user(client, mp.email)
                 organizations = vaultwarden_user.Organizations
 
                 # Check if user has account
@@ -58,12 +63,11 @@ class VaultwardenPlugin(ClaudiaPlugin):
                 # Create account if necessary
                 if user is None and organizations and mp.needs_account():
                     logger.debug("Vaultwarden user for {} does not exist, creating.".format(mp.email))
-                    passwd = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(40))
                     if fix:
                         try:
-                            user = client.users.invite(unify_mail(mp.adname))
+                            user = self.create_user(client, mp.email)
                             changes.append(('account', '{} created'.format(user.username)))
-                            claudia.notify_Vaultwarden_created(mp, mp.adname)
+                            claudia.notify_vaultwarden_created(mp, mp.adname)
                         except Exception as e:
                             logger.error("Vaultwarden user creation for {} failed: {}".format(mp.adname))
 
@@ -132,12 +136,12 @@ class VaultwardenPlugin(ClaudiaPlugin):
                         })
                         if group:
                             changes.append(('group', '{} created'.format(group.path)))
-                            claudia.notify_Vaultwarden_created(mp, mp.adname)
+                            claudia.notify_vaultwarden_created(mp, mp.adname)
                         else:
                             logger.error("Vaultwarden group creation for {} failed.".format(mp.adname))
 
         if changes:
-            claudia.notify_Vaultwarden_changed(mp, mp.adname, changes)
+            claudia.notify_vaultwarden_changed(mp, mp.adname, changes)
 
     @staticmethod
     def get_organization(client, name):
@@ -149,17 +153,16 @@ class VaultwardenPlugin(ClaudiaPlugin):
         return client.get_group(name)
 
     @staticmethod
-    def get_organizations_for_member(user):
+    def get_organizations_for_member(user: VaultwardenUser) -> List[ProfileOrganization]:
         """
         Get the groups for a given user.
 
         Returns a list of groups.
         """
         return user.Organizations
-        
 
     @staticmethod
-    def get_user(client, username):
+    def get_user(client, username) -> Optional[VaultwardenUser]:
         """
         Get the user information for a given username.
 
@@ -175,3 +178,12 @@ class VaultwardenPlugin(ClaudiaPlugin):
         Returns a list of users.
         """
         return client.get_users()
+
+    @staticmethod
+    def create_user(client, email):
+        """
+        Create a user in Vaultwarden.
+
+        Returns a list of users.
+        """
+        return

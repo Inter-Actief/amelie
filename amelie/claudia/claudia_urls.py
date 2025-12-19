@@ -1,13 +1,15 @@
 from django.urls import path
-from amelie.claudia.claudia_views import MappingTimeline, TimelineList, SharedDriveList, SharedDriveAdd, \
-    SharedDriveDetail, PersonalAliasView, PersonalAliasAddView, PersonalAliasRemoveView, PersonalAliasListView
-from amelie.claudia.claudia_views import ClaudiaHome, MappingList, MappingDetailView, AddToMappingView, \
-    AddToMappingList, AddMappingToList, MappingFind, MappingVerify
+from amelie.claudia.claudia_views import ClaudiaHome, MappingList, MappingDetailView, MappingTimeline
+from amelie.claudia.claudia_views import AddToMappingView, AddToMappingList, AddMappingToList
+from amelie.claudia.claudia_views import MappingFind, MappingVerify
+from amelie.claudia.claudia_views import PersonalAliasView, PersonalAliasAddView, PersonalAliasRemoveView, PersonalAliasListView
 from amelie.claudia.claudia_views import ExtraGroupList, ExtraGroupAdd, ExtraGroupDetail
 from amelie.claudia.claudia_views import ExtraPersonList, ExtraPersonAdd, ExtraPersonDetail
 from amelie.claudia.claudia_views import AliasGroupList, AliasGroupAdd, AliasGroupDetail
+from amelie.claudia.claudia_views import SharedDriveList, SharedDriveAdd, SharedDriveDetail
+from amelie.claudia.claudia_views import PasswordVaultList, PasswordVaultAdd, PasswordVaultDetail
 from amelie.claudia.claudia_views import ContactList, ContactAdd, ContactDetail
-from amelie.claudia.claudia_views import LinkDelete, EmailDetail
+from amelie.claudia.claudia_views import LinkDelete, EmailDetail, TimelineList
 
 """
 The urls in this file are included in the amelie/urls.py, which gives the names
@@ -44,6 +46,10 @@ urlpatterns = [
     path('shareddrive/', SharedDriveList.as_view(), name='shareddrive_list'),
     path('shareddrive/new/', SharedDriveAdd.as_view(), name='shareddrive_add'),
     path('shareddrive/<int:pk>/', SharedDriveDetail.as_view(), name='shareddrive_view'),
+
+    path('passwordvault/', PasswordVaultList.as_view(), name='passwordvault_list'),
+    path('passwordvault/new/', PasswordVaultAdd.as_view(), name='passwordvault_add'),
+    path('passwordvault/<int:pk>/', PasswordVaultDetail.as_view(), name='passwordvault_view'),
 
     path('extraperson/', ExtraPersonList.as_view(), name='extraperson_list'),
     path('extraperson/new/', ExtraPersonAdd.as_view(), name='extraperson_add'),

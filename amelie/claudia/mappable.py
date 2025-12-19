@@ -117,15 +117,21 @@ class Mappable:
         """
         return False
 
+    def is_shareddrive(self):
+        """
+        Is this a shared drive?
+        """
+        return False
+
+    def is_passwordvault(self):
+        """
+        Is this a password vault?
+        """
+        return False
+
     def members(self, old_members=False):
         """
         Give the members of this group
         :param bool old_members: Also give the old-members that once were in this group.
         """
         return []
-
-    def is_shareddrive(self):
-        """
-        Is this a shared drive?
-        """
-        return False

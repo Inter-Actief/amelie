@@ -116,6 +116,38 @@ class SharedDrive(models.Model, Mappable):
         ordering = ['name', ]
 
 
+class PasswordVault(models.Model, Mappable):
+    """Password vault (Organization) on Vaultwarden"""
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    vaultwarden_uuid = models.CharField(max_length=40)
+
+    def get_name(self):
+        return self.name
+
+    def is_passwordvault(self):
+        """Is a password vault?"""
+        return True
+
+    def is_active(self):
+        """Is active member or group?"""
+        return False
+
+    def is_needed(self):
+        """Password vaults are always needed and in use"""
+        return True
+
+    def get_absolute_url(self):
+        return reverse('claudia:passwordvault_view', args=(), kwargs={'pk': self.id})
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name', ]
+
+
 class ExtraPerson(models.Model, Mappable):
     """Manually created person"""
 
@@ -270,6 +302,7 @@ class Mapping(models.Model):
         'AliasGroup': AliasGroup,
         'Contact': Contact,
         'SharedDrive': SharedDrive,
+        'PasswordVault': PasswordVault,
     }
 
     type = models.CharField(max_length=25)
@@ -417,6 +450,9 @@ class Mapping(models.Model):
     def is_shareddrive(self):
         return self._obj().is_shareddrive()
 
+    def is_passwordvault(self):
+        return self._obj().is_passwordvault()
+
     def givenname(self):
         """Get the first name if this is a person"""
         if self.is_person():
@@ -477,6 +513,8 @@ class Mapping(models.Model):
             memberships = self.extra_groupmemberships.filter(ad=True)
         elif select == 'shared_drive':
             memberships = self.extra_groupmemberships.filter(shared_drive=True)
+        elif select == 'password_vault':
+            memberships = self.extra_groupmemberships.filter(password_vault=True)
         else:
             raise ValueError('Invalid select choice')
 
@@ -485,11 +523,12 @@ class Mapping(models.Model):
     def groups(self, select):
         """
         Give a list of groups that this mapping is in. This includes the extra groups and aliases.
-        :param select: Choice from: ['all', 'mail', 'ad', 'shared_drive']
+        :param select: Choice from: ['all', 'mail', 'ad', 'shared_drive', 'password_vault']
             'all' = All extra groups
             'mail' = Extra groups for e-mail
             'ad' = Extra groups for AD
             'shared_drive' = Shared drive
+            'password_vault' = Password Vault
         """
         obj = self._obj()
 
@@ -511,10 +550,12 @@ class Mapping(models.Model):
     def all_groups(self, select):
         """
         Give a list of all groups that this mapping is in, including upper groups. This includes the extra groups.
-        :param select: Choice from: ['all', 'mail', 'ad']
+        :param select: Choice from: ['all', 'mail', 'ad', 'shared_drive', 'password_vault']
             'all' = All extra groups
             'mail' = Extra groups for e-mail
             'ad' = Extra groups for AD
+            'shared_drive' = Shared drive
+            'password_vault' = Password Vault
         """
         result = set(self.groups(select))
         visited = set()
@@ -598,6 +639,7 @@ class Membership(models.Model):
     ad = models.BooleanField(default=False)
     mail = models.BooleanField(default=False)
     shared_drive = models.BooleanField(default=False)
+    password_vault = models.BooleanField(default=False)
     description = models.TextField(blank=True)
 
     def __str__(self):
