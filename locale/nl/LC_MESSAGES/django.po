@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-12-19 15:38+0100\n"
-"PO-Revision-Date: 2025-11-17 16:43+0000\n"
-"Last-Translator: s2267810 <t.meulenkamp@student.utwente.nl>\n"
+"PO-Revision-Date: 2025-12-19 14:49+0000\n"
+"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -12807,10 +12807,9 @@ msgid "Streaming.IA video with ID \"%(video_id)s\" doesn't exist."
 msgstr "Streaming.IA video met ID \\\"%(video_id)s\\\" bestaat niet."
 
 #: amelie/videos/forms.py:30
-#, fuzzy, python-format
-#| msgid "Streaming.IA video with ID \"%(video_id)s\" doesn't exist."
+#, python-format
 msgid "Video.IA video with ID \"%(video_id)s\" doesn't exist."
-msgstr "Streaming.IA video met ID \\\"%(video_id)s\\\" bestaat niet."
+msgstr "Video.IA video met ID \\\"%(video_id)s\\\" bestaat niet."
 
 #: amelie/videos/graphql.py:24
 msgid "YouTube"
@@ -12821,10 +12820,8 @@ msgid "Streaming.IA"
 msgstr "Streaming.IA"
 
 #: amelie/videos/graphql.py:26
-#, fuzzy
-#| msgid "Video"
 msgid "Video.IA"
-msgstr "Video"
+msgstr "Video.IA"
 
 #: amelie/videos/graphql.py:71
 msgid "Video type (Youtube or IA)"
@@ -12865,16 +12862,12 @@ msgid "Streaming.IA videos"
 msgstr "Streaming.IA videos"
 
 #: amelie/videos/models.py:82
-#, fuzzy
-#| msgid "Streaming.IA video"
 msgid "Video.IA video"
-msgstr "Streaming.IA video"
+msgstr "Video.IA video"
 
 #: amelie/videos/models.py:83
-#, fuzzy
-#| msgid "Streaming.IA videos"
 msgid "Video.IA videos"
-msgstr "Streaming.IA videos"
+msgstr "Video.IA videos"
 
 #: amelie/videos/templates/videos/ia_video.html:15
 #: amelie/videos/templates/videos/peertube_video.html:15
@@ -12961,50 +12954,36 @@ msgid "Create video"
 msgstr "Video aanmaken"
 
 #: amelie/videos/templates/videos/peertube_video_form.html:19
-#, fuzzy
-#| msgid "Recent Streaming.IA uploads"
 msgid "Recent Video.IA uploads"
-msgstr "Recente Streaming.IA uploads"
+msgstr "Recente Video.IA uploads"
 
 #: amelie/videos/templates/videos/peertube_video_form.html:22
-#, fuzzy
-#| msgid "Select one of these recently uploaded Streaming.IA videos to automatically fill certain fields."
 msgid "Select one of these recently uploaded Video.IA videos to automatically fill certain fields."
-msgstr "Selecteer een van deze recent geüploade Streaming.IA video's om bepaalde velden automatisch in te vullen."
+msgstr "Selecteer een van deze recent geüploade Video.IA video's om bepaalde velden automatisch in te vullen."
 
 #: amelie/videos/templates/videos/peertube_video_form.html:44
-#, fuzzy
-#| msgid "Streaming.IA API Data"
 msgid "Video.IA API Data"
-msgstr "Streaming.IA API Data"
+msgstr "Video.IA API Data"
 
 #: amelie/videos/templates/videos/peertube_video_form.html:68
-#, fuzzy
-#| msgid "Update Streaming.IA API Data"
 msgid "Update Video.IA API Data"
-msgstr "Streaming.IA API Data bijwerken"
+msgstr "Video.IA API Data bijwerken"
 
 #: amelie/videos/templates/videos/peertube_video_form.html:89
-#, fuzzy
-#| msgid "Video"
 msgid "Video.IA ID"
-msgstr "Video"
+msgstr "Video.IA ID"
 
 #: amelie/videos/templates/videos/video_delete.html:14
 msgid "Are you sure you want to remove this video?"
 msgstr "Weet je zeker dat je deze video wilt verwijderen?"
 
 #: amelie/videos/templates/videos/video_delete.html:17
-#, fuzzy
-#| msgid "This will not delete the video on YouTube/Streaming.IA."
 msgid "This will not delete the video on YouTube/Video.IA."
-msgstr "Hiermee wordt de video op YouTube/Streaming.IA niet verwijderd."
+msgstr "Hiermee wordt de video op YouTube/Video.IA niet verwijderd."
 
 #: amelie/videos/templates/videos/videos.html:18
-#, fuzzy
-#| msgid "Add video from Streaming.IA"
 msgid "Add video from Video.IA"
-msgstr "Video toevoegen via Streaming.IA"
+msgstr "Video toevoegen via Video.IA"
 
 #: amelie/videos/templates/videos/videos.html:19
 msgid "Add video from Streaming.IA"
@@ -13058,10 +13037,8 @@ msgid "Could not connect to Streaming.IA! Please contact the WWW committee if th
 msgstr "Het is niet gelukt om een verbinding met Streaming.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
 #: amelie/videos/views.py:402
-#, fuzzy
-#| msgid "Could not connect to Streaming.IA! Please contact the WWW committee if this problem persists."
 msgid "Could not connect to Video.IA! Please contact the WWW committee if this problem persists."
-msgstr "Het is niet gelukt om een verbinding met Streaming.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
+msgstr "Het is niet gelukt om een verbinding met Video.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
 #: amelie/views.py:293
 #, python-format
@@ -13947,10 +13924,8 @@ msgid "Configure E-mail Forwarding"
 msgstr "E-mailforwarding Instellen"
 
 #: templates/profile_overview.html:38
-#, fuzzy
-#| msgid "Not satisfied with your looks? You can ask the board to change or delete your profile picture."
 msgid "Not satisfied with your looks? You can change your picture by clicking \"Change profile picture\" above, or ask the board to change or delete it for you."
-msgstr "Niet tevreden met je aangezicht? Vraag het bestuur om jouw pasfoto te wijzigen of verwijderen."
+msgstr "Niet tevreden met je aangezicht? Je kan je foto veranderen door hierboven op \"Profielfoto wijzigen\" te klikken, of vraag het bestuur om hem voor je te wijzigen of verwijderen."
 
 #: templates/profile_overview.html:51
 #, python-format
