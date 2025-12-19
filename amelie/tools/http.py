@@ -80,3 +80,8 @@ def get_client_ips(request):
         probable_external_ip = remote_addr
 
     return ips, probable_external_ip
+
+
+def client_has_themes_disabled(request):
+    all_ips, real_ip = get_client_ips(request)
+    return real_ip in settings.BLOCKED_THEME_IP_RANGES
