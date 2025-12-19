@@ -15,15 +15,12 @@ def basis_context(request):
 
 def theme_context(request):
     if not client_has_themes_disabled(request):
-        print("Client has disabled themes, since their IP is in our banlist")
         return {'theme': None}
     return {'theme': settings.WEBSITE_THEME_OVERRIDE}
 
 
 def client_has_themes_disabled(request):
     all_ips, real_ip = get_client_ips(request)
-    print(real_ip)
-    print(settings.BLOCKED_THEME_IP_RANGES)
     return not real_ip in settings.BLOCKED_THEME_IP_RANGES
 
 
