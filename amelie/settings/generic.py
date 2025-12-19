@@ -920,6 +920,9 @@ FILE_DOWNLOAD_METHOD = None
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
+# Settings for Video.IA integration
+PEERTUBE_BASE_URL = "https://video.ia.utwente.nl"  # No trailing slash!
+
 # The special theme of the website, for special occasions. This overrides the theme of the website for everyone!
 # Default: None (will use the normal theme). Options: ["christmas", "valentine"]
 WEBSITE_THEME_OVERRIDE = None
