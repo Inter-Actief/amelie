@@ -423,10 +423,8 @@ COOKIE_CORNER_WRAPPED_YEAR = env.int("COOKIE_CORNER_WRAPPED_YEAR", default=COOKI
 WEBSITE_THEME_OVERRIDE = env("AMELIE_THEME_OVERRIDE", default=None)
 
 # Block themes from showing on the infodesk and couch (outside) Raspberry pis, since they will lag too much
-BLOCKED_THEME_IP_RANGES = [
-    ipaddress.ip_network("130.89.190.121/32"),
-    ipaddress.ip_network("130.89.190.122/32")
-]
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
+COOKIE_CORNER_POS_IP_ALLOWLIST.extend(env.list("BLOCKED_THEME_IP_RANGES", default=[]))
 
 # Youtube API key (for video module)
 YOUTUBE_API_KEY = env("AMELIE_YOUTUBE_API_KEY", default="")

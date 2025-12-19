@@ -922,13 +922,10 @@ STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
 # The special theme of the website, for special occasions. This overrides the theme of the website for everyone!
 # Default: None (will use the normal theme). Options: ["christmas", "valentine"]
-WEBSITE_THEME_OVERRIDE = None
+WEBSITE_THEME_OVERRIDE = "christmas"
 
 # Blocked IP addresses for showing themes (Raspberry pis don't like our themes very much)
-BLOCKED_THEME_IP_RANGES = [
-    ipaddress.ip_network("130.89.190.121/32"),
-    ipaddress.ip_network("130.89.190.122/32")
-]
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
 
 # The week that IA has balcony duty.
 # 0 means the even calendar weeks, 1 means the odd calendar weeks.

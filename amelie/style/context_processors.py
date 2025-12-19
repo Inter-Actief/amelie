@@ -3,6 +3,7 @@ import ipaddress
 from django.conf import settings
 
 from amelie.forms import AmelieAuthenticationForm
+from amelie.tools.http import get_client_ips
 
 
 def basis_context(request):
@@ -13,18 +14,16 @@ def basis_context(request):
 
 
 def theme_context(request):
-    if not ip_blocked(request):
-        return {'theme': settings.WEBSITE_THEME_OVERRIDE}
-    else:
+    if not client_has_themes_disabled(request):
+        print("Client has disabled themes, since their IP is in our banlist")
         return {'theme': None}
+    return {'theme': settings.WEBSITE_THEME_OVERRIDE}
 
 
-def ip_blocked(request):
-    ip = request.META.get("REMOTE_ADDR", "")
-    try:
-        ip_obj = ipaddress.ip_address(ip)
-        return any(ip_obj in net for net in settings.BLOCKED_THEME_IP_RANGES)
-    except ValueError:
-        return False
+def client_has_themes_disabled(request):
+    all_ips, real_ip = get_client_ips(request)
+    print(real_ip)
+    print(settings.BLOCKED_THEME_IP_RANGES)
+    return not real_ip in settings.BLOCKED_THEME_IP_RANGES
 
 
