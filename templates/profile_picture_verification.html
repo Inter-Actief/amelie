@@ -22,14 +22,41 @@
                     })
                     .then(response => response.json())
                     .then(data => {
+                        const statusPara = document.createElement('p');
                         if (data.status === 'success') {
-                            this.style.borderColor = 'lightgreen';
-                            this.style.borderWidth = '3px';
+                            statusPara.style.color = 'green';
+                            statusPara.style.fontWeight = 'bold';
+                            statusPara.textContent = isAcceptButton ? 'Accepted successfully!' : 'Denied successfully!';
                         } else {
-                            this.style.borderColor = 'red';
-                            this.style.borderWidth = '3px';
+                            statusPara.style.color = 'red';
+                            statusPara.style.fontWeight = 'bold';
+                            statusPara.textContent = isAcceptButton ? 'Error while accepting!' : 'Error while denying!';
                         }
+
+                        // Disable both buttons in this row
+                        const acceptButton = this.parentElement.parentElement.getElementsByClassName('accept-button')[0]
+                        const denyButton = this.parentElement.parentElement.getElementsByClassName('deny-button')[0]
+                        acceptButton.setAttribute('disabled','')
+                        acceptButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        denyButton.setAttribute('disabled','')
+                        denyButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        this.parentElement.parentElement.appendChild(statusPara);
                     })
+                    .catch((e) => {
+                        console.log({errorIs: e})
+                        // Disable both buttons in this row
+                        const acceptButton = this.parentElement.parentElement.getElementsByClassName('accept-button')[0]
+                        const denyButton = this.parentElement.parentElement.getElementsByClassName('deny-button')[0]
+                        acceptButton.setAttribute('disabled','')
+                        acceptButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        denyButton.setAttribute('disabled','')
+                        denyButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        const statusPara = document.createElement('p');
+                        statusPara.style.color = 'red';
+                        statusPara.style.fontWeight = 'bold';
+                        statusPara.textContent = 'Error during request!';
+                        this.parentElement.parentElement.appendChild(statusPara);
+                    });
                 });
             };
 

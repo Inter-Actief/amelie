@@ -24,12 +24,14 @@
                             </tr>
                             <tr>
                                 <td colspan="3">
-                                    <p class="icon icon-user">
-                                        {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
-                                        <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
-                                            {% trans 'Upload different picture' %}
-                                        </a>
-                                    </p>
+                                    {% if full_overview == "0" %}
+                                        <p class="icon icon-user">
+                                            {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
+                                            <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
+                                                {% trans 'Upload different picture' %}
+                                            </a>
+                                        </p>
+                                    {% endif %}
                                     {% if request.is_board %}
                                         <span class="current">
                                             <a class="looks-like-a-button" href="{% url 'portrait_upload_verification' %}">
@@ -46,21 +48,25 @@
                     {% elif obj.unverified_picture %}
                         {# User just has an unverified picture #}
                         <img src="{% url 'members:person_unverified_picture' obj.id obj.slug %}" alt="{{ obj }}" class="profile_picture"/>
-                        <p class="icon icon-user">
-                            {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
-                            <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
-                                {% trans 'Upload picture' %}
-                            </a>
-                        </p>
+                        {% if full_overview == "0" %}
+                            <p class="icon icon-user">
+                                {% trans 'The board has not checked your picture yet. If you would like to change it, upload a new one: ' %}
+                                <a class="looks-like-a-button no-margin" href="{% url 'portrait_upload' %}">
+                                    {% trans 'Upload picture' %}
+                                </a>
+                            </p>
+                        {% endif %}
                     {% else %}
                         {# User has no picture #}
                         <p class="icon icon-user">
                             {% blocktrans %}
                                 {{ obj }} doesn't have a profile picture.
                             {% endblocktrans %}
+                            {% if full_overview == "0" %}
                             <a class="looks-like-a-button" href="{% url 'portrait_upload' %}">
                                 {% trans 'Upload picture' %}
                             </a>
+                            {% endif %}
                         </p>
                     {% endif %}
                 </td>
