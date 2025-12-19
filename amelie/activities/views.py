@@ -50,6 +50,7 @@ from amelie.calendar.models import Participation, Event
 from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import ActivityMailingForm
+from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
@@ -868,7 +869,7 @@ def photo_upload_preview(request, filename):
     if any(map(lambda b, d: b > d, image.size, size_pixels)):
         if image.mode != 'RGB' or file_extension == 'gif':
             image = image.convert('RGB')
-        image.thumbnail(size_pixels, Image.ANTIALIAS)
+        image.thumbnail(size_pixels, Image.LANCZOS)
         response = HttpResponse(content_type="image/jpeg")
         image.save(response, "JPEG")
         return response
@@ -965,7 +966,7 @@ def delete_photo(request, pk, photo):
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
         raise PermissionDenied
-    
+
     photo.delete()
 
     return redirect(activity)
@@ -1190,6 +1191,39 @@ class ActivityCreateView(RequireActiveMemberMixin, ActivityEditMixin, CreateView
 class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
+
+    def form_valid(self, form):
+        # If the date has changed, we have to update any existing transactions to the new activity date. The existing
+        # transactions are refunded and will be re-created on the same date.
+        person = self.request.person
+        if person is None:
+            raise Exception("Updating requires a person")
+
+        old_obj = self.get_object()
+        new_obj = form.instance
+        if old_obj is not None and form.cleaned_data['begin'].date() != old_obj.begin.date():
+            # Undo and create new transactions
+            from amelie.personal_tab import transactions
+            for participation in old_obj.participation_set.all():
+
+                transactions.participation_transaction(
+                    participation,
+                    _(f"Activity '{old_obj}' was moved (reversal on old date)"),
+                    cancel=True, added_by=person
+                )
+
+                # Create a new transaction
+                price, with_enrollment_options = participation.calculate_costs()
+                reason = _("Activity '{activity}' was moved (addition on new date)").format(activity=new_obj.summary)
+
+                # Can't use transactions.participation_transaction because we need to override the date.
+                transaction = ActivityTransaction(price=price, description=reason,
+                                                  participation=participation, event=old_obj,
+                                                  person=participation.person, date=new_obj.begin,
+                                                  with_enrollment_options=with_enrollment_options, added_by=person)
+                transaction.save()
+
+        return super().form_valid(form)
 
 
 class EnrollmentoptionListView(ActivitySecurityMixin, TemplateView):

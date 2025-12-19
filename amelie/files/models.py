@@ -70,7 +70,7 @@ def _create_thumbnail(file, size, source, target):
                 thumb = open(target, 'w')
                 if image.mode != 'RGB':
                     image = image.convert('RGB')
-                image.thumbnail(size_pixels, Image.ANTIALIAS)
+                image.thumbnail(size_pixels, Image.LANCZOS)
                 image.save(thumb, 'JPEG')
                 thumb.close()
                 return target
@@ -78,7 +78,7 @@ def _create_thumbnail(file, size, source, target):
                 from amelie.files import images2gif
                 frames = images2gif.readGif(source, False)
                 for frame in frames:
-                    frame.thumbnail(size_pixels, Image.ANTIALIAS)
+                    frame.thumbnail(size_pixels, Image.LANCZOS)
                 images2gif.writeGif(target, frames)
                 return target
     # Save was not successful
