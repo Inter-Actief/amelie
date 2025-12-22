@@ -1,0 +1,131 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Kanidm' %} - {{ obj }} {% endblock titel %}
+
+{% block content %}
+    {% include "claudia/kanidm/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{{ obj }}</h2>
+        <div class="content">
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <td>{{ obj.name }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Description' %}</th>
+                    <td>{{ obj.description|default:'&mdash;' }}</td>
+                </tr>
+                <tr>
+                    <th title="{% trans 'Security Principal Name' %}">{% trans 'SPN' %}</th>
+                    <td>{{ obj.spn }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'UUID' %}</th>
+                    <td>{{ obj.uuid }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Unix ID' %}</th>
+                    <td>{{ obj.gid|default_if_none:'&mdash;' }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans '# Members' %}</th>
+                    <td>{{ obj.members_strs|length }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans '# Groups' %}</th>
+                    <td>{{ obj.direct_member_of_strs|length }} direct, {{ obj.member_of_strs|length }} indirect</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Claudia Mapping' %}</th>
+                    <td>
+                        {% if obj.claudia_mapping %}
+                            {{ obj.claudia_mapping|clau_mapping }}
+                        {% else %}
+                            <span title="{% trans 'Object does not seem to have a Claudia mapping.' %}">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2 class="expand" data-target="person_attrs">{% trans 'Attributes' %}</h2>
+        <div class="content">
+          <div id="person_attrs" hidden>
+              <pre>{{ obj.attrs_str }}</pre>
+          </div>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Members' %}</h2>
+
+        <div class="content">
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Type' %}</th>
+                </tr>
+                {% for mem in obj.members %}
+                <tr>
+                    <td>
+                        {% if mem.object_type == "KanidmPerson" %}
+                            <a class="icon icon-user" href="{% url 'claudia:kanidm_person_detail' uuid=mem.uuid %}">
+                                {{ mem.display_name|default:mem.name }}
+                            </a>
+                            {% if mem.display_name %}
+                                <br />
+                                <span class="small">{{ mem.name }}</span>
+                            {% endif %}
+                        {% elif mem.object_type == "KanidmGroup" %}
+                            <a class="icon icon-group" href="{% url 'claudia:kanidm_group_detail' uuid=mem.uuid %}">
+                                {{ mem.name }}
+                            </a>
+                        {% elif mem.object_type == "KanidmServiceAccount" %}
+                            <a class="icon icon-user_suit" href="{% url 'claudia:kanidm_service_account_detail' uuid=mem.uuid %}">
+                                {{ mem.name }}
+                            </a>
+                        {% else %}
+                            <span class="icon icon-error" title="Unknown object type!">
+                                {{ mem.spn }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>{{ mem.object_type }}</td>
+                </tr>
+                {% empty %}
+                    <td colspan="2"><i>{% trans 'Group has no members' %}</i></td>
+                {% endfor %}
+            </table>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Member of' %}</h2>
+
+        <div class="content">
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                </tr>
+                {% for group in obj.direct_member_of %}
+                <tr>
+                    <td>
+                        <a class="icon icon-group" href="{% url 'claudia:kanidm_group_detail' uuid=group.uuid %}">
+                            {{ group.name }}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="1"><i>{% trans 'Not a member of any groups' %}</i></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div></div>
+{% endblock content %}

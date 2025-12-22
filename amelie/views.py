@@ -4,13 +4,11 @@ import os
 from datetime import timedelta, date
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
-from django.contrib.staticfiles import finders
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -18,10 +16,9 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
-from amelie.tools.decorators import require_board
-from oauth2_provider.views import AuthorizedTokenDeleteView
-from health_check.views import MainView as HealthCheckMainView
 from django.views.generic.edit import FormView
+from health_check.views import MainView as HealthCheckMainView
+from oauth2_provider.views import AuthorizedTokenDeleteView
 
 from amelie.activities.models import Activity
 from amelie.companies.models import CompanyEvent
@@ -29,11 +26,11 @@ from amelie.forms import AmelieAuthenticationForm
 from amelie.members.forms import ProfilePictureUploadForm, ProfilePictureVerificationForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
-from amelie.members.models import Person, Committee, StudyPeriod, Preference
+from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
-from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin, RequireActiveMemberMixin
 from amelie.tools.buildinfo import get_build_info
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
@@ -143,6 +140,7 @@ def profile_edit(request):
 
 @login_required
 def profile_overview(request):
+    # Retrieve the person's other accounts from Keycloak
     try:
         users = get_user_info(request.user.person)
 
@@ -160,8 +158,25 @@ def profile_overview(request):
         logger.exception(e)
         users = []
 
+    # Retrieve SSH keys from Kanidm, via the person's claudia mapping.
+    try:
+        ssh_keys = []
+        from amelie.claudia.models import Mapping
+        mp = Mapping.find(request.user.person)
+        kanidm_person = None
+        if mp and mp.get_kanidm_id():
+            from amelie.claudia.kanidm import KanidmAPI
+            kanidm_api = KanidmAPI()
+            kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
+        if kanidm_person:
+           ssh_keys = kanidm_person.list_ssh_pubkeys()
+    except Exception as e:
+        logger.exception(e)
+        ssh_keys = []
+
     return render(request, "profile_overview.html", context={
         'users': users,
+        'ssh_keys': ssh_keys,
         'providers_unlink_allowed': settings.KEYCLOAK_PROVIDERS_UNLINK_ALLOWED
     })
 

@@ -9,6 +9,7 @@
 /* The two support colors for this tint of green */
 /* This is the help color (red) that is used for education purposes (edu class in css/less) */
 /* The two support colors for this tint of red */
+/* Extra colors that can be used for buttons */
 /* Some easy gray standards to keep things consistent */
 /* Global variables to make code more readable */
 /*
@@ -10676,6 +10677,27 @@ li.courses-soon {
 .ia a.looks-like-a-button.no-margin {
   margin: 0;
 }
+.ia input[type=button].success-button,
+.ia input[type=submit].success-button,
+.ia button.success-button,
+.ia a.looks-like-a-button.success-button {
+  background-color: #077821;
+  border-color: #044D15;
+}
+.ia input[type=button].danger-button,
+.ia input[type=submit].danger-button,
+.ia button.danger-button,
+.ia a.looks-like-a-button.danger-button {
+  background-color: #B8231F;
+  border-color: #9D1F1B;
+}
+.ia input[type=button].disabled-button,
+.ia input[type=submit].disabled-button,
+.ia button.disabled-button,
+.ia a.looks-like-a-button.disabled-button {
+  background-color: #808080;
+  border-color: #222;
+}
 .ia .tabbed-ticker li.active {
   background: #1d428a;
   color: #FFFFFF;
@@ -10752,6 +10774,27 @@ li.courses-soon {
 .current a.looks-like-a-button.no-margin {
   margin: 0;
 }
+.current input[type=button].success-button,
+.current input[type=submit].success-button,
+.current button.success-button,
+.current a.looks-like-a-button.success-button {
+  background-color: #077821;
+  border-color: #044D15;
+}
+.current input[type=button].danger-button,
+.current input[type=submit].danger-button,
+.current button.danger-button,
+.current a.looks-like-a-button.danger-button {
+  background-color: #B8231F;
+  border-color: #9D1F1B;
+}
+.current input[type=button].disabled-button,
+.current input[type=submit].disabled-button,
+.current button.disabled-button,
+.current a.looks-like-a-button.disabled-button {
+  background-color: #808080;
+  border-color: #222;
+}
 .current .tabbed-ticker li.active {
   background: #077821;
   color: #FFFFFF;
@@ -10827,6 +10870,27 @@ li.courses-soon {
 .edu button.no-margin,
 .edu a.looks-like-a-button.no-margin {
   margin: 0;
+}
+.edu input[type=button].success-button,
+.edu input[type=submit].success-button,
+.edu button.success-button,
+.edu a.looks-like-a-button.success-button {
+  background-color: #077821;
+  border-color: #044D15;
+}
+.edu input[type=button].danger-button,
+.edu input[type=submit].danger-button,
+.edu button.danger-button,
+.edu a.looks-like-a-button.danger-button {
+  background-color: #B8231F;
+  border-color: #9D1F1B;
+}
+.edu input[type=button].disabled-button,
+.edu input[type=submit].disabled-button,
+.edu button.disabled-button,
+.edu a.looks-like-a-button.disabled-button {
+  background-color: #808080;
+  border-color: #222;
 }
 .edu .tabbed-ticker li.active {
   background: #B8231F;
@@ -12014,10 +12078,24 @@ li.person .small {
 #subnavbar ul li.active a {
   color: #FFFFFF;
 }
+#subnavbar ul li.bordered {
+  border: 1px solid #1d428a;
+  box-sizing: border-box;
+}
+#subnavbar ul li.bordered a {
+  padding: 4px 0;
+}
 #subnavbar ul li .arrow {
   font-size: 8px;
   position: absolute;
   right: 5px;
+  top: 5px;
+}
+#subnavbar ul li .arrow-left {
+  font-size: 8px;
+  position: absolute;
+  left: 5px;
+  right: unset;
   top: 5px;
 }
 html {

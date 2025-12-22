@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from amelie.claudia.claudia_views import MappingTimeline, TimelineList, SharedDriveList, SharedDriveAdd, \
     SharedDriveDetail, PersonalAliasView, PersonalAliasAddView, PersonalAliasRemoveView, PersonalAliasListView
 from amelie.claudia.claudia_views import ClaudiaHome, MappingList, MappingDetailView, AddToMappingView, \
@@ -19,6 +19,8 @@ app_name = 'claudia'
 
 urlpatterns = [
     path('', ClaudiaHome.as_view(), name="home"),
+
+    path('kanidm/', include('amelie.claudia.kanidm_urls')),
 
     path('mapping/', MappingList.as_view(), name="mapping_list"),
     path('mapping/<int:pk>/', MappingDetailView.as_view(), name="mapping_view"),

@@ -121,4 +121,7 @@ dependencies = [
 
     # Allows for CAPTCHA support in forms
     "django-simple-captcha",
+
+    # Verification of uploaded SSH public keys for active members
+    "sshpubkeys",
 ]

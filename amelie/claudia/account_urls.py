@@ -4,12 +4,15 @@ from amelie.claudia.account_views import AccountHome, AccountActivate, AccountAc
     AccountPasswordSuccess, AccountConfigureForwardingView, AccountCheckForwardingVerificationStatus, \
     AccountAddForwardingAddress, AccountActivateForwardingAddress, AccountDeactivateForwardingAddress, \
     AccountPasswordReset, AccountPasswordResetSuccess, AccountPasswordResetLink, AccountCheckForwardingStatus, \
-    MailAliasView
+    MailAliasView, KanidmActions, KanidmSudoReset
 
 app_name = 'account'
 
 urlpatterns = [
     path('', AccountHome.as_view(), name='home'),
+
+    path('server/update/', KanidmActions.as_view(), name='server_update'),
+    path('server/sudo_reset/<str:reset_code>/', KanidmSudoReset.as_view(), name='server_sudo_reset'),
 
     path('activate/', AccountActivate.as_view(), name='activate'),
     path('activate/success/', AccountActivateSuccess.as_view(), name='activate_success'),

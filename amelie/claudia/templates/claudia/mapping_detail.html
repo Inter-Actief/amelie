@@ -54,7 +54,13 @@
                     <td>{{ object.guid|default:"&mdash;" }}</td>
                 </tr>
                 <tr>
-                    <th>{% trans 'GSuite-ID' %}</th>
+                    <th>{% trans 'Kanidm ID' %}</th>
+                    <td>
+                        {{ object|clau_kanidm }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans 'GSuite ID' %}</th>
                     <td>{{ object.gsuite_id|default:"&mdash;" }}</td>
                 </tr>
                 <tr>

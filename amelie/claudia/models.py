@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -274,11 +275,14 @@ class Mapping(models.Model):
 
     type = models.CharField(max_length=25)
     ident = models.IntegerField()
-    name = models.CharField(max_length=100, blank=True)
+    # Name max_length must be >= the max_length of the name of any mapping type
+    # (Person has 50 first_name + 1 space + 25 infix + 1 space + 50 last_name = 127. 150 is a nice margin.)
+    name = models.CharField(max_length=150, blank=True)
     active = models.BooleanField(default=False)
     email = models.EmailField(blank=True)
     adname = models.CharField(max_length=50, blank=True)
     guid = models.CharField(max_length=24, blank=True)
+    kanidm_id = models.CharField(max_length=100, blank=True, null=True)
     gsuite_id = models.CharField(max_length=100, blank=True, null=True)
     gsuite_forwarding_enabled = models.BooleanField(default=False)
 
@@ -350,6 +354,17 @@ class Mapping(models.Model):
         else:
             guid_b = ''
         self.guid = guid_b
+
+    def get_kanidm_id(self) -> Optional[str]:
+        """Get Kanidm ID"""
+        if self.kanidm_id:
+            return self.kanidm_id
+        return None
+
+    def set_kanidm_id(self, kanidm_id: Optional[str]):
+        """Set Kanidm ID"""
+        self.kanidm_id = kanidm_id
+        self.save()
 
     def get_gsuite_id(self):
         if self.gsuite_id:

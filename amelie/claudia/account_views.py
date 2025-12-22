@@ -1,16 +1,21 @@
+import datetime
+import re
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.http import Http404
+from django.urls import reverse_lazy, reverse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
+from sshpubkeys import SSHKey, InvalidKeyError
 
 from amelie.claudia.forms import AccountPasswordForm, AccountConfigureForwardingForm, AccountPasswordResetForm, \
     AccountPasswordResetLinkForm, AccountActivateForm, MailAliasForm
@@ -497,3 +502,158 @@ class MailAliasView(RequirePersonMixin, FormView):
         verify_mapping.delay(mp.id)
 
         return super().form_valid(form)
+
+
+class KanidmActions(RequireActiveMemberMixin, View):
+    def get_success_url(self):
+        if self.request.GET.get('redirect') == 'kanidm':
+            return reverse('claudia:kanidm_person_detail', kwargs={'uuid': self.kwargs['uuid']})
+        return reverse('profile_overview')
+
+    def do_redirect(self):
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+        if action not in ["add_ssh_key", "delete_ssh_key", "reset_sudo"]:
+            messages.error(request, _("Invalid action. Please try again."))
+            return self.do_redirect()
+
+        from amelie.claudia.models import Mapping
+        mp = Mapping.find(request.user.person)
+        if not mp or not mp.get_kanidm_id():
+            messages.error(request, _("Action failed. You don't have an account (yet). Try again later or contact the SysCom if this persists."))
+            return self.do_redirect()
+
+        from amelie.claudia.kanidm import KanidmAPI
+        kanidm_api = KanidmAPI()
+        kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
+        if not kanidm_person:
+            messages.error(request, _("Action failed. You don't have an account (yet). Try again later or contact the SysCom if this persists."))
+            return self.do_redirect()
+
+        if action == "add_ssh_key":
+            tag = request.POST.get('tag')
+            pubkey = request.POST.get('pubkey')
+
+            # Validate entered tag and ssh-key
+            tag_valid = re.match(r'^[a-zA-Z0-9]{1,25}$', tag)
+            if not tag_valid:
+                messages.error(request, _("Could not add new SSH key. The key identifier must be one word of between 1-25 letters and numbers."))
+            try:
+                ssh_key = SSHKey(pubkey, strict=True)
+                ssh_key.parse()
+                key_valid = True
+            except InvalidKeyError:
+                messages.error(request, _("Could not add new SSH key. The SSH key is not valid."))
+                key_valid = False
+            except NotImplementedError:
+                messages.error(request, _("Could not add new SSH key. The SSH key format is not supported."))
+                key_valid = False
+
+            # Break if tag or key not valid
+            if not tag_valid or not key_valid:
+                return self.do_redirect()
+
+            # Actually add the SSH key to the account
+            result = kanidm_person.add_ssh_pubkey(tag=tag, pubkey=pubkey)
+            if result:
+                from amelie.iamailer import MailTask
+                from amelie.tools.mail import PersonRecipient
+
+                task = MailTask(template_name="accounts/server_ssh_key_added.mail", report_to=None, report_always=False)
+                task.add_recipient(PersonRecipient(
+                    recipient=request.user.person,
+                    context={"name": request.user.person.incomplete_name(), "identifier": tag, "pubkey": pubkey}
+                ))
+                task.send()
+
+                messages.success(request, _("SSH key with tag '{tag}' added successfully!").format(tag=tag))
+            else:
+                messages.error(request, _("Could not add new SSH key. If this persists please contact the SysCom."))
+        elif action == "delete_ssh_key":
+            # Validate entered tag
+            tag = request.POST.get('tag')
+            tag_valid = re.match(r'^[a-zA-Z0-9]{1,25}$', tag)
+
+            # Break if tag not valid
+            if not tag_valid:
+                messages.error(request, _("Could not remove SSH key. Invalid key identifier."))
+                return self.do_redirect()
+
+            # Actually remove the SSH key from the account
+            result = kanidm_person.delete_ssh_pubkey(tag=tag)
+            if result:
+                messages.success(request, _("SSH key with tag '{tag}' removed!").format(tag=tag))
+            else:
+                messages.error(request, _("Could not remove SSH key. If this persists please contact the SysCom."))
+
+        elif action == "reset_sudo":
+            import uuid
+            from urllib.parse import urljoin
+            from amelie.iamailer import MailTask
+            from amelie.tools.mail import PersonRecipient
+
+            # Save reset code in person
+            reset_code = str(uuid.uuid4())
+            request.user.person.sudo_reset_code = reset_code
+            request.user.person.sudo_reset_expiry = timezone.now() + datetime.timedelta(hours=3)
+            request.user.person.save()
+            reset_link = reverse('account:server_sudo_reset', kwargs={'reset_code': reset_code})
+            reset_link = urljoin(settings.ABSOLUTE_PATH_TO_SITE, reset_link)
+
+            # Send reset link mail
+            task = MailTask(template_name="accounts/server_password_reset.mail", report_to=None, report_always=False)
+            task.add_recipient(PersonRecipient(
+                recipient=request.user.person,
+                context={"name": request.user.person.incomplete_name(), "reset_link": reset_link}
+            ))
+            task.send()
+            messages.success(request, _("Reset link sent! Please check your e-mail for your new 'sudo' password."))
+
+        return self.do_redirect()
+
+
+class KanidmSudoReset(TemplateView):
+    template_name = "accounts/sudo_reset.html"
+
+    def get_context_data(self, **kwargs):
+        # Check reset code kwarg
+        reset_code = self.kwargs.get("reset_code")
+        if reset_code is None:
+            raise Http404(_l("This reset link is not valid."))
+
+        # Check if a person exists with this code
+        try:
+            person = Person.objects.get(sudo_reset_code=reset_code)
+        except Person.DoesNotExist:
+            raise Http404(_l("This reset link is not valid."))
+
+        # Check if code is not expired
+        if timezone.now() > person.sudo_reset_expiry:
+            person.sudo_reset_code = None
+            person.sudo_reset_expiry = None
+            person.save()
+            raise Http404(_l("This reset link is not valid."))
+
+        # Get Claudia mapping
+        from amelie.claudia.models import Mapping
+        mp = Mapping.find(person)
+        if not mp or not mp.get_kanidm_id():
+            raise Http404(_l("This reset link is not valid."))
+
+        # Get Kanidm account
+        from amelie.claudia.kanidm import KanidmAPI
+        kanidm_api = KanidmAPI()
+        kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
+        if not kanidm_person:
+            raise Http404(_l("This reset link is not valid."))
+
+        # Remove reset code
+        person.sudo_reset_code = None
+        person.sudo_reset_code = None
+        person.save()
+
+        context = super().get_context_data(**kwargs)
+        context['new_password'] = kanidm_person.reset_posix_password()
+        return context

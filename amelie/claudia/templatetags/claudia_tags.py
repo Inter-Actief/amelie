@@ -123,6 +123,40 @@ def clau_account(account, autoescape=None):
 
 
 @register.filter(needs_autoescape=True)
+def clau_kanidm(obj, text='', autoescape=None):
+    if autoescape:
+        esc = conditional_escape
+    else:
+        esc = lambda x: x
+
+    if not obj:
+        return mark_safe('&mdash;')
+
+    if isinstance(obj, Mapping):
+        mp = obj
+    else:
+        mp = Mapping.find(obj)
+
+    if not mp or not mp.kanidm_id:
+        return mark_safe('&mdash;')
+
+    url = ""
+    cls = ""
+    if mp.is_person():
+        url = reverse('claudia:kanidm_person_detail', kwargs={'uuid': mp.kanidm_id})
+        cls = "icon icon-user"
+    elif mp.is_group():
+        url = reverse('claudia:kanidm_group_detail', kwargs={'uuid': mp.kanidm_id})
+        cls = "icon icon-group"
+
+    if not url:
+        return mark_safe('&mdash;')
+
+    result = f'<a class="{cls}" href="{esc(url)}">{esc(mp.kanidm_id)}</a>'
+    return mark_safe(result)
+
+
+@register.filter(needs_autoescape=True)
 def clau_editlinks(obj, autoescape=None):
     if autoescape:
         esc = conditional_escape
