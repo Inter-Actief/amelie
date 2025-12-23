@@ -40,6 +40,9 @@ IGNORE_NAMES = [
     "account:activate_forwarding_address", "account:add_forwarding_address", "account:check_forwarding_status",
     "account:check_forwarding_verification", "account:deactivate_forwarding_address",
 
+    # Some kanidm views don't need to work in development
+    "claudia:kanidm_person_list", "claudia:kanidm_group_list", "claudia:kanidm_service_account_list", "account:server_update",
+
     # Uses YouTube API credentials / relies on external service, does not need to work in development
     "videos:new_yt_video", "videos:new_ia_video",
 

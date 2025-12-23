@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-24 00:02+0100\n"
+"POT-Creation-Date: 2025-12-24 00:29+0100\n"
 "PO-Revision-Date: 2025-12-19 14:49+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -4247,11 +4247,11 @@ msgid "Claudia Mapping"
 msgstr "Claudia-mapping:"
 
 #: amelie/claudia/templates/claudia/kanidm/group_detail.html:47
-#: amelie/claudia/templates/claudia/kanidm/group_list.html:44
+#: amelie/claudia/templates/claudia/kanidm/group_list.html:46
 #: amelie/claudia/templates/claudia/kanidm/person_detail.html:47
-#: amelie/claudia/templates/claudia/kanidm/person_list.html:42
+#: amelie/claudia/templates/claudia/kanidm/person_list.html:44
 #: amelie/claudia/templates/claudia/kanidm/service_account_detail.html:47
-#: amelie/claudia/templates/claudia/kanidm/service_account_list.html:44
+#: amelie/claudia/templates/claudia/kanidm/service_account_list.html:46
 msgid "Object does not seem to have a Claudia mapping."
 msgstr ""
 
@@ -4308,6 +4308,13 @@ msgstr "Aliasgroepen"
 
 #: amelie/claudia/templates/claudia/kanidm/group_list.html:15
 msgid "Show system groups"
+msgstr ""
+
+#: amelie/claudia/templates/claudia/kanidm/group_list.html:38
+#: amelie/claudia/templates/claudia/kanidm/person_list.html:37
+#: amelie/claudia/templates/claudia/kanidm/service_account_list.html:38
+#, python-format
+msgid "%(direct)s direct, %(indirect)s indirect"
 msgstr ""
 
 #: amelie/claudia/templates/claudia/kanidm/home.html:10

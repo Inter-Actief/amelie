@@ -36,7 +36,7 @@
                 </tr>
                 <tr>
                     <th>{% trans '# Groups' %}</th>
-                    <td>{{ obj.direct_member_of_strs|length }} direct, {{ obj.member_of_strs|length }} indirect</td>
+                    <td>{% blocktrans with direct=obj.direct_member_of_strs|length indirect=obj.member_of_strs|length %}{{ direct }} direct, {{ indirect }} indirect{% endblocktrans %}</td>
                 </tr>
                 <tr>
                     <th>{% trans 'Claudia Mapping' %}</th>
