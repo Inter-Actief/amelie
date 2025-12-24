@@ -632,7 +632,7 @@ def activity_signup(activity_id: int, price: float, options: dict, ctx: RpcReque
     **Raises:**
 
       DoesNotExistError: The activity with this ID does not exist.
-      NotLoggedInError: Invalid or no authentication token received
+      AuthenticationError: Invalid or no authentication token received
       SignupError: User could not be signed up. See the error message for more details.
       MissingOptionError: Occurs when not all required options were present.
 
