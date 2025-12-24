@@ -42,7 +42,7 @@ dependencies = [
     "django-environ",
 
     # Django Modern RPC -- For our JSONRPC API
-    "django-modern-rpc>=1.0.1,<1.2",
+    "django-modern-rpc>=2.0.0,<2.1",
 
     # WYSIWYG Editor for Django
     "django-ckeditor>=6.3.2",
