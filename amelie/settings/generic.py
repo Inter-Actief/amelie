@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-
 # Note: Imports cannot have a direct dependency on the settings below.
 # Meaning, when a package is imported here, the initialization of that package cannot use the settings.
 import os
@@ -191,6 +190,9 @@ TEMPLATES = [
     }
 ]
 
+# Override the default form rendering class to include our IA styling templates.
+FORM_RENDERER = "amelie.style.forms.AmelieFormRenderer"
+
 # Middleware classes that are used by the application
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -263,7 +265,6 @@ INSTALLED_APPS = (
     'amelie.files',
     'amelie.about',
     'amelie.personal_tab',
-    'amelie.twitter',
     'amelie.style',
     'amelie.narrowcasting',
     'amelie.api',
@@ -749,12 +750,6 @@ FCM_DJANGO_SETTINGS = {
     'DELETE_INACTIVE_DEVICES': True,
 }
 
-# Twitter keys and tokens for 'iawebsite'
-TWITTER_APP_KEY = "empty"
-TWITTER_APP_SECRET = "empty"
-TWITTER_OAUTH_TOKEN = "empty"
-TWITTER_OAUTH_SECRET = "empty"
-
 # Settings for our oAuth2 provider
 OAUTH2_PROVIDER = {
     'SCOPES': {
@@ -950,9 +945,15 @@ FILE_DOWNLOAD_METHOD = None
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
+# Settings for Video.IA integration
+PEERTUBE_BASE_URL = "https://video.ia.utwente.nl"  # No trailing slash!
+
 # The special theme of the website, for special occasions. This overrides the theme of the website for everyone!
 # Default: None (will use the normal theme). Options: ["christmas", "valentine"]
 WEBSITE_THEME_OVERRIDE = None
+
+# Blocked IP addresses for showing themes (Raspberry pis don't like our themes very much)
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
 
 # The week that IA has balcony duty.
 # 0 means the even calendar weeks, 1 means the odd calendar weeks.

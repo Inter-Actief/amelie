@@ -2,8 +2,8 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-15 21:45+0200\n"
-"PO-Revision-Date: 2025-10-15 20:42+0000\n"
+"POT-Creation-Date: 2025-12-19 15:38+0100\n"
+"PO-Revision-Date: 2025-12-19 14:49+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -458,6 +458,7 @@ msgstr "Facebook event id, numerieke waarde in de facebook event url."
 #: amelie/publications/templates/publications/publication_form.html:31
 #: amelie/room_duty/models.py:38 amelie/room_duty/models.py:168
 #: amelie/videos/templates/videos/ia_video_form.html:54
+#: amelie/videos/templates/videos/peertube_video_form.html:54
 #: amelie/videos/templates/videos/yt_video_form.html:54
 #: amelie/weekmail/templates/weekmail/weekmailnewsarticle_form.html:22
 msgid "Title"
@@ -593,8 +594,8 @@ msgstr "Aangemeld"
 msgid "Accepted"
 msgstr "Geaccepteerd"
 
-#: amelie/activities/models.py:559 amelie/activities/views.py:1482
-#: amelie/activities/views.py:1488 amelie/activities/views.py:1494
+#: amelie/activities/models.py:559 amelie/activities/views.py:1516
+#: amelie/activities/views.py:1522 amelie/activities/views.py:1528
 #: amelie/members/models.py:287
 #: amelie/members/templates/person_accounts.html:37
 #: amelie/personal_tab/templates/info/rfid_cards.html:45
@@ -1091,7 +1092,7 @@ msgstr "Plekken over"
 #: amelie/education/templates/complaint.html:21
 #: amelie/education/templates/education_event.html:18
 #: amelie/members/templates/includes/committee_data.html:50
-#: amelie/members/templates/includes/person_data_table.html:238
+#: amelie/members/templates/includes/person_data_table.html:244
 #: amelie/members/templates/person_employee.html:14
 #: amelie/members/templates/person_functions.html:10
 #: amelie/members/templates/person_functions.html:18
@@ -2229,7 +2230,7 @@ msgstr "Meer foto's zijn beschikbaar als je bent "
 
 #: amelie/activities/templates/gallery.html:24
 #: amelie/activities/templates/gallery_overview.html:187
-#: amelie/videos/templates/videos/videos.html:34
+#: amelie/videos/templates/videos/videos.html:35
 msgid "logged in"
 msgstr "ingelogd"
 
@@ -2762,144 +2763,154 @@ msgstr "De uitschrijfperiode voor {activity} is al voorbij."
 msgid "{person} has been promoted from the waiting list for {activity}."
 msgstr "{person} is gepromoveerd van de wachtlijst naar bevestigde deelname voor {activity}."
 
-#: amelie/activities/views.py:97
+#: amelie/activities/views.py:98
 msgid "Events of Inter-Actief"
 msgstr "Activiteiten IA"
 
-#: amelie/activities/views.py:270 amelie/activities/views.py:1064
+#: amelie/activities/views.py:271 amelie/activities/views.py:1065
 msgid "No photo"
 msgstr "Geen foto"
 
-#: amelie/activities/views.py:324
+#: amelie/activities/views.py:325
 #, python-brace-format
 msgid "{obj} has been successfully re-opened. Please note that all previous enrollments are not added again and that enrollments will have to be manually re-opened."
 msgstr "{obj} is succesvol heropend. Let erop dat alle vorige aanmeldingen niet opnieuw zijn toegevoegd en dat je inschrijvingen weer handmatig open moet zetten."
 
-#: amelie/activities/views.py:331
+#: amelie/activities/views.py:332
 #, python-brace-format
 msgid "We were unable to cancel {obj}, since it has already started."
 msgstr "Het annuleren van {obj} is niet meer mogelijk, omdat deze al is begonnen."
 
-#: amelie/activities/views.py:355
+#: amelie/activities/views.py:356
 #, python-brace-format
 msgid "{obj} was cancelled successfully."
 msgstr "{obj} is succesvol geannuleerd."
 
-#: amelie/activities/views.py:393
+#: amelie/activities/views.py:394
 #, python-brace-format
 msgid "You are now enrolled for {activity}."
 msgstr "Je bent nu ingeschreven voor {activity}."
 
-#: amelie/activities/views.py:399
+#: amelie/activities/views.py:400
 #, python-brace-format
 msgid "You are now on the waiting list for {activity}."
 msgstr "Je staat nu op de wachtlijst voor {activity}."
 
-#: amelie/activities/views.py:435
+#: amelie/activities/views.py:436
 #, python-brace-format
 msgid "You are now unenrolled for {activity}."
 msgstr "Je bent nu uitgeschreven voor {activity}."
 
-#: amelie/activities/views.py:564
+#: amelie/activities/views.py:565
 #, python-brace-format
 msgid "{person} is now unenrolled for {activity}."
 msgstr "{person} is nu uitgeschreven voor {activity}."
 
-#: amelie/activities/views.py:755
+#: amelie/activities/views.py:756
 msgid "the waitinglist of"
 msgstr "de wachtlijst voor"
 
-#: amelie/activities/views.py:759
+#: amelie/activities/views.py:760
 #, python-brace-format
 msgid "{person} is now enrolled for {waiting_list} {activity}."
 msgstr "{person} is nu ingeschreven voor {waiting_list} {activity}."
 
-#: amelie/activities/views.py:766
+#: amelie/activities/views.py:767
 #, python-brace-format
 msgid "You are now enrolled for {waiting_list} {activity}."
 msgstr "Je bent nu ingeschreven voor {waiting_list} {activity}."
 
-#: amelie/activities/views.py:835
+#: amelie/activities/views.py:836
 msgid "The photos are being uploaded. This might take while."
 msgstr "De foto's worden verwerkt. Dit kan even duren."
 
-#: amelie/activities/views.py:852 amelie/activities/views.py:857
-#: amelie/activities/views.py:861
+#: amelie/activities/views.py:853 amelie/activities/views.py:858
+#: amelie/activities/views.py:862
 msgid "This picture does not exist."
 msgstr "Deze foto bestaat niet."
 
-#: amelie/activities/views.py:1079
+#: amelie/activities/views.py:1080
 msgid "No participants"
 msgstr "Geen deelnemers"
 
-#: amelie/activities/views.py:1132
+#: amelie/activities/views.py:1133
 msgid "You do not have permissions to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1135
+#: amelie/activities/views.py:1136
 msgid "You cannot edit this activity, because it is cancelled"
 msgstr "Je kunt deze activiteit niet aanpassen, omdat hij is geannuleerd"
 
-#: amelie/activities/views.py:1156
+#: amelie/activities/views.py:1157
 msgid "You did not fill in an English summary/description."
 msgstr "Je hebt geen Engelse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1157 amelie/activities/views.py:1164
+#: amelie/activities/views.py:1158 amelie/activities/views.py:1165
 msgid "edit event"
 msgstr "activiteit wijzigen"
 
-#: amelie/activities/views.py:1163
+#: amelie/activities/views.py:1164
 msgid "You did not fill in a Dutch summary/description."
 msgstr "Je hebt geen Nederlandse samenvatting/omschrijving ingevuld."
 
-#: amelie/activities/views.py:1250 amelie/activities/views.py:1260
+#: amelie/activities/views.py:1211
+#, python-brace-format
+msgid "Activity '{old_obj}' was moved (reversal on old date)"
+msgstr "Activiteit '{old_obj}' is verplaatst (terugboeken op oude datum)"
+
+#: amelie/activities/views.py:1217
+#, python-brace-format
+msgid "Activity '{activity}' was moved (addition on new date)"
+msgstr "Activiteit '{activity}' is verplaatst (toevoegen op nieuwe datum)"
+
+#: amelie/activities/views.py:1284 amelie/activities/views.py:1294
 msgid "This activity already has enrollments, therefore options can no longer be added!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties toegevoegd worden!"
 
-#: amelie/activities/views.py:1299 amelie/activities/views.py:1313
+#: amelie/activities/views.py:1333 amelie/activities/views.py:1347
 msgid "This activity already has enrollments, therefore options cannot be deleted!"
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties verwijderd worden!"
 
-#: amelie/activities/views.py:1305
+#: amelie/activities/views.py:1339
 #, python-format
 msgid "Enrollment options %(object)s has been deleted"
 msgstr "Inschrijfoptie %(object)s is verwijderd"
 
-#: amelie/activities/views.py:1326
+#: amelie/activities/views.py:1360
 msgid "Only accessible for the board and the organisers of this activity."
 msgstr "Uitsluitend toegankelijk voor het bestuur en de organisators van de activiteit."
 
-#: amelie/activities/views.py:1332 amelie/activities/views.py:1347
+#: amelie/activities/views.py:1366 amelie/activities/views.py:1381
 msgid "No activity found or invalid activity ID given."
 msgstr "Geen activiteit gevonden of je hebt een ongeldige activiteit-id meegegeven."
 
-#: amelie/activities/views.py:1342
+#: amelie/activities/views.py:1376
 msgid "Invalid activity ID"
 msgstr "Ongeldige activiteit-id."
 
-#: amelie/activities/views.py:1363 amelie/personal_tab/views.py:1359
+#: amelie/activities/views.py:1397 amelie/personal_tab/views.py:1359
 msgid "Could not create data export, because an unknown data-exporttype is provided."
 msgstr "Kon geen data-export maken, omdat er een onbekend data-exporttype is opegeven."
 
-#: amelie/activities/views.py:1370 amelie/members/query_views.py:238
+#: amelie/activities/views.py:1404 amelie/members/query_views.py:238
 #: amelie/personal_tab/views.py:1366
 msgid "Could not create data export, because something went wrong while saving information about the export."
 msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van gegevens over de data-export."
 
-#: amelie/activities/views.py:1448 amelie/activities/views.py:1458
-#: amelie/activities/views.py:1460
+#: amelie/activities/views.py:1482 amelie/activities/views.py:1492
+#: amelie/activities/views.py:1494
 msgid "You are not allowed to edit this activity"
 msgstr "Je mag deze activiteit niet bewerken"
 
-#: amelie/activities/views.py:1500
+#: amelie/activities/views.py:1534
 msgid "Unknown error occurred."
 msgstr "Er is een onbekende fout opgetreden."
 
-#: amelie/activities/views.py:1516 amelie/activities/views.py:1531
+#: amelie/activities/views.py:1550 amelie/activities/views.py:1565
 msgid "Message is not encoded in UTF-8, Latin-1 or ASCII, giving up..."
 msgstr "Bericht is niet geëncodeerd in UTF-8, Latin-1 of ASCII, ik geef het op..."
 
-#: amelie/activities/views.py:1537
+#: amelie/activities/views.py:1571
 msgid "Could not retrieve this message from Google. {}"
 msgstr "Kon dit bericht niet ophalen bij Google. {}"
 
@@ -3120,7 +3131,7 @@ msgstr "Machtiging"
 #: amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:9
 #: amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:10
 #: amelie/personal_tab/templates/lists/transactions.html:10
-#: templates/profile_picture_verification.html:66
+#: templates/profile_picture_verification.html:93
 msgid "Person"
 msgstr "Persoon"
 
@@ -3224,6 +3235,7 @@ msgstr "Deze tekst kan gebruikt worden door het bestuur voor promotie, bijvoorbe
 #: amelie/personal_tab/templates/lists/transactions.html:11
 #: amelie/personal_tab/templates/wrapped.html:180
 #: amelie/videos/templates/videos/ia_video_form.html:58
+#: amelie/videos/templates/videos/peertube_video_form.html:58
 #: amelie/videos/templates/videos/yt_video_form.html:58
 msgid "Description"
 msgstr "Omschrijving"
@@ -3367,7 +3379,7 @@ msgstr "Types"
 #: amelie/claudia/templates/claudia/extragroup_list.html:23
 #: amelie/claudia/templates/claudia/mapping_detail.html:49
 #: amelie/members/models.py:340
-#: amelie/members/templates/includes/person_data_table.html:92
+#: amelie/members/templates/includes/person_data_table.html:98
 msgid "Account name"
 msgstr "Accountnaam"
 
@@ -3662,7 +3674,7 @@ msgid ""
 "\n"
 "The active member account will be removed automatically in 30 days (including all data that you still have stored in your personal folders, and all e-mails you have in your Inter-Actief Google account!). Until then, you can still use your account and the folders to retrieve any important data."
 msgstr ""
-"Volgens de administratie van Inter-Actief ben je niet geen commissielid meer en heb je dus vanaf heden geen recht meer op een actieveledenaccount. Dat is het account waarmee je kon inloggen op de computers en de Google Suite van Inter-Actief, je lidmaatschap blijft natuurlijk nog gewoon lopen.\n"
+"Volgens de administratie van Inter-Actief ben je geen commissielid meer en heb je dus vanaf heden geen recht meer op een actieveledenaccount. Dat is het account waarmee je kon inloggen op de computers en de Google Suite van Inter-Actief, je lidmaatschap blijft natuurlijk nog gewoon lopen.\n"
 "\n"
 "Het actieveledenaccount wordt over 30 dagen automatisch verwijderd (inclusief alle data die jij nog had staan in je persoonlijke mappen, en alle e-mails die je in je Inter-Actief Google-account hebt staan!). Tot die tijd kan je nog gebruik maken van je account en de mappen om eventuele nodige gegevens eraf te halen."
 
@@ -3758,7 +3770,7 @@ msgstr "Aliasgroep aanmaken"
 #: amelie/members/models.py:322 amelie/members/models.py:949
 #: amelie/members/models.py:1142 amelie/members/query_forms.py:36
 #: amelie/members/templates/includes/committee_data.html:31
-#: amelie/members/templates/includes/person_data_table.html:133
+#: amelie/members/templates/includes/person_data_table.html:139
 #: amelie/members/templates/includes/registration/data_overview_employee.html:14
 #: amelie/members/templates/includes/registration/data_overview_external.html:14
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:14
@@ -4024,14 +4036,14 @@ msgstr "Timeline"
 #: amelie/claudia/templates/claudia/mapping_detail.html:78
 #: amelie/members/templates/committee.html:32
 #: amelie/members/templates/statistics/overview.html:91
-#: templates/frontpage.html:124
+#: templates/frontpage.html:126
 msgid "Members"
 msgstr "Leden"
 
 #: amelie/claudia/templates/claudia/mapping_detail.html:85
 #: amelie/claudia/templates/claudia/mapping_detail.html:140
 #: amelie/members/models.py:323 amelie/members/models.py:1143
-#: amelie/members/templates/includes/person_data_table.html:107
+#: amelie/members/templates/includes/person_data_table.html:113
 #: amelie/members/templates/includes/registration/contact_member.html:11
 #: amelie/members/templates/includes/registration/data_overview_employee.html:25
 #: amelie/members/templates/includes/registration/data_overview_external.html:28
@@ -4084,6 +4096,7 @@ msgstr "Toevoegen aan:"
 
 #: amelie/claudia/templates/claudia/mapping_list.html:51
 #: amelie/videos/templates/videos/ia_video_form.html:50
+#: amelie/videos/templates/videos/peertube_video_form.html:50
 #: amelie/videos/templates/videos/yt_video_form.html:50
 msgid "ID"
 msgstr "ID"
@@ -5213,7 +5226,7 @@ msgid "Complaint"
 msgstr "Klacht"
 
 #: amelie/education/models.py:270 templates/basis.html:254
-#: templates/frontpage.html:252
+#: templates/frontpage.html:254
 msgid "Complaints"
 msgstr "Klachten"
 
@@ -5896,7 +5909,7 @@ msgstr "Onderwijsactiviteit"
 
 #: amelie/education/templates/education_news.html:5
 #: amelie/news/templates/news_items.html:5 templates/basis.html:161
-#: templates/frontpage.html:164
+#: templates/frontpage.html:166
 msgid "News"
 msgstr "Nieuws"
 
@@ -6174,7 +6187,7 @@ msgstr ""
 
 #: amelie/members/forms.py:33 amelie/members/models.py:314
 #: amelie/members/models.py:1136
-#: amelie/members/templates/includes/person_data_table.html:76
+#: amelie/members/templates/includes/person_data_table.html:82
 #: amelie/members/templates/includes/registration/data_overview_employee.html:11
 #: amelie/members/templates/includes/registration/data_overview_external.html:11
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:11
@@ -6189,7 +6202,7 @@ msgstr "Geslacht"
 
 #: amelie/members/forms.py:34 amelie/members/models.py:316
 #: amelie/members/models.py:1138
-#: amelie/members/templates/includes/person_data_table.html:82
+#: amelie/members/templates/includes/person_data_table.html:88
 #: amelie/members/templates/includes/registration/data_overview_employee.html:17
 #: amelie/members/templates/includes/registration/data_overview_external.html:17
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:17
@@ -6204,14 +6217,14 @@ msgstr "Voorkeurstaal"
 
 #: amelie/members/forms.py:36 amelie/members/models.py:318
 #: amelie/members/models.py:1140
-#: amelie/members/templates/includes/person_data_table.html:79
+#: amelie/members/templates/includes/person_data_table.html:85
 #: amelie/members/templates/includes/registration/personal_details.html:93
 msgid "International student"
 msgstr "Internationale student"
 
 #: amelie/members/forms.py:37 amelie/members/models.py:320
 #: amelie/members/models.py:1141
-#: amelie/members/templates/includes/person_data_table.html:72
+#: amelie/members/templates/includes/person_data_table.html:78
 #: amelie/members/templates/includes/registration/data_overview_employee.html:8
 #: amelie/members/templates/includes/registration/data_overview_external.html:8
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:8
@@ -6604,7 +6617,7 @@ msgstr "Vrouw"
 #: amelie/personal_tab/templates/cookie_corner_statistics.html:317
 #: amelie/personal_tab/templates/cookie_corner_transactions_new.html:48
 #: amelie/personal_tab/templates/lists/transactions_totals.html:24
-#: templates/frontpage.html:137
+#: templates/frontpage.html:139
 msgid "Other"
 msgstr "Overig"
 
@@ -6703,13 +6716,13 @@ msgid "Phonenumber"
 msgstr "Telefoonnummer"
 
 #: amelie/members/models.py:329 amelie/members/models.py:1149
-#: amelie/members/templates/includes/person_data_table.html:158
+#: amelie/members/templates/includes/person_data_table.html:164
 #: amelie/members/templates/includes/registration/contact_parents.html:25
 msgid "E-mail address of parent(s)/guardian(s)"
 msgstr "E-mailadres van ouder(s)/verzorger(s)"
 
 #: amelie/members/models.py:330 amelie/members/models.py:1150
-#: amelie/members/templates/includes/person_data_table.html:141
+#: amelie/members/templates/includes/person_data_table.html:147
 #: amelie/members/templates/includes/registration/contact_parents.html:38
 #: amelie/tools/pdf.py:126 templates/profile_edit.html:57
 msgid "Address of parent(s)/guardian(s)"
@@ -7207,22 +7220,22 @@ msgstr ""
 "Het bestuur van Inter-Actief"
 
 #: amelie/members/templates/birthdays.html:5
-#: amelie/members/templates/birthdays.html:12 templates/frontpage.html:194
-#: templates/frontpage.html:196
+#: amelie/members/templates/birthdays.html:12 templates/frontpage.html:196
+#: templates/frontpage.html:198
 msgid "Birthdays"
 msgstr "Verjaardagen"
 
-#: amelie/members/templates/birthdays.html:27 templates/frontpage.html:207
+#: amelie/members/templates/birthdays.html:27 templates/frontpage.html:209
 msgid "year"
 msgstr "jaar"
 
 #: amelie/members/templates/birthdays.html:27
-#: amelie/members/templates/includes/person_data_table.html:74
-#: templates/frontpage.html:207
+#: amelie/members/templates/includes/person_data_table.html:80
+#: templates/frontpage.html:209
 msgid "years"
 msgstr "jaren"
 
-#: amelie/members/templates/birthdays.html:30 templates/frontpage.html:210
+#: amelie/members/templates/birthdays.html:30 templates/frontpage.html:212
 msgid "There are no birthdays today"
 msgstr "Er zijn geen jarigen vandaag."
 
@@ -7435,34 +7448,34 @@ msgid "ago"
 msgstr "geleden"
 
 #: amelie/members/templates/includes/person_data_table.html:12
-#: templates/profile_picture_verification.html:67
+#: templates/profile_picture_verification.html:94
 msgid "Old picture"
 msgstr "Oude foto"
 
 #: amelie/members/templates/includes/person_data_table.html:14
-#: templates/profile_picture_verification.html:68
+#: templates/profile_picture_verification.html:95
 msgid "New picture"
 msgstr "Nieuwe foto"
 
-#: amelie/members/templates/includes/person_data_table.html:28
-#: amelie/members/templates/includes/person_data_table.html:50
+#: amelie/members/templates/includes/person_data_table.html:29
+#: amelie/members/templates/includes/person_data_table.html:53
 msgid "The board has not checked your picture yet. If you would like to change it, upload a new one: "
 msgstr "Het bestuur heeft je foto nog niet goedgekeurd. Als je hem wilt wijzigen, upload dan een nieuwe: "
 
-#: amelie/members/templates/includes/person_data_table.html:30
+#: amelie/members/templates/includes/person_data_table.html:31
 msgid "Upload different picture"
 msgstr "Andere foto uploaden"
 
-#: amelie/members/templates/includes/person_data_table.html:36
+#: amelie/members/templates/includes/person_data_table.html:38
 msgid "Check pictures"
 msgstr "Foto's bekijken"
 
-#: amelie/members/templates/includes/person_data_table.html:52
-#: amelie/members/templates/includes/person_data_table.html:62
+#: amelie/members/templates/includes/person_data_table.html:55
+#: amelie/members/templates/includes/person_data_table.html:67
 msgid "Upload picture"
 msgstr "Foto uploaden"
 
-#: amelie/members/templates/includes/person_data_table.html:58
+#: amelie/members/templates/includes/person_data_table.html:62
 #, python-format
 msgid ""
 "\n"
@@ -7472,7 +7485,7 @@ msgstr ""
 "\n"
 "%(obj)s heeft geen pasfoto."
 
-#: amelie/members/templates/includes/person_data_table.html:69
+#: amelie/members/templates/includes/person_data_table.html:75
 #: amelie/members/templates/includes/registration/data_overview_employee.html:5
 #: amelie/members/templates/includes/registration/data_overview_external.html:5
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:5
@@ -7480,16 +7493,16 @@ msgstr ""
 msgid "Full name"
 msgstr "Volledige naam"
 
-#: amelie/members/templates/includes/person_data_table.html:89
+#: amelie/members/templates/includes/person_data_table.html:95
 msgid "Claudia link"
 msgstr "Claudia-link"
 
-#: amelie/members/templates/includes/person_data_table.html:96
+#: amelie/members/templates/includes/person_data_table.html:102
 #: amelie/members/templates/includes/query/query_person_data.html:23
 msgid "No account"
 msgstr "Geen account"
 
-#: amelie/members/templates/includes/person_data_table.html:127
+#: amelie/members/templates/includes/person_data_table.html:133
 #: amelie/members/templates/includes/registration/contact_member.html:63
 #: amelie/members/templates/includes/registration/data_overview_employee.html:37
 #: amelie/members/templates/includes/registration/data_overview_external.html:40
@@ -7498,73 +7511,73 @@ msgstr "Geen account"
 msgid "(Mobile) telephone number"
 msgstr "(Mobiel) Telefoonnummer"
 
-#: amelie/members/templates/includes/person_data_table.html:168
+#: amelie/members/templates/includes/person_data_table.html:174
 #: amelie/members/templates/registration_check.html:80
 #: amelie/personal_tab/templates/cookie_corner_overview.html:4
 #: amelie/personal_tab/templates/cookie_corner_overview.html:8
 msgid "Digital cookie and candy list"
 msgstr "Digitale streeplijst"
 
-#: amelie/members/templates/includes/person_data_table.html:179
+#: amelie/members/templates/includes/person_data_table.html:185
 #: amelie/members/templates/includes/query/query_person_data.html:48
 #, python-format
 msgid "%(first_name)s is a member"
 msgstr "%(first_name)s is lid."
 
-#: amelie/members/templates/includes/person_data_table.html:184
+#: amelie/members/templates/includes/person_data_table.html:190
 #: amelie/members/templates/includes/query/query_person_data.html:51
 #, python-format
 msgid "%(first_name)s is not a member"
 msgstr "%(first_name)s is niet lid."
 
-#: amelie/members/templates/includes/person_data_table.html:187
+#: amelie/members/templates/includes/person_data_table.html:193
 #, python-format
 msgid "%(first_name)s is (not) a member (anymore)"
 msgstr "%(first_name)s is (nog) geen lid (meer)."
 
-#: amelie/members/templates/includes/person_data_table.html:192
+#: amelie/members/templates/includes/person_data_table.html:198
 #: amelie/members/templates/includes/query/query_person_data.html:58
 #, python-format
 msgid "%(first_name)s is active"
 msgstr "%(first_name)s is actief."
 
-#: amelie/members/templates/includes/person_data_table.html:195
+#: amelie/members/templates/includes/person_data_table.html:201
 #: amelie/members/templates/includes/query/query_person_data.html:61
 #, python-format
 msgid "%(first_name)s is not active"
 msgstr "%(first_name)s is niet actief."
 
-#: amelie/members/templates/includes/person_data_table.html:197
+#: amelie/members/templates/includes/person_data_table.html:203
 #: amelie/members/templates/includes/query/query_person_data.html:63
 #, python-format
 msgid "%(first_name)s is not active any more"
 msgstr "%(first_name)s is niet meer actief."
 
-#: amelie/members/templates/includes/person_data_table.html:202
+#: amelie/members/templates/includes/person_data_table.html:208
 #, python-format
 msgid "%(first_name)s signed an NDA."
 msgstr "%(first_name)s heeft een NDA getekend."
 
-#: amelie/members/templates/includes/person_data_table.html:206
+#: amelie/members/templates/includes/person_data_table.html:212
 #, python-format
 msgid "%(first_name)s is a webmaster."
 msgstr "%(first_name)s is webmaster."
 
-#: amelie/members/templates/includes/person_data_table.html:216
+#: amelie/members/templates/includes/person_data_table.html:222
 msgid "No further notes"
 msgstr "Geen verdere notities."
 
-#: amelie/members/templates/includes/person_data_table.html:223
+#: amelie/members/templates/includes/person_data_table.html:229
 #: amelie/members/templates/includes/query/query_results.html:52
 msgid "Send a mailing"
 msgstr "Stuur een mailing"
 
-#: amelie/members/templates/includes/person_data_table.html:229
+#: amelie/members/templates/includes/person_data_table.html:235
 #: amelie/members/templates/includes/query/query_results.html:53
 msgid "Send a push notification"
 msgstr "Stuur een push notificatie"
 
-#: amelie/members/templates/includes/person_data_table.html:234
+#: amelie/members/templates/includes/person_data_table.html:240
 msgid "Send OAuth link code mail"
 msgstr "Stuur OAuth link code mail"
 
@@ -7578,7 +7591,6 @@ msgstr "Medewerker"
 
 #: amelie/members/templates/includes/query/query_mailing.html:36
 #: amelie/members/templates/includes/query/query_mailing.html:142
-#: amelie/twitter/templates/twitter_new_tweet.html:11
 msgid "Example"
 msgstr "Voorbeeld"
 
@@ -7693,7 +7705,7 @@ msgid "Add new freshmen"
 msgstr "Nieuwe eerstejaars toevoegen"
 
 #: amelie/members/templates/includes/query/query_results.html:55
-#: templates/frontpage.html:125
+#: templates/frontpage.html:127
 msgid "Add new member"
 msgstr "Nieuw lid toevoegen"
 
@@ -9132,7 +9144,7 @@ msgstr "Ga terug"
 
 #: amelie/members/templates/preregistration_status.html:5
 #: amelie/members/templates/preregistration_status.html:11
-#: templates/frontpage.html:130
+#: templates/frontpage.html:132
 msgid "Pre-enrollment status"
 msgstr "Status van voorinschrijvingen"
 
@@ -9540,6 +9552,7 @@ msgstr "Deze tekst kan worden opgemaakt in 175 tekens (<a href=\"https://daringf
 
 #: amelie/news/forms.py:13
 #: amelie/videos/templates/videos/ia_video_form.html:100
+#: amelie/videos/templates/videos/peertube_video_form.html:100
 #: amelie/videos/templates/videos/yt_video_form.html:100
 msgid "Publisher"
 msgstr "Uitgever"
@@ -9548,7 +9561,7 @@ msgstr "Uitgever"
 msgid "Message author"
 msgstr "Auteur van bericht"
 
-#: amelie/news/graphql.py:59 amelie/videos/graphql.py:67
+#: amelie/news/graphql.py:59 amelie/videos/graphql.py:70
 msgid "Publishing committee"
 msgstr "Publicerende commissie"
 
@@ -11902,7 +11915,7 @@ msgid "logged in."
 msgstr "ingelogd."
 
 #: amelie/room_duty/models.py:29 amelie/room_duty/models.py:158
-#: templates/frontpage.html:138
+#: templates/frontpage.html:140
 msgid "Office duty"
 msgstr "Kamerdienst"
 
@@ -12308,19 +12321,19 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:738
+#: amelie/settings/generic.py:731
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:739
+#: amelie/settings/generic.py:732
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:740
+#: amelie/settings/generic.py:733
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:741
+#: amelie/settings/generic.py:734
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -12783,50 +12796,20 @@ msgstr "Uren"
 msgid "Minutes"
 msgstr "Minuten"
 
-#: amelie/twitter/templates/twitter_index.html:4
-#: amelie/twitter/templates/twitter_new_tweet.html:5
-msgid "New tweet"
-msgstr "Nieuwe tweet"
-
-#: amelie/twitter/templates/twitter_index.html:8
-#: amelie/twitter/templates/twitter_new_tweet.html:29
-msgid "New Tweet"
-msgstr "Nieuwe Tweet"
-
-#: amelie/twitter/templates/twitter_index.html:12
-msgid "Add tweet"
-msgstr "Tweet toevoegen"
-
-#: amelie/twitter/templates/twitter_new_tweet.html:15
-#, python-format
-msgid ""
-"\n"
-"                        Check your message before you send it.\n"
-"                        This message will be sent from this account: %(account)s.\n"
-"\t\t\t\t\t"
-msgstr ""
-"\n"
-"Controleer je bericht goed voordat je deze daadwerkelijk verzend.\n"
-"Dit bericht wordt verzonden vanaf het account %(account)s."
-
-#: amelie/twitter/templates/twitter_new_tweet.html:38
-#: amelie/twitter/templates/twitter_new_tweet.html:47
-msgid "Preview"
-msgstr "Preview"
-
-#: amelie/twitter/templates/twitter_new_tweet.html:50
-msgid "Send tweet"
-msgstr "Tweet verzenden"
-
-#: amelie/videos/forms.py:13
+#: amelie/videos/forms.py:14
 #, python-format
 msgid "YouTube video with ID \"%(video_id)s\" doesn't exist."
 msgstr "YouTube-video met ID \\\"%(video_id)s\\\" bestaat niet."
 
-#: amelie/videos/forms.py:21
+#: amelie/videos/forms.py:22
 #, python-format
 msgid "Streaming.IA video with ID \"%(video_id)s\" doesn't exist."
 msgstr "Streaming.IA video met ID \\\"%(video_id)s\\\" bestaat niet."
+
+#: amelie/videos/forms.py:30
+#, python-format
+msgid "Video.IA video with ID \"%(video_id)s\" doesn't exist."
+msgstr "Video.IA video met ID \\\"%(video_id)s\\\" bestaat niet."
 
 #: amelie/videos/graphql.py:24
 msgid "YouTube"
@@ -12836,11 +12819,15 @@ msgstr "YouTube"
 msgid "Streaming.IA"
 msgstr "Streaming.IA"
 
-#: amelie/videos/graphql.py:68
+#: amelie/videos/graphql.py:26
+msgid "Video.IA"
+msgstr "Video.IA"
+
+#: amelie/videos/graphql.py:71
 msgid "Video type (Youtube or IA)"
 msgstr "Videotype (Youtube of IA)"
 
-#: amelie/videos/graphql.py:69
+#: amelie/videos/graphql.py:72
 msgid "URL to the video"
 msgstr "URL naar de video"
 
@@ -12858,23 +12845,32 @@ msgstr "Video"
 msgid "Videos"
 msgstr "Video's"
 
-#: amelie/videos/models.py:58
+#: amelie/videos/models.py:62
 msgid "YouTube video"
 msgstr "YouTube-video"
 
-#: amelie/videos/models.py:59
+#: amelie/videos/models.py:63
 msgid "YouTube videos"
 msgstr "YouTube-videos"
 
-#: amelie/videos/models.py:68
+#: amelie/videos/models.py:72
 msgid "Streaming.IA video"
 msgstr "Streaming.IA video"
 
-#: amelie/videos/models.py:69
+#: amelie/videos/models.py:73
 msgid "Streaming.IA videos"
 msgstr "Streaming.IA videos"
 
+#: amelie/videos/models.py:82
+msgid "Video.IA video"
+msgstr "Video.IA video"
+
+#: amelie/videos/models.py:83
+msgid "Video.IA videos"
+msgstr "Video.IA videos"
+
 #: amelie/videos/templates/videos/ia_video.html:15
+#: amelie/videos/templates/videos/peertube_video.html:15
 #: amelie/videos/templates/videos/yt_video.html:15
 msgid "All videos"
 msgstr "Alle videos"
@@ -12883,6 +12879,10 @@ msgstr "Alle videos"
 #: amelie/videos/templates/videos/ia_video_form.html:8
 #: amelie/videos/templates/videos/ia_video_form.html:80
 #: amelie/videos/templates/videos/ia_video_form.html:108
+#: amelie/videos/templates/videos/peertube_video.html:27
+#: amelie/videos/templates/videos/peertube_video_form.html:8
+#: amelie/videos/templates/videos/peertube_video_form.html:80
+#: amelie/videos/templates/videos/peertube_video_form.html:108
 #: amelie/videos/templates/videos/yt_video.html:27
 #: amelie/videos/templates/videos/yt_video_form.html:8
 #: amelie/videos/templates/videos/yt_video_form.html:80
@@ -12891,12 +12891,14 @@ msgid "Edit video"
 msgstr "Wijzig video"
 
 #: amelie/videos/templates/videos/ia_video.html:28
+#: amelie/videos/templates/videos/peertube_video.html:28
 #: amelie/videos/templates/videos/video_delete.html:19
 #: amelie/videos/templates/videos/yt_video.html:28
 msgid "Delete video"
 msgstr "Verwijder video"
 
 #: amelie/videos/templates/videos/ia_video_form.html:6
+#: amelie/videos/templates/videos/peertube_video_form.html:6
 #: amelie/videos/templates/videos/yt_video_form.html:6
 msgid "New video"
 msgstr "Nieuwe video"
@@ -12910,11 +12912,13 @@ msgid "Select one of these recently uploaded Streaming.IA videos to automaticall
 msgstr "Selecteer een van deze recent geüploade Streaming.IA video's om bepaalde velden automatisch in te vullen."
 
 #: amelie/videos/templates/videos/ia_video_form.html:23
+#: amelie/videos/templates/videos/peertube_video_form.html:23
 #: amelie/videos/templates/videos/yt_video_form.html:23
 msgid "Videos marked as private and previously added videos are not displayed in this list."
 msgstr "Video's gemarkeerd als privé en reeds toegevoegde videos worden niet weergegeven in deze lijst."
 
 #: amelie/videos/templates/videos/ia_video_form.html:36
+#: amelie/videos/templates/videos/peertube_video_form.html:36
 #: amelie/videos/templates/videos/yt_video_form.html:36
 msgid "No (new) videos have been found."
 msgstr "Er zijn geen (nieuwe) video's gevonden."
@@ -12924,6 +12928,7 @@ msgid "Streaming.IA API Data"
 msgstr "Streaming.IA API Data"
 
 #: amelie/videos/templates/videos/ia_video_form.html:62
+#: amelie/videos/templates/videos/peertube_video_form.html:62
 #: amelie/videos/templates/videos/yt_video_form.html:62
 msgid "Thumbnail URL"
 msgstr "Thumbnail URL"
@@ -12933,6 +12938,7 @@ msgid "Update Streaming.IA API Data"
 msgstr "Streaming.IA API Data bijwerken"
 
 #: amelie/videos/templates/videos/ia_video_form.html:78
+#: amelie/videos/templates/videos/peertube_video_form.html:78
 #: amelie/videos/templates/videos/yt_video_form.html:78
 msgid "Add new video"
 msgstr "Nieuwe video toevoegen"
@@ -12942,27 +12948,52 @@ msgid "Streaming.IA ID"
 msgstr "Streaming.IA ID"
 
 #: amelie/videos/templates/videos/ia_video_form.html:108
+#: amelie/videos/templates/videos/peertube_video_form.html:108
 #: amelie/videos/templates/videos/yt_video_form.html:108
 msgid "Create video"
 msgstr "Video aanmaken"
+
+#: amelie/videos/templates/videos/peertube_video_form.html:19
+msgid "Recent Video.IA uploads"
+msgstr "Recente Video.IA uploads"
+
+#: amelie/videos/templates/videos/peertube_video_form.html:22
+msgid "Select one of these recently uploaded Video.IA videos to automatically fill certain fields."
+msgstr "Selecteer een van deze recent geüploade Video.IA video's om bepaalde velden automatisch in te vullen."
+
+#: amelie/videos/templates/videos/peertube_video_form.html:44
+msgid "Video.IA API Data"
+msgstr "Video.IA API Data"
+
+#: amelie/videos/templates/videos/peertube_video_form.html:68
+msgid "Update Video.IA API Data"
+msgstr "Video.IA API Data bijwerken"
+
+#: amelie/videos/templates/videos/peertube_video_form.html:89
+msgid "Video.IA ID"
+msgstr "Video.IA ID"
 
 #: amelie/videos/templates/videos/video_delete.html:14
 msgid "Are you sure you want to remove this video?"
 msgstr "Weet je zeker dat je deze video wilt verwijderen?"
 
 #: amelie/videos/templates/videos/video_delete.html:17
-msgid "This will not delete the video on YouTube/Streaming.IA."
-msgstr "Hiermee wordt de video op YouTube/Streaming.IA niet verwijderd."
+msgid "This will not delete the video on YouTube/Video.IA."
+msgstr "Hiermee wordt de video op YouTube/Video.IA niet verwijderd."
 
 #: amelie/videos/templates/videos/videos.html:18
+msgid "Add video from Video.IA"
+msgstr "Video toevoegen via Video.IA"
+
+#: amelie/videos/templates/videos/videos.html:19
 msgid "Add video from Streaming.IA"
 msgstr "Video toevoegen via Streaming.IA"
 
-#: amelie/videos/templates/videos/videos.html:19
+#: amelie/videos/templates/videos/videos.html:20
 msgid "Add video from YouTube"
 msgstr "Video toevoegen via YouTube"
 
-#: amelie/videos/templates/videos/videos.html:25
+#: amelie/videos/templates/videos/videos.html:26
 msgid ""
 "\n"
 "                Every so often the MedIA committee of Inter-<i>Actief</i> records videos of events\n"
@@ -12973,7 +13004,7 @@ msgstr ""
 "De MedIA-commissie van Inter-<i>Actief</i> maakt geregeld videos van (grotere)\n"
 "evenementen en activiteiten. Hieronder vind je de meest recente videos."
 
-#: amelie/videos/templates/videos/videos.html:34
+#: amelie/videos/templates/videos/videos.html:35
 msgid "More videos are available if you"
 msgstr "Meer video's zijn beschikbaar als je bent "
 
@@ -12997,20 +13028,24 @@ msgstr "YouTube API Data bijwerken"
 msgid "YouTube ID"
 msgstr "YouTube ID"
 
-#: amelie/videos/views.py:211
+#: amelie/videos/views.py:278
 msgid "Could not connect to Youtube! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met YouTube te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
-#: amelie/videos/views.py:271
+#: amelie/videos/views.py:343
 msgid "Could not connect to Streaming.IA! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met Streaming.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
-#: amelie/views.py:292
+#: amelie/videos/views.py:402
+msgid "Could not connect to Video.IA! Please contact the WWW committee if this problem persists."
+msgstr "Het is niet gelukt om een verbinding met Video.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
+
+#: amelie/views.py:293
 #, python-format
 msgid "CSRF-check failed. Reason: %s"
 msgstr "CSRF-controle mislukt. Reden: %s"
 
-#: amelie/views.py:294
+#: amelie/views.py:295
 msgid "CSRF-check failed."
 msgstr "CSRF-controle mislukt."
 
@@ -13452,7 +13487,7 @@ msgstr "Intraweb"
 msgid "External Activities"
 msgstr "Externe Activiteiten"
 
-#: templates/basis.html:250 templates/frontpage.html:223
+#: templates/basis.html:250 templates/frontpage.html:225
 msgid "Education news"
 msgstr "Onderwijsnieuws"
 
@@ -13505,79 +13540,79 @@ msgstr "In de Company Corner kun je informatie vinden over bedrijven en mogelijk
 msgid "Upcoming activities with external parties"
 msgstr "Komende externe activiteiten"
 
-#: templates/frontpage.html:121
+#: templates/frontpage.html:123
 msgid "Board tasks"
 msgstr "Bestuurstaken"
 
-#: templates/frontpage.html:123
+#: templates/frontpage.html:125
 msgid "Member management"
 msgstr "Ledenbeheer"
 
-#: templates/frontpage.html:126
+#: templates/frontpage.html:128
 msgid "Add new external member"
 msgstr "Nieuw extern lid toevoegen"
 
-#: templates/frontpage.html:127
+#: templates/frontpage.html:129
 msgid "Add new employee"
 msgstr "Nieuwe medewerker toevoegen"
 
-#: templates/frontpage.html:128
+#: templates/frontpage.html:130
 msgid "Add new freshman member"
 msgstr "Nieuw eerstejaars lid toevoegen"
 
-#: templates/frontpage.html:129
+#: templates/frontpage.html:131
 msgid "Pre-enroll freshman member"
 msgstr "Nieuw eerstejaarslid voorinschrijven"
 
-#: templates/frontpage.html:133
+#: templates/frontpage.html:135
 msgid "Add new committee"
 msgstr "Nieuwe commissie aanmaken"
 
-#: templates/frontpage.html:134
+#: templates/frontpage.html:136
 msgid "Verify member profile pictures"
 msgstr "Bijgewerkte profielfoto's beoordelen"
 
-#: templates/frontpage.html:140
+#: templates/frontpage.html:142
 msgid "ClaudIA"
 msgstr "ClaudIA"
 
-#: templates/frontpage.html:141
+#: templates/frontpage.html:143
 msgid "Create new '/over' page"
 msgstr "Nieuwe '/over' pagina maken"
 
-#: templates/frontpage.html:142
+#: templates/frontpage.html:144
 msgid "Register RFID cards"
 msgstr "Registreer RFID-kaarten"
 
-#: templates/frontpage.html:143
+#: templates/frontpage.html:145
 msgid "UT Eventdesk status"
 msgstr "UT Evenementenbureau status"
 
-#: templates/frontpage.html:166 templates/frontpage.html:225
+#: templates/frontpage.html:168 templates/frontpage.html:227
 msgid "Add message"
 msgstr "Bericht toevoegen"
 
-#: templates/frontpage.html:177 templates/frontpage.html:236
+#: templates/frontpage.html:179 templates/frontpage.html:238
 msgid "This message has been pinned."
 msgstr "Dit bericht is vastgepind."
 
-#: templates/frontpage.html:183
+#: templates/frontpage.html:185
 msgid "There are no news posts."
 msgstr "Er zijn geen nieuwsberichten."
 
-#: templates/frontpage.html:242
+#: templates/frontpage.html:244
 msgid "There are no education news posts."
 msgstr "Er zijn geen onderwijsnieuwsberichten."
 
-#: templates/frontpage.html:255
+#: templates/frontpage.html:257
 msgid "Recent complaints"
 msgstr "Recente klachten"
 
-#: templates/frontpage.html:264
+#: templates/frontpage.html:266
 msgid "No public outstanding complaints"
 msgstr "Geen publieke openstaande klachten"
 
-#: templates/frontpage.html:269
+#: templates/frontpage.html:271
 msgid "See all complaints / File complaint"
 msgstr "Bekijk alle klachten / Meld klacht"
 
@@ -13889,8 +13924,8 @@ msgid "Configure E-mail Forwarding"
 msgstr "E-mailforwarding Instellen"
 
 #: templates/profile_overview.html:38
-msgid "Not satisfied with your looks? You can ask the board to change or delete your profile picture."
-msgstr "Niet tevreden met je aangezicht? Vraag het bestuur om jouw pasfoto te wijzigen of verwijderen."
+msgid "Not satisfied with your looks? You can change your picture by clicking \"Change profile picture\" above, or ask the board to change or delete it for you."
+msgstr "Niet tevreden met je aangezicht? Je kan je foto veranderen door hierboven op \"Profielfoto wijzigen\" te klikken, of vraag het bestuur om hem voor je te wijzigen of verwijderen."
 
 #: templates/profile_overview.html:51
 #, python-format
@@ -14036,11 +14071,11 @@ msgstr "Kan niet ontkoppelen"
 msgid "Verify uploaded profile pictures"
 msgstr "Beoordelen van geüploade profielfotos"
 
-#: templates/profile_picture_verification.html:46
+#: templates/profile_picture_verification.html:73
 msgid "Unapproved profile pictures"
 msgstr "Onbeoordeelde profielfoto's"
 
-#: templates/profile_picture_verification.html:50
+#: templates/profile_picture_verification.html:77
 msgid ""
 "\n"
 "                        The following people have uploaded a new profile picture.\n"
@@ -14054,7 +14089,7 @@ msgstr ""
 "Een goede foto moet van de persoon zelf zijn, en het gezicht van de persoon moet duidelijk herkenbaar zijn.\n"
 "                    "
 
-#: templates/profile_picture_verification.html:57
+#: templates/profile_picture_verification.html:84
 msgid ""
 "\n"
 "                        Note that pictures could be used for other purposes like yearbooks, publications, age lists, etc.\n"
@@ -14066,23 +14101,23 @@ msgstr ""
 "Controleer a.u.b. of de foto duidelijk en fatsoenlijk is.\n"
 "                    "
 
-#: templates/profile_picture_verification.html:69
+#: templates/profile_picture_verification.html:96
 msgid "Accept change?"
 msgstr "Wijziging accepteren?"
 
-#: templates/profile_picture_verification.html:82
+#: templates/profile_picture_verification.html:109
 msgid "No picture"
 msgstr "Geen foto"
 
-#: templates/profile_picture_verification.html:89
+#: templates/profile_picture_verification.html:116
 msgid "Accept"
 msgstr "Accepteren"
 
-#: templates/profile_picture_verification.html:92
+#: templates/profile_picture_verification.html:119
 msgid "Deny"
 msgstr "Afkeuren"
 
-#: templates/profile_picture_verification.html:97
+#: templates/profile_picture_verification.html:124
 msgid "No unapproved pictures"
 msgstr "Geen onbeoordeelde foto's"
 

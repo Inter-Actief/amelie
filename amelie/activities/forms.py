@@ -249,7 +249,7 @@ class PhotoUploadForm(forms.Form):
         super(PhotoUploadForm, self).__init__(*args, **kwargs)
         self.fields['photos'].choices = photos
         self.fields['activity'].queryset = Activity.objects.filter(
-            begin__lt=timezone.now(), begin__gte=timezone.now() - timedelta(days=182)
+            begin__lt=timezone.now(), begin__gte=timezone.now() - timedelta(days=365)
         ).order_by('-begin', '-end')
         self.fields['photographer'].queryset = Person.objects.filter(function__begin__isnull=False,
                                                                      function__end__isnull=True).distinct()

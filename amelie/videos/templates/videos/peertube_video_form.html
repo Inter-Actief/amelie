@@ -16,10 +16,10 @@
         {% if is_new %}
             <div class="col-xs-12 col-md-6">
                 <div class="current recent-uploads">
-                    <h2>{% trans 'Recent Streaming.IA uploads' %}</h2>
+                    <h2>{% trans 'Recent Video.IA uploads' %}</h2>
 
                     <div class="content">
-                        <span>{% trans "Select one of these recently uploaded Streaming.IA videos to automatically fill certain fields." %}</span>
+                        <span>{% trans "Select one of these recently uploaded Video.IA videos to automatically fill certain fields." %}</span>
                         <span>{% trans "Videos marked as private and previously added videos are not displayed in this list." %}</span>
                     </div>
 
@@ -27,8 +27,8 @@
                         {% if filtered_uploads|length %}
                             {% for upload in filtered_uploads %}
                                 <li>
-                                    <h3><a href="{% url 'videos:new_predefined_iaold_video' video_id=upload.id %}">
-                                        {{ upload.videoName }}
+                                    <h3><a href="{% url 'videos:new_predefined_ia_video' video_id=upload.shortUUID %}">
+                                        {{ upload.name }}
                                     </a></h3>
                                 </li>
                             {% endfor %}
@@ -41,7 +41,7 @@
         {% else %}
             <div class="col-xs-12 col-md-6">
                 <div class="current">
-                    <h2>{% trans "Streaming.IA API Data" %}</h2>
+                    <h2>{% trans "Video.IA API Data" %}</h2>
 
                     <div class="content">
                         <div class="table-responsive">
@@ -65,7 +65,7 @@
                             </table>
                         </div>
 
-                        <input type="submit" value="{% trans 'Update Streaming.IA API Data' %} &raquo;" />
+                        <input type="submit" value="{% trans 'Update Video.IA API Data' %} &raquo;" />
                     </div>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                         <table class="table">
                             {% if is_new %}
                                 <tr>
-                                    <th>{% trans "Streaming.IA ID" %}</th>
+                                    <th>{% trans "Video.IA ID" %}</th>
                                     <td>
                                         <div>{{ form.video_id }}</div>
                                         {{ form.video_id.errors }}
