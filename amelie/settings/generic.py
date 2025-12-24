@@ -190,6 +190,9 @@ TEMPLATES = [
     }
 ]
 
+# Override the default form rendering class to include our IA styling templates.
+FORM_RENDERER = "amelie.style.forms.AmelieFormRenderer"
+
 # Middleware classes that are used by the application
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
