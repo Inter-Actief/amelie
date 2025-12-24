@@ -50,6 +50,7 @@ from amelie.calendar.models import Participation, Event
 from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import ActivityMailingForm
+from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
@@ -797,7 +798,7 @@ def photo_upload(request):
         if "_processing" in dir_path:
             continue
         for filename in filenames:
-            if any(filename.lower().endswith(ext) for ext in ['.jpg', '.gif']):
+            if any(filename.lower().endswith(ext) for ext in PhotoFileUploadForm.allowed_extensions):
                 photos.append(os.path.relpath(os.path.join(dir_path, filename), folder))
 
     photos = list(sorted(
@@ -853,7 +854,7 @@ def photo_upload_preview(request, filename):
 
     # Make sure only JPG or GIF images can be previewed (only those extensions can be uploaded)
     file_extension = Path(file_path).suffix[1:].lower()
-    if file_extension not in ["jpg", "jpeg", "gif"]:
+    if file_extension not in PhotoFileUploadForm.allowed_extensions:
         raise Http404(_("This picture does not exist."))
 
     # Make sure the file actually exists
@@ -863,30 +864,22 @@ def photo_upload_preview(request, filename):
     # Create a small thumbnail for the file and return that as the response data
     image = Image.open(file_path)
     size_pixels = settings.THUMBNAIL_SIZES['small']
+
     # check whether the dimensions of the source are large enough such that a thumbnail is useful.
     if any(map(lambda b, d: b > d, image.size, size_pixels)):
-        if file_extension in ['jpg', 'jpeg']:
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            image.thumbnail(size_pixels, Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/jpeg")
-            image.save(response, "JPEG")
-            return response
-        if file_extension == 'gif':
+        if image.mode != 'RGB' or file_extension == 'gif':
             image = image.convert('RGB')
-            image.thumbnail(size_pixels, Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/jpeg")
-            image.save(response, "JPEG")
-            return response
+        image.thumbnail(size_pixels, Image.LANCZOS)
+        response = HttpResponse(content_type="image/jpeg")
+        image.save(response, "JPEG")
+        return response
 
     # In all other cases, just return the image directly.
     with open(file_path, "rb") as image_file:
-        if file_extension in ['jpg', 'jpeg']:
-            return HttpResponse(image_file.read(), content_type="image/jpeg")
-        elif file_extension == "gif":
-            return HttpResponse(image_file.read(), content_type="image/gif")
-        else:
-            raise Http404(_("This picture does not exist."))
+        # Can safely return since file extension was checked earlier on
+        if file_extension == "jpg":
+            file_extension = "jpeg" # image/jpg does not exist
+        return HttpResponse(image_file.read(), content_type=f'image/{file_extension}')
 
 
 class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
@@ -914,7 +907,6 @@ class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
         else:
             return self.form_invalid(form)
 
-
 class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
     abbreviation = "MediaCie"
     http_method_names = ['get', 'post']
@@ -935,9 +927,9 @@ class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
                     os.remove(os.path.join(upload_dir, file))
         return redirect("activities:photo_upload")
 
-
 def gallery_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
+    photo_id = photo
     photo = get_object_or_404(activity.photos, id=photo)
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
@@ -962,8 +954,36 @@ def gallery_photo(request, pk, photo):
                 last = photos[total - 1]
 
     obj = activity
+    with_permissions = hasattr(request, "is_board") and request.is_board or hasattr(request, "person") and request.person.is_in_committee("MediaCie")
+    nextVisibility = f'Change to {"Private" if photo.public else "Public"}'
+
     return render(request, "gallery_photo.html", locals())
 
+@require_committee('MediaCie')
+def delete_photo(request, pk, photo):
+    activity = get_object_or_404(Activity, pk=pk)
+    photo: Attachment = get_object_or_404(activity.photos, id=photo)
+
+    if not request.user.is_authenticated and (not activity.public or not photo.public):
+        raise PermissionDenied
+
+    photo.delete()
+
+    return redirect(activity)
+
+@require_committee('MediaCie')
+def toggle_visibility(request, pk, photo):
+    activity = get_object_or_404(Activity, pk=pk)
+    photo_id = photo
+    photo: Attachment = get_object_or_404(activity.photos, id=photo_id)
+
+    if not request.user.is_authenticated and (not activity.public or not photo.public):
+        raise PermissionDenied
+
+    photo.public = not photo.public
+    photo.save(create_thumbnails=False)
+
+    return redirect("activities:gallery_photo", pk=pk, photo=photo_id)
 
 def gallery(request, pk, page=1):
     activity = get_object_or_404(Activity, pk=pk)
@@ -1171,6 +1191,39 @@ class ActivityCreateView(RequireActiveMemberMixin, ActivityEditMixin, CreateView
 class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
+
+    def form_valid(self, form):
+        # If the date has changed, we have to update any existing transactions to the new activity date. The existing
+        # transactions are refunded and will be re-created on the same date.
+        person = self.request.person
+        if person is None:
+            raise Exception("Updating requires a person")
+
+        old_obj = self.get_object()
+        new_obj = form.instance
+        if old_obj is not None and form.cleaned_data['begin'].date() != old_obj.begin.date():
+            # Undo and create new transactions
+            from amelie.personal_tab import transactions
+            for participation in old_obj.participation_set.all():
+
+                transactions.participation_transaction(
+                    participation,
+                    _(f"Activity '{old_obj}' was moved (reversal on old date)"),
+                    cancel=True, added_by=person
+                )
+
+                # Create a new transaction
+                price, with_enrollment_options = participation.calculate_costs()
+                reason = _("Activity '{activity}' was moved (addition on new date)").format(activity=new_obj.summary)
+
+                # Can't use transactions.participation_transaction because we need to override the date.
+                transaction = ActivityTransaction(price=price, description=reason,
+                                                  participation=participation, event=old_obj,
+                                                  person=participation.person, date=new_obj.begin,
+                                                  with_enrollment_options=with_enrollment_options, added_by=person)
+                transaction.save()
+
+        return super().form_valid(form)
 
 
 class EnrollmentoptionListView(ActivitySecurityMixin, TemplateView):
@@ -1410,7 +1463,7 @@ class EventDeskMessageList(RequireActiveMemberMixin, ListView):
         current_activities = Activity.objects.filter(begin__gte=now).prefetch_related(
             'eventdeskregistrationmessage_set').order_by("begin")
         context['current_activities'] = [x for x in current_activities if x.can_edit(self.request.person)]
-        past_activities = Activity.objects.filter(begin__gte=one_week_ago, end__lte=now).prefetch_related(
+        past_activities = Activity.objects.filter(begin__gte=one_week_ago, begin__lte=now).prefetch_related(
             'eventdeskregistrationmessage_set').order_by("-begin")
         context['past_activities'] = [x for x in past_activities if x.can_edit(self.request.person)]
 

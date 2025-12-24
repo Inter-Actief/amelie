@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="col-xs-12">
     <div class="current">
-        <h2 id="mheader_{{ method.name|slugify }}">{{ method }}</h2>
+        <h2 id="mheader_{{ method.name|slugify }}">{{ method.name }}</h2>
         <div class="content">
             {% if method.html_doc %}
                 {{ method.html_doc | safe | urlize }}

@@ -72,10 +72,18 @@ class RequireEducationCommitteeMixin(PassesTestMixin):
 
 class RequireMemberMixin(PassesTestMixin):
     needs_login = True
-    reason = _l('For active members only.')
+    reason = _l('Only for members with an active membership.')
 
     def test_requirement(self, request):
         return hasattr(request, 'person') and request.person.is_member()
+
+
+class RequirePersonalTabAuthorizationMixin(PassesTestMixin):
+    needs_login = True
+    reason = _l('Only for members with a signed and active personal tab authorization.')
+
+    def test_requirement(self, request):
+        return hasattr(request, 'person') and request.person.is_member() and request.person.has_mandate_consumptions()
 
 
 class RequireActiveMemberMixin(PassesTestMixin):
@@ -84,6 +92,17 @@ class RequireActiveMemberMixin(PassesTestMixin):
 
     def test_requirement(self, request):
         return hasattr(request, 'person') and request.person.is_active_member()
+
+
+class RequirePersonalTabAuthorizationOrActiveMemberMixin(PassesTestMixin):
+    needs_login = True
+    reason = _l('Only for active members, or members with a signed and active personal tab authorization.')
+
+    def test_requirement(self, request):
+        return (
+            RequirePersonalTabAuthorizationMixin().test_requirement(request) or
+            RequireActiveMemberMixin().test_requirement(request)
+        )
 
 
 class RequireSuperuserMixin(PassesTestMixin):

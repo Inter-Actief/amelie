@@ -20,6 +20,8 @@ urlpatterns = [
     path('legacy_login/', views.login, name='legacy_login'),
     path('legacy_logout/', LogoutView.as_view(), name='legacy_logout'),
     path('profile/', views.profile_overview, name='profile_overview'),
+    path('profile/portrait_upload_verification', views.PortraitUploadVerification.as_view(), name='portrait_upload_verification'),
+    path('profile/portrait_upload/', views.PortraitUploadView.as_view(), name='portrait_upload'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),
     path('oidc/', include('mozilla_django_oidc.urls')),
@@ -40,7 +42,6 @@ urlpatterns = [
     path('companies/', include('amelie.companies.urls')),
     path('narrowcasting/', include('amelie.narrowcasting.urls')),
     path('personal_tab/', include('amelie.personal_tab.urls')),
-    path('twitter/', include('amelie.twitter.urls')),
     path('claudia/', include('amelie.claudia.claudia_urls')),
     path('account/', include('amelie.claudia.account_urls')),
     path('weekmail/', include('amelie.weekmail.urls')),
@@ -100,11 +101,7 @@ urlpatterns = [
             url='%sfavicon.ico' % settings.STATIC_URL,
             permanent=False),
         name='favicon_redirect'),
-    path('robots.txt',
-        RedirectView.as_view(
-            url='%srobots.txt' % settings.STATIC_URL,
-            permanent=False),
-        name='robots_redirect'),
+    path('robots.txt', views.robots_txt, name='robots_redirect'),
     path('.well-known/security.txt', views.security_txt, name='security_txt'),
 
     # Redirects for old dutch URL's for permalinks and such

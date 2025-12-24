@@ -15,7 +15,8 @@
 		    {% endif %}
 
             {% if can_create %}
-                <a class="looks-like-a-button" style="margin-right: 8px;" href="{% url 'videos:new_ia_video' %}">{% trans 'Add video from Streaming.IA' %}</a>
+                <a class="looks-like-a-button" style="margin-right: 8px;" href="{% url 'videos:new_ia_video' %}">{% trans 'Add video from Video.IA' %}</a>
+                <a class="looks-like-a-button obscure" style="margin-right: 8px;" href="{% url 'videos:new_iaold_video' %}">{% trans 'Add video from Streaming.IA' %}</a>
                 <a class="looks-like-a-button obscure" href="{% url 'videos:new_yt_video' %}">{% trans 'Add video from YouTube' %}</a>
             {% endif %}
 		</h2>

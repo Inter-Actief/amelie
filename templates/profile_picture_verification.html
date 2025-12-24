@@ -1,0 +1,132 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}
+    {% trans 'Verify uploaded profile pictures' %}
+{% endblock titel %}
+
+{% block head %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function addFetchProp(button) {
+                button.addEventListener('click', function() {
+                    const personId = this.dataset.personId;
+                    const isAcceptButton = this.classList.contains('accept-button');
+                    fetch("{% url 'portrait_upload_verification' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: `id=${personId}&is_verified=${isAcceptButton}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const statusPara = document.createElement('p');
+                        if (data.status === 'success') {
+                            statusPara.style.color = 'green';
+                            statusPara.style.fontWeight = 'bold';
+                            statusPara.textContent = isAcceptButton ? 'Accepted successfully!' : 'Denied successfully!';
+                        } else {
+                            statusPara.style.color = 'red';
+                            statusPara.style.fontWeight = 'bold';
+                            statusPara.textContent = isAcceptButton ? 'Error while accepting!' : 'Error while denying!';
+                        }
+
+                        // Disable both buttons in this row
+                        const acceptButton = this.parentElement.parentElement.getElementsByClassName('accept-button')[0]
+                        const denyButton = this.parentElement.parentElement.getElementsByClassName('deny-button')[0]
+                        acceptButton.setAttribute('disabled','')
+                        acceptButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        denyButton.setAttribute('disabled','')
+                        denyButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        this.parentElement.parentElement.appendChild(statusPara);
+                    })
+                    .catch((e) => {
+                        console.log({errorIs: e})
+                        // Disable both buttons in this row
+                        const acceptButton = this.parentElement.parentElement.getElementsByClassName('accept-button')[0]
+                        const denyButton = this.parentElement.parentElement.getElementsByClassName('deny-button')[0]
+                        acceptButton.setAttribute('disabled','')
+                        acceptButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        denyButton.setAttribute('disabled','')
+                        denyButton.setAttribute('style', "color: darkgray;background-color: lightgray;")
+                        const statusPara = document.createElement('p');
+                        statusPara.style.color = 'red';
+                        statusPara.style.fontWeight = 'bold';
+                        statusPara.textContent = 'Error during request!';
+                        this.parentElement.parentElement.appendChild(statusPara);
+                    });
+                });
+            };
+
+            document.querySelectorAll('.deny-button').forEach(addFetchProp);
+            document.querySelectorAll('.accept-button').forEach(addFetchProp);
+        });
+    </script>
+{% endblock head %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>
+                {% trans "Unapproved profile pictures" %}
+            </h2>
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        The following people have uploaded a new profile picture.
+                        Please verify that the picture is acceptable.
+                        A good picture should at least show the person's face clearly.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        Note that pictures could be used for other purposes like yearbooks, publications, age lists, etc.
+                        Please make sure that the picture is proper.
+                    {% endblocktrans %}
+                </p>
+                <div class="table-responsive">
+                    <table class="table person_table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Person' %}</th>
+                                <th>{% trans 'Old picture' %}</th>
+                                <th>{% trans 'New picture' %}</th>
+                                <th>{% trans 'Accept change?' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for form, person in forms %}
+                                <tr data-person-id="{{ person.id }}">
+                                    <td>
+                                        <a href="{% url 'members:person_view' person.id person.slug %}" target="_blank">{{ person.full_name }}</a>
+                                    </td>
+                                    <td>
+                                        {% if person.picture %}
+                                            <img src="{% url 'members:person_picture' person.id person.slug %}" alt="{{ obj }}" class="profile_picture"/>
+                                        {% else %}
+                                            {% trans 'No picture' %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <img src="{% url 'members:person_unverified_picture' person.id person.slug %}" alt="{{ person }}" class="profile_picture"/></td>
+                                    <td>
+                                        <span class="current">
+                                            <button class="accept-button" data-person-id="{{ person.id }}">{% trans "Accept" %}</button>
+                                        </span>
+                                        <span class="edu">
+                                            <button class="deny-button" data-person-id="{{ person.id }}">{% trans "Deny" %}</button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4"><i>{% trans 'No unapproved pictures' %}</i></td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

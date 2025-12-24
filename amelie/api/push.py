@@ -1,22 +1,24 @@
 import logging
 from typing import Dict
 
-from django.template import Template, Context
-
 from fcm_django.models import FCMDevice
-
-from modernrpc.core import rpc_method
+from modernrpc import RpcRequestContext
 from modernrpc.exceptions import RPCInvalidParams
 
-from amelie.api.decorators import authentication_optional, authentication_required
+from django.template import Template, Context
+
+from amelie.api.api import api_server
+from amelie.api.authentication_types import AnonymousAuthentication
+from amelie.api.decorators import auth_optional, auth_required
 from amelie.api.exceptions import UnknownDeviceError, PermissionDeniedError
 from amelie.api.models import PushNotification
 from amelie.api.utils import generate_token
 
+
 logger = logging.getLogger(__name__)
 
 
-@rpc_method(name='getDeviceId')
+@api_server.register_procedure(name='getDeviceId')
 def get_device_id(**kwargs) -> str:
     """
     Requests a new deviceId. Your application SHOULD call this method only once in your
@@ -43,9 +45,8 @@ def get_device_id(**kwargs) -> str:
     return token
 
 
-@rpc_method(name='getPushContent')
-@authentication_required("account")
-def get_push_content(push_id: int, **kwargs) -> Dict[str, str]:
+@api_server.register_procedure(name='getPushContent', auth=auth_required('account'), context_target='ctx')
+def get_push_content(push_id: int, ctx: RpcRequestContext = None, **kwargs) -> Dict[str, str]:
     """
     Retrieves the details of a push notification that was sent to the currently authenticated person by its ID.
 
@@ -79,7 +80,8 @@ def get_push_content(push_id: int, **kwargs) -> Dict[str, str]:
                "message": "The activity you signed up for is starting."
         }}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
     notification = PushNotification.objects.filter(id=push_id, recipients__in=[person]).first()
     message = Template(notification.message).render(Context({'recipient': person}))
 
@@ -92,9 +94,8 @@ def get_push_content(push_id: int, **kwargs) -> Dict[str, str]:
     }
 
 
-@rpc_method(name='registerPushChannel')
-@authentication_optional()
-def register_push_channel(device_id: str, channel_id: str, type: str, **kwargs) -> bool:
+@api_server.register_procedure(name='registerPushChannel', auth=auth_optional, context_target='ctx')
+def register_push_channel(device_id: str, channel_id: str, type: str, ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Registers a device to receive push notifications (optionally for the current authenticated person).
     If any old registrations for this device exist, they will be deactivated.
@@ -122,7 +123,7 @@ def register_push_channel(device_id: str, channel_id: str, type: str, **kwargs) 
         --> {"method":"registerPushChannel", "params":["QphLtj#z%Itaceny", "j_7_4....f2a+r", "android"]}
         <-- {"result": true}
     """
-    authentication = kwargs.get('authentication')
+    authentication = ctx.auth_result
 
     # User object used in order to send push notifications to specific persons
     user = None
@@ -146,7 +147,7 @@ def register_push_channel(device_id: str, channel_id: str, type: str, **kwargs) 
     return True
 
 
-@rpc_method(name='deletePushChannel')
+@api_server.register_procedure(name='deletePushChannel')
 def delete_push_channel(device_id: str, **kwargs) -> bool:
     """
     Unregisters a device from all push notifications.

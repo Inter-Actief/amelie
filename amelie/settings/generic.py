@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-
 # Note: Imports cannot have a direct dependency on the settings below.
 # Meaning, when a package is imported here, the initialization of that package cannot use the settings.
 import os
@@ -191,6 +190,9 @@ TEMPLATES = [
     }
 ]
 
+# Override the default form rendering class to include our IA styling templates.
+FORM_RENDERER = "amelie.style.forms.AmelieFormRenderer"
+
 # Middleware classes that are used by the application
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -263,7 +265,6 @@ INSTALLED_APPS = (
     'amelie.files',
     'amelie.about',
     'amelie.personal_tab',
-    'amelie.twitter',
     'amelie.style',
     'amelie.narrowcasting',
     'amelie.api',
@@ -279,9 +280,6 @@ INSTALLED_APPS = (
     'amelie.oauth',
     'amelie.data_export',
     'amelie.publications',
-
-    # JSONRPC API
-    'modernrpc',
 
     # GraphQL API
     'graphene_django',
@@ -452,22 +450,7 @@ GRAPHENE_DJANGO_EXTRAS = {
 # Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
 DATA_UPLOAD_MAX_NUMBER_FILES = 1000
 
-# Modules with JSONRPC API endpoints for autoregistration
-MODERNRPC_METHODS_MODULES = [
-    'amelie.api.api',
-    'amelie.api.activitystream',
-    'amelie.api.authentication',
-    'amelie.api.committee',
-    'amelie.api.company',
-    'amelie.api.education',
-    'amelie.api.narrowcasting',
-    'amelie.api.news',
-    'amelie.api.person',
-    'amelie.api.personal_tab',
-    'amelie.api.push',
-    'amelie.api.videos'
-]
-
+# Handler used by the old JSONRPC API server
 MODERNRPC_HANDLERS = [
     "amelie.api.handlers.IAJSONRPCHandler"
 ]
@@ -567,6 +550,29 @@ COOKIE_CORNER_BANK_CODES = {
     'UGBI': 'UGBINL2A',
     'VOWA': 'VOWANL21',
     'ZWLB': 'ZWLBNL21'
+}
+
+# Printer configuration
+PERSONAL_TAB_PRINTER_MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB in bytes
+PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = 69  # Article ID of 1 piece of paper (single/dual-sided)
+PERSONAL_TAB_PRINTERS = {
+    # Printer settings template:
+    # "printer": {
+    #     # Printer name as shown to users
+    #     "name": "Printer",
+    #     # IPP(S) url to print on the printer
+    #     "ipp_url": "ipps://printer.local:631/ipp/print",
+    #     # Various printer settings
+    #     "settings": {
+    #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/media-supported"
+    #         "media_format": "iso_a4_210x297mm",
+    #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
+    #         "document_format": "application/pdf",
+    #         # One of ["single-document", "separate-documents-uncollated-copies", "separate-documents-collated-copies", "single-document-new-sheet"]
+    #         # See RFC-8011, Section-5.2.4 for confusing details. You probably want "separate-documents-collated-copies" or "single-document-new-sheet".
+    #         "multiple_document_handling": "separate-documents-collated-copies",
+    #     },
+    # }
 }
 
 # Celery task scheduler settings
@@ -725,12 +731,6 @@ FCM_DJANGO_SETTINGS = {
     'FCM_SERVER_KEY': '',
     'DELETE_INACTIVE_DEVICES': True,
 }
-
-# Twitter keys and tokens for 'iawebsite'
-TWITTER_APP_KEY = "empty"
-TWITTER_APP_SECRET = "empty"
-TWITTER_OAUTH_TOKEN = "empty"
-TWITTER_OAUTH_SECRET = "empty"
 
 # Settings for our oAuth2 provider
 OAUTH2_PROVIDER = {
@@ -927,9 +927,15 @@ FILE_DOWNLOAD_METHOD = None
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
+# Settings for Video.IA integration
+PEERTUBE_BASE_URL = "https://video.ia.utwente.nl"  # No trailing slash!
+
 # The special theme of the website, for special occasions. This overrides the theme of the website for everyone!
 # Default: None (will use the normal theme). Options: ["christmas", "valentine"]
 WEBSITE_THEME_OVERRIDE = None
+
+# Blocked IP addresses for showing themes (Raspberry pis don't like our themes very much)
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
 
 # The week that IA has balcony duty.
 # 0 means the even calendar weeks, 1 means the odd calendar weeks.

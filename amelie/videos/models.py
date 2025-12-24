@@ -40,6 +40,8 @@ class BaseVideo(models.Model):
             return "youtube"
         elif hasattr(self, 'streamingiavideo'):
             return "streamingia"
+        elif hasattr(self, 'peertubeiavideo'):
+            return "peertubeia"
         else:
             return None
 
@@ -47,6 +49,8 @@ class BaseVideo(models.Model):
         if hasattr(self, 'youtubevideo'):
             return reverse('videos:single_yt_video', args=(), kwargs={'pk': self.video_id})
         elif hasattr(self, 'streamingiavideo'):
+            return reverse('videos:single_iaold_video', args=(), kwargs={'pk': self.video_id})
+        elif hasattr(self, 'peertubeiavideo'):
             return reverse('videos:single_ia_video', args=(), kwargs={'pk': self.video_id})
         else:
             return None
@@ -67,6 +71,16 @@ class StreamingIAVideo(BaseVideo):
         ordering = ['-date_published']
         verbose_name = _l('Streaming.IA video')
         verbose_name_plural = _l('Streaming.IA videos')
+
+    def get_absolute_url(self):
+        return reverse('videos:single_iaold_video', args=(), kwargs={'pk': self.video_id})
+
+
+class PeertubeIAVideo(BaseVideo):
+    class Meta:
+        ordering = ['-date_published']
+        verbose_name = _l('Video.IA video')
+        verbose_name_plural = _l('Video.IA videos')
 
     def get_absolute_url(self):
         return reverse('videos:single_ia_video', args=(), kwargs={'pk': self.video_id})

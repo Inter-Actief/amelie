@@ -26,13 +26,19 @@ form {
       padding: 4px 6px;
       border: 1px solid #aaa;
     }
-
+    select {
+      max-width: calc(100% ~"-" 190px);
+    }
     textarea {
       width: 100%;
     }
 
     .form-row {
       padding: 5px 0px;
+
+      &.errors {
+        color: @educolor;
+      }
 
       label {
         margin-top: 3px;

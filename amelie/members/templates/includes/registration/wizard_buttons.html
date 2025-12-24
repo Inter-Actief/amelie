@@ -1,12 +1,6 @@
 {% load i18n %}
 
 <div class="buttons">
-    {% if wizard.steps.prev %}
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" formnovalidate
-                onclick="return confirm('{% trans 'Any changes on this page may be lost. Are you sure you want to go back?' %}');">{% trans "Back to first step" %}</button>
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" formnovalidate
-                onclick="return confirm('{% trans 'Any changes on this page may be lost. Are you sure you want to go back?' %}');">{% trans "Back to previous step" %}</button>
-    {% endif %}
     {% if wizard.steps.next %}
         <input class="float-right" type="submit" value="{% trans 'Continue to next step' %}"/>
     {% else %}
@@ -15,5 +9,11 @@
         {% else %}
             <input class="float-right" type="submit" value="{% trans 'Send form and print' %}"/>
         {% endif %}
+    {% endif %}
+    {% if wizard.steps.prev %}
+        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" formnovalidate
+                onclick="return confirm('{% trans 'Any changes on this page may be lost. Are you sure you want to go back?' %}');">{% trans "Back to first step" %}</button>
+        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" formnovalidate
+                onclick="return confirm('{% trans 'Any changes on this page may be lost. Are you sure you want to go back?' %}');">{% trans "Back to previous step" %}</button>
     {% endif %}
 </div>

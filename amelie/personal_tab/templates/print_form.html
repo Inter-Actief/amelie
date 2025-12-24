@@ -1,0 +1,198 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}{% trans "Print Document" %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        {% if request.user.is_superuser and available_printers %}
+        <div class="ia">
+            <div class="content">
+                <span style="font-weight: bold;">{% trans 'Printer status (for www-supers):' %} </span>
+                {% for printer in available_printers %}
+                    <a class="looks-like-a-button button_primary" href="{% url 'personal_tab:printer_status' printer_key=printer.0 %}">{{ printer.1 }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="current">
+            <h2>{% trans "Print Document" %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Upload a PDF document to print on the Inter-Actief printer.
+                    {% endblocktrans %}
+                    {% if request.is_board %}
+                        <a class="looks-like-a-button button_primary float-right" href="{% url 'personal_tab:print_log' %}">
+                            <i class="icon icon-printer_error"></i>&nbsp;
+                            {% trans "Print logs" %}
+                        </a>
+                    {% endif %}
+                </p>
+
+                <h3>{% trans "Printing Information" %}</h3>
+                <ul>
+                    <li>{% trans "Only PDF files are accepted" %}</li>
+                    <li>{% trans "Maximum file size:" %} {{ max_file_size }}</li>
+                    <li>{% trans "Prints will be in black & white. If you need a colour print ask the board to print it for you via USB" %}</li>
+                    <li>{% trans "Committee members can print for free by selecting the committee the print is for" %}</li>
+                    <li>{% trans "Non-committee-related prints will be charged per page to your personal tab" %}</li>
+                </ul>
+                <ul>
+                    <li>
+                        <i class="icon icon-information"></i>
+                        {% trans "For administrative purposes and to be able to trace rogue prints, a log will be saved of each submitted print, containing the following details about the print:" %}
+                        <ul>
+                            <li>{% trans "Submission timestamp;" %}</li>
+                            <li>{% trans "A reference to your member details;" %}</li>
+                            <li>{% trans "The filename of the printed file;" %}</li>
+                            <li>{% trans "Your IP-address and the User-Agent of your browser;" %}</li>
+                            <li>{% trans "(if printed for a committee) Which committee the print was for;" %}</li>
+                            <li>{% trans "(if printed personally) The personal tab transaction that paid for the print." %}</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <form class="big" method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <ul class="ia_messages">
+                            <li class="error">{{ form.non_field_errors|safe }}</li>
+                        </ul>
+                    {% endif %}
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th>{{ form.document.label }}</th>
+                                <td>
+                                    {{ form.document.errors|safe }}
+                                    <div>{{ form.document }}</div>
+                                    {% if form.document.help_text %}
+                                        <small class="help-text">{{ form.document.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{{ form.printer.label }}</th>
+                                <td>
+                                    {{ form.printer.errors|safe }}
+                                    <div>{{ form.printer }}</div>
+                                    {% if form.printer.help_text %}
+                                        <small class="help-text">{{ form.printer.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if user.person.current_committees.exists %}
+                            <tr>
+                                <th>{{ form.committee.label }}</th>
+                                <td>
+                                    {{ form.committee.errors|safe }}
+                                    <div>{{ form.committee }}</div>
+                                    {% if form.committee.help_text %}
+                                        <small class="help-text">{{ form.committee.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>{{ form.copies.label }}</th>
+                                <td>
+                                    {{ form.copies.errors|safe }}
+                                    <div>{{ form.copies }}</div>
+                                    {% if form.copies.help_text %}
+                                        <small class="help-text">{{ form.copies.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>{{ form.dual_sided.label }}</th>
+                                <td>
+                                    {{ form.dual_sided.errors|safe }}
+                                    <div>{{ form.dual_sided }}</div>
+                                    {% if form.dual_sided.help_text %}
+                                        <small class="help-text">{{ form.dual_sided.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <ul class="ia_messages">
+                    {% if user.person.current_committees.exists %}
+                        <li class="info">
+                            <p>
+                            {% blocktrans %}
+                                If your print is for a committee, select it in the form above.
+                                In that case the print will be free.
+                            {% endblocktrans %}
+                            </p><p>
+                            {% blocktrans %}
+                                If you want to print for personal use, leave the committee field empty ("-- Pay via personal tab --" option).
+                                In that case the print will be charged to your personal tab at a rate of &euro; {{ per_page_cost }} per page (single or dual-sided).
+                            {% endblocktrans %}
+                            </p>
+                        </li>
+                    {% else %}
+                        <li class="info">
+                            {% blocktrans %}
+                                You are not currently a member of any committees. All prints will be charged to your personal tab at a rate of &euro; {{ per_page_cost }} per page (single or dual-sided).
+                            {% endblocktrans %}
+                        </li>
+                    {% endif %}
+                    </ul>
+
+                    <div>
+                        <input type="submit" value="{% trans 'Print Document' %} &raquo;" />
+                        <span class="icon icon-error">{% trans 'Note: Printer will start printing immediately, check the selected document carefully before submitting!' %}</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add file validation and preview functionality
+            const fileInput = document.getElementById('id_document');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        // Validate file type
+                        if (!file.name.toLowerCase().endsWith('.pdf')) {
+                            alert('{% trans "Please select a PDF file." %}');
+                            this.value = '';
+                            return;
+                        }
+
+                        // Validate file size (50MB)
+                        const maxSize = {{ max_file_size_bytes_int }};
+                        if (file.size > maxSize) {
+                            alert(`{% blocktrans with size=max_file_size %}File size cannot exceed {{size}}.{% endblocktrans %}`);
+                            this.value = '';
+                            return;
+                        }
+
+                        // Show file info
+                        const fileInfo = document.getElementById('file-info');
+                        if (!fileInfo) {
+                            const info = document.createElement('div');
+                            info.id = 'file-info';
+                            info.className = 'file-info';
+                            this.parentNode.appendChild(info);
+                        }
+
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        document.getElementById('file-info').innerHTML =
+                            '<small class="text-muted">{% trans "Selected:" %} ' + file.name + ' (' + fileSizeMB + 'MB)</small>';
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock content %}

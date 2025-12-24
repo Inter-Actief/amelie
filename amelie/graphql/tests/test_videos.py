@@ -10,7 +10,7 @@ from amelie.news.models import NewsItem
 from amelie.files.models import Attachment
 from amelie.members.models import Committee, Person
 from amelie.graphql.tests import BaseGraphQLPrivateFieldTests
-from amelie.videos.models import BaseVideo, YouTubeVideo, StreamingIAVideo
+from amelie.videos.models import BaseVideo, YouTubeVideo, StreamingIAVideo, PeertubeIAVideo
 from amelie.tools.tests import generate_activities
 
 
@@ -43,6 +43,15 @@ def generate_videos():
             video_id=i,
             title=f"Streaming.IA Video {i + 1}",
             description="This is a Streaming.IA video.",
+            date_published=now,
+            publisher=committee,
+            public=bool(i)
+        )
+        item.save()
+        item = PeertubeIAVideo(
+            video_id=i,
+            title=f"Video.IA Video {i + 1}",
+            description="This is a Video.IA video.",
             date_published=now,
             publisher=committee,
             public=bool(i)

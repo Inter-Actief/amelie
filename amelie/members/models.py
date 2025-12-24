@@ -304,7 +304,11 @@ class Person(models.Model, Mappable):
     last_name = models.CharField(max_length=50, verbose_name=_l('Last name'))
     initials = models.CharField(max_length=20, blank=True, verbose_name=_l('Initials'))
     slug = models.SlugField(max_length=150, editable=False)
+
+    # Picture stores the 'real' profile picture, unverified_picture stores a new profile picture while the board has not checked it yet.
     picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Photo'))
+    unverified_picture = models.ImageField(upload_to=person_picture_upload_path, blank=True, null=True, verbose_name=_l('Unverified photo'))
+
     notes = models.TextField(blank=True, verbose_name=_l('Notes'))
 
     gender = models.CharField(max_length=9, choices=GenderTypes.choices, verbose_name=_l('Gender'))

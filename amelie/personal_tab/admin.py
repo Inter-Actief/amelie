@@ -2,8 +2,9 @@ from django.contrib import admin
 
 from amelie.personal_tab.models import DiscountPeriod, Discount, DiscountCredit, Transaction, \
     CustomTransaction, ActivityTransaction, CookieCornerTransaction, AlexiaTransaction, ContributionTransaction, \
-    Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, DebtCollectionBatch, \
-    DebtCollectionInstruction, Reversal, DebtCollectionTransaction, ReversalTransaction, LedgerAccount
+    Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, \
+    DebtCollectionBatch, \
+    DebtCollectionInstruction, Reversal, DebtCollectionTransaction, ReversalTransaction, LedgerAccount, PrintLogEntry
 
 
 class RFIDAdmin(admin.ModelAdmin):
@@ -335,6 +336,22 @@ class LedgerAccountAdmin(admin.ModelAdmin):
     list_editable = ('name', 'ledger_account_number', 'default_statistics')
 
 
+class PrintLogAdmin(admin.ModelAdmin):
+    list_display = ('id', 'actor', 'document_name', 'page_count', 'committee', 'has_transaction', 'timestamp', 'source_ip')
+    list_filter = ('timestamp', 'committee', 'page_count')
+    date_hierarchy = 'timestamp'
+    search_fields = ['actor__first_name', 'actor__last_name', 'actor__slug', 'document_name', 'source_ip']
+    raw_id_fields = ('actor', 'committee', 'transaction')
+    readonly_fields = ('timestamp',)
+    ordering = ['-timestamp']
+
+    def has_transaction(self, obj):
+        """Display whether the print has an associated transaction (paid print)."""
+        return obj.transaction is not None
+    has_transaction.boolean = True
+    has_transaction.short_description = 'Paid'
+
+
 admin.site.register(RFIDCard, RFIDAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(CookieCornerTransaction, CookieCornerTransactionAdmin)
@@ -357,3 +374,4 @@ admin.site.register(Reversal, ReversalAdmin)
 admin.site.register(DiscountPeriod, DiscountPeriodAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(DiscountCredit, DiscountCreditAdmin)
+admin.site.register(PrintLogEntry, PrintLogAdmin)
