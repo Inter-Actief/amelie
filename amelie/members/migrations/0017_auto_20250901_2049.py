@@ -3,16 +3,13 @@
 from django.db import migrations
 import logging
 
-def get_console_logger():
-    logger = logging.getLogger(__name__)
-    handler = logging.StreamHandler()
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-
-    logger.info("starting logger")
-    return logger
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 def flip_birthday_preference(apps, schema_editor):
+    logger.info("starting birthday preference migration")
 
     preference = apps.get_model('members', 'Preference')
     pref = preference.objects.filter(name='birthday_show_frontpage').first()
@@ -28,14 +25,14 @@ def flip_birthday_preference(apps, schema_editor):
 
     person = apps.get_model('members', "Person")
 
-    get_console_logger().info(f"All persons: {len(person.objects.all())}")
+    logger.info(f"All persons: {len(person.objects.all())}")
 
     # current state, this is all good
-    get_console_logger().info(f"Pre-migration old state:")
+    logger.info(f"Pre-migration old state:")
     persons_no_frontpage = person.objects.filter(preferences__name='birthday_show_frontpage')
-    get_console_logger().info(f"- Not showing on frontpage (checked): {len(persons_no_frontpage)}")
+    logger.info(f"- Not showing on frontpage (checked): {len(persons_no_frontpage)}")
     persons_frontpage = person.objects.exclude(preferences__name='birthday_show_frontpage')
-    get_console_logger().info(f"- Showing on frontpage (unchecked): {len(persons_frontpage)}")
+    logger.info(f"- Showing on frontpage (unchecked): {len(persons_frontpage)}")
 
 
     # Set all people that do not want their birthday on the frontpage -> from check to uncheck
@@ -52,11 +49,13 @@ def flip_birthday_preference(apps, schema_editor):
         p.preferences.add(pref) # went kaboom here because of id 0
 
     # new state, this should be inverted now
-    get_console_logger().info(f"Post-migration new state (should match above):")
+    logger.info(f"Post-migration new state (should match above):")
     persons_no_frontpage = person.objects.exclude(preferences__name='birthday_show_frontpage')
-    get_console_logger().info(f"- Not showing on frontpage (unchecked): {len(persons_no_frontpage)}")
+    logger.info(f"- Not showing on frontpage (unchecked): {len(persons_no_frontpage)}")
     persons_frontpage = person.objects.filter(preferences__name='birthday_show_frontpage')
-    get_console_logger().info(f"- Showing on frontpage (checked): {len(persons_frontpage)}")
+    logger.info(f"- Showing on frontpage (checked): {len(persons_frontpage)}")
+
+    logger.info("birthday preference migration completed.")
 
 
 class Migration(migrations.Migration):
