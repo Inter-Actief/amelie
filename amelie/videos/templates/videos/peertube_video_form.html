@@ -1,0 +1,114 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets extend %}
+
+{% block titel %}
+    {% if is_new %}
+        {% trans 'New video' %}
+    {% else %}
+        {% trans 'Edit video' %}
+    {% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <form class="big" method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+
+        {% if is_new %}
+            <div class="col-xs-12 col-md-6">
+                <div class="current recent-uploads">
+                    <h2>{% trans 'Recent Video.IA uploads' %}</h2>
+
+                    <div class="content">
+                        <span>{% trans "Select one of these recently uploaded Video.IA videos to automatically fill certain fields." %}</span>
+                        <span>{% trans "Videos marked as private and previously added videos are not displayed in this list." %}</span>
+                    </div>
+
+                    <ul>
+                        {% if filtered_uploads|length %}
+                            {% for upload in filtered_uploads %}
+                                <li>
+                                    <h3><a href="{% url 'videos:new_predefined_ia_video' video_id=upload.shortUUID %}">
+                                        {{ upload.name }}
+                                    </a></h3>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <p><b>{% trans "No (new) videos have been found." %}</b></p>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-xs-12 col-md-6">
+                <div class="current">
+                    <h2>{% trans "Video.IA API Data" %}</h2>
+
+                    <div class="content">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <tr>
+                                    <th>{% trans "ID" %}</th>
+                                    <td><div>{{ object.video_id }}</div></td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Title" %}</th>
+                                    <td><div>{{ object.title }}</div></td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Description" %}</th>
+                                    <td><div>{{ object.description }}</div></td>
+                                </tr>
+                                <tr>
+                                    <th>{% trans "Thumbnail URL" %}</th>
+                                    <td><div>{{ object.thumbnail_url }}</div></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <input type="submit" value="{% trans 'Update Video.IA API Data' %} &raquo;" />
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="col-xs-12 col-md-6">
+            <div class="current">
+                <h2>
+                    {% if is_new %}
+                        {% trans 'Add new video' %}
+                    {% else %}
+                        {% trans 'Edit video' %}
+                    {% endif %}
+                </h2>
+
+                <div class="content">
+                    <div class="table-responsive">
+                        <table class="table">
+                            {% if is_new %}
+                                <tr>
+                                    <th>{% trans "Video.IA ID" %}</th>
+                                    <td>
+                                        <div>{{ form.video_id }}</div>
+                                        {{ form.video_id.errors }}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                {% fieldset date_published as date_published from form %}
+                                {{ date_published }}
+                            {% endif %}
+                            <tr>
+                                <th>{% trans "Publisher" %}</th>
+                                <td><div>{{ form.publisher }}</div></td>
+                            </tr>
+                            {% fieldset public,is_featured as form_extras from form %}
+                            {{ form_extras.as_table }}
+                        </table>
+                    </div>
+
+                    <input type="submit" value="{% if is_new %}{% trans 'Create video' %}{% else %}{% trans 'Edit video' %}{% endif %} &raquo;" />
+                </div>
+            </div>
+        </div>
+
+    </form>
+{% endblock content %}

@@ -1,0 +1,128 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["amelie"]
+
+[project.urls]
+Homepage = "https://www.inter-actief.utwente.nl/"
+Repository = "https://github.com/Inter-Actief/amelie"
+Issues = "https://github.com/Inter-Actief/amelie/issues"
+
+[project]
+name = "amelie"
+description = "Le fabuleux destin d'Amélie - De website van Inter-/Actief/. Vernoemd naar de film Amélie."
+dynamic = ["version"]
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.md"]
+
+authors = [
+    { name = "WWW committee of I.C.T.S.V. Inter-Actief", email = "www@inter-actief.net" }
+]
+
+requires-python = ">= 3.10"
+
+dependencies = [
+    "Django>=5.2.8,<5.3",
+    "importlib-metadata>=1.4.0,<9.0",
+    "celery>=5.5.3,<5.6",
+    "flower>=2.0.1,<2.1",
+    "django-celery-results>=2.4,<2.7",
+
+    "django-compressor>=4.1,<4.6",
+    "django-localflavor>=3.1,<5.1",
+    "django-extensions>=3.2.1,<4.2",
+    "django-formtools>=2.4,<2.6",
+    "django-auditlog>=2.2.0,<3.4",
+    "django-oauth-toolkit>=1.7.1,<3.2",
+    "django-cors-headers>=3.13.0,<4.10",
+    "django-colorfield",
+    "django-environ",
+
+    # Django Modern RPC -- For our JSONRPC API
+    "django-modern-rpc>=2.0.0,<2.1",
+
+    # WYSIWYG Editor for Django
+    "django-ckeditor>=6.3.2",
+
+    # FCM (Firebase Cloud Messaging)
+    # 1.x has breaking changes (old firebase api removed) # TODO: Breaking
+    "fcm-django>=0.3.11,<1",
+
+    # GraphQL API
+    "graphene-django",
+    "django-graphql-jwt",
+    "django-filter",
+    "graphene-django-extras",
+
+    # Used for stripping Markdown notations and indexing the IA Summary website.
+    "beautifulsoup4>=4.11.1,<4.15",
+
+    # Sanitizing Markdown strings in amelie template tags
+    "nh3>=0.3.2,<0.4",
+
+    # Other random dependencies, to be documented, see issue #556
+    "httplib2>=0.20.4,<0.32",
+    "icalendar>=4.1.0,<6.4",
+    "Markdown>=3.3.7,<3.10",
+    "mysqlclient",
+
+    # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
+    "Pillow>=9.2.0,<11.4",
+    "python-gitlab>=6.5.0,<6.6",
+    "python-dateutil>=2.8.2,<2.10",
+
+    # python-ldap requires libldap-dev libsasl2-dev (on Debian) to build
+    "python-ldap>=3.4.3,<3.5",
+    "raven>=6.10.0,<6.11",
+    "reportlab>=3.6.11",
+    "requests>=2.32,<2.33",
+    "html2text>=2020.1.16,<2025.4.16",
+
+    # Daphne - to run the website in ASGI mode on a proper webserver
+    "daphne>=3.0,<4.3",
+
+    # UWSGI - to run the website in WSGI mode on a proper webserver
+    "uwsgi>=2.0,<2.1",
+
+    # QR code generator for personal tab POS (requires Pillow)
+    "qrcode>=7.3.1,<8.3",
+
+    # PDF and IPP libraries to upload prints to the website and send them to the IA printer
+    "pypdf>=6.1.1,<7",
+    "pyipp>=0.17.2,<0.18",
+
+    # Google API Client
+    "google-api-python-client>=2.63.0,<3",
+    "oauth2client>=4.1.3,<4.2",
+    # PKCS12 deprecation in 23.3.0, need to migrate gsuite plugin to google-auth-oauthlib. See https://googleapis.github.io/google-api-python-client/docs/oauth.html
+    "pyOpenSSL>=22.1.0,<23.3.0",
+
+    # Development
+    "django-debug-toolbar>=3.7,<6.2",
+    "django-rosetta>=0.9.8,<0.11",
+    "docutils>=0.19,<0.23",
+    "pyinotify",
+    "model_bakery>=1.7.0,<1.21",
+    "django-silk>=5.0.1,<5.5",
+
+    # SAML IdP (requires xmlsec1 (on Debian))
+    "pysaml2>=7.2.1,<7.6",
+
+    # TODO: Officially only supports Django up-and-till 3.0 (not updated for the last 3 years)
+    "djangosaml2idp>=0.7.2,<0.8",
+
+    # Single Sign On - OIDC Client
+    "mozilla-django-oidc",
+
+    # Sentry error logging
+    "sentry-sdk>=1.22.1,<2.30",
+
+    # Health checks for Django
+    "django-health-check>=3.16.5,<3.21",
+
+    # Allows for CAPTCHA support in forms
+    "django-simple-captcha",
+]

@@ -105,7 +105,9 @@
             <div id="video" class="current">
                 <h2><a href="{% url 'videos:list_videos' %}">{% trans "Videos" %}</a></h2>
                 <div class="video-wrapper featured-video">
-                    {% if featured_video.get_video_type == "streamingia" %}
+                    {% if featured_video.get_video_type == "peertubeia" %}
+                        <iframe width="100%" height="100%" src="{{ peertube_base_url }}/videos/embed/{{ featured_video.video_id }}?warningTitle=0&peertubeLink=0&p2p=0" style="border: 0px; position: absolute; inset: 0px;" allow="fullscreen" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                    {% elif featured_video.get_video_type == "streamingia" %}
                         <iframe src='{{ streaming_base_url }}/play/{{ featured_video.video_id }}?embedded=True&autoplay=False' scrolling="no" frameborder="0" allowfullscreen></iframe>
                     {% else %}
                         <iframe src="https://www.youtube-nocookie.com/embed/{{ featured_video.video_id }}?modestbranding=0&amp;rel=0&amp;showinfo=0&amp;vq=hd720&amp;hl={{ LANGUAGE_CODE }}" scrolling="no" frameborder="0" allowfullscreen></iframe>
@@ -128,8 +130,10 @@
                     <li class="person"><a href="{% url 'members:person_new_freshman' %}">{% trans 'Add new freshman member' %}</a></li>
                     <li class="person"><a href="{% url 'members:person_preregister_freshman' %}">{% trans 'Pre-enroll freshman member' %}</a></li>
                     <li class="person"><a href="{% url 'members:preregistration_status' %}">{% trans 'Pre-enrollment status' %}</a></li>
-                    {% if request.is_board %}
+
+                    {% if request.is_board %} <!-- is this check necessary?? -->
                     <li class="person"><a href="{% url 'members:committee_new' %}">{% trans 'Add new committee' %}</a></li>
+                    <li class="person"><a href="{% url 'portrait_upload_verification' %}">{% trans 'Verify member profile pictures' %}</a></li>
                     {% endif %}
 
                     <li><b>{% trans 'Other' %}</b></li>

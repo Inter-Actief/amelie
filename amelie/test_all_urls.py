@@ -9,7 +9,7 @@ from django.urls import reverse, NoReverseMatch, resolve
 from django.utils import timezone
 
 from amelie.members.models import Person, Committee, Function, MembershipType, Membership, CommitteeCategory
-from amelie.personal_tab.models import DiscountPeriod
+from amelie.personal_tab.models import DiscountPeriod, Article
 
 # Ignore all names starting with. No namespaces can be added here, so be sure you are not ignoring more than intended.
 IGNORE_NAMES_STARTING = ["admin-", "django-admindocs-"]
@@ -23,6 +23,8 @@ IGNORE_NAMES = [
     "statistics:statistics",  # TODO add transactions to test this one
     "members:data_export",  # Does not allow GET-requests, only POST.
     "activities:photos",  # No pictures in the test database, so the paginator breaks
+
+    "personal_tab:print_index",  # Needs a paper article in the cookie corner with a specific ID.
 
     # SAML URLs do not need to work in development
     "saml2_acs", "saml2_login", "saml2_logout", "saml2_ls", "saml2_ls_post", "saml2_metadata",
@@ -61,7 +63,7 @@ REDIRECTS_FOLLOW = [
 
 # Names or urls that should at least redirect (namespaces must be prepended).
 REDIRECTS = REDIRECTS_FOLLOW + [
-    "favicon_redirect", "robots_redirect",  # Static files can't be checked, so we will just
+    "favicon_redirect",  # Static files can't be checked, so we will just
     "personal_tab:pos_logout", "personal_tab:pos_register_external", "personal_tab:pos_scan_external",
     "personal_tab:pos_shop", "personal_tab:register_scan", "personal_tab:my_dashboard",
     "account:password_reset", "account:password_reset_success"
@@ -224,6 +226,7 @@ class AllUrlsTestCase(TestCase):
             end=None, description_nl='Tentamenkoeken', description_en='Exam credits',
             ledger_account_number='2500', balance_account_number='2500',
         )
+
         # TODO create transaction to test
         # StreeplijstTransactie.objects.create(
         #     artikel=None,

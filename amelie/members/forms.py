@@ -144,6 +144,15 @@ class PersonDataForm(forms.ModelForm):
                 self.fields['account_name'].help_text = " ".join([_("Suggestion:"), account_name_suggestion])
 
 
+class ProfilePictureUploadForm(forms.Form):
+    profile_picture = forms.ImageField(required=True)
+
+
+class ProfilePictureVerificationForm(forms.Form):
+    is_verified = forms.BooleanField(initial=False, required=False, label=_l('Verify'))
+    id = forms.IntegerField(widget=forms.HiddenInput())
+
+
 class PersonPreferencesForm(forms.ModelForm):
     preferences = forms.ModelMultipleChoiceField(Preference.objects.all(), required=False,
                                                  widget=widgets.CheckboxSelectMultiple)
@@ -761,4 +770,4 @@ class StudentNumberForm(forms.Form):
         return self.cleaned_data["student_number"]
 
 
-inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm)
+inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm, ProfilePictureVerificationForm, ProfilePictureUploadForm)

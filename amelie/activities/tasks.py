@@ -8,7 +8,7 @@ def save_photos(folder, photos, activity, photographer, public):
     for photo in photos:
         file = os.path.join(folder, photo)
         attachment = Attachment(file=file, caption='', owner=photographer, public=public)
-        attachment.save()
+        attachment.save(create_thumbnails=True)
         activity.photos.add(attachment)
 
     # Save new set of photos

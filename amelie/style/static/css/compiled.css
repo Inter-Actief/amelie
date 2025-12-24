@@ -10569,6 +10569,12 @@ li.courses-soon {
 .right {
   float: right;
 }
+#build_info {
+  color: transparent;
+}
+#build_info:hover {
+  color: #2450A8;
+}
 /**
  * This file imports all base classes used in the website, not counting element styling. All related css/less should be placed into the ./classes/ folder.
  **/
@@ -11197,6 +11203,8 @@ img.profile_picture_small {
   vertical-align: top;
 }
 img.profile_picture {
+  min-width: 150px;
+  max-width: 150px;
   width: 150px;
   vertical-align: top;
 }
@@ -11250,6 +11258,11 @@ img.profile_picture {
 .tabbed-content select {
   margin-top: 0;
   width: 368px;
+}
+form.big .tabbed-content textarea,
+form.big .tabbed-content input,
+form.big .tabbed-content select {
+  max-width: 100%;
 }
 .block {
   background: #FFFFFF;
@@ -11536,6 +11549,20 @@ h2.expanded span {
   float: right;
   margin: -3px 0 0;
 }
+.h2-with-buttons .looks-like-a-danger-button,
+.h2-with-buttons input {
+  color: #fff;
+  background: #ea1121 !important;
+  border-color: #fff;
+  position: relative;
+}
+.h2-with-buttons .looks-like-a-gray-button,
+.h2-with-buttons input {
+  color: #fff;
+  background: #948989 !important;
+  border-color: #fff;
+  position: relative;
+}
 h2.h2-with-date {
   line-height: 20px;
 }
@@ -11603,11 +11630,17 @@ form.big select {
   padding: 4px 6px;
   border: 1px solid #aaa;
 }
+form.big select {
+  max-width: calc(100% - 190px);
+}
 form.big textarea {
   width: 100%;
 }
 form.big .form-row {
   padding: 5px 0px;
+}
+form.big .form-row.errors {
+  color: #B8231F;
 }
 form.big .form-row label {
   margin-top: 3px;

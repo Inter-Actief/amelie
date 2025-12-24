@@ -18,6 +18,8 @@ venv/
 .cache/
 media/
 amelie.db
+amelie.egg-info
+build/
 
 # backups of local settings, but not the .default settings
 amelie/settings/local.py*

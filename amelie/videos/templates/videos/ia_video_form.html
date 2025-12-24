@@ -27,7 +27,7 @@
                         {% if filtered_uploads|length %}
                             {% for upload in filtered_uploads %}
                                 <li>
-                                    <h3><a href="{% url 'videos:new_predefined_ia_video' video_id=upload.id %}">
+                                    <h3><a href="{% url 'videos:new_predefined_iaold_video' video_id=upload.id %}">
                                         {{ upload.videoName }}
                                     </a></h3>
                                 </li>

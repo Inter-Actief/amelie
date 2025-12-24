@@ -249,20 +249,22 @@ class PhotoUploadForm(forms.Form):
         super(PhotoUploadForm, self).__init__(*args, **kwargs)
         self.fields['photos'].choices = photos
         self.fields['activity'].queryset = Activity.objects.filter(
-            begin__lt=timezone.now(), begin__gte=timezone.now() - timedelta(days=182)
+            begin__lt=timezone.now(), begin__gte=timezone.now() - timedelta(days=365)
         ).order_by('-begin', '-end')
         self.fields['photographer'].queryset = Person.objects.filter(function__begin__isnull=False,
                                                                      function__end__isnull=True).distinct()
 
 
 class PhotoFileUploadForm(forms.Form):
-    photo_files = MultipleFileField()
+    allowed_extensions = ["jpg", "jpeg", "gif"]
+    photo_files = MultipleFileField(accept=','.join(map(lambda ext: f'image/{ext}', allowed_extensions)))
 
     def clean_photo_files(self):
-        allowed_extensions = ["jpg", "jpeg", "gif"]
+        validator = FileExtensionValidator(allowed_extensions=self.allowed_extensions)
+
         for file in self.files.getlist('photo_files'):
             # FileExtensionValidator raises ValidationError if an extension is not allowed
-            FileExtensionValidator(allowed_extensions=allowed_extensions)(file)
+            validator(file)
 
 
 class EventDeskActivityMatchForm(forms.Form):

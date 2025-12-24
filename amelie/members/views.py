@@ -5,6 +5,7 @@ import re
 import logging
 
 from datetime import date
+from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
@@ -350,7 +351,7 @@ def _person_can_be_anonymized(person):
                 year=membership.year, next_year=membership.year + 1, type=membership.type
             )))
     # Date where new SEPA authorizations came into effect.
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
     personal_tab_credit = Transaction.objects.filter(person=person, date__gte=begin).aggregate(Sum('price'))[
         'price__sum'] or Decimal('0.00')
     if personal_tab_credit != 0:
@@ -1412,6 +1413,22 @@ def person_picture(request, id, slug):
 
     # Serve file, preferably using Sendfile
     image_file = person.picture
+    if image_file:
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
+    else:
+        raise Http404('Picture not found')
+
+
+@require_board
+def person_unverified_picture(request, id, slug):
+    person = get_object_or_404(Person, id=id, slug=slug)
+
+    # Only for the board or the person themselves
+    if not request.is_board and not request.person == person:
+        return HttpResponseForbidden()
+
+    # Serve file, preferably using Sendfile
+    image_file = person.unverified_picture
     if image_file:
         return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
     else:

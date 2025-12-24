@@ -357,14 +357,6 @@ ALEXIA_API['URL'] = env("ALEXIA_API_URL", default=ALEXIA_API.get('URL', None))
 ALEXIA_API['USER'] = env("ALEXIA_API_USERNAME", default=ALEXIA_API.get('USER', None))
 ALEXIA_API['PASSWORD'] = env("ALEXIA_API_PASSWORD", default=ALEXIA_API.get('PASSWORD', None))
 
-###
-#  Twitter settings (probably broken due to twitter API changes)
-###
-TWITTER_APP_KEY = env("AMELIE_TWITTER_APP_KEY", default=TWITTER_APP_KEY)
-TWITTER_APP_SECRET = env("AMELIE_TWITTER_APP_SECRET", default=TWITTER_APP_SECRET)
-TWITTER_OAUTH_TOKEN = env("AMELIE_TWITTER_OAUTH_TOKEN", default=TWITTER_OAUTH_TOKEN)
-TWITTER_OAUTH_SECRET = env("AMELIE_TWITTER_OAUTH_SECRET", default=TWITTER_OAUTH_SECRET)
-
 
 ###
 #  Data Hoarder settings (GDPR data exporter)
@@ -423,12 +415,50 @@ PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal(env("PERSONAL_TAB_MAXIMUM_ACTIVITY
 # Cookie corner Wrapped
 COOKIE_CORNER_WRAPPED_YEAR = env.int("COOKIE_CORNER_WRAPPED_YEAR", default=COOKIE_CORNER_WRAPPED_YEAR)
 
+# Printer configuration
+
+# Maximum file size for printed files, in bytes (i.e. 50MB = 50 * 1024 * 1024 bytes)
+PERSONAL_TAB_PRINTER_MAX_FILE_SIZE = env.int("PERSONAL_TAB_PRINTER_MAX_FILE_SIZE", default=PERSONAL_TAB_PRINTER_MAX_FILE_SIZE)
+# Article ID of 1 piece of paper (single/dual-sided)
+PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = env.int("PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID", default=PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID)
+
+# Printer configuration, limited to 5 printers currently, via PERSONAL_TAB_PRINTER_1_*, PERSONAL_TAB_PRINTER_2_*, etc.
+PERSONAL_TAB_PRINTERS = {}
+for i in range(1, 6):
+    printer_key = env(f"PERSONAL_TAB_PRINTER_{i}_KEY", default="")
+    if printer_key:
+        printer_name = env(f"PERSONAL_TAB_PRINTER_{i}_NAME", default=None)
+        printer_ipp = env(f"PERSONAL_TAB_PRINTER_{i}_IPP_URL", default=None)
+        if printer_name is None or printer_ipp is None:
+            raise ValueError(f"Personal tab printer {i} is missing basic configuration! Please make sure "
+                             f"PERSONAL_TAB_PRINTER_{i}_NAME and PERSONAL_TAB_PRINTER_{i}_IPP_URL are set, "
+                             f"or unset PERSONAL_TAB_PRINTER_{i}_KEY to disable this printer.")
+        PERSONAL_TAB_PRINTERS[printer_key] = {
+            # Printer name as shown to users
+            "name": printer_name,
+            # IPP(S) url to print on the printer
+            "ipp_url": printer_ipp,
+            # Various printer settings
+            "settings": {
+                # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/media-supported"
+                "media_format": env(f"PERSONAL_TAB_PRINTER_{i}_MEDIA_FORMAT", default="iso_a4_210x297mm"),
+                # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
+                "document_format": env(f"PERSONAL_TAB_PRINTER_{i}_DOCUMENT_FORMAT", default="application/pdf"),
+                # One of ["single-document", "separate-documents-uncollated-copies", "separate-documents-collated-copies", "single-document-new-sheet"]
+                # See RFC-8011, Section-5.2.4 for confusing details. You probably want "separate-documents-collated-copies" or "single-document-new-sheet".
+                "multiple_document_handling": env(f"PERSONAL_TAB_PRINTER_{i}_MULTIPLE_DOCUMENT_HANDLING", default="separate-documents-collated-copies"),
+            },
+        }
 
 ###
 #  Amelie-specific settings
 ###
 # Current theme for the website. Options: [None, "christmas", "valentine"]
 WEBSITE_THEME_OVERRIDE = env("AMELIE_THEME_OVERRIDE", default=None)
+
+# Block themes from showing on the infodesk and couch (outside) Raspberry pis, since they will lag too much
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
+BLOCKED_THEME_IP_RANGES.extend(env.list("BLOCKED_THEME_IP_RANGES", default=[]))
 
 # Youtube API key (for video module)
 YOUTUBE_API_KEY = env("AMELIE_YOUTUBE_API_KEY", default="")

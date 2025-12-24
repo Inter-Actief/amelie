@@ -60,11 +60,11 @@
             <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
 
             {% endcompress %}
-			
+
             {% compress js %}
             {% comment %} Bootstrap modal needed for popup {% endcomment %}
             <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
-			
+
             {% comment %} CB script {% endcomment %}
             <script src="{% cached_static 'js/cb.js' %}"></script>
             {% endcompress %}
@@ -277,6 +277,11 @@
                                     <li>
                                         <a href="{% url 'personal_tab:overview' %}">{% trans 'Personal tab' %}</a>
                                     </li>
+                                    {% if request.person.has_mandate_consumptions or request.person.is_active_member %}
+                                    <li>
+                                        <a href="{% url 'personal_tab:print_index' %}">{% trans 'Print document' %}</a>
+                                    </li>
+                                    {% endif %}
                                     <li>
                                         <a href="{% url 'oidc_logout' %}">{% trans 'Log out' %}</a>
                                     </li>
@@ -320,6 +325,10 @@
                     <span>Sponsored by: </span>
                     <img src="{% cached_static 'img/byte_logo.png' %}" alt="Sponsored by Byte" />
                 </div>
+                <span id="build_info" class="right"
+				      title="{% blocktrans with branch=build_info.branch|default:'?' commit=build_info.commit|default:'?' date=build_info.date|default:'?' pid=host_info.pid|default:'?' host=host_info.host|default:'?' %}Amélie {{ branch }} ({{ commit }} built on {{ date }}) rendered by PID {{ pid }} on {{ host }}{% endblocktrans %}">
+                    &pi;
+                </span>
             </div>
         </div>
 

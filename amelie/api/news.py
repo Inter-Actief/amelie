@@ -1,17 +1,18 @@
 import logging
 from typing import List, Dict
 
+from modernrpc.exceptions import RPCInvalidParams
+
+from amelie.api.api import api_server
 from amelie.api.exceptions import DoesNotExistError
 from amelie.tools.templatetags import md
 from amelie.news.models import NewsItem
 
-from modernrpc.core import rpc_method
-from modernrpc.exceptions import RPCInvalidParams
 
 logger = logging.getLogger(__name__)
 
 
-@rpc_method(name='getNewsStream')
+@api_server.register_procedure(name='getNewsStream')
 def get_news_stream(offset: int, length: int) -> List[Dict]:
     """
     Retrieves various types ('web', 'education') of news articles from the website.
@@ -66,7 +67,7 @@ def get_news_stream(offset: int, length: int) -> List[Dict]:
     return result
 
 
-@rpc_method(name='getNewsContent')
+@api_server.register_procedure(name='getNewsContent')
 def get_news_content(news_id: int, return_type: str) -> Dict:
     """
     Returns the detailed content of a single news item from the website, including its content.
