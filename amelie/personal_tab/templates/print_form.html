@@ -36,6 +36,7 @@
                 <ul>
                     <li>{% trans "Only PDF files are accepted" %}</li>
                     <li>{% trans "Maximum file size:" %} {{ max_file_size }}</li>
+                    <li>{% trans "Prints will be in black & white. If you need a colour print ask the board to print it for you via USB" %}</li>
                     <li>{% trans "Committee members can print for free by selecting the committee the print is for" %}</li>
                     <li>{% trans "Non-committee-related prints will be charged per page to your personal tab" %}</li>
                 </ul>
@@ -117,18 +118,6 @@
                                     {% endif %}
                                 </td>
                             </tr>
-                            {% if user.person.current_committees.exists %}
-                            <tr>
-                                <th>{{ form.colour.label }}</th>
-                                <td>
-                                    {{ form.colour.errors|safe }}
-                                    <div>{{ form.colour }}</div>
-                                    {% if form.colour.help_text %}
-                                        <small class="help-text">{{ form.colour.help_text }}</small>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endif %}
                         </table>
                     </div>
 

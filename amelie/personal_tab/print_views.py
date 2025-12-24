@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponse
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import FormView, ListView, DeleteView
+from pyipp import IPPConnectionError
 
 from amelie.personal_tab.forms import PrintDocumentForm
 from amelie.personal_tab.models import PrintLogEntry, Article, CustomTransaction
@@ -22,14 +23,21 @@ def printer_status(request, printer_key):
     if printer_key not in available_printers:
         raise Http404("Printer not found.")
 
-    from amelie.tools.ipp_printer import IPPPrinter
-    printer = IPPPrinter(printer_key=printer_key)
-    attributes = printer.printer_attributes()
-    jobs = printer.printer_jobs()
-    return HttpResponse(json.dumps({
-        'attributes': attributes,
-        'jobs': jobs
-    }, indent=2, default=lambda o: str(repr(o))), content_type='application/json')
+    try:
+        from amelie.tools.ipp_printer import IPPPrinter
+        printer = IPPPrinter(printer_key=printer_key)
+        attributes = printer.printer_attributes()
+        jobs = printer.printer_jobs()
+        return HttpResponse(json.dumps({
+            'attributes': attributes,
+            'jobs': jobs
+        }, indent=2, default=lambda o: str(repr(o))), content_type='application/json')
+    except IPPConnectionError as e:
+        return HttpResponse(json.dumps({
+            'error_code': 500,
+            'error_class': e.__class__.__name__,
+            'error_message': str(e),
+        }, indent=2, default=lambda o: str(repr(o))), content_type='application/json', status=500)
 
 
 class PrintIndexView(RequirePersonalTabAuthorizationOrActiveMemberMixin, FormView):

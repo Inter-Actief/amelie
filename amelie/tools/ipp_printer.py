@@ -275,11 +275,11 @@ class IPPPrinter:
         logging.debug(response_data)
         return response_data
 
-    def print_document(self, document, job_name, num_copies=1, dual_sided=False, colour=False):
+    def print_document(self, document, job_name, num_copies=1, dual_sided=False):
         if self.ipp is None:
             self.connect()
         job_name = job_name[:250]  # Job names may not exceed 255 characters, so truncate to 250 if necessary
-        create_response = self.create_job(job_name=job_name, num_copies=num_copies, dual_sided=dual_sided, colour=colour)
+        create_response = self.create_job(job_name=job_name, num_copies=num_copies, dual_sided=dual_sided)
         if create_response['status-code'] != 0:
             status_msg = create_response.get('operation-attributes', {}).get('status-message', '')
             raise ValueError(f"Failed to create print job, status-code {create_response['status-code']}: {status_msg} - {create_response}")
