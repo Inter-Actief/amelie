@@ -17,23 +17,25 @@ def flip_birthday_preference(apps, schema_editor):
     preference = apps.get_model('members', 'Preference')
     pref = preference.objects.filter(name='birthday_show_frontpage').first()
 
-    assert pref is not None
+    # If the preference does not exist, don't do anything, in case someone runs this on a blank (dev) DB
+    if pref is None:
+        return
 
-    # Changes preference to inverted version
+    # Changes preference to the inverted version
     pref.preference_nl = 'Ik wil dat mijn verjaardag zichtbaar is op de voorpagina.'
     pref.preference_en = 'I want my birthday to be publicly visible on the front page.'
     pref.save()
 
     person = apps.get_model('members', "Person")
 
-    get_console_logger().info(f"person: {len(person.objects.all())}")
+    get_console_logger().info(f"All persons: {len(person.objects.all())}")
 
     # current state, this is all good
+    get_console_logger().info(f"Pre-migration old state:")
     persons_no_frontpage = person.objects.filter(preferences__name='birthday_show_frontpage')
-    get_console_logger().info(f"no front (checked): {len(persons_no_frontpage)}")
-
+    get_console_logger().info(f"- Not showing on frontpage (checked): {len(persons_no_frontpage)}")
     persons_frontpage = person.objects.exclude(preferences__name='birthday_show_frontpage')
-    get_console_logger().info(f"front (unchecked): {len(persons_frontpage)}")
+    get_console_logger().info(f"- Showing on frontpage (unchecked): {len(persons_frontpage)}")
 
 
     # Set all people that do not want their birthday on the frontpage -> from check to uncheck
@@ -49,10 +51,18 @@ def flip_birthday_preference(apps, schema_editor):
             continue
         p.preferences.add(pref) # went kaboom here because of id 0
 
+    # new state, this should be inverted now
+    get_console_logger().info(f"Post-migration new state (should match above):")
+    persons_no_frontpage = person.objects.exclude(preferences__name='birthday_show_frontpage')
+    get_console_logger().info(f"- Not showing on frontpage (unchecked): {len(persons_no_frontpage)}")
+    persons_frontpage = person.objects.filter(preferences__name='birthday_show_frontpage')
+    get_console_logger().info(f"- Showing on frontpage (checked): {len(persons_frontpage)}")
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('members', '0015_alter_function_options'),
+        ('members', '0016_person_unverified_picture'),
     ]
 
     operations = [
