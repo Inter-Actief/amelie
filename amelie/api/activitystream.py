@@ -1,10 +1,10 @@
-import logging
-from typing import List, Dict
-
-import operator
-
 from decimal import Decimal
 from itertools import chain
+import logging
+import operator
+from typing import List, Dict
+
+from modernrpc import RpcRequestContext
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
@@ -16,9 +16,11 @@ from amelie.activities.models import Activity, EnrollmentoptionQuestion, Enrollm
 from amelie.activities.models import EnrollmentoptionQuestionAnswer, EnrollmentoptionCheckboxAnswer, \
     EnrollmentoptionFoodAnswer
 from amelie.activities.utils import update_waiting_list
+from amelie.api.api import api_server
 from amelie.api.activitystream_utils import add_detailed_properties, add_images_property, add_thumbnails_property, \
     get_basic_result
-from amelie.api.decorators import authentication_optional, authentication_required
+from amelie.api.authentication_types import AnonymousAuthentication
+from amelie.api.decorators import auth_optional, auth_required
 from amelie.api.exceptions import NotLoggedInError, MissingOptionError, SignupError, DoesNotExistError
 from amelie.api.utils import parse_datetime_parameter
 from amelie.companies.models import CompanyEvent
@@ -26,14 +28,12 @@ from amelie.calendar.models import Participation
 from amelie.education.models import EducationEvent
 from amelie.personal_tab import transactions
 
-from modernrpc.core import rpc_method
 
 logger = logging.getLogger(__name__)
 
 
-@rpc_method(name='getActivityStream')
-@authentication_optional()
-def get_activity_stream(begin_date_str: str, end_date_str: str, return_mixed: bool = False, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getActivityStream', auth=auth_optional, context_target='ctx')
+def get_activity_stream(begin_date_str: str, end_date_str: str, return_mixed: bool = False, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves a combined list of _regular_, _educational_ and _external_ activities.
     If authenticated, also non-public activities will be returned.
@@ -86,20 +86,21 @@ def get_activity_stream(begin_date_str: str, end_date_str: str, return_mixed: bo
                 }, {...}, ...]
         }
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
     begin_date = parse_datetime_parameter(begin_date_str)
     end_date = parse_datetime_parameter(end_date_str)
 
     # Regular activities
-    regular_activities = Activity.objects.filter_public(not authenticated)\
+    regular_activities = Activity.objects.filter_public(not is_authenticated)\
         .filter(end__gt=begin_date, begin__lte=end_date)
 
     # Educational activities
-    education_activities = EducationEvent.objects.filter_public(not authenticated) \
+    education_activities = EducationEvent.objects.filter_public(not is_authenticated) \
         .filter(end__gt=begin_date, begin__lte=end_date)
 
     # External activities
-    external_activities = CompanyEvent.objects.filter_public(not authenticated) \
+    external_activities = CompanyEvent.objects.filter_public(not is_authenticated) \
         .filter(end__gt=begin_date, begin__lte=end_date,
                 visible_from__lte=timezone.now(), visible_till__gte=timezone.now())
 
@@ -114,9 +115,8 @@ def get_activity_stream(begin_date_str: str, end_date_str: str, return_mixed: bo
     return result
 
 
-@rpc_method(name='getUpcomingActivities')
-@authentication_optional()
-def get_upcoming_activities(amount: int, return_mixed: bool = False, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getUpcomingActivities', auth=auth_optional, context_target='ctx')
+def get_upcoming_activities(amount: int, return_mixed: bool = False, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves a list of upcoming activities, nearest first.
     If authenticated, also non-public activities will be returned.
@@ -164,16 +164,17 @@ def get_upcoming_activities(amount: int, return_mixed: bool = False, **kwargs) -
                 }, {...}, ...]
         }
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
 
     # Regular activities
-    regular_activities = Activity.objects.filter_public(not authenticated).filter(begin__gte=timezone.now())
+    regular_activities = Activity.objects.filter_public(not is_authenticated).filter(begin__gte=timezone.now())
 
     # Educational activities
-    education_activities = EducationEvent.objects.filter_public(not authenticated).filter(begin__gte=timezone.now())
+    education_activities = EducationEvent.objects.filter_public(not is_authenticated).filter(begin__gte=timezone.now())
 
     # External activities
-    external_activities = CompanyEvent.objects.filter_public(not authenticated)\
+    external_activities = CompanyEvent.objects.filter_public(not is_authenticated)\
         .filter(begin__gte=timezone.now(), visible_from__lte=timezone.now(), visible_till__gte=timezone.now())
 
     activities = chain(regular_activities, education_activities, external_activities)\
@@ -187,9 +188,8 @@ def get_upcoming_activities(amount: int, return_mixed: bool = False, **kwargs) -
     return result
 
 
-@rpc_method(name='getActivityDetailed')
-@authentication_optional()
-def get_activity_detail(activity_id: int, **kwargs) -> Dict:
+@api_server.register_procedure(name='getActivityDetailed', auth=auth_optional, context_target='ctx')
+def get_activity_detail(activity_id: int, ctx: RpcRequestContext = None, **kwargs) -> Dict:
     """
     Retrieves details of an event, including its signup options if available.
     If authenticated, also details of non-public activities can be requested.
@@ -328,6 +328,9 @@ def get_activity_detail(activity_id: int, **kwargs) -> Dict:
               }, {...}, ...]
         }
     """
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
+
     # Check if activity exists
     try:
         activities = chain(Activity.objects.all(), EducationEvent.objects.all(), CompanyEvent.objects.all())
@@ -336,19 +339,18 @@ def get_activity_detail(activity_id: int, **kwargs) -> Dict:
         raise DoesNotExistError()
 
     # Check if the activity is public and if the user is authenticated
-    if not activity.public and kwargs.get('authentication', None) is None:
+    if not activity.public and not is_authenticated:
         raise NotLoggedInError()
 
     result = get_basic_result(activity)
-    add_detailed_properties(activity, kwargs.get('authentication', None), result)
-    add_thumbnails_property(activity, kwargs.get('authentication', None), result)
-    add_images_property(activity, kwargs.get('authentication', None), result)
+    add_detailed_properties(activity, authentication, result)
+    add_thumbnails_property(activity, authentication, result)
+    add_images_property(activity, authentication, result)
     return result
 
 
-@rpc_method(name='getActivityThumbnailsStream')
-@authentication_optional()
-def get_activity_thumbnails_stream(begin_date_str: str, end_date_str: str, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getActivityThumbnailsStream', auth=auth_optional, context_target='ctx')
+def get_activity_thumbnails_stream(begin_date_str: str, end_date_str: str, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves a list of basic information of activities with pictures, and their thumbnail images.
     If authenticated, also non-public activities will be returned.
@@ -411,27 +413,27 @@ def get_activity_thumbnails_stream(begin_date_str: str, end_date_str: str, **kwa
               }, {...}, ...]
         }
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
     begin_date = parse_datetime_parameter(begin_date_str)
     end_date = parse_datetime_parameter(end_date_str)
 
-    regular_activities = Activity.objects.filter_public(not authenticated) \
+    regular_activities = Activity.objects.filter_public(not is_authenticated) \
         .filter(photos__gt=0, end__gt=begin_date, begin__lte=end_date).distinct()
 
-    if not authenticated:
+    if not is_authenticated:
         regular_activities = regular_activities.filter(photos__public=True)
 
     result = []
     for activity in regular_activities:
         single = get_basic_result(activity)
-        add_thumbnails_property(activity, kwargs.get('authentication', None), single)
+        add_thumbnails_property(activity, authentication, single)
         result.append(single)
     return result
 
 
-@rpc_method(name='getLatestActivitiesWithPictures')
-@authentication_optional()
-def get_latest_activities_with_pictures(amount: int, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getLatestActivitiesWithPictures', auth=auth_optional, context_target='ctx')
+def get_latest_activities_with_pictures(amount: int, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves a list of most recent activities with pictures, and their associated pictures.
     If authenticated, also non-public activities will be returned.
@@ -504,25 +506,25 @@ def get_latest_activities_with_pictures(amount: int, **kwargs) -> List[Dict]:
               }, {...}, ...]
         }
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
 
-    activities = Activity.objects.filter_public(not authenticated).filter(photos__gt=0).distinct().order_by("-begin")
+    activities = Activity.objects.filter_public(not is_authenticated).filter(photos__gt=0).distinct().order_by("-begin")
 
-    if not authenticated:
+    if not is_authenticated:
         activities = activities.filter(photos__public=True)
 
     result = []
     for activity in activities[0:amount]:
         single = get_basic_result(activity)
-        add_thumbnails_property(activity, kwargs.get('authentication', None), single)
-        add_images_property(activity, kwargs.get('authentication', None), single)
+        add_thumbnails_property(activity, authentication, single)
+        add_images_property(activity, authentication, single)
         result.append(single)
     return result
 
 
-@rpc_method(name='searchGallery')
-@authentication_optional()
-def search_gallery(query: str, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='searchGallery', auth=auth_optional, context_target='ctx')
+def search_gallery(query: str, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Search all activity titles of activities with pictures for a query string.
     If authenticated, also non-public activities will be searched.
@@ -583,30 +585,30 @@ def search_gallery(query: str, **kwargs) -> List[Dict]:
                 }, {...}, ...]
         }
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
     result = []
 
     # Deny all results with queries that consist of less than 3 characters so that the server
     if len(query) < 3:
         return result
 
-    activities = list(reversed(Activity.objects.filter_public(not authenticated).filter(photos__gt=0).filter(
+    activities = list(reversed(Activity.objects.filter_public(not is_authenticated).filter(photos__gt=0).filter(
         Q(summary_nl__icontains=query) | Q(summary_en__icontains=query)
     ).distinct()))
 
     for activity in activities:
         single = get_basic_result(activity)
-        add_thumbnails_property(activity, kwargs.get('authentication', None), single)
-        single["photoCount"] = len(activity.photos.filter_public(not authenticated))
+        add_thumbnails_property(activity, authentication, single)
+        single["photoCount"] = len(activity.photos.filter_public(not is_authenticated))
         result.append(single)
 
     return result
 
 
-@rpc_method(name='activitySignup')
+@api_server.register_procedure(name='activitySignup', auth=auth_required('signup'), context_target='ctx')
 @transaction.atomic
-@authentication_required('signup')
-def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> bool:
+def activity_signup(activity_id: int, price: float, options: dict, ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Enrolls the current user as attendee to an activity.
 
@@ -643,6 +645,8 @@ def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> 
             ]}
         <-- {"result": true}
     """
+    authentication = ctx.auth_result
+
     optionset = {}
     for option in options:
         if isinstance(option, dict) and "id" in option.keys() and "value" in option.keys() and option["value"]:
@@ -654,9 +658,11 @@ def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> 
     except Activity.DoesNotExist as e:
         raise DoesNotExistError(str(e))
 
-    if activity.oauth_application and not activity.oauth_application == kwargs.get('authentication').get_application():
+    if activity.oauth_application and not activity.oauth_application == authentication.get_application():
         raise SignupError("You can only subscribe to this activity on the website of this activity.")
-    elif kwargs.get('authentication').represents() in activity.participants.all():
+    elif not authentication.represents():
+        raise SignupError("Could not determine who you are based on your login credentials.")
+    elif authentication.represents() in activity.participants.all():
         raise SignupError("You are already signed up for this activity")
     elif not activity.enrollment:
         raise SignupError("You cannot sign up for this activity, there is no subscription.")
@@ -675,10 +681,10 @@ def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> 
 
     # save attendance
     attendance = Participation(event=activity,
-                               person=kwargs.get('authentication').represents(),
+                               person=authentication.represents(),
                                remark='Enrollment through OAuth',
                                payment_method=Participation.PaymentMethodChoices.NONE,
-                               added_by=kwargs.get('authentication').represents(),
+                               added_by=authentication.represents(),
                                waiting_list=activity.enrollment_full())
     attendance.save()
 
@@ -707,7 +713,7 @@ def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> 
     # Check if a payment is needed.
     if amount:
         # Check if the person has a signed mandate.
-        if not kwargs.get('authentication').represents().has_mandate_activities():
+        if not authentication.represents().has_mandate_activities():
             raise SignupError("A signed mandate is required. Please ask the board for a mandate.")
 
         # Set payment by direct debit.
@@ -716,10 +722,10 @@ def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> 
 
         if not activity.enrollment_full():
             # add transaction
-            transactions.add_participation(attendance, kwargs.get('authentication').represents())
+            transactions.add_participation(attendance, authentication.represents())
 
         # Send mail if desired
-        if kwargs.get('authentication').represents().has_preference(name='mail_enrollment'):
+        if authentication.represents().has_preference(name='mail_enrollment'):
             if not activity.enrollment_full():
                 activity_send_enrollmentmail(attendance)
             else:
@@ -728,10 +734,9 @@ def activity_signup(activity_id: int, price: float, options: dict, **kwargs) -> 
     return True
 
 
-@rpc_method(name='activityRevokeSignup')
+@api_server.register_procedure(name='activityRevokeSignup', auth=auth_required('signup'), context_target='ctx')
 @transaction.atomic
-@authentication_required('signup')
-def activity_signup_revoke(activity_id: int, **kwargs) -> bool:
+def activity_signup_revoke(activity_id: int, ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Un-enrolls the current user as attendee from an activity.
 
@@ -758,17 +763,21 @@ def activity_signup_revoke(activity_id: int, **kwargs) -> bool:
         --> {"method": "activityRevokeSignup", "params": [28]}
         <-- {"result": true}
     """
+    authentication = ctx.auth_result
+
     try:
-        # Lockup the Activity object for updating, prevent concurrent (un)enrollments
+        # Lock the Activity object for updating, prevent concurrent (un)enrollments
         activity = Activity.objects.select_for_update().get(id=activity_id)
     except Activity.DoesNotExist as e:
         raise DoesNotExistError(str(e))
 
-    if activity.oauth_application and not activity.oauth_application == kwargs.get('authentication').get_application():
+    if activity.oauth_application and not activity.oauth_application == authentication.get_application():
         raise SignupError("You can only unsubscribe to this activity on the website of this activity.")
     elif not activity.enrollment:
         raise SignupError("You cannot unsubscribe for this activity, it has no subscription.")
-    elif not kwargs.get('authentication').represents() in activity.participants.all():
+    elif not authentication.represents():
+        raise SignupError("Could not determine who you are based on your login credentials.")
+    elif not authentication.represents() in activity.participants.all():
         raise SignupError("You were not subscribed for this activity.")
     elif not activity.can_unenroll:
         raise SignupError(
@@ -776,7 +785,7 @@ def activity_signup_revoke(activity_id: int, **kwargs) -> bool:
     elif not activity.enrollment_open():
         raise SignupError("You cannot revoke your attendance anymore, subscription term has expired.")
 
-    attendance = Participation.objects.select_for_update().get(person=kwargs.get('authentication').represents(),
+    attendance = Participation.objects.select_for_update().get(person=authentication.represents(),
                                                                event=activity)
 
     # If necessary, create a compensation for attendance

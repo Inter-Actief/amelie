@@ -281,9 +281,6 @@ INSTALLED_APPS = (
     'amelie.data_export',
     'amelie.publications',
 
-    # JSONRPC API
-    'modernrpc',
-
     # GraphQL API
     'graphene_django',
 
@@ -453,22 +450,7 @@ GRAPHENE_DJANGO_EXTRAS = {
 # Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
 DATA_UPLOAD_MAX_NUMBER_FILES = 1000
 
-# Modules with JSONRPC API endpoints for autoregistration
-MODERNRPC_METHODS_MODULES = [
-    'amelie.api.api',
-    'amelie.api.activitystream',
-    'amelie.api.authentication',
-    'amelie.api.committee',
-    'amelie.api.company',
-    'amelie.api.education',
-    'amelie.api.narrowcasting',
-    'amelie.api.news',
-    'amelie.api.person',
-    'amelie.api.personal_tab',
-    'amelie.api.push',
-    'amelie.api.videos'
-]
-
+# Handler used by the old JSONRPC API server
 MODERNRPC_HANDLERS = [
     "amelie.api.handlers.IAJSONRPCHandler"
 ]

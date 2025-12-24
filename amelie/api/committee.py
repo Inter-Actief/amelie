@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 from typing import List, Dict, Union
 
-from django.conf import settings
-from modernrpc.exceptions import AuthenticationFailed
+from modernrpc import RpcRequestContext
+from modernrpc.exceptions import AuthenticationError
 
+from django.conf import settings
+
+from amelie.api.api import api_server
 from amelie.api.common import strip_markdown
-from amelie.api.decorators import authentication_optional
+from amelie.api.decorators import auth_optional
 from amelie.api.exceptions import DoesNotExistError
 from amelie.members.models import Committee, CommitteeCategory, Function
 
-from modernrpc.core import rpc_method
 
-
-@rpc_method(name='getCommitteeStream')
+@api_server.register_procedure(name='getCommitteeStream')
 def get_committee_stream() -> Dict[str, List[Dict]]:
     """
     Retrieves a list of all committees per category.
@@ -63,9 +64,8 @@ def get_committee_stream() -> Dict[str, List[Dict]]:
     return result
 
 
-@rpc_method(name='getCommitteeDetailed')
-@authentication_optional()
-def get_committee_detail(committee_id: int, **kwargs) -> Union[Dict, None]:
+@api_server.register_procedure(name='getCommitteeDetailed', auth=auth_optional, context_target='ctx')
+def get_committee_detail(committee_id: int, ctx: RpcRequestContext = None, **kwargs) -> Union[Dict, None]:
     """
     Retrieves details of committee, including its members.
 
@@ -123,7 +123,7 @@ def get_committee_detail(committee_id: int, **kwargs) -> Union[Dict, None]:
                 }, {...}, ...]
         }}
     """
-    authentication = kwargs.get('authentication', None)
+    authentication = ctx.auth_result
     result = None
 
     try:
@@ -134,7 +134,7 @@ def get_committee_detail(committee_id: int, **kwargs) -> Union[Dict, None]:
     person = authentication.represents() if authentication else None
 
     if ((not result_committee.category) or result_committee.abolished) and (not person or not person.is_board()):
-        raise AuthenticationFailed("getCommitteeDetailed")
+        raise AuthenticationError("getCommitteeDetailed")
 
     functions = Function.objects.filter(committee=result_committee, end=None)
     detailed = person in [l.person for l in functions]
