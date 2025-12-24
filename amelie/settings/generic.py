@@ -3,6 +3,7 @@
 # Meaning, when a package is imported here, the initialization of that package cannot use the settings.
 import os
 import re
+
 import saml2
 import datetime
 from datetime import date
@@ -584,15 +585,32 @@ CELERY_RESULT_BACKEND = 'django-db'  # Where to store the task results
 CELERY_RESULT_SERIALIZER = 'pickle'  # How to serialize the task results
 CELERY_ACCEPT_CONTENT = ['pickle']  # A list of content-types/serializers to allow
 CELERY_BROKER_URL = None  # URL to the RabbitMQ broker (used when ALWAYS_EAGER is False)
+FLOWER_URL = None  # URL to the Celery Flower instance (used on sysinfo page)
+RABBITMQ_MGMT_API_URL = None  # URL to the RabbitMQ management API (used on sysinfo page)
+RABBITMQ_MGMT_VHOST = 'amelie'  # Vhost used in RabbitMQ
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # By default, Celery resets the root logger. We want to see the logs so disable this behavior.
 
 # Celery routes. We have three celery instances running that process celery tasks.
-# - The iamailer queue should only have 1 instance and should run sequentially. It handles sending e-mails one-by-one.
+# - The mail queue should only have 1 instance and should run sequentially. It handles sending e-mails one-by-one.
 # - The claudia queue should only have 1 instance and should run sequentially. It handles Claudia verify tasks one-by-one.
 # - All other tasks get sent to the default queue, which can run concurrently and will have 1-5 instances.
+CELERY_TASK_QUEUES = None
+try:
+    import kombu
+    CELERY_TASK_QUEUES = [
+        kombu.Queue('default'),
+        kombu.Queue('mail'),
+        kombu.Queue('claudia'),
+    ]
+except ImportError:
+    # Celery is probably not installed and disabled. That's ok, queues will be created if needed,
+    # and tasks will work normally, only the Celery health check will be less accurate.
+    kombu = None
+CELERY_TASK_DEFAULT_QUEUE = 'default'
 CELERY_TASK_ROUTES = {
-    'iamailer.*': {'queue': 'iamailer'},
+    'iamailer.*': {'queue': 'mail'},
     'claudia.*': {'queue': 'claudia'},
-    # other tasks will be routed to the default queue (named "celery")
+    # other tasks will be routed to the default queue (named "default")
 }
 
 # Connection settings for Alexia

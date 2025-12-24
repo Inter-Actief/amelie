@@ -1,3 +1,5 @@
+import logging
+
 from celery import shared_task
 from django.template import Template, Context
 
@@ -7,11 +9,15 @@ from amelie.iamailer import MailTask, Recipient
 from amelie.members.models import Preference
 
 
+logger = logging.getLogger(__name__)
+
+
 @shared_task()
 def send_push_notification(notification: PushNotification, recipients, report_to=None, report_language=None):
+    logger.debug(f"Sending push notification to {len(recipients)} recipients.")
     preferences = Preference.objects.filter(name='notifications')
 
-    # Split filtered recipients based on whether their preferences and connected push devices
+    # Split filtered recipients based on their preferences and connected push devices
     recipients = recipients.filter(preferences__in=preferences, user__fcmdevice__isnull=False).distinct()
 
     # Initialize the list values to include in the mailing
@@ -19,7 +25,7 @@ def send_push_notification(notification: PushNotification, recipients, report_to
     failed_notification_recipients = []
 
     for recipient in recipients:
-        # Render a English and Dutch message variants based on the template tags using the context renderer
+        # Render an English and Dutch message variant based on the template tags using the context renderer
         message_en = Template(notification.message_en).render(Context({'recipient': recipient}))
         message_nl = Template(notification.message_nl).render(Context({'recipient': recipient}))
 
@@ -37,8 +43,11 @@ def send_push_notification(notification: PushNotification, recipients, report_to
         else:
             failed_notification_recipients.append(recipient)
 
+    logger.info(f"Notifications sent. {len(successful_push_recipients)} successful and {len(failed_notification_recipients)} failed.")
+
     # Send a mailing to the requester
     if report_to is not None:
+        logger.debug(f"Sending push report...")
         mail_task = MailTask(template_name='tools/push_report.mail')
 
         # Render a English and Dutch message variants based on the template tags using the context renderer
@@ -67,3 +76,4 @@ def send_push_notification(notification: PushNotification, recipients, report_to
         ))
 
         mail_task.send(delay=False)
+        logger.debug(f"Push report sent.")

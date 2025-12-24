@@ -1,5 +1,5 @@
-import logging
 import os
+import logging
 import shutil
 import traceback
 from zipfile import ZipFile
@@ -14,7 +14,10 @@ from amelie.iamailer import MailTask
 from amelie.tools.mail import PersonRecipient
 
 
-# Time limit increased to 1 hour because the data export including homedirs might take a long time.
+logger = logging.getLogger(__name__)
+
+
+# The time limit was increased to 1 hour because the data export including home dirs might take a long time.
 @shared_task(time_limit=1 * 60 * 60)
 def export_data(data_export):
     """
@@ -26,13 +29,14 @@ def export_data(data_export):
     # and then executes the mail sender function
 
     # Execute each app's export task,
-    logging.getLogger(__name__).info("Exporting data for {}".format(data_export))
+    logger.info(f"Exporting data for {data_export}")
     (group(execute_exporter.s(data_export, x) for x in data_export.exported_applications.all())
      # followed by the file zip callback,
      | zip_results.s(data_export)
      # followed by the mail callback
      | mail_person.s(data_export)
      )()  # And execute the workflow (the last two brackets)
+    logger.info(f"Data export for {data_export} done.")
 
 
 @shared_task
@@ -45,8 +49,7 @@ def execute_exporter(data_export, application_status, **kwargs):
     :type application_status: amelie.data_export.models.ApplicationStatus
     :return: The filename that was returned by the exporter.
     """
-    logging.getLogger(__name__).debug("Running exporter for {} - application {}".format(data_export.person,
-                                                                                        application_status.application))
+    logger.debug(f"Running exporter for {data_export.person} - application {application_status.application}")
 
     # Get an instance of the DataExporter that we need to run
     try:
@@ -54,7 +57,7 @@ def execute_exporter(data_export, application_status, **kwargs):
     except Exception as e:
         traceback.print_exc()
         # Something went wrong! Set the application status to error, report the error to Sentry and quit.
-        logging.getLogger(__name__).error("Could not initialize data exporter for application {} for user {}: {}".format(
+        logger.error("Could not initialize data exporter for application {} for user {}: {}".format(
             application_status.application,
             data_export.person,
             e
@@ -81,7 +84,7 @@ def execute_exporter(data_export, application_status, **kwargs):
     except Exception as e:
         traceback.print_exc()
         # Something went wrong! Set the application status to error and report the error to Sentry
-        logging.getLogger(__name__).error("Error while exporting data for application {} for user {}: {}".format(
+        logger.exception("Error while exporting data for application {} for user {}: {}".format(
             application_status.application,
             data_export.person,
             e
@@ -100,7 +103,8 @@ def execute_exporter(data_export, application_status, **kwargs):
     # Execute exporter post-execute cleanup hook
     exporter.post_export_cleanup()
 
-    # Finally return the file path that the exporter has generated
+    # Finally, return the file path that the exporter has generated
+    logger.info(f"Exporter for {data_export.person} - application {application_status.application} finished successfully.")
     return path
 
 
@@ -120,8 +124,7 @@ def zip_results(results, data_export):
     :return The path to the big zip file.
     :rtype str
     """
-    log = logging.getLogger(__name__)
-    log.debug("Combining resulting files into one zip file.")
+    logger.debug("Combining resulting files into one zip file.")
 
     # If the person only selected one export, results will be a string, if they selected more than
     # one, it will be al list. Convert the string into a 1-long list if it is a string to avoid problems.
@@ -139,15 +142,15 @@ def zip_results(results, data_export):
         for file in results:
             if file and os.path.isfile(file):
                 try:
-                    log.debug("Adding file {} to zip file {}.".format(file, combined_file_path))
+                    logger.debug("Adding file {} to zip file {}.".format(file, combined_file_path))
                     zipfile.write(file, os.path.relpath(file, settings.DATA_EXPORT_ROOT))
                 except Exception as e:
-                    log.error("Could not add file {} to combined zip file: {}".format(file, e))
+                    logger.error("Could not add file {} to combined zip file: {}".format(file, e))
                     #from raven.contrib.django.raven_compat.models import client
                     #client.captureException()
                     traceback.print_exc()
             elif file:
-                log.warning("Could not add file {} to archive, this is not a valid file path.".format(file))
+                logger.warning("Could not add file {} to archive, this is not a valid file path.".format(file))
 
         # Set the export completed date
         data_export.complete_timestamp = timezone.now()
@@ -167,7 +170,7 @@ def zip_results(results, data_export):
     # Delete the original files
     for file in results:
         if file and os.path.isfile(file):
-            log.debug("Removing original file {}".format(file))
+            logger.debug("Removing original file {}".format(file))
             os.remove(file)
 
     # Set the filename in the data_export object
@@ -179,6 +182,7 @@ def zip_results(results, data_export):
     # Save the data export
     data_export.save()
 
+    logger.info(f"Zipping of results completed successfully.")
     return combined_file_path
 
 
@@ -190,6 +194,7 @@ def mail_person(path, data_export):
     :type data_export: amelie.data_export.models.DataExport
     """
     person = data_export.person
+    logger.info(f"Sending export complete mailing to {person}.")
     current_language = translation.get_language()
     try:
         translation.activate(person.preferred_language)
@@ -208,3 +213,4 @@ def mail_person(path, data_export):
         task.send()
     finally:
         translation.activate(current_language)
+    logger.info(f"Mail sent to task queue.")

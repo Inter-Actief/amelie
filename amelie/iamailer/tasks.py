@@ -10,6 +10,9 @@ from django.template.loader import get_template
 from amelie.iamailer.mailer import send_single_mail_from_template
 
 
+logger = logging.getLogger(__name__)
+
+
 @shared_task(name="iamailer.send_mails")
 def send_mails(mails, mail_from=None, template_name=None, template_string=None, report_to=None, report_language=None,
                report_always=True):
@@ -40,7 +43,7 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
     :param report_always: Always send a delivery report. If False, only delivery reports are send if an error occures.
     :return: Tuple with the number of sent mails and mails with errors.
     """
-    logger = logging.getLogger(__name__)
+    logger.debug(f'IAMailer task to schedule {len(mails)} mails started.')
 
     if not template_string and not template_name:
         raise ValueError('None of template and template_name are provided')
@@ -68,7 +71,7 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
             report_language=report_language, report_always=report_always
         )
     ).delay()  # And execute the workflow (the last two brackets)
-    logger.info('IAMailer task scheduled and started.')
+    logger.info('IAMailer tasks scheduled and started.')
 
 
 # acks_late makes it so that the task is retried if the worker crashes before it finishes.
@@ -87,7 +90,6 @@ def send_single_mail(mail_from, maildata, template_name=None, template_string=No
                'exception': exception string if not successful else None
              }
     """
-    logger = logging.getLogger(__name__)
     to = maildata['to']
     cc = maildata.get('cc', [])
     bcc = maildata.get('bcc', [])
@@ -139,9 +141,7 @@ def send_single_mail(mail_from, maildata, template_name=None, template_string=No
 # acks_late makes it so that the task is retried if the worker crashes before it finishes.
 @shared_task(name="iamailer.send_delivery_report", acks_late=True)
 def send_delivery_report(results, mail_from, total_mail_count, report_to, report_language, report_always):
-    logger = logging.getLogger(__name__)
-
-
+    logger.debug(f'Sending delivery report to {report_to}...')
     # If the person sent only one mail, the results will be a single dict, if they sent more than one,
     # it will be al list. Convert the dict into a 1-long list if it is a dict to avoid problems.
     if type(results) == dict:

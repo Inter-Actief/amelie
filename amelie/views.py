@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import timedelta, date
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -340,13 +341,13 @@ class PortraitUploadVerification(RequireBoardMixin, FormView):
     http_method_names = ["get", "post"]
     form_class = ProfilePictureVerificationForm
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         people = Person.objects.filter(unverified_picture__isnull=False).exclude(unverified_picture='')[:50]
         forms = [(ProfilePictureVerificationForm(initial={'id':person.id}), person) for person in people]
 
         return render(request, 'profile_picture_verification.html', locals())
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
@@ -372,11 +373,11 @@ class PortraitUploadView(RequirePersonMixin, FormView):
     http_method_names = ["get", "post"]
     form_class = ProfilePictureUploadForm
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         form = ProfilePictureUploadForm()
         return render(request, 'profile_portrait_upload.html', locals())
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files = form.files.getlist("profile_picture")
@@ -418,8 +419,85 @@ class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
         # Build information
         build_info = get_build_info()
 
+        # Celery worker information
+        if settings.FLOWER_URL:
+            try:
+                celery_workers = []
+                worker_data = requests.get(f"{settings.FLOWER_URL}/workers?json=1").json()
+                for worker in worker_data.get('data', []):
+
+                    last_heartbeat = None
+                    for heartbeat in worker.get('heartbeats', []):
+                        try:
+                            heartbeat_dt = datetime.datetime.fromtimestamp(heartbeat)
+                            if last_heartbeat is None or heartbeat_dt > last_heartbeat:
+                                last_heartbeat = heartbeat_dt
+                        except ValueError:
+                            pass
+
+                    celery_workers.append({
+                        'name': worker.get("hostname", None),
+                        'status': worker.get("status", False),
+                        'active': worker.get("active", 0),
+                        'processed': worker.get("task-received", 0),
+                        'failed': worker.get("task-failed", 0),
+                        'succeeded': worker.get("task-succeeded", 0),
+                        'retried': worker.get("task-retried", 0),
+                        'loadavg': worker.get("loadavg", []),
+                        'last_heartbeat': last_heartbeat,
+                    })
+                celery_workers = sorted(celery_workers, key=lambda w: w['name'])
+            except Exception as e:
+                logger.exception(e)
+                celery_workers = []
+        else:
+            celery_workers = []
+
+        # RabbitMQ Queue information
+        if settings.RABBITMQ_MGMT_API_URL:
+            try:
+                if settings.RABBITMQ_MGMT_VHOST:
+                    vhost_name = settings.RABBITMQ_MGMT_VHOST
+                else:
+                    vhost_name = "amelie"
+                if settings.CELERY_TASK_QUEUES:
+                    queue_names = [q.name for q in settings.CELERY_TASK_QUEUES]
+                else:
+                    # Assume default names
+                    queue_names = ["default", "mail", "claudia"]
+                rabbitmq_queues = []
+                for queue in queue_names:
+                    # Query RabbitMQ API
+                    data = requests.get(f"{settings.RABBITMQ_MGMT_API_URL}/queues/{vhost_name}/{queue}").json()
+                    try:
+                        idle_since_ts = datetime.datetime.fromisoformat(data.get('idle_since', ''))
+                    except ValueError:
+                        idle_since_ts = None
+                    rabbitmq_queues.append({
+                        'name': data.get('name', None),
+                        'vhost': data.get('vhost', None),
+                        'state': data.get('state', None),
+                        'consumers': data.get('consumers', 0),
+                        'idle_since': idle_since_ts,
+                        'messages': {
+                            'current_queued': data.get('messages', 0),
+                            'total_incoming': data.get('message_stats', {}).get('publish', 0),
+                            'total_delivered': data.get('message_stats', {}).get('deliver', 0),
+                        }
+                    })
+                rabbitmq_queues = sorted(rabbitmq_queues, key=lambda q: q['name'])
+            except Exception:
+                logger.exception(e)
+                rabbitmq_queues = []
+        else:
+            rabbitmq_queues = []
+
         return {
             **super().get_context_data(**kwargs),
+            # Celery worker info
+            'celery_workers': celery_workers,
+            # RabbitMQ queue info
+            'rabbitmq_queues': rabbitmq_queues,
             # A bunch of other random system information
             'info_tables': [
                 ('Amelie', {
