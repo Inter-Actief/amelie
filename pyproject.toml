@@ -22,7 +22,7 @@ authors = [
     { name = "WWW committee of I.C.T.S.V. Inter-Actief", email = "www@inter-actief.net" }
 ]
 
-requires-python = ">= 3.8"
+requires-python = ">= 3.10"
 
 dependencies = [
     "Django>=5.2.8,<5.3",

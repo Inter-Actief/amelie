@@ -46,7 +46,7 @@ Python 3: https://www.python.org/downloads/
     python3 -m venv venv
     source ./venv/bin/activate
     pip install --upgrade pip setuptools
-    pip install .
+    pip install -I -e .
 
 ##### Copy local settings
     cp ./amelie/settings/local.py.localdev ./amelie/settings/local.py
