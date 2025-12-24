@@ -39,7 +39,7 @@ IGNORED_WORDS = [
     "\\bEUR\\b", "\\b-\\b", "\\bI\\.C\\.T\\.S\\.V\\.\\b", "\\bInter-\\b", "\\bActief\\b",
     "\\+53 489 3756", "contact@inter-actief\\.net",
     "https://ictsv\\.nl/wa", "https://ictsv\\.nl/discord", "@inter\\.actief",
-    "https://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/", "\\*"
+    "https://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/", "\\*", "#"
 ]
 
 
