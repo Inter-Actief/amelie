@@ -98,7 +98,7 @@ dependencies = [
     "google-api-python-client>=2.63.0,<3",
     "oauth2client>=4.1.3,<4.2",
     # PKCS12 deprecation in 23.3.0, need to migrate gsuite plugin to google-auth-oauthlib. See https://googleapis.github.io/google-api-python-client/docs/oauth.html
-    "pyOpenSSL>=22.1.0,<23.3.0",
+    "pyOpenSSL>=22.1.0,<25.4.0",
 
     # Development
     "django-debug-toolbar>=3.7,<6.2",
