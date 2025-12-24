@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-
 # Note: Imports cannot have a direct dependency on the settings below.
 # Meaning, when a package is imported here, the initialization of that package cannot use the settings.
 import os
@@ -923,9 +922,15 @@ FILE_DOWNLOAD_METHOD = None
 # Settings for Streaming.IA integration
 STREAMING_BASE_URL = "https://streaming.ia.utwente.nl"  # No trailing slash!
 
+# Settings for Video.IA integration
+PEERTUBE_BASE_URL = "https://video.ia.utwente.nl"  # No trailing slash!
+
 # The special theme of the website, for special occasions. This overrides the theme of the website for everyone!
 # Default: None (will use the normal theme). Options: ["christmas", "valentine"]
 WEBSITE_THEME_OVERRIDE = None
+
+# Blocked IP addresses for showing themes (Raspberry pis don't like our themes very much)
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
 
 # The week that IA has balcony duty.
 # 0 means the even calendar weeks, 1 means the odd calendar weeks.
