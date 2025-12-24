@@ -1,11 +1,9 @@
 import datetime
-import json
 import re
 import time
 import uuid
 import logging
 
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User

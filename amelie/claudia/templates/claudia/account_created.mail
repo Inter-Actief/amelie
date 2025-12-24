@@ -28,4 +28,4 @@ After you have done that, you can use your account to log in to the ICT systems 
 {% blocktrans %}Kind regards,{% endblocktrans %}
 
 Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %} {% blocktrans %}Account management{% endblocktrans %}
-accountbeheer@inter-actief.utwente.nl{% endhtmlify %}{% endblock %}
+accountbeheer@inter-actief.net{% endhtmlify %}{% endblock %}
