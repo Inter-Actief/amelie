@@ -27,8 +27,8 @@ RUN echo "Updating repostitories..." && \
     echo "Creating directories for amelie..." && \
     mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run && \
     echo "Installing python requirements..." && \
-    pip3 install wheel setuptools --break-system-packages && \
-    pip3 install . --break-system-packages && \
+    pip3 install --upgrade pip wheel setuptools --break-system-packages && \
+    pip3 install -I -e . --break-system-packages && \
     echo "Adding build variable files..." && \
     echo "${BUILD_BRANCH}" > /amelie/BUILD_BRANCH && \
     echo "${BUILD_COMMIT}" > /amelie/BUILD_COMMIT && \
