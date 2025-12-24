@@ -6,6 +6,7 @@ from oauth2_provider.backends import OAuth2Backend
 
 from amelie.api.authentication_types import PersonBasedAuthentication, OauthBasedAuthentication, Authentication, \
     AnonymousAuthentication
+from amelie.api.exceptions import NotLoggedInError, PermissionDeniedError
 
 logger = logging.getLogger(__name__)
 
@@ -77,9 +78,9 @@ def auth_required(permission: str = None):
     def inner_auth_required(request: HttpRequest) -> Union[Authentication, bool]:
         auth = get_authentication(request)
         if not auth:
-            return False
+            raise NotLoggedInError()
         elif permission is not None and not auth.can(permission):
-            return False
+            raise PermissionDeniedError()
         else:
             return auth
 

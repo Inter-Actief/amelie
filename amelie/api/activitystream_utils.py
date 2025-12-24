@@ -67,9 +67,11 @@ def add_options_property(activity, authentication, result):
     if type(activity) != Activity:
         return
 
+    authenticated = not isinstance(authentication, AnonymousAuthentication)
+
     result["options"] = []
 
-    if authentication is not None:
+    if authenticated:
         for option in activity.enrollmentoption_set.all():
             if option.content_type.model_class() == EnrollmentoptionQuestion:
                 result["options"].append({
