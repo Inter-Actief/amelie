@@ -29,7 +29,7 @@
         <table>
           <thead>
             <tr>
-              <th colspan="2">{% trans 'Service' %}</th>
+              <th>{% trans 'Service' %}</th>
               <th>{% trans 'Status' %}</th>
               <th>{% trans 'Time Taken' %}</th>
             </tr>
@@ -37,19 +37,19 @@
           <tbody>
             {% for plugin in plugins %}
               <tr>
-                <td style="width: 50px">
+                <td>
                   {% if plugin.status %}
                     <div class="icon status_icon icon-accept" aria-hidden="true"></div>
                   {% else %}
                     <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
                   {% endif %}
+                  <span>{{ plugin.identifier }}</span>
                 </td>
-                <td>{{ plugin.identifier }}</td>
                 <td>{{ plugin.pretty_status }}</td>
                 <td>{{ plugin.time_taken|floatformat:4 }} {% trans 'seconds' %}</td>
               </tr>
             {% empty %}
-                <td colspan="4">{% trans 'No status available.' %}</td>
+                <td colspan="3">{% trans 'No status available.' %}</td>
             {% endfor %}
           </tbody>
         </table>
@@ -58,7 +58,7 @@
         <table>
           <thead>
             <tr>
-              <th colspan="2">{% trans 'Worker name' %}</th>
+              <th>{% trans 'Worker name' %}</th>
               <th>{% trans 'Active' %}</th>
               <th>{% trans 'Processed' %}</th>
               <th>{% trans 'Failed' %}</th>
@@ -72,17 +72,15 @@
             {% for worker in celery_workers %}
               <tr>
                 <td>
-                  {% if worker.status %}
-                    <div class="icon status_icon icon-accept" aria-hidden="true"></div>
-                  {% else %}
-                    <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
-                  {% endif %}
-                </td>
-                <td>
-                    {% if worker.name %}
-                        {{ worker.name }}
+                    {% if worker.status %}
+                      <div class="icon status_icon icon-accept" aria-hidden="true"></div>
                     {% else %}
-                        <div class="icon status_icon icon-error" aria-hidden="true">&nbsp;{% trans 'Unknown' %}</div>
+                      <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
+                    {% endif %}
+                    {% if worker.name %}
+                        <span>{{ worker.name }}</span>
+                    {% else %}
+                        <div class="icon status_icon icon-error" aria-hidden="true"></div>{% trans 'Unknown' %}
                     {% endif %}
                 </td>
                 <td>{{ worker.active }}</td>
@@ -92,22 +90,25 @@
                 <td>{{ worker.retried }}</td>
                 <td>
                     {% if worker.loadavg %}
-                        {{ worker.loadavg|join:', ' }}
+                        <span>{{ worker.loadavg|join:', ' }}</span>
                     {% else %}
-                        <div class="icon status_icon icon-error" aria-hidden="true">&nbsp;{% trans 'Unknown' %}</div>
+                        <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                        <span>{% trans 'Unknown' %}</span>
                     {% endif %}
                 </td>
                 <td>
                     {% if worker.last_heartbeat %}
                         <abbr title="{{ worker.last_heartbeat }}">{{ worker.last_heartbeat|timesince }}</abbr>
                     {% else %}
-                        <div class="icon status_icon icon-error" aria-hidden="true">&nbsp;{% trans 'Unknown' %}</div>
+                        <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                        <span>{% trans 'Unknown' %}</span>
                     {% endif %}
                 </td>
               </tr>
             {% empty %}
-                <td colspan="9">
-                    <div class="icon status_icon icon-error" aria-hidden="true"></div>&nbsp;{% trans 'No worker status available.' %}
+                <td colspan="8">
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                    <span>{% trans 'No worker status available.' %}</span>
                 </td>
             {% endfor %}
           </tbody>
@@ -119,10 +120,10 @@
             <tr>
               <th>{% trans 'Name' %}</th>
               <th>{% trans 'State' %}</th>
-              <th>{% trans '# Consumers' %}</th>
+              <th>{% trans 'Consumers' %}</th>
               <th>{% trans 'Queued messages' %}</th>
-              <th><abbr title="{% trans 'Since last restart' %}">{% trans 'Total Incoming / Delivered' %}</abbr></th>
-              <th>{% trans 'Last message received' %}</th>
+              <th>{% trans 'Total recent messages' %}</th>
+              <th>{% trans 'Message rates' %}</th>
             </tr>
           </thead>
           <tbody>
@@ -130,9 +131,10 @@
               <tr>
                 <td>
                     {% if queue.name %}
-                        {% if queue.vhost %}{{ queue.vhost }}/{% endif %}{{ queue.name }}
+                        <span>{% if queue.vhost %}{{ queue.vhost }}&nbsp;/&nbsp;{% endif %}{{ queue.name }}</span>
                     {% else %}
-                        <div class="icon status_icon icon-error" aria-hidden="true">&nbsp;{% trans 'Unknown' %}</div>
+                        <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                        <span>{% trans 'Unknown' %}</span>
                     {% endif %}
                 </td>
                 <td>
@@ -143,13 +145,13 @@
                   {% else %}
                     <div class="icon status_icon icon-error" aria-hidden="true"></div>
                   {% endif %}
-                  &nbsp;{% if queue.state %}{{ queue.state }}{% else %}{% trans 'Unknown' %}{% endif %}
+                  <span>{% if queue.state %}{{ queue.state }}{% else %}{% trans 'Unknown' %}{% endif %}</span>
                 </td>
                 <td>
-                  {{ queue.consumers }}
                   {% if queue.consumers == 0 %}
-                    &nbsp;<div class="icon status_icon icon-error" aria-hidden="true"></div>
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
                   {% endif %}
+                  <span>{{ queue.consumers }}</span>
                 </td>
                 <td>
                     {{ queue.messages.current_queued|default:'0' }}
@@ -160,16 +162,15 @@
                     {% endblocktrans %}
                 </td>
                 <td>
-                    {% if queue.idle_since %}
-                        <abbr title="{{ queue.idle_since }}">{{ queue.idle_since|timesince }}</abbr>
-                    {% else %}
-                        <div class="icon status_icon icon-error" aria-hidden="true">&nbsp;{% trans 'Unknown' %}</div>
-                    {% endif %}
+                    {% blocktrans with incoming=queue.messages.incoming_rate|default:'0.0' delivered=queue.messages.delivered_rate|default:'0.0' %}
+                        {{ incoming }} msg/s incoming / {{ delivered }} msg/s delivered
+                    {% endblocktrans %}
                 </td>
               </tr>
             {% empty %}
                 <td colspan="6">
-                    <div class="icon status_icon icon-error" aria-hidden="true"></div>&nbsp;{% trans 'No queue status available.' %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                    <span>{% trans 'No queue status available.' %}</span>
                 </td>
             {% endfor %}
           </tbody>

@@ -5,13 +5,11 @@ from datetime import timedelta, date
 
 import requests
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
-from django.contrib.staticfiles import finders
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -19,7 +17,6 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
-from amelie.tools.decorators import require_board
 from oauth2_provider.views import AuthorizedTokenDeleteView
 from health_check.views import MainView as HealthCheckMainView
 from django.views.generic.edit import FormView
@@ -30,7 +27,7 @@ from amelie.forms import AmelieAuthenticationForm
 from amelie.members.forms import ProfilePictureUploadForm, ProfilePictureVerificationForm
 from amelie.news.models import NewsItem
 from amelie.members.forms import PersonalDetailsEditForm, PersonalStudyEditForm
-from amelie.members.models import Person, Committee, StudyPeriod, Preference
+from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
@@ -38,6 +35,7 @@ from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, Requi
 from amelie.tools.buildinfo import get_build_info
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
+
 
 logger = logging.getLogger(__name__)
 
@@ -469,24 +467,21 @@ class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
                 for queue in queue_names:
                     # Query RabbitMQ API
                     data = requests.get(f"{settings.RABBITMQ_MGMT_API_URL}/queues/{vhost_name}/{queue}").json()
-                    try:
-                        idle_since_ts = datetime.datetime.fromisoformat(data.get('idle_since', ''))
-                    except ValueError:
-                        idle_since_ts = None
                     rabbitmq_queues.append({
                         'name': data.get('name', None),
                         'vhost': data.get('vhost', None),
                         'state': data.get('state', None),
                         'consumers': data.get('consumers', 0),
-                        'idle_since': idle_since_ts,
                         'messages': {
                             'current_queued': data.get('messages', 0),
                             'total_incoming': data.get('message_stats', {}).get('publish', 0),
-                            'total_delivered': data.get('message_stats', {}).get('deliver', 0),
+                            'total_delivered': data.get('message_stats', {}).get('deliver_get', 0),
+                            'incoming_rate': data.get('message_stats', {}).get('publish_details', {}).get('rate', 0.0),
+                            'delivered_rate': data.get('message_stats', {}).get('deliver_get_details', {}).get('rate', 0.0),
                         }
                     })
                 rabbitmq_queues = sorted(rabbitmq_queues, key=lambda q: q['name'])
-            except Exception:
+            except Exception as e:
                 logger.exception(e)
                 rabbitmq_queues = []
         else:
