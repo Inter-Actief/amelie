@@ -158,7 +158,7 @@
                 </td>
                 <td>
                     {% blocktrans with msg_in=queue.messages.total_incoming|default:'0' msg_out=queue.messages.total_delivered|default:'0' %}
-                        {{ msg_in }} in / {{ delivered }} out
+                        {{ msg_in }} in / {{ msg_out }} out
                     {% endblocktrans %}
                 </td>
                 <td>

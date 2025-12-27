@@ -125,13 +125,14 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
         # Last task in cycle, cleanup
         final_pending = cache.get(pending_count_cache_key, 0)
         if final_pending <= 0:
+            final_checked_objects = cache.get(checked_objects_cache_key, set())
             cache.delete(checked_objects_cache_key)
             cache.delete(pending_count_cache_key)
             logger.info(f"Cleaned up verification cycle {cycle_id}")
 
             # Finally, if this was the last object to be verified in this cycle, check if any of the processed mappings should be deactivated.
             logger.debug(f"Checking if any mappings need to be deactivated...")
-            for checked_object_id in already_checked_objects:
+            for checked_object_id in final_checked_objects:
                 checked_mapping = Mapping.objects.get(id=checked_object_id)
                 if not checked_mapping.is_needed() and checked_mapping.active:
                     logger.debug(f"Deactivating mapping '{checked_mapping.name}' (cid {checked_mapping.id})")
@@ -166,13 +167,6 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
         mp = Mapping.objects.get(id=object_id)
         logger.debug(f"Verification of mapping '{mp.name}' requested (type {mp.type}, oid {mp.ident}, cid {mp.id}).")
 
-    # Check if the mapping should be activated
-    if not mp.active and mp.is_needed():
-        logger.debug(f"Activating mapping '{mp.name}' (cid {mp.id})")
-        mp.active = True
-        mp.save()
-        claudia.notify_mapping_created(mp)
-
     # Check if already queued
     already_checked_objects = cache.get(checked_objects_cache_key, set())
     if mp.id in already_checked_objects:
@@ -182,6 +176,13 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
 
     # Do some logging
     logger.debug(f"Verifying Mapping '{mp.name}' (cid {mp.id}) in cycle {cycle_id}...")
+
+    # Check if the mapping should be activated
+    if not mp.active and mp.is_needed():
+        logger.debug(f"Activating mapping '{mp.name}' (cid {mp.id})")
+        mp.active = True
+        mp.save()
+        claudia.notify_mapping_created(mp)
 
     # Track pending tasks for cleanup. Make sure the root (first to process) always gets a pending count of 1.
     if is_root:
