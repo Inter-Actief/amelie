@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.encoding import smart_str
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask
 from amelie.members.management.commands.dataupdatemail import dataupdate_context
 from amelie.members.models import Payment, PaymentType, Membership, MembershipType
@@ -100,28 +101,40 @@ class Command(BaseCommand):
         # This file will hold all errors. For these people nothing is created. The reason is also in the file.
         errorfile = open('errorfile.txt', 'w')
 
-        continuationmails = MailTask(from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                     template_name='members/yeartransfer_prolonged.mail',
-                                     report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                     report_language='nl',
-                                     report_always=True)
-        discontinuationmails_first = MailTask(from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                        template_name='members/yeartransfer_ended.mail',
-                                        report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                        report_language='nl',
-                                        report_always=True)
+        continuationmails = MailTask(
+            from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            template_name='members/yeartransfer_prolonged.mail',
+            report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            report_language='nl',
+            report_always=True,
+            priority=TaskPriority.LOW
+        )
+        discontinuationmails_first = MailTask(
+            from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            template_name='members/yeartransfer_ended.mail',
+            report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            report_language='nl',
+            report_always=True,
+            priority=TaskPriority.LOW
+        )
 
-        discontinuationmails_final = MailTask(from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                        template_name='members/yeartransfer_ended_final.mail',
-                                        report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                        report_language='nl',
-                                        report_always=True)
+        discontinuationmails_final = MailTask(
+            from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            template_name='members/yeartransfer_ended_final.mail',
+            report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            report_language='nl',
+            report_always=True,
+            priority=TaskPriority.LOW
+        )
 
-        discontinuationmails_eniac = MailTask(from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                              template_name='members/yeartransfer_ended_eniac.mail',
-                                              report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
-                                              report_language='nl',
-                                              report_always=True)
+        discontinuationmails_eniac = MailTask(
+            from_='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            template_name='members/yeartransfer_ended_eniac.mail',
+            report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
+            report_language='nl',
+            report_always=True,
+            priority=TaskPriority.LOW
+        )
 
         paymenttype_continuation = PaymentType.objects.filter(name='Studielang (vervolg)')[0]
         paymenttype_sponsored = PaymentType.objects.filter(name='Sponsoring')[0]

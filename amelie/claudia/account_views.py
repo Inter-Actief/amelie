@@ -16,7 +16,7 @@ from amelie.claudia.forms import AccountPasswordForm, AccountConfigureForwarding
     AccountPasswordResetLinkForm, AccountActivateForm, MailAliasForm
 from amelie.claudia.google import GoogleSuiteAPI
 from amelie.claudia.models import Mapping, Membership, AliasGroup
-from amelie.claudia.tasks import verify_mapping
+from amelie.claudia.tasks import verify_object
 from amelie.members.models import Person
 from amelie.tools.http import HttpJSONResponse
 from amelie.tools.mixins import RequireActiveMemberMixin, RequirePersonMixin
@@ -494,6 +494,6 @@ class MailAliasView(RequirePersonMixin, FormView):
             alias_group_mp = Mapping.find(alias_group)
             Membership(member=mp, group=alias_group_mp, ad=True, mail=True, description='').save()
 
-        verify_mapping.delay(mp.id)
+        verify_object.delay(object_id=mp.id, object_type=None)
 
         return super().form_valid(form)

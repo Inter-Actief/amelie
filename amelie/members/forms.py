@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _l
 from django.utils.translation import gettext as _
 from localflavor.generic.forms import BICFormField, IBANFormField
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.style.forms import inject_style
 from amelie.members.models import Department, PaymentType, Committee, CommitteeCategory, DogroupGeneration, \
@@ -64,7 +65,8 @@ class PersonalDetailsEditForm(forms.ModelForm):
 
             task = MailTask(template_name='members/profile_changed.mail',
                             report_to=settings.EMAIL_REPORT_TO,
-                            report_always=False)
+                            report_always=False,
+                            priority=TaskPriority.MEDIUM)
 
             context = {'obj': str(self.instance),
                        'url': self.instance.get_absolute_url(),

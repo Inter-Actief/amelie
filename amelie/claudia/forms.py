@@ -12,6 +12,7 @@ from urllib.parse import urljoin
 from amelie.claudia.models import Mapping, AliasGroup, ExtraPersonalAliasEmailValidator, ExtraPersonalAlias
 from amelie.claudia.tools import MailAliasModelMultipleChoiceField
 from amelie.iamailer import MailTask, Recipient
+from amelie.tools.const import TaskPriority
 from amelie.members.models import Person
 
 
@@ -82,7 +83,7 @@ class AccountPasswordResetForm(forms.Form):
         conf = settings.CLAUDIA_MAIL
         language = None
         task = MailTask(from_=conf["FROM"], template_name='accounts/password_reset.mail',
-                        report_to=conf["FROM"], report_always=False)
+                        report_to=conf["FROM"], report_always=False, priority=TaskPriority.URGENT)
 
         if 'preferred_language' in mp.extra_data():
             language = mp.extra_data()['preferred_language']
@@ -102,7 +103,7 @@ class AccountPasswordResetForm(forms.Form):
         ))
 
         # Send e-mail
-        task.send(delay=False)
+        task.send()
 
 
 class AccountPasswordResetLinkForm(forms.Form):
