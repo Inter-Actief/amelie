@@ -48,8 +48,10 @@
 
   		<p>
   		    <a href="{{ photo.file.url }}">{% trans 'Original' %}</a>
-  		    &mdash;
-  		    <a href="{{ photo.thumb_small.url }}">{% trans 'Small' %} ({{ photo.thumb_small.width }}x{{ photo.thumb_small.height }})</a>
+  		    {% if photo.thumb_small %}
+                &mdash;
+                <a href="{{ photo.thumb_small.url }}">{% trans 'Small' %} ({{ photo.thumb_small.width }}x{{ photo.thumb_small.height }})</a>
+  		    {% endif %}
 
   		    {% if photo.thumb_medium %}
   		    	&mdash;
