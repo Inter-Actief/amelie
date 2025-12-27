@@ -65,7 +65,7 @@ def save_single_photo(folder, photo, activity, photographer, public, progress=No
     if not total:
         total = "??"
 
-    logger.info(f"[{progress}/{len(total)}] Saving photo {photo}...")
+    logger.info(f"[{progress}/{total}] Saving photo {photo}...")
 
     success = True
     exception = None
@@ -73,15 +73,15 @@ def save_single_photo(folder, photo, activity, photographer, public, progress=No
         file = os.path.join(folder, photo)
         attachment = Attachment(file=file, caption='', owner=photographer, public=public)
         attachment.save(create_thumbnails=True)
-        logger.info(f"[{progress}/{len(total)}] Adding photo to activity {activity}...")
+        logger.info(f"[{progress}/{total}] Adding photo to activity {activity}...")
         activity.photos.add(attachment)
         activity.save()
     except Exception as e:
         success = False
         exception = str(e)
-        logger.error(f"[{progress}/{len(total)}] Error saving photo {photo}: {e}")
+        logger.error(f"[{progress}/{total}] Error saving photo {photo}: {e}")
     else:
-        logger.info(f"[{progress}/{len(total)}] Photo {photo} saved successfully.")
+        logger.info(f"[{progress}/{total}] Photo {photo} saved successfully.")
     return {
         'photo': photo,
         'progress': progress,
