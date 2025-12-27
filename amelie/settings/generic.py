@@ -110,7 +110,7 @@ EMAIL_FILE_PATH = '/tmp/amelie-messages'  # The place to store the mail files wh
 EMAIL_RETURN_PATH = '<bounces@inter-actief.net>'  # Where to send 'undeliverable' messages
 EMAIL_REPORT_TO = 'WWW-commissie <www@inter-actief.net>'  # Where to send e-mail reports
 EMAIL_INTERCEPT_ADDRESS = None
-EMAIL_DELAY = 5  # Delay in seconds between consecutive mails
+EMAIL_RATE_LIMIT = "12/m"  # Rate limit for sending e-mails. 12/m = one per 5 seconds. See https://docs.celeryq.dev/en/stable/userguide/tasks.html#Task.rate_limit
 
 # Language code for this installation. All choices can be found here:
 # https://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -585,10 +585,14 @@ CELERY_RESULT_BACKEND = 'django-db'  # Where to store the task results
 CELERY_RESULT_SERIALIZER = 'pickle'  # How to serialize the task results
 CELERY_ACCEPT_CONTENT = ['pickle']  # A list of content-types/serializers to allow
 CELERY_BROKER_URL = None  # URL to the RabbitMQ broker (used when ALWAYS_EAGER is False)
-FLOWER_URL = None  # URL to the Celery Flower instance (used on sysinfo page)
+FLOWER_URL = None  # URL to the Celery Flower instance (used on the sysinfo page)
 RABBITMQ_MGMT_API_URL = None  # URL to the RabbitMQ management API (used on sysinfo page)
 RABBITMQ_MGMT_VHOST = 'amelie'  # Vhost used in RabbitMQ
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # By default, Celery resets the root logger. We want to see the logs so disable this behavior.
+CELERY_TASK_DEFAULT_QUEUE = 'default'  # Default queue where tasks are routed if no specific queue is specified.
+CELERY_TASK_QUEUE_MAX_PRIORITY = 10  # Maximum priority a task may have
+CELERY_TASK_DEFAULT_PRIORITY = 5  # Default priority of a task, if no priority is specified.
+CELERY_TASK_INHERIT_PARENT_PRIORITY = True  # Child tasks (chains, groups, etc.) will get the same priority as their parent.
 
 # Celery routes. We have three celery instances running that process celery tasks.
 # - The mail queue should only have 1 instance and should run sequentially. It handles sending e-mails one-by-one.
@@ -606,7 +610,6 @@ except ImportError:
     # Celery is probably not installed and disabled. That's ok, queues will be created if needed,
     # and tasks will work normally, only the Celery health check will be less accurate.
     kombu = None
-CELERY_TASK_DEFAULT_QUEUE = 'default'
 CELERY_TASK_ROUTES = {
     'iamailer.*': {'queue': 'mail'},
     'claudia.*': {'queue': 'claudia'},

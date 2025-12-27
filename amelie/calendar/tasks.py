@@ -7,7 +7,7 @@ from celery import shared_task
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+@shared_task(name="default.send_participation_callback")
 def send_participation_callback(event_id, person_id, action):
     logger.info(f"Start of send_participation_callback for event {event_id}")
 

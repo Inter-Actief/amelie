@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask
 from amelie.members.models import Person, Preference
 from amelie.tools.mail import PersonRecipient
@@ -44,7 +45,8 @@ class Command(BaseCommand):
             members = Person.objects.members().all()
 
             from_contact = "Board of Inter-Actief <board@inter-actief.net>"
-            task = MailTask(from_=from_contact, template_name='members/data_mail.mail', report_to=from_contact)
+            task = MailTask(from_=from_contact, template_name='members/data_mail.mail',
+                            report_to=from_contact, priority=TaskPriority.LOW)
 
             self.stdout.write("Building messages...")
 

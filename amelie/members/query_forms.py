@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _l
 from functools import reduce
 
 from amelie.api.models import PushNotification
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailer import render_mail
 from amelie.iamailer.mailtask import MailTask
 from amelie.style.forms import inject_style
@@ -474,7 +475,7 @@ class MailingForm(forms.Form):
         ccs = [self.cleaned_data['cc_email']] if self.cleaned_data['cc_email'] else None
         bccs = [self.cleaned_data['bcc_email']] if self.cleaned_data['bcc_email'] else None
 
-        task = MailTask(sender, template_string=template_string, report_to=sender)
+        task = MailTask(sender, template_string=template_string, report_to=sender, priority=TaskPriority.MEDIUM)
 
         for recipient in recipients:
             if isinstance(recipient, tuple):

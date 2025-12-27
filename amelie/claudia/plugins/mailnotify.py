@@ -8,7 +8,7 @@ from django.conf import settings
 
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.iamailer import MailTask, Recipient
-
+from amelie.tools.const import TaskPriority
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,11 @@ class MailNotifyPlugin(ClaudiaPlugin):
 
         language = None
 
-        task = MailTask(from_=conf["FROM"], template_name=template, report_to=conf["FROM"], report_always=False)
+        task = MailTask(
+            from_=conf["FROM"], template_name=template,
+            report_to=conf["FROM"], report_always=False,
+            priority=TaskPriority.HIGH
+        )
 
         if 'preferred_language' in mp.extra_data():
             language = mp.extra_data()['preferred_language']
@@ -66,4 +70,4 @@ class MailNotifyPlugin(ClaudiaPlugin):
             ))
 
         # Send e-mail
-        task.send(delay=False)
+        task.send()

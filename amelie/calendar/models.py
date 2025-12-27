@@ -18,6 +18,7 @@ from amelie.calendar.managers import EventManager
 from amelie.calendar.tasks import send_participation_callback
 from amelie.members.models import Committee, Person
 from amelie.personal_tab.models import ActivityTransaction
+from amelie.tools.const import TaskPriority
 
 
 class Participation(models.Model):
@@ -72,12 +73,14 @@ class Participation(models.Model):
 
 @receiver(post_save, sender=Participation)
 def post_save_callback(sender, instance, **kwargs):
-    send_participation_callback.delay(instance.event.id, instance.person.id, 'signup')
+    callback_args = [instance.event.id, instance.person.id, 'signup']
+    send_participation_callback.s(*callback_args).set(priority=TaskPriority.URGENT).delay()
 
 
 @receiver(post_delete, sender=Participation)
 def post_delete_callback(sender, instance, **kwargs):
-    send_participation_callback(instance.event.id, instance.person.id, 'signout')
+    callback_args = [instance.event.id, instance.person.id, 'signout']
+    send_participation_callback.s(*callback_args).set(priority=TaskPriority.URGENT).delay()
 
 
 def _generate_callback_secret_key():

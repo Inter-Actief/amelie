@@ -6,13 +6,14 @@ from django.template import Template, Context
 from amelie.api.models import PushNotification
 from amelie.api.push_utils import send_basic_notification
 from amelie.iamailer import MailTask, Recipient
+from amelie.tools.const import TaskPriority
 from amelie.members.models import Preference
 
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task()
+@shared_task(name="default.send_push_notification")
 def send_push_notification(notification: PushNotification, recipients, report_to=None, report_language=None):
     logger.debug(f"Sending push notification to {len(recipients)} recipients.")
     preferences = Preference.objects.filter(name='notifications')
@@ -45,12 +46,12 @@ def send_push_notification(notification: PushNotification, recipients, report_to
 
     logger.info(f"Notifications sent. {len(successful_push_recipients)} successful and {len(failed_notification_recipients)} failed.")
 
-    # Send a mailing to the requester
+    # Send a report mail to the requester
     if report_to is not None:
         logger.debug(f"Sending push report...")
-        mail_task = MailTask(template_name='tools/push_report.mail')
+        mail_task = MailTask(template_name='tools/push_report.mail', priority=TaskPriority.LOW)
 
-        # Render a English and Dutch message variants based on the template tags using the context renderer
+        # Render an English and Dutch message variant based on the template tags using the context renderer
         message_en = Template(notification.message_en).render(Context({'recipient': recipients[0]}))
         message_nl = Template(notification.message_nl).render(Context({'recipient': recipients[0]}))
 
@@ -75,5 +76,5 @@ def send_push_notification(notification: PushNotification, recipients, report_to
             language=report_language,
         ))
 
-        mail_task.send(delay=False)
-        logger.debug(f"Push report sent.")
+        mail_task.send()
+        logger.debug(f"Push report mail sent.")

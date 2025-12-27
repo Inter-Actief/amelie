@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 
-from amelie.claudia.tasks import verify_object, check_integrity as check_integrity_task
+from amelie.claudia.tasks import check_integrity as check_integrity_task
 
 logger = logging.getLogger(__name__)
 
