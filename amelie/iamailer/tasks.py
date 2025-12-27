@@ -80,8 +80,7 @@ def send_mails(mails, mail_from=None, template_name=None, template_string=None, 
 
 
 # acks_late makes it so that the task is retried if the worker crashes before it finishes.
-# rate_limit limits to 12 mails per minute (1 per 5 seconds). Tasks are evenly distributed over the time frame.
-@shared_task(name="iamailer.send_single_mail", acks_late=True, rate_limit=settings.EMAIL_RATE_LIMIT)
+@shared_task(name="iamailer.send_single_mail", acks_late=True)
 def send_single_mail(mail_from, maildata, template_name=None, template_string=None):
     """
     Send a single e-mail.
@@ -133,6 +132,10 @@ def send_single_mail(mail_from, maildata, template_name=None, template_string=No
         logger.exception(f'Sending mail to {to_string} failed')
     else:
         logger.info(f'Sending mail to {to_string} succeeded')
+
+    # Sleep between sending mails
+    logger.debug(f'Waiting for e-mail delay ({settings.EMAIL_DELAY} seconds) before finishing task...')
+    time.sleep(settings.EMAIL_DELAY)
 
     return {
         'to': maildata['to'],

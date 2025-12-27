@@ -110,7 +110,7 @@ EMAIL_FILE_PATH = '/tmp/amelie-messages'  # The place to store the mail files wh
 EMAIL_RETURN_PATH = '<bounces@inter-actief.net>'  # Where to send 'undeliverable' messages
 EMAIL_REPORT_TO = 'WWW-commissie <www@inter-actief.net>'  # Where to send e-mail reports
 EMAIL_INTERCEPT_ADDRESS = None
-EMAIL_RATE_LIMIT = "12/m"  # Rate limit for sending e-mails. 12/m = one per 5 seconds. See https://docs.celeryq.dev/en/stable/userguide/tasks.html#Task.rate_limit
+EMAIL_DELAY = 5  # Delay in seconds between sending consecutive e-mails
 
 # Language code for this installation. All choices can be found here:
 # https://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
