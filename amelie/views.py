@@ -17,6 +17,7 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _l
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
+from django.views.generic import TemplateView
 from oauth2_provider.views import AuthorizedTokenDeleteView
 from health_check.views import MainView as HealthCheckMainView
 from django.views.generic.edit import FormView
@@ -392,9 +393,86 @@ class PortraitUploadView(RequirePersonMixin, FormView):
         return redirect('profile_overview')
 
 
+def _get_queue_information():
+    # Celery worker information
+    if settings.FLOWER_URL:
+        try:
+            celery_workers = []
+            worker_data = requests.get(f"{settings.FLOWER_URL}/workers?json=1").json()
+            for worker in worker_data.get('data', []):
+
+                last_heartbeat = None
+                for heartbeat in worker.get('heartbeats', []):
+                    try:
+                        heartbeat_dt = datetime.datetime.fromtimestamp(heartbeat)
+                        if last_heartbeat is None or heartbeat_dt > last_heartbeat:
+                            last_heartbeat = heartbeat_dt
+                    except ValueError:
+                        pass
+
+                celery_workers.append({
+                    'name': worker.get("hostname", None),
+                    'status': worker.get("status", False),
+                    'active': worker.get("active", 0),
+                    'processed': worker.get("task-received", 0),
+                    'failed': worker.get("task-failed", 0),
+                    'succeeded': worker.get("task-succeeded", 0),
+                    'retried': worker.get("task-retried", 0),
+                    'loadavg': worker.get("loadavg", []),
+                    'last_heartbeat': last_heartbeat,
+                })
+            celery_workers = sorted(celery_workers, key=lambda w: w['name'])
+        except Exception as e:
+            logger.exception(e)
+            celery_workers = []
+    else:
+        celery_workers = []
+
+    # RabbitMQ Queue information
+    if settings.RABBITMQ_MGMT_API_URL:
+        try:
+            if settings.RABBITMQ_MGMT_VHOST:
+                vhost_name = settings.RABBITMQ_MGMT_VHOST
+            else:
+                vhost_name = "amelie"
+            if settings.CELERY_TASK_QUEUES:
+                queue_names = [q.name for q in settings.CELERY_TASK_QUEUES]
+            else:
+                # Assume default names
+                queue_names = ["default", "mail", "claudia"]
+            rabbitmq_queues = []
+            for queue in queue_names:
+                # Query RabbitMQ API
+                data = requests.get(f"{settings.RABBITMQ_MGMT_API_URL}/queues/{vhost_name}/{queue}").json()
+                rabbitmq_queues.append({
+                    'name': data.get('name', None),
+                    'vhost': data.get('vhost', None),
+                    'state': data.get('state', None),
+                    'consumers': data.get('consumers', 0),
+                    'messages': {
+                        'current_queued': data.get('messages', 0),
+                        'total_incoming': data.get('message_stats', {}).get('publish', 0),
+                        'total_delivered': data.get('message_stats', {}).get('deliver_get', 0),
+                        'incoming_rate': data.get('message_stats', {}).get('publish_details', {}).get('rate', 0.0),
+                        'delivered_rate': data.get('message_stats', {}).get('deliver_get_details', {}).get('rate', 0.0),
+                    }
+                })
+            rabbitmq_queues = sorted(rabbitmq_queues, key=lambda q: q['name'])
+        except Exception as e:
+            logger.exception(e)
+            rabbitmq_queues = []
+    else:
+        rabbitmq_queues = []
+
+    return {
+        'celery': celery_workers,
+        'rabbitmq': rabbitmq_queues,
+    }
+
+
 class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
     def get_context_data(self, **kwargs):
-        import os, sys, platform, cgi, socket
+        import os, sys, platform, socket
 
         # Operating system version
         if hasattr(platform, 'dist') and platform.dist()[0] != '' and platform.dist()[1] != '':
@@ -417,125 +495,74 @@ class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
         # Build information
         build_info = get_build_info()
 
-        # Celery worker information
-        if settings.FLOWER_URL:
-            try:
-                celery_workers = []
-                worker_data = requests.get(f"{settings.FLOWER_URL}/workers?json=1").json()
-                for worker in worker_data.get('data', []):
+        # Celery and RabbitMQ task queue information
+        queue_info = _get_queue_information()
 
-                    last_heartbeat = None
-                    for heartbeat in worker.get('heartbeats', []):
-                        try:
-                            heartbeat_dt = datetime.datetime.fromtimestamp(heartbeat)
-                            if last_heartbeat is None or heartbeat_dt > last_heartbeat:
-                                last_heartbeat = heartbeat_dt
-                        except ValueError:
-                            pass
+        # Build context dict
+        context = super().get_context_data(**kwargs)
+        # Celery worker info
+        context['celery_workers'] = queue_info.get('celery', [])
+        # RabbitMQ queue info
+        context['rabbitmq_queues'] = queue_info.get('rabbitmq', [])
+        # A bunch of other random system information
+        context['info_tables'] = [
+            ('Amelie', {
+                'Build branch': build_info.get("branch", "unknown"),
+                'Build commit': build_info.get("commit", "unknown"),
+                'Build date': build_info.get("date", "unknown"),
+            }),
+            ('System', {
+                'Python Version': platform.python_version(),
+                'Python Subversion': ', '.join(sys.subversion) if hasattr(sys, 'subversion') else None,
+                'OS Version': os_version,
+                'Executable': sys.executable if hasattr(sys, 'executable') else None,
+                'Build Date': platform.python_build()[1],
+                'Compiler': platform.python_compiler(),
+                'API Version': sys.api_version if hasattr(sys, 'api_version') else None
+            }),
+            ('Networking', {
+                'Hostname': socket.gethostname(),
+                'Hostname (fully qualified)': socket.gethostbyaddr(socket.gethostname())[0],
+                'IP Address': ip_address,
+                'IPv6 Support': getattr(socket, 'has_ipv6', False),
+                'SSL Support': hasattr(socket, 'ssl'),
+            }),
+            ('Python Internals', {
+                'Built-in Modules': ', '.join(sys.builtin_module_names) if hasattr(sys, 'builtin_module_names') else None,
+                'Byte Order': f'{sys.byteorder} endian',
+                'Check Interval': sys.getcheckinterval() if hasattr(sys, 'getcheckinterval') else None,
+                'File System Encoding': sys.getfilesystemencoding() if hasattr(sys, 'getfilesystemencoding') else None,
+                'Maximum Recursion Depth': sys.getrecursionlimit() if hasattr(sys, 'getrecursionlimit') else None,
+                'Maximum Traceback Limit': sys.tracebacklimit if hasattr(sys, 'tracebacklimit') else '1000',
+                'Maximum Unicode Code Point': sys.maxunicode
+            }),
+            ('OS Internals', {
+                'Current Working Directory': os.getcwd() if hasattr(os, 'getcwd') else None,
+                'Effective Group ID': os.getegid() if hasattr(os, 'getegid') else None,
+                'Effective User ID': os.geteuid() if hasattr(os, 'geteuid') else None,
+                'Group ID': os.getgid() if hasattr(os, 'getgid') else None,
+                'Group Membership': ', '.join(map(str, os.getgroups())) if hasattr(os, 'getgroups') else None,
+                'Line Seperator': repr(os.linesep)[1:-1] if hasattr(os, 'linesep') else None,
+                'Load Average': ', '.join(map(str, map(lambda x: round(x, 2), os.getloadavg()))) if hasattr(os, 'getloadavg') else None,
+                'Path Seperator': os.pathsep if hasattr(os, 'pathsep') else None,
+                'Process ID': process_id,
+                'User ID': os.getuid() if hasattr(os, 'getuid') else None,
+            })
+        ]
+        return context
 
-                    celery_workers.append({
-                        'name': worker.get("hostname", None),
-                        'status': worker.get("status", False),
-                        'active': worker.get("active", 0),
-                        'processed': worker.get("task-received", 0),
-                        'failed': worker.get("task-failed", 0),
-                        'succeeded': worker.get("task-succeeded", 0),
-                        'retried': worker.get("task-retried", 0),
-                        'loadavg': worker.get("loadavg", []),
-                        'last_heartbeat': last_heartbeat,
-                    })
-                celery_workers = sorted(celery_workers, key=lambda w: w['name'])
-            except Exception as e:
-                logger.exception(e)
-                celery_workers = []
-        else:
-            celery_workers = []
 
-        # RabbitMQ Queue information
-        if settings.RABBITMQ_MGMT_API_URL:
-            try:
-                if settings.RABBITMQ_MGMT_VHOST:
-                    vhost_name = settings.RABBITMQ_MGMT_VHOST
-                else:
-                    vhost_name = "amelie"
-                if settings.CELERY_TASK_QUEUES:
-                    queue_names = [q.name for q in settings.CELERY_TASK_QUEUES]
-                else:
-                    # Assume default names
-                    queue_names = ["default", "mail", "claudia"]
-                rabbitmq_queues = []
-                for queue in queue_names:
-                    # Query RabbitMQ API
-                    data = requests.get(f"{settings.RABBITMQ_MGMT_API_URL}/queues/{vhost_name}/{queue}").json()
-                    rabbitmq_queues.append({
-                        'name': data.get('name', None),
-                        'vhost': data.get('vhost', None),
-                        'state': data.get('state', None),
-                        'consumers': data.get('consumers', 0),
-                        'messages': {
-                            'current_queued': data.get('messages', 0),
-                            'total_incoming': data.get('message_stats', {}).get('publish', 0),
-                            'total_delivered': data.get('message_stats', {}).get('deliver_get', 0),
-                            'incoming_rate': data.get('message_stats', {}).get('publish_details', {}).get('rate', 0.0),
-                            'delivered_rate': data.get('message_stats', {}).get('deliver_get_details', {}).get('rate', 0.0),
-                        }
-                    })
-                rabbitmq_queues = sorted(rabbitmq_queues, key=lambda q: q['name'])
-            except Exception as e:
-                logger.exception(e)
-                rabbitmq_queues = []
-        else:
-            rabbitmq_queues = []
+class CeleryInfoPartialView(RequireSuperuserMixin, TemplateView):
+    template_name = 'health_check/partial_celery_tables.html'
+
+    def get_context_data(self, **kwargs):
+        # Celery and RabbitMQ task queue information
+        queue_info = _get_queue_information()
 
         return {
             **super().get_context_data(**kwargs),
             # Celery worker info
-            'celery_workers': celery_workers,
+            'celery_workers': queue_info.get('celery', []),
             # RabbitMQ queue info
-            'rabbitmq_queues': rabbitmq_queues,
-            # A bunch of other random system information
-            'info_tables': [
-                ('Amelie', {
-                    'Build branch': build_info.get("branch", "unknown"),
-                    'Build commit': build_info.get("commit", "unknown"),
-                    'Build date': build_info.get("date", "unknown"),
-                }),
-                ('System', {
-                    'Python Version': platform.python_version(),
-                    'Python Subversion': ', '.join(sys.subversion) if hasattr(sys, 'subversion') else None,
-                    'OS Version': os_version,
-                    'Executable': sys.executable if hasattr(sys, 'executable') else None,
-                    'Build Date': platform.python_build()[1],
-                    'Compiler': platform.python_compiler(),
-                    'API Version': sys.api_version if hasattr(sys, 'api_version') else None
-                }),
-                ('Networking', {
-                    'Hostname': socket.gethostname(),
-                    'Hostname (fully qualified)': socket.gethostbyaddr(socket.gethostname())[0],
-                    'IP Address': ip_address,
-                    'IPv6 Support': getattr(socket, 'has_ipv6', False),
-                    'SSL Support': hasattr(socket, 'ssl'),
-                }),
-                ('Python Internals', {
-                    'Built-in Modules': ', '.join(sys.builtin_module_names) if hasattr(sys, 'builtin_module_names') else None,
-                    'Byte Order': f'{sys.byteorder} endian',
-                    'Check Interval': sys.getcheckinterval() if hasattr(sys, 'getcheckinterval') else None,
-                    'File System Encoding': sys.getfilesystemencoding() if hasattr(sys, 'getfilesystemencoding') else None,
-                    'Maximum Recursion Depth': sys.getrecursionlimit() if hasattr(sys, 'getrecursionlimit') else None,
-                    'Maximum Traceback Limit': sys.tracebacklimit if hasattr(sys, 'tracebacklimit') else '1000',
-                    'Maximum Unicode Code Point': sys.maxunicode
-                }),
-                ('OS Internals', {
-                    'Current Working Directory': os.getcwd() if hasattr(os, 'getcwd') else None,
-                    'Effective Group ID': os.getegid() if hasattr(os, 'getegid') else None,
-                    'Effective User ID': os.geteuid() if hasattr(os, 'geteuid') else None,
-                    'Group ID': os.getgid() if hasattr(os, 'getgid') else None,
-                    'Group Membership': ', '.join(map(str, os.getgroups())) if hasattr(os, 'getgroups') else None,
-                    'Line Seperator': repr(os.linesep)[1:-1] if hasattr(os, 'linesep') else None,
-                    'Load Average': ', '.join(map(str, map(lambda x: round(x, 2), os.getloadavg()))) if hasattr(os, 'getloadavg') else None,
-                    'Path Seperator': os.pathsep if hasattr(os, 'pathsep') else None,
-                    'Process ID': process_id,
-                    'User ID': os.getuid() if hasattr(os, 'getuid') else None,
-                }),
-            ]
+            'rabbitmq_queues': queue_info.get('rabbitmq', []),
         }
