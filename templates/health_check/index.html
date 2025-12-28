@@ -84,13 +84,13 @@
     <script type="text/javascript">
         $(document).ready(function() {
             function updateCeleryInfo() {
-                $('#celery-container .icon-arrow_refresh').css('display', 'inline')
+                $('#celery-container .icon-arrow_refresh').css('visibility', 'visible')
                 $.ajax({
                     url: "{% url 'system_info_ajax_celery' %}",
                     method: "GET",
                     success: function(data) {
                         $('#celery-container').html(data);
-                        $('#celery-container .icon-arrow_refresh').css('display', 'none')
+                        $('#celery-container .icon-arrow_refresh').css('visibility', 'hidden')
                     },
                     error: function(xhr, status, error) {
                         console.error("Failed to fetch celery info:", error);
@@ -101,7 +101,7 @@
                             <p>{% trans 'Error!' %}</p>
                             <p>${error}</p>
                         `)
-                        $('#celery-container .icon-arrow_refresh').css('display', 'none')
+                        $('#celery-container .icon-arrow_refresh').css('visibility', 'hidden')
                     }
                 });
             }

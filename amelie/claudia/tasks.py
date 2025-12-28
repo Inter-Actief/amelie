@@ -11,7 +11,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-CHECKED_OBJECTS_CACHE_KEY_TEMPLATE = "verification_cycle_{cycle_id}_objects"
+CHECKED_MAPPINGS_CACHE_KEY_TEMPLATE = "verification_cycle_{cycle_id}_mappings"
 PENDING_COUNT_CACHE_KEY_TEMPLATE = "verification_cycle_{cycle_id}_pending"
 
 
@@ -39,10 +39,10 @@ def check_integrity():
     # the verification tasks run in that worker, their cache is guaranteed to be shared. We need to initialize these
     # caches properly because we are generating a cycle ID for the verification, which means the initialization of the
     # cache will not happen on the first verification, so we need to initialize them here.
-    checked_objects_cache_key = CHECKED_OBJECTS_CACHE_KEY_TEMPLATE.format(cycle_id=cycle_id)
+    checked_mappings_cache_key = CHECKED_MAPPINGS_CACHE_KEY_TEMPLATE.format(cycle_id=cycle_id)
     pending_count_cache_key = PENDING_COUNT_CACHE_KEY_TEMPLATE.format(cycle_id=cycle_id)
     # We set the checked objects to an empty set because no objects have been checked yet.
-    cache.set(checked_objects_cache_key, set(), timeout=7200)
+    cache.set(checked_mappings_cache_key, set(), timeout=7200)
     # We set the pending counter to 0 because no tasks have been enqueued yet. Later when enqueueing objects, this counter will be increased.
     cache.set(pending_count_cache_key, 0, timeout=7200)
 
@@ -103,6 +103,13 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
     :raises Exception: If the verification fails for any reason. Can be any exception type.
     """
     logger.debug(f"Starting Claudia verification for object {object_id} (type {object_type}) with fix={fix} and cycle_id={cycle_id}...")
+    from amelie.claudia.clau import Claudia
+    from amelie.claudia.models import Mapping
+
+    # Get Claudia in here so we can notify other plugins and schedule other mappings
+    claudia = Claudia.get_instance()
+
+    # Generate a cycle ID if this one is not given to us.
     is_root = False
     if cycle_id is None:
         cycle_id = str(uuid.uuid4())
@@ -110,94 +117,59 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
         logger.info(f"Started new verification cycle: {cycle_id}")
 
     # Determine the names for the cache keys.
-    checked_objects_cache_key = CHECKED_OBJECTS_CACHE_KEY_TEMPLATE.format(cycle_id=cycle_id)
+    checked_mappings_cache_key = CHECKED_MAPPINGS_CACHE_KEY_TEMPLATE.format(cycle_id=cycle_id)
     pending_count_cache_key = PENDING_COUNT_CACHE_KEY_TEMPLATE.format(cycle_id=cycle_id)
 
-    def check_cycle_end():
-        """
-        Helper function to call whenever we are about to exit the verification function,
-        to decrement the pending objects counter and to perform cleanup at the very end of the cycle.
-        """
-        # Decrement pending counter
-        cycle_pending = cache.get(pending_count_cache_key, 1)
-        cache.set(pending_count_cache_key, cycle_pending - 1, timeout=7200)
-
-        # Last task in cycle, cleanup
-        final_pending = cache.get(pending_count_cache_key, 0)
-        if final_pending <= 0:
-            final_checked_objects = cache.get(checked_objects_cache_key, set())
-            cache.delete(checked_objects_cache_key)
-            cache.delete(pending_count_cache_key)
-            logger.info(f"Cleaned up verification cycle {cycle_id}")
-
-            # Finally, if this was the last object to be verified in this cycle, check if any of the processed mappings should be deactivated.
-            logger.debug(f"Checking if any mappings need to be deactivated...")
-            for checked_object_id in final_checked_objects:
-                checked_mapping = Mapping.objects.get(id=checked_object_id)
-                if not checked_mapping.is_needed() and checked_mapping.active:
-                    logger.debug(f"Deactivating mapping '{checked_mapping.name}' (cid {checked_mapping.id})")
-                    checked_mapping.active = False
-                    checked_mapping.save()
-                    claudia.notify_mapping_deleted(checked_mapping)
-
-        logger.debug(f"Finished Claudia verification for object {object_id} (type {object_type}) ({final_pending} pending in queue for this cycle).")
-
-    # Get Claudia in here so we can notify other plugins and schedule other mappings
-    from amelie.claudia.clau import Claudia
-    from amelie.claudia.models import Mapping
-    claudia = Claudia.get_instance()
-
-    # Retrieve object to be verified
-    if object_type is not None:
-        obj = Mapping.get_object_from_mapping(object_type, object_id)
-        logger.debug(f"Verification of object '{obj.get_name()}' requested. (type {object_type}, oid {object_id})")
-        # First, check if a mapping exists
-        mp = Mapping.find(obj)
-        # If no mapping was found, check if one is needed
-        if mp is None and obj.is_needed():
-            logger.debug(f"{obj.get_name()} has no mapping, but is active, creating.")
-            mp = Mapping.create(obj)
-            claudia.notify_mapping_created(mp)
-        # If there is no mapping, then this object is not needed and exists nowhere; we can skip it.
-        if mp is None:
-            logger.debug(f"{obj.get_name()} is not active and has no mapping, skipping.")
-            check_cycle_end()
-            return {"status": "skipped", "object_id": object_id, "object_type": object_type}
-    else:
-        mp = Mapping.objects.get(id=object_id)
-        logger.debug(f"Verification of mapping '{mp.name}' requested (type {mp.type}, oid {mp.ident}, cid {mp.id}).")
-
-    # Check if already queued
-    already_checked_objects = cache.get(checked_objects_cache_key, set())
-    if mp.id in already_checked_objects:
-        logger.debug(f"Not verifying Mapping '{mp.name}' (cid {mp.id}) because it has already been checked in cycle {cycle_id}")
-        check_cycle_end()
-        return {"status": "already_checked", "object_id": object_id, "object_type": object_type}
-
-    # Do some logging
-    logger.debug(f"Verifying Mapping '{mp.name}' (cid {mp.id}) in cycle {cycle_id}...")
-
-    # Check if the mapping should be activated
-    if not mp.active and mp.is_needed():
-        logger.debug(f"Activating mapping '{mp.name}' (cid {mp.id})")
-        mp.active = True
-        mp.save()
-        claudia.notify_mapping_created(mp)
-
-    # Track pending tasks for cleanup. Make sure the root (first to process) always gets a pending count of 1.
-    if is_root:
-        cache.set(pending_count_cache_key, 1, timeout=7200)
-
+    mp: Optional[Mapping] = None
     try:
+        # Track pending tasks for cleanup. Make sure the root (first to process) always gets a pending count of 1.
+        if is_root:
+            cache.set(pending_count_cache_key, 1, timeout=7200)
+
+        # Retrieve object to be verified
+        if object_type is not None:
+            obj = Mapping.get_object_from_mapping(object_type, object_id)
+            logger.debug(f"Verification of object '{obj.get_name()}' requested. (type {object_type}, oid {object_id})")
+            # First, check if a mapping exists
+            mp = Mapping.find(obj)
+            # If no mapping was found, check if one is needed
+            if mp is None and obj.is_needed():
+                logger.debug(f"{obj.get_name()} has no mapping, but is active, creating.")
+                mp = Mapping.create(obj)
+                claudia.notify_mapping_created(mp)
+            # If there is no mapping, then this object is not needed and exists nowhere; we can skip it.
+            if mp is None:
+                logger.debug(f"{obj.get_name()} is not active and has no mapping, skipping.")
+                return {"status": "skipped", "object_id": object_id, "object_type": object_type}
+        else:
+            mp = Mapping.objects.get(id=object_id)
+            logger.debug(f"Verification of mapping '{mp.name}' requested (type {mp.type}, oid {mp.ident}, cid {mp.id}).")
+
+        # Check if already queued
+        already_checked_mappings = cache.get(checked_mappings_cache_key, set())
+        if mp.id in already_checked_mappings:
+            logger.debug(f"Not verifying Mapping '{mp.name}' (cid {mp.id}) because it has already been checked in cycle {cycle_id}")
+            return {"status": "already_checked", "object_id": object_id, "object_type": object_type}
+
+        # Do some logging
+        logger.debug(f"Verifying Mapping '{mp.name}' (cid {mp.id}) in cycle {cycle_id}...")
+
+        # Check if the mapping should be activated
+        if not mp.active and mp.is_needed():
+            logger.debug(f"Activating mapping '{mp.name}' (cid {mp.id})")
+            mp.active = True
+            mp.save()
+            claudia.notify_mapping_created(mp)
+
         try:
             # Perform the actual verify action.
             claudia.verify_mapping(mp=mp, fix=fix)
 
             # Add to checked objects.  We do this here because the actual verification is done now. If an exception
             # occurs later (i.e., when queueing members), the object will be removed again so it can be re-queued.
-            already_checked_objects = cache.get(checked_objects_cache_key, set())
-            already_checked_objects.add(object_id)
-            cache.set(checked_objects_cache_key, already_checked_objects, timeout=7200)
+            already_checked_mappings = cache.get(checked_mappings_cache_key, set())
+            already_checked_mappings.add(mp.id)
+            cache.set(checked_mappings_cache_key, already_checked_mappings, timeout=7200)
         except ldap.SERVER_DOWN:
             # Active Directory server is down. Just re-raise this error, because it is listed in the `autoretry_for`
             # list for the task, which will re-schedule this verification in 1 minute (with exponential backoff).
@@ -218,7 +190,7 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
             for member_mp in mp.members(old_members=True):
                 # If the mapping is already in the history for this session, don't enqueue it for verification,
                 # because it might lead to infinite recursion, and we don't want that.
-                current_queued = cache.get(checked_objects_cache_key, set())
+                current_queued = cache.get(checked_mappings_cache_key, set())
                 if member_mp.id not in current_queued:
                     logger.debug(f"Enqueueing Mapping '{member_mp.name}' (cid {member_mp.id}) for later verification in cycle {cycle_id}")
                     # Increment pending counter
@@ -229,16 +201,49 @@ def verify_object(object_id: int, object_type: Optional[str] = None, fix: bool =
                 else:
                     logger.debug(f"Not enqueueing Mapping '{member_mp.name}' (cid {member_mp.id}) because it has already been checked in cycle {cycle_id}")
 
-        check_cycle_end()
         return {"status": "verified", "object_id": object_id, "object_type": object_type}
 
     except Exception as exc:
-        logger.error(f"Error during verify of mapping '{mp.name}' (cid {mp.id}): {exc}")
-        # Remove from the checked set so it can be retried in case it is enqueued again later in this cycle.
-        already_checked_objects = cache.get(checked_objects_cache_key, set())
-        already_checked_objects.discard(object_id)
-        cache.set(checked_objects_cache_key, already_checked_objects, timeout=7200)
+        if mp:
+            logger.error(f"Error during verify of mapping '{mp.name}' (cid {mp.id}): {exc}")
+            # Remove from the checked set so it can be retried in case it is enqueued again later in this cycle.
+            already_checked_mappings = cache.get(checked_mappings_cache_key, set())
+            already_checked_mappings.discard(mp.id)
+            cache.set(checked_mappings_cache_key, already_checked_mappings, timeout=7200)
+        else:
+            logger.error(f"Error during verify of object {object_id} (type {object_type}): {exc}")
+        # Re-raise the exception so it shows up in our logging
         raise
 
     finally:
-        check_cycle_end()
+        # `finally` always runs, both after either an exception and even when just executing `return` in the try block.
+        # So, this will run whenever we are about to exit the verification function as a sort of 'cleanup' handler.
+        # We use it to decrement the pending objects counter and to perform Mapping cleanup at the very end of the cycle.
+
+        # Decrement pending counter
+        cycle_pending = cache.get(pending_count_cache_key, 1)
+        cache.set(pending_count_cache_key, cycle_pending - 1, timeout=7200)
+
+        # Last task in cycle, cleanup
+        final_pending = cache.get(pending_count_cache_key, 0)
+        if final_pending <= 0:
+            final_checked_objects = cache.get(checked_mappings_cache_key, set())
+            cache.delete(checked_mappings_cache_key)
+            cache.delete(pending_count_cache_key)
+            logger.info(f"Cleaned up verification cycle {cycle_id}")
+
+            # Finally, if this was the last object to be verified in this cycle, check if any of the processed mappings should be deactivated.
+            logger.debug(f"Checking if any mappings need to be deactivated...")
+            for checked_object_id in final_checked_objects:
+                try:
+                    checked_mapping = Mapping.objects.get(id=checked_object_id)
+                    if not checked_mapping.is_needed() and checked_mapping.active:
+                        logger.debug(f"Deactivating mapping '{checked_mapping.name}' (cid {checked_mapping.id})")
+                        checked_mapping.active = False
+                        checked_mapping.save()
+                        claudia.notify_mapping_deleted(checked_mapping)
+                except Mapping.DoesNotExist:
+                    pass
+
+        logger.debug(f"Finished Claudia verification for object {object_id} (type {object_type}) ({final_pending} pending in queue for this cycle).")
+

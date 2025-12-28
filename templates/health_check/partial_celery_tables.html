@@ -1,12 +1,13 @@
 {% load i18n %}
 
-<h3>{% trans 'Celery worker status' %}&nbsp;<div class="icon icon-arrow_refresh" style="display: inline" aria-hidden="true"></div></h3>
+<h3 style="margin-bottom:0;">{% trans 'Celery worker status' %}&nbsp;<div class="icon icon-arrow_refresh" style="display: inline; visibility: visible" aria-hidden="true"></div></h3>
+<p class="small" style="margin-top:0;">{% trans 'Statistics are measured since the last Celery worker restart.' %}</p>
 <table>
     <thead>
     <tr>
         <th>{% trans 'Worker name' %}</th>
+        <th>{% trans 'Received' %}</th>
         <th>{% trans 'Active' %}</th>
-        <th>{% trans 'Processed' %}</th>
         <th>{% trans 'Failed' %}</th>
         <th>{% trans 'Succeeded' %}</th>
         <th>{% trans 'Retried' %}</th>
@@ -29,9 +30,14 @@
                     <div class="icon status_icon icon-error" aria-hidden="true"></div>{% trans 'Unknown' %}
                 {% endif %}
             </td>
-            <td>{{ worker.active }}</td>
             <td>{{ worker.processed }}</td>
-            <td>{{ worker.failed }}</td>
+            <td>{{ worker.active }}</td>
+            <td>
+                {% if worker.failed|default:0 > 0 %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                {% endif %}
+                <span>{{ worker.failed }}</span>
+            </td>
             <td>{{ worker.succeeded }}</td>
             <td>{{ worker.retried }}</td>
             <td>
@@ -60,7 +66,8 @@
     </tbody>
 </table>
 
-<h3>{% trans 'RabbitMQ queue status' %}&nbsp;<div class="icon icon-arrow_refresh" style="display: inline" aria-hidden="true"></div></h3>
+<h3 style="margin-bottom:0;">{% trans 'RabbitMQ queue status' %}&nbsp;<div class="icon icon-arrow_refresh" style="display: inline; visibility: visible" aria-hidden="true"></div></h3>
+<p class="small" style="margin-top:0;">{% trans 'Statistics are measured since the last RabbitMQ server restart.' %}</p>
 <table>
     <thead>
     <tr>
@@ -100,7 +107,10 @@
                 <span>{{ queue.consumers }}</span>
             </td>
             <td>
-                {{ queue.messages.current_queued|default:'0' }}
+                {% if queue.messages.current_queued|default:0 >= 10 %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                {% endif %}
+                <span>{{ queue.messages.current_queued|default:'0' }}</span>
             </td>
             <td>
                 {% blocktrans with msg_in=queue.messages.total_incoming|default:'0' msg_out=queue.messages.total_delivered|default:'0' %}
