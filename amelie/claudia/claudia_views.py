@@ -169,8 +169,8 @@ class MappingVerify(RequireCommitteeMixin, View):
         return super(MappingVerify, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        from amelie.claudia.tasks import verify_mapping
-        verify_mapping.delay(self.mapping.id)
+        from amelie.claudia.tasks import verify_object
+        verify_object.delay(object_id=self.mapping.id, object_type=None)
         return redirect(self.mapping.get_absolute_url())
 
 

@@ -153,7 +153,7 @@ LOGGING = {
         'amelie': { # Log all Amelie errors
             'level': 'DEBUG',
         },
-        'amelie.claudia': { # store claudia logging in seperate file and log to eugenia
+        'amelie.claudia': { # Claudia logs can go to different handlers
             'level': 'DEBUG',
             'handlers': ENABLED_HANDLERS_CLAUDIA,
             'propagate': False,
@@ -187,6 +187,15 @@ LOGGING = {
         'daphne': { # Set daphne logging to INFO
             'level': 'INFO'
         },
+        'celery': { # Set Celery logging to INFO to avoid spam
+            'level': 'INFO'
+        },
+        'celery.task': { # Set Celery task logging to DEBUG
+            'level': 'DEBUG'
+        },
+        'celery.utils.functional': { # Set Celery utils logging to INFO to avoid spam
+            'level': 'INFO'
+        },
         # Ignore SAML2 errors due to unsollicited response error floods
         'saml2.entity': {'handlers': [], 'propagate': False},
         'saml2.client_base': {'handlers': [], 'propagate': False},
@@ -194,7 +203,7 @@ LOGGING = {
         # Set OIDC logging to at least info due to process_request log flooding
         'mozilla_django_oidc.middleware': {'level': 'INFO'},
         # Set ModernRPC logging to at least info due to "register_method" log flooding for API
-        'modernrpc.core': {'level': 'INFO'},
+        'modernrpc.server': {'level': 'INFO'},
     },
 }
 
@@ -265,6 +274,11 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key_no_dollar())
 # Setup broker for celery
 CELERY_BROKER_URL = env('DJANGO_CELERY_BROKER_URI', default='amqp://amelie:amelie@localhost:5672/amelie')
 BROKER_URL = CELERY_BROKER_URL  # Needed for django-health-check RabbitMQ check to work
+# URL to the Celery Flower instance
+FLOWER_URL = env('DJANGO_FLOWER_URL', default='http://localhost:5555')
+# URL to the RabbitMQ management API (used on sysinfo page)
+RABBITMQ_MGMT_API_URL = env('DJANGO_RABBITMQ_MGMT_API_URI', default='http://amelie:amelie@localhost:15672/api')
+RABBITMQ_MGMT_VHOST = env('DJANGO_RABBITMQ_MGMT_VHOST', default='amelie')
 
 # Django Celery -- True means that tasks will be executed immediately and are not queued!
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)

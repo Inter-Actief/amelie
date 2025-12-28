@@ -224,7 +224,8 @@ class GoogleSuitePlugin(ClaudiaPlugin):
                             gs_group = self.google.get_group(group)
                             if not gs_group:
                                 # Let Claudia verify the group if it does not exist
-                                claudia.do_verify(group)
+                                logging.info(f"Group to add does not exist yet, verifying group '{group.name}' (cid: {group.id}) now so it may be created.")
+                                claudia.verify_mapping(mp=group, fix=fix)
                                 gs_group = self.google.get_group(group)
 
                             if gs_group:

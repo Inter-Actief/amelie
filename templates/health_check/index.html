@@ -3,75 +3,114 @@
 {% load i18n %}
 
 {% block titel %}
-{% block title %}{% trans 'Health checks'%}{% endblock title %}
+    {% block title %}{% trans 'Health checks' %}{% endblock title %}
 {% endblock titel %}
 
 {% block head %}
-<meta name="robots" content="noindex">
-<style type="text/css">
-    .status_icon {
-        display: inline-block;
-        top: 2px;
-        position: relative;
-        margin-right: 4px;
-    }
-</style>
-{% block extra_head %}{% endblock extra_head %}
+    <meta name="robots" content="noindex">
+    <style>
+        .status_icon {
+            display: inline-block;
+            top: 2px;
+            position: relative;
+            margin-right: 4px;
+        }
+    </style>
+    {% block extra_head %}{% endblock extra_head %}
 {% endblock head %}
 
 {% block content %}
-  <div class="col-xs-12">
-    <div class="ia">
-      <h2>{% trans 'System status' %}</h2>
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'System status' %}</h2>
 
-      <div class="content">
-        <h3>{% trans 'System status' %}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th colspan="2">{% trans 'Service' %}</th>
-              <th>{% trans 'Status' %}</th>
-              <th>{% trans 'Time Taken' %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for plugin in plugins %}
-              <tr>
-                <td style="width: 50px">
-                  {% if plugin.status %}
-                    <div class="icon status_icon icon-accept" aria-hidden="true"></div>
-                  {% else %}
-                    <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
-                  {% endif %}
-                </td>
-                <td>{{ plugin.identifier }}</td>
-                <td>{{ plugin.pretty_status }}</td>
-                <td>{{ plugin.time_taken|floatformat:4 }} {% trans 'seconds' %}</td>
-              </tr>
-            {% empty %}
-                <td colspan="4">{% trans 'No status available.' %}</td>
-            {% endfor %}
-          </tbody>
-        </table>
+            <div class="content">
+                <h3>{% trans 'System status' %}</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>{% trans 'Service' %}</th>
+                        <th>{% trans 'Status' %}</th>
+                        <th>{% trans 'Time Taken' %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for plugin in plugins %}
+                        <tr>
+                            <td>
+                                {% if plugin.status %}
+                                    <div class="icon status_icon icon-accept" aria-hidden="true"></div>
+                                {% else %}
+                                    <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
+                                {% endif %}
+                                <span>{{ plugin.identifier }}</span>
+                            </td>
+                            <td>{{ plugin.pretty_status }}</td>
+                            <td>{{ plugin.time_taken|floatformat:4 }} {% trans 'seconds' %}</td>
+                        </tr>
+                    {% empty %}
+                        <td colspan="3">{% trans 'No status available.' %}</td>
+                    {% endfor %}
+                    </tbody>
+                </table>
 
-        {% if request.user and request.user.is_superuser and info_tables %}
-        {% for title, data in info_tables %}
-        <h3>{{ title }}</h3>
-        <table>
-          <tbody>
-            {% for k, v in data.items %}
-              <tr>
-                <th>{{ k }}</th>
-                <td>{{ v }}</td>
-              </tr>
-            {% empty %}
-                <td colspan="2">{% trans 'No info available.' %}</td>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% endfor %}
-        {% endif %}
-      </div>
+                <div id="celery-container">
+                    <h3>{% trans 'Celery worker status' %}&nbsp;<div class="icon status_icon icon-arrow_refresh" style="display: inline" aria-hidden="true"></div></h3>
+                    <p>{% trans 'Querying...' %}</p>
+                    <h3>{% trans 'RabbitMQ queue status' %}&nbsp;<div class="icon status_icon icon-arrow_refresh" style="display: inline" aria-hidden="true"></div></h3>
+                    <p>{% trans 'Querying...' %}</p>
+                </div>
+
+                {% if request.user and request.user.is_superuser and info_tables %}
+                    {% for title, data in info_tables %}
+                        <h3>{{ title }}</h3>
+                        <table>
+                            <tbody>
+                            {% for k, v in data.items %}
+                                <tr>
+                                    <th>{{ k }}</th>
+                                    <td>{{ v }}</td>
+                                </tr>
+                            {% empty %}
+                                <td colspan="2">{% trans 'No info available.' %}</td>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            function updateCeleryInfo() {
+                $('#celery-container .icon-arrow_refresh').css('visibility', 'visible')
+                $.ajax({
+                    url: "{% url 'system_info_ajax_celery' %}",
+                    method: "GET",
+                    success: function(data) {
+                        $('#celery-container').html(data);
+                        $('#celery-container .icon-arrow_refresh').css('visibility', 'hidden')
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Failed to fetch celery info:", error);
+                        $('#celery-container').html(`
+                            <h3>{% trans 'Celery worker status' %}</h3>
+                            <p>{% trans 'Error!' %}</p>
+                            <h3>{% trans 'RabbitMQ queue status' %}</h3>
+                            <p>{% trans 'Error!' %}</p>
+                            <p>${error}</p>
+                        `)
+                        $('#celery-container .icon-arrow_refresh').css('visibility', 'hidden')
+                    }
+                });
+            }
+
+            // Initial call
+            updateCeleryInfo();
+
+            // Repeat every 3 seconds
+            setInterval(updateCeleryInfo, 3000);
+        });
+    </script>
 {% endblock %}

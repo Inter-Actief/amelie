@@ -16,6 +16,7 @@ from django.views.generic.list import ListView
 from amelie.activities.forms import ActivityForm
 from amelie.activities.models import Activity
 from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailer import render_mail
 from amelie.news.forms import NewsItemBoardForm
 from amelie.news.models import NewsItem
@@ -198,7 +199,8 @@ def send_weekmail(request, pk):
     task = MailTask(template_name='weekmail/weekmail_mail.mail',
                     report_to=weekmail.writer.email_address,
                     report_language=weekmail.writer.preferred_language,
-                    report_always=True)
+                    report_always=True,
+                    priority=TaskPriority.LOW)
 
     # If debug is enabled, add a single recipient, the person themselves
     if settings.DEBUG:

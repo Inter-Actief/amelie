@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _l
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.style.forms import inject_style
 from amelie.calendar.forms import EventForm
@@ -17,7 +18,6 @@ from amelie.tools.widgets import DateTimeSelector
 
 from captcha.fields import CaptchaField
 from captcha.models import CaptchaStore
-from captcha.helpers import captcha_image_url
 
 
 class PageForm(forms.ModelForm):
@@ -111,7 +111,7 @@ class EducationalBouquetForm(forms.Form):
                    }
 
         task = MailTask(template_name='education/educational_bouquet.mail', report_to=settings.EMAIL_REPORT_TO,
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
@@ -159,7 +159,7 @@ class DEANominationForm(forms.Form):
                    }
 
         task = MailTask(template_name='education/dea_nomination.mail', report_to=settings.EMAIL_REPORT_TO,
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
@@ -206,7 +206,7 @@ class DEAVoteForm(forms.Form):
                    }
 
         task = MailTask(template_name='education/dea_vote.mail', report_to=settings.EMAIL_REPORT_TO,
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,

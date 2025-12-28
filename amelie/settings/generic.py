@@ -3,6 +3,7 @@
 # Meaning, when a package is imported here, the initialization of that package cannot use the settings.
 import os
 import re
+
 import saml2
 import datetime
 from datetime import date
@@ -109,7 +110,7 @@ EMAIL_FILE_PATH = '/tmp/amelie-messages'  # The place to store the mail files wh
 EMAIL_RETURN_PATH = '<bounces@inter-actief.net>'  # Where to send 'undeliverable' messages
 EMAIL_REPORT_TO = 'WWW-commissie <www@inter-actief.net>'  # Where to send e-mail reports
 EMAIL_INTERCEPT_ADDRESS = None
-EMAIL_DELAY = 5  # Delay in seconds between consecutive mails
+EMAIL_DELAY = 5  # Delay in seconds between sending consecutive e-mails
 
 # Language code for this installation. All choices can be found here:
 # https://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -584,7 +585,36 @@ CELERY_RESULT_BACKEND = 'django-db'  # Where to store the task results
 CELERY_RESULT_SERIALIZER = 'pickle'  # How to serialize the task results
 CELERY_ACCEPT_CONTENT = ['pickle']  # A list of content-types/serializers to allow
 CELERY_BROKER_URL = None  # URL to the RabbitMQ broker (used when ALWAYS_EAGER is False)
+FLOWER_URL = None  # URL to the Celery Flower instance (used on the sysinfo page)
+RABBITMQ_MGMT_API_URL = None  # URL to the RabbitMQ management API (used on sysinfo page)
+RABBITMQ_MGMT_VHOST = 'amelie'  # Vhost used in RabbitMQ
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # By default, Celery resets the root logger. We want to see the logs so disable this behavior.
+CELERY_TASK_DEFAULT_QUEUE = 'default'  # Default queue where tasks are routed if no specific queue is specified.
+CELERY_TASK_QUEUE_MAX_PRIORITY = 10  # Maximum priority a task may have
+CELERY_TASK_DEFAULT_PRIORITY = 5  # Default priority of a task, if no priority is specified.
+CELERY_TASK_INHERIT_PARENT_PRIORITY = True  # Child tasks (chains, groups, etc.) will get the same priority as their parent.
 
+# Celery routes. We have three celery instances running that process celery tasks.
+# - The mail queue should only have 1 instance and should run sequentially. It handles sending e-mails one-by-one.
+# - The claudia queue should only have 1 instance and should run sequentially. It handles Claudia verify tasks one-by-one.
+# - All other tasks get sent to the default queue, which can run concurrently and will have 1-5 instances.
+CELERY_TASK_QUEUES = None
+try:
+    import kombu
+    CELERY_TASK_QUEUES = [
+        kombu.Queue('default'),
+        kombu.Queue('mail'),
+        kombu.Queue('claudia'),
+    ]
+except ImportError:
+    # Celery is probably not installed and disabled. That's ok, queues will be created if needed,
+    # and tasks will work normally, only the Celery health check will be less accurate.
+    kombu = None
+CELERY_TASK_ROUTES = {
+    'iamailer.*': {'queue': 'mail'},
+    'claudia.*': {'queue': 'claudia'},
+    # other tasks will be routed to the default queue (named "default")
+}
 
 # Connection settings for Alexia
 ALEXIA_API = {
@@ -629,7 +659,10 @@ CLAUDIA_SHELLS = {
 # Default shell if the 'default' option is selected
 CLAUDIA_SHELL_DEFAULT = 'bash'
 
-# Make Claudia stop processing the queue if an error occurs
+# Make Claudia stop processing sub-mappings if an error occurs
+# If this setting is True, Claudia will stop processing sub-mappings (members) for the mapping where the error occurred.
+#     Any objects that were already in the queue will still be processed.
+# If False, any member objects will be added to the queue, even though verification of their parent failed.
 CLAUDIA_STOP_ON_ERROR = False
 
 # Claudia's connection details to Active Directory

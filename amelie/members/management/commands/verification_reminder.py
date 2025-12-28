@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask
 from amelie.members.models import Membership, MembershipType
 from amelie.tools.mail import PersonRecipient
@@ -51,11 +52,12 @@ class Command(BaseCommand):
                                   template_name='members/verification_reminder.mail',
                                   report_to='I.C.T.S.V. Inter-Actief <secretaris@inter-actief.net>',
                                   report_language='nl',
-                                  report_always=True)
+                                  report_always=True,
+                                  priority=TaskPriority.LOW)
 
         for i, membership in enumerate(unverified_memberships):
             # Check if there actually is a new membership already,
-            # do not send a reminder mail in those cases.
+            # do not send a reminder email in those cases.
             already_exists = False
             try:
                 new_membership = Membership.objects.get(member=membership.member, year=new_year, ended__isnull=True)
