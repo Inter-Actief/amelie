@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db.models import Sum, Q
+from django.db.models import Sum
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save, pre_save
@@ -16,7 +16,6 @@ from amelie.activities.utils import setlocale, update_waiting_list
 from amelie.files.models import Attachment
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event, Participation
-from amelie.tools.ariana import send_irc
 from amelie.tools.discord import send_discord, send_discord_presave
 from amelie.tools.managers import SubclassManager
 
