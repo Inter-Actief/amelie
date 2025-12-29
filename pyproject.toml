@@ -31,7 +31,7 @@ dependencies = [
     "flower>=2.0.1,<2.1",
     "django-celery-results>=2.4,<2.7",
 
-    "django-compressor>=4.1,<4.6",
+    "django-compressor>=4.1,<4.7",
     "django-localflavor>=3.1,<5.1",
     "django-extensions>=3.2.1,<4.2",
     "django-formtools>=2.4,<2.6",
