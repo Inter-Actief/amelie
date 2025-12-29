@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-12-29 10:35+0100\n"
-"PO-Revision-Date: 2025-12-19 14:49+0000\n"
+"PO-Revision-Date: 2025-12-29 12:09+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -2838,7 +2838,7 @@ msgstr "Je bent nu ingeschreven voor {waiting_list} {activity}."
 
 #: amelie/activities/views.py:837
 msgid "The photos are now being processed in the background.Photos will show up on the activity as they are processed, you can refresh the page to follow the progres."
-msgstr ""
+msgstr "De foto's worden nu in de achtergrond verwerkt. Foto's zullen per foto bij de activiteit verschijnen terwijl ze verwerkt worden, je kan de pagina verversen om de voortgang te volgen."
 
 #: amelie/activities/views.py:856 amelie/activities/views.py:861
 #: amelie/activities/views.py:865
@@ -9854,83 +9854,69 @@ msgid "Find person"
 msgstr "Persoon zoeken"
 
 #: amelie/personal_tab/forms.py:191
-#, fuzzy
-#| msgid "GMM Document"
 msgid "PDF Document"
-msgstr "ALV-stuk"
+msgstr "PDF-document"
 
 #: amelie/personal_tab/forms.py:192
 msgid "Select a PDF document to print"
-msgstr ""
+msgstr "Selecteer een PDF-document om te printen"
 
 #: amelie/personal_tab/forms.py:196
-#, fuzzy
-#| msgid "Print"
 msgid "Printer"
-msgstr "Print"
+msgstr "Printer"
 
 #: amelie/personal_tab/forms.py:198
 msgid "Select the printer to use for printing"
-msgstr ""
+msgstr "Selecteer de printer die je wilt gebruiken om te printen"
 
 #: amelie/personal_tab/forms.py:202
-#, fuzzy
-#| msgid "Personal tab"
 msgid "-- Pay via personal tab --"
-msgstr "Streeplijst"
+msgstr "-- Betalen via streeplijst --"
 
 #: amelie/personal_tab/forms.py:205
 msgid "Select a committee for free printing, or leave blank to pay for printing"
-msgstr ""
+msgstr "Selecteer een commissie om gratis te printen, of laat leeg om te betalen voor het printen"
 
 #: amelie/personal_tab/forms.py:209
 msgid "Copies"
-msgstr ""
+msgstr "Kopieën"
 
 #: amelie/personal_tab/forms.py:210
-#, fuzzy
-#| msgid "Number of confirmed participants"
 msgid "Number of copies to print"
-msgstr "Aantal bevestigde deelnemers: "
+msgstr "Aantal kopieën om te printen"
 
 #: amelie/personal_tab/forms.py:216
 msgid "Dual-sided printing"
-msgstr ""
+msgstr "Dubbelzijdig printen"
 
 #: amelie/personal_tab/forms.py:217
 msgid "Print both sides of the page. Leave unchecked for single-sided printing."
-msgstr ""
+msgstr "Print aan beide zijden van de pagina. Laat uitgevinkt voor enkelzijdig printen."
 
 #: amelie/personal_tab/forms.py:230
 #: amelie/personal_tab/templates/print_form.html:168
 msgid "Please select a PDF file."
-msgstr ""
+msgstr "Selecteer a.u.b. een PDF-bestand."
 
 #: amelie/personal_tab/forms.py:234
-#, fuzzy
-#| msgid "Only alphanumerical signs are allowed"
 msgid "Only PDF files are allowed."
-msgstr "Alleen alfanumerieke tekens toegestaan"
+msgstr "Alleen PDF-bestanden zijn toegestaan."
 
 #: amelie/personal_tab/forms.py:239
 msgid "File size cannot exceed 50MB."
-msgstr ""
+msgstr "Bestand mag maximaal 50MB groot zijn."
 
 #: amelie/personal_tab/forms.py:250
-#, fuzzy
-#| msgid "You are not a board member of Inter-Actief. Ask the board to register your card."
 msgid "You are not a member of the committee you want to print for."
-msgstr "Je bent geen bestuurder van Inter-Actief. Vraag het bestuur je kaart te registreren."
+msgstr "Je bent geen lid van de commissie waarvoor je probeert te printen."
 
 #: amelie/personal_tab/forms.py:254
-#, fuzzy
-#| msgid "You do not have a valid mandate or are not a member anymore. Contact the board for help."
 msgid "You do not have an active consumption mandate or are not a member anymore, so we cannot add the costs for this print to your personal tab. Contact the board for help."
-msgstr "Je hebt geen geldige machtiging of bent geen lid meer. Neem contact op met het bestuur voor hulp."
+msgstr "Je hebt geen actieve streeplijstmachtiging of je bent geen lid meer, dus we kunnen de kosten van deze printopdracht niet van je streeplijst afschrijven. Neem contact op met het bestuur voor hulp."
 
 #: amelie/personal_tab/forms.py:314
 msgid "Printing article not found. Please contact the WWW committee."
-msgstr ""
+msgstr "Printartikel niet gevonden. Neem a.u.b. contact op met de WWW-commissie."
 
 #: amelie/personal_tab/models.py:19 amelie/personal_tab/models.py:645
 msgid "begin"
@@ -10379,48 +10365,41 @@ msgstr "terugboeking"
 #: amelie/personal_tab/templates/print_log_list.html:29
 #: amelie/personal_tab/templates/print_refund.html:26
 msgid "Actor"
-msgstr ""
+msgstr "Acteur"
 
 #: amelie/personal_tab/models.py:903
-#, fuzzy
-#| msgid "Account name"
 msgid "Document name"
-msgstr "Accountnaam"
+msgstr "Documentnaam"
 
 #: amelie/personal_tab/models.py:906
 msgid "Printer Job ID"
-msgstr ""
+msgstr "Printer Opdracht-ID"
 
 #: amelie/personal_tab/models.py:909
-#, fuzzy
-#| msgid "Page content"
 msgid "Page count"
-msgstr "Inhoud van de pagina"
+msgstr "Aantal pagina's"
 
 #: amelie/personal_tab/models.py:922
 msgid "print log entry"
-msgstr ""
+msgstr "printlogboekvermelding"
 
 #: amelie/personal_tab/models.py:923
 msgid "print log entries"
-msgstr ""
+msgstr "printlogboekvermeldingen"
 
 #: amelie/personal_tab/models.py:926
 #, python-format
 msgid "%(actor)s printed %(pages)s page(s) %(for_str)s"
-msgstr ""
+msgstr "%(actor)s heeft %(pages)s pagina(s) geprint %(for_str)s"
 
 #: amelie/personal_tab/models.py:930
-#, fuzzy, python-format
-#| msgid "committees"
+#, python-format
 msgid "for %(committee)s"
-msgstr "commissies"
+msgstr "voor %(committee)s"
 
 #: amelie/personal_tab/models.py:932
-#, fuzzy
-#| msgid "Export personal data"
 msgid "for personal use"
-msgstr "Exporteer persoonlijke gegevens"
+msgstr "voor persoonlijk gebruik"
 
 #: amelie/personal_tab/pos_models.py:19
 msgid "Login token"
@@ -10590,23 +10569,22 @@ msgstr "Meerdere onbekende RFID-kaarten gescand. Scan alsjeblieft 1 kaart tegeli
 #: amelie/personal_tab/print_views.py:71
 #, python-brace-format
 msgid "Document '{name}' with {pages} page(s) was queued for printing successfully."
-msgstr ""
+msgstr "Document '{name}' met {pages} pagina(s) is succesvol in de printwachtrij gezet."
 
 #: amelie/personal_tab/print_views.py:77
 #, python-brace-format
 msgid "Error while submitting print to the printer. No prints were registered. Error: {ex}"
-msgstr ""
+msgstr "Fout tijdens het versturen van de printopdracht naar de printer. Er zijn geen prints geregistreerd. Error: {ex}"
 
 #: amelie/personal_tab/print_views.py:97
 #, python-brace-format
 msgid "Refund for print, transaction #{tid}"
-msgstr ""
+msgstr "Terugbetaling voor print, transactie #{tid}"
 
 #: amelie/personal_tab/print_views.py:102
-#, fuzzy, python-brace-format
-#| msgid "{obj} was cancelled successfully."
+#, python-brace-format
 msgid "Print by {person} was refunded successfully."
-msgstr "{obj} is succesvol geannuleerd."
+msgstr "Print van {person} is succesvol terugbetaald."
 
 #: amelie/personal_tab/register.py:22
 msgid "Username and password are obligatory"
@@ -11741,104 +11719,80 @@ msgstr "kCal/euro"
 #: amelie/personal_tab/templates/print_form.html:4
 #: amelie/personal_tab/templates/print_form.html:20
 #: amelie/personal_tab/templates/print_form.html:149
-#, fuzzy
-#| msgid "Print enrollments"
 msgid "Print Document"
-msgstr "Print inschrijvingen"
+msgstr "Print Document"
 
 #: amelie/personal_tab/templates/print_form.html:11
 msgid "Printer status (for www-supers):"
-msgstr ""
+msgstr "Printerstatus (voor www-supers):"
 
 #: amelie/personal_tab/templates/print_form.html:24
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        Click on the vivat banner to edit it.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Upload a PDF document to print on the Inter-Actief printer.\n"
 "                    "
 msgstr ""
 "\n"
-"Klik de vivatbanner om hem aan te passen."
+"                        Upload een PDF-document om te printen op de Inter-Actiefprinter.\n"
+"                    "
 
 #: amelie/personal_tab/templates/print_form.html:30
-#, fuzzy
-#| msgid "Print all forms"
 msgid "Print logs"
-msgstr "Print alle formulieren"
+msgstr "Printlogboeken"
 
 #: amelie/personal_tab/templates/print_form.html:35
-#, fuzzy
-#| msgid "Transaction information"
 msgid "Printing Information"
-msgstr "Transactiegegevens"
+msgstr "Printinformatie"
 
 #: amelie/personal_tab/templates/print_form.html:37
 msgid "Only PDF files are accepted"
-msgstr ""
+msgstr "Alleen PDF-bestanden worden geaccepteerd"
 
 #: amelie/personal_tab/templates/print_form.html:38
-#, fuzzy
-#| msgid "Maximum per person"
 msgid "Maximum file size:"
-msgstr "Maximum per persoon"
+msgstr "Maximale bestandsgrootte:"
 
 #: amelie/personal_tab/templates/print_form.html:39
 msgid "Prints will be in black & white. If you need a colour print ask the board to print it for you via USB"
-msgstr ""
+msgstr "Prints zijn in zwart/wit. Als je een kleurenprint nodig hebt, vraag dan aan het bestuur om deze via USB te printen"
 
 #: amelie/personal_tab/templates/print_form.html:40
 msgid "Committee members can print for free by selecting the committee the print is for"
-msgstr ""
+msgstr "Commissieleden kunnen gratis printen door de commissie waarvoor de print is te selecteren"
 
 #: amelie/personal_tab/templates/print_form.html:41
 msgid "Non-committee-related prints will be charged per page to your personal tab"
-msgstr ""
+msgstr "Niet-commissiegerelateerde afdrukken worden per pagina op je persoonlijke streeplijst in rekening gebracht"
 
 #: amelie/personal_tab/templates/print_form.html:46
 msgid "For administrative purposes and to be able to trace rogue prints, a log will be saved of each submitted print, containing the following details about the print:"
-msgstr ""
+msgstr "Voor administratieve doeleinden en om valse afdrukken te traceren, zal er een log worden opgeslagen van elke verstuurde print, die de volgende printdetails bevat:"
 
 #: amelie/personal_tab/templates/print_form.html:48
-#, fuzzy
-#| msgid "E-mail message timestamp"
 msgid "Submission timestamp;"
-msgstr "Tijdstempel E-mailbericht"
+msgstr "Tijdstempel van indiening;"
 
 #: amelie/personal_tab/templates/print_form.html:49
-#, fuzzy
-#| msgid "What are your employee details?"
 msgid "A reference to your member details;"
-msgstr "Wat zijn je medewerkersgegevens?"
+msgstr "Een referentie naar je lidmaatschapsgegevens;"
 
 #: amelie/personal_tab/templates/print_form.html:50
-#, fuzzy
-#| msgid "The file name of the exported data."
 msgid "The filename of the printed file;"
-msgstr "De bestandsnaam van de geëxporteerde data."
+msgstr "De bestandsnaam van het geprintte bestand;"
 
 #: amelie/personal_tab/templates/print_form.html:51
 msgid "Your IP-address and the User-Agent of your browser;"
-msgstr ""
+msgstr "Je IP-adres en de User-Agent van je browser;"
 
 #: amelie/personal_tab/templates/print_form.html:52
 msgid "(if printed for a committee) Which committee the print was for;"
-msgstr ""
+msgstr "(als er voor een commissie is geprint) Welke commissie de print voor was;"
 
 #: amelie/personal_tab/templates/print_form.html:53
 msgid "(if printed personally) The personal tab transaction that paid for the print."
-msgstr ""
+msgstr "(als persoonlijk geprint) De streeplijsttransactie die betaald heeft voor de print."
 
 #: amelie/personal_tab/templates/print_form.html:128
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                            Your membership fee for this year has not yet been paid.\n"
-#| "                            If you have signed a direct debit mandate, this will be arranged automatically.\n"
-#| "                        "
 msgid ""
 "\n"
 "                                If your print is for a committee, select it in the form above.\n"
@@ -11846,7 +11800,9 @@ msgid ""
 "                            "
 msgstr ""
 "\n"
-"Je lidmaatschap voor dit jaar is nog niet betaald. Indien je een machtiging hebt gegeven, dan wordt dit automatisch geregeld."
+"                                Als je print voor een commissie, selecteer die dan in het bovenstaande formulier.\n"
+"In dat geval zal de print gratis zijn.\n"
+"                            "
 
 #: amelie/personal_tab/templates/print_form.html:133
 #, python-format
@@ -11856,6 +11812,10 @@ msgid ""
 "                                In that case the print will be charged to your personal tab at a rate of &euro; %(per_page_cost)s per page (single or dual-sided).\n"
 "                            "
 msgstr ""
+"\n"
+"                                Als je wilt printen voor persoonlijk gebruik, laat dan het commissieveld leeg (\"-- Betaal via streeplijst --\" optie).\n"
+"In dat geval wordt de print op je streeplijst afgeschreven tegen een tarief van &euro; %(per_page_cost)s per pagina (enkel- of dubbelzijdig).\n"
+"                            "
 
 #: amelie/personal_tab/templates/print_form.html:141
 #, python-format
@@ -11864,34 +11824,29 @@ msgid ""
 "                                You are not currently a member of any committees. All prints will be charged to your personal tab at a rate of &euro; %(per_page_cost)s per page (single or dual-sided).\n"
 "                            "
 msgstr ""
+"\n"
+"                                Je bent op dit moment geen lid van een commissie. Alle prints worden van je streeplijst afgeschreven tegen een tarief van &euro; %(per_page_cost) per pagina (enkel- of dubbelzijdig).\n"
+"                            "
 
 #: amelie/personal_tab/templates/print_form.html:150
 msgid "Note: Printer will start printing immediately, check the selected document carefully before submitting!"
-msgstr ""
+msgstr "Let op: De printer zal direct beginnen met printen, controleer het geselecteerde document goed voordat je deze verstuurt!"
 
 #: amelie/personal_tab/templates/print_form.html:176
 #, python-format
 msgid "File size cannot exceed %(size)s."
-msgstr ""
+msgstr "Bestand mag maximaal %(size)s groot zijn."
 
 #: amelie/personal_tab/templates/print_form.html:192
 msgid "Selected:"
-msgstr ""
+msgstr "Geselecteerd:"
 
 #: amelie/personal_tab/templates/print_log_list.html:4
 #: amelie/personal_tab/templates/print_log_list.html:9
-#, fuzzy
-#| msgid "Print"
 msgid "Print Log"
-msgstr "Print"
+msgstr "Printlogboek"
 
 #: amelie/personal_tab/templates/print_log_list.html:13
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        The people listed below used to have a mandate, but have had it canceled.\n"
-#| "                        You can still add them to a collection instruction.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        This page shows all (non-refunded) print jobs submitted through the Inter-Actief website.\n"
@@ -11899,9 +11854,9 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"De onderstaande personen hebben wel een machtiging gehad,\n"
-"maar deze is inmiddels aangemerkt als beëindigd. Je kunt\n"
-"deze personen alsnog aan de incasso-opdracht toevoegen."
+"                        Deze pagina laat alle (niet-terugbetaalde) printopdrachten zien die via de Inter-Actiefwebsite zijn ingediend.\n"
+"Alleen bestuursleden kunnen dit logbeok belijken voor administratieve- en controledoeleinden.\n"
+"                    "
 
 #: amelie/personal_tab/templates/print_log_list.html:19
 msgid ""
@@ -11910,142 +11865,123 @@ msgid ""
 "                        For example, if it wasn't printed, the printer was out of toner, the user forgot to/could not select a committee, etc.\n"
 "                    "
 msgstr ""
+"\n"
+"                        Het is ook mogelijk om betaalde prints (waar een transactie wordt vermeld) terug te betalen als er een probleem mee was.\n"
+"Dit kan bijvoorbeeld als het document niet is geprint, of als de printer geen toner meer had, of als de gebruiker is vergeten om een commissie te selecteren, etc.\n"
+"                    "
 
 #: amelie/personal_tab/templates/print_log_list.html:30
 msgid "Job ID / Document Name"
-msgstr ""
+msgstr "Opdracht-ID / Documentnaam"
 
 #: amelie/personal_tab/templates/print_log_list.html:32
-#, fuzzy
-#| msgid "Custom transactions"
 msgid "Committee / Transaction"
-msgstr "Overige transacties"
+msgstr "Commissie / Transactie"
 
 #: amelie/personal_tab/templates/print_log_list.html:33
 #: amelie/personal_tab/templates/print_refund.html:58
 msgid "Source IP"
-msgstr ""
+msgstr "Bron-IP"
 
 #: amelie/personal_tab/templates/print_log_list.html:34
 #: amelie/personal_tab/templates/print_refund.html:68
-#, fuzzy
-#| msgid "User-Agent"
 msgid "User Agent"
 msgstr "User-Agent"
 
 #: amelie/personal_tab/templates/print_log_list.html:43
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                    %(title)s: You have not enrolled for this option\n"
-#| "                                "
+#, python-format
 msgid ""
 "\n"
 "                                            %(time)s ago\n"
 "                                        "
 msgstr ""
 "\n"
-"%(title)s: Je bent niet ingeschreven voor deze optie"
+"                                            %(time)s geleden\n"
+"                                        "
 
 #: amelie/personal_tab/templates/print_log_list.html:56
 #, python-format
 msgid "Job %(job_id)s"
-msgstr ""
+msgstr "Opdracht %(job_id)s"
 
 #: amelie/personal_tab/templates/print_log_list.html:59
 msgid "No job id!"
-msgstr ""
+msgstr "Geen opdracht-id!"
 
 #: amelie/personal_tab/templates/print_log_list.html:75
 #: amelie/personal_tab/templates/print_refund.html:50
-#, fuzzy
-#| msgid "View transactions"
 msgid "View transaction"
-msgstr "Transacties bekijken"
+msgstr "Transactie bekijken"
 
 #: amelie/personal_tab/templates/print_log_list.html:79
 #: amelie/personal_tab/templates/print_refund.html:54
-#, fuzzy, python-format
-#| msgid "&euro; %(price)s per piece"
+#, python-format
 msgid "(&euro; %(price)s)"
-msgstr "&euro; %(price)s per stuk"
+msgstr "(&euro; %(price)s)"
 
 #: amelie/personal_tab/templates/print_log_list.html:82
-#, fuzzy
-#| msgid "Return to this person."
 msgid "Refund this print job"
-msgstr "Terug naar deze persoon."
+msgstr "Betaal deze printopdracht terug"
 
 #: amelie/personal_tab/templates/print_log_list.html:84
 msgid "Refund"
-msgstr ""
+msgstr "Terugbetalen"
 
 #: amelie/personal_tab/templates/print_log_list.html:100
 #: amelie/personal_tab/templates/print_refund.html:74
 msgid "Chrome"
-msgstr ""
+msgstr "Chrome"
 
 #: amelie/personal_tab/templates/print_log_list.html:102
 #: amelie/personal_tab/templates/print_refund.html:76
 msgid "Firefox"
-msgstr ""
+msgstr "Firefox"
 
 #: amelie/personal_tab/templates/print_log_list.html:104
 #: amelie/personal_tab/templates/print_refund.html:78
 msgid "Safari"
-msgstr ""
+msgstr "Safari"
 
 #: amelie/personal_tab/templates/print_log_list.html:106
 #: amelie/personal_tab/templates/print_refund.html:80
 msgid "Edge"
-msgstr ""
+msgstr "Edge"
 
 #: amelie/personal_tab/templates/print_log_list.html:108
 #: amelie/personal_tab/templates/print_refund.html:82
 msgid "Browser"
-msgstr ""
+msgstr "Browser"
 
 #: amelie/personal_tab/templates/print_log_list.html:122
-#, fuzzy
-#| msgid "No transactions found"
 msgid "No print log entries found."
-msgstr "Geen transacties gevonden"
+msgstr "Geen printlogboekvermeldingen gevonden."
 
 #: amelie/personal_tab/templates/print_refund.html:4
 msgid "Refund Print"
-msgstr ""
+msgstr "Print Terugbetalen"
 
 #: amelie/personal_tab/templates/print_refund.html:8
-#, fuzzy
-#| msgid "Confirmation"
 msgid "Refund Confirmation"
-msgstr "Bevestiging"
+msgstr "Terugbetaalbevestiging"
 
 #: amelie/personal_tab/templates/print_refund.html:10
-#, fuzzy
-#| msgid "Are you sure you want to remove this video?"
 msgid "Are you sure you want to refund the print below?"
-msgstr "Weet je zeker dat je deze video wilt verwijderen?"
+msgstr "Weet je zeker dat je de onderstaande print wilt terugbetalen?"
 
 #: amelie/personal_tab/templates/print_refund.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            Last %(count)s transactions\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                                %(time)s ago\n"
 "                            "
 msgstr ""
 "\n"
-"Laatste %(count)s toegevoegde transacties."
+"                                %(time)s geleden\n"
+"                            "
 
 #: amelie/personal_tab/templates/print_refund.html:35
-#, fuzzy
-#| msgid "GMM Document"
 msgid "Document Name"
-msgstr "ALV-stuk"
+msgstr "Documentnaam"
 
 #: amelie/personal_tab/templates/register/register_card_error.html:4
 #: amelie/personal_tab/templates/register/register_card_error.html:8
@@ -13023,14 +12959,12 @@ msgid "Access for boardmembers only."
 msgstr "Uitsluitend toegankelijk voor het bestuur."
 
 #: amelie/tools/mixins.py:83
-#, fuzzy
-#| msgid "Only for members with an active membership."
 msgid "Only for members with a signed and active personal tab authorization."
-msgstr "Alleen voor leden met een actief lidmaatschap."
+msgstr "Alleen voor mensen met een getekende en geactiveerde streeplijstmachtiging."
 
 #: amelie/tools/mixins.py:99
 msgid "Only for active members, or members with a signed and active personal tab authorization."
-msgstr ""
+msgstr "Alleen voor actieve leden, of voor mensen met een getekende en geactiveerde streeplijstmachtiging."
 
 #: amelie/tools/mixins.py:181
 msgid "Access for do-group parents only."
@@ -13994,10 +13928,8 @@ msgid "My profile"
 msgstr "Mijn profiel"
 
 #: templates/basis.html:286
-#, fuzzy
-#| msgid "# documents"
 msgid "Print document"
-msgstr "# documenten"
+msgstr "Print document"
 
 #: templates/basis.html:290
 msgid "Log out"
@@ -14131,130 +14063,106 @@ msgstr "Geen status beschikbaar."
 #: templates/health_check/index.html:58 templates/health_check/index.html:98
 #: templates/health_check/partial_celery_tables.html:3
 msgid "Celery worker status"
-msgstr ""
+msgstr "Celery worker status"
 
 #: templates/health_check/index.html:59 templates/health_check/index.html:61
 msgid "Querying..."
-msgstr ""
+msgstr "Opvragen..."
 
 #: templates/health_check/index.html:60 templates/health_check/index.html:100
 #: templates/health_check/partial_celery_tables.html:69
 msgid "RabbitMQ queue status"
-msgstr ""
+msgstr "RabbitMQ queuestatus"
 
 #: templates/health_check/index.html:75
 msgid "No info available."
 msgstr "Geen info beschikbaar."
 
 #: templates/health_check/index.html:99 templates/health_check/index.html:101
-#, fuzzy
-#| msgid "Error"
 msgid "Error!"
-msgstr "Fout"
+msgstr "Fout!"
 
 #: templates/health_check/partial_celery_tables.html:4
 msgid "Statistics are measured since the last Celery worker restart."
-msgstr ""
+msgstr "Statistieken worden gemeten sinds de laatste herstart van de Celery-worker."
 
 #: templates/health_check/partial_celery_tables.html:8
-#, fuzzy
-#| msgid "Course name"
 msgid "Worker name"
-msgstr "Vaknaam"
+msgstr "Worker-naam"
 
 #: templates/health_check/partial_celery_tables.html:9
 msgid "Received"
-msgstr ""
+msgstr "Ontvangen"
 
 #: templates/health_check/partial_celery_tables.html:11
-#, fuzzy
-#| msgid "(failed)"
 msgid "Failed"
-msgstr "(mislukt)"
+msgstr "Mislukt"
 
 #: templates/health_check/partial_celery_tables.html:12
 msgid "Succeeded"
-msgstr ""
+msgstr "Geslaagd"
 
 #: templates/health_check/partial_celery_tables.html:13
 msgid "Retried"
-msgstr ""
+msgstr "Opnieuw geprobeerd"
 
 #: templates/health_check/partial_celery_tables.html:14
 msgid "Load average"
-msgstr ""
+msgstr "Load average"
 
 #: templates/health_check/partial_celery_tables.html:15
-#, fuzzy
-#| msgid "Last name"
 msgid "Last heartbeat"
-msgstr "Achternaam"
+msgstr "Laatste heartbeat"
 
 #: templates/health_check/partial_celery_tables.html:63
-#, fuzzy
-#| msgid "No status available."
 msgid "No worker status available."
-msgstr "Geen status beschikbaar."
+msgstr "Geen workerstatus beschikbaar."
 
 #: templates/health_check/partial_celery_tables.html:70
 msgid "Statistics are measured since the last RabbitMQ server restart."
-msgstr ""
+msgstr "Statistieken worden gemeten sinds de laatste herstart van de RabbitMQ server."
 
 #: templates/health_check/partial_celery_tables.html:76
 msgid "Consumers"
-msgstr ""
+msgstr "Consumers"
 
 #: templates/health_check/partial_celery_tables.html:77
-#, fuzzy
-#| msgid "News messages"
 msgid "Queued messages"
-msgstr "Nieuwsberichten"
+msgstr "Berichten in wachtrij"
 
 #: templates/health_check/partial_celery_tables.html:78
-#, fuzzy
-#| msgid "There are no messages."
 msgid "Total recent messages"
-msgstr "Er zijn geen berichten."
+msgstr "Totaal recente berichten"
 
 #: templates/health_check/partial_celery_tables.html:79
-#, fuzzy
-#| msgid "Message author"
 msgid "Message rates"
-msgstr "Auteur van bericht"
+msgstr "Berichtensnelheid"
 
 #: templates/health_check/partial_celery_tables.html:116
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                    %(msg_in)s in / %(msg_out)s out\n"
 "                "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                    %(msg_in)s in / %(msg_out)s uit\n"
+"                "
 
 #: templates/health_check/partial_celery_tables.html:121
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                    %(msg_in)s msg/s in / %(msg_out)s msg/s out\n"
 "                "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                    %(msg_in)s p/s in / %(msg_out)s p/s uit\n"
+"                "
 
 #: templates/health_check/partial_celery_tables.html:129
-#, fuzzy
-#| msgid "No status available."
 msgid "No queue status available."
-msgstr "Geen status beschikbaar."
+msgstr "Geen queue status beschikbaar."
 
 #: templates/login.html:17
 msgid "Login on the Inter-<em>Actief</em> website"
