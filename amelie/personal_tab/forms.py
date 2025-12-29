@@ -180,10 +180,13 @@ class CookieCornerPersonSearchForm(forms.Form):
 
 
 def get_printer_choices():
-    return [
+    printer_choices = [
         (k, p['name'])
         for k, p in settings.PERSONAL_TAB_PRINTERS.items()
     ]
+    if not printer_choices:
+        printer_choices = [('', _l('-- No printers available --'))]
+    return printer_choices
 
 
 class PrintDocumentForm(forms.Form):
