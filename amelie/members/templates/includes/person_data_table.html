@@ -230,12 +230,6 @@
                                 onclick="window.location='/members/mailing/?id={{ obj.id }}'"
                             />
                             <br />
-                            <input
-                                type="button"
-                                value="{% trans 'Send a push notification' %}"
-                                onclick="window.location='/members/push/?id={{ obj.id }}'"
-                            />
-                            <br />
                             <a class="looks-like-a-button" href="{% url 'members:send_oauth_link_code' obj.id %}">
                                 {% trans 'Send OAuth link code mail' %}
                             </a>

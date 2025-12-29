@@ -35,8 +35,11 @@ def send_push_notification(notification: PushNotification, recipients, report_to
                                                  message_en=message_en, message_nl=message_nl)
 
         # Attempt to send a push notification
-        fcm_result = send_basic_notification(personal_notification, [recipient])
-        fcm_result = [x for x in fcm_result if x is not None]
+        try:
+            fcm_result = send_basic_notification(personal_notification, [recipient])
+            fcm_result = [x for x in fcm_result if x is not None]
+        except Exception as e:
+            fcm_result = []
 
         # If the push notification was successful, add the recipient to the list of successful push recipients
         if any([res['success'] == 1 for res in fcm_result]):
