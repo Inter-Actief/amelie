@@ -371,6 +371,10 @@ ALEXIA_API['URL'] = env("ALEXIA_API_URL", default=ALEXIA_API.get('URL', None))
 ALEXIA_API['USER'] = env("ALEXIA_API_USERNAME", default=ALEXIA_API.get('USER', None))
 ALEXIA_API['PASSWORD'] = env("ALEXIA_API_PASSWORD", default=ALEXIA_API.get('PASSWORD', None))
 
+# Alexia age check API configuration
+ALEXIA_AGE_CHECK_API_CONFIG['api_key'] = env("ALEXIA_AGE_CHECK_API_KEY", default=None)
+ALEXIA_AGE_CHECK_API_CONFIG['allowed_ips'] = env.list("ALEXIA_AGE_CHECK_ALLOWED_IPS", default=[])
+
 
 ###
 #  Data Hoarder settings (GDPR data exporter)

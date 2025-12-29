@@ -1,5 +1,6 @@
 import json
 import os
+from typing import List, Tuple
 from urllib.request import quote
 
 from wsgiref.util import FileWrapper
@@ -20,8 +21,8 @@ class HttpJSONResponse(HttpResponse):
             return HttpJSONResponse({'foo': 'bar'})
     """
 
-    def __init__(self, content=''):
-        super(HttpJSONResponse, self).__init__(content=json.dumps(content), content_type='application/json')
+    def __init__(self, content='', **kwargs):
+        super(HttpJSONResponse, self).__init__(content=json.dumps(content), content_type='application/json', **kwargs)
 
 
 class HttpResponseSendfile(HttpResponse):
@@ -57,6 +58,7 @@ class HttpResponseSendfile(HttpResponse):
             # X-Accel-Redirect (nginx)
             self['X-Accel-Redirect'] = path
 
+
 def get_client_ips(request):
     ips = set()
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -82,6 +84,12 @@ def get_client_ips(request):
     return ips, probable_external_ip
 
 
-def client_has_themes_disabled(request):
+def is_allowed_ip(request, allowed_ips: List[str]) -> Tuple[bool, str]:
+    """
+    Checks if the IP of the request is in the given list of IPs, returns the result, and the checked IP of the request.
+    :param request: Django HttpRequest object
+    :param allowed_ips: List of allowed IPs
+    :return: Tuple of the result, and the IP that was checked.
+    """
     all_ips, real_ip = get_client_ips(request)
-    return real_ip in settings.BLOCKED_THEME_IP_RANGES
+    return real_ip in allowed_ips, real_ip
