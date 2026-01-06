@@ -70,7 +70,7 @@ dependencies = [
     "mysqlclient",
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
-    "Pillow>=9.2.0,<11.4",
+    "Pillow>=9.2.0,<12.2",
     "python-gitlab>=6.5.0,<7.2",
     "python-dateutil>=2.8.2,<2.10",
 
