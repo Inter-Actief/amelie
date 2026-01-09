@@ -30,6 +30,7 @@ jobs:
         with:
           team: 'www-supers'
           comment: "Fast-forward merge denied. Only WWW-supers are allowed to /fast-forward to production!"
+          token: ${{ secrets.IA_CHECK_ORG_TOKEN }}
           exit: true
 
       # Execute the fast-forward merge
