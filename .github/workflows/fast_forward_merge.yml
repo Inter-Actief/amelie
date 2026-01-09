@@ -44,3 +44,4 @@ jobs:
           # never post a comment.  (In all cases the information is
           # still available in the step's summary.)
           comment: always
+          debug: 1
