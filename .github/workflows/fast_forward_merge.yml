@@ -1,0 +1,45 @@
+name: fast-forward
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  fast-forward:
+    # Run only if
+    # 1. The comment was made on a PR.
+    # 2. The comment must be made by an organization member or owner.
+    # 3. The comment was exactly "/fast-forward" sans the quotes.
+    # 4. The PR is open.
+    if: |
+      github.event.issue.pull_request &&
+      (github.event.comment.author_association == 'MEMBER' || github.event.comment.author_association == 'OWNER') && 
+      github.event.comment.body == '/fast-forward' &&
+      !github.event.issue.closed_at &&
+      github.event.issue.state == 'open'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      # Check if the commenting user is allowed to merge to production
+      - name: Check if user is in the 'www-supers' team
+        id: check-www-super
+        uses: TheModdingInquisition/actions-team-membership@1.0.1
+        with:
+          team: 'www-supers'
+          comment: "Fast-forward merge denied. Only WWW-supers are allowed to /fast-forward to production!"
+          exit: true
+
+      # Execute the fast-forward merge
+      - name: Fast forwarding
+        uses: sequoia-pgp/fast-forward@v1
+        with:
+          github_token: ${{ secrets.IABEHEER_WORKFLOW_PAT }}
+          merge: true
+          # To reduce the workflow's verbosity, use 'on-error'
+          # to only post a comment when an error occurs, or 'never' to
+          # never post a comment.  (In all cases the information is
+          # still available in the step's summary.)
+          comment: always
