@@ -1,0 +1,114 @@
+name: Override Merge
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  merge_comment:
+    # Run only if
+    # 1. The comment was made on a PR.
+    # 3. The comment was exactly "/merge" sans the quotes.
+    # 4. The PR is open.
+    if: |
+      github.event.issue.pull_request &&
+      github.event.comment.body == '/merge' &&
+      !github.event.issue.closed_at &&
+      github.event.issue.state == 'open'
+    runs-on: ubuntu-latest
+    name: Merge PR
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      # Check if the commenting user is allowed to merge to production
+      - name: Check if user is in the 'www-supers' team
+        id: check-www-super
+        uses: TheModdingInquisition/actions-team-membership@1.0.1
+        with:
+          team: 'www-supers'
+          comment: "Merge denied. Only WWW-supers are allowed to /merge to production!"
+          exit: true
+
+      # Get details of the PR. The target and base branch. And also whether the PR can be merged in or not.
+      - name: Get PR details
+        uses: octokit/request-action@v2.x
+        id: get-pr-details
+        with:
+          route: GET /repos/{repository}/pulls/{pull_number}
+          repository: ${{ github.repository }}
+          pull_number: ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # Merge (fast-forward) the PR if it is allowed.
+      - name: Merge the PR
+        id: merge-status
+        shell: bash
+        env:
+          IS_WWW_SUPER: ${{ steps.check-www-super.outputs.permitted }}
+          MERGEABLE_STATUS: ${{ fromJson(steps.get-pr-details.outputs.data).mergeable_state }}
+          BASE_BRANCH: ${{ fromJson(steps.get-pr-details.outputs.data).base.ref }}
+          HEAD_BRANCH: ${{ fromJson(steps.get-pr-details.outputs.data).head.ref }}
+        run: |
+          if [ "$IS_WWW_SUPER" = true ] && [ "$BASE_BRANCH" = "production" ] && [ "$HEAD_BRANCH" = "main" ] && [ "$MERGEABLE_STATUS" = "clean" ]; then
+            git config --global user.email "<>"
+            git config --global user.name "GitHub Actions"
+
+            echo "### Pulling latest changes"
+            git checkout $HEAD_BRANCH
+            git pull origin $HEAD_BRANCH
+            git checkout $BASE_BRANCH
+            git pull origin $BASE_BRANCH
+
+            changeset=`git rev-parse --short origin/main`
+            echo "### $HEAD_BRANCH changeset to merge is [$changeset]"
+            echo "### Changes:"
+            git log --oneline ..$HEAD_BRANCH
+            git diff --stat ...$HEAD_BRANCH
+
+            # Merge changes into production
+            git merge --ff-only -m "Merge [$changeset] to $BASE_BRANCH (ac)" $HEAD_BRANCH
+            git push origin $BASE_BRANCH
+            echo "### Changes pulled, fast-forwarded and committed"
+
+            echo "### Done!"
+            echo "::set-output name=message::'PR merged in succesfully.'"
+
+          elif [ ! "$IS_WWW_SUPER" = true ]; then
+            echo "::set-output name=message::'PR cannot be merged in. User is not a member of the WWW-supers team.'"
+          elif [ ! "$BASE_BRANCH" = "production" ]; then
+            echo "::set-output name=message::'PR cannot be merged in. Merge is not being done into production branch.'"
+          elif [ ! "$HEAD_BRANCH" = "main" ]; then
+            echo "::set-output name=message::'PR cannot be merged in. Merge is not being done from main branch.'"
+          elif [ ! "$MERGEABLE_STATUS" = "clean" ]; then
+            echo "::set-output name=message::'PR cannot be merged in. Merge is not a clean fast-forwardable merge.'"
+          else
+            echo "::set-output name=message::'PR cannot be merged in. Reason unknown, see logs.'"
+          fi
+
+      # Post a success/failure comment to the PR.
+      - name: Add comment to PR
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{repository}/issues/{issue_number}/comments
+          repository: ${{ github.repository }}
+          issue_number: ${{ github.event.issue.number }}
+          body: ${{ steps.merge-status.outputs.message }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      # Post a failure message when any of the previous steps fail.
+      - name: Add failure comment to PR
+        if: ${{ failure() }}
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{repository}/issues/{issue_number}/comments
+          repository: ${{ github.repository }}
+          issue_number: ${{ github.event.issue.number }}
+          body: PR cannot be merged in. Check the Actions execution tab for details.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
