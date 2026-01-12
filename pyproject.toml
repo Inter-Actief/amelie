@@ -105,7 +105,7 @@ dependencies = [
     "django-rosetta>=0.9.8,<0.11",
     "docutils>=0.19,<0.23",
     "pyinotify",
-    "model_bakery>=1.7.0,<1.21",
+    "model_bakery>=1.7.0,<1.22",
     "django-silk>=5.0.1,<5.5",
 
     # SAML IdP (requires xmlsec1 (on Debian))
