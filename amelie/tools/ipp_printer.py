@@ -137,6 +137,10 @@ class IPPPrinter:
     def connect(self):
         self.ipp = IPP(self.printer_info['ipp_url'])
 
+    def close(self):
+        loop = get_event_loop()
+        loop.run_until_complete(self.ipp.close())
+
     def printer_attributes(self):
         if self.ipp is None:
             self.connect()

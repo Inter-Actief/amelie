@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-29 10:35+0100\n"
+"POT-Creation-Date: 2026-01-16 11:25+0100\n"
 "PO-Revision-Date: 2025-12-29 12:09+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -27,8 +27,8 @@ msgstr "Slug van de pagina"
 msgid "Page content"
 msgstr "Inhoud van de pagina"
 
-#: amelie/about/models.py:9 amelie/activities/models.py:26
-#: amelie/activities/models.py:481
+#: amelie/about/models.py:9 amelie/activities/models.py:25
+#: amelie/activities/models.py:480
 #: amelie/activities/templates/activity_enrollment_overview.html:62
 #: amelie/activities/templates/activity_enrollment_overview.html:180
 #: amelie/activities/templates/activity_enrollment_print.html:29
@@ -62,7 +62,7 @@ msgstr "Inhoud van de pagina"
 msgid "Name"
 msgstr "Naam"
 
-#: amelie/about/models.py:10 amelie/activities/models.py:25
+#: amelie/about/models.py:10 amelie/activities/models.py:24
 #: amelie/education/models.py:27 amelie/education/models.py:49
 #: amelie/members/models.py:82 amelie/members/models.py:701
 #: amelie/personal_tab/models.py:282 amelie/personal_tab/models.py:319
@@ -89,7 +89,7 @@ msgid "Page"
 msgstr "Pagina"
 
 #: amelie/about/models.py:21 amelie/education/models.py:60
-#: amelie/personal_tab/templates/print_log_list.html:31
+#: amelie/personal_tab/templates/print_log_list.html:32
 #: amelie/personal_tab/templates/print_refund.html:41
 msgid "Pages"
 msgstr "Pagina's"
@@ -188,7 +188,7 @@ msgstr "Wachtlijstactie"
 msgid "Skip waiting list and enroll immediately"
 msgstr "Sla de wachtlijst over en schrijf direct in"
 
-#: amelie/activities/forms.py:52 amelie/activities/models.py:482
+#: amelie/activities/forms.py:52 amelie/activities/models.py:481
 #: amelie/activities/templates/activity_enrollment_overview.html:136
 #: amelie/activities/templates/activity_enrollment_print.html:69
 #: amelie/members/models.py:703 amelie/members/models.py:897
@@ -229,11 +229,11 @@ msgstr "Prijs"
 msgid "Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity."
 msgstr "Inschrijving via de website heeft een maximum van {0} euro. Of schakel de inschrijfoptie uit, of verlaag de prijs van de activiteit!"
 
-#: amelie/activities/forms.py:101 amelie/activities/models.py:113
+#: amelie/activities/forms.py:101 amelie/activities/models.py:112
 msgid "There is no enrollment start date entered."
 msgstr "Er is geen inschrijfstartdatum opgegeven."
 
-#: amelie/activities/forms.py:104 amelie/activities/models.py:116
+#: amelie/activities/forms.py:104 amelie/activities/models.py:115
 msgid "There is no enrollment end date entered."
 msgstr "Er is geen inschrijfstopdatum opgegeven."
 
@@ -283,8 +283,8 @@ msgstr "Tussenvoegsels"
 msgid "Last name"
 msgstr "Achternaam"
 
-#: amelie/activities/forms.py:243 amelie/activities/models.py:82
-#: amelie/activities/models.py:83
+#: amelie/activities/forms.py:243 amelie/activities/models.py:81
+#: amelie/activities/models.py:82
 #: amelie/activities/templates/activity_list.html:4
 #: amelie/activities/templates/activity_list.html:35
 #: amelie/activities/templates/activity_list.html:115
@@ -389,69 +389,69 @@ msgstr "Of er kosten zijn verbonden aan deze activiteit."
 msgid "Inter-Activity"
 msgstr "Inter-Activiteit"
 
-#: amelie/activities/models.py:27
+#: amelie/activities/models.py:26
 msgid "Hexcolor without #"
 msgstr "Hex kleurcode (zonder #)"
 
-#: amelie/activities/models.py:28
+#: amelie/activities/models.py:27
 msgid "Icon from known icons"
 msgstr "Icoon uit bestaande iconen"
 
-#: amelie/activities/models.py:29
+#: amelie/activities/models.py:28
 msgid "Explanation on icon (en)"
 msgstr "Uitleg over icoon (en)"
 
-#: amelie/activities/models.py:30
+#: amelie/activities/models.py:29
 msgid "Explanation on icon"
 msgstr "Uitleg over icoon"
 
-#: amelie/activities/models.py:31
+#: amelie/activities/models.py:30
 #: amelie/companies/templates/companies/company_statistics.html:75
 #: amelie/companies/templates/companies/company_statistics.html:105
 msgid "Active?"
 msgstr "Actief?"
 
-#: amelie/activities/models.py:58
+#: amelie/activities/models.py:57
 msgid "enrollment"
 msgstr "inschrijving"
 
-#: amelie/activities/models.py:59
+#: amelie/activities/models.py:58
 msgid "enrollment start"
 msgstr "inschrijving start"
 
-#: amelie/activities/models.py:59
+#: amelie/activities/models.py:58
 msgid "If you want to add options, make sure your activity isn't open for enrollment right away"
 msgstr "Als je nog opties wil toevoegen, zorg ervoor dat de inschrijving dan niet meteen open is"
 
-#: amelie/activities/models.py:60
+#: amelie/activities/models.py:59
 msgid "enrollment end"
 msgstr "inschrijving stop"
 
-#: amelie/activities/models.py:62
+#: amelie/activities/models.py:61
 msgid "Lock waiting list"
 msgstr "Vergrendel wachtlijst"
 
-#: amelie/activities/models.py:67
+#: amelie/activities/models.py:66
 msgid "price"
 msgstr "prijs"
 
-#: amelie/activities/models.py:68
+#: amelie/activities/models.py:67
 msgid "can unenroll"
 msgstr "kan uitschrijven"
 
-#: amelie/activities/models.py:70
+#: amelie/activities/models.py:69
 msgid "icon"
 msgstr "icoon"
 
-#: amelie/activities/models.py:70
+#: amelie/activities/models.py:69
 msgid "Image of 175 by 275 pixels."
 msgstr "Afbeelding van 175 bij 275 pixels."
 
-#: amelie/activities/models.py:72
+#: amelie/activities/models.py:71
 msgid "Facebook event id, numerical value in the facebook event url."
 msgstr "Facebook event id, numerieke waarde in de facebook event url."
 
-#: amelie/activities/models.py:219
+#: amelie/activities/models.py:218
 #: amelie/activities/templates/activities/enrollmentoption_list.html:41
 #: amelie/activities/templates/activities/enrollmentoption_list.html:87
 #: amelie/activities/templates/activities/enrollmentoption_list.html:135
@@ -467,60 +467,60 @@ msgstr "Facebook event id, numerieke waarde in de facebook event url."
 msgid "Title"
 msgstr "Titel"
 
-#: amelie/activities/models.py:225
+#: amelie/activities/models.py:224
 msgid "Enrollment option"
 msgstr "Inschrijfoptie"
 
-#: amelie/activities/models.py:226
+#: amelie/activities/models.py:225
 #: amelie/activities/templates/activities/enrollmentoption_list.html:5
 #: amelie/activities/templates/activity_enrollment_form.html:47
 #: amelie/personal_tab/templates/cookie_corner/activity_transaction_detail.html:39
 msgid "Enrollment options"
 msgstr "Inschrijfopties"
 
-#: amelie/activities/models.py:267 amelie/activities/models.py:494
+#: amelie/activities/models.py:266 amelie/activities/models.py:493
 #: amelie/activities/templates/activities/enrollmentoption_list.html:136
 #: amelie/activities/templates/activities/enrollmentoption_list.html:178
 msgid "Required"
 msgstr "Verplicht"
 
-#: amelie/activities/models.py:280 amelie/activities/models.py:306
-#: amelie/activities/models.py:345
+#: amelie/activities/models.py:279 amelie/activities/models.py:305
+#: amelie/activities/models.py:344
 msgid "Price extra"
 msgstr "Prijs extra"
 
-#: amelie/activities/models.py:281 amelie/activities/models.py:307
+#: amelie/activities/models.py:280 amelie/activities/models.py:306
 msgid "Maximum limit of selections"
 msgstr "Limiet van selecties"
 
-#: amelie/activities/models.py:281 amelie/activities/models.py:307
-#: amelie/activities/models.py:308
+#: amelie/activities/models.py:280 amelie/activities/models.py:306
+#: amelie/activities/models.py:307
 msgid "Set as 0 for unlimited"
 msgstr "Houd op 0 voor onbeperkt"
 
-#: amelie/activities/models.py:308
+#: amelie/activities/models.py:307
 msgid "Maximum per person"
 msgstr "Maximum per persoon"
 
-#: amelie/activities/models.py:358
+#: amelie/activities/models.py:357
 msgid "Answer to enrollment option"
 msgstr "Inschrijfoptieantwoord"
 
-#: amelie/activities/models.py:359
+#: amelie/activities/models.py:358
 msgid "Anwers to enrollment option"
 msgstr "Inschrijfoptieantwoorden"
 
-#: amelie/activities/models.py:407 amelie/activities/models.py:423
-#: amelie/activities/models.py:441 amelie/activities/models.py:456
+#: amelie/activities/models.py:406 amelie/activities/models.py:422
+#: amelie/activities/models.py:440 amelie/activities/models.py:455
 #: amelie/personal_tab/templates/cookie_corner/activity_transaction_detail.html:47
 msgid "Respons"
 msgstr "Antwoord"
 
-#: amelie/activities/models.py:419
+#: amelie/activities/models.py:418
 msgid "A response is required"
 msgstr "Antwoord is verplicht"
 
-#: amelie/activities/models.py:428
+#: amelie/activities/models.py:427
 #: amelie/activities/templates/activities/eventdesk/message_list.html:212
 #: amelie/activities/templates/activity_confirm_cancellation.html:21
 #: amelie/activities/templates/activity_confirm_delete.html:21
@@ -540,7 +540,7 @@ msgstr "Antwoord is verplicht"
 msgid "Yes"
 msgstr "Ja"
 
-#: amelie/activities/models.py:428
+#: amelie/activities/models.py:427
 #: amelie/activities/templates/activities/eventdesk/message_list.html:215
 #: amelie/activities/templates/activity_confirm_cancellation.html:22
 #: amelie/activities/templates/activity_confirm_delete.html:22
@@ -558,54 +558,54 @@ msgstr "Ja"
 msgid "No"
 msgstr "Nee"
 
-#: amelie/activities/models.py:461 amelie/activities/models.py:528
+#: amelie/activities/models.py:460 amelie/activities/models.py:527
 msgid "(none)"
 msgstr "(geen)"
 
-#: amelie/activities/models.py:480 amelie/activities/models.py:495
+#: amelie/activities/models.py:479 amelie/activities/models.py:494
 msgid "Restaurant"
 msgstr "Restaurant"
 
-#: amelie/activities/models.py:483 amelie/personal_tab/models.py:286
+#: amelie/activities/models.py:482 amelie/personal_tab/models.py:286
 #: amelie/personal_tab/models.py:320 amelie/room_duty/models.py:247
 msgid "Available"
 msgstr "Beschikbaar"
 
-#: amelie/activities/models.py:484
+#: amelie/activities/models.py:483
 #: amelie/activities/templates/forms/enrollmentoption_foodquestion_answer.html:35
 msgid "Allergens"
 msgstr "Allergiën"
 
-#: amelie/activities/models.py:484
+#: amelie/activities/models.py:483
 msgid "No information available"
 msgstr "Geen informatie beschikbaar"
 
-#: amelie/activities/models.py:509
+#: amelie/activities/models.py:508
 msgid "Enrollment optionquestion"
 msgstr "Inschrijfoptievraag"
 
-#: amelie/activities/models.py:520
+#: amelie/activities/models.py:519
 msgid "Dish cost"
 msgstr "Prijs voor gerecht"
 
-#: amelie/activities/models.py:557
+#: amelie/activities/models.py:556
 #: amelie/activities/templates/activities/eventdesk/message_list.html:51
 #: amelie/personal_tab/templates/info/rfid_cards.html:15
 msgid "Registered"
 msgstr "Aangemeld"
 
-#: amelie/activities/models.py:558
+#: amelie/activities/models.py:557
 #: amelie/activities/templates/activities/eventdesk/message_list.html:55
 msgid "Accepted"
 msgstr "Geaccepteerd"
 
-#: amelie/activities/models.py:559 amelie/activities/views.py:1519
+#: amelie/activities/models.py:558 amelie/activities/views.py:1519
 #: amelie/activities/views.py:1525 amelie/activities/views.py:1531
 #: amelie/members/models.py:287
 #: amelie/members/templates/person_accounts.html:37
 #: amelie/personal_tab/templates/info/rfid_cards.html:45
-#: amelie/personal_tab/templates/print_log_list.html:92
-#: amelie/personal_tab/templates/print_log_list.html:114
+#: amelie/personal_tab/templates/print_log_list.html:94
+#: amelie/personal_tab/templates/print_log_list.html:116
 #: amelie/personal_tab/templates/print_refund.html:63
 #: amelie/personal_tab/templates/print_refund.html:88
 #: templates/health_check/partial_celery_tables.html:30
@@ -617,47 +617,47 @@ msgstr "Geaccepteerd"
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: amelie/activities/models.py:561
+#: amelie/activities/models.py:560
 msgid "E-mail message ID"
 msgstr "E-mailbericht-ID"
 
-#: amelie/activities/models.py:562
+#: amelie/activities/models.py:561
 msgid "E-mail message timestamp"
 msgstr "Tijdstempel E-mailbericht"
 
-#: amelie/activities/models.py:564
+#: amelie/activities/models.py:563
 msgid "New state of the event registration"
 msgstr "Nieuwe status van de evenementaanmelding"
 
-#: amelie/activities/models.py:566
+#: amelie/activities/models.py:565
 msgid "Person that requested the registration as stated in the e-mail"
 msgstr "Persoon die de aanmelding heeft aangevraagd volgens de e-mail"
 
-#: amelie/activities/models.py:568
+#: amelie/activities/models.py:567
 msgid "Name of the event as stated in the e-mail"
 msgstr "Naam van het evenement volgens de e-mail"
 
-#: amelie/activities/models.py:569
+#: amelie/activities/models.py:568
 msgid "Start date/time of the event as stated in the e-mail"
 msgstr "Startdatum/tijd van het evenement volgens de e-mail"
 
-#: amelie/activities/models.py:570
+#: amelie/activities/models.py:569
 msgid "End date/time of the event as stated in the e-mail"
 msgstr "Einddatum/tijd van het evenement volgens de e-mail"
 
-#: amelie/activities/models.py:571
+#: amelie/activities/models.py:570
 msgid "Location of the event as stated in the e-mail"
 msgstr "Locatie van het evenement volgens de e-mail"
 
-#: amelie/activities/models.py:572
+#: amelie/activities/models.py:571
 msgid "Percentage certainty of match with activity."
 msgstr "Zekerheidspercentage van de match met de activiteit."
 
-#: amelie/activities/models.py:610
+#: amelie/activities/models.py:609
 msgid "n/a"
 msgstr "n.v.t."
 
-#: amelie/activities/models.py:612
+#: amelie/activities/models.py:611
 #, python-format, python-brace-format
 msgid "{0:.1f}% certain"
 msgstr "{0:.1f}% zeker"
@@ -1106,7 +1106,7 @@ msgstr "Plekken over"
 #: amelie/education/templates/complaint.html:21
 #: amelie/education/templates/education_event.html:18
 #: amelie/members/templates/includes/committee_data.html:50
-#: amelie/members/templates/includes/person_data_table.html:244
+#: amelie/members/templates/includes/person_data_table.html:238
 #: amelie/members/templates/person_employee.html:14
 #: amelie/members/templates/person_functions.html:10
 #: amelie/members/templates/person_functions.html:18
@@ -2589,7 +2589,7 @@ msgstr "Inschrijven kan vanaf %(date)s"
 #: amelie/education/templates/includes/education_news_paginator.html:5
 #: amelie/education/templates/includes/education_news_paginator.html:8
 #: amelie/members/templates/includes/query/query_results.html:30
-#: amelie/members/templates/includes/query/query_results.html:81
+#: amelie/members/templates/includes/query/query_results.html:80
 #: amelie/news/templates/includes/news_paginator.html:5
 #: amelie/news/templates/includes/news_paginator.html:8
 #: amelie/publications/templates/publications/includes/publications_paginator.html:5
@@ -2609,7 +2609,7 @@ msgstr "Eerste"
 #: amelie/education/templates/includes/education_news_paginator.html:9
 #: amelie/members/templates/includes/query/query_push.html:23
 #: amelie/members/templates/includes/query/query_results.html:31
-#: amelie/members/templates/includes/query/query_results.html:82
+#: amelie/members/templates/includes/query/query_results.html:81
 #: amelie/news/templates/includes/news_paginator.html:6
 #: amelie/news/templates/includes/news_paginator.html:9
 #: amelie/publications/templates/publications/includes/publications_paginator.html:6
@@ -2628,7 +2628,7 @@ msgstr "Vorige"
 #: amelie/education/templates/includes/education_news_paginator.html:21
 #: amelie/education/templates/includes/education_news_paginator.html:24
 #: amelie/members/templates/includes/query/query_results.html:45
-#: amelie/members/templates/includes/query/query_results.html:96
+#: amelie/members/templates/includes/query/query_results.html:95
 #: amelie/news/templates/includes/news_paginator.html:21
 #: amelie/news/templates/includes/news_paginator.html:24
 #: amelie/publications/templates/publications/includes/publications_paginator.html:21
@@ -2647,7 +2647,7 @@ msgstr "Volgende"
 #: amelie/education/templates/includes/education_news_paginator.html:22
 #: amelie/education/templates/includes/education_news_paginator.html:25
 #: amelie/members/templates/includes/query/query_results.html:46
-#: amelie/members/templates/includes/query/query_results.html:97
+#: amelie/members/templates/includes/query/query_results.html:96
 #: amelie/news/templates/includes/news_paginator.html:22
 #: amelie/news/templates/includes/news_paginator.html:25
 #: amelie/publications/templates/publications/includes/publications_paginator.html:22
@@ -2978,7 +2978,7 @@ msgstr "Actie"
 #: amelie/blame/templates/blame/blame_changelog.html:25
 #: amelie/blame/templates/blame/blame_detail.html:29
 #: amelie/blame/templates/blame/model_overview.html:21
-#: amelie/personal_tab/templates/print_log_list.html:28
+#: amelie/personal_tab/templates/print_log_list.html:29
 #: amelie/personal_tab/templates/print_refund.html:14 amelie/tools/models.py:46
 #: amelie/tools/templates/data_export_statistics.html:26
 msgid "Timestamp"
@@ -4113,6 +4113,7 @@ msgid "Add to:"
 msgstr "Toevoegen aan:"
 
 #: amelie/claudia/templates/claudia/mapping_list.html:51
+#: amelie/personal_tab/templates/print_log_list.html:28
 #: amelie/videos/templates/videos/ia_video_form.html:50
 #: amelie/videos/templates/videos/peertube_video_form.html:50
 #: amelie/videos/templates/videos/yt_video_form.html:50
@@ -6672,7 +6673,7 @@ msgid "Initials"
 msgstr "Initialen"
 
 #: amelie/members/models.py:309
-#: amelie/members/templates/includes/query/query_results.html:62
+#: amelie/members/templates/includes/query/query_results.html:61
 msgid "Photo"
 msgstr "Foto"
 
@@ -6681,7 +6682,7 @@ msgid "Unverified photo"
 msgstr "Onbeoordeelde foto"
 
 #: amelie/members/models.py:312
-#: amelie/members/templates/includes/query/query_results.html:65
+#: amelie/members/templates/includes/query/query_results.html:64
 msgid "Notes"
 msgstr "Notities"
 
@@ -7010,7 +7011,7 @@ msgstr "Het e-mailadres van een commissie mag alleen maar verwijzen naar een Int
 #: amelie/members/templates/includes/person_function_table.html:7
 #: amelie/members/templates/person_edit_functions.html:16
 #: amelie/members/templates/statistics/overview.html:123
-#: amelie/personal_tab/forms.py:204
+#: amelie/personal_tab/forms.py:207
 #: amelie/statistics/templates/statistics.html:39
 msgid "Committee"
 msgstr "Commissie"
@@ -7591,12 +7592,7 @@ msgstr "Geen verdere notities."
 msgid "Send a mailing"
 msgstr "Stuur een mailing"
 
-#: amelie/members/templates/includes/person_data_table.html:235
-#: amelie/members/templates/includes/query/query_results.html:53
-msgid "Send a push notification"
-msgstr "Stuur een push notificatie"
-
-#: amelie/members/templates/includes/person_data_table.html:240
+#: amelie/members/templates/includes/person_data_table.html:234
 msgid "Send OAuth link code mail"
 msgstr "Stuur OAuth link code mail"
 
@@ -7719,20 +7715,20 @@ msgstr "Exporteer e-mailadressen"
 msgid "Results"
 msgstr "Resultaten"
 
-#: amelie/members/templates/includes/query/query_results.html:54
+#: amelie/members/templates/includes/query/query_results.html:53
 msgid "Add new freshmen"
 msgstr "Nieuwe eerstejaars toevoegen"
 
-#: amelie/members/templates/includes/query/query_results.html:55
+#: amelie/members/templates/includes/query/query_results.html:54
 #: templates/frontpage.html:127
 msgid "Add new member"
 msgstr "Nieuw lid toevoegen"
 
-#: amelie/members/templates/includes/query/query_results.html:63
+#: amelie/members/templates/includes/query/query_results.html:62
 msgid "Personal data"
 msgstr "Persoonsgegevens"
 
-#: amelie/members/templates/includes/query/query_results.html:64
+#: amelie/members/templates/includes/query/query_results.html:63
 msgid "Contact data"
 msgstr "Contactgegevens"
 
@@ -9853,68 +9849,74 @@ msgstr "Tabellen:"
 msgid "Find person"
 msgstr "Persoon zoeken"
 
-#: amelie/personal_tab/forms.py:191
+#: amelie/personal_tab/forms.py:188
+#, fuzzy
+#| msgid "No info available."
+msgid "-- No printers available --"
+msgstr "Geen info beschikbaar."
+
+#: amelie/personal_tab/forms.py:194
 msgid "PDF Document"
 msgstr "PDF-document"
 
-#: amelie/personal_tab/forms.py:192
+#: amelie/personal_tab/forms.py:195
 msgid "Select a PDF document to print"
 msgstr "Selecteer een PDF-document om te printen"
 
-#: amelie/personal_tab/forms.py:196
+#: amelie/personal_tab/forms.py:199
 msgid "Printer"
 msgstr "Printer"
 
-#: amelie/personal_tab/forms.py:198
+#: amelie/personal_tab/forms.py:201
 msgid "Select the printer to use for printing"
 msgstr "Selecteer de printer die je wilt gebruiken om te printen"
 
-#: amelie/personal_tab/forms.py:202
+#: amelie/personal_tab/forms.py:205
 msgid "-- Pay via personal tab --"
 msgstr "-- Betalen via streeplijst --"
 
-#: amelie/personal_tab/forms.py:205
+#: amelie/personal_tab/forms.py:208
 msgid "Select a committee for free printing, or leave blank to pay for printing"
 msgstr "Selecteer een commissie om gratis te printen, of laat leeg om te betalen voor het printen"
 
-#: amelie/personal_tab/forms.py:209
+#: amelie/personal_tab/forms.py:212
 msgid "Copies"
 msgstr "Kopieën"
 
-#: amelie/personal_tab/forms.py:210
+#: amelie/personal_tab/forms.py:213
 msgid "Number of copies to print"
 msgstr "Aantal kopieën om te printen"
 
-#: amelie/personal_tab/forms.py:216
+#: amelie/personal_tab/forms.py:219
 msgid "Dual-sided printing"
 msgstr "Dubbelzijdig printen"
 
-#: amelie/personal_tab/forms.py:217
+#: amelie/personal_tab/forms.py:220
 msgid "Print both sides of the page. Leave unchecked for single-sided printing."
 msgstr "Print aan beide zijden van de pagina. Laat uitgevinkt voor enkelzijdig printen."
 
-#: amelie/personal_tab/forms.py:230
-#: amelie/personal_tab/templates/print_form.html:168
+#: amelie/personal_tab/forms.py:233
+#: amelie/personal_tab/templates/print_form.html:173
 msgid "Please select a PDF file."
 msgstr "Selecteer a.u.b. een PDF-bestand."
 
-#: amelie/personal_tab/forms.py:234
+#: amelie/personal_tab/forms.py:237
 msgid "Only PDF files are allowed."
 msgstr "Alleen PDF-bestanden zijn toegestaan."
 
-#: amelie/personal_tab/forms.py:239
+#: amelie/personal_tab/forms.py:242
 msgid "File size cannot exceed 50MB."
 msgstr "Bestand mag maximaal 50MB groot zijn."
 
-#: amelie/personal_tab/forms.py:250
+#: amelie/personal_tab/forms.py:253
 msgid "You are not a member of the committee you want to print for."
 msgstr "Je bent geen lid van de commissie waarvoor je probeert te printen."
 
-#: amelie/personal_tab/forms.py:254
+#: amelie/personal_tab/forms.py:257
 msgid "You do not have an active consumption mandate or are not a member anymore, so we cannot add the costs for this print to your personal tab. Contact the board for help."
 msgstr "Je hebt geen actieve streeplijstmachtiging of je bent geen lid meer, dus we kunnen de kosten van deze printopdracht niet van je streeplijst afschrijven. Neem contact op met het bestuur voor hulp."
 
-#: amelie/personal_tab/forms.py:314
+#: amelie/personal_tab/forms.py:317
 msgid "Printing article not found. Please contact the WWW committee."
 msgstr "Printartikel niet gevonden. Neem a.u.b. contact op met de WWW-commissie."
 
@@ -10362,7 +10364,7 @@ msgid "reversal"
 msgstr "terugboeking"
 
 #: amelie/personal_tab/models.py:891
-#: amelie/personal_tab/templates/print_log_list.html:29
+#: amelie/personal_tab/templates/print_log_list.html:30
 #: amelie/personal_tab/templates/print_refund.html:26
 msgid "Actor"
 msgstr "Acteur"
@@ -10566,22 +10568,22 @@ msgstr "Kaart succesvol geregistreerd. Je bent uitgelogd."
 msgid "Multiple unknown RFID-cards detected. Please scan one card at a time. You have been logged out."
 msgstr "Meerdere onbekende RFID-kaarten gescand. Scan alsjeblieft 1 kaart tegelijkertijd. Je bent uitgelogd."
 
-#: amelie/personal_tab/print_views.py:71
+#: amelie/personal_tab/print_views.py:75
 #, python-brace-format
 msgid "Document '{name}' with {pages} page(s) was queued for printing successfully."
 msgstr "Document '{name}' met {pages} pagina(s) is succesvol in de printwachtrij gezet."
 
-#: amelie/personal_tab/print_views.py:77
+#: amelie/personal_tab/print_views.py:81
 #, python-brace-format
 msgid "Error while submitting print to the printer. No prints were registered. Error: {ex}"
 msgstr "Fout tijdens het versturen van de printopdracht naar de printer. Er zijn geen prints geregistreerd. Error: {ex}"
 
-#: amelie/personal_tab/print_views.py:97
+#: amelie/personal_tab/print_views.py:101
 #, python-brace-format
 msgid "Refund for print, transaction #{tid}"
 msgstr "Terugbetaling voor print, transactie #{tid}"
 
-#: amelie/personal_tab/print_views.py:102
+#: amelie/personal_tab/print_views.py:106
 #, python-brace-format
 msgid "Print by {person} was refunded successfully."
 msgstr "Print van {person} is succesvol terugbetaald."
@@ -11718,7 +11720,7 @@ msgstr "kCal/euro"
 
 #: amelie/personal_tab/templates/print_form.html:4
 #: amelie/personal_tab/templates/print_form.html:20
-#: amelie/personal_tab/templates/print_form.html:149
+#: amelie/personal_tab/templates/print_form.html:154
 msgid "Print Document"
 msgstr "Print Document"
 
@@ -11761,8 +11763,16 @@ msgid "Committee members can print for free by selecting the committee the print
 msgstr "Commissieleden kunnen gratis printen door de commissie waarvoor de print is te selecteren"
 
 #: amelie/personal_tab/templates/print_form.html:41
-msgid "Non-committee-related prints will be charged per page to your personal tab"
-msgstr "Niet-commissiegerelateerde afdrukken worden per pagina op je persoonlijke streeplijst in rekening gebracht"
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                                You are not currently a member of any committees. All prints will be charged to your personal tab at a rate of &euro; %(per_page_cost)s per page (single or dual-sided).\n"
+#| "                            "
+msgid "Non-committee-related prints will be charged to your personal tab at a rate of &euro; %(per_page_cost)s per page (single or dual-sided)"
+msgstr ""
+"\n"
+"                                Je bent op dit moment geen lid van een commissie. Alle prints worden van je streeplijst afgeschreven tegen een tarief van &euro; %(per_page_cost) per pagina (enkel- of dubbelzijdig).\n"
+"                            "
 
 #: amelie/personal_tab/templates/print_form.html:46
 msgid "For administrative purposes and to be able to trace rogue prints, a log will be saved of each submitted print, containing the following details about the print:"
@@ -11792,7 +11802,22 @@ msgstr "(als er voor een commissie is geprint) Welke commissie de print voor was
 msgid "(if printed personally) The personal tab transaction that paid for the print."
 msgstr "(als persoonlijk geprint) De streeplijsttransactie die betaald heeft voor de print."
 
-#: amelie/personal_tab/templates/print_form.html:128
+#: amelie/personal_tab/templates/print_form.html:98
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                                            %(time)s ago\n"
+#| "                                        "
+msgid ""
+"\n"
+"                                                (&euro; %(per_page_cost)s per page)\n"
+"                                            "
+msgstr ""
+"\n"
+"                                            %(time)s geleden\n"
+"                                        "
+
+#: amelie/personal_tab/templates/print_form.html:133
 msgid ""
 "\n"
 "                                If your print is for a committee, select it in the form above.\n"
@@ -11804,7 +11829,7 @@ msgstr ""
 "In dat geval zal de print gratis zijn.\n"
 "                            "
 
-#: amelie/personal_tab/templates/print_form.html:133
+#: amelie/personal_tab/templates/print_form.html:138
 #, python-format
 msgid ""
 "\n"
@@ -11817,7 +11842,7 @@ msgstr ""
 "In dat geval wordt de print op je streeplijst afgeschreven tegen een tarief van &euro; %(per_page_cost)s per pagina (enkel- of dubbelzijdig).\n"
 "                            "
 
-#: amelie/personal_tab/templates/print_form.html:141
+#: amelie/personal_tab/templates/print_form.html:146
 #, python-format
 msgid ""
 "\n"
@@ -11828,16 +11853,16 @@ msgstr ""
 "                                Je bent op dit moment geen lid van een commissie. Alle prints worden van je streeplijst afgeschreven tegen een tarief van &euro; %(per_page_cost) per pagina (enkel- of dubbelzijdig).\n"
 "                            "
 
-#: amelie/personal_tab/templates/print_form.html:150
+#: amelie/personal_tab/templates/print_form.html:155
 msgid "Note: Printer will start printing immediately, check the selected document carefully before submitting!"
 msgstr "Let op: De printer zal direct beginnen met printen, controleer het geselecteerde document goed voordat je deze verstuurt!"
 
-#: amelie/personal_tab/templates/print_form.html:176
+#: amelie/personal_tab/templates/print_form.html:181
 #, python-format
 msgid "File size cannot exceed %(size)s."
 msgstr "Bestand mag maximaal %(size)s groot zijn."
 
-#: amelie/personal_tab/templates/print_form.html:192
+#: amelie/personal_tab/templates/print_form.html:197
 msgid "Selected:"
 msgstr "Geselecteerd:"
 
@@ -11870,25 +11895,25 @@ msgstr ""
 "Dit kan bijvoorbeeld als het document niet is geprint, of als de printer geen toner meer had, of als de gebruiker is vergeten om een commissie te selecteren, etc.\n"
 "                    "
 
-#: amelie/personal_tab/templates/print_log_list.html:30
+#: amelie/personal_tab/templates/print_log_list.html:31
 msgid "Job ID / Document Name"
 msgstr "Opdracht-ID / Documentnaam"
 
-#: amelie/personal_tab/templates/print_log_list.html:32
+#: amelie/personal_tab/templates/print_log_list.html:33
 msgid "Committee / Transaction"
 msgstr "Commissie / Transactie"
 
-#: amelie/personal_tab/templates/print_log_list.html:33
+#: amelie/personal_tab/templates/print_log_list.html:34
 #: amelie/personal_tab/templates/print_refund.html:58
 msgid "Source IP"
 msgstr "Bron-IP"
 
-#: amelie/personal_tab/templates/print_log_list.html:34
+#: amelie/personal_tab/templates/print_log_list.html:35
 #: amelie/personal_tab/templates/print_refund.html:68
 msgid "User Agent"
 msgstr "User-Agent"
 
-#: amelie/personal_tab/templates/print_log_list.html:43
+#: amelie/personal_tab/templates/print_log_list.html:45
 #, python-format
 msgid ""
 "\n"
@@ -11899,60 +11924,60 @@ msgstr ""
 "                                            %(time)s geleden\n"
 "                                        "
 
-#: amelie/personal_tab/templates/print_log_list.html:56
+#: amelie/personal_tab/templates/print_log_list.html:58
 #, python-format
 msgid "Job %(job_id)s"
 msgstr "Opdracht %(job_id)s"
 
-#: amelie/personal_tab/templates/print_log_list.html:59
+#: amelie/personal_tab/templates/print_log_list.html:61
 msgid "No job id!"
 msgstr "Geen opdracht-id!"
 
-#: amelie/personal_tab/templates/print_log_list.html:75
+#: amelie/personal_tab/templates/print_log_list.html:77
 #: amelie/personal_tab/templates/print_refund.html:50
 msgid "View transaction"
 msgstr "Transactie bekijken"
 
-#: amelie/personal_tab/templates/print_log_list.html:79
+#: amelie/personal_tab/templates/print_log_list.html:81
 #: amelie/personal_tab/templates/print_refund.html:54
 #, python-format
 msgid "(&euro; %(price)s)"
 msgstr "(&euro; %(price)s)"
 
-#: amelie/personal_tab/templates/print_log_list.html:82
+#: amelie/personal_tab/templates/print_log_list.html:84
 msgid "Refund this print job"
 msgstr "Betaal deze printopdracht terug"
 
-#: amelie/personal_tab/templates/print_log_list.html:84
+#: amelie/personal_tab/templates/print_log_list.html:86
 msgid "Refund"
 msgstr "Terugbetalen"
 
-#: amelie/personal_tab/templates/print_log_list.html:100
+#: amelie/personal_tab/templates/print_log_list.html:102
 #: amelie/personal_tab/templates/print_refund.html:74
 msgid "Chrome"
 msgstr "Chrome"
 
-#: amelie/personal_tab/templates/print_log_list.html:102
+#: amelie/personal_tab/templates/print_log_list.html:104
 #: amelie/personal_tab/templates/print_refund.html:76
 msgid "Firefox"
 msgstr "Firefox"
 
-#: amelie/personal_tab/templates/print_log_list.html:104
+#: amelie/personal_tab/templates/print_log_list.html:106
 #: amelie/personal_tab/templates/print_refund.html:78
 msgid "Safari"
 msgstr "Safari"
 
-#: amelie/personal_tab/templates/print_log_list.html:106
+#: amelie/personal_tab/templates/print_log_list.html:108
 #: amelie/personal_tab/templates/print_refund.html:80
 msgid "Edge"
 msgstr "Edge"
 
-#: amelie/personal_tab/templates/print_log_list.html:108
+#: amelie/personal_tab/templates/print_log_list.html:110
 #: amelie/personal_tab/templates/print_refund.html:82
 msgid "Browser"
 msgstr "Browser"
 
-#: amelie/personal_tab/templates/print_log_list.html:122
+#: amelie/personal_tab/templates/print_log_list.html:124
 msgid "No print log entries found."
 msgstr "Geen printlogboekvermeldingen gevonden."
 
