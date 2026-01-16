@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-16 11:25+0100\n"
+"POT-Creation-Date: 2026-01-16 12:46+0100\n"
 "PO-Revision-Date: 2025-12-29 12:09+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -3148,7 +3148,7 @@ msgstr "Machtiging"
 #: amelie/personal_tab/templates/lists/debt_collection_proposal_cookie_corner.html:9
 #: amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:10
 #: amelie/personal_tab/templates/lists/transactions.html:10
-#: templates/profile_picture_verification.html:93
+#: templates/profile_picture_verification.html:97
 msgid "Person"
 msgstr "Persoon"
 
@@ -7468,12 +7468,12 @@ msgid "ago"
 msgstr "geleden"
 
 #: amelie/members/templates/includes/person_data_table.html:12
-#: templates/profile_picture_verification.html:94
+#: templates/profile_picture_verification.html:98
 msgid "Old picture"
 msgstr "Oude foto"
 
 #: amelie/members/templates/includes/person_data_table.html:14
-#: templates/profile_picture_verification.html:95
+#: templates/profile_picture_verification.html:99
 msgid "New picture"
 msgstr "Nieuwe foto"
 
@@ -14625,11 +14625,31 @@ msgid "Unapproved profile pictures"
 msgstr "Onbeoordeelde profielfoto's"
 
 #: templates/profile_picture_verification.html:77
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                                %(obj)s doesn't have a profile picture.\n"
+#| "                            "
 msgid ""
 "\n"
 "                        The following people have uploaded a new profile picture.\n"
+"                    "
+msgstr ""
+"\n"
+"%(obj)s heeft geen pasfoto."
+
+#: templates/profile_picture_verification.html:82
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                        The following people have uploaded a new profile picture.\n"
+#| "                        Please verify that the picture is acceptable.\n"
+#| "                        A good picture should at least show the person's face clearly.\n"
+#| "                    "
+msgid ""
+"\n"
 "                        Please verify that the picture is acceptable.\n"
-"                        A good picture should at least show the person's face clearly.\n"
+"                        A good picture should at least show the person's face clearly. No memes, avatars, logo's, etc.\n"
 "                    "
 msgstr ""
 "\n"
@@ -14638,7 +14658,7 @@ msgstr ""
 "Een goede foto moet van de persoon zelf zijn, en het gezicht van de persoon moet duidelijk herkenbaar zijn.\n"
 "                    "
 
-#: templates/profile_picture_verification.html:84
+#: templates/profile_picture_verification.html:88
 msgid ""
 "\n"
 "                        Note that pictures could be used for other purposes like yearbooks, publications, age lists, etc.\n"
@@ -14650,23 +14670,23 @@ msgstr ""
 "Controleer a.u.b. of de foto duidelijk en fatsoenlijk is.\n"
 "                    "
 
-#: templates/profile_picture_verification.html:96
+#: templates/profile_picture_verification.html:100
 msgid "Accept change?"
 msgstr "Wijziging accepteren?"
 
-#: templates/profile_picture_verification.html:109
+#: templates/profile_picture_verification.html:113
 msgid "No picture"
 msgstr "Geen foto"
 
-#: templates/profile_picture_verification.html:116
+#: templates/profile_picture_verification.html:120
 msgid "Accept"
 msgstr "Accepteren"
 
-#: templates/profile_picture_verification.html:119
+#: templates/profile_picture_verification.html:123
 msgid "Deny"
 msgstr "Afkeuren"
 
-#: templates/profile_picture_verification.html:124
+#: templates/profile_picture_verification.html:128
 msgid "No unapproved pictures"
 msgstr "Geen onbeoordeelde foto's"
 
