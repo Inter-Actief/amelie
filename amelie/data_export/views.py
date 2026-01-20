@@ -12,6 +12,7 @@ from amelie.data_export.forms import DataExportCreateForm
 from amelie.data_export.models import DataExport, ApplicationStatus
 from amelie.data_export.tasks import export_data
 from amelie.data_export.templatetags.status_icon import status_icon
+from amelie.tools.const import TaskPriority
 from amelie.tools.http import HttpJSONResponse
 
 
@@ -68,7 +69,8 @@ class RequestDataExportView(FormView):
                 )
 
         # Start generating the export
-        e = export_data.delay(self.data_export)
+        export_args = [self.data_export]
+        export_data.s(*export_args).set(priority=TaskPriority.MEDIUM).delay()
 
         # Redirect to the success page (DownloadView)
         return HttpResponseRedirect(self.get_success_url())

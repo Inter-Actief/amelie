@@ -5,6 +5,7 @@ import re
 import logging
 
 from datetime import date
+from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
@@ -33,6 +34,7 @@ from django.views.generic.edit import DeleteView, FormView
 
 from amelie.claudia.models import Mapping, ExtraPerson
 from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -350,7 +352,7 @@ def _person_can_be_anonymized(person):
                 year=membership.year, next_year=membership.year + 1, type=membership.type
             )))
     # Date where new SEPA authorizations came into effect.
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
     personal_tab_credit = Transaction.objects.filter(person=person, date__gte=begin).aggregate(Sum('price'))[
         'price__sum'] or Decimal('0.00')
     if personal_tab_credit != 0:
@@ -464,18 +466,18 @@ def person_anonymize(request, id, slug):
 
     return render(request, 'person_anonymization_success.html', {'person': person})
 
-  
+
 def send_new_member_email(person: Person):
     """
-    Send an email to a new member. This function is used for each type of member.
+    Sends an email to a new member. This function is used for each type of member.
     """
     template_name = "members/new_member.mail"
-    task = MailTask(template_name=template_name)
+    task = MailTask(template_name=template_name, priority=TaskPriority.URGENT)
     task.add_recipient(PersonRecipient(person, context={'membership': person.membership}))
 
     task.send()
 
-    
+
 class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_general.html"
@@ -1067,14 +1069,15 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
         pdf_enrollment_form(buffer, person, person.membership_type)
         pdf = buffer.getvalue()
 
-        # Send welcome e-mail with forms attached.
+        # Send a welcome e-mail with forms attached.
         from amelie.iamailer import MailTask
         from amelie.tools.mail import PersonRecipient
         welcome_mail = MailTask(from_='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
                                 template_name='members/preregistration_welcome.mail',
                                 report_to='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
                                 report_language='nl',
-                                report_always=False)
+                                report_always=False,
+                                priority=TaskPriority.URGENT)
         person_slug = slugify(person.incomplete_name())
 
         welcome_mail.add_recipient(PersonRecipient(recipient=person, context={}, attachments=[

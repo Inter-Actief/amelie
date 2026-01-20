@@ -3,6 +3,7 @@
 # Meaning, when a package is imported here, the initialization of that package cannot use the settings.
 import os
 import re
+
 import saml2
 import datetime
 from datetime import date
@@ -109,7 +110,7 @@ EMAIL_FILE_PATH = '/tmp/amelie-messages'  # The place to store the mail files wh
 EMAIL_RETURN_PATH = '<bounces@inter-actief.net>'  # Where to send 'undeliverable' messages
 EMAIL_REPORT_TO = 'WWW-commissie <www@inter-actief.net>'  # Where to send e-mail reports
 EMAIL_INTERCEPT_ADDRESS = None
-EMAIL_DELAY = 5  # Delay in seconds between consecutive mails
+EMAIL_DELAY = 5  # Delay in seconds between sending consecutive e-mails
 
 # Language code for this installation. All choices can be found here:
 # https://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
@@ -189,6 +190,9 @@ TEMPLATES = [
         }
     }
 ]
+
+# Override the default form rendering class to include our IA styling templates.
+FORM_RENDERER = "amelie.style.forms.AmelieFormRenderer"
 
 # Middleware classes that are used by the application
 MIDDLEWARE = [
@@ -277,9 +281,6 @@ INSTALLED_APPS = (
     'amelie.oauth',
     'amelie.data_export',
     'amelie.publications',
-
-    # JSONRPC API
-    'modernrpc',
 
     # GraphQL API
     'graphene_django',
@@ -450,22 +451,7 @@ GRAPHENE_DJANGO_EXTRAS = {
 # Increase the maximum file upload count to 1000, to allow large batches of pictures to be uploaded
 DATA_UPLOAD_MAX_NUMBER_FILES = 1000
 
-# Modules with JSONRPC API endpoints for autoregistration
-MODERNRPC_METHODS_MODULES = [
-    'amelie.api.api',
-    'amelie.api.activitystream',
-    'amelie.api.authentication',
-    'amelie.api.committee',
-    'amelie.api.company',
-    'amelie.api.education',
-    'amelie.api.narrowcasting',
-    'amelie.api.news',
-    'amelie.api.person',
-    'amelie.api.personal_tab',
-    'amelie.api.push',
-    'amelie.api.videos'
-]
-
+# Handler used by the old JSONRPC API server
 MODERNRPC_HANDLERS = [
     "amelie.api.handlers.IAJSONRPCHandler"
 ]
@@ -567,6 +553,29 @@ COOKIE_CORNER_BANK_CODES = {
     'ZWLB': 'ZWLBNL21'
 }
 
+# Printer configuration
+PERSONAL_TAB_PRINTER_MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB in bytes
+PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = 69  # Article ID of 1 piece of paper (single/dual-sided)
+PERSONAL_TAB_PRINTERS = {
+    # Printer settings template:
+    # "printer": {
+    #     # Printer name as shown to users
+    #     "name": "Printer",
+    #     # IPP(S) url to print on the printer
+    #     "ipp_url": "ipps://printer.local:631/ipp/print",
+    #     # Various printer settings
+    #     "settings": {
+    #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/media-supported"
+    #         "media_format": "iso_a4_210x297mm",
+    #         # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
+    #         "document_format": "application/pdf",
+    #         # One of ["single-document", "separate-documents-uncollated-copies", "separate-documents-collated-copies", "single-document-new-sheet"]
+    #         # See RFC-8011, Section-5.2.4 for confusing details. You probably want "separate-documents-collated-copies" or "single-document-new-sheet".
+    #         "multiple_document_handling": "separate-documents-collated-copies",
+    #     },
+    # }
+}
+
 # Celery task scheduler settings
 CELERY_TASK_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
 CELERY_TASK_EAGER_PROPAGATES = True  # If ALWAYS_EAGER, show the exceptions in the foreground
@@ -576,7 +585,36 @@ CELERY_RESULT_BACKEND = 'django-db'  # Where to store the task results
 CELERY_RESULT_SERIALIZER = 'pickle'  # How to serialize the task results
 CELERY_ACCEPT_CONTENT = ['pickle']  # A list of content-types/serializers to allow
 CELERY_BROKER_URL = None  # URL to the RabbitMQ broker (used when ALWAYS_EAGER is False)
+FLOWER_URL = None  # URL to the Celery Flower instance (used on the sysinfo page)
+RABBITMQ_MGMT_API_URL = None  # URL to the RabbitMQ management API (used on sysinfo page)
+RABBITMQ_MGMT_VHOST = 'amelie'  # Vhost used in RabbitMQ
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # By default, Celery resets the root logger. We want to see the logs so disable this behavior.
+CELERY_TASK_DEFAULT_QUEUE = 'default'  # Default queue where tasks are routed if no specific queue is specified.
+CELERY_TASK_QUEUE_MAX_PRIORITY = 10  # Maximum priority a task may have
+CELERY_TASK_DEFAULT_PRIORITY = 5  # Default priority of a task, if no priority is specified.
+CELERY_TASK_INHERIT_PARENT_PRIORITY = True  # Child tasks (chains, groups, etc.) will get the same priority as their parent.
 
+# Celery routes. We have three celery instances running that process celery tasks.
+# - The mail queue should only have 1 instance and should run sequentially. It handles sending e-mails one-by-one.
+# - The claudia queue should only have 1 instance and should run sequentially. It handles Claudia verify tasks one-by-one.
+# - All other tasks get sent to the default queue, which can run concurrently and will have 1-5 instances.
+CELERY_TASK_QUEUES = None
+try:
+    import kombu
+    CELERY_TASK_QUEUES = [
+        kombu.Queue('default'),
+        kombu.Queue('mail'),
+        kombu.Queue('claudia'),
+    ]
+except ImportError:
+    # Celery is probably not installed and disabled. That's ok, queues will be created if needed,
+    # and tasks will work normally, only the Celery health check will be less accurate.
+    kombu = None
+CELERY_TASK_ROUTES = {
+    'iamailer.*': {'queue': 'mail'},
+    'claudia.*': {'queue': 'claudia'},
+    # other tasks will be routed to the default queue (named "default")
+}
 
 # Connection settings for Alexia
 ALEXIA_API = {
@@ -621,7 +659,10 @@ CLAUDIA_SHELLS = {
 # Default shell if the 'default' option is selected
 CLAUDIA_SHELL_DEFAULT = 'bash'
 
-# Make Claudia stop processing the queue if an error occurs
+# Make Claudia stop processing sub-mappings if an error occurs
+# If this setting is True, Claudia will stop processing sub-mappings (members) for the mapping where the error occurred.
+#     Any objects that were already in the queue will still be processed.
+# If False, any member objects will be added to the queue, even though verification of their parent failed.
 CLAUDIA_STOP_ON_ERROR = False
 
 # Claudia's connection details to Active Directory

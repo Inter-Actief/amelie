@@ -1,5 +1,5 @@
-# Build the amelie docker image based on Debian 11 (Bullseye)
-FROM debian:bullseye
+# Build the amelie docker image based on Debian 12 (Bookworm)
+FROM debian:bookworm
 
 # Load some build variables from the pipeline
 ARG BUILD_BRANCH=unknown
@@ -27,7 +27,8 @@ RUN echo "Updating repostitories..." && \
     echo "Creating directories for amelie..." && \
     mkdir -p /amelie /config /static /media /photo_upload /data_exports /homedir_exports /var/log /var/run && \
     echo "Installing python requirements..." && \
-    pip3 install . && \
+    pip3 install --upgrade pip wheel setuptools --break-system-packages && \
+    pip3 install -I -e . --break-system-packages && \
     echo "Adding build variable files..." && \
     echo "${BUILD_BRANCH}" > /amelie/BUILD_BRANCH && \
     echo "${BUILD_COMMIT}" > /amelie/BUILD_COMMIT && \

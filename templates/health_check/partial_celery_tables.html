@@ -1,0 +1,133 @@
+{% load i18n %}
+
+<h3 style="margin-bottom:0;">{% trans 'Celery worker status' %}&nbsp;<div class="icon icon-arrow_refresh" style="display: inline; visibility: visible" aria-hidden="true"></div></h3>
+<p class="small" style="margin-top:0;">{% trans 'Statistics are measured since the last Celery worker restart.' %}</p>
+<table>
+    <thead>
+    <tr>
+        <th>{% trans 'Worker name' %}</th>
+        <th>{% trans 'Received' %}</th>
+        <th>{% trans 'Active' %}</th>
+        <th>{% trans 'Failed' %}</th>
+        <th>{% trans 'Succeeded' %}</th>
+        <th>{% trans 'Retried' %}</th>
+        <th>{% trans 'Load average' %}</th>
+        <th>{% trans 'Last heartbeat' %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for worker in celery_workers %}
+        <tr>
+            <td>
+                {% if worker.status %}
+                    <div class="icon status_icon icon-accept" aria-hidden="true"></div>
+                {% else %}
+                    <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
+                {% endif %}
+                {% if worker.name %}
+                    <span>{{ worker.name }}</span>
+                {% else %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>{% trans 'Unknown' %}
+                {% endif %}
+            </td>
+            <td>{{ worker.processed }}</td>
+            <td>{{ worker.active }}</td>
+            <td>
+                {% if worker.failed|default:0 > 0 %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                {% endif %}
+                <span>{{ worker.failed }}</span>
+            </td>
+            <td>{{ worker.succeeded }}</td>
+            <td>{{ worker.retried }}</td>
+            <td>
+                {% if worker.loadavg %}
+                    <span>{{ worker.loadavg|join:', ' }}</span>
+                {% else %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                    <span>{% trans 'Unknown' %}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if worker.last_heartbeat %}
+                    <abbr title="{{ worker.last_heartbeat }}">{{ worker.last_heartbeat|timesince }}</abbr>
+                {% else %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                    <span>{% trans 'Unknown' %}</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <td colspan="8">
+            <div class="icon status_icon icon-error" aria-hidden="true"></div>
+            <span>{% trans 'No worker status available.' %}</span>
+        </td>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h3 style="margin-bottom:0;">{% trans 'RabbitMQ queue status' %}&nbsp;<div class="icon icon-arrow_refresh" style="display: inline; visibility: visible" aria-hidden="true"></div></h3>
+<p class="small" style="margin-top:0;">{% trans 'Statistics are measured since the last RabbitMQ server restart.' %}</p>
+<table>
+    <thead>
+    <tr>
+        <th>{% trans 'Name' %}</th>
+        <th>{% trans 'State' %}</th>
+        <th>{% trans 'Consumers' %}</th>
+        <th>{% trans 'Queued messages' %}</th>
+        <th>{% trans 'Total recent messages' %}</th>
+        <th>{% trans 'Message rates' %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for queue in rabbitmq_queues %}
+        <tr>
+            <td>
+                {% if queue.name %}
+                    <span>{% if queue.vhost %}{{ queue.vhost }}&nbsp;/&nbsp;{% endif %}{{ queue.name }}</span>
+                {% else %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                    <span>{% trans 'Unknown' %}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if queue.state == "running" %}
+                    <div class="icon status_icon icon-accept" aria-hidden="true"></div>
+                {% elif queue.state == "down" %}
+                    <div class="icon status_icon icon-cancel" aria-hidden="true"></div>
+                {% else %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                {% endif %}
+                <span>{% if queue.state %}{{ queue.state }}{% else %}{% trans 'Unknown' %}{% endif %}</span>
+            </td>
+            <td>
+                {% if queue.consumers == 0 %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                {% endif %}
+                <span>{{ queue.consumers }}</span>
+            </td>
+            <td>
+                {% if queue.messages.current_queued|default:0 >= 10 %}
+                    <div class="icon status_icon icon-error" aria-hidden="true"></div>
+                {% endif %}
+                <span>{{ queue.messages.current_queued|default:'0' }}</span>
+            </td>
+            <td>
+                {% blocktrans with msg_in=queue.messages.total_incoming|default:'0' msg_out=queue.messages.total_delivered|default:'0' %}
+                    {{ msg_in }} in / {{ msg_out }} out
+                {% endblocktrans %}
+            </td>
+            <td>
+                {% blocktrans with msg_in=queue.messages.incoming_rate|default:'0.0' msg_out=queue.messages.delivered_rate|default:'0.0' %}
+                    {{ msg_in }} msg/s in / {{ msg_out }} msg/s out
+                {% endblocktrans %}
+            </td>
+        </tr>
+    {% empty %}
+        <td colspan="6">
+            <div class="icon status_icon icon-error" aria-hidden="true"></div>
+            <span>{% trans 'No queue status available.' %}</span>
+        </td>
+    {% endfor %}
+    </tbody>
+</table>

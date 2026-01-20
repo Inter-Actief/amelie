@@ -1,17 +1,17 @@
 from typing import Dict, List, Union
 
+from modernrpc import RpcRequestContext
+from modernrpc.exceptions import RPCInvalidParams
+
 from django.urls import reverse
 from django.conf import settings
 
-from amelie.api.decorators import authentication_required
-
-from modernrpc.core import rpc_method, REQUEST_KEY
-from modernrpc.exceptions import RPCInvalidParams
+from amelie.api.api import api_server
+from amelie.api.decorators import auth_required
 
 
-@rpc_method(name='getUserId')
-@authentication_required()
-def get_person_id(**kwargs) -> Dict:
+@api_server.register_procedure(name='getUserId', auth=auth_required(), context_target='ctx')
+def get_person_id(ctx: RpcRequestContext = None, **kwargs) -> Dict:
     """
     Retrieves the user ID of the currently authenticated person.
 
@@ -34,16 +34,16 @@ def get_person_id(**kwargs) -> Dict:
         --> {"method":"getUserId", "params":[]}
         <-- {"result": {"userId": 1234}}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     return {
         "userId": person.id,
     }
 
 
-@rpc_method(name='getPersonDetails')
-@authentication_required("account")
-def get_person_details(**kwargs) -> Union[Dict, None]:
+@api_server.register_procedure(name='getPersonDetails', auth=auth_required('account'), context_target='ctx')
+def get_person_details(ctx: RpcRequestContext = None, **kwargs) -> Union[Dict, None]:
     """
     Retrieves details of the currently authenticated person.
 
@@ -96,8 +96,9 @@ def get_person_details(**kwargs) -> Union[Dict, None]:
                "imageUrl": "https://media.ia.utwente.nl/amelie/pasfoto/a3d248c5-e840-4de1-88aa-a2d2958ef66f.jpg"
         }}
     """
-    request = kwargs.get(REQUEST_KEY)
-    person = kwargs.get('authentication').represents()
+    request = ctx.request
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         student_id = None
@@ -136,9 +137,8 @@ def get_person_details(**kwargs) -> Union[Dict, None]:
         return None
 
 
-@rpc_method(name='getPersonCommittees')
-@authentication_required("account")
-def get_person_committees(**kwargs) -> Union[List[Dict], None]:
+@api_server.register_procedure(name='getPersonCommittees', auth=auth_required('account'), context_target='ctx')
+def get_person_committees(ctx: RpcRequestContext = None, **kwargs) -> Union[List[Dict], None]:
     """
     Retrieves a list of committees in which the currently authenticated person has been a
     member of, or is currently active in.
@@ -176,7 +176,8 @@ def get_person_committees(**kwargs) -> Union[List[Dict], None]:
                "committee": "F.C. Duckstad"
         }]}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         positions = person.function_set.all()
@@ -197,9 +198,8 @@ def get_person_committees(**kwargs) -> Union[List[Dict], None]:
         return None
 
 
-@rpc_method(name='getPersonMembership')
-@authentication_required("account")
-def get_person_membership(**kwargs) -> Union[Dict, None]:
+@api_server.register_procedure(name='getPersonMembership', auth=auth_required('account'), context_target='ctx')
+def get_person_membership(ctx: RpcRequestContext = None, **kwargs) -> Union[Dict, None]:
     """
     Retrieves the active membership details of the currently authenticated person.
 
@@ -242,7 +242,8 @@ def get_person_membership(**kwargs) -> Union[Dict, None]:
                }
         }}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person.membership is not None:
         result = {
@@ -267,9 +268,8 @@ def get_person_membership(**kwargs) -> Union[Dict, None]:
         return None
 
 
-@rpc_method(name='setLanguagePreference')
-@authentication_required("account")
-def set_language_preference(language: str, **kwargs) -> bool:
+@api_server.register_procedure(name='setLanguagePreference', auth=auth_required('account'), context_target='ctx')
+def set_language_preference(language: str, ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Sets the language preference for the currently authenticated person across all Inter-Actief services.
 
@@ -296,7 +296,8 @@ def set_language_preference(language: str, **kwargs) -> bool:
         --> {"method":"setLanguagePreference", "params":["en"]}
         <-- {"result": true}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if any(language in code for code, lang in settings.LANGUAGES):
         person.preferred_language = language

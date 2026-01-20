@@ -11,6 +11,7 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from django.utils.translation import gettext as _
 
 from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.members.models import Person
 from amelie.tools.keycloak import KeycloakAPI
 from amelie.tools.mail import PersonRecipient
@@ -187,7 +188,8 @@ def get_oauth_link_code(person):
 def send_oauth_link_code_email(request, person, link_code):
     task = MailTask(template_name="send_oauth_link_code.mail",
                     report_to=request.person.email_address,
-                    report_always=False)
+                    report_always=False,
+                    priority=TaskPriority.URGENT)
     task.add_recipient(PersonRecipient(
         recipient=person,
         context={"link_code": link_code}

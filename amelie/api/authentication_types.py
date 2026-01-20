@@ -28,6 +28,20 @@ class Authentication(object):
         return None
 
 
+class AnonymousAuthentication(Authentication):
+    def __init__(self, request):
+        self.request = request
+
+    def can(self, scopes):
+        return False
+
+    def represents(self):
+        return None
+
+    def __str__(self):
+        return "AnonymousAuthentication"
+
+
 class PersonBasedAuthentication(Authentication):
     def __init__(self, request):
         self.request = request

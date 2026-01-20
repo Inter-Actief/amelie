@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -545,7 +545,7 @@ class Mapping(models.Model):
 
         return list(result)
 
-    def members(self, old_members=False):
+    def members(self, old_members=False) -> List['Mapping']:
         """
         Gives a list of all mappings that are a member of this group, or all old members if specified.
         """

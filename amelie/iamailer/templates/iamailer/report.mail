@@ -13,7 +13,7 @@
 </p>
 
 <p>
-    {% blocktrans with mail_count=mails|length %}
+    {% blocktrans %}
         {{ mail_count }} messages have been sent. {{ sent_count }} of these have been accepted and {{ error_count }} have not.
     {% endblocktrans %}
 </p>
@@ -25,7 +25,7 @@
 
     <ul>
         {% for mail in mails_failed %}
-            <li>{{ mail.maildata.to|join:", " }}: {{ mail.exception }}</li>
+            <li>{{ mail.to|join:", " }}: {{ mail.exception }}</li>
         {% endfor %}
     </ul>
 {% endif %}
@@ -37,10 +37,10 @@
 
 {% blocktrans %}You receive this e-mail report because you send a mailing.{% endblocktrans %}
 
-{% blocktrans with mail_count=mails|length %}{{ mail_count }} have been sent. Of these {{ sent_count }} have been accepted and {{ error_count }} have not.{% endblocktrans %}
+{% blocktrans %}{{ mail_count }} have been sent. Of these {{ sent_count }} have been accepted and {{ error_count }} have not.{% endblocktrans %}
 
 {% if mails_failed %}{% blocktrans %}The construction or sending of the message has failed for the following people:{% endblocktrans %}
-{% for mail in mails_failed %} * {{ mail.maildata.to|join:", " }}: {{ mail.exception }}
+{% for mail in mails_failed %} * {{ mail.to|join:", " }}: {{ mail.exception }}
 {% endfor %}
 {% endif %}{% blocktrans %}Kind regards,{% endblocktrans %}
 Amelie

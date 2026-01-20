@@ -153,7 +153,7 @@ LOGGING = {
         'amelie': { # Log all Amelie errors
             'level': 'DEBUG',
         },
-        'amelie.claudia': { # store claudia logging in seperate file and log to eugenia
+        'amelie.claudia': { # Claudia logs can go to different handlers
             'level': 'DEBUG',
             'handlers': ENABLED_HANDLERS_CLAUDIA,
             'propagate': False,
@@ -187,6 +187,15 @@ LOGGING = {
         'daphne': { # Set daphne logging to INFO
             'level': 'INFO'
         },
+        'celery': { # Set Celery logging to INFO to avoid spam
+            'level': 'INFO'
+        },
+        'celery.task': { # Set Celery task logging to DEBUG
+            'level': 'DEBUG'
+        },
+        'celery.utils.functional': { # Set Celery utils logging to INFO to avoid spam
+            'level': 'INFO'
+        },
         # Ignore SAML2 errors due to unsollicited response error floods
         'saml2.entity': {'handlers': [], 'propagate': False},
         'saml2.client_base': {'handlers': [], 'propagate': False},
@@ -194,7 +203,7 @@ LOGGING = {
         # Set OIDC logging to at least info due to process_request log flooding
         'mozilla_django_oidc.middleware': {'level': 'INFO'},
         # Set ModernRPC logging to at least info due to "register_method" log flooding for API
-        'modernrpc.core': {'level': 'INFO'},
+        'modernrpc.server': {'level': 'INFO'},
     },
 }
 
@@ -265,6 +274,11 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key_no_dollar())
 # Setup broker for celery
 CELERY_BROKER_URL = env('DJANGO_CELERY_BROKER_URI', default='amqp://amelie:amelie@localhost:5672/amelie')
 BROKER_URL = CELERY_BROKER_URL  # Needed for django-health-check RabbitMQ check to work
+# URL to the Celery Flower instance
+FLOWER_URL = env('DJANGO_FLOWER_URL', default='http://localhost:5555')
+# URL to the RabbitMQ management API (used on sysinfo page)
+RABBITMQ_MGMT_API_URL = env('DJANGO_RABBITMQ_MGMT_API_URI', default='http://amelie:amelie@localhost:15672/api')
+RABBITMQ_MGMT_VHOST = env('DJANGO_RABBITMQ_MGMT_VHOST', default='amelie')
 
 # Django Celery -- True means that tasks will be executed immediately and are not queued!
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
@@ -415,6 +429,40 @@ PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal(env("PERSONAL_TAB_MAXIMUM_ACTIVITY
 # Cookie corner Wrapped
 COOKIE_CORNER_WRAPPED_YEAR = env.int("COOKIE_CORNER_WRAPPED_YEAR", default=COOKIE_CORNER_WRAPPED_YEAR)
 
+# Printer configuration
+
+# Maximum file size for printed files, in bytes (i.e. 50MB = 50 * 1024 * 1024 bytes)
+PERSONAL_TAB_PRINTER_MAX_FILE_SIZE = env.int("PERSONAL_TAB_PRINTER_MAX_FILE_SIZE", default=PERSONAL_TAB_PRINTER_MAX_FILE_SIZE)
+# Article ID of 1 piece of paper (single/dual-sided)
+PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = env.int("PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID", default=PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID)
+
+# Printer configuration, limited to 5 printers currently, via PERSONAL_TAB_PRINTER_1_*, PERSONAL_TAB_PRINTER_2_*, etc.
+PERSONAL_TAB_PRINTERS = {}
+for i in range(1, 6):
+    printer_key = env(f"PERSONAL_TAB_PRINTER_{i}_KEY", default="")
+    if printer_key:
+        printer_name = env(f"PERSONAL_TAB_PRINTER_{i}_NAME", default=None)
+        printer_ipp = env(f"PERSONAL_TAB_PRINTER_{i}_IPP_URL", default=None)
+        if printer_name is None or printer_ipp is None:
+            raise ValueError(f"Personal tab printer {i} is missing basic configuration! Please make sure "
+                             f"PERSONAL_TAB_PRINTER_{i}_NAME and PERSONAL_TAB_PRINTER_{i}_IPP_URL are set, "
+                             f"or unset PERSONAL_TAB_PRINTER_{i}_KEY to disable this printer.")
+        PERSONAL_TAB_PRINTERS[printer_key] = {
+            # Printer name as shown to users
+            "name": printer_name,
+            # IPP(S) url to print on the printer
+            "ipp_url": printer_ipp,
+            # Various printer settings
+            "settings": {
+                # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/media-supported"
+                "media_format": env(f"PERSONAL_TAB_PRINTER_{i}_MEDIA_FORMAT", default="iso_a4_210x297mm"),
+                # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
+                "document_format": env(f"PERSONAL_TAB_PRINTER_{i}_DOCUMENT_FORMAT", default="application/pdf"),
+                # One of ["single-document", "separate-documents-uncollated-copies", "separate-documents-collated-copies", "single-document-new-sheet"]
+                # See RFC-8011, Section-5.2.4 for confusing details. You probably want "separate-documents-collated-copies" or "single-document-new-sheet".
+                "multiple_document_handling": env(f"PERSONAL_TAB_PRINTER_{i}_MULTIPLE_DOCUMENT_HANDLING", default="separate-documents-collated-copies"),
+            },
+        }
 
 ###
 #  Amelie-specific settings

@@ -1,15 +1,16 @@
 from typing import List, Dict
 
+from modernrpc import RpcRequestContext
+
 from django.conf import settings
 from django.template import loader
 
+from amelie.api.api import api_server
 from amelie.api.exceptions import DoesNotExistError
 from amelie.companies.models import Company
 
-from modernrpc.core import rpc_method, REQUEST_KEY
 
-
-@rpc_method(name='getCompanyStream')
+@api_server.register_procedure(name='getCompanyStream')
 def get_company_list() -> List[Dict]:
     """
     Retrieves a list of partnered companies.
@@ -54,8 +55,8 @@ def get_company_list() -> List[Dict]:
     return result
 
 
-@rpc_method(name='getCompanyDetailed')
-def get_company_detail(company_id, **kwargs) -> Dict:
+@api_server.register_procedure(name='getCompanyDetailed', context_target='ctx')
+def get_company_detail(company_id, ctx: RpcRequestContext = None, **kwargs) -> Dict:
     """
     Retrieves company details, including its promotional content.
 
@@ -113,7 +114,7 @@ def get_company_detail(company_id, **kwargs) -> Dict:
         "id": company.id,
         "name": company.name,
         "shortDescription": company.short_description,
-        "description": t.render(c, kwargs.get(REQUEST_KEY)),
+        "description": t.render(c, ctx.request),
         "markdown": company.profile,
         "imageUrl": "%s%s" % (settings.MEDIA_URL, str(company.app_logo)) if company.app_logo else None,
     }

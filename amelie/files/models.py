@@ -85,29 +85,25 @@ def _create_thumbnail(file, size, source, target):
     return False
 
 
-def get_thumb(preferred=None, exact=None, return_thumbnail=True):
+def get_thumb(preferred: str = None):
     """
-    Generate a function to return the best (or exact) thumbnail.
-    The parameters 'preferred' or 'exact' cannot both be given.
-
-    Valid values are 'small', 'medium', 'large'
+    Generate a function to return the best (exact or closest) thumbnail or the original image if there are no thumbnails.
+    The parameter 'preferred' specifies the wanted size.
+    Valid values are 'small', 'medium', 'large' and 'original'
     """
-
-    if exact and not preferred:
-        return lambda self: self.__get__('thumb_%s' % exact) if return_thumbnail else exact
-    elif not exact and preferred:
-        if preferred == 'large':
-            return lambda self: (self.thumb_large if return_thumbnail else 'large') if self.thumb_large else (
-                (self.thumb_medium if return_thumbnail else 'medium') if self.thumb_medium else (self.thumb_small if return_thumbnail else 'small'))
-        elif preferred == 'medium':
-            return lambda self: (self.thumb_medium if return_thumbnail else 'medium') if self.thumb_medium else (
-                    self.thumb_small if return_thumbnail else 'small')
-        elif preferred == 'small':
-            return lambda self: self.thumb_small if return_thumbnail else 'small'
-        else:
-            raise ValueError
-    else:
-        raise ValueError
+    ordering = {
+        'large': ['large', 'medium', 'small', 'original'],
+        'medium': ['medium', 'small', 'large', 'original'],
+        'small': ['small', 'medium', 'large', 'original'],
+        'original': ['original', 'large', 'medium', 'small'],
+    }
+    def _get_thumb(self):
+        for size in ordering.get(preferred, []):
+            thumb = getattr(self, 'file') if size == "original" else getattr(self, f'thumb_{size}')
+            if thumb:
+                return thumb
+        return None
+    return _get_thumb
 
 
 def get_upload_filename(_, filename):

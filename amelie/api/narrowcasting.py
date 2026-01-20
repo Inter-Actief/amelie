@@ -1,14 +1,17 @@
 import datetime
-from typing import List, Dict
-
 import random
+from typing import List, Dict, Union
+
+from modernrpc import RpcRequestContext
 
 from django.conf import settings
 from django.utils import timezone
 
 from amelie.activities.models import Activity
+from amelie.api.api import api_server
 from amelie.api.activitystream_utils import add_images_property, add_thumbnails_property
-from amelie.api.decorators import authentication_optional
+from amelie.api.authentication_types import AnonymousAuthentication
+from amelie.api.decorators import auth_optional
 from amelie.api.utils import parse_datetime_parameter
 from amelie.companies.models import TelevisionBanner, CompanyEvent
 from amelie.education.models import EducationEvent
@@ -17,10 +20,8 @@ from amelie.narrowcasting.models import TelevisionPromotion
 from amelie.room_duty.models import RoomDuty
 from amelie.tools.templatetags import md
 
-from modernrpc.core import rpc_method
 
-
-@rpc_method(name='getBanners')
+@api_server.register_procedure(name='getBanners')
 def get_narrowcasting_banners() -> List[Dict]:
     """
     Retrieves a list of active sponsored narrowcasting banners.
@@ -62,7 +63,7 @@ def get_narrowcasting_banners() -> List[Dict]:
     return result
 
 
-@rpc_method(name='getNews')
+@api_server.register_procedure(name='getNews')
 def get_news(amount: int, render_markdown: bool = False) -> List[Dict]:
     """
     Retrieves a list of recent news articles.
@@ -128,7 +129,7 @@ def get_news(amount: int, render_markdown: bool = False) -> List[Dict]:
     return result
 
 
-@rpc_method(name='getTelevisionPromotions')
+@api_server.register_procedure(name='getTelevisionPromotions')
 def get_television_promotions() -> List[Dict]:
     """
     Retrieves a list of promoted events.
@@ -169,7 +170,7 @@ def get_television_promotions() -> List[Dict]:
     promotions = TelevisionPromotion.objects.filter(start__lte=timezone.now(), end__gte=timezone.now())
 
     for promotion in promotions:
-        res_dict = {
+        res_dict: Dict[str, Union[str, int, bool]] = {
             "image": "%s%s" % (settings.MEDIA_URL, str(promotion.attachment))
         }
 
@@ -187,9 +188,8 @@ def get_television_promotions() -> List[Dict]:
     return result
 
 
-@rpc_method(name='getPhotos')
-@authentication_optional()
-def get_activity_photos(days: int, photos_per_activity: int, **kwargs) -> List[str]:
+@api_server.register_procedure(name='getPhotos', auth=auth_optional, context_target='ctx')
+def get_activity_photos(days: int, photos_per_activity: int, ctx: RpcRequestContext = None, **kwargs) -> List[str]:
     """
     Retrieves an amount of photos from recent activities.
     If a person is authenticated, non-public pictures will also be included.
@@ -217,10 +217,11 @@ def get_activity_photos(days: int, photos_per_activity: int, **kwargs) -> List[s
                "https://url.to/photo2-2.png"
             ]}
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
     result = []
 
-    activities = Activity.objects.filter_public(not authenticated)\
+    activities = Activity.objects.filter_public(not is_authenticated)\
         .filter(begin__gte=(timezone.now() - datetime.timedelta(days=days)))
 
     for activity in activities:
@@ -238,9 +239,8 @@ def get_activity_photos(days: int, photos_per_activity: int, **kwargs) -> List[s
     return result
 
 
-@rpc_method(name='getHistoricActivitiesWithPictures')
-@authentication_optional()
-def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, amount: int, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getHistoricActivitiesWithPictures', auth=auth_optional, context_target='ctx')
+def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, amount: int, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves a list of a number of random activities between two dates that have pictures.
     If a person is authenticated, non-public pictures will also be included.
@@ -313,15 +313,17 @@ def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, 
                ]
         }]}
     """
-    authenticated = kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
+
     begin_date = parse_datetime_parameter(begin_date_str)
     end_date = parse_datetime_parameter(end_date_str)
 
-    activities = Activity.objects.filter_public(not authenticated).filter(photos__gt=0,
+    activities = Activity.objects.filter_public(not is_authenticated).filter(photos__gt=0,
                                                                           begin__gt=begin_date,
                                                                           begin__lt=end_date).distinct()
 
-    if not authenticated:
+    if not is_authenticated:
         activities = activities.filter(photos__public=True)
 
     # Shuffle the activities so random ones are at the start
@@ -350,16 +352,15 @@ def get_historic_activity_with_pictures(begin_date_str: str, end_date_str: str, 
         else:
             single["organizer"] = activity.organizer.name
 
-        add_thumbnails_property(activity, kwargs.get('authentication', None), single)
-        add_images_property(activity, kwargs.get('authentication', None), single)
+        add_thumbnails_property(activity, authentication, single)
+        add_images_property(activity, authentication, single)
 
         result.append(single)
 
     return result
 
 
-@rpc_method(name='getRoomDutyToday')
-@authentication_optional()
+@api_server.register_procedure(name='getRoomDutyToday')
 def get_room_duty_today(**kwargs) -> List[Dict]:
     """
     Retrieve the room duty schedule for today.

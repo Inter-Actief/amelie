@@ -52,6 +52,7 @@ from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import ActivityMailingForm
 from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
+from amelie.tools.const import TaskPriority
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
 from amelie.tools.calendar import ical_calendar
@@ -831,9 +832,11 @@ def photo_upload(request):
                 path = os.path.join(folder, photo)
                 shutil.move(path, processing_folder)
 
-            save_photos.delay(processing_folder, form.cleaned_data["photos"],
-                              activity, photographer, public)
-            messages.info(request, _("The photos are being uploaded. This might take while."))
+            save_args = [processing_folder, form.cleaned_data["photos"], activity, photographer, public]
+            save_photos.s(*save_args).set(priority=TaskPriority.HIGH).delay()
+            messages.info(request, _("The photos are now being processed in the background."
+                                     "Photos will show up on the activity as they are processed, "
+                                     "you can refresh the page to follow the progres."))
             # Redirect to the result
             return HttpResponseRedirect(activity.get_photo_url())
 

@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
 
 
@@ -8,7 +9,7 @@ class Command(BaseCommand):
     help = "Test iamailer"
 
     def handle(self, *args, **options):
-        task = MailTask(from_=args[0], template_name='iamailer/testmail.mail')
+        task = MailTask(from_=args[0], template_name='iamailer/testmail.mail', priority=TaskPriority.LOW)
 
         for arg in args:
             recipient = Recipient([arg], ccs=[args[0]])
@@ -16,6 +17,6 @@ class Command(BaseCommand):
 
         self.stdout.write('Sending mail to {} recipients...'.format(len(args)))
 
-        task.send(delay=False)
+        task.send()
 
         self.stdout.write('Mail sent.')

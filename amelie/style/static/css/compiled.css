@@ -11323,6 +11323,11 @@ img.profile_picture {
   margin-top: 0;
   width: 368px;
 }
+form.big .tabbed-content textarea,
+form.big .tabbed-content input,
+form.big .tabbed-content select {
+  max-width: 100%;
+}
 .block {
   background: #FFFFFF;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
@@ -11689,11 +11694,17 @@ form.big select {
   padding: 4px 6px;
   border: 1px solid #aaa;
 }
+form.big select {
+  max-width: calc(100% - 190px);
+}
 form.big textarea {
   width: 100%;
 }
 form.big .form-row {
   padding: 5px 0px;
+}
+form.big .form-row.errors {
+  color: #B8231F;
 }
 form.big .form-row label {
   margin-top: 3px;

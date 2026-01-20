@@ -20,6 +20,7 @@ from django.utils.translation import gettext_lazy as _l
 
 from amelie.api.models import PushNotification
 from amelie.members.forms import SearchForm
+from amelie.tools.const import TaskPriority
 from amelie.tools.forms import ExportForm
 from amelie.members.models import Person, Preference, Student, Employee
 from amelie.members.query_forms import MailingForm, QueryForm, PushNotificationForm
@@ -187,10 +188,12 @@ class SendNotification(RequireBoardMixin, CreateView):
         notification.recipients.set(recipients)
         notification.save()
 
-        send_push_notification.delay(notification,
-                                     Person.objects.filter(id__in=[x.pk for x in recipients]),
-                                     report_to=self.request.person.email_address,
-                                     report_language=self.request.person.preferred_language)
+        push_args = [notification, Person.objects.filter(id__in=[x.pk for x in recipients])]
+        push_kwargs = {
+            "report_to": self.request.person.email_address,
+            "report_language": self.request.person.preferred_language
+        }
+        send_push_notification.s(*push_args, **push_kwargs).set(priority=TaskPriority.MEDIUM).delay()
 
         messages.info(self.request, _l(
             'The push notifications are now being sent one by one. This happens in a background process and might '
