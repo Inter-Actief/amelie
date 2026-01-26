@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-16 11:25+0100\n"
-"PO-Revision-Date: 2026-01-16 12:23+0000\n"
+"PO-Revision-Date: 2026-01-21 20:11+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -8352,19 +8352,19 @@ msgstr "%(first_name)s is (nog) geen lid (meer)."
 #: amelie/members/templates/includes/query/query_person_data.html:58
 #, python-format
 msgid "%(first_name)s is active"
-msgstr "%(first_name)s is actief."
+msgstr "%(first_name)s is een actief lid."
 
 #: amelie/members/templates/includes/person_data_table.html:201
 #: amelie/members/templates/includes/query/query_person_data.html:61
 #, python-format
 msgid "%(first_name)s is not active"
-msgstr "%(first_name)s is niet actief."
+msgstr "%(first_name)s is geen actief lid."
 
 #: amelie/members/templates/includes/person_data_table.html:203
 #: amelie/members/templates/includes/query/query_person_data.html:63
 #, python-format
 msgid "%(first_name)s is not active any more"
-msgstr "%(first_name)s is niet meer actief."
+msgstr "%(first_name)s is geen actief lid meer"
 
 #: amelie/members/templates/includes/person_data_table.html:208
 #, python-format
@@ -10175,7 +10175,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"%(obj)s is geen student."
+"                %(obj)s is geen actief lid.\n"
+"            "
 
 #: amelie/members/templates/person_mandate.html:5
 #, python-format
