@@ -110,6 +110,10 @@ class Claudia:
     notify_account_scheduled_delete = wrap_call_plugins("account_scheduled_delete")
     notify_account_unscheduled_delete = wrap_call_plugins("account_unscheduled_delete")
 
+    notify_kanidm_created = wrap_call_plugins("kanidm_created")
+    notify_kanidm_changed = wrap_call_plugins("kanidm_changed")
+    notify_kanidm_deleted = wrap_call_plugins("kanidm_deleted")
+
     notify_gsuite_created = wrap_call_plugins("gsuite_created")
     notify_gsuite_changed = wrap_call_plugins("gsuite_changed")
     notify_gsuite_scheduled_delete = wrap_call_plugins("gsuite_scheduled_delete")
