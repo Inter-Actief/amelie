@@ -121,7 +121,7 @@ dependencies = [
     "sentry-sdk>=1.22.1,<2.52",
 
     # Health checks for Django
-    "django-health-check>=3.16.5,<3.21",
+    "django-health-check>=3.16.5,<3.23",
 
     # Allows for CAPTCHA support in forms
     "django-simple-captcha",
