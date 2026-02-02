@@ -49,10 +49,26 @@
       }
     }
 
+    &.bordered {
+      border: 1px solid @iacolor;
+      box-sizing: border-box;
+      a {
+        padding: 4px 0;
+      }
+    }
+
     .arrow {
       font-size: 8px;
       position: absolute;
       right: 5px;
+      top: 5px;
+    }
+
+    .arrow-left {
+      font-size: 8px;
+      position: absolute;
+      left: 5px;
+      right: unset;
       top: 5px;
     }
   }
