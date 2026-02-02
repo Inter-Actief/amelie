@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-02-02 14:00+0100\n"
-"PO-Revision-Date: 2026-01-21 20:11+0000\n"
+"PO-Revision-Date: 2026-02-02 13:05+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -2788,10 +2788,9 @@ msgid "No photo"
 msgstr "Geen foto"
 
 #: amelie/activities/views.py:326
-#, fuzzy, python-brace-format
-#| msgid "{obj} has been successfully re-opened. Please note that all previous enrollments are not added again and that enrollments will have to be manually re-opened."
+#, python-brace-format
 msgid "{obj} has been successfully re-opened. Please note that any previous enrollments are not added again and that enrollments will have to be manually re-opened."
-msgstr "{obj} is succesvol heropend. Let erop dat alle vorige aanmeldingen niet opnieuw zijn toegevoegd en dat je inschrijvingen weer handmatig open moet zetten."
+msgstr "{obj} is succesvol heropend. Let erop dat vorige aanmeldingen niet opnieuw zijn toegevoegd en dat je inschrijvingen weer handmatig open moet zetten."
 
 #: amelie/activities/views.py:333
 #, python-brace-format
@@ -2871,26 +2870,22 @@ msgid "You did not fill in a Dutch summary/description."
 msgstr "Je hebt geen Nederlandse samenvatting/omschrijving ingevuld."
 
 #: amelie/activities/views.py:1217
-#, fuzzy
-#| msgid "Mandate has ended"
 msgid "start date was changed"
-msgstr "Beëindigde machtiging"
+msgstr "startdatum is aangepast"
 
 #: amelie/activities/views.py:1223
 msgid "price was changed"
-msgstr ""
+msgstr "prijs is aangepast"
 
 #: amelie/activities/views.py:1231
-#, fuzzy, python-brace-format
-#| msgid "Activity '{old_obj}' was moved (reversal on old date)"
+#, python-brace-format
 msgid "Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})"
-msgstr "Activiteit '{old_obj}' is verplaatst (terugboeken op oude datum)"
+msgstr "Activiteit '{activity}' is aangepast (terugboeken van oude transactie) ({change_reasons})"
 
 #: amelie/activities/views.py:1242
-#, fuzzy, python-brace-format
-#| msgid "Activity '{activity}' was moved (addition on new date)"
+#, python-brace-format
 msgid "Activity '{activity}' was changed (addition of new transaction) ({change_reasons})"
-msgstr "Activiteit '{activity}' is verplaatst (toevoegen op nieuwe datum)"
+msgstr "Activiteit '{activity}' is aangepast (toevoegen van nieuwe transactie) ({change_reasons})"
 
 #: amelie/activities/views.py:1311 amelie/activities/views.py:1321
 msgid "This activity already has enrollments, therefore options can no longer be added!"
