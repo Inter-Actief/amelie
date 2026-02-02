@@ -310,20 +310,20 @@ def activity_cancel(request, pk):
     """
     Cancels or re-publishes an activity (depending on the current status of this event).
 
-    Events may only be cancelled if they have not yet started.
+    Events may only be canceled if they have not yet started.
 
     In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
-    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-openend.
+    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-opened.
 
     Asks for a confirmation.
     """
     obj = get_object_or_404(Activity, pk=pk)
 
-    # If the event is already cancelled, immediately re-publish it without any confirmation screen.
+    # If the event is already canceled, immediately re-publish it without any confirmation screen.
     if obj.cancelled:
         obj.cancelled = False
         obj.save()
-        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that all previous enrollments are not added again and that enrollments will have to be manually re-opened."))
+        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that any previous enrollments are not added again and that enrollments will have to be manually re-opened."))
         return redirect(obj)
 
     if request.POST:
@@ -338,7 +338,7 @@ def activity_cancel(request, pk):
                 if obj.waiting_participations.exists():
                     activity_send_cancellationmail(obj.waiting_participations.all(), obj, from_waiting_list=True)
 
-                # Send an email to the treasurer if people have paid in cash.
+                # Send an e-mail to the treasurer if people have paid in cash.
                 # This email contains the names and amount paid by each person.
                 if obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).exists():
                     activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
@@ -448,13 +448,13 @@ def activity_unenrollment_self(request, pk):
 def activity_editenrollment(request, participation, obj, edited_by=None):
     from amelie.personal_tab import transactions
 
-    # It is important to not delete the participation, because the person's spot in the activity or on the waiting list
+    # It is important to not delete the Participation, because the person's spot in the activity or on the waiting list
     # could be given away to the next waiting list entry.
     # So we need to update the enrollment options of the participation in-place
 
-    if not participation.waiting_list:
-        # If this is a regular participation, we need to remove the old transaction from
-        # their personal tab to not charge them twice, and to be able to re-add the updated costs later
+    if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
+        # If this is a regular Participation (not waiting list and via mandate), we need to remove the old transaction from
+        # their personal tab to not charge them twice and to be able to re-add the updated costs later
         transactions.remove_participation(participation, added_by=edited_by, is_edited_participation=True)
 
     enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj, request.POST if request.POST else None,
@@ -468,8 +468,8 @@ def activity_editenrollment(request, participation, obj, edited_by=None):
             answer.save()
             form.save_m2m()
 
-    if not participation.waiting_list:
-        # If this is a regular participation, we need to re-add
+    if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
+        # If this is a regular Participation (not waiting list and via mandate), we need to re-add
         # the transaction to update the costs on the personal tab
         transactions.add_participation(participation, added_by=edited_by, is_edited_participation=True)
 
@@ -1196,28 +1196,52 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
     form_class = ActivityForm
 
     def form_valid(self, form):
-        # If the date has changed, we have to update any existing transactions to the new activity date. The existing
-        # transactions are refunded and will be re-created on the same date.
+        # If the date or price has changed, we have to update any existing transactions to the new activity date/price.
+        # The existing transactions are refunded and will be re-created on the same date.
         person = self.request.person
         if person is None:
             raise Exception("Updating requires a person")
 
         old_obj = self.get_object()
         new_obj = form.instance
-        if old_obj is not None and form.cleaned_data['begin'].date() != old_obj.begin.date():
+
+        # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
+        response = super().form_valid(form)
+
+        # Determine if any activity fields that have an impact on the participation transactions have been changed
+        needs_new_transactions = False
+        change_reasons = []
+        # If the activity start date is moved to a different day, the transactions need to be moved to the new date.
+        if form.cleaned_data['begin'].date() != old_obj.begin.date():
+            needs_new_transactions = True
+            change_reasons.append(_("start date was changed"))
+
+
+        # If the activity price is changed, the transactions need to be recreated with the new price
+        if form.cleaned_data['price'] != old_obj.price:
+            needs_new_transactions = True
+            change_reasons.append(_("price was changed"))
+
+        if old_obj is not None and needs_new_transactions:
             # Undo and create new transactions
             from amelie.personal_tab import transactions
-            for participation in old_obj.participation_set.all():
-
+            # Only consider participations paid by a mandate
+            # (to avoid creating transactions for members without a personal tab mandate)
+            for participation in old_obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION):
+                reason = _("Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
+                    activity=old_obj, change_reasons=", ".join(change_reasons)
+                )
                 transactions.participation_transaction(
                     participation,
-                    _(f"Activity '{old_obj}' was moved (reversal on old date)"),
+                    reason=reason,
                     cancel=True, added_by=person
                 )
 
                 # Create a new transaction
                 price, with_enrollment_options = participation.calculate_costs()
-                reason = _("Activity '{activity}' was moved (addition on new date)").format(activity=new_obj.summary)
+                reason = _("Activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
+                    activity=new_obj.summary, change_reasons=", ".join(change_reasons)
+                )
 
                 # Can't use transactions.participation_transaction because we need to override the date.
                 transaction = ActivityTransaction(price=price, description=reason,
@@ -1226,7 +1250,7 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
                                                   with_enrollment_options=with_enrollment_options, added_by=person)
                 transaction.save()
 
-        return super().form_valid(form)
+        return response
 
 
 class EnrollmentoptionListView(ActivitySecurityMixin, TemplateView):

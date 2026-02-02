@@ -12,11 +12,6 @@ from amelie.personal_tab.models import ActivityTransaction, DiscountPeriod, Disc
 from amelie.tools.logic import current_academic_year_strict
 
 
-def person_remove():
-    # TODO
-    pass
-
-
 def participation_transaction(participation, reason, cancel=False, added_by=None):
     """
     Helper function that adds an ActivityTransaction.
