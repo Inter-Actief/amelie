@@ -14,6 +14,7 @@ class PublicationTypeType(DjangoObjectType):
     public_fields = [
         "type_name",
         "description",
+        "default_thumbnail"
     ]
     class Meta:
         model = PublicationType
@@ -65,6 +66,7 @@ class PublicationItemType(DjangoObjectType):
 class PublicationQuery(graphene.ObjectType):
     publication = graphene.Field(PublicationItemType, id=graphene.ID())
     publications = DjangoPaginationConnectionField(PublicationItemType, id=graphene.ID())
+    publication_types = graphene.List(PublicationTypeType)
 
     def resolve_publication(root, info, id):
         return Publication.objects.filter_public(info.context).get(pk=id)
@@ -77,6 +79,8 @@ class PublicationQuery(graphene.ObjectType):
             return qs.filter(pk=id)
         return qs
 
+    def resolve_publication_types(root, info):
+        return PublicationType.objects.all()
 
 # Exports
 GRAPHQL_QUERIES = [PublicationQuery]
