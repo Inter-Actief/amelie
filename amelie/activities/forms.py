@@ -258,13 +258,13 @@ class PhotoUploadForm(forms.Form):
         clean_data = super().clean()
         #Check whether there is a proper photographer
         if not self.cleaned_data['photographer'] and not self.cleaned_data['first_name'] is None:
-            raise forms.ValidationError(_l('You must specify a photographer!'), code='invalid')
+            raise forms.ValidationError(_l('You must specify a photographer!'), code='required')
 
         if self.cleaned_data['first_name'] and not self.cleaned_data['last_name']:
-            raise forms.ValidationError(_l('You must specify a last name!'), code='invalid')
+            raise forms.ValidationError(_l('You must specify a last name!'), code='required')
 
         if self.cleaned_data['last_name'] and not self.cleaned_data['first_name']:
-            raise forms.ValidationError(_l('You must specify a first name!'), code='invalid')
+            raise forms.ValidationError(_l('You must specify a first name!'), code='required')
 
         return clean_data
 
