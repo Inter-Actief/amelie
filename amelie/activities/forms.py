@@ -252,7 +252,7 @@ class PhotoUploadForm(forms.Form):
             begin__lt=timezone.now(), begin__gte=timezone.now() - timedelta(days=365)
         ).order_by('-begin', '-end')
         self.fields['photographer'].queryset = Person.objects.filter(function__begin__isnull=False,
-                                                                     function__end__isnull=True).distinct()
+                                                                     function__end__isnull=True).distinct().order_by('first_name', 'last_name')
 
     def clean(self):
         clean_data = super().clean()
