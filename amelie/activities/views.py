@@ -821,12 +821,14 @@ def photo_upload(request):
             last_name = form.cleaned_data["last_name"]
             public = form.cleaned_data["public"]
 
-            if photographer is not None:
-                photographer = Photographer.objects.get_or_create(person=photographer)[0]
-            else:
+            # During field validation, it is checked whether one of those is present
+            if first_name and last_name:
                 photographer = Photographer.objects.get_or_create(first_name=first_name,
                                                                   last_name_prefix=last_name_prefix,
                                                                   last_name=last_name)[0]
+            else:
+                photographer = Photographer.objects.get_or_create(person=photographer)[0]
+
 
             for photo in form.cleaned_data["photos"]:
                 path = os.path.join(folder, photo)

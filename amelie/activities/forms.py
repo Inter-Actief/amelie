@@ -254,6 +254,19 @@ class PhotoUploadForm(forms.Form):
         self.fields['photographer'].queryset = Person.objects.filter(function__begin__isnull=False,
                                                                      function__end__isnull=True).distinct()
 
+    def clean(self):
+        clean_data = super().clean()
+        #Check whether there is a proper photographer
+        if not self.cleaned_data['photographer'] and not self.cleaned_data['first_name'] is None:
+            raise forms.ValidationError(_l('You must specify a photographer!'), code='invalid')
+
+        if self.cleaned_data['first_name'] and not self.cleaned_data['last_name']:
+            raise forms.ValidationError(_l('You must specify a last name!'), code='invalid')
+
+        if self.cleaned_data['last_name'] and not self.cleaned_data['first_name']:
+            raise forms.ValidationError(_l('You must specify a first name!'), code='invalid')
+
+        return clean_data
 
 class PhotoFileUploadForm(forms.Form):
     allowed_extensions = ["jpg", "jpeg", "gif"]
