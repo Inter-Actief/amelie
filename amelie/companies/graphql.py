@@ -151,6 +151,9 @@ class CompaniesQuery(graphene.ObjectType):
             return Company.objects.get(slug=slug)
         return None
 
+    def resolve_companies(self, info, *args, **kwargs):
+        return Company.objects.filter(end_date__gte=date.today(), start_date__lte=date.today())
+
     def resolve_company_event(self, info, id=None):
         now = timezone.now()
         qs = CompanyEvent.objects.filter_public(info.context)
