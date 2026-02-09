@@ -25,6 +25,15 @@ class TimelinePlugin(ClaudiaPlugin):
     def account_unscheduled_delete(self, claudia, mp):
         Timeline.create(mp.adname, mp, 'UNDELETE ACCOUNT')
 
+    def kanidm_created(self, claudia, mp):
+        Timeline.create(mp.name, mp, 'CREATE KANIDM')
+
+    def kanidm_changed(self, claudia, mp, changes):
+        Timeline.create(mp.name, mp, 'CHANGE KANIDM', format_changes(changes))
+
+    def kanidm_deleted(self, claudia, mp):
+        Timeline.create(mp.name, mp, 'DELETE KANIDM')
+
     def gsuite_created(self, claudia, mp):
         Timeline.create(mp.name, mp, 'CREATE GSUITE ACCOUNT')
 

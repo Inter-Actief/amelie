@@ -722,6 +722,11 @@ CLAUDIA_GSUITE = {
     }
 }
 
+CLAUDIA_KANIDM = {
+    "API_BASE": "idm.ia.utwente.nl",
+    "API_KEY": "secret",
+}
+
 # Claudia's connection details to WESP
 CLAUDIA_WESP = {
     'USER': 'xmlrpcapi@interactief',

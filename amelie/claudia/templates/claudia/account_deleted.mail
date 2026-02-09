@@ -13,4 +13,4 @@ The active member account will be removed automatically in 30 days (including al
 {% htmlify %}{% blocktrans %}Kind regards,{% endblocktrans %}
 
 Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %} Accountbeheer
-accountbeheer@inter-actief.utwente.nl{% endhtmlify %}{% endblock %}
+accountbeheer@inter-actief.net{% endhtmlify %}{% endblock %}
