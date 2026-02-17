@@ -20,15 +20,15 @@ class KanidmAPI:
         if 'API_BASE' not in self.config or not self.config['API_BASE']:
             logger.error("Missing Kanidm 'API_BASE' value in CLAUDIA_KANIDM config variable")
             raise AttributeError("Missing Kanidm 'API_BASE' config")
-        if 'API_TOKEN' not in self.config or not self.config['API_TOKEN']:
-            logger.error("Missing Kanidm 'API_TOKEN' value in CLAUDIA_KANIDM config variable")
-            raise AttributeError("Missing Kanidm 'API_TOKEN' config")
+        if 'API_KEY' not in self.config or not self.config['API_KEY']:
+            logger.error("Missing Kanidm 'API_KEY' value in CLAUDIA_KANIDM config variable")
+            raise AttributeError("Missing Kanidm 'API_KEY' config")
 
     @property
     def _connection(self):
         if not self._connection_obj:
             self._connection_obj = requests.Session()
-            self._connection_obj.headers.update({"Authorization": f'Bearer {self.config.get("API_TOKEN", "no-api-token")}'})
+            self._connection_obj.headers.update({"Authorization": f'Bearer {self.config.get("API_KEY", "no-api-key")}'})
         return self._connection_obj
 
     def _get(self, path, params=None) -> Optional[Union[List[Any], Dict[str, Any]]]:

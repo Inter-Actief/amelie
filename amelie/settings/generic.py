@@ -729,7 +729,7 @@ CLAUDIA_GSUITE = {
 
 CLAUDIA_KANIDM = {
     "API_BASE": "idm.ia.utwente.nl",
-    "API_KEY": "secret",
+    "API_KEY": None,
 }
 
 # Claudia's connection details to WESP

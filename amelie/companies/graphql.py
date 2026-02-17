@@ -1,4 +1,5 @@
 import graphene
+from datetime import date
 from django_filters import FilterSet
 from graphene_django import DjangoObjectType
 
