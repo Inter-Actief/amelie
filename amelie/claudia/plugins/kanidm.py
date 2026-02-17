@@ -165,8 +165,7 @@ class KanidmPlugin(ClaudiaPlugin):
                     # Check if the group actually exists
                     if not ad_group:
                         logger.debug(f"Group {group.adname} does not exist yet, verifying group to create it...")
-                        # Let Claudia create the group if it does not exist.
-                        claudia.do_verify_mp(group)
+                        claudia.verify_mapping(mp=group, fix=fix)
                         ad_group = self.kanidm.get_group(group.adname)
                     if ad_group:
                         logger.debug(f"Adding {account.name} to group {ad_group.name}")
