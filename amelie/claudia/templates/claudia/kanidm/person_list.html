@@ -1,0 +1,52 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Kanidm' %} - {% trans 'Persons' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/kanidm/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2 class="h2-with-buttons">
+            {% trans 'Kanidm Persons' %}
+            {% if show_system %}
+                <a class="looks-like-a-button danger-button" href="{% url 'claudia:kanidm_person_list' %}">{% trans 'Hide system persons' %}</a>
+            {% else %}
+                <a class="looks-like-a-button success-button" href="{% url 'claudia:kanidm_person_list' %}?show_system=true">{% trans 'Show system persons' %}</a>
+            {% endif %}
+        </h2>
+        <div class="content">
+            {% include "claudia/kanidm/disclaimer.html" %}
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Display name' %}</th>
+                    <th>{% trans 'Unix ID' %}</th>
+                    <th>{% trans '# Groups' %}</th>
+                    <th>{% trans 'Mapping' %}</th>
+                </tr>
+                {% for obj in objs %}
+                <tr>
+                    <td>
+                        <a class="icon {% if obj.is_system %}icon-user_red{% else %}icon-user{% endif %}"
+                           href="{{ obj.get_absolute_url }}">{{ obj.name }}</a><br />
+                        <span class="small">{{ obj.uuid }}</span>
+                    </td>
+                    <td><a href="{{ obj.get_absolute_url }}">{{ obj.display_name }}</a></td>
+                    <td>{{ obj.gid|default_if_none:'&mdash;' }}</td>
+                    <td title="{% blocktrans with direct=obj.direct_member_of_strs|length indirect=obj.member_of_strs|length %}{{ direct }} direct, {{ indirect }} indirect{% endblocktrans %}">
+                        {{ obj.direct_member_of_strs|length }} ({{ obj.member_of_strs|length }})
+                    </td>
+                    <td>
+                        {% if obj.claudia_mapping %}
+                            {{ obj.claudia_mapping|clau_mapping }}
+                        {% else %}
+                            <span title="{% trans 'Object does not seem to have a Claudia mapping.' %}">&mdash;</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div></div>
+{% endblock content %}

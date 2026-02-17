@@ -360,6 +360,11 @@ class Person(models.Model, Mappable):
     password_reset_expiry = models.DateTimeField(verbose_name=_l('Password reset code expiry'),
                                                  null=True, blank=True, editable=False)
 
+    sudo_reset_code = models.CharField(max_length=50, verbose_name=_l("Sudo password reset code"),
+                                       null=True, blank=True, unique=True, editable=False)
+    sudo_reset_expiry = models.DateTimeField(verbose_name=_l('Sudo password reset code expiry'),
+                                             null=True, blank=True, editable=False)
+
     objects = PersonManager()
 
     class Meta(object):

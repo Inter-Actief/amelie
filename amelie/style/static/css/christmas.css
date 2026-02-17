@@ -182,6 +182,35 @@ a.looks-like-a-button {
     pointer-events: none;
 }
 
+/* Restore specific button colors */
+a.looks-like-a-button.success-button {
+    background: #195307 !important;
+}
+a.looks-like-a-button.danger-button {
+    background: #992114 !important;
+}
+a.looks-like-a-button.disabled-button {
+    background: #808080 !important;
+}
+.ia input[type="button"].success-button, .ia input[type="submit"].success-button, .ia button.success-button, .ia a.looks-like-a-button.success-button,
+.edu a.looks-like-a-button.success-button, .edu input[type="submit"].success-button, .edu input[type="button"].success-button, .edu button.success-button,
+.current a.looks-like-a-button.success-button, .current input[type="submit"].success-button, .current input[type="button"].success-button, .current button.success-button,
+.ia a.looks-like-a-button.success-button, .ia input.looks-like-a-button.success-button, #slider-carousel-title a.looks-like-a-button.success-button, .current a.looks-like-a-button.success-button {
+    background: #195307 !important;
+}
+.ia input[type="button"].danger-button, .ia input[type="submit"].danger-button, .ia button.danger-button, .ia a.looks-like-a-button.danger-button,
+.edu a.looks-like-a-button.danger-button, .edu input[type="submit"].danger-button, .edu input[type="button"].danger-button, .edu button.danger-button,
+.current a.looks-like-a-button.danger-button, .current input[type="submit"].danger-button, .current input[type="button"].danger-button, .current button.danger-button,
+.ia a.looks-like-a-button.danger-button, .ia input.looks-like-a-button.danger-button, #slider-carousel-title a.looks-like-a-button.danger-button, .current a.looks-like-a-button.danger-button {
+    background: #992114 !important;
+}
+.ia input[type="button"].disabled-button, .ia input[type="submit"].disabled-button, .ia button.disabled-button, .ia a.looks-like-a-button.disabled-button,
+.edu a.looks-like-a-button.disabled-button, .edu input[type="submit"].disabled-button, .edu input[type="button"].disabled-button, .edu button.disabled-button,
+.current a.looks-like-a-button.disabled-button, .current input[type="submit"].disabled-button, .current input[type="button"].disabled-button, .current button.disabled-button,
+.ia a.looks-like-a-button.disabled-button, .ia input.looks-like-a-button.disabled-button, #slider-carousel-title a.looks-like-a-button.disabled-button, .current a.looks-like-a-button.disabled-button {
+    background: #808080 !important;
+}
+
 .ia a, .edu a, .current a {
     color: #195307;
 }

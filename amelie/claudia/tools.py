@@ -69,6 +69,21 @@ def encode_guid(guid):
     return res
 
 
+def create_password(length=32):
+    """
+    Create a long, random password
+    """
+    import random
+    import string
+    # Generate random characters
+    alphabet = string.digits + string.ascii_letters + string.punctuation
+    passwd = []
+    for i in range(length):
+        passwd.append(random.choice(alphabet))
+    passwd = ''.join(passwd)
+    return passwd
+
+
 def is_verifiable(obj):
     """
     Is it possible to verify this object?

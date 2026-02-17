@@ -1,0 +1,19 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only absolute_url %}
+{% block subject %}{% blocktrans %}[Inter-Actief] SSH public key added{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ name }},
+
+{% htmlify %}{% blocktrans %}A new SSH public key was added to your Inter-Actief Active Members account.
+Because this is a security-sensitive operation, you are notified by e-mail about this.{% endblocktrans %}{% endhtmlify %}
+
+{% blocktrans %}Identifier: {{ identifier }}{% endblocktrans %}
+
+{% blocktrans %}Public key: {{ pubkey }}{% endblocktrans %}
+
+{% blocktrans %}If this key was added in error, you can remove it on your profile: {% endblocktrans %}{% onlyhtml %}<a href="{% absolute_url 'profile_overview' %}">{% endonlyhtml %}{% absolute_url 'profile_overview' %}{% onlyhtml %}</a>{% endonlyhtml %}
+
+{% blocktrans %}Kind regards,{% endblocktrans %}
+
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %} {% blocktrans %}Account management{% endblocktrans %}
+accountbeheer@inter-actief.net{% endhtmlify %}{% endblock %}

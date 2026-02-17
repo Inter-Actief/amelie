@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n claudia_tags %}
+
+{% block titel %}{% trans 'Claudia' %} - {% trans 'Kanidm' %}{% endblock titel %}
+
+{% block content %}
+    {% include "claudia/kanidm/nav.html" %}
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Kanidm account viewer' %}</h2>
+        <div class="content">
+            {% include "claudia/kanidm/disclaimer.html" %}
+            <ul class="">
+                <li>
+                    <a class="icon icon-user" href="{% url 'claudia:kanidm_person_list' %}">{% trans 'Persons' %}</a>
+                </li>
+                <li>
+                    <a class="icon icon-group" href="{% url 'claudia:kanidm_group_list' %}">{% trans 'Groups' %}</a>
+                </li>
+                <li>
+                    <a class="icon icon-user_suit" href="{% url 'claudia:kanidm_service_account_list' %}">{% trans 'Service Accounts' %}</a>
+                </li>
+            </ul>
+        </div>
+    </div></div>
+{% endblock content %}

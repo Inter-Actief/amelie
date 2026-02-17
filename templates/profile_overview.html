@@ -154,20 +154,92 @@
           {% include 'includes/person_function_table.html' with obj=request.person %}
         </div>
     </div></div>
+
+    {% if request.person.is_active_member %}
     <div class="col-xs-12"><div class="current">
-        <h2>{% trans 'Apps' %}</h2>
+        <h2>{% trans 'Inter-Actief server access' %}</h2>
 
         <div class="content">
-          <p>
-              {% blocktrans %}
-                  Below you can find an overview of the apps you have given permissions to use or edit your personal information.
-              {% endblocktrans %}
-          </p>
-          <div id="oauth2_container" class="table-responsive">
-              {% include 'oauth2_provider/includes/user_oauth_table.html' with user=request.user %}
-          </div>
+            <p>
+                {% trans "You are an active member! As an active member you have access to (some of) the Inter-Actief servers." %}
+            </p>
+            {% if request.person.account_name %}
+                <p>
+                    {% trans "Logging in to the servers is only possible with an SSH key. You can modify your public keys here." %}
+                </p>
+
+                <table class="table">
+                    <tr>
+                        <th>{% trans 'Identifier' %}</th>
+                        <th>{% trans 'Public key' %}</th>
+                        <th>{% trans 'Delete' %}</th>
+                    </tr>
+                    {% for key in ssh_keys %}
+                        <tr>
+                            <td>{{ key.label }}</td>
+                            <td style="font-family: monospace; word-break: break-all; word-wrap: anywhere;">{{ key.value }}</td>
+                            <td>
+                                <form action="{% url 'account:server_update' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_ssh_key" />
+                                    <input type="hidden" name="tag" value="{{ key.label }}" />
+                                    <input class="danger-button icon icon-key_delete" type="submit" name="submit" value="{% trans 'Delete' %}" />
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3"><i>{% trans 'You have no active SSH public keys.' %}</i></td></tr>
+                    {% endfor %}
+                </table>
+
+                <form action="{% url 'account:server_update' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_ssh_key" />
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th style="width: 20%">{% trans 'Add new SSH key' %}</th>
+                                <td style="width: 20%">
+                                    <div class="form-inline">
+                                        <input style="width: 100%" autocomplete="off" type="text" name="tag" required pattern="^[a-zA-Z0-9]{1,25}$" placeholder="{% trans 'Identifier' %}" title="{% trans 'Identifier' %}" />
+                                    </div>
+                                    <small class="form-text text-muted">{% trans 'An identifier for the key (max 25 letters or numbers).' %}</small>
+                                </td>
+                                <td style="width: 40%; min-width: 260px">
+                                    <div class="form-inline">
+                                        <input style="width: 100%" autocomplete="off" type="text" name="pubkey" required placeholder="{% trans 'ssh-ed25519 AAA.....' %}" title="SSH Public Key" />
+                                    </div>
+                                    <small class="form-text text-muted">{% trans 'The SSH public key string.' %}</small>
+                                </td>
+                                <td style="width: 20%">
+                                    <input class="success-button icon icon-key_add" type="submit" name="submit" value="{% trans 'Add new key' %}" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+                <p>
+                    {% blocktrans %}
+                        If you are in a committee or group that grants you "sudo" rights on a server, you will
+                        need to enter an additional password when running "sudo" commands.
+                        To reset this password, click on this button and a reset link will be e-mailed to you.
+                    {% endblocktrans %}
+                    <form action="{% url 'account:server_update' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reset_sudo" />
+                        <input class="danger-button icon icon-lock_break" type="submit" name="submit" value="{% trans 'Reset sudo password' %}" />
+                    </form>
+                </p>
+            {% else %}
+                <ul class="ia_messages">
+                    <li class="error">
+                        {% trans "You are an active member, but you have no account name! Please contact the board and ask them to add an active members account for you." %}
+                    </li>
+                </ul>
+            {% endif %}
         </div>
     </div></div>
+    {% endif %}
 
     <div class="col-xs-12"><div class="current">
         <h2>{% trans 'User accounts and login providers' %}</h2>
@@ -254,6 +326,21 @@
                     </tr>
                 {% endfor %}
             </table>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="current">
+        <h2>{% trans 'oAuth2 Apps' %}</h2>
+
+        <div class="content">
+          <p>
+              {% blocktrans %}
+                  Below you can find an overview of the oAuth2 apps you have given permissions to use or edit your personal information.
+              {% endblocktrans %}
+          </p>
+          <div id="oauth2_container" class="table-responsive">
+              {% include 'oauth2_provider/includes/user_oauth_table.html' with user=request.user %}
+          </div>
         </div>
     </div></div>
 

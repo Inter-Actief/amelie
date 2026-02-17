@@ -1,0 +1,21 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Sudo password reset' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Sudo password reset' %}</h2>
+        <div class="content">
+            <p>
+                {% trans 'Your sudo password was reset successfully.' %}
+            </p>
+            <p>
+                {% trans 'You can find your new password below. It will only be shown this once, please save it to your password manager.' %}
+            </p>
+            <p>
+                <b>{% trans 'New password:' %}</b>&nbsp;{{ new_password }}
+            </p>
+        </div>
+    </div></div>
+{% endblock content %}
