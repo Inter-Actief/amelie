@@ -25,6 +25,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>{% trans "ID" %}</th>
                             <th>{% trans "Timestamp" %}</th>
                             <th>{% trans "Actor" %}</th>
                             <th>{% trans "Job ID / Document Name" %}</th>
@@ -37,6 +38,7 @@
                     <tbody>
                         {% for entry in print_logs %}
                             <tr>
+                                <td>{{ entry.id }}</td>
                                 <td>
                                     {{ entry.timestamp|date:"d-m-Y H:i:s" }}
                                     <small>

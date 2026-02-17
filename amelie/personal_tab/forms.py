@@ -317,6 +317,7 @@ class PrintDocumentForm(forms.Form):
                     raise forms.ValidationError(_l('Printing article not found. Please contact the WWW committee.'))
 
             # Print the document
+            printer = None
             try:
                 printer = IPPPrinter(printer_key=printer_key)
                 print_info = printer.print_document(
@@ -324,6 +325,7 @@ class PrintDocumentForm(forms.Form):
                     job_name=f"{print_log.id} - {print_log.actor}",
                     num_copies=num_copies, dual_sided=dual_sided
                 )
+                printer.close()
                 logging.info(f"Print job submitted: {document.name} ({print_log.page_count} pages) "
                             f"for user {print_log.actor} (Print Log ID: {print_log.id})")
 
@@ -337,8 +339,9 @@ class PrintDocumentForm(forms.Form):
             except Exception as e:
                 trace = traceback.format_exc()
                 logging.error(f"Error while printing document: {e} - {trace}")
+                if isinstance(printer, IPPPrinter):
+                    printer.close()
                 raise e
-
             return print_log
 
 

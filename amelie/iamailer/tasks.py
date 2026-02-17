@@ -204,6 +204,8 @@ def send_delivery_report(results, mail_from, total_mail_count, report_to, report
             logger.debug('Sending delivery report succeeded')
         except Exception:
             logger.exception('Sending delivery report failed')
+    else:
+        logger.debug('Not sending delivery report because all mails were successfully sent and `report_always` is disabled, or `report_to` is empty.')
 
     return {
         'num_total': total_mail_count,

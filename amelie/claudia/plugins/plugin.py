@@ -72,6 +72,34 @@ class ClaudiaPlugin(object):
         """
         pass
 
+    def kanidm_created(self, claudia, mp):
+        """
+        Signals that a Kanidm account has been created.
+
+        :param Claudia claudia: The Claudia object.
+        :param Mapping mp: Related mapping.
+        """
+        pass
+
+    def kanidm_changed(self, claudia, mp, changes):
+        """
+        Signals that a Kanidm account has been changed.
+
+        :param Claudia claudia: The Claudia object.
+        :param Mapping mp: Related mapping.
+        :param changes: Changes.
+        """
+        pass
+
+    def kanidm_deleted(self, claudia, mp):
+        """
+        Signals that a Kanidm account has been deleted.
+
+        :param Claudia claudia: The Claudia object.
+        :param Mapping mp: Related mapping.
+        """
+        pass
+
     def gsuite_created(self, claudia, mp):
         """
         Signals that a GSuite account has been created.
@@ -136,7 +164,7 @@ class ClaudiaPlugin(object):
 
         :param Claudia claudia: The Claudia object.
         :param Mapping mp: Related mapping.
-        :param unicode radius: RADIUS username.
+        :param unicode account: RADIUS username.
         """
         pass
 
@@ -146,7 +174,7 @@ class ClaudiaPlugin(object):
 
         :param Claudia claudia: The Claudia object.
         :param Mapping mp: Related mapping.
-        :param unicode radius: RADIUS username.
+        :param unicode account: RADIUS username.
         :param changes: Changes.
         """
         pass

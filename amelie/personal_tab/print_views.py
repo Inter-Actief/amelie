@@ -23,16 +23,20 @@ def printer_status(request, printer_key):
     if printer_key not in available_printers:
         raise Http404("Printer not found.")
 
+    from amelie.tools.ipp_printer import IPPPrinter
+    printer = None
     try:
-        from amelie.tools.ipp_printer import IPPPrinter
         printer = IPPPrinter(printer_key=printer_key)
         attributes = printer.printer_attributes()
         jobs = printer.printer_jobs()
+        printer.close()
         return HttpResponse(json.dumps({
             'attributes': attributes,
             'jobs': jobs
         }, indent=2, default=lambda o: str(repr(o))), content_type='application/json')
     except IPPConnectionError as e:
+        if isinstance(printer, IPPPrinter):
+            printer.close()
         return HttpResponse(json.dumps({
             'error_code': 500,
             'error_class': e.__class__.__name__,

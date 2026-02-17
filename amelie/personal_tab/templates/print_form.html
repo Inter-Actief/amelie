@@ -38,7 +38,7 @@
                     <li>{% trans "Maximum file size:" %} {{ max_file_size }}</li>
                     <li>{% trans "Prints will be in black & white. If you need a colour print ask the board to print it for you via USB" %}</li>
                     <li>{% trans "Committee members can print for free by selecting the committee the print is for" %}</li>
-                    <li>{% trans "Non-committee-related prints will be charged per page to your personal tab" %}</li>
+                    <li>{% blocktrans %}Non-committee-related prints will be charged to your personal tab at a rate of &euro; {{ per_page_cost }} per page (single or dual-sided){% endblocktrans %}</li>
                 </ul>
                 <ul>
                     <li>
@@ -93,7 +93,12 @@
                                     {{ form.committee.errors|safe }}
                                     <div>{{ form.committee }}</div>
                                     {% if form.committee.help_text %}
-                                        <small class="help-text">{{ form.committee.help_text }}</small>
+                                        <small class="help-text">
+                                            {{ form.committee.help_text }}
+                                            {% blocktrans %}
+                                                (&euro; {{ per_page_cost }} per page)
+                                            {% endblocktrans %}
+                                        </small>
                                     {% endif %}
                                 </td>
                             </tr>
