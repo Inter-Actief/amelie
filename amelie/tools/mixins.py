@@ -218,8 +218,6 @@ class RequireAllowlistedIPMixin(PassesTestMixin):
             return True
         else:
             access_allowed, real_ip = is_allowed_ip(request, self.allowlisted_ip_addresses)
-            logger = logging.getLogger("amelie.tools.mixins.RequireAllowlistedIPMixin.test_requirement")
-            logger.error(f"access_allowed: {access_allowed}, real_ip: {real_ip}, allowed_ip_addresses: {self.allowlisted_ip_addresses}")
             access_allowed = access_allowed or (self.allow_superusers and request.user.is_superuser)
             if not access_allowed:
                 logger = logging.getLogger("amelie.tools.mixins.RequireAllowlistedIPMixin.test_requirement")
