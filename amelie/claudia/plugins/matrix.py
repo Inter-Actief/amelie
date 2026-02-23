@@ -81,14 +81,14 @@ class MatrixPlugin(ClaudiaPlugin):
                             await sync_to_async(mp.set_matrix_space_id, thread_sensitive=True)(matrix_space_id=space)
                             if space:
                                 changes.append(('space', '{} created'.format(space)))
-                                claudia.notify_matrix_created(mp, mp.adname)
+                                await sync_to_async(claudia.notify_matrix_created, thread_sensitive=True)(mp, mp.adname)
                             else:
                                 logger.error("Matrix space creation for {} failed.".format(mp.adname))
             else:
                 logger.debug("Mapping is a group, but no Matrix space is requested for this group.")
 
         if changes:
-            claudia.notify_matrix_changed(mp, mp.adname, changes)
+            await sync_to_async(claudia.notify_matrix_changed, thread_sensitive=True)(mp, mp.adname, changes)
 
     @staticmethod
     async def get_or_find_space(client: ClientAPI, mapping: Mapping) -> Optional[RoomID]:
