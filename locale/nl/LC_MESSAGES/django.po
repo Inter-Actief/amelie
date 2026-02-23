@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-02-23 18:19+0100\n"
-"PO-Revision-Date: 2026-02-17 18:32+0000\n"
+"PO-Revision-Date: 2026-02-23 17:24+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -3535,16 +3535,12 @@ msgid "Members of this group get access to GitLab"
 msgstr "Leden van deze groep krijgen toegang tot GitLab"
 
 #: amelie/claudia/models.py:35 amelie/members/models.py:971
-#, fuzzy
-#| msgid "Create page"
 msgid "Create Matrix space"
-msgstr "Pagina aanmaken"
+msgstr "Matrix-ruimte aanmaken"
 
 #: amelie/claudia/models.py:36
-#, fuzzy
-#| msgid "Members of this group get access to GitLab"
 msgid "Members of this group get a private Matrix space"
-msgstr "Leden van deze groep krijgen toegang tot GitLab"
+msgstr "Leden van deze groep krijgen toegang tot een eigen Matrix-ruimte"
 
 #: amelie/claudia/models.py:42
 msgid "If an email address for an extra group is set, then it may only point to an Inter-Actief server."
@@ -4398,7 +4394,7 @@ msgstr "Extra Aliassen"
 
 #: amelie/claudia/templates/claudia/mapping_detail.html:53
 msgid "Matrix Space"
-msgstr ""
+msgstr "Matrix-ruimte"
 
 #: amelie/claudia/templates/claudia/mapping_detail.html:63
 msgid "GUID"
@@ -4409,9 +4405,8 @@ msgid "Kanidm ID"
 msgstr "Kanidm ID"
 
 #: amelie/claudia/templates/claudia/mapping_detail.html:73
-#, fuzzy
 msgid "GSuite ID"
-msgstr "GSuite-ID"
+msgstr "GSuite ID"
 
 #: amelie/claudia/templates/claudia/mapping_detail.html:77
 msgid "Claudia ID"
@@ -7366,10 +7361,8 @@ msgid "Members of this committee get access to GitLab"
 msgstr "Leden van deze commissie krijgen toegang tot GitLab"
 
 #: amelie/members/models.py:972
-#, fuzzy
-#| msgid "Members of this committee get access to GitLab"
 msgid "Members of this committee get a private Matrix space"
-msgstr "Leden van deze commissie krijgen toegang tot GitLab"
+msgstr "Leden van deze commissie krijgen toegang tot een eigen Matrix-ruimte"
 
 #: amelie/members/models.py:980 amelie/personal_tab/models.py:25
 #: amelie/personal_tab/models.py:255
@@ -13366,10 +13359,8 @@ msgid "Access for do-group parents only."
 msgstr "Uitsluitend toegankelijk voor doegroepouders."
 
 #: amelie/tools/mixins.py:209
-#, fuzzy
-#| msgid "Access for active members only."
 msgid "Access for allowlisted IP address only."
-msgstr "Uitsluitend toegankelijk voor actieve leden."
+msgstr "Uitsluitend toegankelijk voor bekende IP-adressen."
 
 #: amelie/tools/mixins.py:233
 msgid "Access for the cookie-corner computer only."
