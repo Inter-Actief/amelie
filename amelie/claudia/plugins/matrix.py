@@ -56,40 +56,43 @@ class MatrixPlugin(ClaudiaPlugin):
         token: str = settings.CLAUDIA_MATRIX['TOKEN']
 
         client: ClientAPI = ClientAPI(user, base_url=server, token=token)
+        try:
+            if not fix:
+                logger.debug("No changes will me made to internal attributes")
 
-        if not fix:
-            logger.debug("No changes will me made to internal attributes")
+            if mp.is_person():
+                logger.debug("Mapping is a person, no Matrix actions necessary.")
 
-        if mp.is_person():
-            logger.debug("Mapping is a person, no Matrix actions necessary.")
+            elif mp.is_group():
+                wants_matrix =  mp.extra_data().get('matrix', False)
+                if wants_matrix:
+                    logger.debug("Mapping is a group and should have a Matrix space, checking if a space exists in Matrix.")
 
-        elif mp.is_group():
-            wants_matrix =  mp.extra_data().get('matrix', False)
-            if wants_matrix:
-                logger.debug("Mapping is a group and should have a Matrix space, checking if a space exists in Matrix.")
+                    if mp.adname:
+                        # Check if this committee has a space
+                        space = await self.get_or_find_space(client, mp)
 
-                if mp.adname:
-                    # Check if this committee has a space
-                    space = await self.get_or_find_space(client, mp)
+                        if space:
+                            logger.debug("Matrix space for {} exists.".format(mp.adname))
 
-                    if space:
-                        logger.debug("Matrix space for {} exists.".format(mp.adname))
+                        if space is None and mp.needs_account():
+                            logger.debug("Matrix space for {} does not exist, creating.".format(mp.adname))
+                            if fix:
+                                space = await self.create_space(client, mp)
+                                await sync_to_async(mp.set_matrix_space_id, thread_sensitive=True)(matrix_space_id=space)
+                                if space:
+                                    changes.append(('space', '{} created'.format(space)))
+                                    await sync_to_async(claudia.notify_matrix_created, thread_sensitive=True)(mp, mp.adname)
+                                else:
+                                    logger.error("Matrix space creation for {} failed.".format(mp.adname))
+                else:
+                    logger.debug("Mapping is a group, but no Matrix space is requested for this group.")
 
-                    if space is None and mp.needs_account():
-                        logger.debug("Matrix space for {} does not exist, creating.".format(mp.adname))
-                        if fix:
-                            space = await self.create_space(client, mp)
-                            await sync_to_async(mp.set_matrix_space_id, thread_sensitive=True)(matrix_space_id=space)
-                            if space:
-                                changes.append(('space', '{} created'.format(space)))
-                                await sync_to_async(claudia.notify_matrix_created, thread_sensitive=True)(mp, mp.adname)
-                            else:
-                                logger.error("Matrix space creation for {} failed.".format(mp.adname))
-            else:
-                logger.debug("Mapping is a group, but no Matrix space is requested for this group.")
-
-        if changes:
-            await sync_to_async(claudia.notify_matrix_changed, thread_sensitive=True)(mp, mp.adname, changes)
+            if changes:
+                await sync_to_async(claudia.notify_matrix_changed, thread_sensitive=True)(mp, mp.adname, changes)
+        finally:
+            if client and client.api and client.api.session:
+                await client.api.session.close()
 
     @staticmethod
     async def get_or_find_space(client: ClientAPI, mapping: Mapping) -> Optional[RoomID]:
