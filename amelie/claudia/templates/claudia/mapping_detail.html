@@ -50,6 +50,16 @@
                     <td>{{ object.adname|clau_account }}</td>
                 </tr>
                 <tr>
+                    <th>{% trans 'Matrix Space' %}</th>
+                    <td>
+                        {% if object.matrix_space_id %}
+                            <a href="https://matrix.to/#/{{ object.matrix_space_id }}?web-instance[element.io]=chat.ia.utwente.nl" target="_blank">{{ object.matrix_space_id }}</a>
+                        {% else %}
+                            &mdash;
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
                     <th>{% trans 'GUID' %}</th>
                     <td>{{ object.guid|default:"&mdash;" }}</td>
                 </tr>

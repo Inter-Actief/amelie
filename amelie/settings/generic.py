@@ -688,6 +688,13 @@ CLAUDIA_GITLAB = {
     'VERIFY_SSL': False
 }
 
+# Claudia's connection details to Matrix
+CLAUDIA_MATRIX = {
+    'USER': '@claudia:inter-actief.net',
+    'SERVER': 'https://synapse.matrix.ia.utwente.nl',
+    'TOKEN': 'secret',
+}
+
 # Claudia: Connection to GSuite
 CLAUDIA_GSUITE = {
     'PRIMARY_DOMAIN': "inter-actief.net",
