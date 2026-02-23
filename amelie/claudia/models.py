@@ -32,6 +32,8 @@ class ExtraGroup(models.Model, Mappable):
     description = models.TextField(blank=True)
     gitlab = models.BooleanField(default=False, verbose_name=_l('Create GitLab group'),
                                  help_text=_l('Members of this group get access to GitLab'))
+    matrix = models.BooleanField(default=False, verbose_name=_l('Create Matrix space'),
+                                 help_text=_l('Members of this group get a private Matrix space'))
 
     def clean(self):
         super(ExtraGroup, self).clean()
@@ -77,6 +79,7 @@ class ExtraGroup(models.Model, Mappable):
         """Get extra data of this group"""
         return {
             'gitlab': self.gitlab,
+            'matrix': self.matrix
         }
 
     def __str__(self):
@@ -285,6 +288,7 @@ class Mapping(models.Model):
     kanidm_id = models.CharField(max_length=100, blank=True, null=True)
     gsuite_id = models.CharField(max_length=100, blank=True, null=True)
     gsuite_forwarding_enabled = models.BooleanField(default=False)
+    matrix_space_id = models.CharField(max_length=100, blank=True, null=True)
 
     @staticmethod
     def get_type(obj):
@@ -369,10 +373,21 @@ class Mapping(models.Model):
     def get_gsuite_id(self):
         if self.gsuite_id:
             return self.gsuite_id
+        return None
 
     def set_gsuite_id(self, gsuite_id):
         """Set G-Suite ID"""
         self.gsuite_id = gsuite_id
+        self.save()
+
+    def get_matrix_space_id(self):
+        if self.matrix_space_id:
+            return self.matrix_space_id
+        return None
+
+    def set_matrix_space_id(self, matrix_space_id):
+        """Set Matrix Space ID"""
+        self.matrix_space_id = matrix_space_id
         self.save()
 
     def check_mapping(self, fix=False):

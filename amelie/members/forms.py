@@ -751,7 +751,7 @@ class CommitteeForm(forms.ModelForm):
         model = Committee
         fields = ["name", "abbreviation", "information_nl", "information_en", 'logo', "group_picture", "category",
                   "parent_committees", 'email', 'website', "ledger_account_number", 'private_email', 'gitlab',
-                  'superuser', "abolished"]
+                  'matrix', 'superuser', "abolished"]
         widgets = {
             "abolished": DateSelector,
         }

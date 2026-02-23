@@ -968,6 +968,8 @@ class Committee(models.Model, Mappable):
 
     gitlab = models.BooleanField(default=False, verbose_name=_l('Create GitLab group'),
                                  help_text=_l('Members of this committee get access to GitLab'))
+    matrix = models.BooleanField(default=False, verbose_name=_l('Create Matrix space'),
+                                 help_text=_l('Members of this committee get a private Matrix space'))
 
     objects = CommitteeManager()
 
@@ -1061,6 +1063,7 @@ class Committee(models.Model, Mappable):
         """Get extra data of this committee"""
         return {
             'gitlab': self.gitlab,
+            'matrix': self.matrix
         }
 
     def members(self, old_members=False):

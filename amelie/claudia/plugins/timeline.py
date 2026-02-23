@@ -57,3 +57,9 @@ class TimelinePlugin(ClaudiaPlugin):
 
     def gitlab_changed(self, claudia, mp, account, changes):
         Timeline.create(account, mp, 'CHANGE GITLAB', format_changes(changes))
+
+    def matrix_created(self, claudia, mp, account):
+        Timeline.create(account, mp, 'CREATE MATRIX')
+
+    def matrix_changed(self, claudia, mp, account, changes):
+        Timeline.create(account, mp, 'CHANGE MATRIX', format_changes(changes))

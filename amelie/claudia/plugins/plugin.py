@@ -179,6 +179,27 @@ class ClaudiaPlugin(object):
         """
         pass
 
+    def matrix_created(self, claudia, mp, account):
+        """
+        Signals that a Matrix space has been created.
+
+        :param Claudia claudia: The Claudia object.
+        :param Mapping mp: Related mapping.
+        :param unicode account: RADIUS username.
+        """
+        pass
+
+    def matrix_changed(self, claudia, mp, account, changes):
+        """
+        Signals that the Matrix space has been changed.
+
+        :param Claudia claudia: The Claudia object.
+        :param Mapping mp: Related mapping.
+        :param unicode account: RADIUS username.
+        :param changes: Changes.
+        """
+        pass
+
     def verify_mapping(self, claudia, mp, fix=False):
         """
         Signals that a Mapping must be verified.

@@ -125,6 +125,9 @@ class Claudia:
     notify_gitlab_created = wrap_call_plugins("gitlab_created")
     notify_gitlab_changed = wrap_call_plugins("gitlab_changed")
 
+    notify_matrix_created = wrap_call_plugins("matrix_created")
+    notify_matrix_changed = wrap_call_plugins("matrix_changed")
+
     # ===== Integrity check ======
     @staticmethod
     def check_integrity():

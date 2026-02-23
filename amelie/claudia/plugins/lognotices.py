@@ -65,3 +65,9 @@ class LogNoticesPlugin(ClaudiaPlugin):
 
     def gitlab_changed(self, claudia, mp, account, changes):
         logger.info('GitLab account "%s" of "%s" changed: %s' % (account, mp.name, format_changes(changes)))
+
+    def matrix_created(self, claudia, mp, account):
+        logger.info('Matrix space "%s" of "%s" created' % (account, mp.name))
+
+    def matrix_changed(self, claudia, mp, account, changes):
+        logger.info('Matrix space "%s" of "%s" changed: %s' % (account, mp.name, format_changes(changes)))

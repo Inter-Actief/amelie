@@ -128,4 +128,7 @@ dependencies = [
 
     # Verification of uploaded SSH public keys for active members
     "sshpubkeys",
+
+    # Library for managing parts of the IA Matrix server via Claudia
+    "mautrix>=0.21.0,<1.0"
 ]
