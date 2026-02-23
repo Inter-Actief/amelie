@@ -3,6 +3,7 @@ import asyncio
 import logging
 from typing import Optional, List, Tuple
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from mautrix.client import ClientAPI
 from mautrix.errors import MatrixResponseError
@@ -77,7 +78,7 @@ class MatrixPlugin(ClaudiaPlugin):
                         logger.debug("Matrix space for {} does not exist, creating.".format(mp.adname))
                         if fix:
                             space = await self.create_space(client, mp)
-                            mp.set_matrix_space_id(space)
+                            await sync_to_async(mp.set_matrix_space_id, thread_sensitive=True)(matrix_space_id=space)
                             if space:
                                 changes.append(('space', '{} created'.format(space)))
                                 claudia.notify_matrix_created(mp, mp.adname)
@@ -108,13 +109,13 @@ class MatrixPlugin(ClaudiaPlugin):
             except KeyError:
                 pass
             # Space doesn't exist (or the bot isn't a member anymore), remove its reference from the mapping
-            mapping.set_matrix_space_id(None)
+            await sync_to_async(mapping.set_matrix_space_id, thread_sensitive=True)(matrix_space_id=None)
 
         # Find room by tags of joined rooms, save its Room ID in the mapping if found.
         for room in joined_rooms:
             room_tags = await client.get_room_tag(room, tag="ia.group_name:{}".format(mapping.adname))
             if room_tags is not None:
-                mapping.set_matrix_space_id(room)
+                await sync_to_async(mapping.set_matrix_space_id, thread_sensitive=True)(matrix_space_id=room)
                 return room
 
         return None
