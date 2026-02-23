@@ -42,6 +42,10 @@ class MatrixPlugin(ClaudiaPlugin):
         :param bool fix: Fixes should be applied.
         """
         logger.debug("Verifying Matrix data of {} (cid: {})".format(mp.name, mp.id))
+        loop = get_event_loop()
+        return loop.run_until_complete(self.verify_mapping_async(claudia, mp, fix))
+
+    async def verify_mapping_async(self, claudia: Claudia, mp: Mapping, fix: bool = False):
 
         changes: List[Tuple[str, str]] = []
 
@@ -64,7 +68,7 @@ class MatrixPlugin(ClaudiaPlugin):
 
                 if mp.adname:
                     # Check if this committee has a space
-                    space = self.get_or_find_space(client, mp)
+                    space = await self.get_or_find_space(client, mp)
 
                     if space:
                         logger.debug("Matrix space for {} exists.".format(mp.adname))
@@ -72,7 +76,7 @@ class MatrixPlugin(ClaudiaPlugin):
                     if space is None and mp.needs_account():
                         logger.debug("Matrix space for {} does not exist, creating.".format(mp.adname))
                         if fix:
-                            space = self.create_space(client, mp)
+                            space = await self.create_space(client, mp)
                             mp.set_matrix_space_id(space)
                             if space:
                                 changes.append(('space', '{} created'.format(space)))
@@ -86,13 +90,12 @@ class MatrixPlugin(ClaudiaPlugin):
             claudia.notify_matrix_changed(mp, mp.adname, changes)
 
     @staticmethod
-    def get_or_find_space(client: ClientAPI, mapping: Mapping) -> Optional[RoomID]:
+    async def get_or_find_space(client: ClientAPI, mapping: Mapping) -> Optional[RoomID]:
         """
         Get the space for this mapping, find it based on tags if it is not cached.
         Returns None if no space is found.
         """
-        loop = get_event_loop()
-        joined_rooms = loop.run_until_complete(client.get_joined_rooms())
+        joined_rooms = await client.get_joined_rooms()
 
         # Find room from ID stored in the mapping
         mapping_space_id = mapping.get_matrix_space_id()
@@ -109,7 +112,7 @@ class MatrixPlugin(ClaudiaPlugin):
 
         # Find room by tags of joined rooms, save its Room ID in the mapping if found.
         for room in joined_rooms:
-            room_tags = loop.run_until_complete(client.get_room_tag(room, tag="ia.group_name:{}".format(mapping.adname)))
+            room_tags = await client.get_room_tag(room, tag="ia.group_name:{}".format(mapping.adname))
             if room_tags is not None:
                 mapping.set_matrix_space_id(room)
                 return room
@@ -117,11 +120,10 @@ class MatrixPlugin(ClaudiaPlugin):
         return None
 
     @staticmethod
-    def create_space(client: ClientAPI, mapping: Mapping) -> Optional[RoomID]:
+    async def create_space(client: ClientAPI, mapping: Mapping) -> Optional[RoomID]:
         """
         Creates a space for the given mapping.
         """
-        loop = get_event_loop()
         space: Optional[RoomID] = None
 
         # Determine group suffix for use in the Space topic based on mapping type
@@ -137,19 +139,19 @@ class MatrixPlugin(ClaudiaPlugin):
 
         # Create the space as a Private space with the options above.
         try:
-            space = loop.run_until_complete(client.create_room(
+            space = await client.create_room(
                 visibility=RoomDirectoryVisibility.PRIVATE,
                 name=mapping.name,
                 topic=f"Private space for {mapping.name} {group_description}",
                 creation_content=creation_content
-            ))
+            )
         except MatrixResponseError as e:
             logger.error(f"Failed to create Matrix space for {mapping.adname} failed. - {e}")
 
         # Add tags indicating this is a space for one of our groups (used by our auto-invite bot)
         if space is not None:
-            loop.run_until_complete(client.set_room_tag(
+            await client.set_room_tag(
                 space, tag="ia.group_name:{}".format(mapping.adname)
-            ))
+            )
 
         return space
