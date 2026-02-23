@@ -692,6 +692,8 @@ CLAUDIA_GITLAB = {
 CLAUDIA_MATRIX = {
     'USER': '@claudia:inter-actief.net',
     'SERVER': 'https://synapse.matrix.ia.utwente.nl',
+    'HOMESERVER': 'inter-actief.net',
+    'IA_SPACE_ID': '!YHigVsCdLYoMCHqqkL:inter-actief.net',
     'TOKEN': 'secret',
 }
 

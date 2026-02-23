@@ -7,7 +7,8 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from mautrix.client import ClientAPI
 from mautrix.errors import MatrixResponseError
-from mautrix.types import UserID, RoomID, RoomDirectoryVisibility, RoomCreateStateEventContent, RoomType
+from mautrix.types import UserID, RoomID, RoomDirectoryVisibility, RoomCreateStateEventContent, RoomType, EventType, \
+    SpaceChildStateEventContent, SpaceParentStateEventContent
 
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.claudia.clau import Claudia
@@ -154,5 +155,17 @@ class MatrixPlugin(ClaudiaPlugin):
             await client.set_room_tag(
                 space, tag="ia.group_name:{}".format(mapping.adname)
             )
+
+        # Add the newly created space to the general IA space as a child.
+        main_ia_space = RoomID(settings.CLAUDIA_MATRIX['IA_SPACE_ID'])
+        homeserver = RoomID(settings.CLAUDIA_MATRIX['HOMESERVER'])
+        try:
+            await client.send_state_event(main_ia_space, EventType.SPACE_CHILD, SpaceChildStateEventContent(via=[homeserver]), space)
+        except MatrixResponseError as e:
+            logger.error(f"Failed to add Matrix space {space} as a child of main IA space {main_ia_space}. - {e}")
+        try:
+            await client.send_state_event(space, EventType.SPACE_PARENT, SpaceParentStateEventContent(via=[homeserver]), main_ia_space)
+        except MatrixResponseError as e:
+            logger.error(f"Failed to add main IA space {main_ia_space} as a parent of Matrix space {space}. - {e}")
 
         return space
