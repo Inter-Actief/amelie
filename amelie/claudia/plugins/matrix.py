@@ -8,7 +8,7 @@ from django.conf import settings
 from mautrix.client import ClientAPI
 from mautrix.errors import MatrixResponseError
 from mautrix.types import UserID, RoomID, RoomDirectoryVisibility, RoomCreateStateEventContent, RoomType, EventType, \
-    SpaceChildStateEventContent, SpaceParentStateEventContent
+    SpaceChildStateEventContent, SpaceParentStateEventContent, PowerLevelStateEventContent
 
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.claudia.clau import Claudia
@@ -159,15 +159,35 @@ class MatrixPlugin(ClaudiaPlugin):
                 space, tag="ia.group_name:{}".format(mapping.adname)
             )
 
+        # Set the default user level to 'Moderator', so users can manage their spaces themselves
+        await client.send_state_event(space, EventType.ROOM_POWER_LEVELS, PowerLevelStateEventContent(
+            users_default=50,  # Set the default level to Moderator
+            # Allow moderators to do basically everything
+            events_default=50,
+            state_default=50,
+            ban=50,
+            invite=50,
+            kick=50,
+            redact=50,
+            events={EventType.ROOM_POWER_LEVELS: 100},  # Only allow Admins to change room permissions
+            users={client.mxid: 100}  # Give the bot Admin level
+        ))
+
         # Add the newly created space to the general IA space as a child.
         main_ia_space = RoomID(settings.CLAUDIA_MATRIX['IA_SPACE_ID'])
         homeserver = RoomID(settings.CLAUDIA_MATRIX['HOMESERVER'])
+
+        # order string defines ordering among space children. These are lexicographically compared against other children’s order, if present.
+        # Must consist of ASCII characters within the range \x20 (space) and \x7E (~), inclusive. Must not exceed 50 characters.
+        # lowercase ascii is 'close enough', mapping names shouldn't contain any ASCII control characters anyway.
+        order = ''.join(c for c in mapping.name.lower() if c.isascii())[:50]
+
         try:
-            await client.send_state_event(main_ia_space, EventType.SPACE_CHILD, SpaceChildStateEventContent(via=[homeserver]), space)
+            await client.send_state_event(main_ia_space, EventType.SPACE_CHILD, SpaceChildStateEventContent(via=[homeserver], order=order), space)
         except MatrixResponseError as e:
             logger.error(f"Failed to add Matrix space {space} as a child of main IA space {main_ia_space}. - {e}")
         try:
-            await client.send_state_event(space, EventType.SPACE_PARENT, SpaceParentStateEventContent(via=[homeserver]), main_ia_space)
+            await client.send_state_event(space, EventType.SPACE_PARENT, SpaceParentStateEventContent(via=[homeserver], canonical=True), main_ia_space)
         except MatrixResponseError as e:
             logger.error(f"Failed to add main IA space {main_ia_space} as a parent of Matrix space {space}. - {e}")
 
