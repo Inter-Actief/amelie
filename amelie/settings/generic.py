@@ -89,7 +89,7 @@ CACHES = {
 
 # People that are notified of errors
 ADMINS = (
-    # ('WWW', 'amelie-errors@inter-actief.utwente.nl'),
+    # '"WWW" <amelie-errors@inter-actief.utwente.nl>',
 )
 
 # People who get broken link notifications when BrokenLinkEmailsMiddleware is enabled
