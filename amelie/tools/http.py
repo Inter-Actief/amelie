@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List, Tuple
-from urllib.request import quote
+from urllib.parse import quote
 
 from wsgiref.util import FileWrapper
 from django.http import HttpResponse
