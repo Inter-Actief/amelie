@@ -49,7 +49,7 @@ dependencies = [
 
     # FCM (Firebase Cloud Messaging)
     # 1.x has breaking changes (old firebase api removed) # TODO: Breaking
-    "fcm-django>=0.3.11,<1",
+    "fcm-django>=0.3.11,<3",
 
     # GraphQL API
     "graphene-django",
