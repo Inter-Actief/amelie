@@ -24,10 +24,6 @@ authors = [
 
 requires-python = ">= 3.12"
 
-optional-dependencies = [
-    "celery-types>=0.24.0",
-]
-
 dependencies = [
     "setuptools>=82.0.0",
 
@@ -35,6 +31,7 @@ dependencies = [
     "importlib-metadata>=1.4.0,<10.0",
     "celery>=5.6.0,<5.7",
     "flower>=2.0.1,<2.2",
+    "celery-types>=0.24.0",
     "django-celery-results>=2.6,<2.7",
 
     "django-compressor>=4.1,<4.7",
