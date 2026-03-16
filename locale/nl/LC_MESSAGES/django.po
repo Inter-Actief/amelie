@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-23 18:19+0100\n"
+"POT-Creation-Date: 2026-03-16 21:01+0100\n"
 "PO-Revision-Date: 2026-02-23 17:24+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -6441,7 +6441,7 @@ msgstr "Bestand"
 msgid "Files"
 msgstr "Bestanden"
 
-#: amelie/forms.py:9 build/lib/amelie/forms.py:9
+#: amelie/forms.py:9
 msgid "Stay logged in"
 msgstr "Blijf ingelogd"
 
@@ -9765,32 +9765,32 @@ msgstr "Betalingen"
 msgid "Totals"
 msgstr "Totalen"
 
-#: amelie/members/views.py:253
+#: amelie/members/views.py:252
 msgid "6 or more"
 msgstr "6 of meer"
 
-#: amelie/members/views.py:270
+#: amelie/members/views.py:269
 msgid "total"
 msgstr "Totaal"
 
-#: amelie/members/views.py:347
+#: amelie/members/views.py:346
 msgid "This person still has an active (unterminated) membership."
 msgstr "Deze persoon heeft nog een actief (niet beeindigd) lidmaatschap."
 
-#: amelie/members/views.py:351
+#: amelie/members/views.py:350
 #, python-brace-format
 msgid "This person has not paid one of their memberships ({year}/{next_year} {type})."
 msgstr "Deze persoon heeft een lidmaatschap nog niet betaald ({year}/{next_year} {type})."
 
-#: amelie/members/views.py:360
+#: amelie/members/views.py:359
 msgid "This person still has an outstanding balance on their personal tab."
 msgstr "Deze persoon heeft nog een openstaand streeplijstsaldo."
 
-#: amelie/members/views.py:363
+#: amelie/members/views.py:362
 msgid "This person isn't enrolled for one or more future activities."
 msgstr "Deze persoon staat ingeschreven voor een of meer toekomstige activiteit(en)."
 
-#: amelie/members/views.py:378
+#: amelie/members/views.py:377
 msgid ""
 "This person cannot be anonymized because of the following reasons:\n"
 "{}"
@@ -9798,20 +9798,20 @@ msgstr ""
 "Deze persoon kan niet worden geanonimiseerd vanwege de volgende redenen:\n"
 "{}"
 
-#: amelie/members/views.py:1671
+#: amelie/members/views.py:1669
 #, python-brace-format
 msgid "OAuth link code and instructions were sent to {name}."
 msgstr "OAuth link code en instructies zijn verzonden naar {name}."
 
-#: amelie/members/views.py:1699
+#: amelie/members/views.py:1697
 msgid "You are not allowed to manually delete the payments of free memberships."
 msgstr "Je mag van gratis lidmaatschappen de betaling niet handmatig verwijderen."
 
-#: amelie/members/views.py:1702
+#: amelie/members/views.py:1700
 msgid "You are not allowed to delete payments that are already (being) debited."
 msgstr "Je mag geen betalingen verwijderen die al geïncasseerd zijn/worden."
 
-#: amelie/members/views.py:1706
+#: amelie/members/views.py:1704
 #, python-format
 msgid "Payment %(object)s has been removed"
 msgstr "Betaling %(object)s is verwijderd"
@@ -13105,35 +13105,35 @@ msgstr "Er zijn nog geen kamerdienstschema-templates."
 msgid "Add office duty template"
 msgstr "Kamerdienst-template toevoegen"
 
-#: amelie/settings/environ.py:298
+#: amelie/settings/environ.py:296
 msgid "Nederlands"
 msgstr "Dutch"
 
-#: amelie/settings/environ.py:299
+#: amelie/settings/environ.py:297
 msgid "Engels"
 msgstr "English"
 
-#: amelie/settings/generic.py:124
+#: amelie/settings/generic.py:121
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: amelie/settings/generic.py:125
+#: amelie/settings/generic.py:122
 msgid "English"
 msgstr "Engels"
 
-#: amelie/settings/generic.py:788
+#: amelie/settings/generic.py:780
 msgid "Access to your name, date of birth, student number, mandate status and committee status."
 msgstr "Toegang tot je naam, geboortedatum, studentnummer, machtiging- en commissiestatus"
 
-#: amelie/settings/generic.py:789
+#: amelie/settings/generic.py:781
 msgid "Access to enrollments for activities and (un)enrolling you for activities."
 msgstr "Toegang tot inschrijvingen voor activiteiten en het in- en uitschrijven voor activiteiten"
 
-#: amelie/settings/generic.py:790
+#: amelie/settings/generic.py:782
 msgid "Access to transactions, direct debit transactions, mandates and RFID-cards."
 msgstr "Toegang tot transacties, incasso's, machtigingen en RFID-kaarten"
 
-#: amelie/settings/generic.py:791
+#: amelie/settings/generic.py:783
 msgid "Access to complaints and sending or supporting complaints in your name."
 msgstr "Toegang tot onderwijsklachten en het indienen of steunen van onderwijsklachten"
 
@@ -13268,25 +13268,26 @@ msgstr "AJAX-request vereist"
 msgid "Access for board members only."
 msgstr "Uitsluitend toegankelijk voor het bestuur."
 
-#: amelie/tools/decorators.py:54 amelie/tools/mixins.py:73
+#: amelie/tools/decorators.py:54 amelie/tools/mixins.py:110
 msgid "Access for the Educational Committee only."
 msgstr "Uitsluitend toegankelijk voor de onderwijscommissie."
 
 #: amelie/tools/decorators.py:60 amelie/tools/decorators.py:66
-#: amelie/tools/mixins.py:81
+#: amelie/tools/mixins.py:118
 msgid "Only for members with an active membership."
 msgstr "Alleen voor leden met een actief lidmaatschap."
 
-#: amelie/tools/decorators.py:72 amelie/tools/mixins.py:97
+#: amelie/tools/decorators.py:72 amelie/tools/mixins.py:134
 msgid "Access for active members only."
 msgstr "Uitsluitend toegankelijk voor actieve leden."
 
-#: amelie/tools/decorators.py:77 amelie/tools/mixins.py:116
+#: amelie/tools/decorators.py:77 amelie/tools/mixins.py:153
+#: amelie/tools/mixins.py:161
 msgid "Only accessible by superusers."
 msgstr "Uitsluitend toegankelijk voor superusers."
 
-#: amelie/tools/decorators.py:88 amelie/tools/mixins.py:127
-#: amelie/tools/mixins.py:143 amelie/tools/mixins.py:159
+#: amelie/tools/decorators.py:88 amelie/tools/mixins.py:172
+#: amelie/tools/mixins.py:188 amelie/tools/mixins.py:204
 msgid "Access for members of the committee only."
 msgstr "Uitsluitend toegankelijk voor commissieleden."
 
@@ -13338,31 +13339,31 @@ msgstr "De URL naar de gegenereerde afbeelding voor deze CAPTCHA"
 msgid "The response to the CAPTCHA challenge"
 msgstr "Het antwoord op de CAPTCHA challenge"
 
-#: amelie/tools/mixins.py:57
+#: amelie/tools/mixins.py:94
 msgid "Access for (former) members only."
 msgstr "Uitsluitend toegankelijk voor (oud-)leden."
 
-#: amelie/tools/mixins.py:65
+#: amelie/tools/mixins.py:102
 msgid "Access for boardmembers only."
 msgstr "Uitsluitend toegankelijk voor het bestuur."
 
-#: amelie/tools/mixins.py:89
+#: amelie/tools/mixins.py:126
 msgid "Only for members with a signed and active personal tab authorization."
 msgstr "Alleen voor mensen met een getekende en geactiveerde streeplijstmachtiging."
 
-#: amelie/tools/mixins.py:105
+#: amelie/tools/mixins.py:142
 msgid "Only for active members, or members with a signed and active personal tab authorization."
 msgstr "Alleen voor actieve leden, of voor mensen met een getekende en geactiveerde streeplijstmachtiging."
 
-#: amelie/tools/mixins.py:187
+#: amelie/tools/mixins.py:232
 msgid "Access for do-group parents only."
 msgstr "Uitsluitend toegankelijk voor doegroepouders."
 
-#: amelie/tools/mixins.py:209
+#: amelie/tools/mixins.py:254
 msgid "Access for allowlisted IP address only."
 msgstr "Uitsluitend toegankelijk voor bekende IP-adressen."
 
-#: amelie/tools/mixins.py:233
+#: amelie/tools/mixins.py:278
 msgid "Access for the cookie-corner computer only."
 msgstr "Uitsluitend toegankelijk voor de streeplijstcomputer."
 
@@ -13479,10 +13480,6 @@ msgstr "Incassant ID"
 #: amelie/tools/pdf.py:468
 msgid "By signing this form, undersigned agrees with the arrangement as described above."
 msgstr "Ondergetekende verklaart zich akkoord met de regeling zoals hierboven beschreven."
-
-#: amelie/tools/saml_processors.py:91
-msgid "Unknown user in system."
-msgstr "Onbekende gebruiker in het systeem."
 
 #: amelie/tools/templates/data_export_statistics.html:29
 msgid "Exported by"
@@ -13852,12 +13849,12 @@ msgstr "Het is niet gelukt om een verbinding met Streaming.IA te maken! Neem con
 msgid "Could not connect to Video.IA! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met Video.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
-#: amelie/views.py:312 build/lib/amelie/views.py:312
+#: amelie/views.py:313
 #, python-format
 msgid "CSRF-check failed. Reason: %s"
 msgstr "CSRF-controle mislukt. Reden: %s"
 
-#: amelie/views.py:314 build/lib/amelie/views.py:314
+#: amelie/views.py:315
 msgid "CSRF-check failed."
 msgstr "CSRF-controle mislukt."
 

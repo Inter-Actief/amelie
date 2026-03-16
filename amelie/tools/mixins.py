@@ -9,9 +9,12 @@ from typing import List
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from urllib.parse import quote
+
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Committee, DogroupGeneration
@@ -50,6 +53,40 @@ class PassesTestMixin(object):
                     return render(request, "403.html", {'reason': self.reason}, status=403)
             else:
                 return super(PassesTestMixin, self).dispatch(request, *args, **kwargs)
+
+
+class PassesTestAsyncMixin(object):
+    """
+    Same as PassesTestMixin, but for async views.
+    """
+    needs_login = False
+    """ Indicates if a current login is required for accessing this page. """
+    reason = ''
+    """ The reason to be returned when the requirement for accessing this page is failed. """
+    errors_as_json = False
+    """ Return errors as a JSON response in the format {'error': True, 'reason': '...'} instead of as an HTML page. """
+
+    @abstractmethod
+    def test_requirement(self, request):
+        """
+        Test the requirement for accessing this page.
+        This function should return True if accessing this page is allowed.
+        """
+        return True
+
+    @method_decorator(transaction.non_atomic_requests)
+    async def dispatch(self, request, *args, **kwargs):
+        url = '%s?%s=%s' % (settings.LOGIN_URL, REDIRECT_FIELD_NAME, quote(request.get_full_path()))
+        if self.needs_login and not hasattr(request, 'person'):
+            return HttpResponseRedirect(url)
+        else:
+            if not self.test_requirement(request):
+                if self.errors_as_json:
+                    return HttpJSONResponse(content={'error': True, 'reason': str(self.reason)}, status=403)
+                else:
+                    return render(request, "403.html", {'reason': self.reason}, status=403)
+            else:
+                return await super(PassesTestAsyncMixin, self).dispatch(request, *args, **kwargs)
 
 
 class RequirePersonMixin(PassesTestMixin):
@@ -112,6 +149,14 @@ class RequirePersonalTabAuthorizationOrActiveMemberMixin(PassesTestMixin):
 
 
 class RequireSuperuserMixin(PassesTestMixin):
+    needs_login = True
+    reason = _l('Only accessible by superusers.')
+
+    def test_requirement(self, request):
+        return request.user.is_superuser
+
+
+class RequireSuperuserAsyncMixin(PassesTestAsyncMixin):
     needs_login = True
     reason = _l('Only accessible by superusers.')
 

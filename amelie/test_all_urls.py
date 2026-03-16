@@ -15,7 +15,7 @@ from amelie.personal_tab.models import DiscountPeriod, Article
 IGNORE_NAMES_STARTING = ["admin-", "django-admindocs-"]
 
 # Ignore these namespaces.
-IGNORE_NAMESPACES = ["admin", "djdt", "api", "djangosaml2idp"]
+IGNORE_NAMESPACES = ["admin", "djdt", "api"]
 
 # These specific names will not be tested at all.
 IGNORE_NAMES = [
@@ -25,9 +25,6 @@ IGNORE_NAMES = [
     "activities:photos",  # No pictures in the test database, so the paginator breaks
 
     "personal_tab:print_index",  # Needs a paper article in the cookie corner with a specific ID.
-
-    # SAML URLs do not need to work in development
-    "saml2_acs", "saml2_login", "saml2_logout", "saml2_ls", "saml2_ls_post", "saml2_metadata",
 
     # Cannot test OIDC login
     "oidc_authentication_callback", "oidc_authentication_init", "oidc_logout",

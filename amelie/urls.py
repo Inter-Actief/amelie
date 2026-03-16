@@ -6,6 +6,7 @@ from django.urls import reverse_lazy, path, re_path, include
 from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
 from django.views.static import serve
+from health_check.views import HealthCheckView
 
 from amelie import views
 from amelie.activities.feeds import Activities
@@ -84,14 +85,12 @@ urlpatterns = [
     # Include oauth request_access url here because the oauth app urls are not included due to old urls.
     path('oauth/request_access/', RequestOAuth.as_view(), name="request_oauth"),
 
-    # SAML2 IdP
-    path('saml2idp/', include('djangosaml2idp.urls')),
-
     # Health checks
     path(f'healthz', views.healthz_view, name='healthz_simple'),
-    path(f'sysinfo/', views.SystemInfoView.as_view(), name='system_info'),
+    path(f'sysinfo/', views.SystemInfoView.as_view(checks=settings.HEALTH_CHECK_ENABLED_CHECKS), name='system_info'),
     path(f'sysinfo/ajax/celery', views.CeleryInfoPartialView.as_view(), name='system_info_ajax_celery'),
-    path(f'ht/{settings.HEALTH_CHECK_URL_TOKEN}/', include('health_check.urls')),
+    path(f"ht/{settings.HEALTH_CHECK_URL_TOKEN}/", HealthCheckView.as_view(checks=settings.HEALTH_CHECK_ENABLED_CHECKS), name='health_check'),
+
 
     # CAPTCHA
     path(f'captcha', include('captcha.urls')),
