@@ -10,7 +10,6 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _l
 from django.views.generic import ListView, DetailView, DeleteView, UpdateView, CreateView
 from googleapiclient.errors import Error as googleapiclient_Error
-from oauth2client.client import Error as oauth2client_Error
 from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from amelie.members.models import Committee
@@ -271,7 +270,7 @@ class YoutubeVideoCreate(RequireCommitteeMixin, CreateView):
     def get(self, request, *args, **kwargs):
         try:
             return super(YoutubeVideoCreate, self).get(request, *args, **kwargs)
-        except (googleapiclient_Error, oauth2client_Error) as e:
+        except googleapiclient_Error as e:
             import sentry_sdk
             sentry_sdk.capture_exception(e)
 

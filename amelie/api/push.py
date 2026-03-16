@@ -8,7 +8,6 @@ from modernrpc.exceptions import RPCInvalidParams
 from django.template import Template, Context
 
 from amelie.api.api import api_server
-from amelie.api.authentication_types import AnonymousAuthentication
 from amelie.api.decorators import auth_optional, auth_required
 from amelie.api.exceptions import UnknownDeviceError, PermissionDeniedError
 from amelie.api.models import PushNotification

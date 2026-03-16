@@ -196,10 +196,6 @@ LOGGING = {
         'celery.utils.functional': { # Set Celery utils logging to INFO to avoid spam
             'level': 'INFO'
         },
-        # Ignore SAML2 errors due to unsollicited response error floods
-        'saml2.entity': {'handlers': [], 'propagate': False},
-        'saml2.client_base': {'handlers': [], 'propagate': False},
-        'saml2.response': {'handlers': [], 'propagate': False},
         # Set OIDC logging to at least info due to process_request log flooding
         'mozilla_django_oidc.middleware': {'level': 'INFO'},
         # Set ModernRPC logging to at least info due to "register_method" log flooding for API
@@ -284,11 +280,13 @@ RABBITMQ_MGMT_VHOST = env('DJANGO_RABBITMQ_MGMT_VHOST', default='amelie')
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
 
 if CELERY_BROKER_URL:
-    # Add extra health checks if a celery broker is configured.
-    INSTALLED_APPS = INSTALLED_APPS + (
-        'health_check.contrib.celery_ping',  # requires celery, checks if workers are available
-        'health_check.contrib.rabbitmq',     # requires RabbitMQ broker, checks if RabbitMQ is available
-    )
+    HEALTH_CHECK_ENABLED_CHECKS += [
+        "health_check.contrib.celery.Ping",
+        (
+            "health_check.contrib.rabbitmq.RabbitMQ",
+            {"amqp_url": CELERY_BROKER_URL},
+        ),
+    ]
 
 ###
 #  Internationalization
@@ -311,6 +309,18 @@ STATIC_URL = env("AMELIE_STATIC_URL", default="/static/")
 # Path to amelie media
 MEDIA_ROOT = '/media'
 MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
+
+# Add disk checks for the Static and Media directories
+HEALTH_CHECK_ENABLED_CHECKS += [
+    (
+        "health_check.contrib.psutil.Disk",
+        {"path": os.path.abspath(MEDIA_ROOT)},
+    ),
+    (
+        "health_check.contrib.psutil.Disk",
+        {"path": os.path.abspath(STATIC_ROOT)},
+    ),
+]
 
 # Path to website (needed for pictures via the API among other things)
 ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default="http://localhost:8080/")

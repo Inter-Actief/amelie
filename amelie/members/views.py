@@ -19,7 +19,6 @@ from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-from fcm_django.models import FCMDevice
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
 
@@ -410,7 +409,6 @@ def person_anonymize(request, id, slug):
     if hasattr(person, 'user'):
         AccessToken.objects.filter(user=person.user).delete()
         Grant.objects.filter(user=person.user).delete()
-        FCMDevice.objects.filter(user=person.user).delete()
 
     # Anonymize education
     person.complaint_set.all().update(reporter=sentinel_person)

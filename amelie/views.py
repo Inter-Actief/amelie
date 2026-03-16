@@ -19,7 +19,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
-from health_check.views import MainView as HealthCheckMainView
+from health_check.views import HealthCheckView
 from oauth2_provider.views import AuthorizedTokenDeleteView
 
 from amelie.activities.models import Activity
@@ -32,7 +32,8 @@ from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
-from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin, RequireActiveMemberMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin, RequireActiveMemberMixin, \
+    RequireSuperuserAsyncMixin
 from amelie.tools.buildinfo import get_build_info
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo
@@ -488,7 +489,7 @@ def _get_queue_information():
     }
 
 
-class SystemInfoView(RequireSuperuserMixin, HealthCheckMainView):
+class SystemInfoView(RequireSuperuserAsyncMixin, HealthCheckView):
     def get_context_data(self, **kwargs):
         import os, sys, platform, socket
 

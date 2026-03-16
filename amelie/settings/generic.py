@@ -4,15 +4,12 @@
 import os
 import re
 
-import saml2
 import datetime
 from datetime import date
 from decimal import Decimal
 
 from django.views import debug
 
-from saml2.saml import NAMEID_FORMAT_EMAILADDRESS, NAMEID_FORMAT_UNSPECIFIED
-from saml2.sigver import get_xmlsec_binary
 
 from amelie.graphql.jwt_handlers import allow_none, get_user_from_jwt_username, get_username_from_jwt_payload
 
@@ -319,18 +316,11 @@ INSTALLED_APPS = (
     # OIDC Client (authentication via auth.ia)
     'mozilla_django_oidc',
 
-    # SAML2 IdP (legacy)
-    'djangosaml2idp',
-
     # Color field
     'colorfield',
 
-    # Default health checks (celery and rabbitmq are only added when a broker is configured)
-    'health_check',                      # required
-    'health_check.db',                   # stock Django health checkers
-    'health_check.cache',
-    'health_check.storage',
-    'health_check.contrib.migrations',
+    # Default health checks
+    'health_check',
 
     # CAPTCHA support
     'captcha',
@@ -706,7 +696,7 @@ CLAUDIA_GSUITE = {
     'ALLOWED_ALIAS_DOMAINS': ["inter-actief.net", "inter-actief.nl"],
     'DOMAIN_ADMIN_ACCOUNT_EMAIL': "claudia@inter-actief.nl",
     'SERVICE_ACCOUNT_EMAIL': "amelie-claudia@amelie-claudia.iam.gserviceaccount.com",
-    'SERVICE_ACCOUNT_P12_FILE': "credentials/amelie-claudia-a1d089be2a09.p12",
+    'SERVICE_ACCOUNT_JSON_FILE': "credentials/amelie-claudia-b9b4522ab810.json",
     'SCOPES': {
         'DOMAIN_API': [
             'https://www.googleapis.com/auth/admin.directory.group',
@@ -800,73 +790,6 @@ OAUTH2_PROVIDER = {
 }
 # Defaults to True since django-oauth-toolkit 2.x, but we probably have clients that don't support it.
 PKCE_REQUIRED = False
-
-# SAML2 Identity Provider configuration
-SAML_BASE_URL = "https://www.inter-actief.utwente.nl/saml2idp"
-try:
-    xmlsec_binary = get_xmlsec_binary(['/opt/local/bin', '/usr/bin/xmlsec1'])
-except saml2.sigver.SigverError:
-    print("Could not find xmlsec1 binary for SAML. Continuing with no xmlsec configured, SAML2 IDP will not work.")
-    xmlsec_binary = None
-SAML_IDP_CONFIG = {
-    'debug': 0,
-    'xmlsec_binary': xmlsec_binary,
-    'entityid': '%s/metadata' % SAML_BASE_URL,
-    'description': 'Inter-Actief SAML IdP',
-
-    'service': {
-        'idp': {
-            'name': 'Inter-Actief SAML IdP',
-            'endpoints': {
-                'single_sign_on_service': [
-                    ('%s/sso/post' % SAML_BASE_URL, saml2.BINDING_HTTP_POST),
-                    ('%s/sso/redirect' % SAML_BASE_URL, saml2.BINDING_HTTP_REDIRECT),
-                ],
-            },
-            'name_id_format': [NAMEID_FORMAT_EMAILADDRESS, NAMEID_FORMAT_UNSPECIFIED],
-            'sign_response': True,
-            'sign_assertion': True,
-        },
-    },
-
-    'metadata': {
-        'local': [
-            os.path.join(os.path.dirname(__file__), "../../certificates/google-sp-metadata.xml"),
-            os.path.join(os.path.dirname(__file__), "../../certificates/google-ianl-sp-metadata.xml"),
-            os.path.join(os.path.dirname(__file__), "../../certificates/google-ianet-sp-metadata.xml")
-        ],
-    },
-    # These need to be valid certificates for Google! Self signed certs do not work!
-    # Signing
-    'key_file': '/etc/ia/key.ia.utwente.nl.pem',
-    'cert_file': '/etc/ia/cert.ia.utwente.nl.pem',
-    # Encryption
-    'encryption_keypairs': [{
-        'key_file': '/etc/ia/key.ia.utwente.nl.pem',
-        'cert_file': '/etc/ia/cert.ia.utwente.nl.pem',
-    }],
-    'valid_for': 365 * 24,
-}
-
-
-# Configuration for the SAML service providers that need to authenticate to this IdP.
-SAML_IDP_SPCONFIG = {
-    'google.com': {
-        'processor': 'amelie.tools.saml_processors.AmelieActiveMembersProcessor',
-        # Attribute mapping from Django to SAML (e.g. {django: saml})
-        'attribute_mapping': {}
-    },
-    'google.com/a/inter-actief.net': {
-        'processor': 'amelie.tools.saml_processors.AmelieActiveMembersProcessor',
-        # Attribute mapping from Django to SAML (e.g. {django: saml})
-        'attribute_mapping': {}
-    },
-    'google.com/a/inter-actief.nl': {
-        'processor': 'amelie.tools.saml_processors.AmelieActiveMembersProcessor',
-        # Attribute mapping from Django to SAML (e.g. {django: saml})
-        'attribute_mapping': {}
-    }
-}
 
 # Module path to the view function to be used when an incoming request is rejected by the CSRF protection.
 CSRF_FAILURE_VIEW = 'amelie.views.csrf_failure'
@@ -1006,6 +929,19 @@ EVENT_DESK_ERROR_LABEL_ID = "Label_5802521922307679990"
 
 # Health checks configuration
 HEALTH_CHECK_URL_TOKEN = "amelie-health"
+HEALTH_CHECK_ENABLED_CHECKS = [  # Celery and RabbitMQ checks are added if it is enabled.
+    "health_check.Cache",
+    (
+        "health_check.DNS",
+        {"hostname": "www.inter-actief.utwente.nl"},
+    ),
+    "health_check.Database",
+    "health_check.Mail",
+    "health_check.Storage",
+    # 3rd party checks
+    "health_check.contrib.psutil.CPU",
+    "health_check.contrib.psutil.Memory",
+]
 
 # The Spotify app details for the room narrowcasting page.
 SPOTIFY_CLIENT_ID = "19f600baa77b4223b639088daa62f2f2"
