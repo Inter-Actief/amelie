@@ -696,7 +696,7 @@ CLAUDIA_GSUITE = {
     'ALLOWED_ALIAS_DOMAINS': ["inter-actief.net", "inter-actief.nl"],
     'DOMAIN_ADMIN_ACCOUNT_EMAIL': "claudia@inter-actief.nl",
     'SERVICE_ACCOUNT_EMAIL': "amelie-claudia@amelie-claudia.iam.gserviceaccount.com",
-    'SERVICE_ACCOUNT_JSON_FILE': "credentials/amelie-claudia-b9b4522ab810.json",
+    'SERVICE_ACCOUNT_JSON_FILE': "credentials/amelie-claudia.json",
     'SCOPES': {
         'DOMAIN_API': [
             'https://www.googleapis.com/auth/admin.directory.group',
