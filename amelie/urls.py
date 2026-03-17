@@ -89,8 +89,6 @@ urlpatterns = [
     path(f'healthz', views.healthz_view, name='healthz_simple'),
     path(f'sysinfo/', views.SystemInfoView.as_view(checks=settings.HEALTH_CHECK_ENABLED_CHECKS), name='system_info'),
     path(f'sysinfo/ajax/celery', views.CeleryInfoPartialView.as_view(), name='system_info_ajax_celery'),
-    path(f"ht/{settings.HEALTH_CHECK_URL_TOKEN}/", HealthCheckView.as_view(checks=settings.HEALTH_CHECK_ENABLED_CHECKS), name='health_check'),
-
 
     # CAPTCHA
     path(f'captcha', include('captcha.urls')),

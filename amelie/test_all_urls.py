@@ -20,6 +20,7 @@ IGNORE_NAMESPACES = ["admin", "djdt", "api"]
 # These specific names will not be tested at all.
 IGNORE_NAMES = [
     "legacy_logout",  # May break some tests if the client is no longer logged in.
+    "system_info",  # The system info view might not work properly during testing.
     "statistics:statistics",  # TODO add transactions to test this one
     "members:data_export",  # Does not allow GET-requests, only POST.
     "activities:photos",  # No pictures in the test database, so the paginator breaks
