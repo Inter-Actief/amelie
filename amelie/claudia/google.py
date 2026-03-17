@@ -23,10 +23,10 @@ class GoogleSuiteAPI:
     @staticmethod
     def create_directory_service(user_email, api_name, api_version, scopes):
         credentials = service_account.Credentials.from_service_account_file(
-            settings.CLAUDIA_GSUITE['SERVICE_ACCOUNT_JSON_FILE']
+            settings.CLAUDIA_GSUITE['SERVICE_ACCOUNT_JSON_FILE'],
+            scopes=scopes
         )
-        scoped_credentials = credentials.with_scopes(scopes)
-        delegated_credentials = scoped_credentials.create_delegated(user_email)
+        delegated_credentials = credentials.with_subject(user_email)
         return build(api_name, api_version, credentials=delegated_credentials)
 
     # noinspection PyMethodMayBeStatic
