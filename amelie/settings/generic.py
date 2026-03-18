@@ -948,6 +948,16 @@ SPOTIFY_CLIENT_ID = "19f600baa77b4223b639088daa62f2f2"
 SPOTIFY_CLIENT_SECRET = ""
 SPOTIFY_SCOPES = "user-read-currently-playing"
 
+# The Matrix chat settings for the room narrowcasting page.
+MATRIX_SETTINGS = {
+    "USER": "@claudia:inter-actief.net",  # Matrix user to use for the narrowcasting page.
+    "SERVER": "https://synapse.matrix.ia.utwente.nl",  # URL to Synapse server to retrieve messages from.
+    "TOKEN": "",  # Long-living Matrix authentication token for the user.
+    "ROOM_ID": "",  # Room ID of the room to show, must be an unencrypted room that the user is a member of.
+    "MAX_MSG_TO_SHOW": 15,  # Number of messages that maximally fit on the narrowcasting screen.
+    "MAX_MSG_LENGTH": 150,  # Characters of a message to show before it is cut off.
+}
+
 # Date on which old RFID cards are registered. Old RFID cards were registered before we kept track of registration date.
 DATE_OLD_RFID_CARDS = date(2019, 9, 1)
 

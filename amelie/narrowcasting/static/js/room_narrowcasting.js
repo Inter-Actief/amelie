@@ -24,6 +24,7 @@ $(document).ready(function(){
     updateAndInterval(updatePictures, 10 * MINUTE);
     updateAndInterval(updateRoomDuty, 60 * MINUTE);
     updateAndInterval(updateNowPlaying, 2 * SECOND);
+    updateAndInterval(updateChatMessages, 15 * SECOND);
 });
 
 function getString(string_id){
@@ -355,4 +356,32 @@ function updateNowPlaying() {
             });
         }
     });
+}
+
+function updateChatMessages() {
+    var dom_object = $("#ia_chat_messages");
+    $.ajax({
+        url: "./chat_messages/",
+        error: function (result) {
+            // Show an error message in the chat window
+            console.log(result);
+            dom_object.html(`<span id="ia_chat_loading">${getString("chat_error")}</span>`);
+        }
+    }).done(function (data) {
+        if (data['error'] === false && data['messages']) {
+            // Update chat box
+            dom_object.html('');
+            for (var msg of data.messages) {
+                dom_object.append(`<div class="ia_chat_message"><span class="ia_chat_message_time">[${msg.time}]</span><span class="ia_chat_message_from">${msg.from}</span>: ${msg.message}</div>`)
+            }
+        } else if (data['error'] === false) {
+            // Empty chat box
+            dom_object.html("");
+        } else {
+            // Show an error message in the chat window
+            console.log(data);
+            dom_object.html(`<span id="ia_chat_loading">${getString("chat_error")}</span>`);
+        }
+    });
+
 }

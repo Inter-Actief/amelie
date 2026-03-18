@@ -81,6 +81,16 @@
                         </div>
                     </div>
                 </div>
+                <div id="ia_chat">
+                    <div id="ia_chat_title">
+                        <i class="fas fa-comments"></i>
+                        {% trans '#ia:inter-actief.net' %}
+                        <span class="small">{% trans '(Matrix chat)' %}</span>
+                    </div>
+                    <div id="ia_chat_messages">
+                        <span id="ia_chat_loading">{% trans 'Loading chat...' %}</span>
+                    </div>
+                </div>
             </div>
             <div id="content_right">
                 <div id="media_container">
@@ -114,6 +124,7 @@
         <span id="unknown_artist">{% trans 'Unknown artist' %}</span>
         <span id="not_playing">{% trans 'Not playing anything...' %}</span>
         <span id="spotify_error">{% trans 'Error while getting spotify data' %}</span>
+        <span id="chat_error">{% trans 'Error while getting chat messages' %}</span>
     </div>
 
     {% if theme == "christmas" %}

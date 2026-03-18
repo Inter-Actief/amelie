@@ -1,18 +1,10 @@
-import asyncio
 import logging
 
 from django.conf import settings
 from pyipp import IPP
 from pyipp.enums import IppOperation
 
-
-def get_event_loop():
-    try:
-        return asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        return loop
+from amelie.tools.asyncio import get_event_loop
 
 
 INFO_ATTRIBUTES = [

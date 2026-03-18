@@ -10,20 +10,12 @@ from mautrix.errors import MatrixResponseError
 from mautrix.types import UserID, RoomID, RoomDirectoryVisibility, RoomCreateStateEventContent, RoomType, EventType, \
     SpaceChildStateEventContent, SpaceParentStateEventContent, PowerLevelStateEventContent
 
+from amelie.tools.asyncio import get_event_loop
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.claudia.clau import Claudia
 from amelie.claudia.models import Mapping
 
 logger = logging.getLogger(__name__)
-
-
-def get_event_loop():
-    try:
-        return asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        return loop
 
 
 class MatrixPlugin(ClaudiaPlugin):
