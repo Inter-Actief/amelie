@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-16 21:01+0100\n"
+"POT-Creation-Date: 2026-03-24 12:13+0100\n"
 "PO-Revision-Date: 2026-02-23 17:24+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -9835,12 +9835,12 @@ msgstr "Albumafbeelding"
 
 #: amelie/narrowcasting/templates/room.html:42
 #: amelie/narrowcasting/templates/room.html:54
-#: amelie/narrowcasting/templates/room.html:115
+#: amelie/narrowcasting/templates/room.html:125
 msgid "Not playing anything..."
 msgstr "Niks aan het afspelen..."
 
 #: amelie/narrowcasting/templates/room.html:64
-#: amelie/narrowcasting/templates/room.html:110
+#: amelie/narrowcasting/templates/room.html:120
 msgid "Loading activity information..."
 msgstr "Activiteitsinformatie laden..."
 
@@ -9848,79 +9848,103 @@ msgstr "Activiteitsinformatie laden..."
 msgid "Room duty"
 msgstr "Kamerdienst"
 
-#: amelie/narrowcasting/templates/room.html:92
+#: amelie/narrowcasting/templates/room.html:87
+#, fuzzy
+#| msgid "board@inter-actief.net"
+msgid "#ia:inter-actief.net"
+msgstr "bestuur@inter-actief.net"
+
+#: amelie/narrowcasting/templates/room.html:88
+#, fuzzy
+#| msgid "Matrix Space"
+msgid "(Matrix chat)"
+msgstr "Matrix-ruimte"
+
+#: amelie/narrowcasting/templates/room.html:91
+#, fuzzy
+#| msgid "Loading pictures..."
+msgid "Loading chat..."
+msgstr "Foto's laden..."
+
+#: amelie/narrowcasting/templates/room.html:102
 msgid "Loading pictures..."
 msgstr "Foto's laden..."
 
-#: amelie/narrowcasting/templates/room.html:105
+#: amelie/narrowcasting/templates/room.html:115
 msgid "No room duty today!"
 msgstr "Geen kamerdienst vandaag!"
 
-#: amelie/narrowcasting/templates/room.html:106
+#: amelie/narrowcasting/templates/room.html:116
 msgid "No one!"
 msgstr "Niemand!"
 
-#: amelie/narrowcasting/templates/room.html:107
+#: amelie/narrowcasting/templates/room.html:117
 msgid "Next activity starts "
 msgstr "Volgende activiteit begint "
 
-#: amelie/narrowcasting/templates/room.html:108
+#: amelie/narrowcasting/templates/room.html:118
 msgid "Next activity is starting now!"
 msgstr "Volgende activiteit begint nu!"
 
-#: amelie/narrowcasting/templates/room.html:109
+#: amelie/narrowcasting/templates/room.html:119
 msgid "Current activity started "
 msgstr "Huidige activiteit begon "
 
-#: amelie/narrowcasting/templates/room.html:111
+#: amelie/narrowcasting/templates/room.html:121
 msgid "There are no events planned..."
 msgstr "Er zijn geen activiteiten gepland..."
 
-#: amelie/narrowcasting/templates/room.html:112
+#: amelie/narrowcasting/templates/room.html:122
 msgid "Four 'o clock!"
 msgstr "Vier uur!"
 
-#: amelie/narrowcasting/templates/room.html:113
+#: amelie/narrowcasting/templates/room.html:123
 msgid "Not associated to a Spotify account..."
 msgstr "Niet gekoppeld aan een Spotify account..."
 
-#: amelie/narrowcasting/templates/room.html:114
+#: amelie/narrowcasting/templates/room.html:124
 msgid "Unknown artist"
 msgstr "Onbekende artiest"
 
-#: amelie/narrowcasting/templates/room.html:116
+#: amelie/narrowcasting/templates/room.html:126
 msgid "Error while getting spotify data"
 msgstr "Fout bij het ophalen van data van spotify"
 
-#: amelie/narrowcasting/views.py:21 amelie/narrowcasting/views.py:43
-#: amelie/narrowcasting/views.py:112 amelie/narrowcasting/views.py:158
-#: amelie/narrowcasting/views.py:203
+#: amelie/narrowcasting/templates/room.html:127
+#, fuzzy
+#| msgid "Error while getting spotify data"
+msgid "Error while getting chat messages"
+msgstr "Fout bij het ophalen van data van spotify"
+
+#: amelie/narrowcasting/views.py:30 amelie/narrowcasting/views.py:52
+#: amelie/narrowcasting/views.py:121 amelie/narrowcasting/views.py:167
+#: amelie/narrowcasting/views.py:212
 msgid "Spotify settings not configured."
 msgstr "Spotify-instellingen niet gevonden."
 
-#: amelie/narrowcasting/views.py:27
+#: amelie/narrowcasting/views.py:36
 msgid "Association already exists."
 msgstr "Koppeling bestaat al."
 
-#: amelie/narrowcasting/views.py:46
+#: amelie/narrowcasting/views.py:55
 msgid "No auth code or state given."
 msgstr "Geen authorisatiecode of staat gegeven."
 
-#: amelie/narrowcasting/views.py:51
+#: amelie/narrowcasting/views.py:60
 msgid "No such authentication attempt found, try again."
 msgstr "Geen authenticatiepoging gevonden, probeer het opnieuw."
 
-#: amelie/narrowcasting/views.py:65 amelie/narrowcasting/views.py:89
+#: amelie/narrowcasting/views.py:74 amelie/narrowcasting/views.py:98
 msgid "ConnectionError while refreshing access token:"
 msgstr "ConnectionError tijdens het verversen van het access token:"
 
-#: amelie/narrowcasting/views.py:115 amelie/narrowcasting/views.py:161
-#: amelie/narrowcasting/views.py:206
+#: amelie/narrowcasting/views.py:124 amelie/narrowcasting/views.py:170
+#: amelie/narrowcasting/views.py:215
 msgid "Missing identifier"
 msgstr "Missende identificatie"
 
-#: amelie/narrowcasting/views.py:120 amelie/narrowcasting/views.py:166
-#: amelie/narrowcasting/views.py:211
+#: amelie/narrowcasting/views.py:129 amelie/narrowcasting/views.py:175
+#: amelie/narrowcasting/views.py:220
 msgid "No association for this identifier"
 msgstr "Geen koppeling voor deze identificatie"
 
@@ -13837,15 +13861,15 @@ msgstr "YouTube API Data bijwerken"
 msgid "YouTube ID"
 msgstr "YouTube ID"
 
-#: amelie/videos/views.py:278
+#: amelie/videos/views.py:277
 msgid "Could not connect to Youtube! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met YouTube te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
-#: amelie/videos/views.py:343
+#: amelie/videos/views.py:342
 msgid "Could not connect to Streaming.IA! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met Streaming.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
-#: amelie/videos/views.py:402
+#: amelie/videos/views.py:401
 msgid "Could not connect to Video.IA! Please contact the WWW committee if this problem persists."
 msgstr "Het is niet gelukt om een verbinding met Video.IA te maken! Neem contact op met de WWW commissie als dit probleem blijft aanhouden."
 
