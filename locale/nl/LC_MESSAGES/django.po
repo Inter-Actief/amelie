@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-24 12:13+0100\n"
-"PO-Revision-Date: 2026-02-23 17:24+0000\n"
+"PO-Revision-Date: 2026-03-24 11:15+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -9849,22 +9849,18 @@ msgid "Room duty"
 msgstr "Kamerdienst"
 
 #: amelie/narrowcasting/templates/room.html:87
-#, fuzzy
-#| msgid "board@inter-actief.net"
 msgid "#ia:inter-actief.net"
-msgstr "bestuur@inter-actief.net"
+msgstr "#ia:inter-actief.net"
 
 #: amelie/narrowcasting/templates/room.html:88
 #, fuzzy
 #| msgid "Matrix Space"
 msgid "(Matrix chat)"
-msgstr "Matrix-ruimte"
+msgstr "(Matrix chat)"
 
 #: amelie/narrowcasting/templates/room.html:91
-#, fuzzy
-#| msgid "Loading pictures..."
 msgid "Loading chat..."
-msgstr "Foto's laden..."
+msgstr "Chat wordt geladen..."
 
 #: amelie/narrowcasting/templates/room.html:102
 msgid "Loading pictures..."
@@ -9911,10 +9907,8 @@ msgid "Error while getting spotify data"
 msgstr "Fout bij het ophalen van data van spotify"
 
 #: amelie/narrowcasting/templates/room.html:127
-#, fuzzy
-#| msgid "Error while getting spotify data"
 msgid "Error while getting chat messages"
-msgstr "Fout bij het ophalen van data van spotify"
+msgstr "Fout bij het ophalen van chatberichten"
 
 #: amelie/narrowcasting/views.py:30 amelie/narrowcasting/views.py:52
 #: amelie/narrowcasting/views.py:121 amelie/narrowcasting/views.py:167
