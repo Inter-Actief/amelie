@@ -384,14 +384,16 @@ html, body {
 }
 
 #ia_chat_messages {
-    height: 33.54vh;
+    height: 32.5vh;
     overflow: hidden;
-    padding-left: 0.75vw;
-    padding-right: 0.75vw;
-    padding-top: 1vh;
+    padding: 1vh 0.75vw;
     font-size: 2vh;
     line-height: 3vh;
     background-color: var(--ia-blue-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: end;
 }
 
 #ia_chat_loading {

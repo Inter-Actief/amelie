@@ -312,7 +312,7 @@ async def _get_ia_chat_messages() -> List[Dict[str, Any]]:
         if client and client.api and client.api.session:
             await client.api.session.close()
 
-    return messages
+    return messages[::-1]
 
 
 async def _get_user_display_name(client: ClientAPI, matrix_id: UserID) -> str:
