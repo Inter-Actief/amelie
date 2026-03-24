@@ -273,40 +273,44 @@ async def _get_ia_chat_messages() -> List[Dict[str, Any]]:
 
     client: ClientAPI = ClientAPI(user_id, base_url=matrix_hostname, token=access_token)
 
-    filter_messages = RoomEventFilter(types=[EventType.ROOM_MESSAGE])
-    events = await client.get_messages(chat_room_id, direction=PaginationDirection.BACKWARD,
-                                       limit=max_msg_to_show, filter_json=filter_messages)
+    try:
+        filter_messages = RoomEventFilter(types=[EventType.ROOM_MESSAGE])
+        events = await client.get_messages(chat_room_id, direction=PaginationDirection.BACKWARD,
+                                           limit=max_msg_to_show, filter_json=filter_messages)
 
-    messages = []
-    for ev in events.events:
-        ev: MessageEvent
-        try:
-            username = await _get_user_display_name(client, ev.sender)
-            if username is None:
-                username, _ = ClientAPI.parse_user_id(ev.sender)
-        except ValueError:
-            username = ev.sender
-        try:
-            timestamp = datetime.datetime.fromtimestamp(ev.timestamp / 1000)
-            if timestamp.date() != datetime.date.today():
-                timestamp = timestamp.strftime("%m-%d %H:%M:%S")
+        messages = []
+        for ev in events.events:
+            ev: MessageEvent
+            try:
+                username = await _get_user_display_name(client, ev.sender)
+                if username is None:
+                    username, _ = ClientAPI.parse_user_id(ev.sender)
+            except ValueError:
+                username = ev.sender
+            try:
+                timestamp = datetime.datetime.fromtimestamp(ev.timestamp / 1000)
+                if timestamp.date() != datetime.date.today():
+                    timestamp = timestamp.strftime("%m-%d %H:%M:%S")
+                else:
+                    timestamp = timestamp.strftime('%H:%M:%S')
+            except ValueError:
+                timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+
+            if isinstance(ev.content, TextMessageEventContent):
+                msg_body = str(ev.content.body)
+                if len(msg_body) > max_msg_length:
+                    msg_body = msg_body[:max_msg_length].strip() + "…"
             else:
-                timestamp = timestamp.strftime('%H:%M:%S')
-        except ValueError:
-            timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+                msg_body = f"<unsupported message '{ev.content.__class__.__name__}'>"
 
-        if isinstance(ev.content, TextMessageEventContent):
-            msg_body = str(ev.content.body)
-            if len(msg_body) > max_msg_length:
-                msg_body = msg_body[:max_msg_length].strip() + "…"
-        else:
-            msg_body = f"<unsupported message '{ev.content.__class__.__name__}'>"
+            # Escape the values because they will be rendered in the frontend without escaping
+            username = escape(username)
+            msg_body = escape(msg_body)
 
-        # Escape the values because they will be rendered in the frontend without escaping
-        username = escape(username)
-        msg_body = escape(msg_body)
-
-        messages.append({"from": username, "time": timestamp, "message": msg_body})
+            messages.append({"from": username, "time": timestamp, "message": msg_body})
+    finally:
+        if client and client.api and client.api.session:
+            await client.api.session.close()
 
     return messages
 
