@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _l
 from django.utils.translation import gettext as _
 from localflavor.generic.forms import BICFormField, IBANFormField
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.style.forms import inject_style
 from amelie.members.models import Department, PaymentType, Committee, CommitteeCategory, DogroupGeneration, \
@@ -64,7 +65,8 @@ class PersonalDetailsEditForm(forms.ModelForm):
 
             task = MailTask(template_name='members/profile_changed.mail',
                             report_to=settings.EMAIL_REPORT_TO,
-                            report_always=False)
+                            report_always=False,
+                            priority=TaskPriority.MEDIUM)
 
             context = {'obj': str(self.instance),
                        'url': self.instance.get_absolute_url(),
@@ -142,6 +144,15 @@ class PersonDataForm(forms.ModelForm):
             else:
                 account_name_suggestion = re.sub(r'[^\w\s]', '', normalize_to_ascii(f"{instance.last_name_prefix}{instance.last_name}{instance.initials}")).lower()
                 self.fields['account_name'].help_text = " ".join([_("Suggestion:"), account_name_suggestion])
+
+
+class ProfilePictureUploadForm(forms.Form):
+    profile_picture = forms.ImageField(required=True)
+
+
+class ProfilePictureVerificationForm(forms.Form):
+    is_verified = forms.BooleanField(initial=False, required=False, label=_l('Verify'))
+    id = forms.IntegerField(widget=forms.HiddenInput())
 
 
 class PersonPreferencesForm(forms.ModelForm):
@@ -740,7 +751,7 @@ class CommitteeForm(forms.ModelForm):
         model = Committee
         fields = ["name", "abbreviation", "information_nl", "information_en", 'logo', "group_picture", "category",
                   "parent_committees", 'email', 'website', "ledger_account_number", 'private_email', 'gitlab',
-                  'superuser', "abolished"]
+                  'matrix', 'superuser', "abolished"]
         widgets = {
             "abolished": DateSelector,
         }
@@ -761,4 +772,4 @@ class StudentNumberForm(forms.Form):
         return self.cleaned_data["student_number"]
 
 
-inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm)
+inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm, ProfilePictureVerificationForm, ProfilePictureUploadForm)

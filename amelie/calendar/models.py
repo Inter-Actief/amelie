@@ -1,7 +1,10 @@
 import itertools
 import uuid
+import pytz
 
 import logging
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, URLValidator
 from django.db import models
@@ -15,6 +18,7 @@ from amelie.calendar.managers import EventManager
 from amelie.calendar.tasks import send_participation_callback
 from amelie.members.models import Committee, Person
 from amelie.personal_tab.models import ActivityTransaction
+from amelie.tools.const import TaskPriority
 
 
 class Participation(models.Model):
@@ -69,12 +73,14 @@ class Participation(models.Model):
 
 @receiver(post_save, sender=Participation)
 def post_save_callback(sender, instance, **kwargs):
-    send_participation_callback.delay(instance.event.id, instance.person.id, 'signup')
+    callback_args = [instance.event.id, instance.person.id, 'signup']
+    send_participation_callback.s(*callback_args).set(priority=TaskPriority.URGENT).delay()
 
 
 @receiver(post_delete, sender=Participation)
 def post_delete_callback(sender, instance, **kwargs):
-    send_participation_callback(instance.event.id, instance.person.id, 'signout')
+    callback_args = [instance.event.id, instance.person.id, 'signout']
+    send_participation_callback.s(*callback_args).set(priority=TaskPriority.URGENT).delay()
 
 
 def _generate_callback_secret_key():
@@ -87,7 +93,7 @@ class Event(models.Model):
     """
     begin = models.DateTimeField(verbose_name=_l('Starts'))
     end = models.DateTimeField(verbose_name=_l('Ends'))
-    entire_day = models.BooleanField(default=False, verbose_name=_l('All dag'))
+    entire_day = models.BooleanField(default=False, verbose_name=_l('All day'))
 
     summary_nl = models.CharField(max_length=250, verbose_name=_l('Summary'))
     summary_en = models.CharField(max_length=250, blank=True, null=True, verbose_name=_l("Summary (en)"))
@@ -194,10 +200,12 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
 
     def description_short(self):
+        tz = pytz.timezone(settings.TIME_ZONE)
+
         char_limit = 150
         location_prefix = " @" if self.location != "" else ""
         activity_prefix = (self.as_leaf_class().activity_label.name_en + " - ") if self.as_leaf_class().activity_label else ""
-        total_string = f"{activity_prefix}{self.begin.strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
+        total_string = f"{activity_prefix}{self.begin.astimezone(tz).strftime('%d/%m/%Y, %H:%M')}{location_prefix}{self.location} {self.promo_en}"
 
         if len(total_string) > char_limit:
             total_string = total_string[:char_limit] + '...'

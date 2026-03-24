@@ -6,10 +6,12 @@ import re
 import logging
 
 from datetime import date
+from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
 
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
@@ -18,7 +20,6 @@ from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-from fcm_django.models import FCMDevice
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
 
@@ -33,6 +34,8 @@ from django.utils.translation import gettext as _
 from django.views.generic.edit import DeleteView, FormView
 
 from amelie.claudia.models import Mapping, ExtraPerson
+from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormPersonalDetails, RegistrationFormStepMemberContactDetails, \
     RegistrationFormStepParentsContactDetails, RegistrationFormStepFreshmenStudyDetails, \
@@ -44,13 +47,14 @@ from amelie.members.models import Payment, PaymentType, Committee, Function, Mem
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
     DogroupGeneration
 from amelie.personal_tab.forms import RFIDCardForm
-from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR
+from amelie.personal_tab.models import Authorization, AuthorizationType, Transaction, SEPA_CHAR_VALIDATOR, RFIDCard
 from amelie.tools.auth import get_oauth_link_code, send_oauth_link_code_email, get_user_info
 from amelie.tools.decorators import require_board, require_superuser, require_lid_or_oauth, require_committee
 from amelie.tools.encodings import normalize_to_ascii
-from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse
+from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse, is_allowed_ip
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
-from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeMixin
+from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeMixin, RequireAllowlistedIPMixin
+from amelie.tools.mail import PersonRecipient
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
 @require_board
@@ -349,7 +353,7 @@ def _person_can_be_anonymized(person):
                 year=membership.year, next_year=membership.year + 1, type=membership.type
             )))
     # Date where new SEPA authorizations came into effect.
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
     personal_tab_credit = Transaction.objects.filter(person=person, date__gte=begin).aggregate(Sum('price'))[
         'price__sum'] or Decimal('0.00')
     if personal_tab_credit != 0:
@@ -406,7 +410,6 @@ def person_anonymize(request, id, slug):
     if hasattr(person, 'user'):
         AccessToken.objects.filter(user=person.user).delete()
         Grant.objects.filter(user=person.user).delete()
-        FCMDevice.objects.filter(user=person.user).delete()
 
     # Anonymize education
     person.complaint_set.all().update(reporter=sentinel_person)
@@ -462,6 +465,17 @@ def person_anonymize(request, id, slug):
     person.save()
 
     return render(request, 'person_anonymization_success.html', {'person': person})
+
+
+def send_new_member_email(person: Person):
+    """
+    Sends an email to a new member. This function is used for each type of member.
+    """
+    template_name = "members/new_member.mail"
+    task = MailTask(template_name=template_name, priority=TaskPriority.URGENT)
+    task.add_recipient(PersonRecipient(person, context={'membership': person.membership}))
+
+    task.send()
 
 
 class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
@@ -573,6 +587,9 @@ class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
                                        begin=datetime.date(cleaned_data['generation'], 9, 1))
             study_period.save()
 
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
+
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
         buffer = BytesIO()
@@ -683,6 +700,9 @@ class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
         link_code = get_oauth_link_code(person)
         send_oauth_link_code_email(self.request, person, link_code)
 
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
+
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
         buffer = BytesIO()
@@ -790,6 +810,9 @@ class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
         # Add employee details
         employee = Employee(person=person, number=cleaned_data['employee_number'])
         employee.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -913,6 +936,9 @@ class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
                                        begin=datetime.date(current_academic_year_with_holidays(), 9, 1),
                                        dogroup=cleaned_data['dogroup'])
             study_period.save()
+
+        # Send an email confirming the new enrolment
+        send_new_member_email(person)
 
         # Render the enrollment forms to PDF for printing
         from amelie.tools.pdf import pdf_enrollment_form
@@ -1043,14 +1069,15 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
         pdf_enrollment_form(buffer, person, person.membership_type)
         pdf = buffer.getvalue()
 
-        # Send welcome e-mail with forms attached.
+        # Send a welcome e-mail with forms attached.
         from amelie.iamailer import MailTask
         from amelie.tools.mail import PersonRecipient
         welcome_mail = MailTask(from_='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
                                 template_name='members/preregistration_welcome.mail',
                                 report_to='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
                                 report_language='nl',
-                                report_always=False)
+                                report_always=False,
+                                priority=TaskPriority.URGENT)
         person_slug = slugify(person.incomplete_name())
 
         welcome_mail.add_recipient(PersonRecipient(recipient=person, context={}, attachments=[
@@ -1149,6 +1176,8 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
 
                 # Delete the pre-enrollment
                 pre_enrollment.delete()
+
+                send_new_member_email(person)
 
                 # Set message
                 messages.info(self.request, "Pre-registration of {} activated!".format(person.incomplete_name()))
@@ -1392,6 +1421,22 @@ def person_picture(request, id, slug):
         raise Http404('Picture not found')
 
 
+@require_board
+def person_unverified_picture(request, id, slug):
+    person = get_object_or_404(Person, id=id, slug=slug)
+
+    # Only for the board or the person themselves
+    if not request.is_board and not request.person == person:
+        return HttpResponseForbidden()
+
+    # Serve file, preferably using Sendfile
+    image_file = person.unverified_picture
+    if image_file:
+        return HttpResponseSendfile(path=image_file.path, content_type='image/jpeg')
+    else:
+        raise Http404('Picture not found')
+
+
 def _person_info_request_get_body(request, logger=None):
     if logger is None:
         logger = logging.getLogger("amelie.members.views._person_info_request_get_body")
@@ -1401,6 +1446,11 @@ def _person_info_request_get_body(request, logger=None):
             settings.USERINFO_API_CONFIG.get('allowed_ips', None) is None:
         logger.error("UserInfo API config missing from settings.")
         raise ImproperlyConfigured("UserInfo API config missing from settings.")
+
+    # Must be from an allowlisted IP
+    if not is_allowed_ip(request, settings.USERINFO_API_CONFIG.get('allowed_ips', [])):
+        logger.error(f"Permission denied, IP is not allowed access to this API.")
+        raise PermissionDenied()
 
     # Must be POST request
     if request.method != "POST":
@@ -1716,3 +1766,77 @@ class DoGroupTreeViewData(View):
             "data": dogroups,
         }
         return JsonResponse(data)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AlexiaAgeCheckAPI(RequireAllowlistedIPMixin, View):
+    """
+    Receives a POST request containing a JSON body in the following format:
+    {"apiKey": "XXX", "rfid": "XXX"}
+
+    This request must come from a whitelisted IP in the ALEXIA_AGE_CHECK_API_CONFIG['allowed_ips'] setting.
+    The given API key must match the key in the ALEXIA_AGE_CHECK_API_CONFIG['api_key'] setting.
+
+    Returns a JSON object containing one boolean value, if the user is underage (false) or not (true):
+    {"check_ok": true/false}
+    """
+    http_method_names = ['post']
+    needs_login = False
+    errors_as_json = True
+    allowlisted_ip_addresses = settings.ALEXIA_AGE_CHECK_API_CONFIG.get('allowed_ips', [])
+    allow_superusers = False
+
+    def post(self, request):
+        log = logging.getLogger("amelie.members.views.alexia_age_check_api")
+
+        ##
+        # Verify request and get the JSON body
+        ##
+        # Settings for alexia age check API must be configured
+        if settings.ALEXIA_AGE_CHECK_API_CONFIG.get('api_key', None) is None or \
+                settings.ALEXIA_AGE_CHECK_API_CONFIG.get('allowed_ips', None) is None:
+            log.error("Alexia age check API config missing from settings.")
+            return HttpJSONResponse({"error": True}, status=500)
+
+        # Must be POST request
+        if request.method != "POST":
+            log.error(f"Bad request, request method is {request.method}, not POST.")
+            return HttpJSONResponse({"error": True}, status=400)
+
+        # Must contain JSON body
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            log.error(f"Bad request, JSON decoding failed - {e}.")
+            return HttpJSONResponse({"error": True}, status=400)
+
+        # Must contain 'apiKey' and 'rfid' keys
+        if 'apiKey' not in body or 'rfid' not in body:
+            log.error(f"Bad request, API Key or RFID key missing.")
+            return HttpJSONResponse({"error": True}, status=400)
+
+        # API Key must be valid
+        api_key = body.pop('apiKey')  # Removes apiKey from the returned body
+        if api_key != settings.ALEXIA_AGE_CHECK_API_CONFIG['api_key']:
+            log.error(f"Permission denied, provided API key is incorrect.")
+            return HttpJSONResponse({"error": True}, status=403)
+
+        # The 'rfid' key must be present and should be a string
+        if 'rfid' not in body or not isinstance(body['rfid'], str) or not body['rfid']:
+            log.error("Bad request, RFID key not given or not a valid value.")
+            return HttpJSONResponse({"error": True}, status=400)
+
+        # Access verified. Find the Person associated with the provided RFID.
+        rfid_tag = body.get('rfid', None)
+        try:
+            rfid_card: RFIDCard = RFIDCard.objects.get(code=rfid_tag, active=True)
+        except RFIDCard.DoesNotExist:
+            log.error(f"RFID card {rfid_tag} does not exist. Returning False for check.")
+            return HttpJSONResponse({"check_ok": False})
+
+        # Check if person is underage or not and return the result.
+        person = rfid_card.person
+        if person and person.age() >= 18:
+            return HttpJSONResponse({"check_ok": True})
+        else:
+            return HttpJSONResponse({"check_ok": False})

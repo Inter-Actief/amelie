@@ -10,6 +10,9 @@ class AttachmentAdmin(admin.ModelAdmin):
     search_fields = ['owner__first_name', 'owner__last_name']
     list_filter = ('mimetype',)
     actions = ['make_public', 'make_protected']
+    readonly_fields = ('thumb_small', 'thumb_medium', 'thumb_large', 'mimetype', 'owner', 'created', 'modified',
+                       'thumb_small_height', 'thumb_small_width', 'thumb_medium_height', 'thumb_medium_width',
+                       'thumb_large_height', 'thumb_large_width')
 
     def make_public(self, request, queryset):
         queryset.update(public=True)

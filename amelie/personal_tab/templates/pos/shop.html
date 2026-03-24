@@ -6,7 +6,7 @@
         <div id="shop-contents">
             <div id="shop-header">
                 <div id="header-logo"></div>
-                {% if debug %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
+                {% if beta_mode %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
             </div>
             <div id="shop-back" style="display: none;">
                 <a href="#" id="shop-back-button">

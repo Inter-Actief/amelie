@@ -69,6 +69,21 @@ def encode_guid(guid):
     return res
 
 
+def create_password(length=32):
+    """
+    Create a long, random password
+    """
+    import random
+    import string
+    # Generate random characters
+    alphabet = string.digits + string.ascii_letters + string.punctuation
+    passwd = []
+    for i in range(length):
+        passwd.append(random.choice(alphabet))
+    passwd = ''.join(passwd)
+    return passwd
+
+
 def is_verifiable(obj):
     """
     Is it possible to verify this object?
@@ -95,12 +110,12 @@ def verify_instance(**kwargs):
 
     from amelie.claudia.models import Mapping
 
-    transaction.on_commit(lambda: tasks.verify_instance.delay(Mapping.get_type(instance), instance.id))
+    transaction.on_commit(lambda: tasks.verify_object.delay(object_id=instance.id, object_type=Mapping.get_type(instance)))
 
 
 def verify_extra_alias(**kwargs):
     instance = kwargs.get('instance')
-    transaction.on_commit(lambda: tasks.verify_mapping.delay(instance.mapping.id))
+    transaction.on_commit(lambda: tasks.verify_object.delay(object_id=instance.mapping.id, object_type=None))
 
 
 def verify_instance_attr(sender, **kwargs):
@@ -119,10 +134,11 @@ def verify_instance_attr(sender, **kwargs):
         # Object was apparently removed sometime.
         return
 
-    if isinstance(obj, Mapping):
-        transaction.on_commit(lambda: tasks.verify_mapping.delay(obj.id))
-    else:
-        transaction.on_commit(lambda: tasks.verify_instance.delay(Mapping.get_type(obj), obj.id))
+    # Trigger claudia verification
+    transaction.on_commit(lambda: tasks.verify_object.delay(
+        object_id=obj.id,
+        object_type=None if isinstance(obj, Mapping) else Mapping.get_type(obj)
+    ))
 
 
 def format_changes(changes):

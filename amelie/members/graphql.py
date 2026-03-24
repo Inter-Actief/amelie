@@ -110,9 +110,9 @@ class CommitteeType(DjangoObjectType):
     information = graphene.String(description=_("Committee information (localized for user)"))
 
     def resolve_email(obj: Committee, info):
-        """Resolves committee e-mail. Returns None if the e-mail is private and the user is not a board member."""
+        """Resolves committee e-mail. Returns empty string if the e-mail is private and the user is not a board member."""
         if obj.private_email and not is_board(info):
-            return None
+            return ''
         return obj.email
 
     def resolve_function_set(obj: Committee, info, include_past_members=False):

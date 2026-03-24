@@ -1,9 +1,9 @@
 import datetime
+from datetime import timezone
 import logging
 
 import ldap
 import ldap.dn
-from django.utils.timezone import utc
 
 from amelie.claudia.tools import encode_guid
 
@@ -592,7 +592,7 @@ class ADAccount(ADObject):
         """
         Set the expiration date of this user account.
         """
-        td = expiration_date - datetime.datetime(1601, 1, 1, tzinfo=utc)
+        td = expiration_date - datetime.datetime(1601, 1, 1, tzinfo=timezone.utc)
         account_expires = (td.seconds + td.days * 24 * 3600) * 10 ** 7
         self.set_single_attribute("accountExpires", str(account_expires))
 

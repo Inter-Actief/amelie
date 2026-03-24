@@ -6,6 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from amelie.claudia.ad import AD
+from amelie.claudia.clau import Claudia
 from amelie.claudia.models import Event, Mapping
 from amelie.claudia.plugins.plugin import ClaudiaPlugin
 from amelie.claudia.tools import unify_mail
@@ -120,7 +121,7 @@ class AccountsPlugin(ClaudiaPlugin):
 
     # ====== Verify! ====
 
-    def verify_mapping(self, claudia, mp, fix=False):
+    def verify_mapping(self, claudia: Claudia, mp, fix=False):
         """
         Verifies all standard attributes of a mapping.
         :param claudia: Claudia object
@@ -263,7 +264,8 @@ class AccountsPlugin(ClaudiaPlugin):
                     # Check if group actually exists
                     if not ad_group:
                         # Let Claudia create the group if it does not exist.
-                        claudia.do_verify_mp(group)
+                        logging.info(f"Group to add does not exist yet, verifying group '{group.name}' (cid: {group.id}) now so it may be created.")
+                        claudia.verify_mapping(mp=group, fix=fix)
                         ad_group = self.ad.find_group(str(group.adname))
                     if ad_group:
                         account.add_group(ad_group)

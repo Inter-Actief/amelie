@@ -12,6 +12,7 @@ from django.utils.encoding import force_str
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _l
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask
 from amelie.calendar.models import Event
 from amelie.activities.models import ActivityLabel
@@ -350,7 +351,8 @@ def progress_feedback(sender, **kwargs):
             task = MailTask(from_=settings.EDUCATION_COMMITTEE_EMAIL,
                             template_name='education/complaint_progress.mail',
                             report_to=settings.EDUCATION_COMMITTEE_EMAIL,
-                            report_always=False)
+                            report_always=False,
+                            priority=TaskPriority.HIGH)
 
             complaint_subject = complaint.course if complaint.course else complaint.subject
             context = {'complaint_subject': force_str(complaint_subject),
@@ -360,7 +362,7 @@ def progress_feedback(sender, **kwargs):
                        }
 
             task.add_recipient(PersonRecipient(recipient=complaint.reporter, context=context))
-            task.send(delay=False)
+            task.send()
 
 
 post_save.connect(progress_feedback, sender=ComplaintComment)

@@ -189,6 +189,7 @@ class AmelieDataExporter(DataExporter):
             'shell': str(person.get_shell_display()),
             'webmaster': person.webmaster,
             'picture': None,
+            'unverified_picture': None,
             'preferences': [],
             'user': None,
             'dogroup_parenthoods': [],
@@ -199,9 +200,15 @@ class AmelieDataExporter(DataExporter):
         }
         member_files = []
 
+
         if person.picture:
             member_data['picture'] = os.path.join("member_files", os.path.basename(person.picture.path))
             member_files.append(person.picture.path)
+
+
+        if person.unverified_picture:
+            member_data['unverified_picture'] = os.path.join("member_files", os.path.basename(person.unverified_picture.path))
+            member_files.append(person.unverified_picture.path)
 
         member_data['preferences'] = [str(preference) for preference in person.preferences.all()]
 

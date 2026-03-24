@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db.models import Sum, Q
+from django.db.models import Sum
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save, pre_save
@@ -16,7 +16,6 @@ from amelie.activities.utils import setlocale, update_waiting_list
 from amelie.files.models import Attachment
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event, Participation
-from amelie.tools.ariana import send_irc
 from amelie.tools.discord import send_discord, send_discord_presave
 from amelie.tools.managers import SubclassManager
 
@@ -289,11 +288,11 @@ class EnrollmentoptionCheckbox(Enrollmentoption):
 
     def count_spots_left(self):
         if self.maximum == 0:
-            return -1
+            return None
         return self.maximum - self.enrollmentoptionanswer_set.filter(enrollmentoptioncheckboxanswer__answer=True).count()
 
     def spots_left(self):
-        return self.count_spots_left() != 0
+        return self.count_spots_left() is None or self.count_spots_left() > 0
 
 class EnrollmentoptionNumeric(Enrollmentoption):
     """
@@ -316,14 +315,14 @@ class EnrollmentoptionNumeric(Enrollmentoption):
 
     def count_spots_left(self):
         if self.maximum == 0:
-            return -1
+            return None
         count = self.enrollmentoptionanswer_set.aggregate(Sum('enrollmentoptionnumericanswer__answer'))
         if count is None or count.get('enrollmentoptionnumericanswer__answer__sum') is None:
             return self.maximum
         return self.maximum - count.get('enrollmentoptionnumericanswer__answer__sum')
 
     def spots_left(self):
-        return self.count_spots_left() != 0
+        return self.count_spots_left() is None or self.count_spots_left() > 0
 
 class EnrollmentoptionSelectbox(Enrollmentoption):
     """

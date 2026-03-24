@@ -1,0 +1,102 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Refund Print' %} - {% trans 'Confirmation' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Refund Confirmation' %}</h2>
+        <div class="content">
+            <p>{% trans 'Are you sure you want to refund the print below?' %}</p>
+
+            <table>
+                <tr>
+                    <th>{% trans "Timestamp" %}</th>
+                    <td>
+                        {{ object.timestamp|date:"d-m-Y H:i:s" }}
+                        <br />
+                        <small>
+                            {% blocktrans with time=object.timestamp|timesince %}
+                                {{ time }} ago
+                            {% endblocktrans %}
+                        </small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Actor" %}</th>
+                    <td>
+                        <a href="{{ object.actor.get_absolute_url }}">
+                            <i class="icon icon-user"></i>
+                            {{ object.actor }}
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Document Name" %}</th>
+                    <td>
+                        {{ object.document_name }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Pages" %}</th>
+                    <td>
+                        <i class="icon icon-page"></i>
+                        {{ entry.page_count }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Transaction" %}</th>
+                    <td>
+                        <a href="{{ object.transaction.get_absolute_url }}" title="{% trans 'View transaction' %}">
+                            <i class="icon personal_tab"></i>
+                            #{{ object.transaction.id }}
+                        </a>
+                        <small>{% blocktrans with price=object.transaction.price %}(&euro; {{ price }}){% endblocktrans %}</small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "Source IP" %}</th>
+                    <td>
+                        {% if object.source_ip %}
+                            <code>{{ object.source_ip }}</code>
+                        {% else %}
+                            <em>{% trans "Unknown" %}</em>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans "User Agent" %}</th>
+                    <td>
+                        {% if object.source_useragent %}
+                            <small>
+                                <i class="icon icon-world"></i>
+                                {% if "Chrome" in object.source_useragent %}
+                                    {% trans 'Chrome' %}
+                                {% elif "Firefox" in object.source_useragent %}
+                                    {% trans 'Firefox' %}
+                                {% elif "Safari" in object.source_useragent %}
+                                    {% trans 'Safari' %}
+                                {% elif "Edge" in object.source_useragent %}
+                                    {% trans 'Edge' %}
+                                {% else %}
+                                    {% trans 'Browser' %}
+                                {% endif %}
+                                <br />
+                                <small>{{ object.source_useragent }}</small>
+                            </small>
+                        {% else %}
+                            <em>{% trans "Unknown" %}</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="submit" value="{% trans 'Yes' %}">
+                <a href="{% url 'personal_tab:print_log' %}" class="looks-like-a-button">{% trans "No" %}</a>
+            </form>
+
+        </div>
+    </div></div>
+{% endblock content %}

@@ -44,8 +44,8 @@
             <li><a href="{% url 'about:page' 5 'association-song' %}">{% trans 'Association song' %}</a></li>
             <li><a href="{% url 'about:page' 16 'alumni-association-eniac' %}">{% trans 'Association ENIAC' %}</a></li>
             <li><a href="{% url 'about:page' 4 'sister-associations' %}">{% trans 'Sister associations' %}</a></li>
-<li><a href="{% url 'about:page' 27 'the-inter-actief-app' %}">{% trans 'Inter-<i>Actief</i> app' %}</a></li>
-<li><a href="https://inter-archief.net">{% trans 'Inter-Archive' %}</a></li>
+            <li><a href="{% url 'about:page' 27 'the-inter-actief-app' %}">{% trans 'Inter-<i>Actief</i> app' %}</a></li>
+            <li><a href="https://inter-archief.net">{% trans 'Inter-Archive' %}</a></li>
         </ul>
     </li>
 
@@ -132,6 +132,11 @@
                 <li>
                     <a href="{% url 'personal_tab:overview' %}">{% trans 'Personal tab' %}</a>
                 </li>
+                {% if request.person.has_mandate_consumptions or request.person.is_active_member %}
+                <li>
+                    <a href="{% url 'personal_tab:print_index' %}">{% trans 'Print document' %}</a>
+                </li>
+                {% endif %}
                 <li>
                     <a href="{% url 'oidc_logout' %}">{% trans 'Log out' %}</a>
                 </li>

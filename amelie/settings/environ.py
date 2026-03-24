@@ -153,7 +153,7 @@ LOGGING = {
         'amelie': { # Log all Amelie errors
             'level': 'DEBUG',
         },
-        'amelie.claudia': { # store claudia logging in seperate file and log to eugenia
+        'amelie.claudia': { # Claudia logs can go to different handlers
             'level': 'DEBUG',
             'handlers': ENABLED_HANDLERS_CLAUDIA,
             'propagate': False,
@@ -187,14 +187,19 @@ LOGGING = {
         'daphne': { # Set daphne logging to INFO
             'level': 'INFO'
         },
-        # Ignore SAML2 errors due to unsollicited response error floods
-        'saml2.entity': {'handlers': [], 'propagate': False},
-        'saml2.client_base': {'handlers': [], 'propagate': False},
-        'saml2.response': {'handlers': [], 'propagate': False},
+        'celery': { # Set Celery logging to INFO to avoid spam
+            'level': 'INFO'
+        },
+        'celery.task': { # Set Celery task logging to DEBUG
+            'level': 'DEBUG'
+        },
+        'celery.utils.functional': { # Set Celery utils logging to INFO to avoid spam
+            'level': 'INFO'
+        },
         # Set OIDC logging to at least info due to process_request log flooding
         'mozilla_django_oidc.middleware': {'level': 'INFO'},
         # Set ModernRPC logging to at least info due to "register_method" log flooding for API
-        'modernrpc.core': {'level': 'INFO'},
+        'modernrpc.server': {'level': 'INFO'},
     },
 }
 
@@ -265,16 +270,23 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default=get_random_secret_key_no_dollar())
 # Setup broker for celery
 CELERY_BROKER_URL = env('DJANGO_CELERY_BROKER_URI', default='amqp://amelie:amelie@localhost:5672/amelie')
 BROKER_URL = CELERY_BROKER_URL  # Needed for django-health-check RabbitMQ check to work
+# URL to the Celery Flower instance
+FLOWER_URL = env('DJANGO_FLOWER_URL', default='http://localhost:5555')
+# URL to the RabbitMQ management API (used on sysinfo page)
+RABBITMQ_MGMT_API_URL = env('DJANGO_RABBITMQ_MGMT_API_URI', default='http://amelie:amelie@localhost:15672/api')
+RABBITMQ_MGMT_VHOST = env('DJANGO_RABBITMQ_MGMT_VHOST', default='amelie')
 
 # Django Celery -- True means that tasks will be executed immediately and are not queued!
 CELERY_TASK_ALWAYS_EAGER = env.bool("CELERY_TASK_ALWAYS_EAGER", default=False)
 
 if CELERY_BROKER_URL:
-    # Add extra health checks if a celery broker is configured.
-    INSTALLED_APPS = INSTALLED_APPS + (
-        'health_check.contrib.celery_ping',  # requires celery, checks if workers are available
-        'health_check.contrib.rabbitmq',     # requires RabbitMQ broker, checks if RabbitMQ is available
-    )
+    HEALTH_CHECK_ENABLED_CHECKS += [
+        "health_check.contrib.celery.Ping",
+        (
+            "health_check.contrib.rabbitmq.RabbitMQ",
+            {"amqp_url": CELERY_BROKER_URL},
+        ),
+    ]
 
 ###
 #  Internationalization
@@ -297,6 +309,18 @@ STATIC_URL = env("AMELIE_STATIC_URL", default="/static/")
 # Path to amelie media
 MEDIA_ROOT = '/media'
 MEDIA_URL = env("AMELIE_MEDIA_URL", default="/media/")
+
+# Add disk checks for the Static and Media directories
+HEALTH_CHECK_ENABLED_CHECKS += [
+    (
+        "health_check.contrib.psutil.Disk",
+        {"path": os.path.abspath(MEDIA_ROOT)},
+    ),
+    (
+        "health_check.contrib.psutil.Disk",
+        {"path": os.path.abspath(STATIC_ROOT)},
+    ),
+]
 
 # Path to website (needed for pictures via the API among other things)
 ABSOLUTE_PATH_TO_SITE = env("AMELIE_ABSOLUTE_PATH_TO_SITE", default="http://localhost:8080/")
@@ -345,10 +369,16 @@ CLAUDIA_MAIL['FROM'] = env("CLAUDIA_MAIL_FROM", default=CLAUDIA_MAIL.get('FROM',
 # Claudia GitLab settings
 CLAUDIA_GITLAB['TOKEN'] = env("CLAUDIA_GITLAB_TOKEN", default=CLAUDIA_GITLAB.get('TOKEN', None))
 
+# Claudia Matrix settings
+CLAUDIA_MATRIX['TOKEN'] = env("CLAUDIA_MATRIX_TOKEN", default=CLAUDIA_MATRIX.get('TOKEN', None))
+
 # Claudia GSuite settings
-CLAUDIA_GSUITE['SERVICE_ACCOUNT_P12_FILE'] = env("CLAUDIA_GSUITE_SERVICE_ACCOUNT_P12_FILE", default=CLAUDIA_GSUITE.get('SERVICE_ACCOUNT_P12_FILE', None))
+CLAUDIA_GSUITE['SERVICE_ACCOUNT_JSON_FILE'] = env("CLAUDIA_GSUITE_SERVICE_ACCOUNT_JSON_FILE", default=CLAUDIA_GSUITE.get('SERVICE_ACCOUNT_JSON_FILE', None))
 CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS'] = env.list("CLAUDIA_GSUITE_ALLOWED_ALIAS_DOMAINS", default=CLAUDIA_GSUITE.get('ALLOWED_ALIAS_DOMAINS', None))
 
+
+CLAUDIA_KANIDM["API_BASE"] = env("CLAUDIA_KANIDM_API_BASE", default="idm.ia.utwente.nl")
+CLAUDIA_KANIDM["API_KEY"] = env("CLAUDIA_KANIDM_API_KEY", default=None)
 
 ###
 #  Alexia settings
@@ -357,13 +387,9 @@ ALEXIA_API['URL'] = env("ALEXIA_API_URL", default=ALEXIA_API.get('URL', None))
 ALEXIA_API['USER'] = env("ALEXIA_API_USERNAME", default=ALEXIA_API.get('USER', None))
 ALEXIA_API['PASSWORD'] = env("ALEXIA_API_PASSWORD", default=ALEXIA_API.get('PASSWORD', None))
 
-###
-#  Twitter settings (probably broken due to twitter API changes)
-###
-TWITTER_APP_KEY = env("AMELIE_TWITTER_APP_KEY", default=TWITTER_APP_KEY)
-TWITTER_APP_SECRET = env("AMELIE_TWITTER_APP_SECRET", default=TWITTER_APP_SECRET)
-TWITTER_OAUTH_TOKEN = env("AMELIE_TWITTER_OAUTH_TOKEN", default=TWITTER_OAUTH_TOKEN)
-TWITTER_OAUTH_SECRET = env("AMELIE_TWITTER_OAUTH_SECRET", default=TWITTER_OAUTH_SECRET)
+# Alexia age check API configuration
+ALEXIA_AGE_CHECK_API_CONFIG['api_key'] = env("ALEXIA_AGE_CHECK_API_KEY", default=None)
+ALEXIA_AGE_CHECK_API_CONFIG['allowed_ips'] = env.list("ALEXIA_AGE_CHECK_ALLOWED_IPS", default=[])
 
 
 ###
@@ -389,6 +415,13 @@ SPOTIFY_CLIENT_ID = env("SPOTIFY_CLIENT_ID", default=SPOTIFY_CLIENT_ID)
 SPOTIFY_CLIENT_SECRET = env("SPOTIFY_CLIENT_SECRET", default=SPOTIFY_CLIENT_SECRET)
 SPOTIFY_SCOPES = env("SPOTIFY_SCOPES", default=SPOTIFY_SCOPES)
 
+###
+#  Matrix chat settings (for room narrowcasting page)
+###
+MATRIX_SETTINGS["USER"] = env("MATRIX_NARROWCASTING_USER", default=MATRIX_SETTINGS["USER"])
+MATRIX_SETTINGS["SERVER"] = env("MATRIX_NARROWCASTING_SERVER", default=MATRIX_SETTINGS["SERVER"])
+MATRIX_SETTINGS["TOKEN"] = env("MATRIX_NARROWCASTING_TOKEN", default=MATRIX_SETTINGS["TOKEN"])
+MATRIX_SETTINGS["ROOM_ID"] = env("MATRIX_NARROWCASTING_ROOM_ID", default=MATRIX_SETTINGS["ROOM_ID"])
 
 ###
 #  Discord integration configuration
@@ -423,12 +456,50 @@ PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal(env("PERSONAL_TAB_MAXIMUM_ACTIVITY
 # Cookie corner Wrapped
 COOKIE_CORNER_WRAPPED_YEAR = env.int("COOKIE_CORNER_WRAPPED_YEAR", default=COOKIE_CORNER_WRAPPED_YEAR)
 
+# Printer configuration
+
+# Maximum file size for printed files, in bytes (i.e. 50MB = 50 * 1024 * 1024 bytes)
+PERSONAL_TAB_PRINTER_MAX_FILE_SIZE = env.int("PERSONAL_TAB_PRINTER_MAX_FILE_SIZE", default=PERSONAL_TAB_PRINTER_MAX_FILE_SIZE)
+# Article ID of 1 piece of paper (single/dual-sided)
+PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID = env.int("PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID", default=PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID)
+
+# Printer configuration, limited to 5 printers currently, via PERSONAL_TAB_PRINTER_1_*, PERSONAL_TAB_PRINTER_2_*, etc.
+PERSONAL_TAB_PRINTERS = {}
+for i in range(1, 6):
+    printer_key = env(f"PERSONAL_TAB_PRINTER_{i}_KEY", default="")
+    if printer_key:
+        printer_name = env(f"PERSONAL_TAB_PRINTER_{i}_NAME", default=None)
+        printer_ipp = env(f"PERSONAL_TAB_PRINTER_{i}_IPP_URL", default=None)
+        if printer_name is None or printer_ipp is None:
+            raise ValueError(f"Personal tab printer {i} is missing basic configuration! Please make sure "
+                             f"PERSONAL_TAB_PRINTER_{i}_NAME and PERSONAL_TAB_PRINTER_{i}_IPP_URL are set, "
+                             f"or unset PERSONAL_TAB_PRINTER_{i}_KEY to disable this printer.")
+        PERSONAL_TAB_PRINTERS[printer_key] = {
+            # Printer name as shown to users
+            "name": printer_name,
+            # IPP(S) url to print on the printer
+            "ipp_url": printer_ipp,
+            # Various printer settings
+            "settings": {
+                # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/media-supported"
+                "media_format": env(f"PERSONAL_TAB_PRINTER_{i}_MEDIA_FORMAT", default="iso_a4_210x297mm"),
+                # One of the formats listed on page /personal_tab/print/status/<printer_key>/, key "attributes/printers/0/document-format-supported"
+                "document_format": env(f"PERSONAL_TAB_PRINTER_{i}_DOCUMENT_FORMAT", default="application/pdf"),
+                # One of ["single-document", "separate-documents-uncollated-copies", "separate-documents-collated-copies", "single-document-new-sheet"]
+                # See RFC-8011, Section-5.2.4 for confusing details. You probably want "separate-documents-collated-copies" or "single-document-new-sheet".
+                "multiple_document_handling": env(f"PERSONAL_TAB_PRINTER_{i}_MULTIPLE_DOCUMENT_HANDLING", default="separate-documents-collated-copies"),
+            },
+        }
 
 ###
 #  Amelie-specific settings
 ###
 # Current theme for the website. Options: [None, "christmas", "valentine"]
 WEBSITE_THEME_OVERRIDE = env("AMELIE_THEME_OVERRIDE", default=None)
+
+# Block themes from showing on the infodesk and couch (outside) Raspberry pis, since they will lag too much
+BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
+BLOCKED_THEME_IP_RANGES.extend(env.list("BLOCKED_THEME_IP_RANGES", default=[]))
 
 # Youtube API key (for video module)
 YOUTUBE_API_KEY = env("AMELIE_YOUTUBE_API_KEY", default="")

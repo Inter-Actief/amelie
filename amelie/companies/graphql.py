@@ -1,4 +1,5 @@
 import graphene
+from datetime import date
 from django_filters import FilterSet
 from graphene_django import DjangoObjectType
 
@@ -150,6 +151,9 @@ class CompaniesQuery(graphene.ObjectType):
         if slug is not None:
             return Company.objects.get(slug=slug)
         return None
+
+    def resolve_companies(self, info, *args, **kwargs):
+        return Company.objects.filter(end_date__gte=date.today(), start_date__lte=date.today())
 
     def resolve_company_event(self, info, id=None):
         now = timezone.now()

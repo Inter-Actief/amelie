@@ -15,7 +15,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:10.4
+        image: mariadb:10.5
         env:
           MARIADB_USER: amelie_test
           MARIADB_PASSWORD: amelie_test
@@ -26,10 +26,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Set build variables
+        id: vars
+        run: |
+          echo "BUILD_BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "BUILD_COMMIT=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -37,18 +44,22 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_BRANCH=${{ steps.vars.outputs.BUILD_BRANCH }}
+            BUILD_COMMIT=${{ steps.vars.outputs.BUILD_COMMIT }}
+            BUILD_DATE=${{ steps.vars.outputs.BUILD_DATE }}
 
       - name: Verify MariaDB connection
         run: |

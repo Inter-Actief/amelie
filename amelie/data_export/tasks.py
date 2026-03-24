@@ -1,7 +1,8 @@
-import logging
 import os
+import logging
 import shutil
 import traceback
+from typing import List, Union, Optional
 from zipfile import ZipFile
 
 from celery import shared_task, group
@@ -9,14 +10,17 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 
-from amelie.data_export.models import ApplicationStatus
+from amelie.data_export.models import ApplicationStatus, DataExport
 from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.tools.mail import PersonRecipient
 
 
-# Time limit increased to 1 hour because the data export including homedirs might take a long time.
-@shared_task(time_limit=1 * 60 * 60)
-def export_data(data_export):
+logger = logging.getLogger(__name__)
+
+
+@shared_task(name="default.export_data")
+def export_data(data_export: DataExport):
     """
     Export the data for a given person
     :param data_export: The data export to export for.
@@ -26,17 +30,19 @@ def export_data(data_export):
     # and then executes the mail sender function
 
     # Execute each app's export task,
-    logging.getLogger(__name__).info("Exporting data for {}".format(data_export))
+    logger.info(f"Exporting data for {data_export}")
     (group(execute_exporter.s(data_export, x) for x in data_export.exported_applications.all())
      # followed by the file zip callback,
      | zip_results.s(data_export)
      # followed by the mail callback
      | mail_person.s(data_export)
-     )()  # And execute the workflow (the last two brackets)
+     ).delay()  # And execute the workflow (the last `.delay()`)
+    logger.info(f"Data export for {data_export} done.")
 
 
-@shared_task
-def execute_exporter(data_export, application_status, **kwargs):
+# The time limit increased to 1 hour because some data exporters (i.e., home dirs, site photos) might take a long time.
+@shared_task(name="default.execute_exporter", time_limit=1 * 60 * 60)
+def execute_exporter(data_export: DataExport, application_status: ApplicationStatus) -> Optional[str]:
     """
     Execute an exporter for a given Person and ApplicationStatus
     :param data_export: The data export object.
@@ -45,8 +51,7 @@ def execute_exporter(data_export, application_status, **kwargs):
     :type application_status: amelie.data_export.models.ApplicationStatus
     :return: The filename that was returned by the exporter.
     """
-    logging.getLogger(__name__).debug("Running exporter for {} - application {}".format(data_export.person,
-                                                                                        application_status.application))
+    logger.debug(f"Running exporter for {data_export.person} - application {application_status.application}")
 
     # Get an instance of the DataExporter that we need to run
     try:
@@ -54,7 +59,7 @@ def execute_exporter(data_export, application_status, **kwargs):
     except Exception as e:
         traceback.print_exc()
         # Something went wrong! Set the application status to error, report the error to Sentry and quit.
-        logging.getLogger(__name__).error("Could not initialize data exporter for application {} for user {}: {}".format(
+        logger.error("Could not initialize data exporter for application {} for user {}: {}".format(
             application_status.application,
             data_export.person,
             e
@@ -64,7 +69,7 @@ def execute_exporter(data_export, application_status, **kwargs):
         traceback.print_exc()
         application_status.status = ApplicationStatus.StatusChoices.ERROR
         application_status.save()
-        # Remove temporary directory if it exists. (The exporter creates it during init)
+        # Remove the temporary directory if it exists. (The exporter creates it during init)
         tempdir = os.path.join(settings.DATA_EXPORT_ROOT, str(data_export.download_code))
         if os.path.isdir(tempdir):
             shutil.rmtree(tempdir)
@@ -81,7 +86,7 @@ def execute_exporter(data_export, application_status, **kwargs):
     except Exception as e:
         traceback.print_exc()
         # Something went wrong! Set the application status to error and report the error to Sentry
-        logging.getLogger(__name__).error("Error while exporting data for application {} for user {}: {}".format(
+        logger.exception("Error while exporting data for application {} for user {}: {}".format(
             application_status.application,
             data_export.person,
             e
@@ -100,18 +105,20 @@ def execute_exporter(data_export, application_status, **kwargs):
     # Execute exporter post-execute cleanup hook
     exporter.post_export_cleanup()
 
-    # Finally return the file path that the exporter has generated
+    # Finally, return the file path that the exporter has generated
+    final_state = "successfully" if application_status.status == ApplicationStatus.StatusChoices.SUCCESS else "with errors"
+    logger.info(f"Exporter for {data_export.person} - application {application_status.application} finished {final_state}.")
     return path
 
 
-@shared_task
-def zip_results(results, data_export):
+@shared_task(name="default.zip_results")
+def zip_results(results: Union[Optional[str], List[Optional[str]]], data_export: DataExport) -> str:
     """
     Zip the resulting filenames together into a big zip file and add metadata about the export.
     Then, delete the original files and save the big zip's filename in the data export.
     Returns the path to the zip file.
 
-    :param results: List of paths of the results of the exporters.
+    :param results: List of paths where the results of the exporters are stored.
                     Paths can be None, that means there is no file or the exporter failed somewhere,
                     but that's not our fault, so just don't include those.
     :type results: list(str)
@@ -120,11 +127,10 @@ def zip_results(results, data_export):
     :return The path to the big zip file.
     :rtype str
     """
-    log = logging.getLogger(__name__)
-    log.debug("Combining resulting files into one zip file.")
+    logger.debug("Combining resulting files into one zip file.")
 
-    # If the person only selected one export, results will be a string, if they selected more than
-    # one, it will be al list. Convert the string into a 1-long list if it is a string to avoid problems.
+    # If the person only selected one export, `results` will be a string, if they selected more than
+    # one, it will be a list. Convert the string into a 1-long list if it is a string to avoid problems.
     if type(results) == str:
         results = [results]
 
@@ -139,17 +145,17 @@ def zip_results(results, data_export):
         for file in results:
             if file and os.path.isfile(file):
                 try:
-                    log.debug("Adding file {} to zip file {}.".format(file, combined_file_path))
+                    logger.debug("Adding file {} to zip file {}.".format(file, combined_file_path))
                     zipfile.write(file, os.path.relpath(file, settings.DATA_EXPORT_ROOT))
                 except Exception as e:
-                    log.error("Could not add file {} to combined zip file: {}".format(file, e))
+                    logger.error("Could not add file {} to combined zip file: {}".format(file, e))
                     #from raven.contrib.django.raven_compat.models import client
                     #client.captureException()
                     traceback.print_exc()
             elif file:
-                log.warning("Could not add file {} to archive, this is not a valid file path.".format(file))
+                logger.warning("Could not add file {} to archive, this is not a valid file path.".format(file))
 
-        # Set the export completed date
+        # Set the export completion date
         data_export.complete_timestamp = timezone.now()
 
         # Generate a metadata file for this export to include in the root of the .zip
@@ -167,7 +173,7 @@ def zip_results(results, data_export):
     # Delete the original files
     for file in results:
         if file and os.path.isfile(file):
-            log.debug("Removing original file {}".format(file))
+            logger.debug("Removing original file {}".format(file))
             os.remove(file)
 
     # Set the filename in the data_export object
@@ -179,17 +185,21 @@ def zip_results(results, data_export):
     # Save the data export
     data_export.save()
 
+    logger.info(f"Zipping of results completed successfully.")
     return combined_file_path
 
 
-@shared_task
-def mail_person(path, data_export):
+@shared_task(name="default.mail_person")
+def mail_person(path: str, data_export: DataExport):
     """
     Send an e-mail to the owner of this data export to tell him his data export is ready for download.
-    :param data_export: The data export to send a mail for.
+    :param path: The path to the completed data export.
+    :type path: str
+    :param data_export: The data export to send the mail for.
     :type data_export: amelie.data_export.models.DataExport
     """
     person = data_export.person
+    logger.info(f"Sending export complete mailing to {person}.")
     current_language = translation.get_language()
     try:
         translation.activate(person.preferred_language)
@@ -197,7 +207,7 @@ def mail_person(path, data_export):
         task = MailTask(from_='Inter-Actief Data-exporter <www@inter-actief.net>',
                         template_name='data_export/mails/export_complete.mail',
                         report_to='Inter-Actief Data-exporter <www@inter-actief.net>',
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.URGENT)
         task.add_recipient(PersonRecipient(
             recipient=person,
             context={'data_export': data_export, 'base_url': settings.ABSOLUTE_PATH_TO_SITE},
@@ -208,3 +218,4 @@ def mail_person(path, data_export):
         task.send()
     finally:
         translation.activate(current_language)
+    logger.info(f"Mail sent to task queue.")

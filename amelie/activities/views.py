@@ -42,7 +42,7 @@ from amelie.activities.mail import activity_send_enrollmentmail, activity_send_o
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
-    EnrollmentoptionNumericAnswer
+    EnrollmentoptionNumericAnswer, EnrollmentoptionAnswer
 from amelie.activities.tasks import save_photos
 from amelie.activities.utils import check_enrollment_allowed, check_unenrollment_allowed, update_waiting_list
 from amelie.claudia.google import GoogleSuiteAPI
@@ -50,8 +50,10 @@ from amelie.files.models import Attachment
 from amelie.calendar.models import Participation, Event
 from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
-from amelie.members.query_forms import MailingForm
+from amelie.members.query_forms import ActivityMailingForm
+from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
+from amelie.tools.const import TaskPriority
 from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
 from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
 from amelie.tools.calendar import ical_calendar
@@ -233,7 +235,7 @@ def activity(request, pk, deanonymise=False):
             'total_price__sum')) if restaurant.dishes.aggregate(Sum('total_price')).get(
             'total_price__sum') is not None else 0 for restaurant in restaurants])
         total_amount = sum(
-            [restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants])
+            [restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants if restaurant is not None])
 
     can_view_photos = activity.photos.filter_public(request).count() > 0
     obj = activity  # Template laziness
@@ -323,20 +325,20 @@ def activity_cancel(request, pk):
     """
     Cancels or re-publishes an activity (depending on the current status of this event).
 
-    Events may only be cancelled if they have not yet started.
+    Events may only be canceled if they have not yet started.
 
     In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
-    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-openend.
+    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-opened.
 
     Asks for a confirmation.
     """
     obj = get_object_or_404(Activity, pk=pk)
 
-    # If the event is already cancelled, immediately re-publish it without any confirmation screen.
+    # If the event is already canceled, immediately re-publish it without any confirmation screen.
     if obj.cancelled:
         obj.cancelled = False
         obj.save()
-        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that all previous enrollments are not added again and that enrollments will have to be manually re-opened."))
+        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that any previous enrollments are not added again and that enrollments will have to be manually re-opened."))
         return redirect(obj)
 
     if request.POST:
@@ -351,7 +353,7 @@ def activity_cancel(request, pk):
                 if obj.waiting_participations.exists():
                     activity_send_cancellationmail(obj.waiting_participations.all(), obj, from_waiting_list=True)
 
-                # Send an email to the treasurer if people have paid in cash.
+                # Send an e-mail to the treasurer if people have paid in cash.
                 # This email contains the names and amount paid by each person.
                 if obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).exists():
                     activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
@@ -457,28 +459,34 @@ def activity_unenrollment_self(request, pk):
     return redirect(obj)
 
 
-def activity_editenrollment(request, participation, obj):
-    # If necessary, compensate the enrollment costs.
+@transaction.atomic
+def activity_editenrollment(request, participation, obj, edited_by=None):
     from amelie.personal_tab import transactions
-    transactions.remove_participation(participation)
 
-    # Important to not delete the participation, as the spot on the waiting list will be given away.
-    if participation.waiting_list:
-        participation.enrollmentoptionanswer_set.all().delete()
+    # It is important to not delete the Participation, because the person's spot in the activity or on the waiting list
+    # could be given away to the next waiting list entry.
+    # So we need to update the enrollment options of the participation in-place
 
-        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj, request.POST if request.POST else None,
-                                                                        participation.person.user)
+    if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
+        # If this is a regular Participation (not waiting list and via mandate), we need to remove the old transaction from
+        # their personal tab to not charge them twice and to be able to re-add the updated costs later
+        transactions.remove_participation(participation, added_by=edited_by, is_edited_participation=True)
 
-        # Make enrollmentoptions
-        for form in enrollmentoptions_forms:
-            if form.is_valid():
-                answer = form.save(commit=False)
-                answer.enrollment = participation
-                answer.save()
-                form.save_m2m()
-    else:
-        participation.delete()
-        activity_enrollment_form(request, obj, person=None)
+    enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj, request.POST if request.POST else None,
+                                                                    participation.person.user)
+
+    # Make enrollmentoptions
+    for form in enrollmentoptions_forms:
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.enrollment = participation
+            answer.save()
+            form.save_m2m()
+
+    if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
+        # If this is a regular Participation (not waiting list and via mandate), we need to re-add
+        # the transaction to update the costs on the personal tab
+        transactions.add_participation(participation, added_by=edited_by, is_edited_participation=True)
 
 
 @require_lid
@@ -500,7 +508,7 @@ def activity_editenrollment_self(request, pk):
         return redirect(obj)
 
     if request.method == 'POST':
-        activity_editenrollment(request, participation, obj)
+        activity_editenrollment(request, participation, obj, edited_by=None)
         # Redirect back to the activity
         return redirect(obj)
     else:
@@ -517,11 +525,11 @@ def activity_editenrollment_other(request, pk, person_id):
     """
     Edit enrollment of the person that is logged in for this activity.
     """
-
     # Lock the Activity object for updating, prevent concurrent (un)enrollments
     obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
     person = get_object_or_404(Person, pk=person_id)
     activity = obj
+
 
     try:
         participation = Participation.objects.select_for_update().get(person=person, event=obj)
@@ -529,7 +537,7 @@ def activity_editenrollment_other(request, pk, person_id):
         raise Http404
 
     if request.method == 'POST':
-        activity_editenrollment(request, participation, obj)
+        activity_editenrollment(request, participation, obj, edited_by=request.person)
         # Redirect back to the activity
         return redirect(obj)
     else:
@@ -626,48 +634,44 @@ def activity_enrollment_person(request, pk, person_id):
     return activity_enrollment_form(request, activity, person)
 
 
-def _build_enrollmentoptionsanswers_forms(activity, data, user):
+def _build_enrollmentoptionsanswers_forms(activity_obj, data, user):
     forms = []
 
-    for enrollmentoption in activity.enrollmentoption_set.all():
+    for enrollmentoption in activity_obj.enrollmentoption_set.all():
         prefix = 'enrollmentoption_{}'.format(enrollmentoption.pk)
 
         answer_type = ENROLLMENTOPTION_ANSWER_TYPES[enrollmentoption.content_type.model_class()]
         content_type = ContentType.objects.get_for_model(answer_type)
         instance = answer_type(enrollmentoption=enrollmentoption, content_type=content_type)
 
+        # Try to resolve the instance to an actual object if the person is enrolled for the activity
+        try:
+            participation = Participation.objects.get(person__user=user, event=activity_obj)
+            try:
+                instance = answer_type.objects.get(
+                    enrollment=participation,
+                    enrollmentoption=enrollmentoption,
+                    content_type=content_type
+                )
+            except EnrollmentoptionAnswer.DoesNotExist:
+                pass
+        except Participation.DoesNotExist:
+            pass
+
         form_type = ENROLLMENTOPTIONANSWER_FORM_TYPES[enrollmentoption.content_type.model_class()]
 
-        # Make sure that if someone adjusts their enrollment and they have a spot with a limited capacity,
+        # Make sure that if someone adjusts their enrollment, and they have a spot with a limited capacity,
         # they still have the option to keep their spot.
         checked = False
-        try:
+        if instance.pk:
             if form_type == EnrollmentoptionCheckboxAnswerForm:
-                participation = Participation.objects.get(person__user=user, event=activity)
-                unit = EnrollmentoptionCheckboxAnswer.objects.get(enrollmentoption=enrollmentoption,
-                                                                  enrollment=participation)
-                checked = unit.answer
+                checked = instance.answer
             elif form_type == EnrollmentoptionNumericAnswerForm:
-                participation = Participation.objects.get(person__user=user, event=activity)
-                unit = EnrollmentoptionNumericAnswer.objects.get(enrollmentoption=enrollmentoption,
-                                                                 enrollment=participation)
-                checked = unit.answer > 0
-        except (EnrollmentoptionCheckboxAnswer.DoesNotExist, EnrollmentoptionNumericAnswer.DoesNotExist,
-                Participation.DoesNotExist):
-            pass
-
-        # If no data is given for this form, fill it from the database if possible
-        initial = None
-        try:
-            participation = Participation.objects.get(person__user=user, event=activity)
-            initial = {
-                "answer": answer_type.objects.get(enrollmentoption=enrollmentoption, enrollment=participation).answer}
-        except (Participation.DoesNotExist, answer_type.DoesNotExist):
-            pass
+                checked = instance.answer > 0
 
         forms.append(
-            form_type(enrollmentoption=enrollmentoption, checked=checked, data=data, prefix=prefix, instance=instance,
-                      initial=initial))
+            form_type(enrollmentoption=enrollmentoption, checked=checked, data=data,
+                      prefix=prefix, instance=instance))
     return forms
 
 
@@ -810,7 +814,7 @@ def photo_upload(request):
         if "_processing" in dir_path:
             continue
         for filename in filenames:
-            if any(filename.lower().endswith(ext) for ext in ['.jpg', '.gif']):
+            if any(filename.lower().endswith(ext) for ext in PhotoFileUploadForm.allowed_extensions):
                 photos.append(os.path.relpath(os.path.join(dir_path, filename), folder))
 
     photos = list(sorted(
@@ -832,20 +836,24 @@ def photo_upload(request):
             last_name = form.cleaned_data["last_name"]
             public = form.cleaned_data["public"]
 
-            if photographer is not None:
-                photographer = Photographer.objects.get_or_create(person=photographer)[0]
-            else:
+            # During field validation, it is checked whether one of those is present
+            if first_name and last_name:
                 photographer = Photographer.objects.get_or_create(first_name=first_name,
                                                                   last_name_prefix=last_name_prefix,
                                                                   last_name=last_name)[0]
+            else:
+                photographer = Photographer.objects.get_or_create(person=photographer)[0]
+
 
             for photo in form.cleaned_data["photos"]:
                 path = os.path.join(folder, photo)
                 shutil.move(path, processing_folder)
 
-            save_photos.delay(processing_folder, form.cleaned_data["photos"],
-                              activity, photographer, public)
-            messages.info(request, _("The photos are being uploaded. This might take while."))
+            save_args = [processing_folder, form.cleaned_data["photos"], activity, photographer, public]
+            save_photos.s(*save_args).set(priority=TaskPriority.HIGH).delay()
+            messages.info(request, _("The photos are now being processed in the background."
+                                     "Photos will show up on the activity as they are processed, "
+                                     "you can refresh the page to follow the progres."))
             # Redirect to the result
             return HttpResponseRedirect(activity.get_photo_url())
 
@@ -866,7 +874,7 @@ def photo_upload_preview(request, filename):
 
     # Make sure only JPG or GIF images can be previewed (only those extensions can be uploaded)
     file_extension = Path(file_path).suffix[1:].lower()
-    if file_extension not in ["jpg", "jpeg", "gif"]:
+    if file_extension not in PhotoFileUploadForm.allowed_extensions:
         raise Http404(_("This picture does not exist."))
 
     # Make sure the file actually exists
@@ -876,30 +884,22 @@ def photo_upload_preview(request, filename):
     # Create a small thumbnail for the file and return that as the response data
     image = Image.open(file_path)
     size_pixels = settings.THUMBNAIL_SIZES['small']
+
     # check whether the dimensions of the source are large enough such that a thumbnail is useful.
     if any(map(lambda b, d: b > d, image.size, size_pixels)):
-        if file_extension in ['jpg', 'jpeg']:
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            image.thumbnail(size_pixels, Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/jpeg")
-            image.save(response, "JPEG")
-            return response
-        if file_extension == 'gif':
+        if image.mode != 'RGB' or file_extension == 'gif':
             image = image.convert('RGB')
-            image.thumbnail(size_pixels, Image.ANTIALIAS)
-            response = HttpResponse(content_type="image/jpeg")
-            image.save(response, "JPEG")
-            return response
+        image.thumbnail(size_pixels, Image.LANCZOS)
+        response = HttpResponse(content_type="image/jpeg")
+        image.save(response, "JPEG")
+        return response
 
     # In all other cases, just return the image directly.
     with open(file_path, "rb") as image_file:
-        if file_extension in ['jpg', 'jpeg']:
-            return HttpResponse(image_file.read(), content_type="image/jpeg")
-        elif file_extension == "gif":
-            return HttpResponse(image_file.read(), content_type="image/gif")
-        else:
-            raise Http404(_("This picture does not exist."))
+        # Can safely return since file extension was checked earlier on
+        if file_extension == "jpg":
+            file_extension = "jpeg" # image/jpg does not exist
+        return HttpResponse(image_file.read(), content_type=f'image/{file_extension}')
 
 
 class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
@@ -927,7 +927,6 @@ class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
         else:
             return self.form_invalid(form)
 
-
 class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
     abbreviation = "MediaCie"
     http_method_names = ['get', 'post']
@@ -948,9 +947,9 @@ class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
                     os.remove(os.path.join(upload_dir, file))
         return redirect("activities:photo_upload")
 
-
 def gallery_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
+    photo_id = photo
     photo = get_object_or_404(activity.photos, id=photo)
 
     if not request.user.is_authenticated and (not activity.public or not photo.public):
@@ -975,8 +974,36 @@ def gallery_photo(request, pk, photo):
                 last = photos[total - 1]
 
     obj = activity
+    with_permissions = hasattr(request, "is_board") and request.is_board or hasattr(request, "person") and request.person.is_in_committee("MediaCie")
+    nextVisibility = f'Change to {"Private" if photo.public else "Public"}'
+
     return render(request, "gallery_photo.html", locals())
 
+@require_committee('MediaCie')
+def delete_photo(request, pk, photo):
+    activity = get_object_or_404(Activity, pk=pk)
+    photo: Attachment = get_object_or_404(activity.photos, id=photo)
+
+    if not request.user.is_authenticated and (not activity.public or not photo.public):
+        raise PermissionDenied
+
+    photo.delete()
+
+    return redirect(activity)
+
+@require_committee('MediaCie')
+def toggle_visibility(request, pk, photo):
+    activity = get_object_or_404(Activity, pk=pk)
+    photo_id = photo
+    photo: Attachment = get_object_or_404(activity.photos, id=photo_id)
+
+    if not request.user.is_authenticated and (not activity.public or not photo.public):
+        raise PermissionDenied
+
+    photo.public = not photo.public
+    photo.save(create_thumbnails=False)
+
+    return redirect("activities:gallery_photo", pk=pk, photo=photo_id)
 
 def gallery(request, pk, page=1):
     activity = get_object_or_404(Activity, pk=pk)
@@ -1094,11 +1121,11 @@ def activity_mailing(request, pk):
     longest_student_number = '0123456'
 
     if request.method == "GET":
-        form = MailingForm(initial=initial)
+        form = ActivityMailingForm(initial=initial)
         preview_content = None
         preview_subject = None
     elif request.method == "POST":
-        form = MailingForm(request.POST)
+        form = ActivityMailingForm(request.POST)
         if form.is_valid():
             if not form.cleaned_data['include_waiting_list']:
                 people = obj.confirmed_participants
@@ -1192,6 +1219,63 @@ class ActivityCreateView(RequireActiveMemberMixin, ActivityEditMixin, CreateView
 class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
+
+    def form_valid(self, form):
+        # If the date or price has changed, we have to update any existing transactions to the new activity date/price.
+        # The existing transactions are refunded and will be re-created on the same date.
+        person = self.request.person
+        if person is None:
+            raise Exception("Updating requires a person")
+
+        old_obj = self.get_object()
+        new_obj = form.instance
+
+        # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
+        response = super().form_valid(form)
+
+        # Determine if any activity fields that have an impact on the participation transactions have been changed
+        needs_new_transactions = False
+        change_reasons = []
+        # If the activity start date is moved to a different day, the transactions need to be moved to the new date.
+        if form.cleaned_data['begin'].date() != old_obj.begin.date():
+            needs_new_transactions = True
+            change_reasons.append(_("start date was changed"))
+
+
+        # If the activity price is changed, the transactions need to be recreated with the new price
+        if form.cleaned_data['price'] != old_obj.price:
+            needs_new_transactions = True
+            change_reasons.append(_("price was changed"))
+
+        if old_obj is not None and needs_new_transactions:
+            # Undo and create new transactions
+            from amelie.personal_tab import transactions
+            # Only consider participations paid by a mandate
+            # (to avoid creating transactions for members without a personal tab mandate)
+            for participation in old_obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION):
+                reason = _("Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
+                    activity=old_obj, change_reasons=", ".join(change_reasons)
+                )
+                transactions.participation_transaction(
+                    participation,
+                    reason=reason,
+                    cancel=True, added_by=person
+                )
+
+                # Create a new transaction
+                price, with_enrollment_options = participation.calculate_costs()
+                reason = _("Activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
+                    activity=new_obj.summary, change_reasons=", ".join(change_reasons)
+                )
+
+                # Can't use transactions.participation_transaction because we need to override the date.
+                transaction = ActivityTransaction(price=price, description=reason,
+                                                  participation=participation, event=old_obj,
+                                                  person=participation.person, date=new_obj.begin,
+                                                  with_enrollment_options=with_enrollment_options, added_by=person)
+                transaction.save()
+
+        return response
 
 
 class EnrollmentoptionListView(ActivitySecurityMixin, TemplateView):
@@ -1431,7 +1515,7 @@ class EventDeskMessageList(RequireActiveMemberMixin, ListView):
         current_activities = Activity.objects.filter(begin__gte=now).prefetch_related(
             'eventdeskregistrationmessage_set').order_by("begin")
         context['current_activities'] = [x for x in current_activities if x.can_edit(self.request.person)]
-        past_activities = Activity.objects.filter(begin__gte=one_week_ago, end__lte=now).prefetch_related(
+        past_activities = Activity.objects.filter(begin__gte=one_week_ago, begin__lte=now).prefetch_related(
             'eventdeskregistrationmessage_set').order_by("-begin")
         context['past_activities'] = [x for x in past_activities if x.can_edit(self.request.person)]
 

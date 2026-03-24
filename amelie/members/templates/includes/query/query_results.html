@@ -50,7 +50,6 @@
 
         <div class="buttons">
             <a href="{% url 'members:send_mailing' %}?{{ request.GET.urlencode }}" class="looks-like-a-button">{% trans 'Send a mailing' %}</a>&nbsp;
-            <a href="{% url 'members:send_push' %}?{{ request.GET.urlencode }}" class="looks-like-a-button">{% trans 'Send a push notification' %}</a>&nbsp;
             <a href="{% url 'members:person_new_freshman' %}" class="looks-like-a-button">{% trans 'Add new freshmen' %}</a>&nbsp;
             <a href="{% url 'members:person_new_general' %}" class="looks-like-a-button">{% trans 'Add new member' %}</a>
         </div>

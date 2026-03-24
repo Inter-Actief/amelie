@@ -7,7 +7,7 @@ from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 
 import markdown as md
-import bleach
+import nh3
 
 register = template.Library()
 
@@ -46,8 +46,8 @@ class AbsoluteURLsProcessor(md.treeprocessors.Treeprocessor):
 
 
 class AbsoluteURLExtension(md.Extension):
-    def extendMarkdown(self, md, md_globals):
-        md.treeprocessors['absoluteURLs'] = AbsoluteURLsProcessor(md)
+    def extendMarkdown(self, md):
+        md.treeprocessors.register(AbsoluteURLsProcessor(md), 'absoluteURLs', 175)
 
 
 class RemoveURLProcessor(md.treeprocessors.Treeprocessor):
@@ -80,8 +80,8 @@ class RemoveURLProcessor(md.treeprocessors.Treeprocessor):
 
 
 class RemoveURLExtension(md.Extension):
-    def extendMarkdown(self, md, md_globals):
-        md.treeprocessors['removeURLs'] = RemoveURLProcessor(md)
+    def extendMarkdown(self, md):
+        md.treeprocessors.register(RemoveURLProcessor(md), 'removeURLs', 175)
 
 
 def markdown(value, arg=""):
@@ -100,7 +100,7 @@ def markdown(value, arg=""):
         extensions.append(RemoveURLExtension())
 
     if safe_mode:
-        value = bleach.clean(value, tags=[], attributes={})
+        value = nh3.clean(value, tags=set(), attributes={})
 
     result = md.markdown(force_str(value), extensions=extensions)
 

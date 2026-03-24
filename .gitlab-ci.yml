@@ -23,9 +23,9 @@ variables:
   before_script:
     - echo $CI_PROJECT_DIR
     # Install Python packages (in virtualenv) required for the Amelie project
-    - virtualenv venv
+    - python3 -m venv venv
     - source venv/bin/activate
-    - pip install -r requirements.txt
+    - pip install .
     # Print some debugging information about the environment
     - python -V # Python version
     - which python # Path to the python binary being used

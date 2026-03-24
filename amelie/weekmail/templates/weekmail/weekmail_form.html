@@ -1,5 +1,5 @@
 {% extends "basis.html" %}
-{% load i18n md2 %}
+{% load i18n %}
 
 {% block titel %}
     {% if object.id %}{% if object.mailtype == 'W' %}{% trans 'Edit weekly mail' %}{% elif object.mailtype == 'M' %}{% trans 'Edit mastermail' %}{% elif object.mailtype == 'A' %}{% trans 'Edit active members mail' %}{% else %}{% trans 'Edit educational mail' %}{% endif %}{% else %}{% trans 'Add weekly mail, mastermail or educational mail' %}{% endif %}

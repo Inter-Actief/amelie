@@ -1,0 +1,23 @@
+{% load i18n active_menu %}
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia" id="subnavbar">
+    <ul class="clearfix">
+        <li class="bordered">
+            <a href="{% url 'claudia:home' %}"><span class="arrow arrow-left">◄</span>&nbsp;&nbsp;{% trans 'Back to Claudia' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/kanidm' %}">
+            <a href="{% url 'claudia:kanidm_home' %}">{% trans 'Kanidm' %}<span class="arrow">►</span></a>
+        </li>
+        <li class="{% active_menu 'claudia/kanidm/persons' %}">
+            <a href="{% url 'claudia:kanidm_person_list' %}">{% trans 'Persons' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/kanidm/groups' %}">
+            <a href="{% url 'claudia:kanidm_group_list' %}">{% trans 'Groups' %}</a>
+        </li>
+        <li class="{% active_menu 'claudia/kanidm/service_accounts' %}">
+            <a href="{% url 'claudia:kanidm_service_account_list' %}">{% trans 'Service Accounts' %}</a>
+        </li>
+    </ul>
+</div></div>
+

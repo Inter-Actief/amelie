@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 
 from amelie.companies.models import Company, WebsiteBanner
 from amelie.iamailer import MailTask, Recipient
+from amelie.tools.const import TaskPriority
 
 
 class Command(BaseCommand):
@@ -20,7 +21,8 @@ class Command(BaseCommand):
         task = MailTask(from_="External Helper <www@inter-actief.net>",
                         template_name='companies/bannercheck.mail',
                         report_to="External Helper <www@inter-actief.net>",
-                        report_always=False)
+                        report_always=False,
+                        priority=TaskPriority.LOW)
 
         context = {
             'companies': companies,
@@ -33,4 +35,4 @@ class Command(BaseCommand):
             ))
 
         # Send E-mail
-        task.send(delay=False)
+        task.send()

@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _l
 from functools import reduce
 
 from amelie.api.models import PushNotification
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailer import render_mail
 from amelie.iamailer.mailtask import MailTask
 from amelie.style.forms import inject_style
@@ -30,7 +31,7 @@ def _find_years():
 
 class QueryForm(forms.Form):
     name = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'autofocus': 'autofocus'}))
-    id = forms.IntegerField(required=False, label=_l('Amelie-number'))
+    id = forms.IntegerField(required=False, label=_l('Amélie-number'))
     sm_number = forms.CharField(max_length=10, required=False, label=_l('S/M number'))
     phone_number = forms.CharField(max_length=20, required=False, label=_l('Phonenumber'))
     email_address = forms.CharField(max_length=100, required=False, label=_l('E-mail address'))
@@ -383,7 +384,6 @@ class MailingForm(forms.Form):
     email = forms.EmailField(label=_l('Sender\'s e-mail'), widget=widgets.EmailInput(attrs={'size': 50}))
     cc_email = forms.EmailField(required=False, label=_l('CC'), widget=widgets.EmailInput(attrs={'size': 50}))
     bcc_email = forms.EmailField(required=False, label=_l('BCC'), widget=widgets.EmailInput(attrs={'size': 50}))
-    include_waiting_list = forms.BooleanField(label=_l('Include people on the waiting list'), required=False)
 
     subject_nl = forms.CharField(widget=widgets.Input(attrs={'size': 100}))
     subject_en = forms.CharField(widget=widgets.Input(attrs={'size': 100}))
@@ -475,7 +475,7 @@ class MailingForm(forms.Form):
         ccs = [self.cleaned_data['cc_email']] if self.cleaned_data['cc_email'] else None
         bccs = [self.cleaned_data['bcc_email']] if self.cleaned_data['bcc_email'] else None
 
-        task = MailTask(sender, template_string=template_string, report_to=sender)
+        task = MailTask(sender, template_string=template_string, report_to=sender, priority=TaskPriority.MEDIUM)
 
         for recipient in recipients:
             if isinstance(recipient, tuple):
@@ -492,6 +492,8 @@ class MailingForm(forms.Form):
 
         return task
 
+class ActivityMailingForm(MailingForm):
+    include_waiting_list = forms.BooleanField(label=_l('Include people on the waiting list'), required=False)
 
 class PushNotificationForm(forms.ModelForm):
     message_en = forms.CharField(widget=forms.Textarea(attrs={'class': 'characters'}), max_length=500)

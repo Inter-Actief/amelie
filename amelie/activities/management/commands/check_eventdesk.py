@@ -3,13 +3,12 @@ import binascii
 import html
 import re
 import email
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import googleapiclient
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
 
 from amelie.activities.models import EventDeskRegistrationMessage, Activity

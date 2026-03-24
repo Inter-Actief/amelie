@@ -14,7 +14,7 @@ from amelie.narrowcasting.models import TelevisionPromotion
 from amelie.education.models import Category, Page, EducationEvent, Complaint, ComplaintComment
 from amelie.about.models import Page as AboutPage
 from amelie.personal_tab.models import DiscountPeriod, CustomTransaction, LedgerAccount, Article, \
-    Category as CookieCornerCategory, AuthorizationType, Authorization, Amendment
+    Category as CookieCornerCategory, AuthorizationType, Authorization, Amendment, PrintLogEntry
 from amelie.weekmail.models import WeekMail
 
 """
@@ -84,6 +84,7 @@ auditlog.register(AuthorizationType)
 auditlog.register(Authorization)
 auditlog.register(Amendment)
 auditlog.register(Payment)
+auditlog.register(PrintLogEntry)
 
 # Week mailing hooks
 auditlog.register(WeekMail)

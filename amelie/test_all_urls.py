@@ -9,26 +9,29 @@ from django.urls import reverse, NoReverseMatch, resolve
 from django.utils import timezone
 
 from amelie.members.models import Person, Committee, Function, MembershipType, Membership, CommitteeCategory
-from amelie.personal_tab.models import DiscountPeriod
+from amelie.personal_tab.models import DiscountPeriod, Article
 
 # Ignore all names starting with. No namespaces can be added here, so be sure you are not ignoring more than intended.
 IGNORE_NAMES_STARTING = ["admin-", "django-admindocs-"]
 
 # Ignore these namespaces.
-IGNORE_NAMESPACES = ["admin", "djdt", "api", "djangosaml2idp"]
+IGNORE_NAMESPACES = ["admin", "djdt", "api"]
 
 # These specific names will not be tested at all.
 IGNORE_NAMES = [
     "legacy_logout",  # May break some tests if the client is no longer logged in.
+    "system_info",  # The system info view might not work properly during testing.
     "statistics:statistics",  # TODO add transactions to test this one
     "members:data_export",  # Does not allow GET-requests, only POST.
     "activities:photos",  # No pictures in the test database, so the paginator breaks
 
-    # SAML URLs do not need to work in development
-    "saml2_acs", "saml2_login", "saml2_logout", "saml2_ls", "saml2_ls_post", "saml2_metadata",
+    "personal_tab:print_index",  # Needs a paper article in the cookie corner with a specific ID.
 
     # Cannot test OIDC login
     "oidc_authentication_callback", "oidc_authentication_init", "oidc_logout",
+
+    # Captcha library urls don't need to be checked
+    "captcha-image", "captcha-image-2x", "captcha-audio", "captcha-refresh",
 
     # UserInfo / GroupInfo API endpoints need extra configuration
     "members:person_userinfo", "members:person_groupinfo",
@@ -37,8 +40,11 @@ IGNORE_NAMES = [
     "account:activate_forwarding_address", "account:add_forwarding_address", "account:check_forwarding_status",
     "account:check_forwarding_verification", "account:deactivate_forwarding_address",
 
+    # Some kanidm views don't need to work in development
+    "claudia:kanidm_person_list", "claudia:kanidm_group_list", "claudia:kanidm_service_account_list", "account:server_update",
+
     # Uses YouTube API credentials / relies on external service, does not need to work in development
-    "videos:new_yt_video", "videos:new_ia_video",
+    "videos:new_yt_video", "videos:new_ia_video", "videos:new_iaold_video",
 
     # Room narrowcasting page uses Spotify and Icinga API that is not configured in development.
     "narrowcasting:room_pcstatus", "narrowcasting:room_spotify_callback", "narrowcasting:room_spotify_now_playing",
@@ -58,7 +64,7 @@ REDIRECTS_FOLLOW = [
 
 # Names or urls that should at least redirect (namespaces must be prepended).
 REDIRECTS = REDIRECTS_FOLLOW + [
-    "favicon_redirect", "robots_redirect",  # Static files can't be checked, so we will just
+    "favicon_redirect",  # Static files can't be checked, so we will just
     "personal_tab:pos_logout", "personal_tab:pos_register_external", "personal_tab:pos_scan_external",
     "personal_tab:pos_shop", "personal_tab:register_scan", "personal_tab:my_dashboard",
     "account:password_reset", "account:password_reset_success"
@@ -221,6 +227,7 @@ class AllUrlsTestCase(TestCase):
             end=None, description_nl='Tentamenkoeken', description_en='Exam credits',
             ledger_account_number='2500', balance_account_number='2500',
         )
+
         # TODO create transaction to test
         # StreeplijstTransactie.objects.create(
         #     artikel=None,

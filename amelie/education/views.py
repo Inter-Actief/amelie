@@ -1,7 +1,6 @@
 import random
 
 from django.conf import settings
-from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db.models import Q, Prefetch
 from django.http import Http404
@@ -12,12 +11,13 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.news.models import NewsItem
 from amelie.members.models import Committee, Person
 from amelie.education import utils
 from amelie.education.forms import DEANominationForm, DEAVoteForm, ComplaintForm, ComplaintCommentForm, \
-    EducationalBouquetForm, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
+    EducationalBouquetFormHTML, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
 from amelie.education.models import Complaint, ComplaintComment, Page, Course, Category, EducationEvent, Module
 from amelie.statistics.decorators import track_hits
 from amelie.tools.decorators import require_education, require_lid
@@ -134,7 +134,7 @@ def news_archive(request):
 
 
 def educational_bouquet(request):
-    bouquet_form = EducationalBouquetForm()
+    bouquet_form = EducationalBouquetFormHTML()
     try:
         prev_bouquets = AboutPage.objects.get(id=22)
     except AboutPage.DoesNotExist:
@@ -142,14 +142,12 @@ def educational_bouquet(request):
 
     is_education = hasattr(request, 'person') and request.is_education_committee
 
-    # Temporary disable of the form submission, due to spam flooding because the form has no captcha.
-    messages.warning(request, "The educational bouquet form is currently closed for submissions.")
-    #if request.POST:
-    #    bouquet_form = EducationalBouquetForm(request.POST)
+    if request.POST:
+       bouquet_form = EducationalBouquetFormHTML(request.POST)
 
-    #    if bouquet_form.is_valid():
-    #        bouquet_form.save()
-    #        message_sent = True
+       if bouquet_form.is_valid():
+           bouquet_form.save()
+           message_sent = True
 
     return render(request, 'educational_bouquet.html', locals())
 
@@ -514,7 +512,8 @@ def send_new_complaint_notification(complaint_obj, comment, reporter, url):
     """
     task = MailTask(template_name='education/new_complaint_notification.mail',
                     report_to=settings.EMAIL_REPORT_TO,
-                    report_always=False)
+                    report_always=False,
+                    priority=TaskPriority.HIGH)
 
     complaint_subject = complaint_obj.course if complaint_obj.course else complaint_obj.subject
     context = {'complaint_course': force_str(complaint_obj.course) if complaint_obj.course else None,
@@ -542,7 +541,8 @@ def send_complaint_comment_notification(complaint_obj, comment, reporter, url):
     """
     task = MailTask(template_name='education/complaint_comment.mail',
                     report_to=settings.EMAIL_REPORT_TO,
-                    report_always=False)
+                    report_always=False,
+                    priority=TaskPriority.HIGH)
 
     complaint_subject = complaint_obj.course if complaint_obj.course else complaint_obj.subject
     context = {'complaint_course': force_str(complaint_obj.course) if complaint_obj.course else None,
@@ -570,7 +570,7 @@ def send_complaint_closed_notification(complaint_summary, complainant, url):
     # Send notification to complainant
     task = MailTask(template_name='education/complaint_closed.mail',
                     report_to=settings.EMAIL_REPORT_TO,
-                    report_always=False)
+                    report_always=False, priority=TaskPriority.HIGH)
 
     context = {'complaint_subject': complaint_summary,
                'complaint_complainant': complainant.incomplete_name(),
@@ -587,6 +587,7 @@ def send_complaint_closed_notification(complaint_summary, complainant, url):
         template_name='education/complaint_closed.mail',
         report_to=settings.EMAIL_REPORT_TO,
         report_always=False,
+        priority=TaskPriority.HIGH
     )
 
     context_oc = {'complaint_subject': complaint_summary,

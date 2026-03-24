@@ -1,4 +1,5 @@
 import logging
+from typing import List, Optional
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -31,6 +32,8 @@ class ExtraGroup(models.Model, Mappable):
     description = models.TextField(blank=True)
     gitlab = models.BooleanField(default=False, verbose_name=_l('Create GitLab group'),
                                  help_text=_l('Members of this group get access to GitLab'))
+    matrix = models.BooleanField(default=False, verbose_name=_l('Create Matrix space'),
+                                 help_text=_l('Members of this group get a private Matrix space'))
 
     def clean(self):
         super(ExtraGroup, self).clean()
@@ -76,6 +79,7 @@ class ExtraGroup(models.Model, Mappable):
         """Get extra data of this group"""
         return {
             'gitlab': self.gitlab,
+            'matrix': self.matrix
         }
 
     def __str__(self):
@@ -274,13 +278,17 @@ class Mapping(models.Model):
 
     type = models.CharField(max_length=25)
     ident = models.IntegerField()
-    name = models.CharField(max_length=100, blank=True)
+    # Name max_length must be >= the max_length of the name of any mapping type
+    # (Person has 50 first_name + 1 space + 25 infix + 1 space + 50 last_name = 127. 150 is a nice margin.)
+    name = models.CharField(max_length=150, blank=True)
     active = models.BooleanField(default=False)
     email = models.EmailField(blank=True)
     adname = models.CharField(max_length=50, blank=True)
     guid = models.CharField(max_length=24, blank=True)
+    kanidm_id = models.CharField(max_length=100, blank=True, null=True)
     gsuite_id = models.CharField(max_length=100, blank=True, null=True)
     gsuite_forwarding_enabled = models.BooleanField(default=False)
+    matrix_space_id = models.CharField(max_length=100, blank=True, null=True)
 
     @staticmethod
     def get_type(obj):
@@ -351,13 +359,35 @@ class Mapping(models.Model):
             guid_b = ''
         self.guid = guid_b
 
+    def get_kanidm_id(self) -> Optional[str]:
+        """Get Kanidm ID"""
+        if self.kanidm_id:
+            return self.kanidm_id
+        return None
+
+    def set_kanidm_id(self, kanidm_id: Optional[str]):
+        """Set Kanidm ID"""
+        self.kanidm_id = kanidm_id
+        self.save()
+
     def get_gsuite_id(self):
         if self.gsuite_id:
             return self.gsuite_id
+        return None
 
     def set_gsuite_id(self, gsuite_id):
         """Set G-Suite ID"""
         self.gsuite_id = gsuite_id
+        self.save()
+
+    def get_matrix_space_id(self):
+        if self.matrix_space_id:
+            return self.matrix_space_id
+        return None
+
+    def set_matrix_space_id(self, matrix_space_id):
+        """Set Matrix Space ID"""
+        self.matrix_space_id = matrix_space_id
         self.save()
 
     def check_mapping(self, fix=False):
@@ -530,7 +560,7 @@ class Mapping(models.Model):
 
         return list(result)
 
-    def members(self, old_members=False):
+    def members(self, old_members=False) -> List['Mapping']:
         """
         Gives a list of all mappings that are a member of this group, or all old members if specified.
         """

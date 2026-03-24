@@ -2,6 +2,7 @@ import json
 import logging
 import operator
 from functools import reduce
+from typing import List
 
 from django.conf import settings
 from django.contrib import messages
@@ -44,7 +45,14 @@ def require_cookie_corner_pos(func):
         )(func)
 
 
-class PosHomeView(RequireCookieCornerMixin, TemplateView):
+class CookieCornerBetaModeMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['beta_mode'] = settings.DEBUG or settings.ENV.lower() != "production"
+        return context
+
+
+class PosHomeView(RequireCookieCornerMixin, CookieCornerBetaModeMixin, TemplateView):
     template_name = "pos/home.html"
 
     def get_context_data(self, **kwargs):
@@ -81,15 +89,19 @@ class PosProcessRFIDView(RequireCookieCornerMixin, View):
             messages.error(request, _l('No cards were scanned, please try again.'))
             return redirect('personal_tab:pos_logout')
 
-        people = [r.person for r in RFIDCard.objects.filter(code__in=tags, active=True)]
+        rfid_cards: List[RFIDCard] = list(RFIDCard.objects.filter(code__in=tags, active=True))
+        people = [r.person for r in rfid_cards]
 
         if people:
             # Found one or more people
             if len(set(people)) == 1:
                 person = Person.objects.get(pk=people[0].id)
+                card = rfid_cards[0]
                 if person.has_mandate_consumptions() and person.is_member():
-                    # Found one person, set username to session and continue to shop
+                    # Found one person, set username to session, update last used time on RFID and continue to shop
                     self.request.session['POS_LOGIN_UID'] = people[0].id
+                    card.last_used = timezone.now()
+                    card.save()
                     return redirect("personal_tab:pos_shop")
                 else:
                     messages.error(request,
@@ -107,7 +119,7 @@ class PosProcessRFIDView(RequireCookieCornerMixin, View):
                 return redirect('personal_tab:pos_logout')
 
 
-class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
+class PosGenerateQRView(RequireCookieCornerMixin, CookieCornerBetaModeMixin, TemplateView):
     template_name = "pos/show_qr.html"
 
     def get_context_data(self, **kwargs):
@@ -131,7 +143,7 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
         if qr_type is None or qr_type not in ['login', 'register']:
             raise ValueError(_l("Invalid token type requested!"))
 
-        # If someone was logged in, he's not any more!
+        # If someone was logged in, he's not anymore!
         if 'POS_LOGIN_UID' in self.request.session:
             del self.request.session['POS_LOGIN_UID']
 
@@ -238,7 +250,7 @@ class PosGenerateQRView(RequireCookieCornerMixin, TemplateView):
         return super(PosGenerateQRView, self).render_to_response(context, **response_kwargs)
 
 
-class PosVerifyTokenView(TemplateView):
+class PosVerifyTokenView(CookieCornerBetaModeMixin, TemplateView):
     template_name = "pos/verify.html"
 
     def render_to_response(self, context, **response_kwargs):
@@ -341,7 +353,7 @@ class PosLogoutView(RequireCookieCornerMixin, View):
         return redirect('personal_tab:pos_index')
 
 
-class PosShopView(RequireCookieCornerMixin, TemplateView):
+class PosShopView(RequireCookieCornerMixin, CookieCornerBetaModeMixin, TemplateView):
     template_name = "pos/shop.html"
     http_method_names = ['get', 'post']
 
@@ -481,7 +493,7 @@ class PosShopView(RequireCookieCornerMixin, TemplateView):
         return super(PosShopView, self).render_to_response(context, **response_kwargs)
 
 
-class PosRegisterExternalCardView(RequireCookieCornerMixin, FormView):
+class PosRegisterExternalCardView(RequireCookieCornerMixin, CookieCornerBetaModeMixin, FormView):
     template_name = "pos/register_external_card.html"
     success_url = reverse_lazy("personal_tab:pos_logout")
     form_class = CookieCornerPersonSearchForm
@@ -550,7 +562,7 @@ class PosRegisterExternalCardView(RequireCookieCornerMixin, FormView):
         return self.render_to_response(context)
 
 
-class PosScanExternalCardView(RequireCookieCornerMixin, TemplateView):
+class PosScanExternalCardView(RequireCookieCornerMixin, CookieCornerBetaModeMixin, TemplateView):
     template_name = "pos/scan_external_card.html"
     http_method_names = ['get', 'post']
 

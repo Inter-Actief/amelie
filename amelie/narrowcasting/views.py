@@ -1,14 +1,23 @@
+import datetime
 import logging
+from typing import Any, List, Dict
 
+import markdown
 import requests
 from django.conf import settings
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_page
+from mautrix.client import ClientAPI
+from mautrix.types import PaginationDirection, RoomEventFilter, PaginatedMessages, TextMessageEventContent, \
+    MessageEvent, Format, RoomID, UserID
+from mautrix.types.event.type import EventType
 
 from amelie.narrowcasting.models import SpotifyAssociation
+from amelie.tools.asyncio import get_event_loop
 
 
 def index(request):
@@ -240,3 +249,71 @@ def room_spotify_play(request):
 
 
     return JsonResponse(data)
+
+
+@cache_page(15)
+def room_ia_chat(request):
+    try:
+        messages = get_event_loop().run_until_complete(_get_ia_chat_messages())
+        return JsonResponse({'error': False, 'messages': messages})
+    except Exception as e:
+        return JsonResponse({'error': True, 'messages': [], 'error_msg': str(e)})
+
+
+async def _get_ia_chat_messages() -> List[Dict[str, Any]]:
+    matrix_hostname = settings.MATRIX_SETTINGS['SERVER']
+    access_token = settings.MATRIX_SETTINGS['TOKEN']
+    user_id = settings.MATRIX_SETTINGS['USER']
+    chat_room_id = settings.MATRIX_SETTINGS['ROOM_ID']
+    max_msg_to_show = settings.MATRIX_SETTINGS['MAX_MSG_TO_SHOW']
+    max_msg_length = settings.MATRIX_SETTINGS['MAX_MSG_LENGTH']
+
+    if matrix_hostname == "" or access_token == "" or chat_room_id == "":
+        raise ValueError("Chat settings not configured.")
+
+    client: ClientAPI = ClientAPI(user_id, base_url=matrix_hostname, token=access_token)
+
+    try:
+        filter_messages = RoomEventFilter(types=[EventType.ROOM_MESSAGE])
+        events = await client.get_messages(chat_room_id, direction=PaginationDirection.BACKWARD,
+                                           limit=max_msg_to_show, filter_json=filter_messages)
+
+        messages = []
+        for ev in events.events:
+            ev: MessageEvent
+            try:
+                username = await _get_user_display_name(client, ev.sender)
+                if username is None:
+                    username, _ = ClientAPI.parse_user_id(ev.sender)
+            except ValueError:
+                username = ev.sender
+            try:
+                timestamp = datetime.datetime.fromtimestamp(ev.timestamp / 1000)
+                if timestamp.date() != datetime.date.today():
+                    timestamp = timestamp.strftime("%m-%d %H:%M:%S")
+                else:
+                    timestamp = timestamp.strftime('%H:%M:%S')
+            except ValueError:
+                timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+
+            if isinstance(ev.content, TextMessageEventContent):
+                msg_body = str(ev.content.body)
+                if len(msg_body) > max_msg_length:
+                    msg_body = msg_body[:max_msg_length].strip() + "…"
+            else:
+                msg_body = f"<unsupported message '{ev.content.__class__.__name__}'>"
+
+            # Escape the values because they will be rendered in the frontend without escaping
+            username = escape(username)
+            msg_body = escape(msg_body)
+
+            messages.append({"from": username, "time": timestamp, "message": msg_body})
+    finally:
+        if client and client.api and client.api.session:
+            await client.api.session.close()
+
+    return messages[::-1]
+
+
+async def _get_user_display_name(client: ClientAPI, matrix_id: UserID) -> str:
+    return await client.get_displayname(matrix_id)

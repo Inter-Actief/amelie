@@ -1,19 +1,19 @@
 from typing import List, Dict, Union
 
+from modernrpc import RpcRequestContext
+from modernrpc.exceptions import RPCInvalidParams
+
 from django.conf import settings
 
+from amelie.api.api import api_server
 from amelie.api.common import parse_datetime
-from amelie.api.decorators import authentication_required
+from amelie.api.decorators import auth_required
 from amelie.personal_tab.models import DebtCollectionInstruction
 from amelie.personal_tab.models import Transaction
 
-from modernrpc.core import rpc_method
-from modernrpc.exceptions import RPCInvalidParams
 
-
-@rpc_method(name='getRfidCards')
-@authentication_required("transaction")
-def get_rfid_cards(**kwargs) -> Union[List[Dict], None]:
+@api_server.register_procedure(name='getRfidCards', auth=auth_required('transaction'), context_target='ctx')
+def get_rfid_cards(ctx: RpcRequestContext = None, **kwargs) -> Union[List[Dict], None]:
     """
     Retrieves a list of RFID-cards registered to the authenticated person.
 
@@ -42,7 +42,8 @@ def get_rfid_cards(**kwargs) -> Union[List[Dict], None]:
               }, {...}, ...]
         }
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         rfids = person.rfidcard_set.all()
@@ -58,9 +59,8 @@ def get_rfid_cards(**kwargs) -> Union[List[Dict], None]:
         return None
 
 
-@rpc_method(name='getTransactions')
-@authentication_required("transaction")
-def get_transactions(begin_date_str: str, end_date_str: str, **kwargs) -> Union[List[Dict], None]:
+@api_server.register_procedure(name='getTransactions', auth=auth_required('transaction'), context_target='ctx')
+def get_transactions(begin_date_str: str, end_date_str: str, ctx: RpcRequestContext = None, **kwargs) -> Union[List[Dict], None]:
     """
     Retrieves a list of transactions associated with the authenticated person.
 
@@ -99,7 +99,8 @@ def get_transactions(begin_date_str: str, end_date_str: str, **kwargs) -> Union[
               }, {...}, ...]
         }
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         # Sanitize date strings
@@ -126,9 +127,8 @@ def get_transactions(begin_date_str: str, end_date_str: str, **kwargs) -> Union[
         return None
 
 
-@rpc_method(name='getDirectDebits')
-@authentication_required("transaction")
-def get_direct_debits(**kwargs):
+@api_server.register_procedure(name='getDirectDebits', auth=auth_required('transaction'), context_target='ctx')
+def get_direct_debits(ctx: RpcRequestContext = None, **kwargs):
     """
     Retrieves a list of direct debits associated with the authenticated person.
 
@@ -157,7 +157,8 @@ def get_direct_debits(**kwargs):
               }, {...}, ...]
         }
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         direct_debits = DebtCollectionInstruction.objects.filter(authorization__person=person)
@@ -175,9 +176,8 @@ def get_direct_debits(**kwargs):
         return None
 
 
-@rpc_method(name='getMandates')
-@authentication_required("transaction")
-def get_mandates(**kwargs):
+@api_server.register_procedure(name='getMandates', auth=auth_required('transaction'), context_target='ctx')
+def get_mandates(ctx: RpcRequestContext = None, **kwargs):
     """
     Retrieves a list of mandates associated with the authenticated person.
 
@@ -212,7 +212,8 @@ def get_mandates(**kwargs):
               }, {...}, ...]
         }
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         mandates = person.authorization_set.all()

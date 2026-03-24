@@ -324,7 +324,7 @@ html, body {
 }
 
 /*
- * Left block layout - IA room PC status
+ * Left block layout - IA room duty status
  */
 /* Room duty block */
 #room_duty {
@@ -360,12 +360,74 @@ html, body {
 }
 
 /*
+ * Left block layout - IA chat messages
+ */
+/* IA chat block */
+#ia_chat {
+    height: 40vh;
+}
+
+#ia_chat_title {
+    height: 5.5vh;
+    font-size: 3.5vh;
+    line-height: 5.5vh;
+    padding-left: 1vw;
+    background-color: var(--ia-blue-light);
+}
+
+#ia_chat_title i {
+    margin-right: 0.5vw;
+}
+
+#ia_chat_title .small {
+    font-size: 2.5vh;
+}
+
+#ia_chat_messages {
+    height: 32.5vh;
+    overflow: hidden;
+    padding: 1vh 0.75vw;
+    font-size: 2vh;
+    line-height: 3vh;
+    background-color: var(--ia-blue-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: end;
+}
+
+#ia_chat_loading {
+    font-size: 3vh;
+}
+#ia_chat_error {
+    font-size: 3vh;
+}
+
+.ia_chat_message {
+    font-family: "Consolas", monospace;
+}
+
+.ia_chat_message_time {
+    font-family: "Consolas", monospace;
+    font-weight: normal;
+    opacity: 0.5;
+    padding-right: 0.5rem
+}
+
+.ia_chat_message_from {
+    font-family: "Consolas", monospace;
+    font-weight: bold;
+}
+
+
+/*
  * Right block layout - Media container & logo
  */
 /* Media container */
 #media_container {
     width: 60vw;
     height: 70vh;
+    background-color: black;
 }
 
 #media_content {

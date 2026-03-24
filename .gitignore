@@ -18,18 +18,13 @@ venv/
 .cache/
 media/
 amelie.db
+amelie.egg-info
+build/
 
 # backups of local settings, but not the .default settings
 amelie/settings/local.py*
 !amelie/settings/local.py.default
 !amelie/settings/local.py.localdev
-
-# Ignore certificates for the SAML IdP, except for the gitkeep file and the google metadatas
-certificates/*
-!certificates/.gitkeep
-!certificates/google-sp-metadata.xml
-!certificates/google-ianl-sp-metadata.xml
-!certificates/google-ianet-sp-metadata.xml
 
 # Ignore credentials folder, except for the gitkeep file
 credentials/*
