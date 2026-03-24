@@ -12,4 +12,5 @@ urlpatterns = [
     path('room/spotify/', views.room_spotify_now_playing, name='room_spotify_now_playing'),
     path('room/pause_spotify/', views.room_spotify_pause, name='room_spotify_now_playing'),
     path('room/play_spotify/', views.room_spotify_play, name='room_spotify_now_playing'),
+    path('room/chat_messages/', views.room_ia_chat, name='room_matrix_messages'),
 ]
