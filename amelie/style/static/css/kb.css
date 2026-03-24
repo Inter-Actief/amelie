@@ -8,7 +8,7 @@
 	height: 100px;
 	
 	display: block;
-	background-image: url('https://happyrent.nl/Company/_Template/Images/guido.png');
+	background-image: url('/static/img/cb/guido.png');
 	background-size: contain;
 	background-repeat: no-repeat;
 	
@@ -21,7 +21,42 @@
 	background-color: #FF00FF;
 }
 
+.transparent-ia {
+	/* more transparent */
+	background-color: #ff00ff61 !important; 
+}
+
 #middle {
-	background:url('https://www.animaatjes.nl/plaatjes/m/my_little_pony/animaatjes-my_little_pony-27130.png')!important;
+	background:url('/static/img/cb/my_little_pony.png');
 	background-repeat:no-repeat!important;
+}
+
+html, body {
+	/* Kirby cursor */
+	cursor: url("/static/img/cb/cursor.png"), auto;
+}
+
+.cb-modal-content {
+	/* display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
+	align-items: center; */
+	font-family: "Microsoft Sans Serif", sans-serif;
+	background: #c2c6ca !important;
+	font-size: 12px;
+	-webkit-font-smoothing: none;
+	/* width: 265px;
+	height: 118px; */
+	box-shadow: 0.5px 0.5px 0 0.5px black, inset 1px 1px #C2C6CA, inset -1px -1px #85898d, inset 2px 2px white;
+}
+
+.cb-modal-header {
+	color: white;
+    background: #00a;
+	padding: 2px 3px 3px;
+    margin: 3px 2px 1px 3px;
+}
+
+.cb-modal-footer {
+	text-align: center;
 }

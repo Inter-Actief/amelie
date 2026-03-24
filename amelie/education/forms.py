@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.forms import widgets
+from django.utils import timezone
 from django.utils.encoding import force_str
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.style.forms import inject_style
 from amelie.calendar.forms import EventForm
@@ -12,6 +15,9 @@ from amelie.education.models import Complaint, ComplaintComment, Page, Vote, Cou
     EducationEvent, BaseCourseModule, Module
 from amelie.tools.logic import current_academic_year_strict
 from amelie.tools.widgets import DateTimeSelector
+
+from captcha.fields import CaptchaField
+from captcha.models import CaptchaStore
 
 
 class PageForm(forms.ModelForm):
@@ -41,18 +47,19 @@ def calc_choices():
     result = [(None, '—')]
     modules = [(module.id, module.name) for module in Module.objects.all()]
     courses = [(course.id, course.name) for course in Course.objects.all()]
-    result.append((_('Module'), tuple(modules)))
-    result.append((_('Course'), tuple(courses)))
+    result.append((_l('Module'), tuple(modules)))
+    result.append((_l('Course'), tuple(courses)))
 
     return result
 
 
 class ComplaintForm(forms.ModelForm):
     subject = forms.ChoiceField(choices=Complaint.ComplaintChoices.choices, widget=widgets.RadioSelect)
-    course = forms.ChoiceField(required=False, label=_('Course'))
-    part = forms.CharField(max_length=255, required=False, label=_('Subject'),
-                           widget=forms.TextInput(attrs={'placeholder': _('Subject')}))
-    year = forms.IntegerField(min_value=1, required=False, initial=current_academic_year_strict, label=_('Year'))
+    course = forms.ChoiceField(required=False, label=_l('Course'))
+    part = forms.CharField(max_length=255, required=False, label=_l('Subject'),
+                           widget=forms.TextInput(attrs={'placeholder': _l('Subject')}))
+    year = forms.IntegerField(min_value=1, required=False, initial=current_academic_year_strict, label=_l('Year'))
+    contact_check = forms.BooleanField(required=True, initial=False)
 
     def __init__(self, *args, **kwargs):
         super(ComplaintForm, self).__init__(*args, **kwargs)
@@ -69,7 +76,7 @@ class ComplaintForm(forms.ModelForm):
         course = cleaned_data.get('course', None)
         if subject == 'Grading' and not course:
             raise forms.ValidationError(
-                _('If the deadline for revision of your exam has passed, you can select a course'))
+                _l('If the deadline for revision of your exam has passed, you can select a course'))
         return BaseCourseModule.objects.get(id=course) if course else None
 
     def clean_comment(self):
@@ -78,31 +85,33 @@ class ComplaintForm(forms.ModelForm):
         summary = cleaned_data.get('summary', '')
         comment = cleaned_data.get('comment', '')
         if subject != 'Grading' and (len(summary) == 0 or len(comment) == 0):
-            raise forms.ValidationError(_('Fill in a summary and comments'))
+            raise forms.ValidationError(_l('Fill in a summary and comments'))
         return cleaned_data['comment']
 
 
 class EducationalBouquetForm(forms.Form):
-    teacher = forms.CharField(max_length=60, label=_('Teacher'))
-    course = forms.ChoiceField(label=_('Course'))
-    reason = forms.CharField(max_length=300, widget=forms.Textarea, label=_('Reason'))
-    author = forms.CharField(max_length=40, label=_('Author'))
-    email = forms.EmailField(max_length=50, label=_('E-mail'))
+    teacher = forms.CharField(max_length=60, label=_l('Teacher'))
+    course = forms.ChoiceField(label=_l('Course'))
+    reason = forms.CharField(max_length=300, widget=forms.Textarea, label=_l('Reason'))
+    author = forms.CharField(max_length=40, label=_l('Author'))
+    email = forms.EmailField(max_length=50, label=_l('E-mail'))
 
     def __init__(self, *args, **kwargs):
         super(EducationalBouquetForm, self).__init__(*args, **kwargs)
         self.fields['course'].choices = calc_choices()
 
     def save(self, *args, **kwargs):
+        course_id = self.cleaned_data['course']
+        course = BaseCourseModule.objects.get(id=course_id)
         context = {'teacher': self.cleaned_data['teacher'],
-                   'course': self.cleaned_data['course'],
+                   'course': course,
                    'reason': self.cleaned_data['reason'],
                    'author': self.cleaned_data['author'],
                    'email': self.cleaned_data['email'],
                    }
 
         task = MailTask(template_name='education/educational_bouquet.mail', report_to=settings.EMAIL_REPORT_TO,
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
@@ -110,6 +119,30 @@ class EducationalBouquetForm(forms.Form):
                                      headers={'Reply-To': settings.EDUCATION_COMMITTEE_EMAIL}))
 
         task.send()
+
+
+class EducationalBouquetFormHTML(EducationalBouquetForm):
+    captcha = CaptchaField()
+
+class EducationalBouquetFormGraphQL(EducationalBouquetForm):
+    captcha = forms.CharField(max_length=32, label=_l('Captcha'), help_text=_l("The response to the captcha challenge"))
+    captcha_hash = forms.CharField(max_length=40, label=_l('Captcha key'), help_text=_l("The key that uniquely identifies this captcha test"))
+
+    def __init__(self, *args, **kwargs):
+        super(EducationalBouquetFormGraphQL, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned = super().clean()
+        captcha = cleaned.get('captcha')
+        captcha_key = cleaned.get('captcha_hash')
+
+        # Logic borrowed from CaptchaField
+        try:
+            CaptchaStore.objects.get(
+                hashkey=captcha_key, response=captcha, expiration__gt=timezone.now()
+            ).delete()
+        except CaptchaStore.DoesNotExist:
+            raise ValidationError(_l("Incorrect captcha"))
 
 
 class DEANominationForm(forms.Form):
@@ -126,7 +159,7 @@ class DEANominationForm(forms.Form):
                    }
 
         task = MailTask(template_name='education/dea_nomination.mail', report_to=settings.EMAIL_REPORT_TO,
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
@@ -157,7 +190,7 @@ class DEAVoteForm(forms.Form):
         if not vote:
             return cleaned_data
         else:
-            raise forms.ValidationError(_('You\'ve already voted!'))
+            raise forms.ValidationError(_l('You\'ve already voted!'))
 
     def save(self, *args, **kwargs):
         self.competition = Competition.objects.get(title="Onderwijsprijs 2015")
@@ -173,7 +206,7 @@ class DEAVoteForm(forms.Form):
                    }
 
         task = MailTask(template_name='education/dea_vote.mail', report_to=settings.EMAIL_REPORT_TO,
-                        report_always=False)
+                        report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
                                      context=context,
@@ -184,7 +217,7 @@ class DEAVoteForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
-    name = forms.CharField(max_length=200, label=_("Course name"))
+    name = forms.CharField(max_length=200, label=_l("Course name"))
     course_code = forms.IntegerField(min_value=0, max_value=2147483647)
 
     class Meta:
@@ -196,7 +229,7 @@ class CourseForm(forms.ModelForm):
 
 
 class ModuleForm(forms.ModelForm):
-    name = forms.CharField(max_length=200, label=_("Module name"))
+    name = forms.CharField(max_length=200, label=_l("Module name"))
     course_code = forms.IntegerField(min_value=0, max_value=2147483647)
 
     class Meta:
@@ -208,7 +241,7 @@ class ModuleForm(forms.ModelForm):
 
 
 class SearchSummariesForm(forms.Form):
-    filter = forms.CharField(label=_('Name of course'), required=False)
+    filter = forms.CharField(label=_l('Name of course'), required=False)
 
 
 class EducationEventForm(EventForm):

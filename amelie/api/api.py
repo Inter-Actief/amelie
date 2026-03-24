@@ -1,11 +1,20 @@
 from typing import List
 
-from modernrpc.core import rpc_method, registry, ENTRY_POINT_KEY, PROTOCOL_KEY
+from modernrpc import Protocol
+from modernrpc.server import RpcServer
+
+from django.views.generic import TemplateView
+
 
 API_VERSION = 1.3
 
+api_server = RpcServer(
+    supported_protocol=Protocol.JSON_RPC,
+    redirect_get_request_to="api:jsonrpc_docs"
+)
 
-@rpc_method
+
+@api_server.register_procedure
 def version() -> str:
     """Returns the current API version.
 
@@ -18,13 +27,20 @@ def version() -> str:
     return str(API_VERSION)
 
 
-@rpc_method
+@api_server.register_procedure
 def methods(**kwargs) -> List[str]:
     """Introspect the API and return all callable methods.
 
     Returns an array with the methods.
     """
-    entry_point = kwargs.get(ENTRY_POINT_KEY)
-    protocol = kwargs.get(PROTOCOL_KEY)
+    return sorted(api_server.procedures.keys())
 
-    return registry.get_all_method_names(entry_point, protocol, sort_methods=True)
+
+class ApiDocsView(TemplateView):
+    template_name = "api/doc_index.html"
+
+    def get_context_data(self, **kwargs):
+        """Update context data with list of RPC methods of the current entry point.
+        Will be used to display methods documentation page"""
+        kwargs.setdefault("methods", sorted(api_server.procedures.values(), key=lambda m: m.name))
+        return super().get_context_data(**kwargs)

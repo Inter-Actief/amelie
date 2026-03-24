@@ -5,6 +5,8 @@ from amelie.activities.models import Activity
 from amelie.claudia.models import ExtraGroup, SharedDrive, ExtraPerson, AliasGroup, Mapping, Contact, ExtraPersonalAlias
 from amelie.companies.models import Company, CompanyEvent, BaseBanner, WebsiteBanner, TelevisionBanner
 from amelie.calendar.models import Event
+from amelie.gmm.models import GMM
+from amelie.files.models import GMMDocument, File
 from amelie.members.models import Person, Committee, Faculty, Department, Study, Dogroup, \
     DogroupGeneration, Association, PaymentType, CommitteeCategory, Function, Payment
 from amelie.news.models import NewsItem
@@ -12,7 +14,7 @@ from amelie.narrowcasting.models import TelevisionPromotion
 from amelie.education.models import Category, Page, EducationEvent, Complaint, ComplaintComment
 from amelie.about.models import Page as AboutPage
 from amelie.personal_tab.models import DiscountPeriod, CustomTransaction, LedgerAccount, Article, \
-    Category as CookieCornerCategory, AuthorizationType, Authorization, Amendment
+    Category as CookieCornerCategory, AuthorizationType, Authorization, Amendment, PrintLogEntry
 from amelie.weekmail.models import WeekMail
 
 """
@@ -32,6 +34,13 @@ auditlog.register(TelevisionBanner)
 
 # Calendar hooks
 auditlog.register(Event)
+
+# GMM hooks
+auditlog.register(GMM)
+
+# File hooks
+auditlog.register(GMMDocument, exclude_fields=['created', 'modified'])
+auditlog.register(File, exclude_fields=['created', 'modified'])
 
 # Member hooks
 auditlog.register(Faculty)
@@ -75,6 +84,7 @@ auditlog.register(AuthorizationType)
 auditlog.register(Authorization)
 auditlog.register(Amendment)
 auditlog.register(Payment)
+auditlog.register(PrintLogEntry)
 
 # Week mailing hooks
 auditlog.register(WeekMail)

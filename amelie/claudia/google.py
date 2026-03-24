@@ -3,7 +3,7 @@ import uuid
 
 import googleapiclient
 from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2 import service_account
 
 from amelie.claudia.models import Mapping, DrivePermission
 from django.conf import settings
@@ -22,14 +22,12 @@ class GoogleSuiteAPI:
 
     @staticmethod
     def create_directory_service(user_email, api_name, api_version, scopes):
-        credentials = ServiceAccountCredentials.from_p12_keyfile(
-            settings.CLAUDIA_GSUITE['SERVICE_ACCOUNT_EMAIL'],
-            settings.CLAUDIA_GSUITE['SERVICE_ACCOUNT_P12_FILE'],
-            'notasecret',
+        credentials = service_account.Credentials.from_service_account_file(
+            settings.CLAUDIA_GSUITE['SERVICE_ACCOUNT_JSON_FILE'],
             scopes=scopes
         )
-        credentials = credentials.create_delegated(user_email)
-        return build(api_name, api_version, credentials=credentials)
+        delegated_credentials = credentials.with_subject(user_email)
+        return build(api_name, api_version, credentials=delegated_credentials)
 
     # noinspection PyMethodMayBeStatic
     def create_password(self):
@@ -86,7 +84,7 @@ class GoogleSuiteAPI:
                 "includeInGlobalAddressList": True,
                 "orgUnitPath": "/",
                 "primaryEmail": primary_alias,
-                # Random password, no need to know it because logins are via SAML
+                # Random password, no need to know it because logins are via SSO
                 "password": password,
                 "hashFunction": "SHA-1",
                 "emails": [{

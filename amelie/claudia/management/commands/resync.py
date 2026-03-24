@@ -7,4 +7,4 @@ class Command(BaseCommand):
     help = 'Resync all Claudia data'
 
     def handle(self, *args, **options):
-        Claudia().check_integrity()
+        Claudia.get_instance().check_integrity()

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -15,6 +16,7 @@ from django.views.generic.list import ListView
 from amelie.activities.forms import ActivityForm
 from amelie.activities.models import Activity
 from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailer import render_mail
 from amelie.news.forms import NewsItemBoardForm
 from amelie.news.models import NewsItem
@@ -57,12 +59,22 @@ class WeekMailListView(ListView):
     model = WeekMail
 
     def get_queryset(self):
-        return WeekMail.objects.all().order_by('-pk') if hasattr(self.request, "is_board") and self.request.is_board else WeekMail.objects.filter(published=True).order_by('-pk')
+        if hasattr(self.request, "is_board") and self.request.is_board:
+            return WeekMail.objects.all().order_by('-pk')
+        elif self.request.user.is_authenticated and self.request.user.person.is_active_member():
+            return WeekMail.objects.filter(published=True).order_by('-pk')
+        return WeekMail.objects.filter(published=True).exclude(mailtype="A").order_by('-pk')
 
 
-class WeekMailPreview(DetailView):
+class WeekMailPreview(UserPassesTestMixin, DetailView):
     model = WeekMail
     template_name = "weekmail/weekmail_preview.html"
+
+    def test_func(self):
+        if self.get_object().mailtype == WeekMail.MailTypes.ACTIVE_MEMBERS_MAIL:
+            return self.request.user.is_authenticated and self.request.user.person.is_active()
+        return True
+
 
     @xframe_options_exempt
     def dispatch(self, request, *args, **kwargs):
@@ -169,6 +181,8 @@ def send_weekmail(request, pk):
         persons = set(Person.objects.members().filter(preferences__id=preference_mastermail.id))
     elif weekmail.mailtype == WeekMail.MailTypes.EDUCATION_MAIL:
         persons = set(Person.objects.members().filter(preferences__id=preference_educationalmail.id))
+    elif weekmail.mailtype == WeekMail.MailTypes.ACTIVE_MEMBERS_MAIL:
+        persons = set(Person.objects.active_members())
 
     # Add people who forcefully want the master or weekmail
     preference_weekmail_force = get_object_or_404(Preference, name="mail_association_html_force")
@@ -185,7 +199,8 @@ def send_weekmail(request, pk):
     task = MailTask(template_name='weekmail/weekmail_mail.mail',
                     report_to=weekmail.writer.email_address,
                     report_language=weekmail.writer.preferred_language,
-                    report_always=True)
+                    report_always=True,
+                    priority=TaskPriority.LOW)
 
     # If debug is enabled, add a single recipient, the person themselves
     if settings.DEBUG:

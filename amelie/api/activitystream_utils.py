@@ -3,6 +3,7 @@ from django.conf import settings
 
 from amelie.activities.models import Activity, EnrollmentoptionQuestion, EnrollmentoptionCheckbox, \
     EnrollmentoptionFood
+from amelie.api.authentication_types import Authentication, AnonymousAuthentication
 from amelie.api.common import strip_markdown
 from amelie.companies.models import CompanyEvent
 from amelie.calendar.models import Participation
@@ -34,8 +35,8 @@ def get_basic_result(activity):
 
 
 # Add detailed properties to a result item
-def add_detailed_properties(activity, authentication, result):
-    authenticated = authentication is not None
+def add_detailed_properties(activity, authentication: Authentication, result):
+    authenticated = not isinstance(authentication, AnonymousAuthentication)
 
     result["description"] = strip_markdown(activity.description)
     result["html"] = md.markdown(activity.description)
@@ -61,14 +62,16 @@ def add_detailed_properties(activity, authentication, result):
         add_options_property(activity, authentication, result)
 
 
-# Add options property to a result item
+# Add 'options' property to a result item
 def add_options_property(activity, authentication, result):
     if type(activity) != Activity:
         return
 
+    authenticated = not isinstance(authentication, AnonymousAuthentication)
+
     result["options"] = []
 
-    if authentication is not None:
+    if authenticated:
         for option in activity.enrollmentoption_set.all():
             if option.content_type.model_class() == EnrollmentoptionQuestion:
                 result["options"].append({
@@ -103,12 +106,12 @@ def add_options_property(activity, authentication, result):
                 })
 
 
-# Add thumbnails property to a result item
-def add_thumbnails_property(activity, authentication, result):
+# Add 'thumbnails' property to a result item
+def add_thumbnails_property(activity, authentication: Authentication, result):
     if type(activity) != Activity:
         return
 
-    authenticated = authentication is not None
+    authenticated = not isinstance(authentication, AnonymousAuthentication)
     photos = activity.photos.filter_public(not authenticated)
 
     result["thumbnails"] = {
@@ -129,12 +132,12 @@ def add_thumbnails_property(activity, authentication, result):
         }
 
 
-# Add images property to a result item
-def add_images_property(activity, authentication, result):
+# Add 'images' property to a result item
+def add_images_property(activity, authentication: Authentication, result):
     if type(activity) != Activity:
         return
 
-    authenticated = authentication is not None
+    authenticated = not isinstance(authentication, AnonymousAuthentication)
     photos = activity.photos.filter_public(not authenticated)
 
     result["images"] = []

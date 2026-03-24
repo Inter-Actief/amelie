@@ -1,17 +1,22 @@
 from typing import Union, List, Dict
 
-from django.utils.translation import gettext
+from modernrpc import RpcRequestContext
 from oauth2_provider.models import AccessToken
 
-from amelie.api.decorators import authentication_optional, authentication_required
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
+from django.utils.translation import gettext as _
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_GET
+
+from amelie.api.api import api_server
+from amelie.api.authentication_types import AnonymousAuthentication
+from amelie.api.decorators import auth_optional, auth_required
 from amelie.api.exceptions import NotLoggedInError
 
-from modernrpc.core import rpc_method, REQUEST_KEY
 
-
-@rpc_method(name='checkAuthToken')
-@authentication_optional()
-def check_auth_token(**kwargs) -> bool:
+@api_server.register_procedure(name='checkAuthToken', auth=auth_optional, context_target='ctx')
+def check_auth_token(ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Checks if an auth token is still valid. It is recommended to do this after resuming your app,
     to see if the token was revoked.
@@ -30,11 +35,13 @@ def check_auth_token(**kwargs) -> bool:
         --> {"method":"checkAuthToken", "params":[]}
         <-- {"result": true}
     """
-    return kwargs.get('authentication', None) is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
+    return is_authenticated
 
 
-@rpc_method(name='revokeAuthToken')
-def revoke_auth_token(**kwargs) -> bool:
+@api_server.register_procedure(name='revokeAuthToken', context_target='ctx')
+def revoke_auth_token(ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Revokes an authentication token.
 
@@ -57,7 +64,7 @@ def revoke_auth_token(**kwargs) -> bool:
         <-- {"result": true}
     """
     try:
-        token = kwargs.get(REQUEST_KEY).META.get('HTTP_AUTHORIZATION', 'Bearer ')
+        token = ctx.request.META.get('HTTP_AUTHORIZATION', 'Bearer ')
         token = token[7:]
 
         access_token = AccessToken.objects.get(token=token)
@@ -68,9 +75,8 @@ def revoke_auth_token(**kwargs) -> bool:
     return True
 
 
-@rpc_method(name='getAuthenticatedApps')
-@authentication_required("account")
-def get_authenticated_apps(**kwargs) -> Union[List[Dict], None]:
+@api_server.register_procedure(name='getAuthenticatedApps', auth=auth_required('account'), context_target='ctx')
+def get_authenticated_apps(ctx: RpcRequestContext = None, **kwargs) -> Union[List[Dict], None]:
     """
     Retrieves the list of authenticated apps for the currently authenticated person.
 
@@ -110,14 +116,15 @@ def get_authenticated_apps(**kwargs) -> Union[List[Dict], None]:
                }
         }]}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if person is not None:
         result = []
         for access_token in person.user.oauth2_provider_accesstoken.order_by('-expires').all():
             translated_scopes = {}
             for s, d in access_token.scopes.items():
-                translated_scopes[s] = gettext(d)
+                translated_scopes[s] = _(d)
 
             result.append({
                 "applicationName": access_token.application.name,
@@ -129,3 +136,9 @@ def get_authenticated_apps(**kwargs) -> Union[List[Dict], None]:
     else:
         return None
 
+@require_GET
+@ensure_csrf_cookie  # Ensures the CSRF cookie is set
+def get_csrf_token(request):
+    response = JsonResponse({"message": "CSRF cookie set"})
+    response["X-CSRFToken"] = get_token(request)  # Send CSRF token in headers
+    return response

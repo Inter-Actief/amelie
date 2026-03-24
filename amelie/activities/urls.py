@@ -42,6 +42,8 @@ urlpatterns = [
     path('<int:pk>/mailing/', views.activity_mailing, name='mailing'),
     path('<int:pk>/photos/random/', views.activity_random_photo, name='random_photo'),
     path('<int:pk>/photo/<int:photo>/', views.gallery_photo, name='gallery_photo'),
+    path('<int:pk>/photo/<int:photo>/togglevisibility', views.toggle_visibility, name='gallery_photo_toggle_visibility'),
+    path('<int:pk>/photo/<int:photo>/delete', views.delete_photo, name='gellery_photo_delete'),
     path('<int:pk>/photos/', views.gallery, name='gallery'),
     path('<int:pk>/photos/<int:page>/', views.gallery, name='gallery'),
 
@@ -89,4 +91,7 @@ urlpatterns = [
     re_path(r'kalender_(?P<lang>(nl|en))\.ics', RedirectView.as_view(url='/activities/calendar_%(lang)s.ics',
                                                                      permanent=True)),
     path('<int:pk>/activiteit.ics', RedirectView.as_view(url='/activities/%(pk)s/activity.ics', permanent=True)),
+
+    # Activity label filtering (last because it would override other URLs otherwise)
+    path('<str:act_type>', views.activities, name='activities_type'),
 ]

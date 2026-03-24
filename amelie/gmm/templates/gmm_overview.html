@@ -40,12 +40,12 @@
                 <p>{% trans 'For formal association documents, only the Dutch version is legally binding.' %}</p>
                 <ol>
                     <li>
-                        By-laws (<a href="/documenten/alv/statuten.pdf">Dutch</a> / <a href="/documenten/alv/By_laws.pdf">English</a>)
+                        By-laws, last modified on the GMM of 4 July 2025 (<a href="https://media.ia.utwente.nl/amelie/uploads/files/2025/08/19/1008-statuten.pdf">Dutch</a> / <a href="https://media.ia.utwente.nl/amelie/uploads/files/2025/08/19/1009-By_laws.pdf">English</a>)
                     </li>
                     <li>
                         House Regulations (HR),
-                        last modified on the GMM of 23 June 2022 (<a href="/documenten/alv/HR/2022-06-23_Huishoudelijk_Reglement.pdf">Dutch</a> /
-                        <a href="/documenten/alv/HR/2022-06-23_Huishoudelijk_Reglement_Engels.pdf">English</a>)
+                        last modified on the GMM of 2 April 2025 (<a href="https://media.ia.utwente.nl/amelie/uploads/files/2025/08/19/1007-Huishoudelijk_Reglement.pdf">Dutch</a> /
+                        <a href="https://media.ia.utwente.nl/amelie/uploads/files/2025/08/19/1007-House_Regulations.pdf">English</a>)
                     </li>
                     <li>
                         Declaration Policy, last modified on the GMM of 20 March 2023 (<a href="/documenten/alv/DeclarationPolicy/2023-03-20_Declaratiebeleid.pdf">Dutch</a> /
@@ -74,6 +74,17 @@
                     <i>{% trans '(date yet unknown)' %}</i></a></h2>
                 <div class="content">
                     {{ gmm.agenda|safe }}
+
+                    {% if gmm.documents.exists %}
+                    <div class="documents">
+                        {% trans "For this GMM, the following documents are available:" %}
+                        <ul>
+                            {% for document in gmm.documents.all %}
+                            <li><a target="_BLANK" href="{{ document.file.url }}">{{ document.caption }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
@@ -84,6 +95,17 @@
                 </a></h2>
                 <div class="content">
                     {{ gmm.agenda|safe }}
+
+                    {% if gmm.documents.exists %}
+                    <div class="documents">
+                        <p><b>{% trans "For this GMM, the following documents are available:" %}</b></p>
+                        <ul>
+                            {% for document in gmm.documents.all %}
+                            <li><a target="_BLANK" href="{{ document.file.url }}">{{ document.caption }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

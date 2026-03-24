@@ -1,4 +1,5 @@
 """Contains the "Mappable" abstract class"""
+from django.db.models import Model
 
 
 class Mappable:
@@ -10,7 +11,7 @@ class Mappable:
     """
 
     @classmethod
-    def from_id(cls, ident):
+    def from_id(cls: Model, ident):
         """
         Give an object based on its unique id
         :param ident: Object id
@@ -18,7 +19,7 @@ class Mappable:
         return cls.objects.get(id=ident)
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls: Model):
         """
         Give all existing objects
         """

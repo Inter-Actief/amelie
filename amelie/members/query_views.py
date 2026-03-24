@@ -3,6 +3,7 @@ import re
 from datetime import date
 import csv
 
+from django.conf import settings
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView
@@ -15,22 +16,23 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect, QueryDict
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.cache import never_cache
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.api.models import PushNotification
 from amelie.members.forms import SearchForm
+from amelie.tools.const import TaskPriority
 from amelie.tools.forms import ExportForm
 from amelie.members.models import Person, Preference, Student, Employee
 from amelie.members.query_forms import MailingForm, QueryForm, PushNotificationForm
 from amelie.members.tasks import send_push_notification
 from amelie.tools import types
-from amelie.tools.decorators import require_board
+from amelie.tools.decorators import require_board, require_committee
 from amelie.tools.logic import current_association_year
 from amelie.tools.mixins import RequireBoardMixin
 from amelie.tools.paginator import RangedPaginator
 
 
-@require_board
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
 @never_cache
 def query(request):
     page = types.get_int(request.GET, 'page', default=1, min_value=1)
@@ -149,7 +151,7 @@ def send_mailing(request):
             task = form.build_task(persons)
             task.send()
 
-            return render(request, 'message.html', {'message': _(
+            return render(request, 'message.html', {'message': _l(
                 'The mails are now being sent one by one. This happens in a background process and might take a while.'
             )})
 
@@ -186,12 +188,14 @@ class SendNotification(RequireBoardMixin, CreateView):
         notification.recipients.set(recipients)
         notification.save()
 
-        send_push_notification.delay(notification,
-                                     Person.objects.filter(id__in=[x.pk for x in recipients]),
-                                     report_to=self.request.person.email_address,
-                                     report_language=self.request.person.preferred_language)
+        push_args = [notification, Person.objects.filter(id__in=[x.pk for x in recipients])]
+        push_kwargs = {
+            "report_to": self.request.person.email_address,
+            "report_language": self.request.person.preferred_language
+        }
+        send_push_notification.s(*push_args, **push_kwargs).set(priority=TaskPriority.MEDIUM).delay()
 
-        messages.info(self.request, _(
+        messages.info(self.request, _l(
             'The push notifications are now being sent one by one. This happens in a background process and might '
             'take a while. You will get a delivery report via e-mail when it is complete.'))
 
@@ -222,7 +226,7 @@ class DataExport(RequireBoardMixin, View):
                 return DataExport.email_export(filter_querydict)
             else:
                 # Redirect back to query view with an error message.
-                messages.warning(request, _(
+                messages.warning(request, _l(
                     "Could not make a data export, because an unknown data export type was selected."
                 ))
 
@@ -233,7 +237,7 @@ class DataExport(RequireBoardMixin, View):
 
         else:
             # Redirect back to query view with an error message.
-            messages.warning(request, _(
+            messages.warning(request, _l(
                 "Could not create data export, because something went wrong while saving information about the export."
             ))
             if form.cleaned_data and 'export_details' in form.cleaned_data and form.cleaned_data['export_details']:

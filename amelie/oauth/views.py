@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import FormView
 
 from amelie.iamailer import MailTask, Recipient
+from amelie.tools.const import TaskPriority
 from amelie.oauth.forms import OAuth2RequestForm
 from amelie.settings import DEFAULT_FROM_EMAIL
 
@@ -31,11 +32,13 @@ class RequestOAuth(FormView):
         }
         task = MailTask(
             from_=DEFAULT_FROM_EMAIL,
-            template_name='oauth_access_request.mail')
+            template_name='oauth_access_request.mail',
+            priority=TaskPriority.LOW
+        )
         task.add_recipient(Recipient(
             tos=['WWW Supers <www-super@inter-actief.net>'],
             context=context
         ))
-        task.send(delay=False)
+        task.send()
 
         return render(self.request, 'request_oauth_sent.html', context)

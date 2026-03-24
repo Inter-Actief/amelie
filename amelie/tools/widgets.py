@@ -16,6 +16,7 @@ class DateTimeSelector(SplitDateTimeWidget):
         super(DateTimeSelector, self).__init__(attrs, '%Y-%m-%d', '%H:%M')
         # self.widgets[0].input_type = 'date' # commented out because we use a non-native date picker now
         # self.widgets[1].input_type = 'time' # commented out because we use a non-native date picker now
+
         if (attrs and 'class' in attrs or
                 (self.widgets[0].attrs and 'class' in self.widgets[0].attrs)):
             self.widgets[0].attrs['class'] += ' date_selector'
@@ -32,17 +33,18 @@ class DateTimeSelectorWithToday(DateTimeSelector):
 
 
 class DateSelector(DateInput):
+    input_type = 'date'
     """
-    A Widget that uses a <input type="text"> box with JavaScript selector.
+    A Widget that uses a <input type="date"> box with JavaScript selector.
     """
 
     def __init__(self, attrs=None):
         if not attrs:
             attrs = {}
         if 'class' in attrs:
-            attrs['class'] += ' date_selector'
+            attrs['class'] += ' ia-datepicker'
         else:
-            attrs['class'] = 'date_selector'
+            attrs['class'] = 'ia-datepicker'
         super(DateSelector, self).__init__(attrs, '%Y-%m-%d')
 
 

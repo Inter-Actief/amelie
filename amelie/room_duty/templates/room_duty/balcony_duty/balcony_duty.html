@@ -14,12 +14,14 @@
                     <li>
                         {{ association }}
                         {% if not forloop.first %}
-                            <form class="inline" action="{% url 'room_duty:balcony_duty_up' association.pk %}">
+                            <form class="inline" method="POST" action="{% url 'room_duty:balcony_duty_up' association.pk %}">
+				{% csrf_token %}
                                 <input type="submit" value="{% trans 'Up' %}">
                             </form>
                         {% endif %}
                         {% if not forloop.last %}
-                            <form class="inline" action="{% url 'room_duty:balcony_duty_up' association.pk %}">
+                            <form class="inline" method="POST" action="{% url 'room_duty:balcony_duty_down' association.pk %}">
+				{% csrf_token %}
                                 <input type="submit" value="{% trans 'Down' %}">
                             </form>
                         {% endif %}

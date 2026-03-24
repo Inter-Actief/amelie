@@ -324,11 +324,11 @@ html, body {
 }
 
 /*
- * Left block layout - IA room PC status
+ * Left block layout - IA room duty status
  */
 /* Room duty block */
 #room_duty {
-    height: 18vh;
+    height: 30vh;
 }
 
 #room_duty_title {
@@ -339,7 +339,7 @@ html, body {
 }
 
 #room_duty_entries {
-    height: 10vh;
+    height: 16vh;
     overflow: hidden;
     padding-left: 1vw;
 }
@@ -359,166 +359,64 @@ html, body {
     margin-right: 1vw;
 }
 
-/* PC Status block */
-#pc_status {
-    width: 38vw;
-    height: 44vh;
-    display: flex;
-    padding-left: 1vw;
-}
-
-#pc_status .pc_column {
-    width: 8vh;
+/*
+ * Left block layout - IA chat messages
+ */
+/* IA chat block */
+#ia_chat {
     height: 40vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 2vmin 0;
 }
 
-#pc_status .pc_column.small {
-    width: 5vh;
-}
-
-#pc_status .pc_square {
-    box-sizing: border-box;
-    width: 100%;
-    height: 8vh;
-    border: 1px solid rgba(0,0,0,0.5);
+#ia_chat_title {
+    height: 5.5vh;
+    font-size: 3.5vh;
+    line-height: 5.5vh;
+    padding-left: 1vw;
     background-color: var(--ia-blue-light);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
-#pc_status .pc_square[data-state="tv"] {
-    color: var(--ia-green-light);
+#ia_chat_title i {
+    margin-right: 0.5vw;
 }
 
-#pc_status .pc_square[data-state="on"] {
-    color: var(--ia-green-light);
-}
-
-#pc_status .pc_square[data-state="off"] {
-    color: rgba(0, 0, 0, 0.2);
-}
-
-#pc_status .pc_square[data-state="unknown"] {
-    color: rgba(150, 150, 150, 1);
-}
-
-#pc_status .pc_square[data-state="admin"] {
-    color: rgba(221, 202, 40, 1);
-}
-
-#pc_status .pc_square[data-state="user"] {
-    color: var(--ia-red);
-}
-
-#pc_status .pc_square[data-state="guest"] {
-    color: rgba(222, 145, 81, 1);
-}
-
-#pc_status .pc_square i {
-    height: 8vh;
-    width: 8vh;
-
-    font-size: 4vh;
-    line-height: 8vh;
-    text-align: center;
-}
-
-#pc_status .pc_square span {
-    height: 4vh;
-    width: 7vh;
-
+#ia_chat_title .small {
     font-size: 2.5vh;
-    text-align: center;
-    line-height: 3vh;
-    white-space: nowrap;
+}
+
+#ia_chat_messages {
+    height: 32.5vh;
     overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    padding: 0 0.5vh;
-}
-
-#pc_status .pc_square.empty {
-    background: none;
-    border: none;
-}
-
-#pc_status .pc_square.small {
-    height: 4vh;
-    flex-direction: row;
-}
-
-#pc_status .pc_square.small i {
-    height: 4vh;
-    width: 4vh;
-
+    padding: 1vh 0.75vw;
     font-size: 2vh;
-    line-height: 4vh;
-    text-align: center;
-}
-#pc_status_legend {
-    width: 38vw;
-    height: 8vh;
-    padding: 1vh 2vmin;
-
-    font-size: 3vh;
-    line-height: 5vh;
-    white-space: nowrap;
-    overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-}
-
-/* PC Legend block */
-#pc_legend {
-    width: 38vw;
-    height: 6vh;
-    font-size: 2.5vh;
     line-height: 3vh;
-    display: flex;
-}
-
-#pc_legend .pc_legend_column {
+    background-color: var(--ia-blue-dark);
     display: flex;
     flex-direction: column;
-    padding-right: 1vw;
+    align-items: flex-start;
+    justify-content: end;
 }
 
-#pc_legend .pc_legend_column span {
-    line-height: 3vh;
+#ia_chat_loading {
+    font-size: 3vh;
+}
+#ia_chat_error {
+    font-size: 3vh;
 }
 
-#pc_legend .pc_legend_column span:before {
-    content: '●';
-    padding-right: 1vh;
+.ia_chat_message {
+    font-family: "Consolas", monospace;
 }
 
-#pc_legend .pc_legend_column span.on:before {
-    color: var(--ia-green-light);
+.ia_chat_message_time {
+    font-family: "Consolas", monospace;
+    font-weight: normal;
+    opacity: 0.5;
+    padding-right: 0.5rem
 }
 
-#pc_legend .pc_legend_column span.off:before {
-    color: rgba(0, 0, 0, 0.3);
-}
-
-#pc_legend .pc_legend_column span.unknown:before {
-    color: rgba(150, 150, 150, 1);
-}
-
-#pc_legend .pc_legend_column span.admin:before {
-    color: var(--yellow-verylight);
-}
-
-#pc_legend .pc_legend_column span.user:before {
-    color: var(--ia-red);
-}
-
-#pc_legend .pc_legend_column span.guest:before {
-    color: var(--orange-verylight);
+.ia_chat_message_from {
+    font-family: "Consolas", monospace;
+    font-weight: bold;
 }
 
 
@@ -529,6 +427,7 @@ html, body {
 #media_container {
     width: 60vw;
     height: 70vh;
+    background-color: black;
 }
 
 #media_content {

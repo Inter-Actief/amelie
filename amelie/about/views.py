@@ -18,21 +18,17 @@ class PageRedirectView(RedirectView):
 
 def page(request, pk, slug):
     obj = get_object_or_404(Page, pk=pk)
-    is_www = (hasattr(request, 'is_board') and request.is_board) or \
-             (hasattr(request, 'person') and request.person.function_set.filter(committee__abbreviation='WWW',
-                                                                                end__isnull=True))
-    is_educational = hasattr(request, 'person') and request.person.function_set.filter(committee__abbreviation='OnderwijsCommissie',
-                                                                                end__isnull=True)
+    is_www = hasattr(request, 'person') and (request.person.is_board() or request.person.is_in_committee('WWW'))
+    is_educational = hasattr(request, 'person') and (request.person.is_board() or request.person.is_in_committee('OnderwijsCommissie'))
     return render(request, 'page.html', {'obj': obj, 'is_www': is_www, 'is_educational': is_educational})
 
 
 def page_edit(request, pk, slug):
     obj = get_object_or_404(Page, pk=pk)
-    if hasattr(request, 'person') and (
-        request.person.is_board() or request.person.function_set.filter(committee__abbreviation='WWW',
-                                                                        end__isnull=True).exists() or (
-            obj.educational and request.person.function_set.filter(committee__abbreviation='OnderwijsCommissie',
-                                                                   end__isnull=True).exists())):
+    is_board = hasattr(request, 'person') and request.person.is_board()
+    is_www = hasattr(request, 'person') and request.person.is_in_committee('WWW')
+    is_educational = hasattr(request, 'person') and request.person.is_in_committee('OnderwijsCommissie')
+    if is_board or is_www or (obj.educational and is_educational):
         form = PageForm(instance=obj) if request.method != "POST" else PageForm(request.POST, instance=obj)
         is_new = False
 
@@ -50,11 +46,10 @@ def page_edit(request, pk, slug):
 
 def page_delete(request, pk, slug):
     obj = get_object_or_404(Page, pk=pk)
-    if hasattr(request, 'person') and (
-        request.person.is_board() or request.person.function_set.filter(committee__abbreviation='WWW',
-                                                                        end__isnull=True).exists() or (
-            obj.educational and request.person.function_set.filter(committee__abbreviation='OnderwijsCommissie',
-                                                                   end__isnull=True).exists())):
+    is_board = hasattr(request, 'person') and request.person.is_board()
+    is_www = hasattr(request, 'person') and request.person.is_in_committee('WWW')
+    is_educational = hasattr(request, 'person') and request.person.is_in_committee('OnderwijsCommissie')
+    if is_board or is_www or (obj.educational and is_educational):
         if request.method == "POST":
             obj.delete()
             return HttpResponseRedirect("/")

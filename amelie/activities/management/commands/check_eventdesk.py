@@ -3,13 +3,12 @@ import binascii
 import html
 import re
 import email
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import googleapiclient
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.utils.datetime_safe import datetime
 from django.utils.timezone import make_aware
 
 from amelie.activities.models import EventDeskRegistrationMessage, Activity
@@ -281,9 +280,14 @@ class Command(BaseCommand):
                         maxratio = 0
                         best_match = None
                         for act in candidates:
-
-                            ratio_nl = fuzzy_substring(meeting_name.lower(), act.summary_nl.lower())
-                            ratio_en = fuzzy_substring(meeting_name.lower(), act.summary_en.lower())
+                            if meeting_name and act.summary_nl:
+                                ratio_nl = fuzzy_substring(meeting_name.lower(), act.summary_nl.lower())
+                            else:
+                                ratio_nl = 0
+                            if meeting_name and act.summary_en:
+                                ratio_en = fuzzy_substring(meeting_name.lower(), act.summary_en.lower())
+                            else:
+                                ratio_en = 0
                             ratio = max(ratio_nl, ratio_en)
                             if ratio > maxratio:
                                 maxratio = ratio

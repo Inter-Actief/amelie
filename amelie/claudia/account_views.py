@@ -1,22 +1,27 @@
+import datetime
+import re
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.http import Http404
+from django.urls import reverse_lazy, reverse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _l
 from django.views import View
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
+from sshpubkeys import SSHKey, InvalidKeyError
 
 from amelie.claudia.forms import AccountPasswordForm, AccountConfigureForwardingForm, AccountPasswordResetForm, \
     AccountPasswordResetLinkForm, AccountActivateForm, MailAliasForm
 from amelie.claudia.google import GoogleSuiteAPI
 from amelie.claudia.models import Mapping, Membership, AliasGroup
-from amelie.claudia.tasks import verify_mapping
+from amelie.claudia.tasks import verify_object
 from amelie.members.models import Person
 from amelie.tools.http import HttpJSONResponse
 from amelie.tools.mixins import RequireActiveMemberMixin, RequirePersonMixin
@@ -31,7 +36,7 @@ def _get_ad():
     """
     from amelie.claudia.ad import AD
     a = settings.CLAUDIA_AD
-    return AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"])
+    return AD(a["LDAP"], a["HOST"], a["USER"], a["PASSWORD"], a["BASEDN"], a["PORT"], a["CACERTFILE"])
 
 
 def _valid_password(account_name, password):
@@ -51,7 +56,7 @@ def _valid_password(account_name, password):
 
     person = ad.find_person(account_name)
     if not person:
-        return False, _('Enter a correct username and password. Warning: the fields are case-sensitive.')
+        return False, _l('Enter a correct username and password. Warning: the fields are case-sensitive.')
     else:
         # Check if the user needs to change their password
         change_back = not person.has_changed_password()
@@ -60,13 +65,13 @@ def _valid_password(account_name, password):
         try:
             # Try to connect with given username and password
             a = settings.CLAUDIA_AD
-            ad2 = AD(a["LDAP"], a["HOST"], account_name, password, a["BASEDN"], a["PORT"])
+            ad2 = AD(a["LDAP"], a["HOST"], account_name, password, a["BASEDN"], a["PORT"], a["CACERTFILE"])
             ad2.find_person(account_name)
             return True, None
         except ldap.INVALID_CREDENTIALS:
-            return False, _('Enter a correct username and password. Warning: the fields are case-sensitive.')
+            return False, _l('Enter a correct username and password. Warning: the fields are case-sensitive.')
         except ldap.OPERATIONS_ERROR:
-            return False, _('Something went wrong, please contact the system administrators.')
+            return False, _l('Something went wrong, please contact the system administrators.')
         finally:
             if change_back:  # Don't forget the checkbox
                 person.must_change_password()
@@ -96,7 +101,7 @@ def _process_set_password(account_name, new_password):
         person.set_password(new_password)
         return True, None
     except ldap.INSUFFICIENT_ACCESS:
-        return False, _('Something went wrong, please contact the system administrators.')
+        return False, _l('Something went wrong, please contact the system administrators.')
 
 
 def _process_activate(account_name, current_password, new_password):
@@ -115,14 +120,14 @@ def _process_activate(account_name, current_password, new_password):
             ad = _get_ad()
             person = ad.find_person(account_name)
             if person.has_changed_password():
-                return False, _('Your account has already been activated.')
+                return False, _l('Your account has already been activated.')
             else:
                 person.set_password(new_password)
                 return True, None
         except ldap.INSUFFICIENT_ACCESS:
-            return False, _('Something went wrong, please contact the system administrators.')
+            return False, _l('Something went wrong, please contact the system administrators.')
         except ldap.INVALID_CREDENTIALS:
-            return False, _('It looks like you have entered an unknown username and password combination. '
+            return False, _l('It looks like you have entered an unknown username and password combination. '
                             'Please contact the administrators if you are sure you entered a correct combination.')
 
     else:
@@ -145,7 +150,7 @@ class AccountError(TemplateView):
     """
     template_name = 'accounts/error.html'
 
-    error = _("Something went wrong, please contact the system administrators.")
+    error = _l("Something went wrong, please contact the system administrators.")
 
     def get_context_data(self, **kwargs):
         context = super(AccountError, self).get_context_data()
@@ -258,40 +263,40 @@ class AccountPasswordResetLink(FormView):
         # Check reset code kwarg
         reset_code = self.kwargs.get("reset_code")
         if reset_code is None:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Check if person exists with this code
         try:
             person = Person.objects.get(password_reset_code=reset_code)
         except Person.DoesNotExist:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Check if code is not expired
         if timezone.now() > person.password_reset_expiry:
             person.password_reset_code = None
             person.password_reset_expiry = None
             person.save()
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         return super(AccountPasswordResetLink, self).get_context_data(**kwargs)
 
     def form_valid(self, form):
         reset_code = self.kwargs.get("reset_code")
         if reset_code is None:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Get person
         try:
             person = Person.objects.get(password_reset_code=reset_code)
         except Person.DoesNotExist:
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Check if code is not expired
         if timezone.now() > person.password_reset_expiry:
             person.password_reset_code = None
             person.password_reset_expiry = None
             person.save()
-            raise Http404(_("This reset code is not valid."))
+            raise Http404(_l("This reset code is not valid."))
 
         # Remove reset code
         person.password_reset_code = None
@@ -302,10 +307,10 @@ class AccountPasswordResetLink(FormView):
         res, msg = _process_set_password(person.account_name, form.cleaned_data['new_password'])
         if res:
             messages.add_message(request=self.request, level=messages.INFO,
-                                 message=_("Your password was successfully changed. You may now log in."))
+                                 message=_l("Your password was successfully changed. You may now log in."))
             return super(AccountPasswordResetLink, self).form_valid(form)
         else:
-            raise ValueError(_("Error while changing password. {}".format(msg)))
+            raise ValueError(_l("Error while changing password. {}".format(msg)))
 
 
 class AccountConfigureForwardingView(RequireActiveMemberMixin, LoginRequiredMixin, TemplateView):
@@ -363,7 +368,7 @@ class AccountCheckForwardingStatus(RequireActiveMemberMixin, LoginRequiredMixin,
         if forwarding_emails['enabled']:
             message = forwarding_emails['emailAddress']
         else:
-            message = _("Unknown, please disable and re-enable forwarding!")
+            message = _l("Unknown, please disable and re-enable forwarding!")
 
         return HttpJSONResponse({
             'enabled': forwarding_emails['enabled'],
@@ -385,21 +390,21 @@ class AccountCheckForwardingVerificationStatus(RequireActiveMemberMixin, LoginRe
         if is_verified:
             if initial_check:
                 message = "<div class=\"icon status_icon icon-accept\"></div><span>" +\
-                          str(_("Your personal e-mail address is already known with Google. "
+                          str(_l("Your personal e-mail address is already known with Google. "
                                 "Click below to activate your e-mail forward.")) +\
                           "</span>"
             else:
                 message = "<div class=\"icon status_icon icon-accept\"></div><span>" + \
-                          str(_("Your e-mail address has been verified with Google! "
+                          str(_l("Your e-mail address has been verified with Google! "
                                 "Click below to activate your e-mail forward.")) + \
                           "</span>"
         else:
             if initial_check:
-                message = _("Your personal e-mail address is not known yet with Google. This has to be verified first. "
+                message = _l("Your personal e-mail address is not known yet with Google. This has to be verified first. "
                             "Click below to start the verification process.")
             else:
                 message = "<div class=\"icon status_icon icon-arrow_rotate_clockwise\"></div><span>" + \
-                          str(_("Your e-mail address has not been verified yet. "
+                          str(_l("Your e-mail address has not been verified yet. "
                                 "Please check your e-mail for a verification link.")) + \
                           "</span>"
 
@@ -439,7 +444,7 @@ class AccountActivateForwardingAddress(RequireActiveMemberMixin, LoginRequiredMi
             return HttpJSONResponse({
                 'ok': True,
                 'message': "<div class=\"icon status_icon icon-accept\"></div><span>" +
-                           str(_("Your forward is now activated!")) +
+                           str(_l("Your forward is now activated!")) +
                            "</span>"
             })
         else:
@@ -457,7 +462,7 @@ class AccountDeactivateForwardingAddress(RequireActiveMemberMixin, LoginRequired
         return HttpJSONResponse({
             'ok': True,
             'message': "<div class=\"icon status_icon icon-accept\"></div><span>" +
-                       str(_("Your forward has been deactivated! Don't forget to regularly check "
+                       str(_l("Your forward has been deactivated! Don't forget to regularly check "
                              "your Google Suite e-mail so you don't miss anything important!")) +
                        "</span>"
         })
@@ -494,6 +499,161 @@ class MailAliasView(RequirePersonMixin, FormView):
             alias_group_mp = Mapping.find(alias_group)
             Membership(member=mp, group=alias_group_mp, ad=True, mail=True, description='').save()
 
-        verify_mapping.delay(mp.id)
+        verify_object.delay(object_id=mp.id, object_type=None)
 
         return super().form_valid(form)
+
+
+class KanidmActions(RequireActiveMemberMixin, View):
+    def get_success_url(self):
+        if self.request.GET.get('redirect') == 'kanidm':
+            return reverse('claudia:kanidm_person_detail', kwargs={'uuid': self.kwargs['uuid']})
+        return reverse('profile_overview')
+
+    def do_redirect(self):
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+        if action not in ["add_ssh_key", "delete_ssh_key", "reset_sudo"]:
+            messages.error(request, _("Invalid action. Please try again."))
+            return self.do_redirect()
+
+        from amelie.claudia.models import Mapping
+        mp = Mapping.find(request.user.person)
+        if not mp or not mp.get_kanidm_id():
+            messages.error(request, _("Action failed. You don't have an account (yet). Try again later or contact the SysCom if this persists."))
+            return self.do_redirect()
+
+        from amelie.claudia.kanidm import KanidmAPI
+        kanidm_api = KanidmAPI()
+        kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
+        if not kanidm_person:
+            messages.error(request, _("Action failed. You don't have an account (yet). Try again later or contact the SysCom if this persists."))
+            return self.do_redirect()
+
+        if action == "add_ssh_key":
+            tag = request.POST.get('tag')
+            pubkey = request.POST.get('pubkey')
+
+            # Validate entered tag and ssh-key
+            tag_valid = re.match(r'^[a-zA-Z0-9]{1,25}$', tag)
+            if not tag_valid:
+                messages.error(request, _("Could not add new SSH key. The key identifier must be one word of between 1-25 letters and numbers."))
+            try:
+                ssh_key = SSHKey(pubkey, strict=True)
+                ssh_key.parse()
+                key_valid = True
+            except InvalidKeyError:
+                messages.error(request, _("Could not add new SSH key. The SSH key is not valid."))
+                key_valid = False
+            except NotImplementedError:
+                messages.error(request, _("Could not add new SSH key. The SSH key format is not supported."))
+                key_valid = False
+
+            # Break if tag or key not valid
+            if not tag_valid or not key_valid:
+                return self.do_redirect()
+
+            # Actually add the SSH key to the account
+            result = kanidm_person.add_ssh_pubkey(tag=tag, pubkey=pubkey)
+            if result:
+                from amelie.iamailer import MailTask
+                from amelie.tools.mail import PersonRecipient
+
+                task = MailTask(template_name="accounts/server_ssh_key_added.mail", report_to=None, report_always=False)
+                task.add_recipient(PersonRecipient(
+                    recipient=request.user.person,
+                    context={"name": request.user.person.incomplete_name(), "identifier": tag, "pubkey": pubkey}
+                ))
+                task.send()
+
+                messages.success(request, _("SSH key with tag '{tag}' added successfully!").format(tag=tag))
+            else:
+                messages.error(request, _("Could not add new SSH key. If this persists please contact the SysCom."))
+        elif action == "delete_ssh_key":
+            # Validate entered tag
+            tag = request.POST.get('tag')
+            tag_valid = re.match(r'^[a-zA-Z0-9]{1,25}$', tag)
+
+            # Break if tag not valid
+            if not tag_valid:
+                messages.error(request, _("Could not remove SSH key. Invalid key identifier."))
+                return self.do_redirect()
+
+            # Actually remove the SSH key from the account
+            result = kanidm_person.delete_ssh_pubkey(tag=tag)
+            if result:
+                messages.success(request, _("SSH key with tag '{tag}' removed!").format(tag=tag))
+            else:
+                messages.error(request, _("Could not remove SSH key. If this persists please contact the SysCom."))
+
+        elif action == "reset_sudo":
+            import uuid
+            from urllib.parse import urljoin
+            from amelie.iamailer import MailTask
+            from amelie.tools.mail import PersonRecipient
+
+            # Save reset code in person
+            reset_code = str(uuid.uuid4())
+            request.user.person.sudo_reset_code = reset_code
+            request.user.person.sudo_reset_expiry = timezone.now() + datetime.timedelta(hours=3)
+            request.user.person.save()
+            reset_link = reverse('account:server_sudo_reset', kwargs={'reset_code': reset_code})
+            reset_link = urljoin(settings.ABSOLUTE_PATH_TO_SITE, reset_link)
+
+            # Send reset link mail
+            task = MailTask(template_name="accounts/server_password_reset.mail", report_to=None, report_always=False)
+            task.add_recipient(PersonRecipient(
+                recipient=request.user.person,
+                context={"name": request.user.person.incomplete_name(), "reset_link": reset_link}
+            ))
+            task.send()
+            messages.success(request, _("Reset link sent! Please check your e-mail for your new 'sudo' password."))
+
+        return self.do_redirect()
+
+
+class KanidmSudoReset(TemplateView):
+    template_name = "accounts/sudo_reset.html"
+
+    def get_context_data(self, **kwargs):
+        # Check reset code kwarg
+        reset_code = self.kwargs.get("reset_code")
+        if reset_code is None:
+            raise Http404(_l("This reset link is not valid."))
+
+        # Check if a person exists with this code
+        try:
+            person = Person.objects.get(sudo_reset_code=reset_code)
+        except Person.DoesNotExist:
+            raise Http404(_l("This reset link is not valid."))
+
+        # Check if code is not expired
+        if timezone.now() > person.sudo_reset_expiry:
+            person.sudo_reset_code = None
+            person.sudo_reset_expiry = None
+            person.save()
+            raise Http404(_l("This reset link is not valid."))
+
+        # Get Claudia mapping
+        from amelie.claudia.models import Mapping
+        mp = Mapping.find(person)
+        if not mp or not mp.get_kanidm_id():
+            raise Http404(_l("This reset link is not valid."))
+
+        # Get Kanidm account
+        from amelie.claudia.kanidm import KanidmAPI
+        kanidm_api = KanidmAPI()
+        kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
+        if not kanidm_person:
+            raise Http404(_l("This reset link is not valid."))
+
+        # Remove reset code
+        person.sudo_reset_code = None
+        person.sudo_reset_code = None
+        person.save()
+
+        context = super().get_context_data(**kwargs)
+        context['new_password'] = kanidm_person.reset_posix_password()
+        return context

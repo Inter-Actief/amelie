@@ -3,6 +3,7 @@ from datetime import date
 from django.core.management.base import BaseCommand
 
 from amelie.iamailer import MailTask
+from amelie.tools.const import TaskPriority
 from amelie.members.models import Person
 from amelie.tools.mail import PersonRecipient
 
@@ -20,7 +21,8 @@ class Command(BaseCommand):
                 task = MailTask(from_="Board of Inter-Actief <board@inter-actief.net>",
                                 template_name='birthday_mail.mail',
                                 report_to="Board of Inter-Actief <board@inter-actief.net>",
-                                report_always=False)
+                                report_always=False,
+                                priority=TaskPriority.MEDIUM)
 
                 task.add_recipient(PersonRecipient(person, context={'age': person.age()}))
 

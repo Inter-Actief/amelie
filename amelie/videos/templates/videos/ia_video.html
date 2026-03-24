@@ -24,7 +24,7 @@
 
                 {% if delete_allowed %}
                     <div class="buttons">
-                        <a class="looks-like-a-button" href="{% url 'videos:edit_ia_video' object.video_id %}">{% trans 'Edit video' %} &raquo;</a>
+                        <a class="looks-like-a-button" href="{% url 'videos:edit_iaold_video' object.video_id %}">{% trans 'Edit video' %} &raquo;</a>
                         <a class="looks-like-a-button" href="{% url 'videos:delete_video' object.video_id %}">{% trans 'Delete video' %} &raquo;</a>
                     </div>
                 {% endif %}

@@ -1,4 +1,5 @@
 import datetime
+from datetime import timezone as tz
 
 from django.db.models import Sum, Q
 from django.template.defaultfilters import date as _date
@@ -9,6 +10,7 @@ from amelie.members.models import Person, Membership, PaymentType, Payment
 from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
     DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
 from amelie.tools.encodings import normalize_to_ascii
+
 
 
 def authorization_contribution(person):
@@ -181,7 +183,7 @@ def generate_cookie_corner_instructions(end_date):
     all_transactions = Transaction.objects.filter(debt_collection=None)
 
     # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin_date = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=timezone.utc)
+    begin_date = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
 
     all_transactions = all_transactions.filter(date__gte=begin_date, date__lt=end_date)
 
@@ -274,8 +276,7 @@ def save_cookie_corner_instructions(rows, batch):
     timezone_amsterdam = timezone.get_default_timezone()
     execution_date = batch.execution_date
 
-    debt_collection_datetime = timezone_amsterdam.localize(datetime.datetime.combine(execution_date,
-                                                                                     datetime.time(0, 0)))
+    debt_collection_datetime = datetime.datetime.combine(execution_date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
 
     for row in rows:
         person = row['person']
@@ -310,7 +311,7 @@ def process_reversal(reversal, actor):
     instruction = reversal.instruction
     person = instruction.authorization.person
 
-    reversal_datetime = timezone_amsterdam.localize(datetime.datetime.combine(reversal.date, datetime.time(0, 0)))
+    reversal_datetime = datetime.datetime.combine(reversal.date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
     with translation.override(person.preferred_language):
         description = _('Reversal of direct withdrawal {date}').format(date=_date(instruction.batch.execution_date, "j F Y"))
 

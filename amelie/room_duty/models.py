@@ -1,10 +1,10 @@
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.timezone import localtime
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Person
 
@@ -14,7 +14,7 @@ class RoomDutyPool(models.Model):
     A pool of persons that can do room duties in a room duty table,
     for example the board or board+cb.
     """
-    name = models.CharField(max_length=250, verbose_name=_("Name"))
+    name = models.CharField(max_length=250, verbose_name=_l("Name"))
     unsorted_persons = models.ManyToManyField(Person, related_name="room_duty_pools")
 
     @cached_property
@@ -26,8 +26,8 @@ class RoomDutyPool(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _("Office duty")
-        verbose_name_plural = _("Office duty pools")
+        verbose_name = _l("Office duty")
+        verbose_name_plural = _l("Office duty pools")
         ordering = ['-name']
 
 
@@ -35,9 +35,9 @@ class RoomDutyTable(models.Model):
     """
     A set of room duties to fill in availability for, usually one week.
     """
-    title = models.CharField(max_length=250, verbose_name=_("Title"))
+    title = models.CharField(max_length=250, verbose_name=_l("Title"))
     unsorted_pool = models.ManyToManyField(Person, related_name="room_duty_tables")
-    begin = models.DateTimeField(verbose_name=_("Starts"))
+    begin = models.DateTimeField(verbose_name=_l("Starts"))
     balcony_duty = models.ForeignKey("room_duty.BalconyDutyAssociation", null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
@@ -49,19 +49,21 @@ class RoomDutyTable(models.Model):
         return [r.person for r in records]
 
     class Meta:
-        verbose_name = _("Office duty schedule")
-        verbose_name_plural = _("Office duty schedules")
+        verbose_name = _l("Office duty schedule")
+        verbose_name_plural = _l("Office duty schedules")
         ordering = ['-begin']
 
 
 class BalconyDutyAssociation(models.Model):
-    association = models.CharField(max_length=255, verbose_name=_("Association"))
-    is_this_association = models.BooleanField(verbose_name=_("Is Inter-Actief"))
+    association = models.CharField(max_length=255, verbose_name=_l("Association"))
+    is_this_association = models.BooleanField(verbose_name=_l("Is Inter-Actief"))
     rank = models.PositiveIntegerField(unique=True)
 
-    def __init__(self, *args, association=None, **kwargs):
-        kwargs['rank'] = BalconyDutyAssociation.count() + 1
-        super(BalconyDutyAssociation, self).__init__(*args, association=association, **kwargs)
+    def save(self, *args, **kwargs):
+        # If the object is new, set the rank to be the next rank
+        if not self.pk:
+            self.rank = BalconyDutyAssociation.count() + 1
+        super(BalconyDutyAssociation, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.association
@@ -71,7 +73,10 @@ class BalconyDutyAssociation(models.Model):
         return BalconyDutyAssociation.objects.count()
 
     def swap(self, other):
-        self.rank, other.rank = other.rank, self.rank
+        with transaction.atomic():
+            self.rank, other.rank = other.rank, self.rank
+            self.save()
+            other.save()
 
     def move_up(self):
         # Requires that this is not the first item
@@ -101,10 +106,10 @@ class RoomDuty(models.Model):
     One room duty, usually a morning or afternoon on a working day.
     """
     table = models.ForeignKey(RoomDutyTable, related_name="room_duties", on_delete=models.CASCADE)
-    begin = models.DateTimeField(verbose_name=_('Starts'))
-    end = models.DateTimeField(verbose_name=_('Ends'))
+    begin = models.DateTimeField(verbose_name=_l('Starts'))
+    end = models.DateTimeField(verbose_name=_l('Ends'))
 
-    participant_set = models.ManyToManyField(Person, blank=True, related_name="room_duties", verbose_name=_("Boardmembers"))
+    participant_set = models.ManyToManyField(Person, blank=True, related_name="room_duties", verbose_name=_l("Boardmembers"))
 
     update_count = models.PositiveIntegerField(default=0)
 
@@ -114,7 +119,7 @@ class RoomDuty(models.Model):
         if self.begin != None and self.end != None:
             if self.begin >= self.end:
                 raise ValidationError(
-                    {"begin": [_('Start may not be after of simultaneous to end.')]})
+                    {"begin": [_l('Start may not be after of simultaneous to end.')]})
 
     # Properties for ical_event
     @property
@@ -141,7 +146,7 @@ class RoomDuty(models.Model):
         return RoomDutyAvailability(room_duty=self, person=person)
 
     def __str__(self):
-        return _("Office duty from {begin} till {end}").format(
+        return _l("Office duty from {begin} till {end}").format(
             begin=localtime(self.begin).strftime("%Y-%m-%d %H:%M:%S"),
             end=localtime(self.end).strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -150,8 +155,8 @@ class RoomDuty(models.Model):
         super(RoomDuty, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = _("Office duty")
-        verbose_name_plural = _("Office duties")
+        verbose_name = _l("Office duty")
+        verbose_name_plural = _l("Office duties")
         ordering = ['begin', 'end']
 
 
@@ -160,7 +165,7 @@ class RoomDutyTableTemplate(models.Model):
     A template for a room duty table, relative to a specified start,
     for example a regular week or an exam week.
     """
-    title = models.CharField(max_length=250, verbose_name=_("Title"))
+    title = models.CharField(max_length=250, verbose_name=_l("Title"))
 
     @staticmethod
     def instantiate(template, title, pool, start_datetime, balcony_duty):
@@ -186,8 +191,8 @@ class RoomDutyTableTemplate(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = _("Office duty schedule template")
-        verbose_name_plural = _("Office duty schedule templates")
+        verbose_name = _l("Office duty schedule template")
+        verbose_name_plural = _l("Office duty schedule templates")
         ordering = ['title']
 
 
@@ -198,8 +203,8 @@ class RoomDutyTemplate(models.Model):
 
     table = models.ForeignKey(RoomDutyTableTemplate, related_name="room_duties", on_delete=models.CASCADE)
 
-    begin = models.DurationField(verbose_name=_("Starts"))
-    end = models.DurationField(verbose_name=_("Ends"))
+    begin = models.DurationField(verbose_name=_l("Starts"))
+    end = models.DurationField(verbose_name=_l("Ends"))
 
     def __str__(self):
         begin = self.begin
@@ -220,7 +225,7 @@ class RoomDutyTemplate(models.Model):
         mfrom = int(begin.total_seconds() // timedelta(minutes=1).total_seconds())
         mto = int(end.total_seconds() // timedelta(minutes=1).total_seconds())
 
-        return _("Day {dfrom}, {hfrom:02d}:{mfrom:02d} till day {dto}, {hto:02d}:{mto:02d}").format(
+        return _l("Day {dfrom}, {hfrom:02d}:{mfrom:02d} till day {dto}, {hto:02d}:{mto:02d}").format(
             dfrom=dfrom,
             dto=dto,
             hfrom=hfrom,
@@ -230,19 +235,19 @@ class RoomDutyTemplate(models.Model):
         )
 
     class Meta:
-        verbose_name = _("Office duty template")
-        verbose_name_plural = _("Office duty templates")
+        verbose_name = _l("Office duty template")
+        verbose_name_plural = _l("Office duty templates")
         ordering = ['begin', 'end']
 
 
 class RoomDutyAvailability(models.Model):
     class Availabilities(models.TextChoices):
-        DIBS = 'D', _("Dibs!")
-        GLADLY = 'G', _("Yes please!")
-        AVAILABLE = 'O', _("Available")
-        RATHER_NOT = '#', _("Rather not")
-        UNAVAILABLE = 'X', _("No, sorry")
-        UNKNOWN = '?', _("Not sure yet")
+        DIBS = 'D', _l("Dibs!")
+        GLADLY = 'G', _l("Yes please!")
+        AVAILABLE = 'O', _l("Available")
+        RATHER_NOT = '#', _l("Rather not")
+        UNAVAILABLE = 'X', _l("No, sorry")
+        UNKNOWN = '?', _l("Not sure yet")
 
     room_duty = models.ForeignKey(RoomDuty, related_name="availabilities", on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -251,7 +256,7 @@ class RoomDutyAvailability(models.Model):
     hungover = models.BooleanField(default=False)
     not_in_the_break = models.BooleanField(default=False)
 
-    comments = models.CharField(blank=True, max_length=250, verbose_name=_("Comments"))
+    comments = models.CharField(blank=True, max_length=250, verbose_name=_l("Comments"))
 
     @property
     def css_class(self):
@@ -267,6 +272,6 @@ class RoomDutyAvailability(models.Model):
         return mapping[self.availability]
 
     class Meta:
-        verbose_name = _("Office duty availability")
-        verbose_name_plural = _("Office duty availabilities")
+        verbose_name = _l("Office duty availability")
+        verbose_name_plural = _l("Office duty availabilities")
 

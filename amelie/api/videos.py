@@ -1,16 +1,24 @@
 from typing import List, Dict
 
-from amelie.api.decorators import authentication_optional
+from modernrpc import RpcRequestContext
+
+from amelie.api.api import api_server
+from amelie.api.authentication_types import AnonymousAuthentication
+from amelie.api.decorators import auth_optional
 from amelie.api.exceptions import PermissionDeniedError, DoesNotExistError
 from amelie.videos.models import BaseVideo
 
-from modernrpc.core import rpc_method
-
 
 def get_basic_result(video):
+    if hasattr(video, 'streamingiavideo'):
+        video_type = "ia"
+    elif hasattr(video, 'peertubeiavideo'):
+        video_type = "pt"
+    else:
+        video_type = "yt"
     return {
         "id": video.video_id,
-        "type": "ia" if hasattr(video, 'streamingiavideo') else "yt",
+        "type": video_type,
         "title": video.title,
         "thumbnail": video.thumbnail_url,
         "featured": video.is_featured,
@@ -22,9 +30,8 @@ def get_basic_result(video):
     }
 
 
-@rpc_method(name='getVideoStream')
-@authentication_optional()
-def get_video_stream(offset: int, length: int, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getVideoStream', auth=auth_optional, context_target='ctx')
+def get_video_stream(offset: int, length: int, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves various types ('youtube', 'ia') of videos from the website.
 
@@ -44,7 +51,7 @@ def get_video_stream(offset: int, length: int, **kwargs) -> List[Dict]:
       Each returned element in the list has the following fields:
 
         - id: The identifier for this video
-        - type: The type of video, one of "yt" (YouTube) or "ia" (Streaming.IA)
+        - type: The type of video, one of "yt" (YouTube), "ia" (Streaming.IA), or "pt" (PeerTube)
         - title: The title of this video
         - thumbnail: The URL to the thumbnail of this video
         - featured: Boolean, true if the video is currently being featured, false if not.
@@ -81,12 +88,13 @@ def get_video_stream(offset: int, length: int, **kwargs) -> List[Dict]:
              }, {...}]
         }
     """
-    authenticated = kwargs.get('authentication') is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
 
     if length > 250:
         length = 250
 
-    videos = BaseVideo.objects.filter_public(not authenticated).order_by('-date_published')[offset:length + offset]
+    videos = BaseVideo.objects.filter_public(not is_authenticated).order_by('-date_published')[offset:length + offset]
 
     result = []
 
@@ -96,9 +104,8 @@ def get_video_stream(offset: int, length: int, **kwargs) -> List[Dict]:
     return result
 
 
-@rpc_method(name='getVideoDetails')
-@authentication_optional()
-def get_video_details(video_id: str, **kwargs) -> Dict:
+@api_server.register_procedure(name='getVideoDetails', auth=auth_optional, context_target='ctx')
+def get_video_details(video_id: str, ctx: RpcRequestContext = None, **kwargs) -> Dict:
     """
     Retrieves details for a specific video from the website.
 
@@ -117,7 +124,7 @@ def get_video_details(video_id: str, **kwargs) -> Dict:
       Each returned element in the list has the following fields:
 
         - id: The identifier for this video
-        - type: The type of video, one of "yt" (YouTube) or "ia" (Streaming.IA)
+        - type: The type of video, one of "yt" (YouTube), "ia" (Streaming.IA), or "pt" (PeerTube)
         - title: The title of this video
         - thumbnail: The URL to the thumbnail of this video
         - featured: Boolean, true if the video is currently being featured, false if not.
@@ -165,14 +172,15 @@ def get_video_details(video_id: str, **kwargs) -> Dict:
              }
         }
     """
-    authenticated = kwargs.get('authentication') is not None
+    authentication = ctx.auth_result
+    is_authenticated = authentication and not isinstance(authentication, AnonymousAuthentication)
 
     try:
         video = BaseVideo.objects.get(video_id=video_id)
     except BaseVideo.DoesNotExist as e:
         raise DoesNotExistError(str(e))
 
-    if not video.public and not authenticated:
+    if not video.public and not is_authenticated:
         raise PermissionDeniedError()
 
     result = get_basic_result(video)
@@ -181,8 +189,7 @@ def get_video_details(video_id: str, **kwargs) -> Dict:
     return result
 
 
-@rpc_method(name='videos.getVideoStream')
-@authentication_optional()
-def get_video_stream_2(offset: int, length: int, **kwargs):
+@api_server.register_procedure(name='videos.getVideoStream', auth=auth_optional, context_target='ctx')
+def get_video_stream_2(offset: int, length: int, ctx: RpcRequestContext = None, **kwargs):
     """Alias of `getVideoStream` for backwards compatibility."""
-    return get_video_stream(offset=offset, length=length, **kwargs)
+    return get_video_stream(offset=offset, length=length, ctx=ctx, **kwargs)

@@ -81,96 +81,14 @@
                         </div>
                     </div>
                 </div>
-                <div id="pc_status">
-
-                    <div class="pc_column small"></div>
-
-                    <div class="pc_column">
-                        <div class="pc_square" data-state="off" data-host="kwek" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                        <div class="pc_square" data-state="off" data-host="kwik" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                        <div class="pc_square" data-state="off" data-host="dagobert" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square" data-state="tv" data-host="guus" data-type="simple">
-                            <i class="fas fa-music"></i>
-                        </div>
+                <div id="ia_chat">
+                    <div id="ia_chat_title">
+                        <i class="fas fa-comments"></i>
+                        {% trans '#ia:inter-actief.net' %}
+                        <span class="small">{% trans '(Matrix chat)' %}</span>
                     </div>
-
-                    <div class="pc_column">
-                        <div class="pc_square" data-state="off" data-host="lizzy" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                        <div class="pc_square" data-state="off" data-host="woerd" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                        <div class="pc_square" data-state="off" data-host="martje" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                    </div>
-
-                    <div class="pc_column"></div>
-
-                    <div class="pc_column">
-                        <div class="pc_square" data-state="off" data-host="flexdesk2" data-type="simple">
-                            <i class="fas fa-laptop"></i>
-                        </div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square" data-state="tv" data-host="raspberrypi" data-type="simple">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="pc_square" data-state="off" data-host="kwak" data-type="workstation">
-                            <i class="fas fa-desktop"></i>
-                        </div>
-                    </div>
-
-                    <div class="pc_column">
-                        <div class="pc_square" data-state="off" data-host="flexdesk1" data-type="simple">
-                            <i class="fas fa-laptop"></i>
-                        </div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                    </div>
-
-                    <div class="pc_column">
-                        <div class="pc_square" data-state="off" data-host="flexdesk2" data-type="simple">
-                            <i class="fas fa-laptop"></i>
-                        </div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                    </div>
-
-                    <div class="pc_column">
-                        <div class="pc_square" data-state="off" data-host="flexdesk3" data-type="simple">
-                            <i class="fas fa-laptop"></i>
-                        </div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                        <div class="pc_square empty"></div>
-                    </div>
-                </div>
-                <div id="pc_status_legend">
-                    <div id="pc_legend">
-                        <div class="pc_legend_column">
-                            <span class="user">{% trans 'Active member logged in' %}</span>
-                            <span class="guest">{% trans 'Visitor logged in' %}</span>
-                        </div>
-                        <div class="pc_legend_column">
-                            <span class="on">{% trans 'No one logged in' %}</span>
-                            <span class="off">{% trans 'Turned off' %}</span>
-                        </div>
+                    <div id="ia_chat_messages">
+                        <span id="ia_chat_loading">{% trans 'Loading chat...' %}</span>
                     </div>
                 </div>
             </div>
@@ -206,6 +124,7 @@
         <span id="unknown_artist">{% trans 'Unknown artist' %}</span>
         <span id="not_playing">{% trans 'Not playing anything...' %}</span>
         <span id="spotify_error">{% trans 'Error while getting spotify data' %}</span>
+        <span id="chat_error">{% trans 'Error while getting chat messages' %}</span>
     </div>
 
     {% if theme == "christmas" %}

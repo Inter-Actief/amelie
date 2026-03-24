@@ -1,18 +1,17 @@
 from typing import List, Dict
 
+from modernrpc import RpcRequestContext
+from modernrpc.exceptions import RPCInvalidParams
 
+from amelie.api.api import api_server
 from amelie.api.common import strip_markdown
-from amelie.api.decorators import authentication_required
+from amelie.api.decorators import auth_required
 from amelie.api.exceptions import DoesNotExistError
 from amelie.education.models import Complaint
 
-from modernrpc.core import rpc_method
-from modernrpc.exceptions import RPCInvalidParams
 
-
-@rpc_method(name='getComplaintStream')
-@authentication_required("education")
-def get_complaint_stream(offset: int, length: int, status: str, **kwargs) -> List[Dict]:
+@api_server.register_procedure(name='getComplaintStream', auth=auth_required('education'), context_target='ctx')
+def get_complaint_stream(offset: int, length: int, status: str, ctx: RpcRequestContext = None, **kwargs) -> List[Dict]:
     """
     Retrieves a list of education complaints.
 
@@ -68,7 +67,8 @@ def get_complaint_stream(offset: int, length: int, status: str, **kwargs) -> Lis
               }, {...}]
         }
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     if status not in ['all', 'open', 'closed']:
         raise RPCInvalidParams("The provided status of complaints can only be 'all', 'open' or 'closed'")
@@ -113,9 +113,8 @@ def get_complaint_stream(offset: int, length: int, status: str, **kwargs) -> Lis
     return result
 
 
-@rpc_method(name='addComplaintSupport')
-@authentication_required("education")
-def add_complaint_support(complaint_id: int, **kwargs) -> bool:
+@api_server.register_procedure(name='addComplaintSupport', auth=auth_required('education'), context_target='ctx')
+def add_complaint_support(complaint_id: int, ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Adds support of the authenticated person to a specific complaint.
 
@@ -140,7 +139,8 @@ def add_complaint_support(complaint_id: int, **kwargs) -> bool:
         --> {"method": "addComplaintSupport", "params": [27]}
         <-- {"result": true}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     try:
         complaint = Complaint.objects.get(id=complaint_id)
@@ -155,9 +155,8 @@ def add_complaint_support(complaint_id: int, **kwargs) -> bool:
         return False
 
 
-@rpc_method(name='removeComplaintSupport')
-@authentication_required("education")
-def remove_complaint_support(complaint_id: int, **kwargs) -> bool:
+@api_server.register_procedure(name='removeComplaintSupport', auth=auth_required('education'), context_target='ctx')
+def remove_complaint_support(complaint_id: int, ctx: RpcRequestContext = None, **kwargs) -> bool:
     """
     Removes support of the authenticated person of a specific complaint.
 
@@ -182,7 +181,8 @@ def remove_complaint_support(complaint_id: int, **kwargs) -> bool:
         --> {"method": "removeComplaintSupport", "params": [27]}
         <-- {"result": true}
     """
-    person = kwargs.get('authentication').represents()
+    authentication = ctx.auth_result
+    person = authentication.represents()
 
     try:
         complaint = Complaint.objects.get(id=complaint_id)

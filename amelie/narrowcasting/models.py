@@ -12,9 +12,9 @@ class TelevisionPromotion(models.Model):
 
 class SpotifyAssociation(models.Model):
     name = models.CharField(max_length=191, unique=True)
-    access_token = models.CharField(max_length=191, blank=True)
+    access_token = models.TextField(blank=True)
     scopes = models.CharField(max_length=191, blank=True)
-    refresh_token = models.CharField(max_length=191, blank=True)
+    refresh_token = models.TextField(blank=True)
 
     def __str__(self):
         return self.name

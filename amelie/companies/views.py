@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 from django.views.generic import FormView
 
 from amelie.companies.forms import CompanyForm, BannerForm, TelevisionBannerForm, CompanyEventForm, StatisticsForm, \
@@ -16,7 +16,7 @@ from amelie.companies.forms import CompanyForm, BannerForm, TelevisionBannerForm
 from amelie.companies.models import BaseBanner, Company, CompanyEvent, TelevisionBanner, WebsiteBanner, VivatBanner
 from amelie.members.models import Committee
 from amelie.statistics.decorators import track_hits
-from amelie.tools.decorators import require_board
+from amelie.tools.decorators import require_board, require_committee
 from amelie.tools.forms import PeriodForm
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.http import HttpJSONResponse
@@ -56,7 +56,7 @@ def company_details(request, slug):
     return render(request, 'companies/company_details.html', {'obj': obj, 'is_board': is_board})
 
 
-@require_board
+@require_committee("KasCo")
 def banner_list(request):
     """ List of all banners """
     website_banners = WebsiteBanner.objects.all()
@@ -336,7 +336,7 @@ def event_old(request):
 def company_events_ics(request):
     """ Will return an ics file containing all the CompanyEvents. """
     resp = HttpResponse(content_type='text/calendar; charset=UTF-8')
-    resp.write(ical_calendar(_('Inter-Actief external activities'), CompanyEvent.objects.filter(
+    resp.write(ical_calendar(_l('Inter-Actief external activities'), CompanyEvent.objects.filter(
         begin__gte=timezone.now() - datetime.timedelta(100)).order_by('begin')))
 
     return resp
@@ -347,7 +347,7 @@ def company_event_ics(request, id):
     event = get_object_or_404(CompanyEvent, id=id)
 
     resp = HttpResponse(content_type='text/calendar; charset=UTF-8')
-    resp.write(ical_calendar(_(event.summary), [event, ]))
+    resp.write(ical_calendar(_l(event.summary), [event, ]))
 
     return resp
 

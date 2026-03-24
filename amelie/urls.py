@@ -1,12 +1,12 @@
 import oauth2_provider.views
 
 from django.conf import settings
-from django.conf.urls import include
 from django.contrib import admin
-from django.urls import reverse_lazy, path, re_path
+from django.urls import reverse_lazy, path, re_path, include
 from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
 from django.views.static import serve
+from health_check.views import HealthCheckView
 
 from amelie import views
 from amelie.activities.feeds import Activities
@@ -20,11 +20,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('legacy_login/', views.login, name='legacy_login'),
     path('legacy_logout/', LogoutView.as_view(), name='legacy_logout'),
-    path('i18n/', include('django.conf.urls.i18n')),
     path('profile/', views.profile_overview, name='profile_overview'),
+    path('profile/portrait_upload_verification', views.PortraitUploadVerification.as_view(), name='portrait_upload_verification'),
+    path('profile/portrait_upload/', views.PortraitUploadView.as_view(), name='portrait_upload'),
     path('profile/edit/', views.profile_edit, name='profile_edit'),
     path('profile/<str:action>/<str:user_id>/<str:arg>/', views.profile_actions, name='profile_actions'),
     path('oidc/', include('mozilla_django_oidc.urls')),
+    path("i18n/", include("django.conf.urls.i18n")),
 
     # General views
     path('', views.frontpage, name='frontpage'),
@@ -41,7 +43,6 @@ urlpatterns = [
     path('companies/', include('amelie.companies.urls')),
     path('narrowcasting/', include('amelie.narrowcasting.urls')),
     path('personal_tab/', include('amelie.personal_tab.urls')),
-    path('twitter/', include('amelie.twitter.urls')),
     path('claudia/', include('amelie.claudia.claudia_urls')),
     path('account/', include('amelie.claudia.account_urls')),
     path('weekmail/', include('amelie.weekmail.urls')),
@@ -58,6 +59,9 @@ urlpatterns = [
 
     # API
     path('api/', include('amelie.api.urls')),
+
+    # GraphQL API
+    path('graphql/', include('amelie.graphql.urls')),
 
     # Feeds
     path('feeds/', include(
@@ -81,8 +85,13 @@ urlpatterns = [
     # Include oauth request_access url here because the oauth app urls are not included due to old urls.
     path('oauth/request_access/', RequestOAuth.as_view(), name="request_oauth"),
 
-    # SAML2 IdP
-    path('saml2idp/', include('djangosaml2idp.urls')),
+    # Health checks
+    path(f'healthz', views.healthz_view, name='healthz_simple'),
+    path(f'sysinfo/', views.SystemInfoView.as_view(checks=settings.HEALTH_CHECK_ENABLED_CHECKS), name='system_info'),
+    path(f'sysinfo/ajax/celery', views.CeleryInfoPartialView.as_view(), name='system_info_ajax_celery'),
+
+    # CAPTCHA
+    path(f'captcha', include('captcha.urls')),
 
     # Other
     path('favicon.ico',
@@ -90,11 +99,7 @@ urlpatterns = [
             url='%sfavicon.ico' % settings.STATIC_URL,
             permanent=False),
         name='favicon_redirect'),
-    path('robots.txt',
-        RedirectView.as_view(
-            url='%srobots.txt' % settings.STATIC_URL,
-            permanent=False),
-        name='robots_redirect'),
+    path('robots.txt', views.robots_txt, name='robots_redirect'),
     path('.well-known/security.txt', views.security_txt, name='security_txt'),
 
     # Redirects for old dutch URL's for permalinks and such
@@ -132,11 +137,9 @@ if settings.DEBUG:
 
 
 if settings.DEBUG_TOOLBAR:
-    import debug_toolbar
+    from debug_toolbar.toolbar import debug_toolbar_urls
     # Django debug toolbar
-    urlpatterns += [
-        path('__debugtoolbar__/', include(debug_toolbar.urls), name='django_debug_toolbar')
-    ]
+    urlpatterns += debug_toolbar_urls()
 
 # Redirect for 500 errors
 handler500 = views.server_error

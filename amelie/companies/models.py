@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import gettext_lazy as _l, get_language
 
 from amelie.companies.managers import CompanyManager
 from amelie.calendar.managers import EventManager
@@ -15,11 +15,11 @@ from amelie.tools.discord import send_discord
 class Company(models.Model):
     name_nl = models.CharField(
         max_length=100,
-        verbose_name=_('name')
+        verbose_name=_l('name')
     )
     name_en = models.CharField(
         max_length=100,
-        verbose_name=_('name (en)'),
+        verbose_name=_l('name (en)'),
         blank=True)
     slug = models.SlugField(
         max_length=100,
@@ -41,33 +41,33 @@ class Company(models.Model):
         null=True
     )
     profile_nl = models.TextField(
-        verbose_name=_('profile')
+        verbose_name=_l('profile')
     )
     profile_en = models.TextField(
-        verbose_name=_('profile (en)'),
+        verbose_name=_l('profile (en)'),
         blank=True
     )
     short_description_nl = models.CharField(
         max_length=120,
-        verbose_name=_('short description'),
+        verbose_name=_l('short description'),
         blank=True,
     )
     short_description_en = models.CharField(
         max_length=120,
-        verbose_name=_('short description (en)'),
+        verbose_name=_l('short description (en)'),
         blank=True
     )
     start_date = models.DateField(
-        verbose_name=_('from')
+        verbose_name=_l('from')
     )
     end_date = models.DateField(
-        verbose_name=_('until')
+        verbose_name=_l('until')
     )
 
     # For the Inter-Actief mobile application
     show_in_app = models.BooleanField(
         default=False,
-        verbose_name=_('show in app')
+        verbose_name=_l('show in app')
     )
     app_logo = models.ImageField(
         upload_to='companies/app_logos/',
@@ -87,8 +87,8 @@ class Company(models.Model):
 
     class Meta:
         ordering = ['name_nl']
-        verbose_name = _('Company')
-        verbose_name_plural = _('Companies')
+        verbose_name = _l('Company')
+        verbose_name_plural = _l('Companies')
 
     def __str__(self):
         return '%s' % self.name
@@ -102,7 +102,7 @@ class Company(models.Model):
             conflicts = conflicts.exclude(pk=self.pk)
 
         if conflicts.exists():
-            raise ValidationError({'name_nl': _("The slug for this name already exists!")})
+            raise ValidationError({'name_nl': _l("The slug for this name already exists!")})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name_nl)
@@ -167,15 +167,15 @@ class WebsiteBanner(BaseBanner):
 
     class Meta:
         ordering = ['-end_date']
-        verbose_name = _('Website banner')
-        verbose_name_plural = _('Website banners')
+        verbose_name = _l('Website banner')
+        verbose_name_plural = _l('Website banners')
 
 
 class TelevisionBanner(BaseBanner):
     class Meta:
         ordering = ['-end_date']
-        verbose_name = _('Television banner')
-        verbose_name_plural = _('Television banners')
+        verbose_name = _l('Television banner')
+        verbose_name_plural = _l('Television banners')
 
 
 class VivatBanner(BaseBanner):
@@ -188,8 +188,8 @@ class VivatBanner(BaseBanner):
 
     class Meta:
         ordering = ['-end_date']
-        verbose_name = _('I/O Vivat banner')
-        verbose_name_plural = _('I/O Vivat banners')
+        verbose_name = _l('I/O Vivat banner')
+        verbose_name_plural = _l('I/O Vivat banners')
 
 
 class CompanyEvent(Event):

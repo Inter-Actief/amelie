@@ -12,12 +12,25 @@
     <div class="content">
       <p>
         {% blocktrans with year=year%}
-          Now that the year is over, we can take a look into the usage of the cookie corner in {{ year }}. On this page you can view your personal statistics for the cookie corner.
+          Now that the year is over, we can take a look into the usage of the cookie corner in <b>{{ year }}</b>. On this page you can view your personal statistics for the cookie corner.
         {% endblocktrans %}
       </p>
+      {% if transaction_years %}
+      <p>
+          {% trans 'Or, look back on a different year:' %}&nbsp;
+          {% for tyear in transaction_years %}
+              {% if forloop.counter0 != 0 %}<span> - </span>{% endif %}
+              {% if year == tyear %}
+                  <b>{{ tyear }}</b>
+              {% else %}
+                  <a href="{% url 'personal_tab:cookie_corner_wrapped_year' year=tyear %}">{{ tyear }}</a>
+              {% endif %}
+          {% endfor %}
+      </p>
+      {% endif %}
     </div>
   </div></div>
-  
+
   <div class="col-xs-12 col-md-6">
     <div class="ia">
       <h2>
@@ -54,7 +67,7 @@
         <p>
           {% trans 'You bought certain items more than others during this year. What did you buy the most?' %}
         </p>
-  
+
         <div class="table-responsive">
           <table class="table">
             <thead>

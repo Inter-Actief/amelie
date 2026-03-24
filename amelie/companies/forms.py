@@ -3,7 +3,7 @@ from django.contrib.admin.widgets import AdminFileWidget
 from django.core.files.images import get_image_dimensions
 from django.forms import SplitDateTimeField
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
 from amelie.companies.models import Company, WebsiteBanner, TelevisionBanner, CompanyEvent, VivatBanner
 from amelie.style.forms import inject_style
@@ -12,21 +12,21 @@ from amelie.tools.widgets import DateTimeSelector, DateSelector
 
 
 class CompanyForm(forms.ModelForm):
-    logo = forms.FileField(label=_('Logo'), widget=AdminFileWidget)
-    app_logo = forms.FileField(label=_('App Logo'), widget=AdminFileWidget, required=False)
-    start_date = forms.DateField(widget=DateSelector, label=_('From'))
-    end_date = forms.DateField(widget=DateSelector, label=_('Until'))
+    logo = forms.FileField(label=_l('Logo'), widget=AdminFileWidget)
+    app_logo = forms.FileField(label=_l('App Logo'), widget=AdminFileWidget, required=False)
+    start_date = forms.DateField(widget=DateSelector, label=_l('From'))
+    end_date = forms.DateField(widget=DateSelector, label=_l('Until'))
     short_description_nl = forms.CharField(
         max_length=120,
-        label=_('Short description'),
-        help_text=_('This text can be laid-out in 120 characters'),
+        label=_l('Short description'),
+        help_text=_l('This text can be laid-out in 120 characters'),
         widget=forms.Textarea,
         required=False
     )
     short_description_en = forms.CharField(
         max_length=120,
-        label=_('Short description'),
-        help_text=_('This text can be laid-out in 120 characters'),
+        label=_l('Short description'),
+        help_text=_l('This text can be laid-out in 120 characters'),
         widget=forms.Textarea,
         required=False
     )
@@ -55,14 +55,14 @@ class CompanyForm(forms.ModelForm):
             min_w, min_h = 1024, 1024
 
             if w > min_w or h > min_h:
-                raise forms.ValidationError(_("The thumbnail logo's size is %(w)dpx by %(h)dpx, while the maximum allowed size is %(min_w)dpx by %(min_h)dpx.") %
+                raise forms.ValidationError(_l("The thumbnail logo's size is %(w)dpx by %(h)dpx, while the maximum allowed size is %(min_w)dpx by %(min_h)dpx.") %
                                             {'w': w, 'h': h, 'min_w': min_w, 'min_h': min_h})
 
         return app_logo
 
 
 class BannerForm(forms.ModelForm):
-    picture = forms.ImageField(label=_('Website banner'), widget=AdminFileWidget)
+    picture = forms.ImageField(label=_l('Website banner'), widget=AdminFileWidget)
     start_date = forms.DateField(widget=DateSelector)
     end_date = forms.DateField(widget=DateSelector)
 
@@ -72,7 +72,7 @@ class BannerForm(forms.ModelForm):
 
 
 class TelevisionBannerForm(forms.ModelForm):
-    picture = forms.ImageField(label=_('Television banner'), widget=AdminFileWidget)
+    picture = forms.ImageField(label=_l('Television banner'), widget=AdminFileWidget)
     start_date = forms.DateField(widget=DateSelector)
     end_date = forms.DateField(widget=DateSelector)
 
@@ -82,7 +82,7 @@ class TelevisionBannerForm(forms.ModelForm):
 
 
 class VivatBannerForm(forms.ModelForm):
-    picture = forms.FileField(label=_('Vivat banner'), widget=AdminFileWidget)
+    picture = forms.FileField(label=_l('Vivat banner'), widget=AdminFileWidget)
     start_date = forms.DateField(widget=DateSelector)
     end_date = forms.DateField(widget=DateSelector)
 
@@ -127,17 +127,17 @@ class CompanyEventForm(EventForm):
         visible_till = data.get('visible_till', False)
 
         if not (b or (data.get('company_text', None) and data.get('company_url', None))):
-            raise forms.ValidationError({"company": [_("Company Corner company or name/website is obligatory.")]})
+            raise forms.ValidationError({"company": [_l("Company Corner company or name/website is obligatory.")]})
 
         if visible_from and visible_till and data['visible_from'] > data['visible_till']:
-            raise forms.ValidationError({"visible_from": [_(u'Activity\'s "visible from" date is later than its "visible until" date')]})
+            raise forms.ValidationError({"visible_from": [_l(u'Activity\'s "visible from" date is later than its "visible until" date')]})
 
         return data
 
 
 class StatisticsForm(forms.Form):
-    start_date = forms.SplitDateTimeField(label=_('Beginning:'), widget=DateTimeSelector, required=True)
-    end_date = forms.SplitDateTimeField(label=_('End (till)'), widget=DateTimeSelector, required=True)
+    start_date = forms.SplitDateTimeField(label=_l('Beginning:'), widget=DateTimeSelector, required=True)
+    end_date = forms.SplitDateTimeField(label=_l('End (till)'), widget=DateTimeSelector, required=True)
 
 
 inject_style(CompanyForm, CompanyEventForm, BannerForm, TelevisionBannerForm, VivatBannerForm, StatisticsForm)

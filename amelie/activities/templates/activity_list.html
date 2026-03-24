@@ -41,7 +41,6 @@
                                 {% if not only_open_enrollments or activity.enrollment_open %}
                                 <tr{% if activity.dutch_activity %} class="dutch-only"{% endif %}>
                                     <td class="activity-list-date">
-
                                         <a href="{{ activity.get_calendar_url }}">
                                             <span class="icon icon-calendar"
                                                   title="{% trans 'iCal document with activity' %}"></span>
@@ -50,15 +49,21 @@
                                         {{ activity.begin|date:"d-b (D)" }}
                                     </td>
                                     <td>
-                                        <div class="activity-list-label"
-                                            style="background: #{{ activity.activity_label.color }};">
-                                            <span class="activity-list-label-name">
-                                                {{ activity.activity_label.name }}
-                                            </span>
-                                        </div>
-                                        <div class="activity-list-label-icon">
-                                            <img src="{{STATIC_URL}}img/icons/{{ activity.activity_label.icon }}.png" alt="{{ activity.activity_label.name }}">
-                                        </div>
+                                        <a
+                                            {% if activity.activity_label.name %}
+                                                href="{% url 'activities:activities_type' act_type=activity.activity_label.name %}"
+                                            {% endif %}
+                                            style="padding: 0px; margin: 0px;"
+                                        >
+                                            <div class="activity-list-label" style="background: #{{ activity.activity_label.color }};">
+                                                <span class="activity-list-label-name">
+                                                    {{ activity.activity_label.name }}
+                                                </span>
+                                            </div>
+                                            <div class="activity-list-label-icon">
+                                                <img src="{{STATIC_URL}}img/icons/{{ activity.activity_label.icon }}.png" alt="{{ activity.activity_label.name }}">
+                                            </div>
+                                        </a>
                                     </td>
                                     <td>
                                         <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
@@ -79,7 +84,11 @@
                         </table>
                     </div>
                 {% else %}
-                    <p class="icon warning">{% trans 'There are no planned events. Maybe because it is holiday?' %}</p>
+                    {% if act_type %}
+                        <p class="icon warning">{% blocktrans with type=act_type %}It looks like there are no events with label {{ type }}{% endblocktrans %}</p>
+                    {% else %}
+                        <p class="icon warning">{% trans 'There are no planned events. Maybe because it is holiday?' %}</p>
+                    {% endif %}
                 {% endif %}
 
                 {% if request.person.current_committees|length > 0 or request.person.is_board %}

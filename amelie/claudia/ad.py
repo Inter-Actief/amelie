@@ -1,9 +1,9 @@
 import datetime
+from datetime import timezone
 import logging
 
 import ldap
 import ldap.dn
-from django.utils.timezone import utc
 
 from amelie.claudia.tools import encode_guid
 
@@ -21,7 +21,7 @@ UF_ACCOUNTDISABLE = 0x002
 
 
 class AD(object):
-    def __init__(self, proto, host, username, password, base_dn, port):
+    def __init__(self, proto, host, username, password, base_dn, port, ca_cert_path):
         """Initialize connection with all options you can think of"""
         self.conn_string = proto + "://" + host + ":" + str(port) + "/"
         self.realm = '.'.join([v for [(k, v, x)] in ldap.dn.str2dn(base_dn) if k == 'dc'])
@@ -30,6 +30,7 @@ class AD(object):
         self.username = username
         self.password = password  # XXX solve reconnect differently?
         self.baseDN = base_dn
+        self.ca_cert_path = ca_cert_path
         # Use any dc components from the base_dn to build the realm
         self.ldap = None
         self.connect()
@@ -44,7 +45,15 @@ class AD(object):
         try:
 
             self.ldap = ldap.initialize(self.conn_string, bytes_mode=False)
+            # Set LDAP protocol version used
             self.ldap.protocol_version = ldap.VERSION3
+            # Force cert validation
+            self.ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
+            # Set path name of file containing all trusted CA certificates
+            self.ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, self.ca_cert_path)
+            # Force libldap to create a new SSL context (must be last TLS option!)
+            self.ldap.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
+            # Logon to the AD
             self.ldap.simple_bind_s(str(self.username), str(self.password))
 
             logger.debug('Connected to Active Directory')
@@ -583,7 +592,7 @@ class ADAccount(ADObject):
         """
         Set the expiration date of this user account.
         """
-        td = expiration_date - datetime.datetime(1601, 1, 1, tzinfo=utc)
+        td = expiration_date - datetime.datetime(1601, 1, 1, tzinfo=timezone.utc)
         account_expires = (td.seconds + td.days * 24 * 3600) * 10 ** 7
         self.set_single_attribute("accountExpires", str(account_expires))
 

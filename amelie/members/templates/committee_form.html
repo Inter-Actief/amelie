@@ -46,7 +46,7 @@
                             <div>{{ form.information_en }}</div>
                         </div>
                     </div>
-                    {% fieldset logo,group_picture,category,parent_committees,email,private_email,website,gitlab,superuser,abolished,ledger_account_number as form_general from form %}
+                    {% fieldset logo,group_picture,category,parent_committees,email,private_email,website,gitlab,matrix,superuser,abolished,ledger_account_number as form_general from form %}
                     {{ form_general }}
                     <div class="buttons">
                         <input type="submit" value="{% if is_new %}{% trans 'Add committee' %}{% else %}{% trans 'Change committee' %}{% endif %}" />

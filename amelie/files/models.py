@@ -1,5 +1,6 @@
 import errno
 import uuid
+from typing import Optional
 
 import os
 import mimetypes
@@ -7,13 +8,15 @@ import shutil
 
 from PIL import Image
 from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _l
 
+from amelie.gmm.models import GMM
 from amelie.files.managers import AttachmentManager
-from amelie.members.models import Photographer
+from amelie.members.models import Photographer, Person
 from amelie.tools.http import HttpJSONResponse
 
 
@@ -67,7 +70,7 @@ def _create_thumbnail(file, size, source, target):
                 thumb = open(target, 'w')
                 if image.mode != 'RGB':
                     image = image.convert('RGB')
-                image.thumbnail(size_pixels, Image.ANTIALIAS)
+                image.thumbnail(size_pixels, Image.LANCZOS)
                 image.save(thumb, 'JPEG')
                 thumb.close()
                 return target
@@ -75,36 +78,32 @@ def _create_thumbnail(file, size, source, target):
                 from amelie.files import images2gif
                 frames = images2gif.readGif(source, False)
                 for frame in frames:
-                    frame.thumbnail(size_pixels, Image.ANTIALIAS)
+                    frame.thumbnail(size_pixels, Image.LANCZOS)
                 images2gif.writeGif(target, frames)
                 return target
     # Save was not successful
     return False
 
 
-def get_thumb(preferred=None, exact=None, return_thumbnail=True):
+def get_thumb(preferred: str = None):
     """
-    Generate a function to return the best (or exact) thumbnail.
-    The parameters 'preferred' or 'exact' cannot both be given.
-
-    Valid values are 'small', 'medium', 'large'
+    Generate a function to return the best (exact or closest) thumbnail or the original image if there are no thumbnails.
+    The parameter 'preferred' specifies the wanted size.
+    Valid values are 'small', 'medium', 'large' and 'original'
     """
-
-    if exact and not preferred:
-        return lambda self: self.__get__('thumb_%s' % exact) if return_thumbnail else exact
-    elif not exact and preferred:
-        if preferred == 'large':
-            return lambda self: (self.thumb_large if return_thumbnail else 'large') if self.thumb_large else (
-                (self.thumb_medium if return_thumbnail else 'medium') if self.thumb_medium else (self.thumb_small if return_thumbnail else 'small'))
-        elif preferred == 'medium':
-            return lambda self: (self.thumb_medium if return_thumbnail else 'medium') if self.thumb_medium else (
-                    self.thumb_small if return_thumbnail else 'small')
-        elif preferred == 'small':
-            return lambda self: self.thumb_small if return_thumbnail else 'small'
-        else:
-            raise ValueError
-    else:
-        raise ValueError
+    ordering = {
+        'large': ['large', 'medium', 'small', 'original'],
+        'medium': ['medium', 'small', 'large', 'original'],
+        'small': ['small', 'medium', 'large', 'original'],
+        'original': ['original', 'large', 'medium', 'small'],
+    }
+    def _get_thumb(self):
+        for size in ordering.get(preferred, []):
+            thumb = getattr(self, 'file') if size == "original" else getattr(self, f'thumb_{size}')
+            if thumb:
+                return thumb
+        return None
+    return _get_thumb
 
 
 def get_upload_filename(_, filename):
@@ -128,7 +127,7 @@ class Attachment(models.Model):
     thumb_medium = models.ImageField(max_length=150, upload_to=get_upload_filename, editable=False, null=True, blank=True, height_field="thumb_medium_height", width_field="thumb_medium_width")
     thumb_large = models.ImageField(max_length=150, upload_to=get_upload_filename, editable=False, null=True, blank=True, height_field="thumb_large_height", width_field="thumb_large_width")
     mimetype = models.CharField(max_length=75, editable=False)
-    owner = models.ForeignKey(Photographer, null=True, editable=False, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(Photographer, null=True, blank=True, on_delete=models.SET_NULL)
 
     created = models.DateTimeField(editable=False, auto_now_add=True)
     modified = models.DateTimeField(editable=False, auto_now=True)
@@ -146,8 +145,8 @@ class Attachment(models.Model):
 
     class Meta:
         ordering = ['created', 'file']
-        verbose_name = _('Appendix')
-        verbose_name_plural = _('Attachments')
+        verbose_name = _l('Appendix')
+        verbose_name_plural = _l('Attachments')
 
     def __str__(self):
         if self.caption:
@@ -156,7 +155,7 @@ class Attachment(models.Model):
             import os
             return '%s' % os.path.basename(self.file.name)
 
-    def save(self, create_thumbnails=True, *args, **kwargs):
+    def save(self, create_thumbnails=False, *args, **kwargs):
         self.mimetype = mimetypes.guess_type(self.file.path)[0]
         if not self.mimetype:
             self.mimetype = "application/octet-stream"
@@ -196,7 +195,7 @@ class Attachment(models.Model):
             photo_file = self.file
 
         if photo_file is None:
-            return Http404(_("File not found"))
+            return Http404(_l("File not found"))
 
         # Create a response
         if response == 'json':
@@ -219,6 +218,21 @@ class Attachment(models.Model):
     thumb_file_medium = property(get_thumb(preferred='medium'))
     thumb_file_small = property(get_thumb(preferred='small'))
 
+    def delete(self):
+        def safe_remove(path):
+            # Only remove the file if it exists and if it is in the MEDIA_ROOT directory.
+            if os.path.isfile(path) and os.path.commonpath([path, settings.MEDIA_ROOT]) == settings.MEDIA_ROOT:
+                os.remove(path)
+        if self.thumb_large and self.thumb_large.path:
+            safe_remove(self.thumb_large.path)
+        if self.thumb_medium and self.thumb_medium.path:
+            safe_remove(self.thumb_medium.path)
+        if self.thumb_small and self.thumb_small.path:
+            safe_remove(self.thumb_small.path)
+        if self.file and self.file.path:
+            safe_remove(self.file.path)
+        super().delete()
+
     @staticmethod
     def search_images(query, max_results=None):
         results = None
@@ -235,3 +249,80 @@ class Attachment(models.Model):
 
         # Done
         return results[:max_results] if max_results else results
+
+
+def get_gmm_upload_filename(_, filename):
+    now = timezone.now()
+    (path, ext) = os.path.splitext(filename)
+    basename = os.path.basename(path)
+    upload_filename = f"uploads/gmm/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{basename}{ext}"
+    # If the filename is too long (150 chars), replace the basename with a UUID.
+    if len(upload_filename) > 150:
+        upload_filename = f"uploads/gmm/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{uuid.uuid4()}{ext}"
+    return upload_filename
+
+
+class GMMDocument(models.Model):
+    """ Class for a PDF GMM document"""
+
+    file = models.FileField(max_length=150, upload_to=get_gmm_upload_filename)
+    caption = models.CharField(max_length=150, null=True, blank=True)
+
+    uploader = models.ForeignKey(Person, null=True, editable=False, on_delete=models.SET_NULL)
+    gmm = models.ForeignKey(GMM, null=False, blank=False, on_delete=models.CASCADE, related_name='documents')
+
+    created = models.DateTimeField(editable=False, auto_now_add=True)
+    modified = models.DateTimeField(editable=False, auto_now=True)
+
+    class Meta:
+        ordering = ['gmm', 'caption', 'created', 'file']
+        verbose_name = _l('GMM Document')
+        verbose_name_plural = _l('GMM Documents')
+
+    def __str__(self):
+        if self.caption:
+            return '%s' % self.caption
+        else:
+            import os
+            return '%s' % os.path.basename(self.file.name)
+
+
+def get_file_upload_filename(_, filename):
+    now = timezone.now()
+    (path, ext) = os.path.splitext(filename)
+    basename = os.path.basename(path)
+    upload_filename = f"uploads/files/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{basename}{ext}"
+    # If the filename is too long (150 chars), replace the basename with a UUID.
+    if len(upload_filename) > 150:
+        upload_filename = f"uploads/files/{now:%Y}/{now:%m}/{now:%d}/{now:%H%M}-{uuid.uuid4()}{ext}"
+    return upload_filename
+
+
+class File(models.Model):
+    """
+    Class for a generic file uploaded to the website
+    (i.e. for inclusion in an About page or News article)
+    """
+
+    file = models.FileField(max_length=150, upload_to=get_file_upload_filename, validators=[
+        # Only allow images or PDF files (for now)
+        FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "gif", "pdf"])
+    ])
+    caption = models.CharField(max_length=150, null=False, blank=False)
+
+    uploader = models.ForeignKey(Person, null=True, editable=False, on_delete=models.SET_NULL)
+
+    created = models.DateTimeField(editable=False, auto_now_add=True)
+    modified = models.DateTimeField(editable=False, auto_now=True)
+
+    class Meta:
+        ordering = ['created', 'caption', 'file']
+        verbose_name = _l('File')
+        verbose_name_plural = _l('Files')
+
+    def __str__(self):
+        if self.caption:
+            return '%s' % self.caption
+        else:
+            import os
+            return '%s' % os.path.basename(self.file.name)

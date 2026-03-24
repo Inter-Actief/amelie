@@ -32,4 +32,4 @@ def strip_markdown(markdowntext):
     :return: Text without markdown formatting.
     :rtype: unicode
     """
-    return ''.join(BeautifulSoup(markdown(markdowntext), "html.parser").findAll(text=True))
+    return ''.join(BeautifulSoup(markdown(markdowntext), "html.parser").findAll(string=True))

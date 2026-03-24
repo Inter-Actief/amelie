@@ -4,6 +4,7 @@ import requests
 
 from django.conf import settings
 from django.utils import timezone
+from datetime import timezone as tz
 
 
 def get_alexia():
@@ -43,7 +44,7 @@ def parse_datetime(datetimestr):
     if datetimestr[-6:] != '+00:00':
         raise ValueError('Datetime "%s" is not in UTC' % datetimestr)
 
-    return datetime.datetime.strptime(datetimestr[:-6], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+    return datetime.datetime.strptime(datetimestr[:-6], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=tz.utc)
 
 
 class AlexiaConnectionError(ConnectionError):
