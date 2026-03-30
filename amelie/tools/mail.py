@@ -1,5 +1,5 @@
 from amelie.iamailer import Recipient
-
+from django.conf import settings
 
 def person_dict(person):
     """
@@ -33,7 +33,7 @@ class PersonRecipient(Recipient):
         """
         Recipient based on a Person object.
         :param recipient: Person to which the mail needs to be sent.
-        :type recipient: amelie.leden.models.Person
+        :type recipient: amelie.members.models.Person
         :param context: Dict with context data. 'recipient' is automatically added to the context.
         :param headers: Dict with header data.
         :param ccs: List of CC addresses.
@@ -49,3 +49,28 @@ class PersonRecipient(Recipient):
         context['recipient'] = person_dict(recipient)
 
         super(PersonRecipient, self).__init__(tos, context, headers, ccs, bccs, language, attachments)
+
+class ActiveMemberRecipient(Recipient):
+    def __init__(self, recipient, context=None, headers=None, ccs=None, bccs=None, attachments=None):
+        """
+        Recipient based on a Person object that uses their active member e-mail.
+        :param recipient: Person to which the mail needs to be sent.
+        :type recipient: amelie.members.models.Person
+        :param context: Dict with context data. 'recipient' is automatically added to the context.
+        :param headers: Dict with header data.
+        :param ccs: List of CC addresses.
+        :param bccs: List of BCC addresses.
+        :return:
+        """
+
+        if not recipient.get_adname():
+            raise ValueError("Tried sending a mail to an active member that is not an active member.")
+
+        tos = ['"{}" <{}@{}>'.format(recipient.incomplete_name(), recipient.get_adname(), settings.CLAUDIA_GSUITE['PRIMARY_DOMAIN'])]
+        language = recipient.preferred_language
+
+        if not context:
+            context = {}
+        context['recipient'] = person_dict(recipient)
+
+        super(ActiveMemberRecipient, self).__init__(tos, context, headers, ccs, bccs, language, attachments)
