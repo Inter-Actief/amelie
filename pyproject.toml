@@ -78,7 +78,7 @@ dependencies = [
     "python-ldap>=3.4.3,<3.5",
     "raven>=6.10.0,<6.11",
     "reportlab>=4.4.10",
-    "requests>=2.32,<2.33",
+    "requests>=2.32,<2.34",
     "html2text>=2020.1.16,<2025.4.16",
 
     # Daphne - to run the website in ASGI mode on a proper webserver
