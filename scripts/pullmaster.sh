@@ -78,7 +78,7 @@ git push origin production
 echo "### Changes pulled, merged/fast-forward and committed"
 
 echo "### Updating Python packages"
-uv sync
+uv sync --directory=/data/applications/amelie
 echo "### update completed"
 
 echo "### Collecting static files"
