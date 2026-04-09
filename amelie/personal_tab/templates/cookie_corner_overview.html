@@ -22,9 +22,10 @@
                     <ul>
                         <li><a href="{% url 'personal_tab:authorization_terminate' %}">{% trans 'End inactive mandates' %}</a>
                         <li><a href="{% url 'personal_tab:authorization_anonymize' %}">{% trans 'Anonymize old mandates' %}</a>
-                    </ul>
-                </li>
+                        </ul>
+                    </li>
                 <li><a href="{% url 'personal_tab:debt_collection_list' %}">{% trans 'Direct withdrawal-tasks (SEPA)' %}</a></li>
+                <li><a href="{% url 'personal_tab:unpaid_memberships' %}">{% trans 'Unpaid memberships' %}</a></li>
             </ul>
             <h3>{% trans "Deprecated pages" %}</h3>
             <ul>
