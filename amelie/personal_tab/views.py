@@ -483,6 +483,26 @@ def transaction_overview(request, date_from=False, date_to=False):
     return generate_overview_new(request, None, start, end)
 
 
+@require_board
+def unpaid_memberships(request, selected_year=None):
+    """Give an overview of unpaid memberships per year."""
+    if selected_year is None:
+        unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0).values('year').distinct().order_by('-year')
+        return render(request, 'unpaid_memberships.html', {'unpaid_memberships': unpaid_memberships})
+    
+    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=selected_year).select_related('member').order_by('type')
+    
+    # Group memberships by type
+    grouped = {}
+    for membership in unpaid_memberships:
+        membership_type = membership.type.name
+        if membership_type not in grouped:
+            grouped[membership_type] = []
+        grouped[membership_type].append(membership)
+    
+    return render(request, 'unpaid_memberships_year.html', {'unpaid_memberships': grouped, 'year': selected_year})
+
+
 class TransactionSecurityMixin(RequirePersonMixin):
     """
     Mixin for SingleObjectMixin and MultipleObjectMixin to select only transactions

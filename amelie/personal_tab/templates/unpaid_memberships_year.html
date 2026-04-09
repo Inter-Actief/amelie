@@ -1,0 +1,61 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Unpaid Memberships' %} {{ year }}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Unpaid Memberships' %} {{ year }} </h2>
+        <div class="content">
+            <table>
+            <thead>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <th>{% trans 'Mandate' %}</th>
+                    <th>{% trans 'Debit Refused' %}</th>
+                    <th>{% trans 'Price' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for membership_type, membership_list in unpaid_memberships.items %}
+                    <tr>
+                        <td colspan="4"><h3>{{ membership_type }}</h3></td>
+                    </tr>    
+                        {% for membership in membership_list %}
+                            <tr>
+                                <td class="align-right">
+                                    <a href="{% url 'members:person_view' membership.member.pk membership.member.slug %}">
+                                        {{ membership.member.incomplete_name }}
+                                    </a>
+                                </td>
+                                <td class="align-right">
+                                    {% if membership.member.has_mandate_contribution|length > 0%}
+                                        <a href="{% url 'personal_tab:authorization_view' membership.member.has_mandate_contribution.0.pk %}">
+                                        {{ membership.member.has_mandate_contribution.0 }}
+                                        </a>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td class="align-right">
+                                    {% if membership.member.has_mandate_contribution|length > 0 %}
+                                        {% if membership.member.has_mandate_contribution.0.instructions.all and membership.member.has_mandate_contribution.0.instructions.all.0.reversal %}
+                                            {{ membership.member.has_mandate_contribution.0.instructions.all.0.reversal.reason }}
+                                        {% else %}
+                                            No
+                                        {% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                    
+                                    
+                                </td>
+                                <td class="align-right">{{ membership.type.price }}</td>
+                            </tr>
+                        {% endfor %}
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>  
+    </div></div>
+{% endblock content %}

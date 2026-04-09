@@ -1,0 +1,25 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Unpaid Memberships' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Unpaid Memberships' %}</h2>
+        <div class="content">
+            <table>
+            <tbody>
+                {% for year in unpaid_memberships %}
+                    <tr>
+                        <td class="align-right">
+                            <a href="{% url 'personal_tab:unpaid_memberships_year' year.year %}">
+                                {{ year.year }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>  
+    </div></div>
+{% endblock content %}

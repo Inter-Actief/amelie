@@ -30,6 +30,9 @@ urlpatterns = [
     path('transactions/cookie_corner/<int:pk>/delete/', CookieCornerTransactionDelete.as_view(),
         name='cookie_corner_transaction_delete'),
 
+    path('unpaid_memberships/', views.unpaid_memberships, name='unpaid_memberships'),
+    path('unpaid_memberships/<int:selected_year>/', views.unpaid_memberships, name='unpaid_memberships_year'),
+
     path('wrapped', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
     path('wrapped/<int:year>/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped_year'),
 
