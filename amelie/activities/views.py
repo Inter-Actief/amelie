@@ -468,6 +468,18 @@ def activity_editenrollment(request, participation, obj, edited_by=None):
             answer.save()
             form.save_m2m()
 
+    # Update the payment method depending on the new price
+    new_price, _ = participation.calculate_costs()
+    if new_price == 0:
+        # If the enrollment is now free, no payment needs to be made
+        participation.payment_method = Participation.PaymentMethodChoices.NONE
+    elif participation.payment_method == Participation.PaymentMethodChoices.NONE:
+        # If it was free but now costs money, and the person has a mandate, upgrade to Mandate.
+        if participation.person.has_mandate_activities():
+            participation.payment_method = Participation.PaymentMethodChoices.AUTHORIZATION
+
+    participation.save()
+
     if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
         # If this is a regular Participation (not waiting list and via mandate), we need to re-add
         # the transaction to update the costs on the personal tab
@@ -484,6 +496,12 @@ def activity_editenrollment_self(request, pk):
     # Lock the Activity object for updating, prevent concurrent (un)enrollments
     obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
     activity = obj
+
+    # do not allow editing an enrollment for an activity that may cost money if the user does not have a mandate.
+    # If this was allowed, users without a mandate would be able to sign up to activities that are free,
+    # but have some options that are not free. Currently, this is not supported.
+    if not request.person.has_mandate_activities() and obj.has_costs():
+        return render(request, "activity_enrollment_mandate.html", locals())
 
     # No exception can occur here, this has been checked before
     participation = Participation.objects.select_for_update().get(person=request.person, event=obj)
