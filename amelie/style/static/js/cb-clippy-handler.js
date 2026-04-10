@@ -13,14 +13,15 @@ let feutText = () => {
         "€0.50?\n" + "Straal gestolen\n" + "€1 is een mooie prijs tot aankomende week",
         "De voorzitter is als glazuur.",
         "Seks",
-        "Guido is your seventh board members",
+        "Guido is your seventh board member",
         "Did you know that Abacus is one of our committees?",
         "Remember: the Audentis floor is for your feet, not your head!",
         "Yusu",
-        "ictsv.nl/scintilla 'vo"
+        "ictsv.nl/scintilla 'vo",
         "ictsv.nl/abacus",
         "You have the most minus points :)",
-        "Did you know it's always Scintilla's fault, but also yours of course."
+        "Did you know it's always Scintilla's fault but also yours?",
+        "Atlantis cares about your feeling, we don't."
 	];
 
 	return questions[Math.floor(Math.random() * questions.length)];

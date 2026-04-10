@@ -52,8 +52,9 @@
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/april-fools.css" />
         {% endif %}
 
-        {% if request.person.is_candidate_board or 1 == 1 %}
+        {% if request.person.is_candidate_board %}
             {% compress css %}
+
             <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
 
             {% comment %} Bootstrap 3.4.1 to make modal work {% endcomment %}
@@ -61,6 +62,12 @@
 
             {% endcompress %}
 
+            {% comment %} Bootstrap messes up margins so that must be fixed {% endcomment %}
+            <style>
+            body {
+                margin: 0 0 136px;
+            }
+            </style>
             {% compress js %}
             {% comment %} Bootstrap modal needed for popup {% endcomment %}
             <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
