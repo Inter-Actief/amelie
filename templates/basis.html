@@ -52,7 +52,7 @@
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/april-fools.css" />
         {% endif %}
 
-        {% if request.person.is_candidate_board %}
+        {% if request.person.is_candidate_board or 1 == 1 %}
             {% compress css %}
             <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
 

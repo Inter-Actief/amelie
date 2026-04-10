@@ -4,7 +4,90 @@ let hideModal = () => {
 
 // wish I had typescript rn
 let popupSettings = [
-	{
+
+    {
+        url: 'activities',
+        specialMessage: "There are so many cool activities, its hard to see them all!",
+        minTime: 10,
+        maxTime: 20,
+        specialFunction: () => {
+                $('head').append(`<style>
+@keyframes flickerAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+@-o-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+@-moz-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+@-webkit-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+.container {
+   -webkit-animation: flickerAnimation 2s infinite;
+   -moz-animation: flickerAnimation 2s infinite;
+   -o-animation: flickerAnimation 2s infinite;
+    animation: flickerAnimation 2s infinite;
+}
+</style>
+`);
+        },
+        runPopupOnce: true,
+    },
+    {
+        url: '/education',
+        specialMessage: "All this education stuff is really moving 😭",
+        minTime: 15,
+        maxTime: 60,
+        specialFunction: ()=>{
+            console.log("Beep boep")
+            // Keeps each .container within +/- RANGE px of its original (left, top)
+var RANGE = 10; // px
+var DURATION = 3000;
+var INTERVAL = 3000;
+
+$(".container").each(function () {
+  var $el = $(this);
+
+  if ($el.css("position") === "static") {
+    $el.css("position", "relative");
+  }
+
+  var left = parseFloat($el.css("left"));
+  var top = parseFloat($el.css("top"));
+  if (isNaN(left)) left = 0;
+  if (isNaN(top)) top = 0;
+
+  $el.data("origin", { left: left, top: top });
+});
+
+setInterval(function () {
+  $(".container").each(function () {
+    var $el = $(this);
+    var o = $el.data("origin") || { left: 0, top: 0 };
+
+    var targetLeft = o.left + (Math.random() * 2 - 1) * RANGE;
+    var targetTop = o.top + (Math.random() * 2 - 1) * RANGE;
+
+    $el.stop(true).animate(
+      { left: targetLeft, top: targetTop },
+      DURATION
+    );
+  });
+}, INTERVAL);
+        },
+        runPopupOnce: true
+    },
+    {
 		url: 'former-boards',
 		specialMessage: "We see that you are on the former boards page. Trying to remember your 10 predecessors?",
 		minTime: 15,
@@ -95,6 +178,14 @@ let popupSettings = [
 		specialFunction: () => {},
 		runPopupOnce: false
 	},
+    {
+        url: '/',
+        specialMessage: "HALLO FEUTJE, BEN JE LEKKER AAN HET BROWSEN?!",
+        minTime: 20,
+        maxTime: 70,
+        specialFunction: () => {},
+        runPopupOnce: true,
+    },
 ]
 
 let popupSetting;
@@ -113,7 +204,7 @@ let getPopupSetting = () => {
 	return remainingSettings[0];
 }
 
-let showModal = (chosenSetting) => {	
+let showModal = (chosenSetting) => {
 	$("#CbModal").modal();
 	$("#cb-modal-text").text(chosenSetting.specialMessage)
 }
@@ -143,7 +234,7 @@ $(() => {
 	// an extra init async function :/
 
 	popupSetting = getPopupSetting();
-	
+
 	if (popupSetting == null) {
 		return // Stop modal-ing
 	}
