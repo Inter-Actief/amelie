@@ -25,7 +25,11 @@
             <option value="" data-price_extra="0" selected="selected">---------</option>
         {% endif %}
         {% for c in form.fields.dishprice.queryset.all %}
-            <option value="{{ c.id }}" data-price_extra="{{ c.price }}">{{ c.answer|capfirst }} {{ c }}</option>
+            <option value="{{ c.id }}" data-price_extra="{{ c.price }}"
+                    {% if form.dishprice.value|stringformat:"s" == c.pk|stringformat:"s" %}
+                    selected
+                    {% endif %}
+            >{{ c.answer|capfirst }} {{ c }}</option>
         {% endfor %}
         </select>
 	</span>
