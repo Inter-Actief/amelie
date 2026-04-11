@@ -484,15 +484,31 @@ def transaction_overview(request, date_from=False, date_to=False):
 
 
 @require_board
-def unpaid_memberships(request, selected_year=None):
+def unpaid_memberships(request, year=None):
     """Give an overview of unpaid memberships per year."""
-    if selected_year is None:
-        unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0).values('year').distinct().order_by('-year')
-        return render(request, 'unpaid_memberships.html', {'unpaid_memberships': unpaid_memberships})
+
+    # If no year is given, show overview of all years with unpaid memberships
+    if year is None:
+        unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0)
+        membership_types = unpaid_memberships.values('type__name_en').distinct().order_by('type__name_en')
+        years = unpaid_memberships.values('year').distinct().order_by('-year')
+        price = unpaid_memberships.values('type__price', 'year').order_by('year')
+
+
+        # Amount totals looks like this:
+        # {'2025' : ({'Primary Yearlong' : 47, 'Secondary Yearlong' : 47}, 470.00), '2024' : ...}
+        totals = {}
+        for year_total in years:
+            totals[year_total['year']] = ({}, sum(item['type__price'] for item in price if item['year'] == year_total['year']))
+            for membership_type in membership_types:
+                totals[year_total['year']][0][membership_type['type__name_en']] = unpaid_memberships.filter(type__name_en=membership_type['type__name_en'], year=year_total['year']).count()
+
+        return render(request, 'unpaid_memberships.html', {'totals': totals, 'membership_types': membership_types})
     
-    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=selected_year).select_related('member').order_by('type')
+
+    # If a year is given, show the unpaid memberships for that year, grouped by membership type
+    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type')
     
-    # Group memberships by type
     grouped = {}
     for membership in unpaid_memberships:
         membership_type = membership.type.name
@@ -500,7 +516,110 @@ def unpaid_memberships(request, selected_year=None):
             grouped[membership_type] = []
         grouped[membership_type].append(membership)
     
-    return render(request, 'unpaid_memberships_year.html', {'unpaid_memberships': grouped, 'year': selected_year})
+    return render(request, 'unpaid_memberships_year.html', {'unpaid_memberships': grouped, 'year': year})
+
+
+@require_board
+def unpaid_memberships_mailing(request):
+    # if request.method == 'POST':
+
+    persons = None
+    current_year = None
+    study_year = '{}/{}'.format(current_year, current_year + 1)
+    name_treasurer = request.person.incomplete_name()
+
+    form = MailingForm(data=request.POST or None, initial={
+        'sender': '[Inter-Actief] {}'.format(name_treasurer),
+        'email': 'penningmeester@inter-actief.net',
+        'subject_nl': '[Inter-Actief] Onbetaalde contributie {}'.format(study_year),
+        'template_nl': '''Beste {{{{recipient.first_name}}}},
+
+Op {{{{instruction.batch.execution_date}}}} zal de incasso voor de contributie voor studievereniging Inter-Actief van collegejaar {} plaatsvinden.
+
+Het betreft het volgende lidmaatschap:
+ * Naam: {{{{recipient.incomplete_name}}}}
+ * Woonplaats: {{{{recipient.city}}}}
+ * Type lidmaatschap: {{{{membership.type}}}}
+ * Kosten: {{{{instruction.amount}}}} euro
+
+Het bedrag zal geïncasseerd worden van rekening {{{{instruction.authorization.iban}}}}. Probeer ervoor te zorgen dat er dan voldoende saldo op deze rekening staat.
+
+De incasso wordt gekenmerkt door het volgende:
+Incassant-ID: NL81ZZZ400749470000
+Machtigingskenmerk: {{{{instruction.authorization.authorization_reference}}}}
+Referentie: {{{{instruction.end_to_end_id}}}}
+
+Met vriendelijke groet,
+
+{}
+Penningmeester'''.format(study_year, name_treasurer),
+
+
+'subject_en': '[Inter-Actief] Unpaid contribution {}'.format(study_year),
+'template_en': '''Dear {{{{recipient.first_name}}}},
+
+On {{{{instruction.batch.execution_date}}}} the direct debit for the contribution of study association Inter-Actief for college year {} will be debited.
+
+It concerns the following membership:
+ * Name: {{{{recipient.incomplete_name}}}}
+ * Place of residence: {{{{recipient.city}}}}
+ * Membership type: {{{{membership.type}}}}
+ * Costs: {{{{instruction.amount}}}} euro
+
+The amount will be debited from bank account {{{{instruction.authorization.iban}}}}. Try to ensure that your account balance is sufficient.
+
+The direct debit is referenced by the following:
+Creditor identifier: NL81ZZZ400749470000
+Mandate reference: {{{{instruction.authorization.authorization_reference}}}}
+Reference: {{{{instruction.end_to_end_id}}}}
+
+Kind regards,
+
+{}
+Treasurer'''.format(study_year, name_treasurer),
+
+    })
+
+    if not persons:
+        # No persons found, give 404
+        raise Http404(_("Found nobody."))
+
+    # Variables are used in template, don't remove!
+    longest_first_name = max([p.first_name for p in persons if p.first_name is not None], key=len)
+    longest_last_name = max([p.last_name for p in persons if p.last_name is not None], key=len)
+    longest_address = max([p.address for p in persons if p.address is not None], key=len)
+    longest_postal_code = max([p.postal_code for p in persons if p.postal_code is not None], key=len)
+    longest_city = max([p.city for p in persons if p.city is not None], key=len)
+    longest_country = max([p.country for p in persons if p.country is not None], key=len)
+    longest_student_number = '0123456'
+
+    previews = None
+    if request.method == "POST" and form.is_valid():
+        if request.POST.get('preview', None):
+                previews = form.build_multilang_preview(persons[0])
+        else:
+            task = form.build_task(persons)
+            task.send()
+
+            # Done
+            return render(request, 'message.html', {
+                'message': 'De mails worden nu een voor een verstuurd. '
+                           'Dit gebeurt in een achtergrondproces en kan even duren.'
+            })
+
+    return render(request, 'includes/query/query_mailing.html', {
+        'previews': previews,
+        'persons': persons,
+        'longest_first_name': longest_first_name,
+        'longest_last_name': longest_last_name,
+        'longest_address': longest_address,
+        'longest_postal_code': longest_postal_code,
+        'longest_city': longest_city,
+        'longest_country': longest_country,
+        'longest_student_number': longest_student_number,
+        'form': form,
+    })
+
 
 
 class TransactionSecurityMixin(RequirePersonMixin):
