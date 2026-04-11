@@ -54,8 +54,13 @@
 
         {% if request.person.is_candidate_board %}
             {% compress css %}
-
-            <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
+            {% now "H:i" as t %}
+            {% if t <= "06:00" %}
+                <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb_rave.css' %}" media="screen"/>
+                <div class="the-rave-is-on"></div>
+            {% else %}
+                <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
+            {% endif %}
 
             {% comment %} Bootstrap 3.4.1 to make modal work {% endcomment %}
             <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>

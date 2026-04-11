@@ -1,0 +1,265 @@
+@property --cb-pink {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #ff00ff;
+}
+@property --cb-pink-a {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: rgba(255, 0, 255, 0.38);
+}
+
+@keyframes cbHorriblePink {
+  0% {
+    --cb-pink: #ff00ff;
+    --cb-pink-a: rgba(255, 0, 255, 0.38);
+  }
+  20% {
+    --cb-pink: rgba(234, 43, 255, 0.65);
+    --cb-pink-a: rgba(255, 20, 147, 0.38);
+  }
+  40% {
+    --cb-pink: #20e4ff;
+    --cb-pink-a: rgba(255, 51, 204, 0.38);
+  }
+  60% {
+    --cb-pink: rgba(158, 62, 255, 0.65);
+    --cb-pink-a: rgba(80, 223, 173, 0.35);
+  }
+  80% {
+    --cb-pink: #ff66ff;
+    --cb-pink-a: rgba(112, 255, 23, 0.86);
+  }
+  90% {
+    --cb-pink: rgba(236, 255, 63, 0.85);
+    --cb-pink-a: rgba(255, 0, 204, 0.38);
+  }
+    100% {
+    --cb-pink: #ff00ff;
+    --cb-pink-a: rgba(255, 0, 255, 0.38);
+  }
+}
+
+/* Headings + top/bottom (one “kind”) */
+.current h2,
+.ia h2,
+.edu h2,
+#top,
+#bottom {
+  background-color: var(--cb-pink) !important;
+  animation: cbHorriblePink 6000ms linear infinite;
+}
+
+/* Section blocks (another “kind”) */
+.ia,
+.edu,
+.current {
+  background-color: var(--cb-pink) !important;
+  animation: cbHorriblePink 11000ms linear infinite;
+}
+
+/* Transparent block (another “kind”) */
+.transparent-ia {
+  background-color: var(--cb-pink-a) !important;
+  animation: cbHorriblePink 90000ms linear infinite;
+}
+
+/* Fixed offsets per type */
+#top {
+  animation-delay: -1200ms;
+}
+#bottom {
+  animation-delay: -6400ms;
+}
+.current h2 {
+  animation-delay: -2100ms;
+}
+.ia h2 {
+  animation-delay: -4300ms;
+}
+.edu h2 {
+  animation-delay: -7100ms;
+}
+.ia {
+  animation-delay: -3000ms;
+}
+.edu {
+  animation-delay: -8500ms;
+}
+.current {
+  animation-delay: -11000ms;
+}
+
+/* “Pseudo-random” offsets for multiple blocks of the same kind */
+.ia:nth-child(5n + 1),
+.edu:nth-child(5n + 1),
+.current:nth-child(5n + 1) {
+  animation-delay: -500ms;
+}
+.ia:nth-child(5n + 2),
+.edu:nth-child(5n + 2),
+.current:nth-child(5n + 2) {
+  animation-delay: -4020ms;
+}
+.ia:nth-child(5n + 3),
+.edu:nth-child(5n + 3),
+.current:nth-child(5n + 3) {
+  animation-delay: -1160ms;
+}
+.ia:nth-child(5n + 4),
+.edu:nth-child(5n + 4),
+.current:nth-child(5n + 4) {
+  animation-delay: -2030ms;
+}
+.ia:nth-child(5n),
+.edu:nth-child(5n),
+.current:nth-child(5n) {
+  animation-delay: -3310ms;
+}
+
+/* Make the pony layer fill the whole viewport */
+#middle {
+  position: relative;
+  min-height: 100vh;
+  background: none !important; /* remove the original background pony */
+}
+
+/* Full-screen pony you can animate */
+#middle::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -100;
+  pointer-events: none;
+
+    background-image: url("/static/img/cb/my_little_pony.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 60% auto; /* <- 70% size */
+
+
+  transform-origin: 50% 65%;
+  will-change: transform;
+}
+#middle::before {
+  animation: ponyGallop 4s linear infinite;
+}
+
+@keyframes ponyGallop {
+  0% {
+    transform: translateY(30px) rotate(-4deg);
+  }
+  40% {
+    transform: translateY(-60px) rotate(4deg);
+  }
+  50% {
+    transform: translateY(-70px) rotate(0deg);
+  }
+ 60% {
+    transform: translateY(-60px) rotate(-4deg);
+  }
+    100% {
+    transform: translateY(30px) rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #middle::before {
+    animation: none;
+  }
+}
+
+html, body {
+	/* Kirby cursor */
+	cursor: url("/static/img/cb/cursor.png"), auto;
+}
+/* constantly changing page background */
+html,
+body {
+  min-height: 100%;
+}
+/* EXTREMELY contrasting + annoying (hard cuts) */
+body {
+  animation: bgAnnoy 10s linear infinite;
+}
+
+@keyframes bgAnnoy {
+  0% {
+    background: #00ff00;
+  } /* neon green */
+  10% {
+    background: #ff00ff;
+  } /* magenta */
+  20% {
+    background: #00ffff;
+  } /* cyan */
+  30% {
+    background: #ff0000;
+  } /* red */
+  40% {
+    background: #ffff00;
+  } /* yellow */
+  50% {
+    background: #0000ff;
+  } /* blue */
+  60% {
+    background: #ffffff;
+  } /* white */
+  70% {
+    background: #000000;
+  } /* black */
+  80% {
+    background: #ff7a00;
+  } /* orange */
+  90% {
+    background: #7b00ff;
+  } /* violet */
+  100% {
+    background: #00ff00;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
+}
+
+/* If your pony layer is using `background-size: cover`, it will hide the color.
+   Make it smaller so the color shows around it: */
+#middle::before {
+  background-size: 70% auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+  }
+}
+
+.cb-modal-content {
+	/* display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
+	align-items: center; */
+	font-family: "Microsoft Sans Serif", sans-serif;
+	background: #c2c6ca !important;
+	font-size: 12px;
+	-webkit-font-smoothing: none;
+	/* width: 265px;
+	height: 118px; */
+	box-shadow: 0.5px 0.5px 0 0.5px black, inset 1px 1px #C2C6CA, inset -1px -1px #85898d, inset 2px 2px white;
+}
+
+.cb-modal-header {
+	color: white;
+    background: #00a;
+	padding: 2px 3px 3px;
+    margin: 3px 2px 1px 3px;
+}
+
+.cb-modal-footer {
+	text-align: center;
+}

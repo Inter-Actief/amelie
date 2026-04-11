@@ -2,6 +2,49 @@ let hideModal = () => {
     $("#CbModal").modal('hide');
 }
 
+function wiggleEverythingAround(RANGE = 10) {
+    // Keeps each .container within +/- RANGE px of its original (left, top)
+    var DURATION = 6000;
+    var INTERVAL = 3000;
+    var SELECTOR = ".container, a, h0, h2, h3, h4, h5, p";
+
+    $(SELECTOR).each(function () {
+        var $el = $(this);
+        if ($el.hasClass("paging")) {
+            return;
+        }
+
+        if ($el.css("position") === "static") {
+            $el.css("position", "relative");
+        }
+
+        var left = parseFloat($el.css("left"));
+        var top = parseFloat($el.css("top"));
+        if (isNaN(left)) left = 0;
+        if (isNaN(top)) top = 0;
+
+        $el.data("origin", {left: left, top: top});
+    });
+
+    setInterval(function () {
+        $(SELECTOR).each(function () {
+            var $el = $(this);
+            var o = $el.data("origin") || {left: 0, top: 0};
+
+            var targetLeft = o.left + (Math.random() * 2 - 1) * RANGE;
+            var targetTop = o.top + (Math.random() * 2 - 1) * RANGE;
+            var offset = Math.random() * (INTERVAL / 2);
+            setTimeout(() => {
+                $el.stop(true).animate(
+                    {left: targetLeft, top: targetTop},
+                    DURATION
+                );
+            }, offset)
+
+        });
+    }, INTERVAL);
+}
+
 // wish I had typescript rn
 let popupSettings = [
     {
@@ -9,7 +52,7 @@ let popupSettings = [
         specialMessage: "It's insulting when Scintilla sings this song",
         minTime: 5,
         maxTime: 10,
-        specialFunction: ()=>{
+        specialFunction: () => {
             $('p').text((_, t) => t.startsWith("(") ? t : t.replace(/\S+/g, "Computer"));
         },
         runPopupOnce: true,
@@ -29,7 +72,9 @@ let popupSettings = [
                     c.push(w.length);
                     a.push(...w);
                 });
-                if (a.length == 0){ return; }
+                if (a.length == 0) {
+                    return;
+                }
                 for (let i = a.length - 1; i; i--) {
                     const j = (Math.random() * (i + 1)) | 0;
                     [a[i], a[j]] = [a[j], a[i]];
@@ -37,6 +82,7 @@ let popupSettings = [
                 let k = 0;
                 $e.each((i, el) => $(el).text(a.slice(k, (k += c[i])).join(" ")));
             }
+
             shufflePersonWords();
         },
         runPopupOnce: true,
@@ -151,45 +197,7 @@ let popupSettings = [
         minTime: 15,
         maxTime: 30,
         specialFunction: () => {
-            console.log("Beep boep")
-            // Keeps each .container within +/- RANGE px of its original (left, top)
-            var RANGE = 10; // px
-            var DURATION = 6000;
-            var INTERVAL = 3000;
-            var SELECTOR = ".container, a, h0, h2, h3, h4, h5, p, li, ul";
-
-            $(SELECTOR).each(function () {
-                var $el = $(this);
-
-                if ($el.css("position") === "static") {
-                    $el.css("position", "relative");
-                }
-
-                var left = parseFloat($el.css("left"));
-                var top = parseFloat($el.css("top"));
-                if (isNaN(left)) left = 0;
-                if (isNaN(top)) top = 0;
-
-                $el.data("origin", {left: left, top: top});
-            });
-
-            setInterval(function () {
-                $(SELECTOR).each(function () {
-                    var $el = $(this);
-                    var o = $el.data("origin") || {left: 0, top: 0};
-
-                    var targetLeft = o.left + (Math.random() * 2 - 1) * RANGE;
-                    var targetTop = o.top + (Math.random() * 2 - 1) * RANGE;
-                    var offset = Math.random() * (INTERVAL / 2);
-                    setTimeout(() => {
-                        $el.stop(true).animate(
-                            {left: targetLeft, top: targetTop},
-                            DURATION
-                        );
-                    }, offset)
-
-                });
-            }, INTERVAL);
+            wiggleEverythingAround();
         },
         runPopupOnce: true
     },
@@ -398,8 +406,22 @@ let initAsync = async () => {
 $(() => {
     // Cannot provide async function in the document.ready, so we have to use
     // an extra init async function :/
-
-    popupSetting = getPopupSetting();
+    if ($(".the-rave-is-on").length) {
+        popupSetting = {
+            url: '/',
+            specialMessage: "HALLO FEUTJE, BEN JE LEKKER AAN HET RAVEN!",
+            minTime: 1,
+            maxTime: 10,
+            specialFunction: () => {
+                wiggleEverythingAround(50);
+                // $('head').append(`<style> * { cursor: none !important; } </style>`);
+            },
+            runPopupOnce: true,
+            priority: 1,
+        };
+    } else {
+        popupSetting = getPopupSetting();
+    }
 
     if (popupSetting == null) {
         return // Stop modal-ing
