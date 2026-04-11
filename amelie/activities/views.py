@@ -37,7 +37,8 @@ from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, 
     EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
     EventDeskActivityMatchForm, EnrollmentoptionNumericForm, EnrollmentoptionNumericAnswerForm, PhotoFileUploadForm
-from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, activity_send_cancellationmail, activity_send_cashrefundmail
+from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, \
+    activity_send_cancellationmail, activity_send_cashrefundmail, activity_send_price_change_mail
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
@@ -1218,11 +1219,17 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
             needs_new_transactions = True
             change_reasons.append(_("start date was changed"))
 
-
         # If the activity price is changed, the transactions need to be recreated with the new price
         if form.cleaned_data['price'] != old_obj.price:
             needs_new_transactions = True
             change_reasons.append(_("price was changed"))
+            activity_send_price_change_mail(
+                old_obj.participation_set
+                .filter(
+                payment_method=Participation.PaymentMethodChoices.AUTHORIZATION),
+                old_obj,
+                new_obj.price
+            )
 
         if old_obj is not None and needs_new_transactions:
             # Undo and create new transactions
