@@ -6,14 +6,14 @@
 	content: '';
 	width: 100px;
 	height: 100px;
-	
+
 	display: block;
-	background-image: url('/static/img/cb/guido.png');
+	background-image: url('/static/img/cb/guido_updated.png');
 	background-size: contain;
 	background-repeat: no-repeat;
-	
+
 	position: absolute;
-	top: -50px;
+	top: -35px;
 	right: 50px
 }
 
@@ -23,7 +23,7 @@
 
 .transparent-ia {
 	/* more transparent */
-	background-color: #ff00ff61 !important; 
+	background-color: #ff00ff61 !important;
 }
 
 #middle {
