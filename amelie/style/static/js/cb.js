@@ -5,6 +5,16 @@ let hideModal = () => {
 // wish I had typescript rn
 let popupSettings = [
     {
+        url: 'association-song',
+        specialMessage: "It's insulting when Scintilla sings this song",
+        minTime: 5,
+        maxTime: 10,
+        specialFunction: ()=>{
+            $('p').text((_, t) => t.startsWith("(") ? t : t.replace(/\S+/g, "Computer"));
+        },
+        runPopupOnce: true,
+    },
+    {
         url: 'committees/',
         specialMessage: "This committee has so many members, it's hard to not mix their names up!",
         minTime: 5,
@@ -279,7 +289,7 @@ let popupSettings = [
         url: '/',
         specialMessage: "HALLO FEUTJE, BEN JE LEKKER AAN HET BROWSEN?!",
         minTime: 2,
-        maxTime: 10,
+        maxTime: 8,
         specialFunction: () => {
         },
         runPopupOnce: false,
@@ -299,7 +309,7 @@ let popupSettings = [
     },
     {
         url: '/',
-        specialMessage: "Your policy plan is not done yet",
+        specialMessage: "Your policy plan is not done yet.",
         minTime: 30,
         maxTime: 300,
         specialFunction: () => {
