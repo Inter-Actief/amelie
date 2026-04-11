@@ -28,11 +28,13 @@ let feutText = () => {
         "Tip: Pressing the green button opens the door.",
         "If your hand is larger than your face you might be stupid.",
         "Hint: You should go VB tonight.",
-        "Hello my name is CB Clippy. I see that you are doing something you suck at.",
+        "Hello my name is CB Clippy. I see that you are doing something you suck at. I won't help you with that.",
         "Hello my name is CB Clippy, your candidate board assistant. You can not be helped",
         "Sometimes I just popup to annoy you, like now",
         "Wat wil hij.",
-        "It looks like you're browsing the IA website. You should stop trying."
+        "It looks like you're browsing the IA website. You should stop trying.",
+        "English sucks, that's why we switched to Australian!",
+        "Have you tried the new Australian mode yet?",
 	];
 
 	return questions[Math.floor(Math.random() * questions.length)];

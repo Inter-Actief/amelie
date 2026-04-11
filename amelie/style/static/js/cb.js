@@ -406,7 +406,21 @@ let initAsync = async () => {
 $(() => {
     // Cannot provide async function in the document.ready, so we have to use
     // an extra init async function :/
-    if ($(".the-rave-is-on").length) {
+    if ($('#the-language-is-en').length){
+        $('head').append(`<style> html {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+	filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+	-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
+} </style>`);
+    }
+    else {
+        let $el = $('#nav_flag > a > img');
+        $el.attr("src", "/static/img/cb/australia.svg");
+    }
+
+    if ($("#the-rave-is-on").length) {
         popupSetting = {
             url: '/',
             specialMessage: "HALLO FEUTJE, BEN JE LEKKER AAN HET RAVEN!",

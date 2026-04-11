@@ -57,7 +57,7 @@
             {% now "H:i" as t %}
             {% if t <= "06:00" %}
                 <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb_rave.css' %}" media="screen"/>
-                <div class="the-rave-is-on"></div>
+                <div id="the-rave-is-on"></div>
             {% else %}
                 <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
             {% endif %}
@@ -66,6 +66,11 @@
             <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
 
             {% endcompress %}
+
+            {% comment %} This is to make english australian {% endcomment %}
+            {% if LANGUAGE_CODE == "en" %}
+                <div id="the-language-is-en"></div>
+            {% endif %}
 
             {% comment %} Bootstrap messes up margins so that must be fixed {% endcomment %}
             <style>
