@@ -8,16 +8,32 @@
         <h2>{% trans 'Unpaid Memberships' %}</h2>
         <div class="content">
             <table>
+            <thead>
+                <th>{% trans 'Year' %}</th>
+                    {% for membership_type in membership_types %}
+                        <th>{{ membership_type.type__name_en }}</th>
+                    {% endfor %}
+                <th>{% trans 'Price Total' %}</th>
+            </thead>
             <tbody>
-                {% for year in unpaid_memberships %}
+                {% for year, tuple in totals.items %}
                     <tr>
                         <td class="align-right">
-                            <a href="{% url 'personal_tab:unpaid_memberships_year' year.year %}">
-                                {{ year.year }}
+                            <a href="{% url 'personal_tab:unpaid_memberships_year' year %}">
+                                {{ year }}
                             </a>
+                        </td>
+                        {% for type, count in tuple.0.items %}
+                            <td class="align-right">
+                                {{ count }}
+                            </td>
+                        {% endfor %}
+                        <td class="align-right">
+                            {{ tuple.1 }}
                         </td>
                     </tr>
                 {% endfor %}
+
             </tbody>
         </table>
         </div>  
