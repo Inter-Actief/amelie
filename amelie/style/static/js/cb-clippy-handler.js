@@ -15,13 +15,24 @@ let feutText = () => {
         "Seks",
         "Guido is your seventh board member",
         "Did you know that Abacus is one of our committees?",
-        "Remember: the Audentis floor is for your feet, not your head!",
+        "Hint: the Audentis floor is for your feet, not your head!",
         "Yusu",
         "ictsv.nl/scintilla 'vo",
         "ictsv.nl/abacus",
         "You have the most minus points :)",
-        "Did you know it's always Scintilla's fault but also yours?",
-        "Atlantis cares about your feeling, we don't."
+        "Did you know it's sometimes not Scintilla's fault, but yours?",
+        "Atlantis cares about your feeling, we don't.",
+        "Hint: If you lose your pants, consider looking in the freezer.",
+        "Hint: If you lost your laptop, it was probably eaten by Gearloose",
+        "Gijs Gans is hungry for your tie.",
+        "Tip: Pressing the green button opens the door.",
+        "If your hand is larger than your face you might be stupid.",
+        "Hint: You should go VB tonight.",
+        "Hello my name is CB Clippy. I see that you are doing something you suck at.",
+        "Hello my name is CB Clippy, your candidate board assistant. You can not be helped",
+        "Sometimes I just popup to annoy you, like now",
+        "Wat wil hij.",
+        "It looks like you're browsing the IA website. You should stop trying."
 	];
 
 	return questions[Math.floor(Math.random() * questions.length)];
