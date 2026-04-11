@@ -5,6 +5,55 @@ let hideModal = () => {
 // wish I had typescript rn
 let popupSettings = [
     {
+        url: 'committees/',
+        specialMessage: "This committee has so many members, it's hard to not mix their names up!",
+        minTime: 5,
+        maxTime: 60,
+        specialFunction: () => {
+            function shufflePersonWords() {
+                const $e = $(".person"),
+                    c = [],
+                    a = [];
+                $e.each((_, el) => {
+                    const w = $(el).text().trim().split(/\s+/).filter(Boolean);
+                    c.push(w.length);
+                    a.push(...w);
+                });
+                if (a.length == 0){ return; }
+                for (let i = a.length - 1; i; i--) {
+                    const j = (Math.random() * (i + 1)) | 0;
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                let k = 0;
+                $e.each((i, el) => $(el).text(a.slice(k, (k += c[i])).join(" ")));
+            }
+            shufflePersonWords();
+        },
+        runPopupOnce: true,
+        priority: 1,
+    },
+    {
+        url: 'committees/',
+        specialMessage: "You are less important than these people",
+        minTime: 10,
+        maxTime: 60,
+        specialFunction: () => {
+
+        },
+        runPopupOnce: true,
+        priority: 1,
+    },
+    {
+        url: 'committees/',
+        specialMessage: "Do you know our members yet?",
+        minTime: 10,
+        maxTime: 60,
+        specialFunction: () => {
+        },
+        runPopupOnce: true,
+        priority: 1,
+    },
+    {
         url: 'compan',
         specialMessage: "Money money money!",
         minTime: 15,
@@ -236,6 +285,7 @@ let popupSettings = [
         runPopupOnce: false,
         priority: 0.01,
     },
+
     {
         url: '/',
         specialMessage: "Sometimes we feel lost",
@@ -249,7 +299,7 @@ let popupSettings = [
     },
     {
         url: '/',
-        specialMessage: "You're a feut.",
+        specialMessage: "Your policy plan is not done yet",
         minTime: 30,
         maxTime: 300,
         specialFunction: () => {
