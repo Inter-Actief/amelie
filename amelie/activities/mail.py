@@ -100,6 +100,22 @@ def activity_send_cancellationmail(participations, activity, from_waiting_list=F
         }))
     task.send()
 
+def activity_send_price_change_mail(participations, old_activity, new_price):
+    """
+    Email all enrolled people to notify them of a price change
+    """
+
+    template_name = "activities/activity_price_change.mail"
+
+    task = MailTask(template_name=template_name, priority=TaskPriority.HIGH)
+    for participation in participations:
+        task.add_recipient(PersonRecipient(participation.person, context={
+            'activity': old_activity,
+            'new_price': new_price,
+            'participation_costs': participation.calculate_costs()[0],
+            'on_waiting_list': participation.waiting_list
+        }))
+    task.send()
 
 def activity_send_on_waiting_listmail(participation):
     """
@@ -121,7 +137,7 @@ def activity_send_on_waiting_listmail(participation):
         if person.has_preference(preference=preference):
             invite = True
             ical = ical_calendar(f"[Waiting list] {activity.summary}", [
-                                 activity, ]).decode()
+                activity, ]).decode()
             attachments = [('invite.ics', ical, 'text/calendar')]
         else:
             invite = False

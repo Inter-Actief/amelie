@@ -1,0 +1,34 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% if new_price > activity.price %}Price of {{ activity.summary }} increased{% else %}Price of {{ activity.summary }} decreased{% endif %}{% endblock %}
+{% block content %}
+
+    {% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+    {% if on_waiting_list %}
+        {% blocktrans with summary=activity.summary old_price=activity.price new_price=new_price costs=participation_costs %}
+            You receive this email because you are on the waiting list for {{ summary }}. This activity's price has changed.
+
+            The old price was: {{ old_price }}
+            The new price is: {{ new_price }}
+
+            That brings your total to: {{ costs }}
+
+            Note that this does not mean you have been enrolled to the activity!
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans with summary=activity.summary old_price=activity.price new_price=new_price costs=participation_costs %}
+            You receive this email because you are enrolled for {{ summary }}. This activity's price has changed.
+
+            The old price was: {{ old_price }}
+            The new price is: {{ new_price }}
+
+            That brings your total to: {{ costs }}
+        {% endblocktrans %}
+    {% endif %}
+
+    {% blocktrans %}Kind regards,{% endblocktrans %}
+    {% onlyhtml %}<br/>{% endonlyhtml %}
+    Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}
+{% endblock %}
