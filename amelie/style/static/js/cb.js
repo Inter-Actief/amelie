@@ -152,39 +152,33 @@ let popupSettings = [
         priority: 0.5,
         specialFunction: () => {
             $('head').append(`<style>
+
 @keyframes flickerAnimation {
-  0%   { opacity:0.8; }
-  40%  { opacity:0.2; }
-  50%  { opacity:0; }
-  60%  { opacity:0.2; }
-  100% { opacity:0.8; }
+  0%   { opacity:0.75; }
+  50%  { opacity:0.25; }
+  100% { opacity:0.75; }
 }
 @-o-keyframes flickerAnimation{
-  0%   { opacity:0.8; }
-  40%  { opacity:0.2; }
-  50%  { opacity:0; }
-  60%  { opacity:0.2; }
-  100% { opacity:0.8; }
+  0%   { opacity:0.75; }
+  50%  { opacity:0.25; }
+  100% { opacity:0.75; }
 }
 @-moz-keyframes flickerAnimation{
-  0%   { opacity:0.8; }
-  40%  { opacity:0.2; }
-  50%  { opacity:0; }
-  60%  { opacity:0.2; }
-  100% { opacity:0.8; }
+  0%   { opacity:0.75; }
+  50%  { opacity:0.25; }
+  100% { opacity:0.75; }
 }
 @-webkit-keyframes flickerAnimation{
-  0%   { opacity:0.8; }
-  40%  { opacity:0.2; }
-  50%  { opacity:0; }
-  60%  { opacity:0.2; }
-  100% { opacity:0.8; }
+  0%   { opacity:0.75; }
+  50%  { opacity:0.25; }
+  100% { opacity:0.75; }
 }
-.container {
+#content {
    -webkit-animation: flickerAnimation 4s infinite;
    -moz-animation: flickerAnimation 4s infinite;
    -o-animation: flickerAnimation 4s infinite;
     animation: flickerAnimation 4s infinite;
+    z-index: -1;
 }
 </style>
 `);
