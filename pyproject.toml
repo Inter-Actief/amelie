@@ -45,7 +45,7 @@ dependencies = [
     "django-modern-rpc>=2.0.0,<2.1",
 
     # WYSIWYG Editor for Django
-    "django-ckeditor>=6.3.2",
+    "django-ckeditor>=6.7.3",
 
     # FCM (Firebase Cloud Messaging)
     # 1.x has breaking changes (old firebase api removed) # TODO: Breaking
