@@ -76,7 +76,7 @@ let popupSettings = [
         minTime: 5,
         maxTime: 10,
         specialFunction: () => {
-            $('p, a:not(:has(> *:not(span,i,b))), h1, h2, h3, h4, h5').text((_, t) => (t.startsWith("("))? t : t.replace(/\S+/g, "Computer"));
+            $('p, a:not(:has(> *:not(span,i,b))), h1, h2, h3, h4, h5').text((_, t) => (t.startsWith("("))? t : t.replace(/\S+/g, "Computers"));
         },
         runPopupOnce: true,
     },
