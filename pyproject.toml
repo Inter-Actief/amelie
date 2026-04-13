@@ -111,7 +111,7 @@ dependencies = [
     "mozilla-django-oidc>=5.0.2,<5.1",
 
     # Sentry error logging
-    "sentry-sdk>=2.54.0,<2.57",
+    "sentry-sdk>=2.54.0,<2.58",
 
     # Health checks for Django
     "django-health-check[psutil,celery,rabbitmq,redis]>=4.0,<4.3",
