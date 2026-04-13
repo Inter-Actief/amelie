@@ -2,6 +2,29 @@ let hideModal = () => {
     $("#CbModal").modal('hide');
 }
 
+// jQuery: randomly rotate matching elements (returns a stop() function)
+// Note: this overwrites existing CSS transforms on those elements.
+function randomRotate(sel = ".current, a, h0, h2, h3, h4, h5, p, li, lu", maxDeg = 25, maxPx = 20, everyMs = 800) {
+  const $els = $(sel).css("transition", "transform 900ms linear");
+
+  const tick = () =>
+    $els.each((_, el) => {
+      const deg = (Math.random() * 2 - 1) * maxDeg;
+      const x = (Math.random() * 2 - 1) * maxPx;
+      const y = (Math.random() * 2 - 1) * maxPx;
+      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(
+        1
+      )}px) rotate(${deg.toFixed(1)}deg)`;
+    });
+
+  tick();
+  const id = setInterval(tick, everyMs);
+  return () => clearInterval(id);
+}
+
+// usage:
+const stopRotating = randomRotate(".person, p, h1, h2", 40, 600);
+// stopRotating();
 function wiggleEverythingAround(RANGE = 10) {
     // Keeps each .container within +/- RANGE px of its original (left, top)
     var DURATION = 6000;
@@ -53,7 +76,7 @@ let popupSettings = [
         minTime: 5,
         maxTime: 10,
         specialFunction: () => {
-            $('p').text((_, t) => t.startsWith("(") ? t : t.replace(/\S+/g, "Computer"));
+            $('p, a:not(:has(> *:not(span,i,b))), h1, h2, h3, h4, h5').text((_, t) => (t.startsWith("("))? t : t.replace(/\S+/g, "Computer"));
         },
         runPopupOnce: true,
     },
@@ -410,8 +433,8 @@ $(() => {
 } </style>`);
     }
     else {
-        let $el = $('#nav_flag > a > img');
-        $el.attr("src", "/static/img/cb/australia.svg");
+        $('#nav_flag > a > img').attr("src", "/static/img/cb/australia.svg");
+        $('#nav_flag > a').attr("title", "Switch to Australian language")
     }
 
     if ($("#the-rave-is-on").length) {
@@ -422,6 +445,7 @@ $(() => {
             maxTime: 10,
             specialFunction: () => {
                 wiggleEverythingAround(50);
+                randomRotate();
                 // $('head').append(`<style> * { cursor: none !important; } </style>`);
             },
             runPopupOnce: true,
