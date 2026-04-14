@@ -236,6 +236,17 @@ AUTHENTICATION_BACKENDS = env.list("DJANGO_AUTHENTICATION_BACKENDS", default=["d
 OIDC_RP_CLIENT_ID = env("OIDC_RP_CLIENT_ID", default="amelie")
 OIDC_RP_CLIENT_SECRET = env("OIDC_RP_CLIENT_SECRET", default="")
 
+# JWT token authentication settings for GraphQL API (used by Amelink frontend).
+# These limit which JWT tokens are accepted. If not set, this allows any JWT token issued by our Keycloak to access the API.
+# Also need to add the AUTHENTICATION_BACKEND: 'graphql_jwt.backends.JSONWebTokenBackend' to activate these settings.
+GRAPHQL_JWT['JWT_ALGORITHM'] = env("GRAPHQL_JWT_ALGORITHM", default="RS256")
+GRAPHQL_JWT['JWT_AUDIENCE'] = env("GRAPHQL_JWT_AUDIENCE", default="amelink-prod")
+GRAPHQL_JWT['JWT_ISSUER'] = env("GRAPHQL_JWT_ISSUER", default="https://auth.ia.utwente.nl/realms/inter-actief")
+GRAPHQL_JWT['JWT_PUBLIC_KEY'] = env("GRAPHQL_JWT_PUBLIC_KEY", default=GRAPHQL_JWT.get('JWT_PUBLIC_KEY', None))
+GRAPHQL_JWT['JWT_VERIFY'] = env.bool("GRAPHQL_JWT_VERIFY", default=True)
+GRAPHQL_JWT['JWT_VERIFY_EXPIRATION'] = env.bool("GRAPHQL_JWT_VERIFY_EXPIRATION", default=True)
+GRAPHQL_JWT['JWT_ALLOW_REFRESH'] = env.bool("GRAPHQL_JWT_ALLOW_REFRESH", default=False)
+
 
 ###
 #  Keycloak settings
