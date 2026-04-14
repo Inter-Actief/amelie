@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-24 12:13+0100\n"
-"PO-Revision-Date: 2026-03-24 11:15+0000\n"
-"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
+"PO-Revision-Date: 2026-04-14 18:19+0000\n"
+"Last-Translator: Bart Oostveen <oostveenb@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -9853,8 +9853,6 @@ msgid "#ia:inter-actief.net"
 msgstr "#ia:inter-actief.net"
 
 #: amelie/narrowcasting/templates/room.html:88
-#, fuzzy
-#| msgid "Matrix Space"
 msgid "(Matrix chat)"
 msgstr "(Matrix chat)"
 
