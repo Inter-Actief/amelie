@@ -54,13 +54,30 @@
 
         {% if request.person.is_candidate_board %}
             {% compress css %}
-            <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
+            {% now "H:i" as t %}
+            {% if t <= "06:00" %}
+                <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb_rave.css' %}" media="screen"/>
+                <div id="the-rave-is-on"></div>
+            {% else %}
+                <link type="text/css" rel="stylesheet" href="{% cached_static 'css/kb.css' %}" media="screen"/>
+            {% endif %}
 
             {% comment %} Bootstrap 3.4.1 to make modal work {% endcomment %}
             <link rel="stylesheet" type="text/css" href="{% cached_static 'css/bootstrap-3.4.1.min.css' %}" media="all"/>
 
             {% endcompress %}
 
+            {% comment %} This is to make english australian {% endcomment %}
+            {% if LANGUAGE_CODE == "en" %}
+                <div id="the-language-is-en"></div>
+            {% endif %}
+
+            {% comment %} Bootstrap messes up margins so that must be fixed {% endcomment %}
+            <style>
+            body {
+                margin: 0 0 136px;
+            }
+            </style>
             {% compress js %}
             {% comment %} Bootstrap modal needed for popup {% endcomment %}
             <script src="{% cached_static 'js/bootstrap-modal.js' %}"></script>
