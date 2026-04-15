@@ -9,6 +9,11 @@
     <div class="col-xs-12">
         <div class="current">
             <h2>{% trans 'Weekly mails, mastermails and educational mails' %}</h2>
+
+            {% if request.is_board %}
+                    <a class="looks-like-a-button" href="{% url 'weekmail:new' %}">{% blocktrans %}New weekly mail, mastermail, active members mail or educational mail{% endblocktrans %}</a>
+            {% endif %}
+            
             <div class="content">
                 <div class="table-responsive">
                     <table class="table layout">
@@ -32,9 +37,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                {% if request.is_board %}
-                    <a class="looks-like-a-button" href="{% url 'weekmail:new' %}">{% blocktrans %}New weekly mail, mastermail, active members mail or educational mail{% endblocktrans %}</a>
-                {% endif %}
+                
             </div>
         </div>
     </div>
