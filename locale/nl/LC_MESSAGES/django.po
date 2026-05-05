@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-24 12:13+0100\n"
+"POT-Creation-Date: 2026-05-05 14:42+0200\n"
 "PO-Revision-Date: 2026-04-14 18:19+0000\n"
 "Last-Translator: Bart Oostveen <oostveenb@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -228,9 +228,9 @@ msgstr "Sla de wachtlijst over en schrijf direct in"
 #: amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:12
 #: amelie/personal_tab/templates/lists/transactions.html:12
 #: amelie/personal_tab/templates/price_list.html:16
-#: amelie/personal_tab/templates/wrapped.html:76
-#: amelie/personal_tab/templates/wrapped.html:141
-#: amelie/personal_tab/templates/wrapped.html:182
+#: amelie/personal_tab/templates/wrapped.html:93
+#: amelie/personal_tab/templates/wrapped.html:181
+#: amelie/personal_tab/templates/wrapped.html:226
 msgid "Price"
 msgstr "Prijs"
 
@@ -312,7 +312,7 @@ msgstr "Achternaam"
 #: amelie/personal_tab/templates/lists/activity_transactions.html:11
 #: amelie/personal_tab/templates/lists/transactions_totals.html:22
 #: amelie/weekmail/templates/weekmail/weekmail_mail_plain.mail:16
-#: templates/basis.html:164 templates/basis.html:251
+#: templates/basis.html:183 templates/basis.html:270
 msgid "Activities"
 msgstr "Activiteiten"
 
@@ -340,7 +340,8 @@ msgstr "Foto's zijn ook beschikbaar zonder in te loggen"
 #: amelie/activities/templates/includes/activity_list_photos.html:4
 #: amelie/activities/templates/photo_upload.html:26
 #: amelie/companies/templates/companies/company_event_old.html:35
-#: amelie/statistics/templates/statistics.html:48
+#: amelie/statistics/templates/statistics.html:67
+#: amelie/statistics/templates/statistics_year.html:66
 msgid "Photos"
 msgstr "Foto's"
 
@@ -1142,8 +1143,8 @@ msgstr "Plekken over"
 #: amelie/room_duty/templates/room_duty/table/list.html:21
 #: amelie/room_duty/templates/room_duty/table/overview.html:87
 #: amelie/room_duty/templates/room_duty/template/list.html:20
-#: amelie/weekmail/templates/weekmail/weekmail_list.html:20
-#: amelie/weekmail/templates/weekmail/weekmail_list.html:29
+#: amelie/weekmail/templates/weekmail/weekmail_list.html:25
+#: amelie/weekmail/templates/weekmail/weekmail_list.html:34
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:85
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:142
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:226
@@ -1161,6 +1162,7 @@ msgstr "Ongelimiteerd"
 #: amelie/activities/templates/activities/enrollmentoption_list.html:115
 #: amelie/activities/templates/activities/enrollmentoption_list.html:157
 #: amelie/activities/templates/activities/enrollmentoption_list.html:199
+#: amelie/statistics/templates/statistics_year.html:60
 msgid "None"
 msgstr "Geen"
 
@@ -1235,7 +1237,7 @@ msgstr "Metadata"
 #: amelie/personal_tab/templates/lists/custom_transactions.html:8
 #: amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:8
 #: amelie/personal_tab/templates/lists/transactions.html:8
-#: amelie/personal_tab/templates/wrapped.html:181
+#: amelie/personal_tab/templates/wrapped.html:225
 msgid "Date"
 msgstr "Datum"
 
@@ -1914,8 +1916,7 @@ msgstr ""
 #: amelie/personal_tab/templates/lists/transactions_totals.html:25
 #: amelie/personal_tab/templates/lists/transactions_totals.html:56
 #: amelie/personal_tab/templates/pos/shop.html:107
-#: amelie/personal_tab/templates/wrapped.html:155
-#: amelie/personal_tab/templates/wrapped.html:194
+#: amelie/personal_tab/templates/wrapped.html:195
 #: amelie/room_duty/templates/room_duty/table/overview.html:142
 #: amelie/room_duty/templates/room_duty/table/overview.html:176
 msgid "Total"
@@ -2071,7 +2072,7 @@ msgstr "Gerecht"
 #: amelie/personal_tab/templates/cookie_corner_statistics.html:417
 #: amelie/personal_tab/templates/lists/cookie_corner_transactions.html:12
 #: amelie/personal_tab/templates/pos/success.html:35
-#: amelie/personal_tab/templates/wrapped.html:78
+#: amelie/personal_tab/templates/wrapped.html:95
 msgid "Amount"
 msgstr "Aantal"
 
@@ -3287,7 +3288,7 @@ msgstr "Deze tekst kan gebruikt worden door het bestuur voor promotie, bijvoorbe
 #: amelie/personal_tab/templates/lists/custom_transactions.html:11
 #: amelie/personal_tab/templates/lists/exam_cookie_credit_transactions.html:11
 #: amelie/personal_tab/templates/lists/transactions.html:11
-#: amelie/personal_tab/templates/wrapped.html:180
+#: amelie/personal_tab/templates/wrapped.html:224
 #: amelie/videos/templates/videos/ia_video_form.html:58
 #: amelie/videos/templates/videos/peertube_video_form.html:58
 #: amelie/videos/templates/videos/yt_video_form.html:58
@@ -4660,7 +4661,7 @@ msgstr "toon in app"
 msgid "Company"
 msgstr "Bedrijf"
 
-#: amelie/companies/models.py:91 templates/basis.html:237
+#: amelie/companies/models.py:91 templates/basis.html:256
 msgid "Companies"
 msgstr "Bedrijven"
 
@@ -4910,7 +4911,7 @@ msgstr "Bedrijf toevoegen"
 
 #: amelie/companies/templates/companies/company_overview.html:6
 #: amelie/companies/templates/companies/company_statistics.html:38
-#: templates/basis.html:240 templates/frontpage.html:88
+#: templates/basis.html:259 templates/frontpage.html:88
 #: templates/frontpage.html:93
 msgid "Company Corner"
 msgstr "Company Corner"
@@ -5607,7 +5608,7 @@ msgstr "Periode"
 msgid "Complaint"
 msgstr "Klacht"
 
-#: amelie/education/models.py:271 templates/basis.html:254
+#: amelie/education/models.py:271 templates/basis.html:273
 #: templates/frontpage.html:254
 msgid "Complaints"
 msgstr "Klachten"
@@ -5638,7 +5639,7 @@ msgstr "Stemmen"
 
 #: amelie/education/templates/awards.html:4
 #: amelie/education/templates/awards.html:11
-#: amelie/education/templates/awards.html:28 templates/basis.html:256
+#: amelie/education/templates/awards.html:28 templates/basis.html:275
 msgid "Education awards"
 msgstr "Onderwijsprijzen"
 
@@ -6290,7 +6291,7 @@ msgid "Educational activity"
 msgstr "Onderwijsactiviteit"
 
 #: amelie/education/templates/education_news.html:5
-#: amelie/news/templates/news_items.html:5 templates/basis.html:161
+#: amelie/news/templates/news_items.html:5 templates/basis.html:180
 #: templates/frontpage.html:166
 msgid "News"
 msgstr "Nieuws"
@@ -6307,7 +6308,7 @@ msgstr "Er zijn geen onderwijsnieuwsberichten beschikbaar."
 
 #: amelie/education/templates/educational_bouquet.html:4
 #: amelie/education/templates/educational_bouquet.html:10
-#: templates/basis.html:255
+#: templates/basis.html:274
 msgid "Educational bouquet"
 msgstr "Onderwijsbloemetje"
 
@@ -6362,12 +6363,12 @@ msgstr "Module toevoegen"
 msgid "Module course code"
 msgstr "Vakcode van de module"
 
-#: amelie/education/templates/overview.html:6 templates/basis.html:246
+#: amelie/education/templates/overview.html:6 templates/basis.html:265
 msgid "Education"
 msgstr "Onderwijs"
 
 #: amelie/education/templates/overview.html:12 amelie/members/models.py:958
-#: templates/basis.html:249
+#: templates/basis.html:268
 msgid "Information"
 msgstr "Informatie"
 
@@ -6398,7 +6399,7 @@ msgstr "Verplaats omhoog"
 msgid "Move down"
 msgstr "Verplaats omlaag"
 
-#: amelie/education/templates/summaries.html:4 templates/basis.html:253
+#: amelie/education/templates/summaries.html:4 templates/basis.html:272
 msgid "Summaries"
 msgstr "Samenvattingen"
 
@@ -6454,7 +6455,7 @@ msgid "Add documents"
 msgstr "Documenten toevoegen"
 
 #: amelie/gmm/templates/gmm_overview.html:5
-#: amelie/gmm/templates/gmm_overview.html:29 templates/basis.html:208
+#: amelie/gmm/templates/gmm_overview.html:29 templates/basis.html:227
 msgid "GMM documents"
 msgstr "ALV-stukken"
 
@@ -7294,7 +7295,7 @@ msgstr "lidmaatschappen"
 #: amelie/members/models.py:904
 #: amelie/members/templates/includes/query/query_membership.html:3
 #: amelie/personal_tab/models.py:240 amelie/tools/pdf.py:68
-#: amelie/tools/pdf.py:150 templates/basis.html:187
+#: amelie/tools/pdf.py:150 templates/basis.html:206
 #: templates/profile_overview.html:45
 msgid "Membership"
 msgstr "Lidmaatschap"
@@ -7387,7 +7388,7 @@ msgstr "Het e-mailadres van een commissie mag alleen maar verwijzen naar een Int
 #: amelie/members/templates/person_edit_functions.html:16
 #: amelie/members/templates/statistics/overview.html:123
 #: amelie/personal_tab/forms.py:207
-#: amelie/statistics/templates/statistics.html:39
+#: amelie/statistics/templates/statistics.html:58
 msgid "Committee"
 msgstr "Commissie"
 
@@ -7759,7 +7760,7 @@ msgstr "Lid sinds"
 #: amelie/members/templates/committees.html:11
 #: amelie/members/templates/person.html:54
 #: amelie/members/templates/statistics/overview.html:90
-#: templates/basis.html:186 templates/profile_overview.html:144
+#: templates/basis.html:205 templates/profile_overview.html:144
 msgid "Committees"
 msgstr "Commissies"
 
@@ -7810,7 +7811,7 @@ msgid "There are no committees which have been disbanded."
 msgstr "Er zijn geen commissies opgeheven"
 
 #: amelie/members/templates/dogroups.html:5
-#: amelie/members/templates/dogroups.html:24 templates/basis.html:226
+#: amelie/members/templates/dogroups.html:24 templates/basis.html:245
 msgid "Dogroups"
 msgstr "Doegroepen"
 
@@ -9461,7 +9462,7 @@ msgstr "Periode(s)"
 msgid "No doegroep registered"
 msgstr "Geen doegroep geregistreerd"
 
-#: amelie/members/templates/person_study.html:21 templates/basis.html:158
+#: amelie/members/templates/person_study.html:21 templates/basis.html:177
 #: templates/profile_overview.html:123
 msgid "Current"
 msgstr "Actueel"
@@ -9761,7 +9762,7 @@ msgstr "Betalingen"
 
 #: amelie/members/templates/statistics/payments.html:29
 #: amelie/personal_tab/statistics.py:291
-#: amelie/personal_tab/templates/wrapped.html:98
+#: amelie/personal_tab/templates/wrapped.html:115
 msgid "Totals"
 msgstr "Totalen"
 
@@ -10189,7 +10190,8 @@ msgstr "Contributie"
 #: amelie/personal_tab/templates/cookie_corner_balance.html:29
 #: amelie/personal_tab/templates/cookie_corner_transactions_new.html:39
 #: amelie/personal_tab/templates/lists/transactions_totals.html:21
-#: amelie/statistics/templates/statistics.html:60 templates/basis.html:282
+#: amelie/statistics/templates/statistics.html:79
+#: amelie/statistics/templates/statistics_year.html:78 templates/basis.html:301
 msgid "Personal tab"
 msgstr "Streeplijst"
 
@@ -12050,7 +12052,7 @@ msgstr "En nog {amount} andere artikelen..."
 
 #: amelie/personal_tab/templates/pos/show_qr.html:19
 #: amelie/personal_tab/templates/register/register_card_index.html:28
-#: templates/basis.html:296 templates/login.html:4 templates/login.html:47
+#: templates/basis.html:315 templates/login.html:4 templates/login.html:47
 msgid "Log in"
 msgstr "Inloggen"
 
@@ -12452,99 +12454,167 @@ msgstr "Je wordt over 5 seconden teruggebracht naar het registratiescherm..."
 msgid "Go back now"
 msgstr "Ga nu terug"
 
+#: amelie/personal_tab/templates/wrapped.html:4
+#: amelie/personal_tab/templates/wrapped.html:9
+#, fuzzy
+#| msgid "General statistics"
+msgid " - Global statistics"
+msgstr "Hoofdstatistieken"
+
 #: amelie/personal_tab/templates/wrapped.html:9
 #: amelie/personal_tab/templates/wrapped_no_transactions.html:9
 msgid "Cookie Corner Wrapped "
 msgstr "Cookie Corner Wrapped "
 
 #: amelie/personal_tab/templates/wrapped.html:14
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "          Now that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>. On this page you can view your personal statistics for the cookie corner.\n"
+#| "        "
 msgid ""
 "\n"
-"          Now that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>. On this page you can view your personal statistics for the cookie corner.\n"
+"          Now that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>.\n"
 "        "
 msgstr ""
 "\n"
 "Nu dat het jaar voorbij is, kunnen we een kijkje doen in de statistieken van de cookie corner in <b>%(year)s</b>. Op deze pagina vind je je persoonlijke statistieken."
 
+#: amelie/personal_tab/templates/wrapped.html:18
+msgid "On this page you can view the global cookie corner statistics for the entire association."
+msgstr ""
+
 #: amelie/personal_tab/templates/wrapped.html:20
+msgid "On this page you can view your personal statistics for the cookie corner."
+msgstr ""
+
+#: amelie/personal_tab/templates/wrapped.html:25
 msgid "Or, look back on a different year:"
 msgstr "Of kijk terug naar een ander jaar:"
 
-#: amelie/personal_tab/templates/wrapped.html:37
+#: amelie/personal_tab/templates/wrapped.html:46
 msgid "Statistics per day"
 msgstr "Statistieken per dag"
 
-#: amelie/personal_tab/templates/wrapped.html:42
+#: amelie/personal_tab/templates/wrapped.html:51
 msgid "First transaction of the year: "
 msgstr "Eerste transactie van het jaar: "
 
-#: amelie/personal_tab/templates/wrapped.html:45
 #: amelie/personal_tab/templates/wrapped.html:54
+#: amelie/personal_tab/templates/wrapped.html:63
 msgid "on"
 msgstr "op"
 
-#: amelie/personal_tab/templates/wrapped.html:51
+#: amelie/personal_tab/templates/wrapped.html:60
 msgid "Last transaction of the year: "
 msgstr "Laatste transactie van het jaar: "
 
-#: amelie/personal_tab/templates/wrapped.html:63
+#: amelie/personal_tab/templates/wrapped.html:73
+#, fuzzy
+#| msgid "Top 5 products"
+msgid "Top 10 products"
+msgstr "Top 5 producten"
+
+#: amelie/personal_tab/templates/wrapped.html:75
 msgid "Top 5 products"
 msgstr "Top 5 producten"
 
-#: amelie/personal_tab/templates/wrapped.html:68
+#: amelie/personal_tab/templates/wrapped.html:82
+#, fuzzy
+#| msgid "You bought certain items more than others during this year. What did you buy the most?"
+msgid "Certain items were bought more than others during this year. What was bought the most?"
+msgstr "Sommige producten haalde je meer dan anderen. Wat heb je het meeste gekocht?"
+
+#: amelie/personal_tab/templates/wrapped.html:84
 msgid "You bought certain items more than others during this year. What did you buy the most?"
 msgstr "Sommige producten haalde je meer dan anderen. Wat heb je het meeste gekocht?"
 
-#: amelie/personal_tab/templates/wrapped.html:75
-#: amelie/personal_tab/templates/wrapped.html:140
+#: amelie/personal_tab/templates/wrapped.html:92
+#: amelie/personal_tab/templates/wrapped.html:180
 msgid "Item"
 msgstr "Product"
 
-#: amelie/personal_tab/templates/wrapped.html:77
-#: amelie/personal_tab/templates/wrapped.html:142
+#: amelie/personal_tab/templates/wrapped.html:94
+#: amelie/personal_tab/templates/wrapped.html:156
+#: amelie/personal_tab/templates/wrapped.html:182
 msgid "Kcal"
 msgstr "Kcal"
 
-#: amelie/personal_tab/templates/wrapped.html:103
-msgid "Total spend in the cookie corner: "
+#: amelie/personal_tab/templates/wrapped.html:120
+#, fuzzy
+#| msgid "Total spend in the cookie corner: "
+msgid "Total spent in the cookie corner: "
 msgstr "Totaal uitgegeven in de cookie corner:"
 
-#: amelie/personal_tab/templates/wrapped.html:108
+#: amelie/personal_tab/templates/wrapped.html:125
 msgid "Total calories consumed: "
 msgstr "Totaal aantal calorieën geconsumeerd:"
 
-#: amelie/personal_tab/templates/wrapped.html:113
+#: amelie/personal_tab/templates/wrapped.html:131
 msgid "That is the caloric equivalent to:"
 msgstr "Dit is (qua calorieën) equivalent aan:"
 
-#: amelie/personal_tab/templates/wrapped.html:123
+#: amelie/personal_tab/templates/wrapped.html:142
 msgid "Day with most transactions"
 msgstr "Dag met de meeste transacties"
 
-#: amelie/personal_tab/templates/wrapped.html:127
-#, python-format
+#: amelie/personal_tab/templates/wrapped.html:147
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "            On %(day)s you got a cookie %(c)s times!\n"
+#| "          "
 msgid ""
 "\n"
-"            On %(day)s you got a cookie %(c)s times!\n"
-"          "
+"              On %(day)s, something was bought %(c)s times!\n"
+"            "
 msgstr ""
 "\n"
 "Op %(day)s heb je %(c)s keer iets gekocht!"
 
-#: amelie/personal_tab/templates/wrapped.html:133
+#: amelie/personal_tab/templates/wrapped.html:155
+#, fuzzy
+#| msgid "Total price"
+msgid "Total Price"
+msgstr "Totale prijs"
+
+#: amelie/personal_tab/templates/wrapped.html:169
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "            On %(day)s you got a cookie %(c)s times!\n"
+#| "          "
+msgid ""
+"\n"
+"              On %(day)s you got a cookie %(c)s times!\n"
+"            "
+msgstr ""
+"\n"
+"Op %(day)s heb je %(c)s keer iets gekocht!"
+
+#: amelie/personal_tab/templates/wrapped.html:174
 msgid "You bought:"
 msgstr "Dit heb je gehaald:"
 
-#: amelie/personal_tab/templates/wrapped.html:167
+#: amelie/personal_tab/templates/wrapped.html:208
 msgid "Drinking rooms"
 msgstr "Borrelruimtes"
 
-#: amelie/personal_tab/templates/wrapped.html:172
+#: amelie/personal_tab/templates/wrapped.html:213
 msgid "Now, lets take a look into the drinking rooms"
 msgstr "Verder, kunnen we ook nog kijken naar de afgelopen borrels"
 
-#: amelie/personal_tab/templates/wrapped.html:202
+#: amelie/personal_tab/templates/wrapped.html:216
+msgid "These are the 10 drinks with the most revenue, and the full total spent at drinks in the entire year."
+msgstr ""
+
+#: amelie/personal_tab/templates/wrapped.html:238
+#, fuzzy
+#| msgid "Total reversed"
+msgid "Total entire year"
+msgstr "Totaal gestorneerd"
+
+#: amelie/personal_tab/templates/wrapped.html:246
 msgid "No transactions found"
 msgstr "Geen transacties gevonden"
 
@@ -12710,7 +12780,7 @@ msgstr "Publicatie aanmaken"
 
 #: amelie/publications/templates/publications/publications.html:4
 #: amelie/publications/templates/publications/publications.html:9
-#: templates/basis.html:173
+#: templates/basis.html:192
 msgid "Publications"
 msgstr "Publicaties"
 
@@ -12753,7 +12823,8 @@ msgstr "Kamerdienstschema's"
 
 #: amelie/room_duty/models.py:58
 #: amelie/room_duty/templates/room_duty/balcony_duty/balcony_duty.html:48
-#: amelie/statistics/templates/statistics.html:33 templates/basis.html:179
+#: amelie/statistics/templates/statistics.html:52
+#: amelie/statistics/templates/statistics_year.html:52 templates/basis.html:198
 msgid "Association"
 msgstr "Vereniging"
 
@@ -13121,11 +13192,11 @@ msgstr "Er zijn nog geen kamerdienstschema-templates."
 msgid "Add office duty template"
 msgstr "Kamerdienst-template toevoegen"
 
-#: amelie/settings/environ.py:296
+#: amelie/settings/environ.py:307
 msgid "Nederlands"
 msgstr "Dutch"
 
-#: amelie/settings/environ.py:297
+#: amelie/settings/environ.py:308
 msgid "Engels"
 msgstr "English"
 
@@ -13167,6 +13238,7 @@ msgstr "Hits tussen {} en {} op pagina '{}' met User-Agent '{}'"
 
 #: amelie/statistics/templates/hits.html:5
 #: amelie/statistics/templates/statistics.html:26
+#: amelie/statistics/templates/statistics_year.html:27
 msgid "Page visits"
 msgstr "Paginabezoeken"
 
@@ -13196,68 +13268,133 @@ msgstr ""
 "aan de hand van de collegejaren."
 
 #: amelie/statistics/templates/statistics.html:22
+#: amelie/statistics/templates/statistics_year.html:23
 msgid "Statistics for the board:"
 msgstr "Statistieken voor bestuur:"
 
-#: amelie/statistics/templates/statistics.html:37
+#: amelie/statistics/templates/statistics.html:28
+#: amelie/statistics/templates/statistics_year.html:29
+#, fuzzy
+#| msgid "Statistics for the board:"
+msgid "Statistics for specific year:"
+msgstr "Statistieken voor bestuur:"
+
+#: amelie/statistics/templates/statistics.html:34
+#: amelie/statistics/templates/statistics_year.html:34
+#, fuzzy
+#| msgid "No status available."
+msgid "No years available"
+msgstr "Geen status beschikbaar."
+
+#: amelie/statistics/templates/statistics.html:56
+#: amelie/statistics/templates/statistics_year.html:56
 msgid "Members:"
 msgstr "Leden:"
 
-#: amelie/statistics/templates/statistics.html:38
+#: amelie/statistics/templates/statistics.html:57
+#: amelie/statistics/templates/statistics_year.html:57
 msgid "Active members:"
 msgstr "Actieve leden:"
 
-#: amelie/statistics/templates/statistics.html:40
+#: amelie/statistics/templates/statistics.html:59
 msgid "Committee categories"
 msgstr "Commissiecategorieën"
 
-#: amelie/statistics/templates/statistics.html:41
+#: amelie/statistics/templates/statistics.html:60
+#: amelie/statistics/templates/statistics_year.html:59
 msgid "Activities (this year):"
 msgstr "Activiteiten (dit jaar):"
 
-#: amelie/statistics/templates/statistics.html:42
+#: amelie/statistics/templates/statistics.html:61
 msgid "Activities (total)"
 msgstr "Activiteiten (totaal):"
 
-#: amelie/statistics/templates/statistics.html:52
+#: amelie/statistics/templates/statistics.html:71
+#: amelie/statistics/templates/statistics_year.html:70
 msgid "Albums:"
 msgstr "Albums:"
 
-#: amelie/statistics/templates/statistics.html:53
+#: amelie/statistics/templates/statistics.html:72
+#: amelie/statistics/templates/statistics_year.html:71
 msgid "Photos:"
 msgstr "Fotos:"
 
-#: amelie/statistics/templates/statistics.html:54
+#: amelie/statistics/templates/statistics.html:73
+#: amelie/statistics/templates/statistics_year.html:72
 msgid "Different photographers"
 msgstr "Verschillende fotografen:"
 
-#: amelie/statistics/templates/statistics.html:64
+#: amelie/statistics/templates/statistics.html:83
+#: amelie/statistics/templates/statistics_year.html:82
 msgid "Transactions:"
 msgstr "Transacties:"
 
-#: amelie/statistics/templates/statistics.html:65
+#: amelie/statistics/templates/statistics.html:84
+#: amelie/statistics/templates/statistics_year.html:83
 msgid "Transactions from personal tab:"
 msgstr "Transacties uit koekenkast:"
 
-#: amelie/statistics/templates/statistics.html:66
+#: amelie/statistics/templates/statistics.html:85
+#: amelie/statistics/templates/statistics_year.html:84
 msgid "Average number of daily transactions on personal tab:"
 msgstr "Gemiddeld aantal transacties uit koekenkast per dag:"
 
-#: amelie/statistics/templates/statistics.html:67
+#: amelie/statistics/templates/statistics.html:86
 msgid "Number of transactions on personal tab today:"
 msgstr "Huidig aantal transacties uit koekenkast van vandaag:"
 
-#: amelie/statistics/templates/statistics.html:68
+#: amelie/statistics/templates/statistics.html:87
+#: amelie/statistics/templates/statistics_year.html:85
 msgid "Registered RFID-cards:"
 msgstr "Geregistreerde RFID-kaarten:"
 
-#: amelie/statistics/templates/statistics.html:69
+#: amelie/statistics/templates/statistics.html:88
+#: amelie/statistics/templates/statistics_year.html:86
 msgid "Popular snacks:"
 msgstr "Populairste snacks:"
 
-#: amelie/statistics/templates/statistics.html:70
+#: amelie/statistics/templates/statistics.html:89
+#: amelie/statistics/templates/statistics_year.html:87
 msgid "Most healthy board member:"
 msgstr "Gezondste bestuurder:"
+
+#: amelie/statistics/templates/statistics_year.html:5
+#: amelie/statistics/templates/statistics_year.html:10
+#, python-format
+msgid "Statistics in %(year)s/%(year1)s"
+msgstr ""
+
+#: amelie/statistics/templates/statistics_year.html:14
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself.\n"
+#| "                    The data is no older than an hour. Data about a specific year is calculated in academic years.\n"
+#| "                "
+msgid ""
+"\n"
+"                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself\n"
+"                    from the academic year %(year)s/%(year1)s.\n"
+"                    The data is no older than an hour. Data is calculated in academic years.\n"
+"                "
+msgstr ""
+"\n"
+"Hier beneden kun je diverse (willekeurige) statistieken en informatie\n"
+"vinden over Inter-<i>Actief</i> en de website zelf. De gegevens zijn\n"
+"maximaal een uur oud. Gegevens over een bepaald jaar worden berekend\n"
+"aan de hand van de collegejaren."
+
+#: amelie/statistics/templates/statistics_year.html:58
+#, fuzzy
+#| msgid "Committees"
+msgid "Committees:"
+msgstr "Commissies"
+
+#: amelie/statistics/templates/statistics_year.html:60
+#, fuzzy
+#| msgid "Was a member in one of these years"
+msgid "Board members in this year:"
+msgstr "Was lid in een van deze jaren"
 
 #: amelie/tools/auth.py:44
 #, python-brace-format
@@ -13665,7 +13802,7 @@ msgid "Video"
 msgstr "Video"
 
 #: amelie/videos/models.py:26 amelie/videos/templates/videos/videos.html:4
-#: amelie/videos/templates/videos/videos.html:9 templates/basis.html:170
+#: amelie/videos/templates/videos/videos.html:9 templates/basis.html:189
 #: templates/frontpage.html:106
 msgid "Videos"
 msgstr "Video's"
@@ -13907,7 +14044,7 @@ msgid "Error during sending"
 msgstr "Fout tijdens versturen"
 
 #: amelie/weekmail/models.py:61
-#: amelie/weekmail/templates/weekmail/weekmail_list.html:17
+#: amelie/weekmail/templates/weekmail/weekmail_list.html:22
 #: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1
 #: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7
 msgid "Weekly mail"
@@ -13987,14 +14124,14 @@ msgstr "Klaar"
 msgid "Weekly mails, mastermails and educational mails"
 msgstr "Weekmails, mastermails en onderwijsmails"
 
-#: amelie/weekmail/templates/weekmail/weekmail_list.html:19
+#: amelie/weekmail/templates/weekmail/weekmail_list.html:14
+msgid "New weekly mail, mastermail, active members mail or educational mail"
+msgstr "Nieuwe weekmail, mastermail, actieveledenmail of onderwijsmail"
+
+#: amelie/weekmail/templates/weekmail/weekmail_list.html:24
 #: amelie/weekmail/templates/weekmail/weekmail_wizard.html:42
 msgid "Published"
 msgstr "Gepubliceerd"
-
-#: amelie/weekmail/templates/weekmail/weekmail_list.html:36
-msgid "New weekly mail, mastermail, active members mail or educational mail"
-msgstr "Nieuwe weekmail, mastermail, actieveledenmail of onderwijsmail"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail.mail:1
 #: amelie/weekmail/templates/weekmail/weekmail_mail_html.mail:7
@@ -14196,167 +14333,167 @@ msgstr "Studievereniging Inter-Actief"
 msgid "Frontpage"
 msgstr "Voorpagina"
 
-#: templates/basis.html:82
+#: templates/basis.html:101
 msgid "Important message from the board"
 msgstr "Belangrijk bericht van het bestuur"
 
-#: templates/basis.html:97
+#: templates/basis.html:116
 msgid "News RSS feed"
 msgstr "Nieuws RSS-feed"
 
-#: templates/basis.html:98
+#: templates/basis.html:117
 msgid "Activities RSS-feed"
 msgstr "Activiteiten RSS-feed"
 
-#: templates/basis.html:99
+#: templates/basis.html:118
 msgid "Activities iCal feed"
 msgstr "Activiteiten iCal-feed"
 
-#: templates/basis.html:167
+#: templates/basis.html:186
 msgid "Photo album"
 msgstr "Fotoalbum"
 
-#: templates/basis.html:181
+#: templates/basis.html:200
 msgid "Inter-<em>Actief</em>"
 msgstr "Inter-<i>Actief</i>"
 
-#: templates/basis.html:182
+#: templates/basis.html:201
 msgid "Board"
 msgstr "Bestuur"
 
-#: templates/basis.html:183
+#: templates/basis.html:202
 msgid "Former boards"
 msgstr "Oud-besturen"
 
-#: templates/basis.html:184
+#: templates/basis.html:203
 msgid "Honorary members"
 msgstr "Ereleden"
 
-#: templates/basis.html:185
+#: templates/basis.html:204
 msgid "Members of Merit"
 msgstr "Leden van Verdienste"
 
-#: templates/basis.html:188
+#: templates/basis.html:207
 msgid "(Graduation) drink"
 msgstr "(Afstudeer)borrel"
 
-#: templates/basis.html:189
+#: templates/basis.html:208
 msgid "Presentations"
 msgstr "Presentaties"
 
-#: templates/basis.html:190
+#: templates/basis.html:209
 msgid "Symposia"
 msgstr "Symposia"
 
-#: templates/basis.html:191
+#: templates/basis.html:210
 msgid "Study tours"
 msgstr "Studiereizen"
 
-#: templates/basis.html:192
+#: templates/basis.html:211
 msgid "Members' initiative"
 msgstr "Ledeninitiatief"
 
-#: templates/basis.html:193
+#: templates/basis.html:212
 msgid "Association song"
 msgstr "Verenigingslied"
 
-#: templates/basis.html:194
+#: templates/basis.html:213
 msgid "Association ENIAC"
 msgstr "Vereniging ENIAC"
 
-#: templates/basis.html:195
+#: templates/basis.html:214
 msgid "Sister associations"
 msgstr "Zusterverenigingen"
 
-#: templates/basis.html:196
+#: templates/basis.html:215
 msgid "Inter-<i>Actief</i> app"
 msgstr "Inter-<i>Actief</i> app"
 
-#: templates/basis.html:197
+#: templates/basis.html:216
 msgid "Inter-Archive"
 msgstr "Inter-Archief"
 
-#: templates/basis.html:202
+#: templates/basis.html:221
 msgid "For members"
 msgstr "Voor leden"
 
-#: templates/basis.html:205
+#: templates/basis.html:224
 msgid "Azure Dev Tools"
 msgstr "Azure Dev Tools"
 
-#: templates/basis.html:211
+#: templates/basis.html:230
 msgid "Assignments by the UT"
 msgstr "Opdrachten van de UT"
 
-#: templates/basis.html:214
+#: templates/basis.html:233
 msgid "Corporate identity"
 msgstr "Huisstijldocument"
 
-#: templates/basis.html:217
+#: templates/basis.html:236
 msgid "Old privacy policies"
 msgstr "Oude privacy policies"
 
-#: templates/basis.html:220
+#: templates/basis.html:239
 msgid "Social media"
 msgstr "Social media"
 
-#: templates/basis.html:223
+#: templates/basis.html:242
 msgid "Mental health"
 msgstr "Mentale gezondheid"
 
-#: templates/basis.html:230
+#: templates/basis.html:249
 msgid "Intraweb"
 msgstr "Intraweb"
 
-#: templates/basis.html:241
+#: templates/basis.html:260
 msgid "External Activities"
 msgstr "Externe Activiteiten"
 
-#: templates/basis.html:250 templates/frontpage.html:225
+#: templates/basis.html:269 templates/frontpage.html:225
 msgid "Education news"
 msgstr "Onderwijsnieuws"
 
-#: templates/basis.html:252
+#: templates/basis.html:271
 msgid "Books"
 msgstr "Boeken"
 
-#: templates/basis.html:257
+#: templates/basis.html:276
 msgid "Tutoring"
 msgstr "Tutoring"
 
-#: templates/basis.html:261 templates/basis.html:325
+#: templates/basis.html:280 templates/basis.html:344
 msgid "Contact"
 msgstr "Contact"
 
-#: templates/basis.html:279
+#: templates/basis.html:298
 msgid "My profile"
 msgstr "Mijn profiel"
 
-#: templates/basis.html:286
+#: templates/basis.html:305
 msgid "Print document"
 msgstr "Print document"
 
-#: templates/basis.html:290
+#: templates/basis.html:309
 msgid "Log out"
 msgstr "Uitloggen"
 
-#: templates/basis.html:311
+#: templates/basis.html:330
 msgid "close"
 msgstr "sluiten"
 
-#: templates/basis.html:324
+#: templates/basis.html:343
 msgid "Privacy policy"
 msgstr "Privacybeleid"
 
-#: templates/basis.html:326
+#: templates/basis.html:345
 msgid "Report a problem"
 msgstr "Probleem melden"
 
-#: templates/basis.html:327
+#: templates/basis.html:346
 msgid "CVD Policy"
 msgstr "CVD-beleid"
 
-#: templates/basis.html:333
+#: templates/basis.html:352
 #, python-format
 msgid "Amélie %(branch)s (%(commit)s built on %(date)s) rendered by PID %(pid)s on %(host)s"
 msgstr "Amélie %(branch)s (%(commit)s gebouwd op %(date)s) geserveerd door PID %(pid)s op %(host)s"
