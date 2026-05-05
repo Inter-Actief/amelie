@@ -50,6 +50,8 @@
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/valentine.css" />
         {% elif theme == "april-fools" %}
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/april-fools.css" />
+        {% elif theme == "lustrum" %}
+            <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/lustrum-matrix.css" />
         {% endif %}
 
         {% if request.person.is_candidate_board %}
@@ -146,6 +148,8 @@
                                 <img src="{% cached_static 'img/layout/logo_valentine.svg' %}" data-fallback="{% cached_static 'img/layout/logo_valentine.png' %}" alt="Inter-/Actief/"/>
                             {% elif theme == "april-fools" %}
                                 <img src="{% cached_static 'img/layout/logo_production_aprilfools.svg' %}" data-fallback="{% cached_static 'img/layout/logo_production.png' %}" alt="Inter-/Actief/"/>
+                            {% elif theme == "lustrum" %}
+                                <img src="{% cached_static 'img/layout/logo_production_lustrum.svg' %}" data-fallback="{% cached_static 'img/layout/logo_production_lustrum.png' %}" alt="Inter-/Actief/ - 9th Lustrum - Enter the Matrix"/>
                             {% else %}
                                 {% if env == 'STAGING' %}
                                     <img src="{% cached_static 'img/layout/logo_staging.svg' %}" data-fallback="{% cached_static 'img/layout/logo_staging.png' %}" alt="Inter-/Actief/"/>
@@ -362,6 +366,98 @@
             <div class="hearts hearts--near"></div>
             <div class="hearts hearts--near hearts--alt"></div>
         </div>
+        {% elif theme == "lustrum" %}
+            <script type="application/javascript">
+                /* AI generated this code, please don't judge the WWW for this mess! Sorry! */
+                $(document).ready(function() {
+                    function textToBinary(text) {
+                        var binary = "";
+
+                        for (var i = 0; i < text.length; i++) {
+                            binary += text.charCodeAt(i).toString(2).padStart(8, "0");
+                        }
+
+                        return binary;
+                    }
+
+                    $("h2").each(function() {
+                        var $h2 = $(this);
+                        var $link = $h2.children("a").not(".looks-like-a-button").first();
+
+                        $h2.css({
+                            "overflow": "visible",
+                            "white-space": "nowrap"
+                        });
+
+                        if ($h2.hasClass("h2-with-buttons")) {
+                            if ($link.length && $.trim($link.text()).length > 0) {
+                                var headingLinkText = $.trim($link.text());
+
+                                $link.html(
+                                    '<span class="binary-heading-text">' +
+                                        headingLinkText +
+                                        '<span class="binary-heading-bits">' +
+                                            textToBinary(headingLinkText) +
+                                        '</span>' +
+                                    '</span>'
+                                );
+
+                                return;
+                            }
+
+                            var textNode = null;
+
+                            $h2.contents().each(function() {
+                                if (this.nodeType === 3 && $.trim(this.nodeValue).length > 0) {
+                                    textNode = this;
+                                    return false;
+                                }
+                            });
+
+                            if (textNode) {
+                                var headingText = $.trim(textNode.nodeValue);
+
+                                $(textNode).replaceWith(
+                                    '<span class="binary-heading-text">' +
+                                        headingText +
+                                        '<span class="binary-heading-bits">' +
+                                            textToBinary(headingText) +
+                                        '</span>' +
+                                    '</span> '
+                                );
+                            }
+
+                            return;
+                        }
+
+                        if ($link.length && $.trim($link.text()).length > 0) {
+                            var linkText = $.trim($link.text());
+
+                            $link.html(
+                                '<span class="binary-heading-text">' +
+                                    linkText +
+                                    '<span class="binary-heading-bits">' +
+                                        textToBinary(linkText) +
+                                    '</span>' +
+                                '</span>'
+                            );
+                        } else {
+                            var h2Text = $.trim($h2.text());
+
+                            if (h2Text.length > 0) {
+                                $h2.html(
+                                    '<span class="binary-heading-text">' +
+                                        h2Text +
+                                        '<span class="binary-heading-bits">' +
+                                            textToBinary(h2Text) +
+                                        '</span>' +
+                                    '</span>'
+                                );
+                            }
+                        }
+                    });
+                });
+            </script>
         {% endif %}
 	</body>
 </html>
