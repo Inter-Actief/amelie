@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-05-05 14:42+0200\n"
-"PO-Revision-Date: 2026-04-14 18:19+0000\n"
-"Last-Translator: Bart Oostveen <oostveenb@inter-actief.net>\n"
+"PO-Revision-Date: 2026-05-05 12:48+0000\n"
+"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -12456,10 +12456,8 @@ msgstr "Ga nu terug"
 
 #: amelie/personal_tab/templates/wrapped.html:4
 #: amelie/personal_tab/templates/wrapped.html:9
-#, fuzzy
-#| msgid "General statistics"
 msgid " - Global statistics"
-msgstr "Hoofdstatistieken"
+msgstr " - Globale statistieken"
 
 #: amelie/personal_tab/templates/wrapped.html:9
 #: amelie/personal_tab/templates/wrapped_no_transactions.html:9
@@ -12467,26 +12465,23 @@ msgid "Cookie Corner Wrapped "
 msgstr "Cookie Corner Wrapped "
 
 #: amelie/personal_tab/templates/wrapped.html:14
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "          Now that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>. On this page you can view your personal statistics for the cookie corner.\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "          Now that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>.\n"
 "        "
 msgstr ""
 "\n"
-"Nu dat het jaar voorbij is, kunnen we een kijkje doen in de statistieken van de cookie corner in <b>%(year)s</b>. Op deze pagina vind je je persoonlijke statistieken."
+"          Nu het jaar voorbij is, kunnen we een kijkje doen in de statistieken van de cookie corner in <b>%(year)s</b>.\n"
+"        "
 
 #: amelie/personal_tab/templates/wrapped.html:18
 msgid "On this page you can view the global cookie corner statistics for the entire association."
-msgstr ""
+msgstr "Op deze pagina vind je de globale statistieken voor de streeplijst voor de gehele vereniging."
 
 #: amelie/personal_tab/templates/wrapped.html:20
 msgid "On this page you can view your personal statistics for the cookie corner."
-msgstr ""
+msgstr "Op deze pagina vind je je persoonlijke statistieken voor de streeplijst."
 
 #: amelie/personal_tab/templates/wrapped.html:25
 msgid "Or, look back on a different year:"
@@ -12510,20 +12505,16 @@ msgid "Last transaction of the year: "
 msgstr "Laatste transactie van het jaar: "
 
 #: amelie/personal_tab/templates/wrapped.html:73
-#, fuzzy
-#| msgid "Top 5 products"
 msgid "Top 10 products"
-msgstr "Top 5 producten"
+msgstr "Top 10 producten"
 
 #: amelie/personal_tab/templates/wrapped.html:75
 msgid "Top 5 products"
 msgstr "Top 5 producten"
 
 #: amelie/personal_tab/templates/wrapped.html:82
-#, fuzzy
-#| msgid "You bought certain items more than others during this year. What did you buy the most?"
 msgid "Certain items were bought more than others during this year. What was bought the most?"
-msgstr "Sommige producten haalde je meer dan anderen. Wat heb je het meeste gekocht?"
+msgstr "Sommige producten werden meer gehaald dan anderen dit jaar. Wat is er het meeste gekocht?"
 
 #: amelie/personal_tab/templates/wrapped.html:84
 msgid "You bought certain items more than others during this year. What did you buy the most?"
@@ -12541,10 +12532,8 @@ msgid "Kcal"
 msgstr "Kcal"
 
 #: amelie/personal_tab/templates/wrapped.html:120
-#, fuzzy
-#| msgid "Total spend in the cookie corner: "
 msgid "Total spent in the cookie corner: "
-msgstr "Totaal uitgegeven in de cookie corner:"
+msgstr "Totaal uitgegeven in de cookie corner: "
 
 #: amelie/personal_tab/templates/wrapped.html:125
 msgid "Total calories consumed: "
@@ -12559,38 +12548,30 @@ msgid "Day with most transactions"
 msgstr "Dag met de meeste transacties"
 
 #: amelie/personal_tab/templates/wrapped.html:147
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            On %(day)s you got a cookie %(c)s times!\n"
-#| "          "
+#, python-format
 msgid ""
 "\n"
 "              On %(day)s, something was bought %(c)s times!\n"
 "            "
 msgstr ""
 "\n"
-"Op %(day)s heb je %(c)s keer iets gekocht!"
+"              Op %(day)s is er %(c)s keer iets gekocht!\n"
+"            "
 
 #: amelie/personal_tab/templates/wrapped.html:155
-#, fuzzy
-#| msgid "Total price"
 msgid "Total Price"
-msgstr "Totale prijs"
+msgstr "Totale Prijs"
 
 #: amelie/personal_tab/templates/wrapped.html:169
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            On %(day)s you got a cookie %(c)s times!\n"
-#| "          "
+#, python-format
 msgid ""
 "\n"
 "              On %(day)s you got a cookie %(c)s times!\n"
 "            "
 msgstr ""
 "\n"
-"Op %(day)s heb je %(c)s keer iets gekocht!"
+"              Op %(day)s heb je %(c)s keer iets gekocht!\n"
+"            "
 
 #: amelie/personal_tab/templates/wrapped.html:174
 msgid "You bought:"
@@ -12606,13 +12587,11 @@ msgstr "Verder, kunnen we ook nog kijken naar de afgelopen borrels"
 
 #: amelie/personal_tab/templates/wrapped.html:216
 msgid "These are the 10 drinks with the most revenue, and the full total spent at drinks in the entire year."
-msgstr ""
+msgstr "Dit zijn de 10 borrels met de meeste omzet, en het totaalbedrag wat uitgegeven is op borrels in het hele jaar."
 
 #: amelie/personal_tab/templates/wrapped.html:238
-#, fuzzy
-#| msgid "Total reversed"
 msgid "Total entire year"
-msgstr "Totaal gestorneerd"
+msgstr "Totaal gehele jaar"
 
 #: amelie/personal_tab/templates/wrapped.html:246
 msgid "No transactions found"
@@ -13274,17 +13253,13 @@ msgstr "Statistieken voor bestuur:"
 
 #: amelie/statistics/templates/statistics.html:28
 #: amelie/statistics/templates/statistics_year.html:29
-#, fuzzy
-#| msgid "Statistics for the board:"
 msgid "Statistics for specific year:"
-msgstr "Statistieken voor bestuur:"
+msgstr "Statistieken over een specifiek jaar:"
 
 #: amelie/statistics/templates/statistics.html:34
 #: amelie/statistics/templates/statistics_year.html:34
-#, fuzzy
-#| msgid "No status available."
 msgid "No years available"
-msgstr "Geen status beschikbaar."
+msgstr "Geen jaren beschikbaar"
 
 #: amelie/statistics/templates/statistics.html:56
 #: amelie/statistics/templates/statistics_year.html:56
@@ -13362,15 +13337,10 @@ msgstr "Gezondste bestuurder:"
 #: amelie/statistics/templates/statistics_year.html:10
 #, python-format
 msgid "Statistics in %(year)s/%(year1)s"
-msgstr ""
+msgstr "Statistieken over %(year)s/%(year1)s"
 
 #: amelie/statistics/templates/statistics_year.html:14
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself.\n"
-#| "                    The data is no older than an hour. Data about a specific year is calculated in academic years.\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself\n"
@@ -13379,22 +13349,18 @@ msgid ""
 "                "
 msgstr ""
 "\n"
-"Hier beneden kun je diverse (willekeurige) statistieken en informatie\n"
-"vinden over Inter-<i>Actief</i> en de website zelf. De gegevens zijn\n"
-"maximaal een uur oud. Gegevens over een bepaald jaar worden berekend\n"
-"aan de hand van de collegejaren."
+"                    Hieronder kun je diverse (willekeurige) statistieken en informatie\n"
+"vinden over Inter-<i>Actief</i> en de website zelf, voor het academische jaar %(year)s/%(year1)s.\n"
+"De gegevens zijn maximaal een uur oud. Gegevens worden berekend aan de hand van de collegejaren.\n"
+"                "
 
 #: amelie/statistics/templates/statistics_year.html:58
-#, fuzzy
-#| msgid "Committees"
 msgid "Committees:"
-msgstr "Commissies"
+msgstr "Commissies:"
 
 #: amelie/statistics/templates/statistics_year.html:60
-#, fuzzy
-#| msgid "Was a member in one of these years"
 msgid "Board members in this year:"
-msgstr "Was lid in een van deze jaren"
+msgstr "Bestuursleden in dit jaar:"
 
 #: amelie/tools/auth.py:44
 #, python-brace-format
