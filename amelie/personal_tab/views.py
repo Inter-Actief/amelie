@@ -1840,3 +1840,121 @@ def cookie_corner_wrapped_main(request, year=None):
         'drink_spend_most': drink_spend_most,
         'drinks_total': drinks_total
     })
+
+
+@require_board
+def cookie_corner_wrapped_global(request, year=None):
+    # Only allow specifying a year if the year is in the past
+    current_year = datetime.date.today().year
+    if year is not None and year < current_year:
+        COOKIE_CORNER_WRAPPED_YEAR = year
+    elif year is not None:
+        # Redirect to the non-year view
+        return redirect("personal_tab:cookie_corner_wrapped")
+    else:
+        COOKIE_CORNER_WRAPPED_YEAR = django.conf.settings.COOKIE_CORNER_WRAPPED_YEAR
+
+    language = get_language()
+
+    transaction_years = sorted(list(set(
+        CookieCornerTransaction.objects.all().values_list('date__year', flat=True).distinct()
+    )))
+    # Remove current year if present
+    if current_year in transaction_years:
+        transaction_years.remove(current_year)
+
+    transactions = CookieCornerTransaction.objects.filter(
+        date__year=COOKIE_CORNER_WRAPPED_YEAR
+    ).all()
+
+    if len(transactions) == 0:
+        # No transactions found, display the no transactions page
+        return render(request, 'wrapped_no_transactions.html', {
+            'year': COOKIE_CORNER_WRAPPED_YEAR,
+            'transaction_years': transaction_years,
+        })
+
+    transaction_count = transactions \
+        .annotate(day=TruncDay('date')) \
+        .values('day') \
+        .annotate(c=Count('id')) \
+        .values('day', 'c')
+
+    first_transaction_of_the_year = transactions.earliest('date')
+    last_transaction_of_the_year = transactions[0]
+
+    most_transactions_day = transaction_count.order_by('c').last()
+    most_transactions_date = most_transactions_day['day']
+    most_transactions_list = transactions.filter(
+        date__month=most_transactions_date.month,
+        date__day=most_transactions_date.day
+    ).all()
+
+    total_price = 0
+    total_kcal = 0
+
+    for transaction in most_transactions_list:
+        total_price += transaction.article.price
+        total_kcal += transaction.article.kcal if transaction.article.kcal is not None else 0
+
+    """
+        Products
+    """
+    products_grouped_by_count = {}
+
+    total = {
+        'kcal': 0,
+        'price': 0
+    }
+
+    for transaction in transactions:
+        article = transaction.article
+        amount = transaction.amount
+
+        kcal = transaction.kcal()
+
+        total['kcal'] += kcal if kcal is not None else 0
+        total['price'] += transaction.price
+
+        if article in products_grouped_by_count:
+            products_grouped_by_count[article] += amount
+        else:
+            products_grouped_by_count[article] = amount
+
+    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1])
+
+    products_grouped_by_count.reverse()
+
+    top_5_products = products_grouped_by_count[:10]  # Global stats have 10 products
+
+    """
+        Alexia
+    """
+
+    alexia_transactions = AlexiaTransaction.objects.filter(
+        date__year=COOKIE_CORNER_WRAPPED_YEAR
+    )
+
+    drink_spend_most = alexia_transactions \
+        .values('description', 'date__day', 'date__month') \
+        .annotate(total_price=Sum('price')) \
+        .order_by('-total_price', '-date__day', '-date__month')
+
+    drinks_total = sum(d['total_price'] for d in drink_spend_most)
+
+    return render(request, 'wrapped.html', {
+        'global': True,
+        'year': COOKIE_CORNER_WRAPPED_YEAR,
+        'transaction_years': transaction_years,
+        'first_transaction_of_the_year': first_transaction_of_the_year,
+        'last_transaction_of_the_year': last_transaction_of_the_year,
+        'most_transactions': {
+            'day': most_transactions_day,
+            'total_price': total_price,
+            'total_kcal': total_kcal,
+        },
+        'top_5_products': top_5_products,
+        'total': total,
+        'drink_spend_most': drink_spend_most[:10],
+        'drinks_total': drinks_total
+    })

@@ -2,18 +2,19 @@
 {% load i18n %}
 
 {% block titel %}
-    {% trans 'Statistics' %}
+    {% blocktrans with year=year year1=year1 %}Statistics in {{ year }}/{{ year1 }}{% endblocktrans %}
 {% endblock titel %}
 
 {% block content %}
     <div class="col-xs-12"><div class="ia">
-        <h2>{% trans 'Statistics' %}</h2>
+        <h2>{% blocktrans with year=year year1=year1 %}Statistics in {{ year }}/{{ year1 }}{% endblocktrans %}</h2>
 
         <div class="content">
             <p>
-                {% blocktrans %}
-                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself.
-                    The data is no older than an hour. Data about a specific year is calculated in academic years.
+                {% blocktrans with year=year year1=year1 %}
+                    Below you can find statistics and information about Inter-<i>Actief</i> and the website itself
+                    from the academic year {{ year }}/{{ year1 }}.
+                    The data is no older than an hour. Data is calculated in academic years.
                 {% endblocktrans %}
             </p>
 
@@ -27,9 +28,8 @@
                     <li>
                         {% trans 'Statistics for specific year:' %}
                         <select id="yearselector" onchange="gotoyear()">
-                            <option value="" selected>------</option>
-                            {% for year in year_range %}
-                                <option value="{{ year }}">{{ year }}</option>
+                            {% for y in year_range %}
+                                <option value="{{ y }}"{% if year == y %} selected{% endif %}>{{ y }}</option>
                             {% empty %}
                                 <option disabled>{% trans 'No years available' %}</option>
                             {% endfor %}
@@ -55,10 +55,9 @@
           <ul>
               <li>{% trans 'Members:' %} {{ member_count }}</li>
               <li>{% trans 'Active members:' %} {{ active_member_count }}</li>
-              <li>{% trans 'Committee' %} {{ committee_count }}</li>
-              <li>{% trans 'Committee categories' %} {{ committee_category_count }}</li>
+              <li>{% trans 'Committees:' %} {{ committee_count }}</li>
               <li>{% trans 'Activities (this year):' %} {{ current_activity_count }}</li>
-              <li>{% trans 'Activities (total)' %} {{ activity_count }}</li>
+              <li>{% trans 'Board members in this year:' %} {{ board_members_in_year|length }} ({% for board in board_members_in_year %}{{ board }}{% if not forloop.last %}, {% endif %}{% empty %}<i>{% trans 'None' %}</i>{% endfor %})</li>
           </ul>
         </div>
     </div></div>
@@ -83,7 +82,6 @@
               <li>{% trans 'Transactions:' %} {{ transactions_count }}</li>
               <li>{% trans 'Transactions from personal tab:' %} {{ snacks_count }}</li>
               <li>{% trans 'Average number of daily transactions on personal tab:' %} {{ snacks_average_count }}</li>
-              <li>{% trans 'Number of transactions on personal tab today:' %} {{ snacks_today_count }}</li>
               <li>{% trans 'Registered RFID-cards:' %} {{ rfids_count }}</li>
               <li>{% trans 'Popular snacks:' %} {{ popular_snacks|join:", " }}</li>
               <li>{% trans 'Most healthy board member:' %} {{ healthiest_board_member }}</li>
