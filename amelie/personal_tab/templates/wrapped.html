@@ -70,9 +70,9 @@
     <div class="ia">
       <h2>
         {% if global %}
-          {% trans 'Top 5 products' %}
-        {% else %}
           {% trans 'Top 10 products' %}
+        {% else %}
+          {% trans 'Top 5 products' %}
         {% endif %}
       </h2>
 
@@ -213,7 +213,7 @@
           {% trans 'Now, lets take a look into the drinking rooms' %}
         </p>
         {% if global %}
-          <p>{% trans 'These are the 10 most profitable drinks, and the full totals spent in the entire year.' %}</p>
+          <p>{% trans 'These are the 10 drinks with the most revenue, and the full total spent at drinks in the entire year.' %}</p>
         {% endif %}
 
         {% if drink_spend_most %}
