@@ -37,6 +37,7 @@ class NewsItemType(DjangoObjectType):
             'title_en': ("icontains", "iexact"),
             'publication_date': ("exact", "gt", "lt"),
             'publisher': ("exact", ),
+            'pinned': ('exact', )
         }
         fields = [
             "id",
@@ -89,19 +90,21 @@ class NewsItemType(DjangoObjectType):
 
 class NewsQuery(graphene.ObjectType):
     news_item = graphene.Field(NewsItemType, id=graphene.ID())
-    news_items = DjangoPaginationConnectionField(NewsItemType, id=graphene.ID())
+    news_items = DjangoPaginationConnectionField(NewsItemType, id=graphene.ID(), pinnedOnTop=graphene.Boolean(required=False, default_value=False))
 
     def resolve_news_item(root, info, id):
         return NewsItem.objects.get(pk=id)
 
-    def resolve_news_items(root, info, id=None, *args, **kwargs):
+    def resolve_news_items(root, info, id=None, pinnedOnTop=None, *args, **kwargs):
         """Find news items by ID"""
         qs = NewsItem.objects
         # Find the news item by its ID
         if id is not None:
-            return qs.filter(pk=id)
-        return qs
+            qs = qs.filter(pk=id)
+        if pinnedOnTop is not None:
+            qs = qs.order_by('-pinned', '-publication_date')
 
+        return qs
 
 # Exports
 GRAPHQL_QUERIES = [NewsQuery]
