@@ -24,7 +24,7 @@
         <p>
             {% trans 'Number of total participants including waiting list' %}: {{ number_participants }}
         </p>
-        
+
         <p>
             {% trans 'Number of confirmed participants' %}: {{ number_confirmed_participants }}
         </p>
@@ -54,18 +54,13 @@
     <table class="table" data-toggle="table" data-sort-name="order">
         <thead>
             <tr>
-                    {% if request.is_board or deanonymise %}
-                        <th data-sortable="true" data-field="order">
-                            {% trans 'Sequence' %}
-                        </th>
-                        <th data-sortable="true" data-field="name">
-                            {% trans 'Name' %}
-                        </th>
-                    {% else %}
-                        <th data-sortable="true" data-field="order">
-                            {% trans 'Enrollment #' %}
-                        </th>
-                    {% endif %}
+                <th data-sortable="true" data-field="order">
+                    {% trans 'Sequence' %}
+                </th>
+                <th data-sortable="true" data-field="name">
+                    {% trans 'Name' %}
+                </th>
+
 
                 {% for enrollmentoption in obj.enrollmentoption_set.all %}
                     <th>{{ enrollmentoption.title }}</th>
@@ -73,7 +68,7 @@
 
                 <th>{% trans 'Payment' %}</th>
 
-                {% if request.is_board or deanonymise %}
+                {% if request.is_board %}
                     <th></th>
                     <th></th>
                 {% endif %}
@@ -83,7 +78,6 @@
             {# confirmed_participation_set will be filtered with only underage participants if this is given in the query parameter #}
             {% for participation in confirmed_participation_set %}
                 <tr>
-                    {% if request.is_board or deanonymise %}
                         <td>
                             {{ forloop.counter }}
                         </td>
@@ -91,15 +85,17 @@
                             {% if request.is_board %}
                                 <a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
                                 {% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
-                            {% else %}
+                            {% elif deanonymise %}
                                 {{ participation.person.incomplete_name }}{% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
+                            {% else %}
+                                {{ participation.person.public_enrollment_name }}{% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
                             {% endif %}
                         </td>
-                    {% else %}
-                        <td>
-                            {{ forloop.counter }}
-                        </td>
-                    {% endif %}
+{#                    {% else %}#}
+{#                        <td>#}
+{#                            {{ forloop.counter }}#}
+{#                        </td>#}
+{#                    {% endif %}#}
                     {% for answer in participation.enrollmentoptionanswer_set.all %}
                         <td>{{ answer.display_answer }}</td>
                     {% endfor %}
@@ -108,7 +104,7 @@
                     {% else %}
                         <td>{{ participation.get_payment_method_display }}</td>
                     {% endif %}
-                    {% if request.is_board or deanonymise %}
+                    {% if request.is_board %}
                         <td>
                             <a href="{% url 'activities:editenrollment_other' obj.id participation.person.id %}">
                                 {% trans 'Edit enrollment' %}

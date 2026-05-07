@@ -146,6 +146,41 @@
 		{% endif %}
 	</div>
 
+    {# Show the public enrollment #}
+    {% if request.person and not activity_enrollment_private and obj.enrollment %}
+        <div class="col-xs-12 col-md-12">
+            <div class="current">
+                <h2 class="expand" data-target="public_enrollments">{% trans 'Current enrollments' %}</h2>
+                <div class="content">
+                    <div id="public_enrollments" hidden>
+                        <p class="icon icon-information">
+                            {% if person_enrollment_public %}
+                                {% trans 'Your enrollments are visible to other members.'%}
+                            {% else %}
+                                {% trans 'Your enrollments are anonymous.'%}
+                            {% endif %}
+                            {% blocktrans  %}
+                                You can change this preference on <a href="/profile">your profile</a>.
+                            {% endblocktrans %}
+                        </p>
+                        {% if confirmed_participation_set %}
+                            {% trans 'Current enrollments:' %}
+                            <ul style="margin-top:5px;">
+                                {% for participation in confirmed_participation_set %}
+                                    <li>{{ participation.person.public_enrollment_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            {% blocktrans %}
+                                No one has enrolled for this activity yet.
+                            {% endblocktrans %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {% if obj.enrollment %}
         {% if obj.organizer in request.person.current_committees or request.is_board or is_roomduty %}
             <div class="col-xs-12 col-md-12">
@@ -179,8 +214,7 @@
 
             <div class="col-xs-12 col-md-12">
                 <div class="current">
-                    <h2>{% trans 'Enrollments' %}</h2>
-
+                    <h2>{% trans 'Enrollment' %}</h2>
                     <div id="enrollment_overview" class="content">
                     {% include "activity_enrollment_overview.html" %}
                     </div>

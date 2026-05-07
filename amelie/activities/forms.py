@@ -55,7 +55,7 @@ class ActivityForm(forms.ModelForm):
         model = Activity
         fields = (
             'summary_nl', 'summary_en', 'location', 'begin', 'end', 'organizer', 'activity_label', 'promo_nl', 'promo_en',
-            'description_nl', 'description_en', "public", 'dutch_activity', "enrollment",
+            'description_nl', 'description_en', "public", 'dutch_activity', "enrollment", "enrollment_private",
             "can_unenroll", "enrollment_begin", "enrollment_end", 'maximum', "waiting_list_locked", "price",
             "image_icon", 'callback_url', 'callback_secret_key', 'facebook_event_id', 'oauth_application'
         )
