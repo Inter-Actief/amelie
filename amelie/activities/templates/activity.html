@@ -147,7 +147,7 @@
 	</div>
 
     {# Show the public enrollment #}
-    {% if request.person and not activity_enrollment_private and obj.enrollment %}
+    {% if request.person and not obj.enrollment_private and obj.enrollment %}
         <div class="col-xs-12 col-md-12">
             <div class="current">
                 <h2 class="expand" data-target="public_enrollments">{% trans 'Current enrollments' %}</h2>
