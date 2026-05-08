@@ -13,21 +13,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='activity',
             name='price',
-            field=models.DecimalField(decimal_places=2, default='0.00', help_text='Enrolled participants will be emailed when you change the price', max_digits=8, verbose_name='price'),
+            field=models.DecimalField(decimal_places=2, default='0.00', help_text='Enrolled participants will be emailed when you change the price.', max_digits=8, verbose_name='price'),
         ),
         migrations.AlterField(
             model_name='enrollmentoptioncheckbox',
             name='price_extra',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='Enrolled participants will be emailed when you change the price', max_digits=8, verbose_name='Price extra'),
+            field=models.DecimalField(decimal_places=2, default=0, help_text='Enrolled participants will be emailed when you change the price.', max_digits=8, verbose_name='Price extra'),
         ),
         migrations.AlterField(
             model_name='enrollmentoptionnumeric',
             name='price_extra',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='Enrolled participants will be emailed when you change the price', max_digits=8, verbose_name='Price extra'),
-        ),
-        migrations.AlterField(
-            model_name='selectboxoption',
-            name='price_extra',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='Enrolled participants will be emailed when you change the price', max_digits=8, verbose_name='Price extra'),
+            field=models.DecimalField(decimal_places=2, default=0, help_text='Enrolled participants will be emailed when you change the price.', max_digits=8, verbose_name='Price extra'),
         ),
     ]
