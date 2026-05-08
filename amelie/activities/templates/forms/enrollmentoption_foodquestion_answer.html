@@ -22,11 +22,11 @@
 	<span>
         <select id="{{ form.dishprice.id_for_label }}" name="{{ form.dishprice.html_name}}">
         {% if not form.enrollmentoption.required %}
-            <option value="" data-price_extra="0" selected="selected">---------</option>
+            <option value="" data-price_extra="0"{% if form.dishprice.value is None %} selected{% endif %}>---------</option>
         {% endif %}
         {% for c in form.fields.dishprice.queryset.all %}
             <option value="{{ c.id }}" data-price_extra="{{ c.price }}"
-                    {% if form.dishprice.value|stringformat:"s" == c.pk|stringformat:"s" %}
+                    {% if form.dishprice.value is not None and form.dishprice.value|stringformat:"s" == c.pk|stringformat:"s" %}
                     selected
                     {% endif %}
             >{{ c.answer|capfirst }} {{ c }}</option>
