@@ -38,7 +38,8 @@ from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, 
     EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
     EventDeskActivityMatchForm, EnrollmentoptionNumericForm, EnrollmentoptionNumericAnswerForm, PhotoFileUploadForm
 from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, \
-    activity_send_cancellationmail, activity_send_cashrefundmail, activity_send_price_change_mail
+    activity_send_cancellationmail, activity_send_cashrefundmail, activity_send_price_change_mail, \
+    activity_send_enrollment_option_price_change_mail
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
     EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
     EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
@@ -62,6 +63,7 @@ from amelie.tools.mixins import RequireActiveMemberMixin, DeleteMessageMixin, Pa
 from amelie.tools.paginator import RangedPaginator
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 ENROLLMENTOPTION_ANSWER_TYPES = {
     EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswer,
@@ -1223,13 +1225,7 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
         if form.cleaned_data['price'] != old_obj.price:
             needs_new_transactions = True
             change_reasons.append(_("price was changed"))
-            activity_send_price_change_mail(
-                old_obj.participation_set
-                .filter(
-                payment_method=Participation.PaymentMethodChoices.AUTHORIZATION),
-                old_obj,
-                new_obj.price
-            )
+            activity_send_price_change_mail(old_obj, new_obj)
 
         if old_obj is not None and needs_new_transactions:
             # Undo and create new transactions
@@ -1338,6 +1334,58 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
 
     def get_activity(self):
         return self.get_object().activity
+
+    def form_valid(self, form):
+        # If the date or price has changed, we have to update any existing transactions to the new activity date/price.
+        # The existing transactions are refunded and will be re-created on the same date.
+        person = self.request.person
+        if person is None:
+            raise Exception("Updating requires a person")
+
+        old_obj = self.get_object()
+        new_obj = form.instance
+
+        # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
+        response = super().form_valid(form)
+         # Determine if any activity fields that have an impact on the participation transactions have been changed
+        needs_new_transactions = False
+        change_reasons = []
+
+        # If the enrollment option price is changed, the transactions need to be recreated with the new price
+        if "price_extra" in form.cleaned_data and form.cleaned_data["price_extra"] != old_obj.price_extra:
+            needs_new_transactions = True
+            change_reasons.append(_("price_extra was changed"))
+            activity_send_enrollment_option_price_change_mail(old_obj, new_obj)
+
+        if old_obj is not None and needs_new_transactions:
+            # Undo and create new transactions
+            from amelie.personal_tab import transactions
+            # Only consider participations paid by a mandate
+            # (to avoid creating transactions for members without a personal tab mandate)
+            for participation in old_obj.activity.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION):
+                reason = _("An enrollment options for '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
+                    activity=old_obj.activity, change_reasons=", ".join(change_reasons)
+                )
+                transactions.participation_transaction(
+                    participation,
+                    reason=reason,
+                    cancel=True, added_by=person
+                )
+
+                # Create a new transaction
+                price, with_enrollment_options = participation.calculate_costs()
+                reason = _("An enrollment option for '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
+                    activity=new_obj.activity.summary, change_reasons=", ".join(change_reasons)
+                )
+
+                # Can't use transactions.participation_transaction because we need to override the date.
+                transaction = ActivityTransaction(price=price, description=reason,
+                                                  participation=participation, event=old_obj.activity,
+                                                  person=participation.person, date=new_obj.activity.begin,
+                                                  with_enrollment_options=with_enrollment_options, added_by=person)
+                transaction.save()
+        #
+        return response
 
     def get_form_class(self):
         """

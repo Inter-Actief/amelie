@@ -1,34 +1,25 @@
 {% extends "iamailer/email_basic.mail" %}
 {% load i18n htmlify only %}
+{% block subject %}{% if price_new > price_old %}{% blocktrans with summary=activity.summary %}Price of {{ summary }} increased {% endblocktrans %}{% else %}{% blocktrans with summary=activity.summary %}Price of {{ summary }} decreased{% endblocktrans %}{% endif %}{% endblock %}
 
-{% block subject %}{% if new_price > activity.price %}Price of {{ activity.summary }} increased{% else %}Price of {{ activity.summary }} decreased{% endif %}{% endblock %}
-{% block content %}
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
 
-    {% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+{% if on_waiting_list %}{% blocktrans with summary=activity.summary %}You receive this email because you are on the waiting list for {{ summary }}.{% endblocktrans %}
+{% else %}{% blocktrans with summary=activity.summary %}You receive this email because you are enrolled for {{ summary }}.{% endblocktrans %}
+{% endif %}
+{% if enrollment_option %}{% blocktrans with title=enrollment_option.title %}The price of the enrollment option '{{ title }}' for this activity has changed.{% endblocktrans %}
+{% else %}{% blocktrans %}The price of this activity has changed.{% endblocktrans %}
+{% endif %}
+{% blocktrans with summary=activity.summary price_old=price_old price_new=price_new costs=participation_costs %}The old price was: {{ price_old }}
+The new price is: {{ price_new }}
 
-    {% if on_waiting_list %}
-        {% blocktrans with summary=activity.summary old_price=activity.price new_price=new_price costs=participation_costs %}
-            You receive this email because you are on the waiting list for {{ summary }}. This activity's price has changed.
-
-            The old price was: {{ old_price }}
-            The new price is: {{ new_price }}
-
-            That brings your total to: {{ costs }}
-
-            Note that this does not mean you have been enrolled to the activity!
-        {% endblocktrans %}
-    {% else %}
-        {% blocktrans with summary=activity.summary old_price=activity.price new_price=new_price costs=participation_costs %}
-            You receive this email because you are enrolled for {{ summary }}. This activity's price has changed.
-
-            The old price was: {{ old_price }}
-            The new price is: {{ new_price }}
-
-            That brings your total to: {{ costs }}
-        {% endblocktrans %}
-    {% endif %}
-
-    {% blocktrans %}Kind regards,{% endblocktrans %}
-    {% onlyhtml %}<br/>{% endonlyhtml %}
-    Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}
+That brings your total to: {{ costs }}{% endblocktrans %}
+{% if on_waiting_list %}{% blocktrans %}Note that this does not mean you have been enrolled to the activity!{% endblocktrans %}{% onlyhtml %}<br/>{% endonlyhtml %}{% endif %}
+{% if can_unenroll%}{% blocktrans %}If, due to this price change, you wish to unenroll from this activity, you can do so on the website.{% endblocktrans %}
+{% else %}{% blocktrans %}If, due to this price change, you wish to unenroll from this activity, please contact the board.{% endblocktrans %}
+{% endif %}
+{% endhtmlify %}
+{% blocktrans %}Kind regards,{% endblocktrans %}
+{% onlyhtml %}<br/>{% endonlyhtml %}
+Inter-{% onlyhtml %}<i>{% endonlyhtml %}Actief{% onlyhtml %}</i>{% endonlyhtml %}
 {% endblock %}
