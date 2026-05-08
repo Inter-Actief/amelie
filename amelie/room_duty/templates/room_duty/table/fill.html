@@ -18,11 +18,11 @@
                     <tr>
                         <th>{% trans "Begin" %}</th>
                         <th>{% trans "End" %}</th>
-                        <th colspan="3">{% trans "Availability" %}</th>
+                        <th colspan="2">{% trans "Availability" %}</th>
                         <th>{% trans "Comments" %}</th>
                     </tr>
                     {% for room_duty, availability, form in availabilities %}
-                        <tr class="kamerdienst-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}">
+                        <tr class="room-duty-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}">
                             {% for error in form.non_field_errors %}
                                 <td class="icon-error">{{ error }}</td>
                             {% endfor %}
@@ -39,12 +39,6 @@
                             <td>
                                 {{ form.hungover.errors|safe }}
                                 <label for="{{ form.hungover.id_for_label }}">{{ form.hungover }} {% trans 'Hungover' %}</label>
-                            </td>
-                            <td>
-                                {{ form.not_in_the_break.errors|safe }}
-                                <label for="{{ form.not_in_the_break.id_for_label }}">
-                                    {{ form.not_in_the_break }} {% trans 'Not in the break' %}
-                                </label>
                             </td>
                             <td>
                                 {{ form.comments.errors|safe }}
