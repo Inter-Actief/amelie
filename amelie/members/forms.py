@@ -133,7 +133,7 @@ class PersonDataForm(forms.ModelForm):
                   'gender', 'preferred_language', 'date_of_birth', 'international_member',
                   'address', 'postal_code', 'city', 'country', 'telephone', 'email_address', 'address_parents',
                   'postal_code_parents', 'city_parents', 'country_parents', 'email_address_parents',
-                  'notes', 'account_name', 'nda', 'webmaster',
+                  'notes', 'account_name', 'nda',
                   )
 
     def __init__(self, *args, instance=None, **kwargs):

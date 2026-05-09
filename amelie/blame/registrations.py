@@ -51,7 +51,7 @@ auditlog.register(DogroupGeneration)
 auditlog.register(Association)
 auditlog.register(PaymentType)
 auditlog.register(Person, include_fields=["first_name", "last_name_prefix", "last_name", "initials", "slug", "picture",
-                                          "date_of_birth", "email_address", "account_name", "shell", "webmaster",
+                                          "date_of_birth", "email_address", "account_name", "shell",
                                           "user"])
 auditlog.register(amelie.members.models.Membership)
 auditlog.register(Committee)

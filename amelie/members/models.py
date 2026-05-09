@@ -348,7 +348,6 @@ class Person(models.Model, Mappable):
         ]
     )
     shell = models.CharField(max_length=10, choices=ShellChoices.choices, default=ShellChoices.DEFAULT, verbose_name=_l('Unix shell'))
-    webmaster = models.BooleanField(default=False, verbose_name=_l('Is web master'))
     nda = models.BooleanField(default=False, verbose_name=_l('Has signed NDA'))
 
     preferences = models.ManyToManyField(Preference, blank=True, verbose_name=_l('Preferences'))
@@ -654,10 +653,6 @@ class Person(models.Model, Mappable):
     def is_active(self):
         """Is this member an active member?"""
         return self.is_active_member()
-
-    def is_webmaster(self):
-        """Is this member a webmaster?"""
-        return self.webmaster
 
     def personal_aliases(self):
         """

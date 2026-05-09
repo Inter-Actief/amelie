@@ -529,12 +529,9 @@ class Mapping(models.Model):
         # Extra groups
         groups.extend(self.extra_groups(select=select))
 
-        # Add "Actievelingen" and "Webmasters" to person if needed
+        # Add "Actievelingen" to person if needed
         if self.is_person() and self.needs_account() and select in ['ad', 'all']:
             groups.append(Mapping.objects.get(id=settings.CLAUDIA_MAPPING_ACTIVE_MEMBERS))  # Actievelingen
-
-            if obj.is_webmaster():
-                groups.append(Mapping.objects.get(id=settings.CLAUDIA_MAPPING_WEBMASTERS))  # Webmasters
 
         return set(groups)
 

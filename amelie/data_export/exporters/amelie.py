@@ -187,7 +187,6 @@ class AmelieDataExporter(DataExporter):
             'can_use_parents_address': person.can_use_parents_address,
             'account_name': str(person.account_name),
             'shell': str(person.get_shell_display()),
-            'webmaster': person.webmaster,
             'picture': None,
             'unverified_picture': None,
             'preferences': [],

@@ -132,7 +132,7 @@ class AllUrlsTestCase(TestCase):
             first_name='first_name', last_name_prefix='between_additive', last_name='last_name', initials='initials',
             slug='first_name', gender=Person.GenderTypes.UNKNOWN, address='address field', postal_code='1234 AB',
             city='living_place', country='country', email_address='a@a.com', telephone='telephone_number',
-            account_name='account_name', webmaster=True, user=django_user,
+            account_name='account_name', user=django_user,
         )
 
         # Board like committee. Needed to visit all pages.

@@ -207,10 +207,6 @@
                             {% if obj.nda %}
                                 <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} signed an NDA.{% endblocktrans %}</li>
                             {% endif %}
-
-                            {% if obj.webmaster %}
-                                <li class="pos">{% blocktrans with first_name=obj.first_name %}{{ first_name }} is a webmaster.{% endblocktrans %}</li>
-                            {% endif %}
                         </ul>
 
                         <hr />

@@ -453,7 +453,6 @@ def person_anonymize(request, id, slug):
     person.email_address_parents = ""
     person.can_use_parents_address = False
     person.account_name = ""
-    person.webmaster = False
     person.preferences.clear()
     if person.user:
         person.user.email = "anonymous@inter-actief.net"

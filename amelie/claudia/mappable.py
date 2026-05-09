@@ -80,12 +80,6 @@ class Mappable:
 
     # ============ Person-only query's ============
 
-    def is_webmaster(self):
-        """
-        Is this person a webmaster?
-        """
-        return False
-
     def get_givenname(self):
         """
         Give the first name of this person

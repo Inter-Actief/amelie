@@ -642,9 +642,6 @@ CLAUDIA_PLUGINS = (
 # The Mapping ID for the Active Members mapping to which all active members are added
 CLAUDIA_MAPPING_ACTIVE_MEMBERS = 439
 
-# The Mapping ID for the Webmasters mapping that all webmasters in Django are added to
-CLAUDIA_MAPPING_WEBMASTERS = 436
-
 # Paths to available Unix shells (See also Person.SHELL_CHOICES)
 CLAUDIA_SHELLS = {
     'bash': '/bin/bash',
