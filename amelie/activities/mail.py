@@ -1,5 +1,6 @@
 from django.utils import translation
 
+from amelie.calendar.models import Participation
 from amelie.iamailer import MailTask, Recipient
 from amelie.tools.const import TaskPriority
 from amelie.members.models import Preference
@@ -100,7 +101,45 @@ def activity_send_cancellationmail(participations, activity, from_waiting_list=F
         }))
     task.send()
 
+def activity_send_price_change_mail(old_activity, new_activity):
+    """
+    Email all enrolled people to notify them of a price change
+    """
+    participations = old_activity.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION)
+    template_name = "activities/activity_price_change.mail"
+    can_unenroll = new_activity.can_unenroll
+    task = MailTask(template_name=template_name, priority=TaskPriority.HIGH)
+    for participation in participations:
+        task.add_recipient(PersonRecipient(participation.person, context={
+            'activity': old_activity,
+            'price_old': old_activity.price,
+            'price_new': new_activity.price,
+            'can_unenroll': can_unenroll,
+            'participation_costs': participation.calculate_costs()[0],
+            'on_waiting_list': participation.waiting_list
+        }))
+    task.send()
 
+
+def activity_send_enrollment_option_price_change_mail(old_enrollment_option, new_enrollment_option):
+    """
+    Email all enrolled people to notify them of a price change
+    """
+    participations = new_enrollment_option.activity.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION)
+    template_name = "activities/activity_price_change.mail"
+    can_unenroll = new_enrollment_option.activity.can_unenroll
+    task = MailTask(template_name=template_name, priority=TaskPriority.HIGH)
+    for participation in participations:
+        task.add_recipient(PersonRecipient(participation.person, context={
+            'activity': old_enrollment_option.activity,
+            'enrollment_option': old_enrollment_option,
+            'price_old': old_enrollment_option.price_extra,
+            'price_new': new_enrollment_option.price_extra,
+            'can_unenroll': can_unenroll,
+            'participation_costs': participation.calculate_costs()[0],
+            'on_waiting_list': participation.waiting_list
+        }))
+    task.send()
 def activity_send_on_waiting_listmail(participation):
     """
     Send a confirmation of enrollment on the waiting list for an activity.
@@ -121,7 +160,7 @@ def activity_send_on_waiting_listmail(participation):
         if person.has_preference(preference=preference):
             invite = True
             ical = ical_calendar(f"[Waiting list] {activity.summary}", [
-                                 activity, ]).decode()
+                activity, ]).decode()
             attachments = [('invite.ics', ical, 'text/calendar')]
         else:
             invite = False

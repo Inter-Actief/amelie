@@ -63,7 +63,7 @@ class Activity(Event):
     photos = models.ManyToManyField(Attachment, blank=True, related_name='foto_set')
     components = models.ManyToManyField('self', blank=True)
 
-    price = models.DecimalField(default="0.00", max_digits=8, decimal_places=2, verbose_name=_l('price'))
+    price = models.DecimalField(default="0.00", max_digits=8, decimal_places=2, verbose_name=_l('price'), help_text=_l("Enrolled participants will be emailed when you change the price."))
     can_unenroll = models.BooleanField(default=True, verbose_name=_l('can unenroll'))
 
     image_icon = models.ImageField(upload_to='activities/icon/', max_length=255, null=True, blank=True, verbose_name=_l('icon'), help_text=_l('Image of 175 by 275 pixels.'))
@@ -276,7 +276,7 @@ class EnrollmentoptionCheckbox(Enrollmentoption):
     price_extra     -- Defines the extra costs (or discount)
     """
 
-    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price extra'), default=0)
+    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price extra'), help_text=_l("Enrolled participants will be emailed when you change the price."), default=0)
     maximum = models.IntegerField(verbose_name=_l("Maximum limit of selections"), help_text=_l("Set as 0 for unlimited"), default=0)
     objects = SubclassManager()
 
@@ -302,7 +302,7 @@ class EnrollmentoptionNumeric(Enrollmentoption):
     price_extra     -- Defines the extra costs (or discount)
     """
 
-    price_extra = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('Price extra'), default=0)
+    price_extra = models.DecimalField(max_digits=8, decimal_places=2, help_text=_l("Enrolled participants will be emailed when you change the price."), verbose_name=_l('Price extra'), default=0)
     maximum = models.IntegerField(verbose_name=_l("Maximum limit of selections"), help_text=_l("Set as 0 for unlimited"), default=0)
     maximum_per_person = models.IntegerField(verbose_name=_l("Maximum per person"), help_text=_l("Set as 0 for unlimited"), default=0)
     objects = SubclassManager()
