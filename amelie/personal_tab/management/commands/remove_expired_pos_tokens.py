@@ -21,4 +21,4 @@ class Command(BaseCommand):
         num_tokens = tokens.count()
         if num_tokens > 0:
             tokens.delete()
-            self.stdout.write("{} expired Personal Tab POS tokens removed.".format(num_tokens))
+            self.stdout.write(self.style.SUCCESS("{} expired Personal Tab POS tokens removed.".format(num_tokens)))
