@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 from django.db import models
 from django.utils.translation import gettext_lazy as _l
@@ -52,6 +53,17 @@ class BaseVideo(models.Model):
             return reverse('videos:single_iaold_video', args=(), kwargs={'pk': self.video_id})
         elif hasattr(self, 'peertubeiavideo'):
             return reverse('videos:single_ia_video', args=(), kwargs={'pk': self.video_id})
+        else:
+            return None
+
+    @property
+    def embed_url(self):
+        if hasattr(self, 'youtubevideo'):
+            return f"https://youtube-nocookie.com/embed/{self.video_id}"
+        elif hasattr(self, 'streamingiavideo'):
+            return f"{settings.STREAMING_BASE_URL}/play/{self.video_id}?embedded=True&autoplay=False"
+        elif hasattr(self, 'peertubeiavideo'):
+            return f"{settings.PEERTUBE_BASE_URL}/videos/embed/{self.video_id}?title=0&warningTitle=0&peertubeLink=0&p2p=0"
         else:
             return None
 
