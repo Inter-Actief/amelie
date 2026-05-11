@@ -63,7 +63,6 @@ from amelie.tools.mixins import RequireActiveMemberMixin, DeleteMessageMixin, Pa
 from amelie.tools.paginator import RangedPaginator
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 
 ENROLLMENTOPTION_ANSWER_TYPES = {
     EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswer,
