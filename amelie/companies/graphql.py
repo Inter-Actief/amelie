@@ -36,6 +36,15 @@ class CompanyType(DjangoObjectType):
     profile = graphene.String(description=_("Profile of the company"))
     short_description = graphene.String(description=_("Short description of the company"))
 
+    def resolve_name(obj: Company, info):
+        return obj.name
+
+    def resolve_profile(obj: Company, info):
+        return obj.profile
+
+    def resolve_short_description(obj: Company, info):
+        return obj.short_description
+
 
 class CompanyEventFilterSet(FilterSet):
     class Meta:
