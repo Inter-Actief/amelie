@@ -16,8 +16,12 @@ class Command(BaseCommand):
         birthdays = Person.objects.members().filter(date_of_birth__day=date.today().day,
                                                     date_of_birth__month=date.today().month).distinct()
 
+        self.stdout.write(self.style.SUCCESS(f'There are {len(birthdays)} birthdays today, sending an email to those who want to be congratulated'))
+
         for person in birthdays:
             if hasattr(person, 'student') and person.has_preference(name='mail_birthday'):
+                self.stdout.write(self.style.SUCCESS(f'Sending birthday email to {person.email_address}'))
+
                 task = MailTask(from_="Board of Inter-Actief <board@inter-actief.net>",
                                 template_name='birthday_mail.mail',
                                 report_to="Board of Inter-Actief <board@inter-actief.net>",

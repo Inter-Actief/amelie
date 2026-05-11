@@ -14,18 +14,18 @@ class Command(BaseCommand):
     help = "Import transactions from Alexia"
 
     def handle(self, *args, **options):
-        self.stdout.write(f"Importing unsynchronized transactions from Alexia...")
+        self.stdout.write(self.style.SUCCESS(f"Importing unsynchronized transactions from Alexia..."))
 
         server = get_alexia()
 
-        self.stdout.write(f"Retrieving unsynchronized transactions from Alexia...")
+        self.stdout.write(self.style.SUCCESS(f"Retrieving unsynchronized transactions from Alexia..."))
         orders = server.order.unsynchronized()
         num_orders = len(orders)
-        self.stdout.write(f"{num_orders} unsynchronized orders to process...")
+        self.stdout.write(self.style.SUCCESS(f"{num_orders} unsynchronized orders to process..."))
 
         for i, order in enumerate(orders):
             transaction_id = int(order['id'])
-            self.stdout.write(f"[{i+1}/{num_orders}] Processing order #{transaction_id}...")
+            self.stdout.write(self.style.SUCCESS(f"[{i+1}/{num_orders}] Processing order #{transaction_id}..."))
 
             with transaction.atomic():
                 if AlexiaTransaction.objects.select_for_update().filter(transaction_id=transaction_id).exists():
@@ -70,9 +70,9 @@ class Command(BaseCommand):
                 alexia_transaction = AlexiaTransaction(date=date, price=price, person=person, description=description,
                                                        transaction_id=transaction_id)
                 alexia_transaction.save()
-                self.stdout.write(f"[{i+1}/{num_orders}] Alexia transaction #'{alexia_transaction.pk}' of {person} created.")
+                self.stdout.write(self.style.SUCCESS(f"[{i+1}/{num_orders}] Alexia transaction #'{alexia_transaction.pk}' of {person} created."))
 
-            self.stdout.write(f"[{i+1}/{num_orders}] Marking transaction #'{alexia_transaction.pk}' as synchronized in Alexia...")
+            self.stdout.write(self.style.SUCCESS(f"[{i+1}/{num_orders}] Marking transaction #'{alexia_transaction.pk}' as synchronized in Alexia..."))
             server.order.marksynchronized(transaction_id)
 
-        self.stdout.write(f"Alexia transaction import completed.")
+        self.stdout.write(self.style.SUCCESS(f"Alexia transaction import completed."))
