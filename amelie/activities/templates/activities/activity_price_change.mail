@@ -1,11 +1,11 @@
 {% extends "iamailer/email_basic.mail" %}
 {% load i18n htmlify only %}
-{% block subject %}{% if price_new > price_old %}{% blocktrans with summary=activity.summary %}Price of {{ summary }} increased {% endblocktrans %}{% else %}{% blocktrans with summary=activity.summary %}Price of {{ summary }} decreased{% endblocktrans %}{% endif %}{% endblock %}
+{% block subject %}{% if price_new > price_old %}{% blocktrans with summary=activity.summary %}Price of {{ summary }} increased{% endblocktrans %}{% else %}{% blocktrans with summary=activity.summary %}Price of {{ summary }} decreased{% endblocktrans %}{% endif %}{% endblock %}
 
 {% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
 
-{% if on_waiting_list %}{% blocktrans with summary=activity.summary %}You receive this email because you are on the waiting list for {{ summary }}.{% endblocktrans %}
-{% else %}{% blocktrans with summary=activity.summary %}You receive this email because you are enrolled for {{ summary }}.{% endblocktrans %}
+{% if on_waiting_list %}{% blocktrans with summary=activity.summary %}You receive this email because you are on the waiting list for '{{ summary }}'.{% endblocktrans %}
+{% else %}{% blocktrans with summary=activity.summary %}You receive this email because you are enrolled for '{{ summary }}'.{% endblocktrans %}
 {% endif %}
 {% if enrollment_option %}{% blocktrans with title=enrollment_option.title %}The price of the enrollment option '{{ title }}' for this activity has changed.{% endblocktrans %}
 {% else %}{% blocktrans %}The price of this activity has changed.{% endblocktrans %}
@@ -15,7 +15,7 @@ The new price is: {{ price_new }}
 
 That brings your total to: {{ costs }}{% endblocktrans %}
 {% if on_waiting_list %}{% blocktrans %}Note that this does not mean you have been enrolled to the activity!{% endblocktrans %}{% onlyhtml %}<br/>{% endonlyhtml %}{% endif %}
-{% if can_unenroll%}{% blocktrans %}If, due to this price change, you wish to unenroll from this activity, you can do so on the website.{% endblocktrans %}
+{% if can_unenroll %}{% blocktrans %}If, due to this price change, you wish to unenroll from this activity, you can do so on the website.{% endblocktrans %}
 {% else %}{% blocktrans %}If, due to this price change, you wish to unenroll from this activity, please contact the board.{% endblocktrans %}
 {% endif %}
 {% endhtmlify %}

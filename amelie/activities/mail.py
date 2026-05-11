@@ -159,8 +159,7 @@ def activity_send_on_waiting_listmail(participation):
 
         if person.has_preference(preference=preference):
             invite = True
-            ical = ical_calendar(f"[Waiting list] {activity.summary}", [
-                activity, ]).decode()
+            ical = ical_calendar(f"[Waiting list] {activity.summary}", [activity]).decode()
             attachments = [('invite.ics', ical, 'text/calendar')]
         else:
             invite = False

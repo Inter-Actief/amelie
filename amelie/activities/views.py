@@ -1233,8 +1233,9 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
             # Only consider participations paid by a mandate
             # (to avoid creating transactions for members without a personal tab mandate)
             for participation in old_obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION):
+                # Note - reason text is max 200 chars!
                 reason = _("Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
-                    activity=old_obj, change_reasons=", ".join(change_reasons)
+                    activity=str(old_obj)[:90], change_reasons=", ".join(change_reasons)
                 )
                 transactions.participation_transaction(
                     participation,
@@ -1244,8 +1245,9 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
 
                 # Create a new transaction
                 price, with_enrollment_options = participation.calculate_costs()
+                # Note - reason text is max 200 chars!
                 reason = _("Activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
-                    activity=new_obj.summary, change_reasons=", ".join(change_reasons)
+                    activity=str(new_obj.summary)[:90], change_reasons=", ".join(change_reasons)
                 )
 
                 # Can't use transactions.participation_transaction because we need to override the date.
@@ -1336,7 +1338,7 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
         return self.get_object().activity
 
     def form_valid(self, form):
-        # If the date or price has changed, we have to update any existing transactions to the new activity date/price.
+        # If the price has changed, we have to update any existing transactions to the new activity price.
         # The existing transactions are refunded and will be re-created on the same date.
         person = self.request.person
         if person is None:
@@ -1347,6 +1349,7 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
 
         # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
         response = super().form_valid(form)
+
          # Determine if any activity fields that have an impact on the participation transactions have been changed
         needs_new_transactions = False
         change_reasons = []
@@ -1354,7 +1357,7 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
         # If the enrollment option price is changed, the transactions need to be recreated with the new price
         if "price_extra" in form.cleaned_data and form.cleaned_data["price_extra"] != old_obj.price_extra:
             needs_new_transactions = True
-            change_reasons.append(_("price_extra was changed"))
+            change_reasons.append(_("enrollment option price was changed"))
             activity_send_enrollment_option_price_change_mail(old_obj, new_obj)
 
         if old_obj is not None and needs_new_transactions:
@@ -1363,8 +1366,9 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
             # Only consider participations paid by a mandate
             # (to avoid creating transactions for members without a personal tab mandate)
             for participation in old_obj.activity.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION):
-                reason = _("An enrollment options for '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
-                    activity=old_obj.activity, change_reasons=", ".join(change_reasons)
+                # Note - reason text is max 200 chars!
+                reason = _("An enrollment option for activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
+                    activity=str(old_obj.activity)[:80], change_reasons=", ".join(change_reasons)
                 )
                 transactions.participation_transaction(
                     participation,
@@ -1374,8 +1378,9 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
 
                 # Create a new transaction
                 price, with_enrollment_options = participation.calculate_costs()
-                reason = _("An enrollment option for '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
-                    activity=new_obj.activity.summary, change_reasons=", ".join(change_reasons)
+                # Note - reason text is max 200 chars!
+                reason = _("An enrollment option for activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
+                    activity=str(new_obj.activity.summary)[:80], change_reasons=", ".join(change_reasons)
                 )
 
                 # Can't use transactions.participation_transaction because we need to override the date.
@@ -1384,7 +1389,7 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
                                                   person=participation.person, date=new_obj.activity.begin,
                                                   with_enrollment_options=with_enrollment_options, added_by=person)
                 transaction.save()
-        #
+
         return response
 
     def get_form_class(self):
