@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-05-11 21:47+0200\n"
-"PO-Revision-Date: 2026-05-05 12:48+0000\n"
-"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
+"PO-Revision-Date: 2026-05-11 21:50+0000\n"
+"Last-Translator: Bart Oostveen <oostveenb@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -408,16 +408,12 @@ msgid "If there are any costs associated with this activity."
 msgstr "Of er kosten zijn verbonden aan deze activiteit."
 
 #: amelie/activities/graphql.py:149
-#, fuzzy
-#| msgid "Page name"
 msgid "Label name"
-msgstr "Naam van de pagina"
+msgstr "Labelnaam"
 
 #: amelie/activities/graphql.py:150
-#, fuzzy
-#| msgid "Enable deletions"
 msgid "Label explanation"
-msgstr "Verwijder-knoppen activeren"
+msgstr "Labeluitleg"
 
 #: amelie/activities/mail.py:64 amelie/activities/mail.py:66
 #: amelie/activities/mail.py:169 amelie/activities/mail.py:171
@@ -473,7 +469,7 @@ msgstr "prijs"
 #: amelie/activities/models.py:66 amelie/activities/models.py:279
 #: amelie/activities/models.py:305
 msgid "Enrolled participants will be emailed when you change the price."
-msgstr ""
+msgstr "Ingeschreven deelnemers zullen een e-mail ontvangen als je de prijs aanpast."
 
 #: amelie/activities/models.py:67
 msgid "can unenroll"
@@ -1016,43 +1012,31 @@ msgstr "Inschrijving"
 #: amelie/activities/templates/activities/activity_price_change.mail:3
 #, python-format
 msgid "Price of %(summary)s increased"
-msgstr ""
+msgstr "De prijs van %(summary)s is omhoog gegaan"
 
 #: amelie/activities/templates/activities/activity_price_change.mail:3
 #, python-format
 msgid "Price of %(summary)s decreased"
-msgstr ""
+msgstr "De prijs van %(summary)s is gedaald"
 
 #: amelie/activities/templates/activities/activity_price_change.mail:7
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "You receive this email because you were on the waiting list for %(summary)s. This activity has been cancelled.\n"
+#, python-format
 msgid "You receive this email because you are on the waiting list for '%(summary)s'."
-msgstr ""
-"\n"
-"Je ontvangt deze e-mail omdat je bent ingeschreven op de wachtlijst voor %(summary)s. Deze activiteit is geannuleerd.\n"
+msgstr "Je ontvangt deze e-mail omdat je bent ingeschreven op de wachtlijst voor %(summary)s."
 
 #: amelie/activities/templates/activities/activity_price_change.mail:8
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "You receive this email because you were enrolled for %(summary)s. This activity has been cancelled.\n"
+#, python-format
 msgid "You receive this email because you are enrolled for '%(summary)s'."
-msgstr ""
-"\n"
-"Je ontvangt deze e-mail omdat je bent ingeschreven voor %(summary)s. Deze activiteit is geannuleerd.\n"
+msgstr "Je ontvangt deze e-mail omdat je bent ingeschreven voor %(summary)s."
 
 #: amelie/activities/templates/activities/activity_price_change.mail:10
 #, python-format
 msgid "The price of the enrollment option '%(title)s' for this activity has changed."
-msgstr ""
+msgstr "The price of the enrollment option '%(title)s' for this activity has changed."
 
 #: amelie/activities/templates/activities/activity_price_change.mail:11
-#, fuzzy
-#| msgid "The url to the ics for this activity"
 msgid "The price of this activity has changed."
-msgstr "De URL naar de ICS van deze activiteit"
+msgstr "De prijs van deze activiteit is gewijzigd."
 
 #: amelie/activities/templates/activities/activity_price_change.mail:13
 #, python-format
@@ -1062,20 +1046,22 @@ msgid ""
 "\n"
 "That brings your total to: %(costs)s"
 msgstr ""
+"De oude prijs was: %(price_old)s\n"
+"De nieuwe prijs is: %(price_new)s\n"
+"\n"
+"Dat maakt jouw totale prijs: %(costs)s"
 
 #: amelie/activities/templates/activities/activity_price_change.mail:17
 msgid "Note that this does not mean you have been enrolled to the activity!"
-msgstr ""
+msgstr "Let op: dit betekent niet dat jij bent ingeschreven voor deze activiteit!"
 
 #: amelie/activities/templates/activities/activity_price_change.mail:18
 msgid "If, due to this price change, you wish to unenroll from this activity, you can do so on the website."
-msgstr ""
+msgstr "Als je vanwege deze prijswijziging wilt uitschrijven voor deze activiteit, kun je dat doen via de website."
 
 #: amelie/activities/templates/activities/activity_price_change.mail:19
-#, fuzzy
-#| msgid "If you want to have this photo removed, please contact the board"
 msgid "If, due to this price change, you wish to unenroll from this activity, please contact the board."
-msgstr "Als je deze foto wilt laten verwijderen, neem dan contact op met het bestuur"
+msgstr "Als je vanwege deze prijswijziging wilt uitschrijven voor deze activiteit, moet je contact opnemen met het bestuur."
 
 #: amelie/activities/templates/activities/activity_price_change.mail:22
 #: amelie/claudia/templates/accounts/password_reset.mail:15
@@ -3015,22 +3001,18 @@ msgid "This activity already has enrollments, therefore options can no longer be
 msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties toegevoegd worden!"
 
 #: amelie/activities/views.py:1360
-#, fuzzy
-#| msgid "price was changed"
 msgid "enrollment option price was changed"
-msgstr "prijs is aangepast"
+msgstr "prijs van inschrijvingsoptie gewijzigd"
 
 #: amelie/activities/views.py:1370
-#, fuzzy, python-brace-format
-#| msgid "Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})"
+#, python-brace-format
 msgid "An enrollment option for activity '{activity}' was changed (reversal of old transaction) ({change_reasons})"
-msgstr "Activiteit '{activity}' is aangepast (terugboeken van oude transactie) ({change_reasons})"
+msgstr "Een inschrijfoptie voor activiteit '{activity}' is aangepast (terugboeken van de oude transactie) ({change_reasons})"
 
 #: amelie/activities/views.py:1382
-#, fuzzy, python-brace-format
-#| msgid "Activity '{activity}' was changed (addition of new transaction) ({change_reasons})"
+#, python-brace-format
 msgid "An enrollment option for activity '{activity}' was changed (addition of new transaction) ({change_reasons})"
-msgstr "Activiteit '{activity}' is aangepast (toevoegen van nieuwe transactie) ({change_reasons})"
+msgstr "Een inschrijfoptie voor activiteit '{activity}' is aangepast (toevoegen van nieuwe transactie) ({change_reasons})"
 
 #: amelie/activities/views.py:1422 amelie/activities/views.py:1436
 msgid "This activity already has enrollments, therefore options cannot be deleted!"
@@ -14224,15 +14206,6 @@ msgid "Summary of upcoming activities:"
 msgstr "Samenvatting komende activiteiten:"
 
 #: amelie/weekmail/templates/weekmail/weekmail_mail_plain.mail:30
-#, fuzzy
-#| msgid ""
-#| "--\n"
-#| "I.C.T.S.V. Inter-/Actief/\n"
-#| "P.O. Box 217\n"
-#| "7500 AE Enschede\n"
-#| "E: secretaris@inter-actief.net\n"
-#| "T: 053-489 3756\n"
-#| "https://www.inter-actief.net\n"
 msgid ""
 "--\n"
 "I.C.T.S.V. Inter-/Actief/\n"
@@ -14246,7 +14219,7 @@ msgstr ""
 "I.C.T.S.V. Inter-/Actief/\n"
 "Postbus 217\n"
 "7500 AE Enschede\n"
-"E: secretaris@inter-actief.net\n"
+"E: contact@inter-actief.net\n"
 "T: 053-489 3756\n"
 "https://www.inter-actief.net\n"
 
