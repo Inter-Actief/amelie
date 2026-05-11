@@ -50,7 +50,8 @@ class VideoType(DjangoObjectType):
         "is_featured",
         "public",
         "video_type",
-        "video_url"
+        "video_url",
+        "embed_url"
     ]
     class Meta:
         model = BaseVideo
@@ -70,6 +71,7 @@ class VideoType(DjangoObjectType):
     publisher = graphene.String(description=_("Publishing committee"))
     video_type = graphene.String(description=_("Video type (Youtube or IA)"))
     video_url = graphene.String(description=_("URL to the video"))
+    embed_url = graphene.String(description=_("Embed URL"))
 
     def resolve_publisher(obj: BaseVideo, info):
         return obj.publisher.name
@@ -79,6 +81,9 @@ class VideoType(DjangoObjectType):
 
     def resolve_video_url(obj: BaseVideo, info):
         return obj.get_absolute_url()
+
+    def resolve_embed_url(obj: BaseVideo, info):
+        return obj.embed_url
 
 
 class VideoQuery(graphene.ObjectType):
