@@ -511,6 +511,8 @@ WEBSITE_THEME_OVERRIDE = env("AMELIE_THEME_OVERRIDE", default=None)
 # Block themes from showing on the infodesk and couch (outside) Raspberry pis, since they will lag too much
 BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
 BLOCKED_THEME_IP_RANGES.extend(env.list("BLOCKED_THEME_IP_RANGES", default=[]))
+# Allow disabling the IP blocklist for themes that aren't as resource intensive
+IGNORE_BLOCKED_THEME_IP_RANGES = env.bool("IGNORE_BLOCKED_THEME_IP_RANGES", default=False)
 
 # Youtube API key (for video module)
 YOUTUBE_API_KEY = env("AMELIE_YOUTUBE_API_KEY", default="")

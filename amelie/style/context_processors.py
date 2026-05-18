@@ -13,6 +13,6 @@ def basis_context(request):
 
 def theme_context(request):
     ip_has_themes_disabled, _ = is_allowed_ip(request, allowed_ips=settings.BLOCKED_THEME_IP_RANGES)
-    if ip_has_themes_disabled:
+    if ip_has_themes_disabled and not settings.IGNORE_BLOCKED_THEME_IP_RANGES:
         return {'theme': None}
     return {'theme': settings.WEBSITE_THEME_OVERRIDE}
