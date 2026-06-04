@@ -1,24 +1,24 @@
 {% extends "basis.html" %}
 {% load i18n md %}
 
-{% block titel %}{% trans 'Educational bouquet' %}{% endblock titel %}
+{% block titel %}{% trans 'Educational cake' %}{% endblock titel %}
 
 
 {% block content %}
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="edu">
-        <h2>{% trans "Educational bouquet" %}</h2>
+        <h2>{% trans "Educational cake" %}</h2>
 
         <div class="content">
           {% if message_sent %}
               <p>
-                  {% trans 'Thank you for your nomination for an educational bouquet!' %}
+                  {% trans 'Thank you for your nomination for an educational cake!' %}
               </p>
           {% else %}
               <p>
                   {% blocktrans %}
                   Do you know someone who is extremely committed to improve the quality of education or is always willing to help students without hesitation?
-                  Then, what are you waiting for? Nominate him or her for the education bouquet!
+                  Then, what are you waiting for? Nominate him or her for the educational cake!
                   {% endblocktrans %}
               </p>
               <p>
@@ -30,7 +30,7 @@
               <p class="small">
                   {% url 'education:course_new' as new_course_url %}
                   {% url 'education:module_new' as new_module_url %}
-                  {% url 'education:bouquet' as return_url %}
+                  {% url 'education:cake' as return_url %}
                   {% blocktrans %}
                       There is a chance that the course or module you are looking for does not yet exist. If so, please create a <a href="{{ new_course_url }}?next={{ return_url }}">new course</a> or a <a href="{{ new_module_url }}?next={{ return_url }}">new module</a>.
                   {% endblocktrans %}
@@ -38,7 +38,7 @@
 
               <form action="" method="POST" class="big">
                   {% csrf_token %}
-                  {{ bouquet_form }}
+                  {{ cake_form }}
 
                   <div class="buttons">
                       <input type="submit" value="{% trans 'Send' %}" />
@@ -48,20 +48,20 @@
         </div>
     </div></div>
 
-    {% if prev_bouquets %}
+    {% if prev_cakes %}
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div id="{{ page.slug }}" class="edu">
-                <h2 class="h2-with-buttons">{% trans 'Previous bouquets' %}
+                <h2 class="h2-with-buttons">{% trans 'Previous cakes' %}
                     {% if is_education %}
                         <a class="looks-like-a-button"
-                           href="{% url 'about:page_edit' prev_bouquets.id prev_bouquets.slug %}">
+                           href="{% url 'about:page_edit' prev_cakes.id prev_cakes.slug %}">
                             {% trans 'Edit Page' %}
                         </a>
                     {% endif %}
                 </h2>
 
                 <div class="content">
-                    {{ prev_bouquets.content|markdown:"unsafe" }}
+                    {{ prev_cakes.content|markdown:"unsafe" }}
                 </div>
         </div>
     </div>
