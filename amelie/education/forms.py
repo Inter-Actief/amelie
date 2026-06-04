@@ -89,7 +89,7 @@ class ComplaintForm(forms.ModelForm):
         return cleaned_data['comment']
 
 
-class EducationalBouquetForm(forms.Form):
+class EducationalCakeForm(forms.Form):
     teacher = forms.CharField(max_length=60, label=_l('Teacher'))
     course = forms.ChoiceField(label=_l('Course'))
     reason = forms.CharField(max_length=300, widget=forms.Textarea, label=_l('Reason'))
@@ -97,7 +97,7 @@ class EducationalBouquetForm(forms.Form):
     email = forms.EmailField(max_length=50, label=_l('E-mail'))
 
     def __init__(self, *args, **kwargs):
-        super(EducationalBouquetForm, self).__init__(*args, **kwargs)
+        super(EducationalCakeForm, self).__init__(*args, **kwargs)
         self.fields['course'].choices = calc_choices()
 
     def save(self, *args, **kwargs):
@@ -110,7 +110,7 @@ class EducationalBouquetForm(forms.Form):
                    'email': self.cleaned_data['email'],
                    }
 
-        task = MailTask(template_name='education/educational_bouquet.mail', report_to=settings.EMAIL_REPORT_TO,
+        task = MailTask(template_name='education/educational_cake.mail', report_to=settings.EMAIL_REPORT_TO,
                         report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.EDUCATION_COMMITTEE_EMAIL],
@@ -121,15 +121,15 @@ class EducationalBouquetForm(forms.Form):
         task.send()
 
 
-class EducationalBouquetFormHTML(EducationalBouquetForm):
+class EducationalCakeFormHTML(EducationalCakeForm):
     captcha = CaptchaField()
 
-class EducationalBouquetFormGraphQL(EducationalBouquetForm):
+class EducationalCakeFormGraphQL(EducationalCakeForm):
     captcha = forms.CharField(max_length=32, label=_l('Captcha'), help_text=_l("The response to the captcha challenge"))
     captcha_hash = forms.CharField(max_length=40, label=_l('Captcha key'), help_text=_l("The key that uniquely identifies this captcha test"))
 
     def __init__(self, *args, **kwargs):
-        super(EducationalBouquetFormGraphQL, self).__init__(*args, **kwargs)
+        super(EducationalCakeFormGraphQL, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned = super().clean()
@@ -259,4 +259,4 @@ class EducationEventForm(EventForm):
                   'description_en', "education_organizer"]
 
 
-inject_style(SearchSummariesForm, EducationalBouquetForm)
+inject_style(SearchSummariesForm, EducationalCakeForm)

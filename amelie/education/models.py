@@ -299,7 +299,7 @@ class ComplaintComment(models.Model):
 
 class Competition(models.Model):
     """
-    This is a competition, e.g. educational bouquet.
+    This is a competition, e.g. educational cake.
     """
 
     title = models.CharField(max_length=100)

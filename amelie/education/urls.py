@@ -17,7 +17,7 @@ urlpatterns = [
     path('complaints/course/new/', views.course_new, name='course_new'),
     path('complaints/module/new/', views.module_new, name='module_new'),
 
-    path('bouquet/', views.educational_bouquet, name='bouquet'),
+    path('cake/', views.educational_cake, name='cake'),
     # path('awards', views.dea_nomination, name='dea_nomination'),
     # path('awards/vote', views.dea_vote, name='dea_vote'),
     path('courses/<int:course_code>/<slug:slug>/', views.course, name='course'),
@@ -46,7 +46,7 @@ urlpatterns = [
     # Dutch URLs for permalink compatibility
     path('nieuws/<str:path>', RedirectView.as_view(url='/news/%(path)s', permanent=True)),
     path('klachten/<str:path>', RedirectView.as_view(url='/complaints/%(path)s', permanent=True)),
-    path('onderwijsbloemetje/<str:path>', RedirectView.as_view(url='/bouquet/%(path)s', permanent=True)),
+    path('onderwijsbloemetje/<str:path>', RedirectView.as_view(url='/cake/%(path)s', permanent=True)),
     path('samenvattingen/<str:path>', RedirectView.as_view(url='/summaries/%(path)s', permanent=True)),
     path('activiteiten/<str:path>', RedirectView.as_view(url='/activities/%(path)s', permanent=True)),
 ]
