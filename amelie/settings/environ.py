@@ -346,6 +346,11 @@ FILE_DOWNLOAD_METHOD = env("AMELIE_FILE_DOWNLOAD_METHOD", default="")
 ###
 EMAIL_BACKEND = env("AMELIE_EMAIL_BACKEND", default="django.core.mail.backends.filebased.EmailBackend")
 EMAIL_HOST = env("AMELIE_EMAIL_HOST", default="smtp.snt.utwente.nl")
+EMAIL_PORT = env.int("AMELIE_EMAIL_PORT", default=25)
+EMAIL_HOST_USER = env("AMELIE_EMAIL_USER", default='')
+EMAIL_HOST_PASSWORD = env("AMELIE_EMAIL_PASSWORD", default='')
+EMAIL_USE_TLS = env.bool("AMELIE_EMAIL_USE_TLS", default=False)
+EMAIL_USE_SSL = env.bool("AMELIE_EMAIL_USE_SSL", default=False)
 
 
 ###
