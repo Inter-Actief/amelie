@@ -44,6 +44,19 @@ class PhotographerType(DjangoObjectType):
     def resolve_name(obj: Photographer, info):
         return str(obj)
 
+@check_authorization
+class PhotographerType(DjangoObjectType):
+    public_fields = ["name"]
+    class Meta:
+        model = Photographer
+        description = "The photographer of an attachment"
+        fields = ["name"]
+        
+    name = graphene.String(description=_("Photographer name"))
+    
+    def resolve_name(obj: Photographer, info):
+        return str(obj)
+
 class CommitteeFilterSet(FilterSet):
     class Meta:
         model = Committee
