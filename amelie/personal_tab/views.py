@@ -52,7 +52,6 @@ from amelie.tools.mixins import RequirePersonMixin, RequireBoardMixin
 
 from datetime import timezone as tz
 
-
 DATETIMEFORMAT = '%Y%m%d%H%M%S'
 
 logger = logging.getLogger(__name__)
@@ -1958,3 +1957,6 @@ def cookie_corner_wrapped_global(request, year=None):
         'drink_spend_most': drink_spend_most[:10],
         'drinks_total': drinks_total
     })
+
+def declaration_view(request):
+    return render(request, 'declaration_view.html')

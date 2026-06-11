@@ -878,40 +878,32 @@ class ReversalTransaction(Transaction):
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
 
-class DeclarationPaymentMethodEnum(Enum):
-    CASHBOX = 'cashbox' # Payment through cashbox
-    DEBIT = 'debit' # Payment by debit card of IA
-    BANK = 'bank' # Payment by own bank account
-
 
 class Declaration(models.Model):
     # Problem with declaration; we want to keep declarations when persons are deleted.
     # On creation of the declaration, the claimaint details (as string) are filled in.
     # On deletion of the claimant, filtering is done by these fields.
-    claimant_person_object = models.ForeignKey(Person, verbose_name=_('person'), on_delete=models.SET_NULL, null=True)
+
+    DeclarationPaymentMethod = ['BANK','CASHBOX','DEBIT']
+    
+    # TODO: remove the object/string stuff
+    claimant_person_object = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.SET_NULL, null=True)
     claimaint_name = models.TextField(null=True);
 
     # Same case for the committees
-    claimant_committee_object = models.ForeignObject(Committee, verbose_name=_('committee'), on_delete=models.SET_NULL, null=True)
+    claimant_committee_object = models.ForeignKey(Committee, verbose_name=_l('committee'), on_delete=models.SET_NULL, null=True)
     claimant_committee_name = models.TextField(null=True);
 
-    payment_method = models.EnumChoiceField(DeclarationPaymentMethodEnum, default=DeclarationPaymentMethodEnum.BANK)
+    payment_method = models.TextField(choices=DeclarationPaymentMethod)
 
     # Can be paid back only if their form of declaration payment enum is not DEBIT
-    claimant_iban = IBANField(verbose_name=_('IBAN'), blank=True)
+    claimant_iban = IBANField(verbose_name=_l('IBAN'), blank=True)
 
-    declaration_amount = models.FloatField(decimal_places=2)
+    declaration_amount = models.DecimalField(max_digits=10, decimal_places=2)
     
     declaration_description = models.TextField()
     
     declaration_submission_date = models.DateField()
-
-    # Not sure if a signature is needed.
-    # let us assume that it is not.
-
-    # Following details to be filled in by the treasurer:
-    document_number = models.TextField()
-    payment_date = models.DateField()
 
 
 

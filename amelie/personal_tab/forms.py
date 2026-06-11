@@ -16,7 +16,7 @@ from amelie.members.models import Person, Committee
 from amelie.personal_tab.transactions import cookie_corner_sale
 from amelie.style.forms import inject_style
 from amelie.personal_tab import statistics
-from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, RFIDCard, Reversal, AuthorizationType, \
+from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, Declaration, RFIDCard, Reversal, AuthorizationType, \
     DebtCollectionBatch, Authorization
 from amelie.tools.http import get_client_ips
 from amelie.tools.ipp_printer import IPPPrinter
@@ -261,6 +261,167 @@ class PrintDocumentForm(forms.Form):
         return self.cleaned_data
 
     def save(self, request):
+        """
+        Process the form and create necessary database entries.
+        """
+        from amelie.personal_tab.models import PrintLogEntry, Article
+
+        document = self.cleaned_data['document']
+        committee = self.cleaned_data.get('committee')
+        printer_key = self.cleaned_data['printer']
+        num_copies = self.cleaned_data['copies']
+        dual_sided = self.cleaned_data.get('dual_sided')
+
+        # Get page count from PDF
+        import pypdf
+        reader = pypdf.PdfReader(document)
+        page_count = reader.get_num_pages()
+
+        # Page count is halved (ceiled) when printing dual-sided
+        if dual_sided:
+            page_count = math.ceil(page_count / 2)
+
+        # Page count is multiplied when printing multiple copies
+        page_count *= num_copies
+
+        # Get client IP and user agent
+        all_ips, real_ip = get_client_ips(request)
+        source_useragent = request.META.get('HTTP_USER_AGENT', '')[:255]
+
+        with transaction.atomic():
+            # Create the print log entry
+            print_log = PrintLogEntry.objects.create(
+                actor=request.user.person,
+                document_name=document.name,
+                page_count=page_count,
+                committee=committee,
+                source_ip=real_ip,
+                source_useragent=source_useragent
+            )
+
+            # If no committee selected, create a transaction for payment
+            if not committee:
+                try:
+                    # Get the printing article (ID configured in settings)
+                    article = Article.objects.get(id=settings.PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID)
+
+                    # Create cookie corner transaction for the pages
+                    cookie_transaction = cookie_corner_sale(article=article, amount=page_count,
+                                                            person=request.user.person, added_by=request.user.person)
+
+                    # Link the transaction to the print log
+                    print_log.transaction = cookie_transaction
+                    print_log.save()
+
+                except Article.DoesNotExist:
+                    raise forms.ValidationError(_l('Printing article not found. Please contact the WWW committee.'))
+
+            # Print the document
+            printer = None
+            try:
+                printer = IPPPrinter(printer_key=printer_key)
+                print_info = printer.print_document(
+                    document=document,
+                    job_name=f"{print_log.id} - {print_log.actor}",
+                    num_copies=num_copies, dual_sided=dual_sided
+                )
+                printer.close()
+                logging.info(f"Print job submitted: {document.name} ({print_log.page_count} pages) "
+                            f"for user {print_log.actor} (Print Log ID: {print_log.id})")
+
+                # Link the job ID to the print log
+                try:
+                    job_id = print_info.get("jobs", [])[0]['job-id']
+                    print_log.job_id = f"{printer_key}#{job_id}"
+                    print_log.save()
+                except IndexError:
+                    raise ValueError("No job ID returned from IPP server.")
+            except Exception as e:
+                trace = traceback.format_exc()
+                logging.error(f"Error while printing document: {e} - {trace}")
+                if isinstance(printer, IPPPrinter):
+                    printer.close()
+                raise e
+            return print_log
+
+
+class DeclarationForm(forms.Form):
+    committee = forms.ModelChoiceField(
+        queryset=None,  # Will be set in __init__
+        empty_label=_l("-- No Committee --"),
+        required=False,
+        label=_l('Committee'),
+        help_text=_l('Select a committee for which this declaration is, or leave blank and specify in the description.')
+    )
+    payment_method = forms.ModelChoiceField(
+        queryset=Declaration.DeclarationPaymentMethod.choices,
+        required=True,
+        label=_l('Payment Method'),
+        help_text=_l('Select the payment method for the expense.')
+    )
+    IBAN = forms.ModelChoiceField(
+        queryset=None,  # Will be set in __init__
+        empty_label=_l("-- Other --"),
+        required=False,
+        label=_l('IBAN'),
+        help_text=_l('Select your IBAN for payment.')
+    )
+    amount = forms.DecimalField(
+        initial=0,
+        label=_l('Amount'),
+        help_text=_l('Enter the amount.'),
+        decimal_places=2
+    )
+    amount = forms.CharField(
+        initial=0,
+        label=_l('Amount'),
+        help_text=_l('Enter the description'),
+    )
+
+
+    def __init__(self, person: Person, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only show committees that the person is a member of
+        self.fields['committee'].queryset = person.current_committees()
+        self.fields['payment_method'].initial = Declaration.DeclarationPaymentMethod[0][0]
+        self.fields['IBAN'].queryset = person.get_mandates(active=False).order_by('start_date').values_list('iban', flat=True)
+        self.person = person
+
+    def clean_document(self): # TODO
+        document = self.cleaned_data.get('document')
+
+        if not document:
+            raise forms.ValidationError(_l('Please select a PDF file.'))
+
+        # Check file extension
+        if not document.name.lower().endswith('.pdf'):
+            raise forms.ValidationError(_l('Only PDF files are allowed.'))
+
+        # Check file size (limit to 50MB)
+        max_size = settings.PERSONAL_TAB_PRINTER_MAX_FILE_SIZE
+        if document.size > max_size:
+            raise forms.ValidationError(_l('File size cannot exceed 50MB.'))
+
+        return document
+
+    def clean(self): # TODO
+        self.cleaned_data = super().clean()
+        committee: Committee = self.cleaned_data.get('committee')
+
+        # Check if the user is allowed to print this request
+        if committee and not self.person.is_in_committee(committee.abbreviation):
+            raise forms.ValidationError(
+                _l('You are not a member of the committee you want to print for.')
+            )
+        elif not committee and not (self.person.has_mandate_consumptions() and self.person.is_member()):
+            raise forms.ValidationError(
+                _l('You do not have an active consumption mandate or are not a member anymore, '
+                   'so we cannot add the costs for this print to your personal tab. Contact the board for help.')
+            )
+
+        return self.cleaned_data
+
+    def save(self, request): # TODO
         """
         Process the form and create necessary database entries.
         """
