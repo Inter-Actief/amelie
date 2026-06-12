@@ -332,12 +332,17 @@ class KanidmPerson(KanidmObject):
             logger.error(e)
             return False
 
-    def reset_posix_password(self) -> Optional[str]:
-        from amelie.claudia.tools import create_password
-        new_password = create_password(length=32)
+    def reset_posix_password(self, new_password: Optional[str] = None) -> Optional[str]:
+        random_password = False
+        if new_password is None:
+            random_password = True
+            from amelie.claudia.tools import create_password
+            new_password = create_password(length=32)
+        if len(new_password) < 15:
+            raise ValueError("New password must be at least 15 characters long.")
         try:
             self.kanidm.set_person_posix_password(self.uuid, password=new_password)
-            return new_password
+            return new_password if random_password else None
         except RequestException as e:
             logger.error(e)
             return None
