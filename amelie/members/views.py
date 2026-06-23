@@ -3,6 +3,7 @@ import time
 import json
 import re
 import logging
+import uuid
 
 from datetime import date
 from datetime import timezone as tz
@@ -1752,6 +1753,33 @@ class DoGroupTreeViewData(View):
             "data": dogroups,
         }
         return JsonResponse(data)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MinecraftWhitelistAPI(View):
+    """
+    Checks if a given Minecraft UUID is registered in the database.
+    Reachable via: GET /api/minecraft_whitelist/<UUID>/
+
+    Returns a HTTP code: 200 for true, 404 for false
+    """
+    http_method_names = ['get']
+
+    def get(self, request, uuid_str):
+        log = logging.getLogger("amelie.members.views.minecraft_whitelist_api")
+
+        try:
+            parsed_uuid = uuid.UUID(uuid_str)
+        except (ValueError, TypeError):
+            log.warning(f"Invalid UUID format requested: {uuid_str}")
+            return HttpJSONResponse({"error": "Invalid UUID format"}, status=400)
+
+        exists = Person.objects.filter(minecraft_uuid=parsed_uuid).exists()
+
+        if exists:
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=404)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
