@@ -93,8 +93,8 @@ class PersonalDetailsEditForm(forms.ModelForm):
         model = Person
         fields = ('gender', 'date_of_birth', 'preferred_language', 'address', 'postal_code', 'city', 'country',
                   'address_parents', 'postal_code_parents', 'city_parents', 'country_parents', 'email_address_parents',
-                  'can_use_parents_address', 'telephone', 'email_address', 'preferences',
-                  'shell', 'international_member')
+                  'can_use_parents_address', 'minecraft_username', 'telephone', 'email_address', 'preferences',
+                  'shell','minecraft_username', 'international_member')
 
 
 class PersonalStudyEditForm(forms.Form):
