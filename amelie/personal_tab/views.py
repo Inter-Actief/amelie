@@ -1,6 +1,7 @@
 # coding=utf-8
 import csv
 import datetime
+from datetime import timezone as tz
 import logging
 from decimal import Decimal
 import itertools
@@ -41,7 +42,7 @@ from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransac
 from amelie.personal_tab.debt_collection import generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Category, Transaction, CookieCornerTransaction, ActivityTransaction, \
+from amelie.personal_tab.models import Category, Declaration, Transaction, CookieCornerTransaction, ActivityTransaction, \
     CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
     DebtCollectionInstruction, ReversalTransaction
 from amelie.personal_tab.statistics import get_functions, statistics_totals
@@ -51,8 +52,6 @@ from amelie.tools.decorators import require_lid, require_board, require_ajax
 from amelie.tools.forms import PeriodTimeForm, DateTimeForm, ExportForm
 from amelie.tools.logic import current_association_year
 from amelie.tools.mixins import RequirePersonMixin, RequireBoardMixin
-
-from datetime import timezone as tz
 
 
 DATETIMEFORMAT = '%Y%m%d%H%M%S'
@@ -1993,3 +1992,14 @@ class DeclarationView(RequirePersonMixin, FormView):
             logging.error(f"Error while submitting declaration: {str(e.__class__.__name__)} - {trace}")
             messages.error(self.request, _("Error while submitting declaration: {ex}").format(ex=str(e.__class__.__name__)))
         return super().form_valid(form=form)
+
+@require_board
+def declaration_pdf(request, declaration_id):
+    """ 
+    View for generating the PDF of a declaration.
+    
+    Only available to board members.
+    """
+    declaration = get_object_or_404(Declaration, id=declaration_id)
+    pdf = declaration.get_pdf()
+    return HttpResponse(pdf, content_type='application/pdf')

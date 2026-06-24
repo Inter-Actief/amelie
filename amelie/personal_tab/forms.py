@@ -456,7 +456,6 @@ class DeclarationForm(forms.Form):
         person = request.user.person
         committee = self.cleaned_data.get('committee')
         payment_method = self.cleaned_data.get('payment_method')
-        payment_method_display = dict(Declaration.DECLARATION_PAYMENT_METHODS).get(payment_method, payment_method)
         iban_choice = self.cleaned_data.get('iban_choice')
         iban_custom = self.cleaned_data.get('iban_custom')
         amount = self.cleaned_data.get('amount')
@@ -473,21 +472,26 @@ class DeclarationForm(forms.Form):
                 iban=iban_choice if iban_choice else iban_custom,
                 amount=amount,
                 description=description,
-                document_names=[doc.name for doc in documents] if documents else []
+                # Saving the document names as a slash-separated string, as they are disallowed in filenames
+                document_names='/'.join(doc.name for doc in documents) 
             )
 
             # Prepare context for the email
             context = {'person': person,
                        'committee': committee,
-                       'payment_method': payment_method_display,
-                       'iban': iban_choice if iban_choice else iban_custom,
+                       'payment_method': declaration.get_payment_method(),
+                       'iban': declaration.get_iban(),
                        'amount': f"{amount:.2f}",
                        'description': description,
                        'submission_date': declaration.submission_date.strftime('%Y-%m-%d')
                    }
 
+            # Generate PDF of the declaration form and add it to the attachments
+            pdf = declaration.get_pdf() 
+            attachments = [(f"Expense_Claim_{declaration.pk}.pdf", pdf, 'application/pdf')]
+
             # Prepare attachment tuples for the email
-            attachments = [(doc.name, doc.read(), doc.content_type) for doc in documents] if documents else []
+            attachments += [(doc.name, doc.read(), doc.content_type) for doc in documents] if documents else []
 
             # Send the email
             task = MailTask(template_name='declaration.mail', report_to=settings.EMAIL_REPORT_TO,
