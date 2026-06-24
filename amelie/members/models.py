@@ -577,16 +577,6 @@ class Person(models.Model, Mappable):
         """
         return self.has_mandate('other_payments')
 
-    def get_mandates(self, active=True):
-        """
-        Returns a queryset of all mandates for this person.
-
-        If active is True, only active mandates are returned. Otherwise, all mandates are returned.
-        """
-        if active:
-            return self.authorization_set.filter(is_signed=True, end_date__isnull=True)
-        return self.authorization_set.all()
-
     def oauth_consumer_set(self):
         consumers = {}
         for auth in self.oauth_authorization_set.order_by('-last_use').all():
