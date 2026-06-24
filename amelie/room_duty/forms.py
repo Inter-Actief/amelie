@@ -77,7 +77,7 @@ class RoomDutyForm(forms.ModelForm):
 class RoomDutyAvailabilityForm(forms.ModelForm):
     class Meta:
         model = RoomDutyAvailability
-        fields = ['availability', 'hungover', 'not_in_the_break', 'comments']
+        fields = ['availability', 'hungover', 'comments']
 
 
 class RoomDutyParticipantForm(forms.ModelForm):

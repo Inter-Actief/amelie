@@ -65,7 +65,7 @@ dependencies = [
 
     # Other random dependencies, to be documented, see issue #556
     "httplib2>=0.20.4,<0.32",
-    "icalendar>=7.0.3,<7.1",
+    "icalendar>=7.0.3,<7.2",
     "Markdown>=3.10.2,<3.11",
     "mysqlclient>=2.2.8",
 
@@ -96,8 +96,8 @@ dependencies = [
 
     # Google API Client
     "google-api-python-client>=2.192.0,<3",
-    "google-auth>=2.49.1,<2.50",
-    "pyOpenSSL>=26.0.0,<26.1.0",
+    "google-auth>=2.49.1,<2.53",
+    "pyOpenSSL>=26.0.0,<26.2.0",
 
     # Development
     "django-debug-toolbar>=3.7,<6.4",
@@ -111,10 +111,10 @@ dependencies = [
     "mozilla-django-oidc>=5.0.2,<5.1",
 
     # Sentry error logging
-    "sentry-sdk>=2.54.0,<2.58",
+    "sentry-sdk>=2.54.0,<2.59",
 
     # Health checks for Django
-    "django-health-check[psutil,celery,rabbitmq,redis]>=4.0,<4.3",
+    "django-health-check[psutil,celery,rabbitmq,redis]>=4.0,<4.5",
 
     # Allows for CAPTCHA support in forms
     "django-simple-captcha",

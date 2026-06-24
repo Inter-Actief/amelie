@@ -49,7 +49,7 @@ class PaymentForm(forms.Form):
 
 class ActivityForm(forms.ModelForm):
 
-    price = forms.DecimalField(required=False, initial="0.00", min_value=0, decimal_places=2, label=_l('Price'))
+    price = forms.DecimalField(required=False, initial="0.00", min_value=0, decimal_places=2, label=_l('Price'), help_text=_l('Enrolled participants will be emailed when you change the price.'))
 
     class Meta:
         model = Activity

@@ -216,10 +216,16 @@ class PosGenerateQRView(RequireCookieCornerMixin, CookieCornerBetaModeMixin, Tem
                     return redirect('personal_tab:pos_logout')
 
                 if pending_token.type == PendingPosToken.TokenTypes.LOGIN:
-                    # User is OK to buy stuff! Set person ID to session, delete token and continue to the shop.
-                    self.request.session['POS_LOGIN_UID'] = pending_token.user.person.id
-                    pending_token.delete()
-                    return redirect('personal_tab:pos_shop')
+                    person = Person.objects.get(pk=pending_token.user.person.id)
+                    if person.has_mandate_consumptions() and person.is_member():
+                        # User is OK to buy stuff! Set person ID to session, delete token and continue to the shop.
+                        self.request.session['POS_LOGIN_UID'] = pending_token.user.person.id
+                        pending_token.delete()
+                        return redirect("personal_tab:pos_shop")
+                    else:
+                        messages.error(request,
+                                    _l('You do not have a valid mandate or are not a member anymore. Contact the board for help.'))
+                        return redirect('personal_tab:pos_logout')
                 elif pending_token.type == PendingPosToken.TokenTypes.REGISTRATION:
                     # User is OK to register card! Register card to person and return to the main screen.
                     RFIDCard(person=pending_token.user.person, code=rfid_card, active=True).save()

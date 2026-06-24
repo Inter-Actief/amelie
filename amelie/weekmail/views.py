@@ -22,7 +22,7 @@ from amelie.news.forms import NewsItemBoardForm
 from amelie.news.models import NewsItem
 from amelie.members.models import Preference, Person
 from amelie.tools.decorators import require_board
-from amelie.tools.mail import PersonRecipient
+from amelie.tools.mail import PersonRecipient, ActiveMemberRecipient
 from amelie.tools.mixins import RequireBoardMixin
 from amelie.weekmail.forms import WeekMailForm
 from amelie.weekmail.models import WeekMail, WeekMailNewsArticle
@@ -204,11 +204,17 @@ def send_weekmail(request, pk):
 
     # If debug is enabled, add a single recipient, the person themselves
     if settings.DEBUG:
-        task.add_recipient(PersonRecipient(request.person, context={'weekmail': weekmail}))
+        if weekmail.mailtype == WeekMail.MailTypes.ACTIVE_MEMBERS_MAIL:
+            task.add_recipient(ActiveMemberRecipient(request.person, context={'weekmail': weekmail}))
+        else:
+            task.add_recipient(PersonRecipient(request.person, context={'weekmail': weekmail}))
         print(persons)
     else:
         for person in persons:
-            task.add_recipient(PersonRecipient(person, context={'weekmail': weekmail}))
+            if weekmail.mailtype == WeekMail.MailTypes.ACTIVE_MEMBERS_MAIL:
+                task.add_recipient(ActiveMemberRecipient(person, context={'weekmail': weekmail}))
+            else:
+                task.add_recipient(PersonRecipient(person, context={'weekmail': weekmail}))
 
     task.send()
 

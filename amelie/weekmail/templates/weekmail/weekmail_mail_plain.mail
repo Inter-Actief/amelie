@@ -1,4 +1,4 @@
-{% load extend i18n %}{% trans "Dear" %} {{ recipient.voornaam }},
+{% load extend i18n %}{% trans "Dear" %} {{ recipient.first_name }},
 
 {% trans "Summary of upcoming activities:" %}
 {% for activity in weekmail.new_activities.all %}  * {{ activity.begin }}, {{ activity.summary }}
@@ -31,7 +31,7 @@
 I.C.T.S.V. Inter-/Actief/
 P.O. Box 217
 7500 AE Enschede
-E: secretaris@inter-actief.net
+E: contact@inter-actief.net
 T: 053-489 3756
 https://www.inter-actief.net
 {% endblocktrans %}

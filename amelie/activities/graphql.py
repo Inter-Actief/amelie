@@ -1,6 +1,7 @@
 import graphene
 from django_filters import FilterSet
 from django.utils.translation import gettext_lazy as _
+from docutils.nodes import description
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel
@@ -125,10 +126,12 @@ class ActivityLabelType(DjangoObjectType):
     public_fields = [
         "name_en",
         "name_nl",
+        "name",
         "color",
         "icon",
         "explanation_en",
         "explanation_nl",
+        "explanation",
         "active"
     ]
     class Meta:
@@ -142,6 +145,15 @@ class ActivityLabelType(DjangoObjectType):
             "explanation_nl",
             "active"
         ]
+
+    name = graphene.String(description=_("Label name"))
+    explanation = graphene.String(description=_("Label explanation"))
+
+    def resolve_name(obj: ActivityLabel, info):
+        return obj.name
+
+    def resolve_explanation(obj: ActivityLabel, info):
+        return obj.explanation
 
 
 class ActivitiesQuery(graphene.ObjectType):
