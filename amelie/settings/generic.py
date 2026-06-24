@@ -571,6 +571,7 @@ PERSONAL_TAB_PRINTERS = {
 DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
 TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
 PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
 
 
 # Celery task scheduler settings

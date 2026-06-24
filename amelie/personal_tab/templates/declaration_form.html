@@ -19,15 +19,16 @@
 
                 <h3>{% trans "Declaration Information" %}</h3>
                 <ul>
-                    <li>{% trans "All files are accepted" %}</li>
-                    <li>{% trans "Maximum file size per file:" %} {{ max_file_size }}</li>
                     <li>{% trans "You are responsible for the accuracy of your declaration." %}</li>
                     <li>{% trans "The Treasurer may decline your declaration if it does not follow the " %} <a href="{% url 'gmm:index' %}">{% trans "declaration policy" %}</a>.</li>
+                    <li>{% trans "All file types are accepted." %}</li>
+                    <li>{% trans "Maximum of " %}{{ max_file_amount }}{% trans " files." %}</li>
+                    <li>{% trans "Maximum file size per file:" %} {{ max_file_size }}.</li>
                 </ul>
                 <ul>
                     <li>
                         <i class="icon icon-information"></i>
-                        {% trans "For administrative purposes, a copy of each submitted declaration will be saved, containing the following details:" %}
+                        {% trans "For administrative purposes, a copy of each submitted declaration will be saved in our database, containing the following details:" %}
                         <ul>
                             <li>{% trans "A reference to your member details;" %}</li>
                             <li>{% trans "The committee, payment method, IBAN, amount, and description of your declaration;" %}</li>
@@ -141,4 +142,55 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add file validation and preview functionality for multiple files
+            const fileInput = document.getElementById('id_documents');
+            const maxSize = {{ max_file_size_bytes_int }}; // rendered as integer
+            const maxFiles = {{ max_file_amount }}; // rendered as integer
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
+
+                    if (files.length > maxFiles) {
+                        alert("{% trans 'You can upload a maximum of' %} " + maxFiles + " {% trans 'files' %}.");
+                        this.value = '';
+                        const existing = document.getElementById('file-info');
+                        if (existing) existing.remove();
+                        return;
+                    }
+
+                    // Validate each selected file
+                    for (let f of files) {
+                        if (f.size > maxSize) {
+                            alert("{% trans 'File size cannot exceed' %} {{ max_file_size }}.");
+                            this.value = '';
+                            // remove any existing file-info
+                            const existing = document.getElementById('file-info');
+                            if (existing) existing.remove();
+                            return;
+                        }
+                    }
+
+                    // Show files info
+                    let fileInfo = document.getElementById('file-info');
+                    if (!fileInfo) {
+                        fileInfo = document.createElement('div');
+                        fileInfo.id = 'file-info';
+                        fileInfo.className = 'file-info';
+                        this.parentNode.appendChild(fileInfo);
+                    }
+
+                    const infos = files.map(function(f) {
+                        const sizeMB = (f.size / (1024 * 1024)).toFixed(2);
+                        return '<div><small class="text-muted">{% trans "Selected:" %} ' + f.name + ' (' + sizeMB + 'MB)</small></div>';
+                    });
+                    fileInfo.innerHTML = infos.join('');
+                });
+            }
+        });
+    </script>
 {% endblock content %}

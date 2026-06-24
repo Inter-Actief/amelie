@@ -410,19 +410,25 @@ class DeclarationForm(forms.Form):
         self.initial['iban_choice'] = self.fields['iban_choice'].choices[0][0] if self.fields['iban_choice'].choices else None
         self.person = person
 
-    def clean_document(self):
+    def clean_documents(self):
         documents = self.cleaned_data.get('documents')
 
-        # Check file sizes (limit to 50MB)
+        # Check number of files
+        max_files = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT
+        if len(documents) > max_files:
+            raise forms.ValidationError(_l('You can upload a maximum of {max_files} files.').format(max_files=max_files))
+
+        # Check file sizes
         max_size = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE
         for document in documents:
             if document.size > max_size:
-                raise forms.ValidationError(_l('File size cannot exceed 50MB.'))
+                raise forms.ValidationError(_l('File size cannot exceed {max_size} MB.').format(max_size=max_size / 1024 / 1024))
 
         return documents
 
     def clean(self):
         self.cleaned_data = super().clean()
+
         committee: Committee = self.cleaned_data.get('committee')
         iban_choice = self.cleaned_data.get('iban_choice')
         iban_custom = self.cleaned_data.get('iban_custom')
