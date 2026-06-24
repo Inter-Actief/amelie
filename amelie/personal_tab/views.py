@@ -54,6 +54,7 @@ from amelie.tools.mixins import RequirePersonMixin, RequireBoardMixin
 
 from datetime import timezone as tz
 
+
 DATETIMEFORMAT = '%Y%m%d%H%M%S'
 
 logger = logging.getLogger(__name__)

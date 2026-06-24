@@ -14,7 +14,6 @@ from amelie.claudia.tools import verify_instance
 from amelie.members.models import Person, Membership, Committee
 from amelie.personal_tab.managers import AuthorizationManager, DebtCollectionInstructionManager
 
-from enum import Enum
 
 class DiscountPeriod(models.Model):
     begin = models.DateTimeField(blank=False, verbose_name=_l('begin'))
@@ -878,7 +877,7 @@ class ReversalTransaction(Transaction):
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
 
-    
+
 def get_sentinel_person() -> Person:
     return Person.objects.get(pk=settings.ANONIMIZATION_SENTINEL_PERSON_ID)
 

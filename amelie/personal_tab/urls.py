@@ -121,7 +121,7 @@ urlpatterns = [
     path('print/log/', print_views.PrintLogView.as_view(), name='print_log'),
     path('print/status/<str:printer_key>/', print_views.printer_status, name='printer_status'),
 
-    # Declaration views
+    # Declaration view
     path('declaration/', views.DeclarationView.as_view(), name='declaration_view'),
 
     # Redirects for old Dutch URL's that people might have bookmarked
