@@ -259,6 +259,7 @@ def activity(request, pk, deanonymise=False):
     # Enable opengraph on this page
     metadata_enable_opengraph = True
     is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
+    is_committee = obj.organizer in request.person.current_committees().all()
 
     return render(request, "activity.html", locals())
 
