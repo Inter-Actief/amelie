@@ -878,48 +878,7 @@ class ReversalTransaction(Transaction):
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
 
-
-class Declaration(models.Model):
-    # Problem with declaration; we want to keep declarations when persons are deleted.
-    # On creation of the declaration, the claimaint details (as string) are filled in.
-    # On deletion of the claimant, filtering is done by these fields.
-
-    DeclarationPaymentMethod = ['BANK','CASHBOX','DEBIT']
     
-    # TODO: remove the object/string stuff
-    claimant_person_object = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.SET_NULL, null=True)
-    claimaint_name = models.TextField(null=True);
-
-    # Same case for the committees
-    claimant_committee_object = models.ForeignKey(Committee, verbose_name=_l('committee'), on_delete=models.SET_NULL, null=True)
-    claimant_committee_name = models.TextField(null=True);
-
-    payment_method = models.TextField(choices=DeclarationPaymentMethod)
-
-    # Can be paid back only if their form of declaration payment enum is not DEBIT
-    claimant_iban = IBANField(verbose_name=_l('IBAN'), blank=True)
-
-    declaration_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    
-    declaration_description = models.TextField()
-    
-    declaration_submission_date = models.DateField()
-
-
-
-    @property
-    def claimant(self):
-        if self.claimant_person:
-            return self.claimant_person.full_name
-        return self.claimant_name
-
-    @property
-    def claimant_committee(self):
-        if self.claimant_committee_object:
-            return self.claimant_committee_object.name
-        return self.claimant_committee_name
-    
-
 def get_sentinel_person() -> Person:
     return Person.objects.get(pk=settings.ANONIMIZATION_SENTINEL_PERSON_ID)
 
@@ -974,6 +933,42 @@ class PrintLogEntry(models.Model):
                     _l("for personal use")
                 )
         }
+
+
+class Declaration(models.Model):
+    """
+    Log entry for a declaration submitted by someone via the IA website.
+    """
+
+    DECLARATION_PAYMENT_METHODS = (
+        ('BANK', 'Personal Bank'),
+        ('CASHBOX', 'Inter-Actief Cashbox'),
+        ('CARD', 'Inter-Actief Card'),
+    )
+    
+    person = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.SET(get_sentinel_person), null=True)
+    """The person that submitted the declaration."""
+
+    committee = models.ForeignKey(Committee, verbose_name=_l('committee'), on_delete=models.PROTECT, null=True)
+    """The committee that the declaration was related to."""
+
+    payment_method = models.TextField(choices=DECLARATION_PAYMENT_METHODS, blank=False)
+    """Payment method used for the expense."""
+
+    iban = IBANField(verbose_name=_l('IBAN'), blank=True)
+    """The IBAN for the payout of the declaration."""
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
+    """The amount of the declaration."""
+
+    description = models.TextField(blank=False)
+    """The description of the declaration."""
+
+    document_names = models.TextField(blank=True, default=list)
+    """A list of filenames of the documents submitted with the declaration."""
+
+    submission_date = models.DateField(auto_now_add=True, blank=False)
+    """Submission timestamp of the declaration."""
 
 
 def _complain_with_claudia(sender, **kwargs):

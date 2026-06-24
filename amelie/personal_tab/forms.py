@@ -1,7 +1,6 @@
 import logging
 import math
 import traceback
-from decimal import Decimal
 from localflavor.generic.forms import BICFormField, IBANFormField
 
 from django import forms
@@ -21,6 +20,10 @@ from amelie.personal_tab.models import CustomTransaction, CookieCornerTransactio
 from amelie.tools.http import get_client_ips
 from amelie.tools.ipp_printer import IPPPrinter
 from amelie.tools.widgets import DateSelector, DateTimeSelector, MemberSelect
+from amelie.iamailer.mailtask import MailTask, Recipient
+from amelie.tools.const import TaskPriority
+from amelie.tools.forms import MultipleFileField
+
 
 
 class CustomTransactionForm(forms.ModelForm):
@@ -353,29 +356,42 @@ class DeclarationForm(forms.Form):
         label=_l('Committee'),
         help_text=_l('Select a committee for which this declaration is, or leave blank and specify in the description.')
     )
-    payment_method = forms.ModelChoiceField(
-        queryset=Declaration.DeclarationPaymentMethod.choices,
+    payment_method = forms.ChoiceField(
+        choices=[],  # Will be set in __init__
         required=True,
         label=_l('Payment Method'),
-        help_text=_l('Select the payment method for the expense.')
+        help_text=_l('Select how you paid for the expense.')
     )
-    IBAN = forms.ModelChoiceField(
-        queryset=None,  # Will be set in __init__
-        empty_label=_l("-- Other --"),
+    iban_choice = forms.ChoiceField(
+        choices=[],  # Will be set in __init__
         required=False,
         label=_l('IBAN'),
         help_text=_l('Select your IBAN for payment.')
     )
+    iban_custom = IBANFormField(
+        required=False,
+        label=_l('IBAN'),
+        help_text=_l('Fill in your IBAN if it is not listed above.')
+    )
     amount = forms.DecimalField(
         initial=0,
+        required=True,
         label=_l('Amount'),
-        help_text=_l('Enter the amount.'),
+        help_text=_l('Enter the amount of your declaration in euro\'s.'),
+        max_digits=6,
         decimal_places=2
     )
-    amount = forms.CharField(
-        initial=0,
-        label=_l('Amount'),
-        help_text=_l('Enter the description'),
+    description = forms.CharField(
+        required=True,
+        max_length=200,
+        label=_l('Description'),
+        help_text=_l('Enter the description for your declaration.'),
+        widget=forms.Textarea
+    )
+    documents = MultipleFileField(
+        label=_l('Attachments'),
+        required = False,
+        help_text=_l('Select documents to attach to the declaration.'),
     )
 
 
@@ -383,127 +399,106 @@ class DeclarationForm(forms.Form):
         super().__init__(*args, **kwargs)
         # Only show committees that the person is a member of
         self.fields['committee'].queryset = person.current_committees()
-        self.fields['payment_method'].initial = Declaration.DeclarationPaymentMethod[0][0]
-        self.fields['IBAN'].queryset = person.get_mandates(active=False).order_by('start_date').values_list('iban', flat=True)
+        
+        # Set Declaration Payment Methods as choices for payment method field and default to the first
+        self.fields['payment_method'].choices = Declaration.DECLARATION_PAYMENT_METHODS
+        self.initial['payment_method'] = self.fields['payment_method'].choices[0][0] 
+        
+        # Show IBANs of the active consumption mandates as choices and default the newest one
+        self.fields['iban_choice'].choices = [(iban, iban) for iban in person.has_mandate_consumptions().order_by('start_date').values_list('iban', flat=True)]
+        self.fields['iban_choice'].choices += [('', _l("-- Other --"))]
+        self.initial['iban_choice'] = self.fields['iban_choice'].choices[0][0] if self.fields['iban_choice'].choices else None
         self.person = person
 
-    def clean_document(self): # TODO
-        document = self.cleaned_data.get('document')
+    def clean_document(self):
+        documents = self.cleaned_data.get('documents')
 
-        if not document:
-            raise forms.ValidationError(_l('Please select a PDF file.'))
+        # Check file sizes (limit to 50MB)
+        max_size = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE
+        for document in documents:
+            if document.size > max_size:
+                raise forms.ValidationError(_l('File size cannot exceed 50MB.'))
 
-        # Check file extension
-        if not document.name.lower().endswith('.pdf'):
-            raise forms.ValidationError(_l('Only PDF files are allowed.'))
+        return documents
 
-        # Check file size (limit to 50MB)
-        max_size = settings.PERSONAL_TAB_PRINTER_MAX_FILE_SIZE
-        if document.size > max_size:
-            raise forms.ValidationError(_l('File size cannot exceed 50MB.'))
-
-        return document
-
-    def clean(self): # TODO
+    def clean(self):
         self.cleaned_data = super().clean()
         committee: Committee = self.cleaned_data.get('committee')
+        iban_choice = self.cleaned_data.get('iban_choice')
+        iban_custom = self.cleaned_data.get('iban_custom')
 
-        # Check if the user is allowed to print this request
+
+        # Check if the user is allowed to declare for this committee
         if committee and not self.person.is_in_committee(committee.abbreviation):
             raise forms.ValidationError(
-                _l('You are not a member of the committee you want to print for.')
+                _l('You are not a member of the committee you want to declare for.')
             )
-        elif not committee and not (self.person.has_mandate_consumptions() and self.person.is_member()):
+        
+        # Check if the user has filled in two IBANs
+        if iban_choice and iban_custom:
             raise forms.ValidationError(
-                _l('You do not have an active consumption mandate or are not a member anymore, '
-                   'so we cannot add the costs for this print to your personal tab. Contact the board for help.')
+                _l('Please select either an IBAN from the list or enter a custom IBAN, not both.')
+            )
+        
+        # Check if the user has filled in an IBAN at all
+        elif not iban_choice and not iban_custom:
+            raise forms.ValidationError(
+                _l('Please select an IBAN from the list or enter a custom IBAN.')
             )
 
         return self.cleaned_data
 
-    def save(self, request): # TODO
+    def save(self, request):
         """
-        Process the form and create necessary database entries.
+        Create the database entry and send the declaration email.
         """
-        from amelie.personal_tab.models import PrintLogEntry, Article
 
-        document = self.cleaned_data['document']
+        person = request.user.person
         committee = self.cleaned_data.get('committee')
-        printer_key = self.cleaned_data['printer']
-        num_copies = self.cleaned_data['copies']
-        dual_sided = self.cleaned_data.get('dual_sided')
+        payment_method = self.cleaned_data.get('payment_method')
+        payment_method_display = dict(Declaration.DECLARATION_PAYMENT_METHODS).get(payment_method, payment_method)
+        iban_choice = self.cleaned_data.get('iban_choice')
+        iban_custom = self.cleaned_data.get('iban_custom')
+        amount = self.cleaned_data.get('amount')
+        description = self.cleaned_data.get('description')
+        documents = self.cleaned_data.get('documents')
 
-        # Get page count from PDF
-        import pypdf
-        reader = pypdf.PdfReader(document)
-        page_count = reader.get_num_pages()
-
-        # Page count is halved (ceiled) when printing dual-sided
-        if dual_sided:
-            page_count = math.ceil(page_count / 2)
-
-        # Page count is multiplied when printing multiple copies
-        page_count *= num_copies
-
-        # Get client IP and user agent
-        all_ips, real_ip = get_client_ips(request)
-        source_useragent = request.META.get('HTTP_USER_AGENT', '')[:255]
-
+        
         with transaction.atomic():
-            # Create the print log entry
-            print_log = PrintLogEntry.objects.create(
-                actor=request.user.person,
-                document_name=document.name,
-                page_count=page_count,
+            # Create database entry for the declaration
+            declaration = Declaration.objects.create(
+                person=person,
                 committee=committee,
-                source_ip=real_ip,
-                source_useragent=source_useragent
+                payment_method=payment_method,
+                iban=iban_choice if iban_choice else iban_custom,
+                amount=amount,
+                description=description,
+                document_names=[doc.name for doc in documents] if documents else []
             )
 
-            # If no committee selected, create a transaction for payment
-            if not committee:
-                try:
-                    # Get the printing article (ID configured in settings)
-                    article = Article.objects.get(id=settings.PERSONAL_TAB_PRINTER_PAGE_ARTICLE_ID)
+            # Prepare context for the email
+            context = {'person': person,
+                       'committee': committee,
+                       'payment_method': payment_method_display,
+                       'iban': iban_choice if iban_choice else iban_custom,
+                       'amount': f"{amount:.2f}",
+                       'description': description,
+                       'submission_date': declaration.submission_date.strftime('%Y-%m-%d')
+                   }
 
-                    # Create cookie corner transaction for the pages
-                    cookie_transaction = cookie_corner_sale(article=article, amount=page_count,
-                                                            person=request.user.person, added_by=request.user.person)
+            # Prepare attachment tuples for the email
+            attachments = [(doc.name, doc.read(), doc.content_type) for doc in documents] if documents else []
 
-                    # Link the transaction to the print log
-                    print_log.transaction = cookie_transaction
-                    print_log.save()
+            # Send the email
+            task = MailTask(template_name='declaration.mail', report_to=settings.EMAIL_REPORT_TO,
+                            report_always=False, priority=TaskPriority.MEDIUM)
 
-                except Article.DoesNotExist:
-                    raise forms.ValidationError(_l('Printing article not found. Please contact the WWW committee.'))
+            task.add_recipient(Recipient(tos=[settings.DECLARATION_EMAIL],
+                                        context=context,
+                                        language='en',
+                                        headers={'Reply-To': settings.TREASURER_EMAIL}, attachments=attachments))
 
-            # Print the document
-            printer = None
-            try:
-                printer = IPPPrinter(printer_key=printer_key)
-                print_info = printer.print_document(
-                    document=document,
-                    job_name=f"{print_log.id} - {print_log.actor}",
-                    num_copies=num_copies, dual_sided=dual_sided
-                )
-                printer.close()
-                logging.info(f"Print job submitted: {document.name} ({print_log.page_count} pages) "
-                            f"for user {print_log.actor} (Print Log ID: {print_log.id})")
-
-                # Link the job ID to the print log
-                try:
-                    job_id = print_info.get("jobs", [])[0]['job-id']
-                    print_log.job_id = f"{printer_key}#{job_id}"
-                    print_log.save()
-                except IndexError:
-                    raise ValueError("No job ID returned from IPP server.")
-            except Exception as e:
-                trace = traceback.format_exc()
-                logging.error(f"Error while printing document: {e} - {trace}")
-                if isinstance(printer, IPPPrinter):
-                    printer.close()
-                raise e
-            return print_log
+            task.send()
 
 
 inject_style(StatisticsForm, PrintDocumentForm)

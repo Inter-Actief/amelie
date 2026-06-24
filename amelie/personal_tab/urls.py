@@ -122,7 +122,7 @@ urlpatterns = [
     path('print/status/<str:printer_key>/', print_views.printer_status, name='printer_status'),
 
     # Declaration views
-    path('declaration/', views.declaration_view, name='declaration'),
+    path('declaration/', views.DeclarationView.as_view(), name='declaration_view'),
 
     # Redirects for old Dutch URL's that people might have bookmarked
     path('mijn/', RedirectView.as_view(url=reverse_lazy("personal_tab:my_dashboard"), permanent=True)),
