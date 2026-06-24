@@ -1960,6 +1960,7 @@ def cookie_corner_wrapped_global(request, year=None):
         'drinks_total': drinks_total
     })
 
+
 class DeclarationView(RequirePersonMixin, FormView):
     """ 
     Form view for submitting a declarations via the website.
@@ -1980,6 +1981,7 @@ class DeclarationView(RequirePersonMixin, FormView):
         context = super().get_context_data(**kwargs)
         context['max_file_size'] = f"{settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE / 1024 / 1024:.2f} MB"
         context['max_file_size_bytes_int'] = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE
+        context['max_file_amount'] = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT
         return context
 
     def form_valid(self, form):
@@ -1992,6 +1994,7 @@ class DeclarationView(RequirePersonMixin, FormView):
             logging.error(f"Error while submitting declaration: {str(e.__class__.__name__)} - {trace}")
             messages.error(self.request, _("Error while submitting declaration: {ex}").format(ex=str(e.__class__.__name__)))
         return super().form_valid(form=form)
+
 
 @require_board
 def declaration_pdf(request, declaration_id):
