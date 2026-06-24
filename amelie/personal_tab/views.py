@@ -4,9 +4,11 @@ import datetime
 import logging
 from decimal import Decimal
 import itertools
+import traceback
 
 import django.conf
 import operator
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -35,7 +37,7 @@ from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
-    StatisticsForm
+    StatisticsForm, DeclarationForm
 from amelie.personal_tab.debt_collection import generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
@@ -1958,5 +1960,35 @@ def cookie_corner_wrapped_global(request, year=None):
         'drinks_total': drinks_total
     })
 
-def declaration_view(request):
-    return render(request, 'declaration_view.html')
+class DeclarationView(RequirePersonMixin, FormView):
+    """ 
+    Form view for submitting a declarations via the website.
+    
+    Only available to logged in (former) members.
+    """
+
+    form_class = DeclarationForm
+    success_url = reverse_lazy('personal_tab:declaration_view')
+    template_name = 'declaration_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['person'] = self.request.user.person
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['max_file_size'] = f"{settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE / 1024 / 1024:.2f} MB"
+        context['max_file_size_bytes_int'] = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE
+        return context
+
+    def form_valid(self, form):
+        try:
+            form.save(request=self.request)
+            messages.success(self.request, _("Declaration was submitted successfully."))
+            
+        except Exception as e:
+            trace = traceback.format_exc()
+            logging.error(f"Error while submitting declaration: {str(e.__class__.__name__)} - {trace}")
+            messages.error(self.request, _("Error while submitting declaration: {ex}").format(ex=str(e.__class__.__name__)))
+        return super().form_valid(form=form)

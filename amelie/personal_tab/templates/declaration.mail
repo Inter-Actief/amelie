@@ -1,0 +1,19 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify %}
+
+{% block subject %}{% blocktrans %}Declaration submitted via Amélie{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear Treasurer,
+
+{{ person }} has submitted a declaration.
+
+Committee: {{ committee }}
+Payment Method: {{ payment_method }}
+IBAN: {{ iban }}
+Amount: {{ amount }}
+Submission date: {{ submission_date }}
+Description: {{ description }}
+
+
+Cheers,
+Amélie{% endblocktrans %}{% endhtmlify %}{% endblock %}

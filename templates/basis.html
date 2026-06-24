@@ -303,6 +303,11 @@
                                         <a href="{% url 'personal_tab:print_index' %}">{% trans 'Print document' %}</a>
                                     </li>
                                     {% endif %}
+                                    {% if request.person.is_member %}
+                                    <li>
+                                        <a href="{% url 'personal_tab:declaration_view' %}">{% trans 'Submit declaration' %}</a>
+                                    </li>
+                                    {% endif %}
                                     <li>
                                         <a href="{% url 'oidc_logout' %}">{% trans 'Log out' %}</a>
                                     </li>
