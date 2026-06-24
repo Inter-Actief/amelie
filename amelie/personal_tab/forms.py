@@ -489,7 +489,7 @@ class DeclarationForm(forms.Form):
                        'iban': declaration.get_iban(),
                        'amount': f"{amount:.2f}",
                        'description': description,
-                       'submission_date': declaration.submission_date.strftime('%Y-%m-%d')
+                       'submission_date': declaration.submission_date.strftime('%d-%m-%Y'),
                    }
 
             # Generate PDF of the declaration form and add it to the attachments
