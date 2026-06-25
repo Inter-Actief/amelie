@@ -109,14 +109,13 @@
                         <tr class="room-duty room-duty-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}"
                             data-morning="{% if rd_begin.hour < 12 %}1{% else %}0{% endif %}"
                             data-duration="{{ room_duty.duration|escapejs }}">
-                            <td>{{ room_duty.begin|date:"D d/m H:i" }}</td>
-                            <td>{{ room_duty.end|date:"D d/m H:i" }}</td>
-                            <td class="division">{{ room_duty.participant_names|join:", " }}</td>
+                            <td style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.begin|date:"D d/m H:i" }}</td>
+                            <td style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.end|date:"D d/m H:i" }}</td>
+                            <td class="division" style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.participant_names|join:", " }}</td>
                             {% for availability, checkbox in room_duty.template_data %}
                                 <td class="availability
                                            {{ availability.css_class }}
-                                           {% if availability.hungover %}room-duty-hungover{% endif %}
-                                           {% if availability.not_in_the_break %}room-duty-break{% endif %}"
+                                           {% if availability.hungover %}room-duty-hungover{% endif %}"
                                     data-person="{{ checkbox.data.value }}">
 
                                     {{ checkbox.tag }}
@@ -125,7 +124,7 @@
                                     {% if availability == None %}
                                         -
                                     {% else %}
-                                        {{ availability.availability }}{% if availability.hungover %}B{% endif %}{% if availability.not_in_the_break %}P{% endif %}
+                                        {{ availability.availability }}{% if availability.hungover %}B{% endif %}
                                         {% if availability.comments %}
                                             <span class="icon icon-comment"
                                                   onclick="alert('{{ availability.comments|escapejs }}');"

@@ -18,6 +18,8 @@ class Command(BaseCommand):
         companies = Company.objects.filter(end_date__gte=date.today(), end_date__lte=date.today() + timedelta(weeks=4))\
             .distinct()
 
+        self.stdout.write(self.style.SUCCESS(f'Sending banner check email to external with {len(banners)} banners and {len(companies)} companies'))
+
         task = MailTask(from_="External Helper <www@inter-actief.net>",
                         template_name='companies/bannercheck.mail',
                         report_to="External Helper <www@inter-actief.net>",
@@ -36,3 +38,5 @@ class Command(BaseCommand):
 
         # Send E-mail
         task.send()
+
+        self.stdout.write(self.style.SUCCESS(f'Banner check email sent'))

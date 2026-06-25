@@ -1,0 +1,28 @@
+#logo {
+    background-image: url("../img/layout/logo_production_lustrum.svg");
+    margin: 10px;
+    width: calc(30vw - 20px);
+    height: calc(10vh - 20px);
+}
+
+:root {
+    --ia-blue-verylight: #8CC07C;
+    --ia-blue-light: #2DC000;
+    --ia-blue: #004200;
+    --ia-blue-dark: #003200;
+    --ia-blue-verydark: #002000;
+    --ia-green-verylight: #61a971;
+    --ia-green-light: #349049;
+    --ia-green: #077821;
+    --ia-green-dark: #06631c;
+    --ia-red-verylight: #be7169;
+    --ia-red-light: #ab493e;
+    --ia-red: #992114;
+    --ia-red-dark: #7e1c11;
+
+    --orange-verylight: rgba(255,128,0,0.8);
+    --yellow-verylight: #ffed54;
+
+    --grey-verylight: #ACACAC;
+    --grey-verydark: #202020;
+}

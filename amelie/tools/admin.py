@@ -14,10 +14,6 @@ class AbbreviationAdmin(admin.ModelAdmin):
     search_fields = ('name', 'abbreviation')
 
 
-class DescriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description',)
-
-
 class NameAdmin(admin.ModelAdmin):
     list_display = ('id', 'name',)
     search_fields = ('name',)

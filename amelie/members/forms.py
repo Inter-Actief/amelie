@@ -2,14 +2,17 @@
 import datetime
 import csv
 import os
+import uuid
 from datetime import date
 from difflib import SequenceMatcher
 
 import re
 
+import requests
 from django import forms
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
 from django.db.models import Q, TextChoices
 from django.forms import widgets
 from django.forms.models import BaseInlineFormSet
@@ -38,6 +41,40 @@ class PersonalDetailsEditForm(forms.ModelForm):
     date_of_birth = forms.DateField(widget=DateSelector, label=_l('Birth date'))
     preferences = forms.ModelMultipleChoiceField(Preference.objects.filter(adjustable=True), required=False,
                                                  widget=widgets.CheckboxSelectMultiple, label=_l('Preferences'))
+    def clean_minecraft_username(self):
+        username = self.cleaned_data.get('minecraft_username', '').strip()
+        if not username:
+            self.instance.minecraft_uuid = None
+            return ""
+
+        if not re.match(r'^[a-zA-Z0-9_]{3,16}$', username):
+            raise ValidationError(_("Invalid Minecraft username format."))
+
+        if 'minecraft_username' in self.changed_data:
+            try:
+                response = requests.get(
+                    f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{username}",
+                    timeout=5
+                )
+            except requests.RequestException:
+                raise ValidationError(
+                    _("Could not connect to Minecraft verification servers. Please try again later.")
+                )
+
+            if response.status_code in (204, 404):
+                raise ValidationError(_("This Minecraft username does not exist."))
+            elif response.status_code != 200:
+                raise ValidationError(_("An error occurred while verifying the Minecraft username."))
+
+            try:
+                data = response.json()
+                self.instance.minecraft_uuid = uuid.UUID(data['id'])
+
+                return data['name']
+            except (ValueError, KeyError):
+                raise ValidationError(_("Failed to parse verification response from Mojang."))
+        else:
+            return username
 
     def save(self, *args, **kwargs):
         if self.has_changed():
@@ -94,7 +131,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
         fields = ('gender', 'date_of_birth', 'preferred_language', 'address', 'postal_code', 'city', 'country',
                   'address_parents', 'postal_code_parents', 'city_parents', 'country_parents', 'email_address_parents',
                   'can_use_parents_address', 'telephone', 'email_address', 'preferences',
-                  'shell', 'international_member')
+                  'shell', 'international_member', 'minecraft_username')
 
 
 class PersonalStudyEditForm(forms.Form):
@@ -232,7 +269,7 @@ class PersonStudyForm(forms.ModelForm):
 
 class PersonPaymentForm(forms.Form):
     date = forms.DateField(initial=datetime.date.today())
-    method = forms.ModelChoiceField(PaymentType.objects.all())
+    method = forms.ModelChoiceField(PaymentType.objects.filter(visible=True))
 
 
 class MembershipForm(forms.ModelForm):
@@ -276,12 +313,25 @@ class MandateForm(forms.ModelForm):
         self.fields['iban'].required = True
         self.fields['account_holder_name'].required = True
 
+    def clean_iban(self):
+        if str(self.cleaned_data['iban']).strip() == "NL18ABNA0484869868":
+            raise forms.ValidationError(_l("Please enter your own bank account number!"))
+        return self.cleaned_data['iban']
+
+    def clean_bic(self):
+        return check_mandate_bic(str(self.cleaned_data['bic']).strip())
+
     def clean(self):
         cleaned_data = super(MandateForm, self).clean()
         if self.errors:
             # Skips checks if errors are found.
             return cleaned_data
+        if not cleaned_data['authorization_type']:
+            raise forms.ValidationError(_l('A mandate type is required.'))
 
+        if not cleaned_data['iban']:
+            raise forms.ValidationError(_l('An IBAN is required.'))
+        
         if not cleaned_data['bic']:
             if not cleaned_data['iban'][:2] == 'NL':
                 raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
@@ -626,28 +676,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
         return self.cleaned_data['iban']
 
     def clean_bic(self):
-        bic = str(self.cleaned_data['bic']).strip()
-        if bic == "":
-            return self.cleaned_data['bic']
-
-        if not settings.DEBUG:
-            if bic in settings.COOKIE_CORNER_BANK_CODES.values():
-                return self.cleaned_data['bic']
-            # handle if does not exist, throw error showing the command to run
-            try:
-                # csv file can be updated with `python manage.py update_bic_csv`
-                with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
-                    csv_reader = csv.reader(csv_file, delimiter=',')
-                    next(csv_reader)  # skip the header
-                    for row in csv_reader:
-                        # only check the first 8 characters, last 3 are for the branch code
-                        if bic[:8] == row[4][:8]:
-                            return self.cleaned_data['bic']
-            except IOError as e:
-                raise IOError(u"Reading file at {} failed (run 'manage.py update_bic_csv' to create it if it does not exist) {}"
-                              .format(os.path.join(settings.MEDIA_ROOT, 'bic_list.csv'), e))
-
-            raise forms.ValidationError(_l("BIC is not from a SEPA country"))
+        return check_mandate_bic(str(self.cleaned_data['bic']).strip())
 
     def clean(self):
         cleaned_data = super(RegistrationFormStepAuthorizationDetails, self).clean()
@@ -770,6 +799,29 @@ class StudentNumberForm(forms.Form):
         if not Student.objects.filter(number=self.cleaned_data["student_number"]).exists():
             raise forms.ValidationError(_l("There is no student with this student number."))
         return self.cleaned_data["student_number"]
+
+
+def check_mandate_bic(bic):
+    if bic == "":
+        return bic
+
+    if bic in settings.COOKIE_CORNER_BANK_CODES.values():
+        return bic
+    # handle if does not exist, throw error showing the command to run
+    try:
+        # csv file can be updated with `python manage.py update_bic_csv`
+        with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)  # skip the header
+            for row in csv_reader:
+                # only check the first 8 characters, last 3 are for the branch code
+                if bic[:8] == row[4][:8]:
+                    return bic
+    except IOError as e:
+        raise IOError(u"Reading file at {} failed (run 'manage.py update_bic_csv' to create it if it does not exist) {}"
+                        .format(os.path.join(settings.MEDIA_ROOT, 'bic_list.csv'), e))
+
+    raise forms.ValidationError(_l("BIC is not from a SEPA country"))
 
 
 inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm, ProfilePictureVerificationForm, ProfilePictureUploadForm)

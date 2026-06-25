@@ -74,14 +74,14 @@ dependencies = [
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
     "Pillow>=12.1.1,<12.3",
-    "python-gitlab>=8.1.0,<8.3",
+    "python-gitlab>=8.1.0,<8.4",
     "python-dateutil>=2.9.0,<2.10",
 
     # python-ldap requires libldap-dev libsasl2-dev (on Debian) to build
     "python-ldap>=3.4.3,<3.5",
     "raven>=6.10.0,<6.11",
     "reportlab>=4.4.10",
-    "requests>=2.32,<2.34",
+    "requests>=2.32,<2.35",
     "html2text>=2020.1.16,<2025.4.16",
 
     # Daphne - to run the website in ASGI mode on a proper webserver
@@ -99,8 +99,8 @@ dependencies = [
 
     # Google API Client
     "google-api-python-client>=2.192.0,<3",
-    "google-auth>=2.49.1,<2.53",
-    "pyOpenSSL>=26.0.0,<26.2.0",
+    "google-auth>=2.49.1,<2.54",
+    "pyOpenSSL>=26.0.0,<26.3.0",
 
     # Development
     "django-debug-toolbar>=3.7,<6.4",
@@ -114,7 +114,7 @@ dependencies = [
     "mozilla-django-oidc>=5.0.2,<5.1",
 
     # Sentry error logging
-    "sentry-sdk>=2.54.0,<2.59",
+    "sentry-sdk>=2.54.0,<2.61",
 
     # Health checks for Django
     "django-health-check[psutil,celery,rabbitmq,redis]>=4.0,<4.5",

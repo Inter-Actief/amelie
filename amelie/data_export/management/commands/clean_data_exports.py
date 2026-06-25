@@ -8,11 +8,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         exports = DataExport.objects.all()
 
-        self.stdout.write('Deleting expired data exports...')
+        self.stdout.write(self.style.SUCCESS('Deleting expired data exports...'))
 
         for export in exports:
             if export.is_expired:
                 self.stdout.write('- Export {} deleted.'.format(export.id))
                 export.delete()
 
-        self.stdout.write('Data export cleanup complete!')
+        self.stdout.write(self.style.SUCCESS('Data export cleanup complete!'))

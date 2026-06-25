@@ -619,6 +619,11 @@ ALEXIA_AGE_CHECK_API_CONFIG = {
     'allowed_ips': [],
 }
 
+MINECRAFT_WHITELIST_API_CONFIG = {
+    'api_key': None,
+    'allowed_ips': [],
+}
+
 # Login details for the University of Twente X (External) account of our association
 X_ACCOUNT_USERNAME = ""
 X_ACCOUNT_PASSWORD = ""
@@ -911,6 +916,8 @@ WEBSITE_THEME_OVERRIDE = None
 
 # Blocked IP addresses for showing themes (Raspberry pis don't like our themes very much)
 BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
+# Allow disabling the IP blocklist for themes that aren't as resource intensive
+IGNORE_BLOCKED_THEME_IP_RANGES = False
 
 # The week that IA has balcony duty.
 # 0 means the even calendar weeks, 1 means the odd calendar weeks.

@@ -6,7 +6,7 @@ ffffff = text
 */
 
 #top, #bottom {
-    background: #da0870;
+    background-color: #da0870;
 }
 
 #top #logo img {
@@ -23,11 +23,11 @@ ffffff = text
 }
 
 #nav li ul li {
-    background: #da0870 !important;
+    background-color: #da0870 !important;
 }
 
 #nav_login ul, #nav_login .ia {
-    background: #da0870 !important;
+    background-color: #da0870 !important;
 }
 
 #nav_login ul li, #nav_login ul li:hover {
@@ -43,22 +43,22 @@ ffffff = text
 }
 
 #nav li ul li a:hover {
-    background: #ea1121 !important;
+    background-color: #ea1121 !important;
 }
 
 #nav li:hover > a, #nav li.hover > a, #nav li.active > a {
-    background: #ea1121;
+    background-color: #ea1121;
     color: #fff;
 }
 
 /* Nav should be blue tones if we are in collapsed view */
 @media(max-width: 991px) {
     #nav li ul li {
-        background: rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(0, 0, 0, 0.2) !important;
     }
 
     #nav_login ul, #nav_login .ia {
-        background: rgba(0, 0, 0, 0.2) !important;
+        background-color: rgba(0, 0, 0, 0.2) !important;
     }
 
     #nav_login select#provider, #nav_login input#id_username, #nav_login input#id_password {
@@ -66,11 +66,11 @@ ffffff = text
     }
 
     #nav li ul li a:hover {
-        background: rgba(0, 0, 0, 0.5) !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
     }
 
     #nav li:hover > a, #nav li.hover > a, #nav li.active > a {
-        background: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.5);
         color: #fff;
     }
 }
@@ -101,15 +101,15 @@ ffffff = text
 }
 
 #subnavbar ul li:hover, #subnavbar ul li.active {
-    background: #da0870;
+    background-color: #da0870;
 }
 
 .ia th {
-    background: #da0870;
+    background-color: #da0870;
 }
 
 .ia .paging > .current, .current .paging > .current, .edu.paging > .current {
-    background: #da0870;
+    background-color: #da0870;
     border: 1px solid #fff;
     color: #fff;
 }
@@ -120,7 +120,7 @@ ffffff = text
 }
 
 .current h2, .ia h2, .edu h2, .current th {
-    background: #da0870;
+    background-color: #da0870;
     color: #fff;
 }
 
@@ -129,18 +129,18 @@ ffffff = text
 }
 
 #slider-list li {
-    background: #FF7BB2 !important;
+    background-color: #FF7BB2 !important;
     color: #fff;
 }
 
 #slider-list li.active {
-    background: #da0870 !important;
+    background-color: #da0870 !important;
     color: #fff;
 }
 
 a.looks-like-a-button {
     color: #fff;
-    background: #ea1121 !important;
+    background-color: #ea1121 !important;
     border-color: #fff;
 }
 
@@ -148,7 +148,7 @@ a.looks-like-a-button {
 .edu a.looks-like-a-button, .edu input[type="submit"], .edu input[type="button"], .edu button,
 .current a.looks-like-a-button, .current input[type="submit"], .current input[type="button"], .current button, .ia a.looks-like-a-button, .ia input.looks-like-a-button, #slider-carousel-title a.looks-like-a-button, .current a.looks-like-a-button {
     color: #fff;
-    background: #ea1121 !important;
+    background-color: #ea1121 !important;
     border-color: #fff;
     position: relative;
 }
@@ -172,31 +172,31 @@ a.looks-like-a-button {
 
 /* Restore specific button colors */
 a.looks-like-a-button.success-button {
-    background: #077821 !important;
+    background-color: #077821 !important;
 }
 a.looks-like-a-button.danger-button {
-    background: #ea1121 !important;
+    background-color: #ea1121 !important;
 }
 a.looks-like-a-button.disabled-button {
-    background: #808080 !important;
+    background-color: #808080 !important;
 }
 .ia input[type="button"].success-button, .ia input[type="submit"].success-button, .ia button.success-button, .ia a.looks-like-a-button.success-button,
 .edu a.looks-like-a-button.success-button, .edu input[type="submit"].success-button, .edu input[type="button"].success-button, .edu button.success-button,
 .current a.looks-like-a-button.success-button, .current input[type="submit"].success-button, .current input[type="button"].success-button, .current button.success-button,
 .ia a.looks-like-a-button.success-button, .ia input.looks-like-a-button.success-button, #slider-carousel-title a.looks-like-a-button.success-button, .current a.looks-like-a-button.success-button {
-    background: #077821 !important;
+    background-color: #077821 !important;
 }
 .ia input[type="button"].danger-button, .ia input[type="submit"].danger-button, .ia button.danger-button, .ia a.looks-like-a-button.danger-button,
 .edu a.looks-like-a-button.danger-button, .edu input[type="submit"].danger-button, .edu input[type="button"].danger-button, .edu button.danger-button,
 .current a.looks-like-a-button.danger-button, .current input[type="submit"].danger-button, .current input[type="button"].danger-button, .current button.danger-button,
 .ia a.looks-like-a-button.danger-button, .ia input.looks-like-a-button.danger-button, #slider-carousel-title a.looks-like-a-button.danger-button, .current a.looks-like-a-button.danger-button {
-    background: #ea1121 !important;
+    background-color: #ea1121 !important;
 }
 .ia input[type="button"].disabled-button, .ia input[type="submit"].disabled-button, .ia button.disabled-button, .ia a.looks-like-a-button.disabled-button,
 .edu a.looks-like-a-button.disabled-button, .edu input[type="submit"].disabled-button, .edu input[type="button"].disabled-button, .edu button.disabled-button,
 .current a.looks-like-a-button.disabled-button, .current input[type="submit"].disabled-button, .current input[type="button"].disabled-button, .current button.disabled-button,
 .ia a.looks-like-a-button.disabled-button, .ia input.looks-like-a-button.disabled-button, #slider-carousel-title a.looks-like-a-button.disabled-button, .current a.looks-like-a-button.disabled-button {
-    background: #808080 !important;
+    background-color: #808080 !important;
 }
 
 .ia a, .edu a, .current a {
@@ -204,7 +204,7 @@ a.looks-like-a-button.disabled-button {
 }
 
 #middle, html {
-    background: #ededed;
+    background-color: #ededed;
 }
 
 /* CSS3 snowflakes */
@@ -221,7 +221,7 @@ a.looks-like-a-button.disabled-button {
     max-height: 100%;
     width: 100%;
     max-width: 100%;
-    background: transparent;
+    background-color: transparent;
 }
 
 .hearts {

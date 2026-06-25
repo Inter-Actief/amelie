@@ -346,6 +346,11 @@ FILE_DOWNLOAD_METHOD = env("AMELIE_FILE_DOWNLOAD_METHOD", default="")
 ###
 EMAIL_BACKEND = env("AMELIE_EMAIL_BACKEND", default="django.core.mail.backends.filebased.EmailBackend")
 EMAIL_HOST = env("AMELIE_EMAIL_HOST", default="smtp.snt.utwente.nl")
+EMAIL_PORT = env.int("AMELIE_EMAIL_PORT", default=25)
+EMAIL_HOST_USER = env("AMELIE_EMAIL_USER", default='')
+EMAIL_HOST_PASSWORD = env("AMELIE_EMAIL_PASSWORD", default='')
+EMAIL_USE_TLS = env.bool("AMELIE_EMAIL_USE_TLS", default=False)
+EMAIL_USE_SSL = env.bool("AMELIE_EMAIL_USE_SSL", default=False)
 
 
 ###
@@ -390,6 +395,11 @@ CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS'] = env.list("CLAUDIA_GSUITE_ALLOWED_ALIAS
 
 CLAUDIA_KANIDM["API_BASE"] = env("CLAUDIA_KANIDM_API_BASE", default="idm.ia.utwente.nl")
 CLAUDIA_KANIDM["API_KEY"] = env("CLAUDIA_KANIDM_API_KEY", default=None)
+
+# Minecraft whitelist API settings
+MINECRAFT_WHITELIST_API_CONFIG['api_key'] = env("MINECRAFT_WHITELIST_API_KEY", default=None)
+MINECRAFT_WHITELIST_API_CONFIG['allowed_ips'] = env.list("MINECRAFT_WHITELIST_API_ALLOWED_IPS", default=[])
+
 
 ###
 #  Alexia settings
@@ -511,6 +521,8 @@ WEBSITE_THEME_OVERRIDE = env("AMELIE_THEME_OVERRIDE", default=None)
 # Block themes from showing on the infodesk and couch (outside) Raspberry pis, since they will lag too much
 BLOCKED_THEME_IP_RANGES = ['130.89.190.121', '130.89.190.122']
 BLOCKED_THEME_IP_RANGES.extend(env.list("BLOCKED_THEME_IP_RANGES", default=[]))
+# Allow disabling the IP blocklist for themes that aren't as resource intensive
+IGNORE_BLOCKED_THEME_IP_RANGES = env.bool("IGNORE_BLOCKED_THEME_IP_RANGES", default=False)
 
 # Youtube API key (for video module)
 YOUTUBE_API_KEY = env("AMELIE_YOUTUBE_API_KEY", default="")

@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _l
 
+from amelie.tools.fields import Char32UUIDField
+
 import io
 import qrcode
 import qrcode.image.svg
@@ -19,7 +21,7 @@ class PendingPosToken(models.Model):
         LOGIN = 'login', _l("Login token")
         REGISTRATION = 'registration', _l("Registration token")
 
-    token = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    token = Char32UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, blank=True, null=True, related_name='pending_pos_login_tokens', on_delete=models.CASCADE)
     type = models.CharField(max_length=20, choices=TokenTypes.choices)
     created_at = models.DateTimeField(editable=False)
