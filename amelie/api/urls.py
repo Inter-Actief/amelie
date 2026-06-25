@@ -14,5 +14,5 @@ urlpatterns = [
     path('vivat_banners/', vivatbanner_get, name='vivatbanner_get'),
     path('alexia_age_check/', AlexiaAgeCheckAPI.as_view(), name='alexia_age_check_api'),
 	path('csrf-token/', get_csrf_token, name='get_csrf_token'),
-    path('minecraft_whitelist/<str:uuid_str>/', MinecraftWhitelistAPI.as_view(), name='minecraft_whitelist_api'),
+    path('minecraft_whitelist/', MinecraftWhitelistAPI.as_view(), name='minecraft_whitelist_api'),
 ]
