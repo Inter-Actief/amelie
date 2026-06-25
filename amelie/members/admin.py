@@ -13,6 +13,11 @@ class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     raw_id_fields = ('membership',)
 
+class PaymentTypeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description', 'visible')
+    list_filter = ('visible',)
+    search_fields = ('name', 'description')
+
 
 class CommitteeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'abbreviation', 'category', 'superuser',)
@@ -93,7 +98,7 @@ admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(StudyPeriod, StudyPeriodAdmin)
 admin.site.register(Student, StudentAdmin)
-admin.site.register(PaymentType, DescriptionAdmin)
+admin.site.register(PaymentType, PaymentTypeAdmin)
 admin.site.register(MembershipType, MembershipTypeAdmin)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Preference, PreferenceAdmin)
