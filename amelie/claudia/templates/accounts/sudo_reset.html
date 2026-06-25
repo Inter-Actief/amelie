@@ -7,15 +7,42 @@
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
         <h2>{% trans 'Sudo password reset' %}</h2>
         <div class="content">
-            <p>
-                {% trans 'Your sudo password was reset successfully.' %}
-            </p>
-            <p>
-                {% trans 'You can find your new password below. It will only be shown this once, please save it to your password manager.' %}
-            </p>
-            <p>
-                <b>{% trans 'New password:' %}</b>&nbsp;{{ new_password }}
-            </p>
+            {% if new_password_set %}
+                <p>
+                    {% trans 'Your sudo password was reset successfully.' %}
+                </p>
+                {% if new_password_is_random %}
+                    <p>
+                        {% trans 'You can find your random new password below. It will only be shown this once, please save it to your password manager.' %}
+                    </p>
+                    <p>
+                        <b>{% trans 'New password:' %}</b>&nbsp;{{ new_password }}
+                    </p>
+                {% else %}
+                    <p>
+                        {% trans 'You may close this page.' %}
+                    </p>
+                {% endif %}
+            {% else %}
+                <p>{% trans 'Please enter a wanted sudo password in the form below. Note, this only resets your sudo password, not your login password.' %}</p>
+                <p>{% trans 'Your new password must differ from your current one and consist of at least 15 characters.' %}</p>
+                <p>{% trans 'You may also choose to use a random password, which will be displayed once after clicking the relevant button.' %}</p>
+                {% if error %}
+                    <ul class="errorlist">
+                        <li>{{ error }}</li>
+                    </ul>
+                {% endif %}
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="table-responsive">
+                        <table class="table">
+                            {{ form.as_table }}
+                        </table>
+                    </div>
+                    <p><input type="submit" value="{% trans 'Reset password' %}" /></p>
+                </form>
+            {% endif %}
         </div>
     </div></div>
 {% endblock content %}

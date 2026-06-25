@@ -745,6 +745,7 @@ class PaymentType(models.Model):
     """
     name = models.CharField(max_length=20, unique=True, verbose_name=_l('Name'))
     description = models.TextField(verbose_name=_l('Description'))
+    visible = models.BooleanField(default=True, verbose_name=_l('Visible'))
 
     class Meta(object):
         ordering = ['description']

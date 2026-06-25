@@ -3,7 +3,7 @@ from django.contrib import admin
 from amelie.members.models import Department, Payment, PaymentType, Committee, CommitteeCategory, Dogroup, \
     DogroupGeneration, Faculty, Function, Membership, MembershipType, Employee, Person, Student, Study, \
     StudyPeriod, Association, Preference, PreferenceCategory, UnverifiedEnrollment
-from amelie.tools.admin import NameAdmin, DescriptionAdmin, AbbreviationAdmin, AbbreviationTypeAdmin
+from amelie.tools.admin import NameAdmin, AbbreviationAdmin, AbbreviationTypeAdmin
 
 
 class PaymentAdmin(admin.ModelAdmin):
@@ -12,6 +12,11 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ('payment_type', 'amount', 'membership__type', 'membership__year',)
     date_hierarchy = 'date'
     raw_id_fields = ('membership',)
+
+class PaymentTypeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description', 'visible')
+    list_filter = ('visible',)
+    search_fields = ('name', 'description')
 
 
 class CommitteeAdmin(admin.ModelAdmin):
@@ -93,7 +98,7 @@ admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(StudyPeriod, StudyPeriodAdmin)
 admin.site.register(Student, StudentAdmin)
-admin.site.register(PaymentType, DescriptionAdmin)
+admin.site.register(PaymentType, PaymentTypeAdmin)
 admin.site.register(MembershipType, MembershipTypeAdmin)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Preference, PreferenceAdmin)
