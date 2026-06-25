@@ -315,7 +315,7 @@ class DiscountPeriodAdmin(admin.ModelAdmin):
 
 class DiscountAdmin(admin.ModelAdmin):
     list_display = ('id', 'discount_period', 'amount', 'date')
-    list_filter = ('date',)
+    list_filter = ('date', 'discount_period')
     date_hierarchy = 'date'
     search_fields = ['discount_period__description_nl', 'discount_period__description_en']
 
