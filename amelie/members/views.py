@@ -1767,7 +1767,7 @@ class MinecraftWhitelistAPI(RequireAllowlistedIPMixin, View):
     http_method_names = ['post']
     needs_login = False
     errors_as_json = True
-    allowlisted_ip_addresses = settings.ALEXIA_AGE_CHECK_API_CONFIG.get('allowed_ips', [])
+    allowlisted_ip_addresses = settings.MINECRAFT_WHITELIST_API_CONFIG.get('allowed_ips', [])
     allow_superusers = False
 
     def post(self, request):
