@@ -239,6 +239,8 @@ def activity(request, pk, deanonymise=False):
     else:
         confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
 
+    person_enrollment_public = request.person.has_preference(name="public_enrollment")
+
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
 
     if hasattr(request, 'person') and waiting_participation_set.filter(person=request.person).exists():
@@ -257,6 +259,7 @@ def activity(request, pk, deanonymise=False):
     # Enable opengraph on this page
     metadata_enable_opengraph = True
     is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
+    is_committee = obj.organizer in request.person.current_committees().all()
 
     return render(request, "activity.html", locals())
 
