@@ -140,3 +140,25 @@ class PersonalAliasCreateForm(forms.Form):
         if ExtraPersonalAlias.objects.filter(email=self.cleaned_data['email']).count() > 0:
             raise ValidationError(_l("This mailaddress is not unique! You might want to make a group."))
         return self.cleaned_data['email']
+
+
+class KanidmSudoResetForm(forms.Form):
+    set_random = forms.BooleanField(
+        label=_l('Generate a random password?'), required=False,
+        help_text=_l("The values from the password fields will not be used, and a random, 32-character password will be generated for you.")
+    )
+    new_password = forms.CharField(widget=widgets.PasswordInput, min_length=15, label=_l('New password'), required=False)
+    new_password2 = forms.CharField(widget=widgets.PasswordInput, min_length=15, label=_l('Repeat new password'), required=False)
+
+    def clean(self):
+        cleaned_data = super(KanidmSudoResetForm, self).clean()
+        if not cleaned_data.get("set_random"):
+            new_pw = cleaned_data.get("new_password")
+            new_pw2 = cleaned_data.get("new_password2")
+
+            if not new_pw:
+                self.add_error("new_password", _l("This field is required."))
+            if not new_pw2:
+                self.add_error("new_password2", _l("This field is required."))
+            if new_pw and new_pw2 and new_pw != new_pw2:
+                self.add_error("new_password2", _l("The new passwords do not match"))

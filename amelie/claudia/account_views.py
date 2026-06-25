@@ -1,5 +1,6 @@
 import datetime
 import re
+from typing import Optional
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,8 +19,9 @@ from django.views.generic.edit import FormView
 from sshpubkeys import SSHKey, InvalidKeyError
 
 from amelie.claudia.forms import AccountPasswordForm, AccountConfigureForwardingForm, AccountPasswordResetForm, \
-    AccountPasswordResetLinkForm, AccountActivateForm, MailAliasForm
+    AccountPasswordResetLinkForm, AccountActivateForm, MailAliasForm, KanidmSudoResetForm
 from amelie.claudia.google import GoogleSuiteAPI
+from amelie.claudia.kanidm import KanidmPerson
 from amelie.claudia.models import Mapping, Membership, AliasGroup
 from amelie.claudia.tasks import verify_object
 from amelie.members.models import Person
@@ -614,10 +616,19 @@ class KanidmActions(RequireActiveMemberMixin, View):
         return self.do_redirect()
 
 
-class KanidmSudoReset(TemplateView):
+class KanidmSudoReset(FormView):
+    form_class = KanidmSudoResetForm
     template_name = "accounts/sudo_reset.html"
 
-    def get_context_data(self, **kwargs):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        from amelie.claudia.kanidm import KanidmAPI
+        self.kanidm_api = KanidmAPI()
+        self.person: Optional[Person] = None
+        self.mp: Optional[Mapping] = None
+        self.kanidm_person: Optional[KanidmPerson] = None
+
+    def check_args(self):
         # Check reset code kwarg
         reset_code = self.kwargs.get("reset_code")
         if reset_code is None:
@@ -625,35 +636,58 @@ class KanidmSudoReset(TemplateView):
 
         # Check if a person exists with this code
         try:
-            person = Person.objects.get(sudo_reset_code=reset_code)
+            self.person = Person.objects.get(sudo_reset_code=reset_code)
         except Person.DoesNotExist:
             raise Http404(_l("This reset link is not valid."))
 
         # Check if code is not expired
-        if timezone.now() > person.sudo_reset_expiry:
-            person.sudo_reset_code = None
-            person.sudo_reset_expiry = None
-            person.save()
+        if timezone.now() > self.person.sudo_reset_expiry:
+            self.person.sudo_reset_code = None
+            self.person.sudo_reset_expiry = None
+            self.person.save()
             raise Http404(_l("This reset link is not valid."))
 
         # Get Claudia mapping
         from amelie.claudia.models import Mapping
-        mp = Mapping.find(person)
-        if not mp or not mp.get_kanidm_id():
+        self.mp = Mapping.find(self.person)
+        if not self.mp or not self.mp.get_kanidm_id():
             raise Http404(_l("This reset link is not valid."))
 
         # Get Kanidm account
-        from amelie.claudia.kanidm import KanidmAPI
-        kanidm_api = KanidmAPI()
-        kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
-        if not kanidm_person:
+        kanidm_id = self.mp.get_kanidm_id()
+        if not kanidm_id:
+            raise Http404(_l("This reset link is not valid."))
+        self.kanidm_person = self.kanidm_api.get_person(kanidm_id)
+        if not self.kanidm_person:
             raise Http404(_l("This reset link is not valid."))
 
-        # Remove reset code
-        person.sudo_reset_code = None
-        person.sudo_reset_code = None
-        person.save()
-
+    def get_context_data(self, **kwargs):
+        # Check if the request is valid
+        self.check_args()
         context = super().get_context_data(**kwargs)
-        context['new_password'] = kanidm_person.reset_posix_password()
         return context
+
+    def form_valid(self, form):
+        # Check if the request is valid
+        self.check_args()
+
+        if self.person is None or self.kanidm_person is None:
+            raise Http404(_l("This reset link is not valid."))
+
+        context = super().get_context_data()
+
+        # Remove reset code
+        self.person.sudo_reset_code = None
+        self.person.sudo_reset_code = None
+        self.person.save()
+
+        if form.cleaned_data.get("set_random", False):
+            password = None
+            context['new_password_is_random'] = True
+        else:
+            password = form.cleaned_data.get("new_password")
+            context['new_password_is_random'] = False
+
+        context['new_password'] = self.kanidm_person.reset_posix_password(new_password=password)
+        context['new_password_set'] = True
+        return self.render_to_response(context)
