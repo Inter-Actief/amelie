@@ -396,6 +396,11 @@ CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS'] = env.list("CLAUDIA_GSUITE_ALLOWED_ALIAS
 CLAUDIA_KANIDM["API_BASE"] = env("CLAUDIA_KANIDM_API_BASE", default="idm.ia.utwente.nl")
 CLAUDIA_KANIDM["API_KEY"] = env("CLAUDIA_KANIDM_API_KEY", default=None)
 
+# Minecraft whitelist API settings
+MINECRAFT_WHITELIST_API_CONFIG['api_key'] = env("MINECRAFT_WHITELIST_API_KEY", default=None)
+MINECRAFT_WHITELIST_API_CONFIG['allowed_ips'] = env.list("MINECRAFT_WHITELIST_API_ALLOWED_IPS", default=[])
+
+
 ###
 #  Alexia settings
 ###
