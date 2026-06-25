@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-25 23:06+0200\n"
-"PO-Revision-Date: 2026-06-25 17:54+0000\n"
+"PO-Revision-Date: 2026-06-25 21:11+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -6748,28 +6748,24 @@ msgid "Preferences"
 msgstr "Voorkeuren"
 
 #: amelie/members/forms.py:51
-#, fuzzy
-#| msgid "Invalid characters in name."
 msgid "Invalid Minecraft username format."
-msgstr "Ongeldige karakters in naam."
+msgstr "Ongeldig formaat van Minecraft gebruikersnaam."
 
 #: amelie/members/forms.py:61
 msgid "Could not connect to Minecraft verification servers. Please try again later."
-msgstr ""
+msgstr "Kon niet verbinden met de Minecraft verificatieservers. Probeer het later nog eens."
 
 #: amelie/members/forms.py:65
-#, fuzzy
-#| msgid "This picture does not exist."
 msgid "This Minecraft username does not exist."
-msgstr "Deze foto bestaat niet."
+msgstr "Deze Minecraft gebruikersnaam bestaat niet."
 
 #: amelie/members/forms.py:67
 msgid "An error occurred while verifying the Minecraft username."
-msgstr ""
+msgstr "Er ging iets fout tijdens het verifiëren van de Minecraft gebruikersnaam."
 
 #: amelie/members/forms.py:75
 msgid "Failed to parse verification response from Mojang."
-msgstr ""
+msgstr "Kon het verificatie-antwoord van Mojang niet inlezen."
 
 #: amelie/members/forms.py:140
 msgid "Bachelor degree"
@@ -7307,11 +7303,11 @@ msgstr "Je mag alleen ^x[0-9]{7}$ invullen."
 
 #: amelie/members/models.py:354
 msgid "Minecraft username"
-msgstr ""
+msgstr "Minecraft gebruikersnaam"
 
 #: amelie/members/models.py:359
 msgid "Minecraft UUID"
-msgstr ""
+msgstr "Minecraft UUID"
 
 #: amelie/members/models.py:361
 msgid "Unix shell"
