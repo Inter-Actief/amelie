@@ -507,6 +507,24 @@ for i in range(1, 6):
             },
         }
 
+
+
+###
+# Declaration Settings
+###
+
+# Maximum file size for declarations
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = env.int("PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE", default=PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE)
+
+# Maximum number of files for declarations
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = env.int("PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT", default=PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT)
+
+# E-mail address for declarations
+DECLARATION_EMAIL = env("AMELIE_DECLARATION_EMAIL", default=DECLARATION_EMAIL)
+
+# E-mail address of the Treasurer
+TREASURER_EMAIL = env("AMELIE_TREASURER_EMAIL", default=TREASURER_EMAIL)
+
 ###
 #  Amelie-specific settings
 ###

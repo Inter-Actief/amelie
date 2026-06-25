@@ -1,0 +1,196 @@
+{% extends "basis.html" %}
+{% load i18n fieldsets %}
+
+{% block titel %}{% trans "Submit Declaration" %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="current">
+            <h2>{% trans "Submit Declaration" %}</h2>
+
+            <div class="content">
+                <p>
+                    {% blocktrans %}
+                        Fill in the details of your declaration and attach any receipts or other proofs.
+                        <br>
+                        A declaration form is not needed.
+                    {% endblocktrans %}
+                </p>
+
+                <h3>{% trans "Declaration Information" %}</h3>
+                <ul>
+                    <li>{% trans "You are responsible for the accuracy of your declaration." %}</li>
+                    <li>{% trans "The Treasurer may decline your declaration if it does not follow the " %} <a href="{% url 'gmm:index' %}">{% trans "declaration policy" %}</a>.</li>
+                    <li>{% trans "All file types are accepted." %}</li>
+                    <li>{% trans "Maximum of " %}{{ max_file_amount }}{% trans " files." %}</li>
+                    <li>{% trans "Maximum file size per file:" %} {{ max_file_size }}.</li>
+                </ul>
+                <ul>
+                    <li>
+                        <i class="icon icon-information"></i>
+                        {% trans "For administrative purposes, a copy of each submitted declaration will be saved in our database, containing the following details:" %}
+                        <ul>
+                            <li>{% trans "A reference to your member details;" %}</li>
+                            <li>{% trans "The committee, payment method, IBAN, amount, and description of your declaration;" %}</li>
+                            <li>{% trans "The filenames of the submitted files;" %}</li>
+                            <li>{% trans "Submission timestamp;" %}</li>
+                        </ul>
+                    </li>
+                </ul>
+
+
+                <form class="big" method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <ul class="ia_messages">
+                            <li class="error">{{ form.non_field_errors|safe }}</li>
+                        </ul>
+                    {% endif %}
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th>Name</th>
+                                <td>
+                                    {{ user.person.full_name }}
+                                </td>
+                            </tr>
+
+                            {% if user.person.current_committees.exists %}
+                            <tr>
+                                <th>{{ form.committee.label }}</th>
+                                <td>
+                                    {{ form.committee.errors|safe }}
+                                    <div>{{ form.committee }}</div>
+                                    {% if form.committee.help_text %}
+                                        <small class="help-text">{{ form.committee.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+
+                            <tr>
+                                <th>{{ form.payment_method.label }}</th>
+                                <td>
+                                    {{ form.payment_method.errors|safe }}
+                                    <div>{{ form.payment_method }}</div>
+                                    {% if form.payment_method.help_text %}
+                                        <small class="help-text">{{ form.payment_method.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>{{ form.iban_choice.label }}</th>
+                                <td>
+                                {% if user.person.has_mandate_consumptions %}
+                                    {{ form.iban_choice.errors|safe }}
+                                    <div>{{ form.iban_choice }}</div>
+                                    {% if form.iban_choice.help_text %}
+                                        <small class="help-text">{{ form.iban_choice.help_text }}</small>
+                                    {% endif %}
+                                {% endif %}
+
+                                    {{ form.iban_choice.errors|safe }}
+                                    <div>{{ form.iban_custom }}</div>
+                                    {% if form.iban_custom.help_text %}
+                                        <small class="help-text">{{ form.iban_custom.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>{{ form.amount.label }}</th>
+                                <td>
+                                    {{ form.amount.errors|safe }}
+                                    <div>{{ form.amount }}</div>
+                                    {% if form.amount.help_text %}
+                                        <small class="help-text">{{ form.amount.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>{{ form.description.label }}</th>
+                                <td>
+                                    {{ form.description.errors|safe }}
+                                    <div>{{ form.description }}</div>
+                                    {% if form.description.help_text %}
+                                        <small class="help-text">{{ form.description.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>{{ form.documents.label }}</th>
+                                <td>
+                                    {{ form.documents.errors|safe }}
+                                    <div>{{ form.documents }}</div>
+                                    {% if form.documents.help_text %}
+                                        <small class="help-text">{{ form.documents.help_text }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div>
+                        <input type="submit" value="{% trans 'Submit declaration' %} &raquo;" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add file validation and preview functionality for multiple files
+            const fileInput = document.getElementById('id_documents');
+            const maxSize = {{ max_file_size_bytes_int }}; // rendered as integer
+            const maxFiles = {{ max_file_amount }}; // rendered as integer
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
+
+                    if (files.length > maxFiles) {
+                        alert("{% trans 'You can upload a maximum of' %} " + maxFiles + " {% trans 'files' %}.");
+                        this.value = '';
+                        const existing = document.getElementById('file-info');
+                        if (existing) existing.remove();
+                        return;
+                    }
+
+                    // Validate each selected file
+                    for (let f of files) {
+                        if (f.size > maxSize) {
+                            alert("{% trans 'File size cannot exceed' %} {{ max_file_size }}.");
+                            this.value = '';
+                            // remove any existing file-info
+                            const existing = document.getElementById('file-info');
+                            if (existing) existing.remove();
+                            return;
+                        }
+                    }
+
+                    // Show files info
+                    let fileInfo = document.getElementById('file-info');
+                    if (!fileInfo) {
+                        fileInfo = document.createElement('div');
+                        fileInfo.id = 'file-info';
+                        fileInfo.className = 'file-info';
+                        this.parentNode.appendChild(fileInfo);
+                    }
+
+                    const infos = files.map(function(f) {
+                        const sizeMB = (f.size / (1024 * 1024)).toFixed(2);
+                        return '<div><small class="text-muted">{% trans "Selected:" %} ' + f.name + ' (' + sizeMB + 'MB)</small></div>';
+                    });
+                    fileInfo.innerHTML = infos.join('');
+                });
+            }
+        });
+    </script>
+{% endblock content %}
