@@ -680,7 +680,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
 
     def clean(self):
         cleaned_data = super(RegistrationFormStepAuthorizationDetails, self).clean()
-        
+
         if self.errors:
             # Skips checks if errors are found.
             return cleaned_data
