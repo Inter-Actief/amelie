@@ -3,15 +3,15 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-25 19:48+0200\n"
-"PO-Revision-Date: 2026-05-11 21:50+0000\n"
-"Last-Translator: Bart Oostveen <oostveenb@inter-actief.net>\n"
+"PO-Revision-Date: 2026-06-25 17:54+0000\n"
+"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.6.1\n"
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.9\n"
 
@@ -3626,20 +3626,16 @@ msgid "This mailaddress is not unique! You might want to make a group."
 msgstr "Dit mailadres is niet uniek! Misschien wil je een groep aanmaken?"
 
 #: amelie/claudia/forms.py:147
-#, fuzzy
-#| msgid "Repeat new password"
 msgid "Generate a random password?"
-msgstr "Herhaal nieuw wachtwoord"
+msgstr "Genereer een willekeurig wachtwoord?"
 
 #: amelie/claudia/forms.py:148
 msgid "The values from the password fields will not be used, and a random, 32-character password will be generated for you."
-msgstr ""
+msgstr "De wachtwoordvelden zullen niet worden gebruikt, maar er zal een willekeurig, 32-karakters lang wachtwoord voor je gegenereerd worden."
 
 #: amelie/claudia/forms.py:160 amelie/claudia/forms.py:162
-#, fuzzy
-#| msgid "A response is required"
 msgid "This field is required."
-msgstr "Antwoord is verplicht"
+msgstr "Dit veld is verplicht."
 
 #: amelie/claudia/models.py:33 amelie/members/models.py:970
 msgid "Create GitLab group"
@@ -3878,40 +3874,32 @@ msgid "Your sudo password was reset successfully."
 msgstr "Je sudo-wachtwoord is gereset."
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:16
-#, fuzzy
-#| msgid "You can find your new password below. It will only be shown this once, please save it to your password manager."
 msgid "You can find your random new password below. It will only be shown this once, please save it to your password manager."
-msgstr "Je kan je nieuwe wachtwoord hieronder vinden. Het wachtwoord wordt alleen deze ene keer getoond, sla hem op in je wachtwoordmanager."
+msgstr "Je kan je nieuwe willekeurige wachtwoord hieronder vinden. Het wachtwoord wordt alleen deze ene keer getoond, sla hem op in je wachtwoordmanager."
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:19
 msgid "New password:"
 msgstr "Nieuw wachtwoord:"
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:23
-#, fuzzy
-#| msgid "You may close this window now."
 msgid "You may close this page."
-msgstr "Je mag dit venster nu sluiten."
+msgstr "Je mag deze pagina nu sluiten."
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:27
 msgid "Please enter a wanted sudo password in the form below. Note, this only resets your sudo password, not your login password."
-msgstr ""
+msgstr "Voer het gewenste sudo-wachtwoord hieronder in. Let op, dit stelt alleen je sudo wachtwoord in, niet je loginwachtwoord."
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:28
-#, fuzzy
-#| msgid "Your new password must differ from your current one and consist of at least 8 characters."
 msgid "Your new password must differ from your current one and consist of at least 15 characters."
-msgstr "Je nieuwe wachtwoord moet natuurlijk anders zijn dan je vorige en uit minimaal 8 karakters bestaan."
+msgstr "Je nieuwe wachtwoord moet natuurlijk anders zijn dan je vorige en uit minimaal 15 karakters bestaan."
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:29
 msgid "You may also choose to use a random password, which will be displayed once after clicking the relevant button."
-msgstr ""
+msgstr "Je kan er ook voor kiezen om een willekeurig wachtwoord te gebruiken, die zal eenmalig getoond worden nadat je op de knop hebt geklikt."
 
 #: amelie/claudia/templates/accounts/sudo_reset.html:43
-#, fuzzy
-#| msgid "Reset sudo password"
 msgid "Reset password"
-msgstr "Sudo-wachtwoord resetten"
+msgstr "Wachtwoord resetten"
 
 #: amelie/claudia/templates/claudia/account_created.mail:3
 msgid "Account at Inter-Actief"
@@ -6800,16 +6788,12 @@ msgid "Please enter your own bank account number!"
 msgstr "Vul alstublieft uw eigen rekeningnummer in!"
 
 #: amelie/members/forms.py:293
-#, fuzzy
-#| msgid "A response is required"
 msgid "A mandate type is required."
-msgstr "Antwoord is verplicht"
+msgstr "Machtigingssoort is verplicht."
 
 #: amelie/members/forms.py:296
-#, fuzzy
-#| msgid "A response is required"
 msgid "An IBAN is required."
-msgstr "Antwoord is verplicht"
+msgstr "IBAN is verplicht."
 
 #: amelie/members/forms.py:300 amelie/members/forms.py:386
 #: amelie/members/forms.py:465 amelie/members/forms.py:656
@@ -6948,10 +6932,8 @@ msgid "This person is currently a member of this committee"
 msgstr "Deze persoon is op dit moment lid van deze commissie"
 
 #: amelie/members/graphql.py:43
-#, fuzzy
-#| msgid "Photographer"
 msgid "Photographer name"
-msgstr "Fotograaf"
+msgstr "Naam fotograaf"
 
 #: amelie/members/graphql.py:119
 msgid "Members of this committee"
@@ -13904,7 +13886,7 @@ msgstr "URL naar de video"
 
 #: amelie/videos/graphql.py:74
 msgid "Embed URL"
-msgstr ""
+msgstr "Embed URL"
 
 #: amelie/videos/models.py:19
 msgid "Featured"
