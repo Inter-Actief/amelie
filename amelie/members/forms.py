@@ -232,7 +232,7 @@ class PersonStudyForm(forms.ModelForm):
 
 class PersonPaymentForm(forms.Form):
     date = forms.DateField(initial=datetime.date.today())
-    method = forms.ModelChoiceField(PaymentType.objects.all())
+    method = forms.ModelChoiceField(PaymentType.objects.filter(visible=True))
 
 
 class MembershipForm(forms.ModelForm):
