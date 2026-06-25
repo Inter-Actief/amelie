@@ -70,7 +70,7 @@
             <h2>{% trans 'Preferences' %}</h2>
 
             <div class="content">
-              {% fieldset preferences,shell as form_preferences from form %}
+              {% fieldset preferences,shell,minecraft_username as form_preferences from form %}
               {{ form_preferences }}
             </div>
         </div></div>

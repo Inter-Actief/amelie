@@ -2,14 +2,17 @@
 import datetime
 import csv
 import os
+import uuid
 from datetime import date
 from difflib import SequenceMatcher
 
 import re
 
+import requests
 from django import forms
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
 from django.db.models import Q, TextChoices
 from django.forms import widgets
 from django.forms.models import BaseInlineFormSet
@@ -38,6 +41,40 @@ class PersonalDetailsEditForm(forms.ModelForm):
     date_of_birth = forms.DateField(widget=DateSelector, label=_l('Birth date'))
     preferences = forms.ModelMultipleChoiceField(Preference.objects.filter(adjustable=True), required=False,
                                                  widget=widgets.CheckboxSelectMultiple, label=_l('Preferences'))
+    def clean_minecraft_username(self):
+        username = self.cleaned_data.get('minecraft_username', '').strip()
+        if not username:
+            self.instance.minecraft_uuid = None
+            return ""
+
+        if not re.match(r'^[a-zA-Z0-9_]{3,16}$', username):
+            raise ValidationError(_("Invalid Minecraft username format."))
+
+        if 'minecraft_username' in self.changed_data:
+            try:
+                response = requests.get(
+                    f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{username}",
+                    timeout=5
+                )
+            except requests.RequestException:
+                raise ValidationError(
+                    _("Could not connect to Minecraft verification servers. Please try again later.")
+                )
+
+            if response.status_code in (204, 404):
+                raise ValidationError(_("This Minecraft username does not exist."))
+            elif response.status_code != 200:
+                raise ValidationError(_("An error occurred while verifying the Minecraft username."))
+
+            try:
+                data = response.json()
+                self.instance.minecraft_uuid = uuid.UUID(data['id'])
+
+                return data['name']
+            except (ValueError, KeyError):
+                raise ValidationError(_("Failed to parse verification response from Mojang."))
+        else:
+            return username
 
     def save(self, *args, **kwargs):
         if self.has_changed():
@@ -94,7 +131,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
         fields = ('gender', 'date_of_birth', 'preferred_language', 'address', 'postal_code', 'city', 'country',
                   'address_parents', 'postal_code_parents', 'city_parents', 'country_parents', 'email_address_parents',
                   'can_use_parents_address', 'telephone', 'email_address', 'preferences',
-                  'shell', 'international_member')
+                  'shell', 'international_member', 'minecraft_username')
 
 
 class PersonalStudyEditForm(forms.Form):
