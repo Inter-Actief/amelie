@@ -276,12 +276,25 @@ class MandateForm(forms.ModelForm):
         self.fields['iban'].required = True
         self.fields['account_holder_name'].required = True
 
+    def clean_iban(self):
+        if str(self.cleaned_data['iban']).strip() == "NL18ABNA0484869868":
+            raise forms.ValidationError(_l("Please enter your own bank account number!"))
+        return self.cleaned_data['iban']
+
+    def clean_bic(self):
+        return check_mandate_bic(str(self.cleaned_data['bic']).strip())
+
     def clean(self):
         cleaned_data = super(MandateForm, self).clean()
         if self.errors:
             # Skips checks if errors are found.
             return cleaned_data
+        if not cleaned_data['authorization_type']:
+            raise forms.ValidationError(_l('A mandate type is required.'))
 
+        if not cleaned_data['iban']:
+            raise forms.ValidationError(_l('An IBAN is required.'))
+        
         if not cleaned_data['bic']:
             if not cleaned_data['iban'][:2] == 'NL':
                 raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
@@ -626,28 +639,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
         return self.cleaned_data['iban']
 
     def clean_bic(self):
-        bic = str(self.cleaned_data['bic']).strip()
-        if bic == "":
-            return self.cleaned_data['bic']
-
-        if not settings.DEBUG:
-            if bic in settings.COOKIE_CORNER_BANK_CODES.values():
-                return self.cleaned_data['bic']
-            # handle if does not exist, throw error showing the command to run
-            try:
-                # csv file can be updated with `python manage.py update_bic_csv`
-                with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
-                    csv_reader = csv.reader(csv_file, delimiter=',')
-                    next(csv_reader)  # skip the header
-                    for row in csv_reader:
-                        # only check the first 8 characters, last 3 are for the branch code
-                        if bic[:8] == row[4][:8]:
-                            return self.cleaned_data['bic']
-            except IOError as e:
-                raise IOError(u"Reading file at {} failed (run 'manage.py update_bic_csv' to create it if it does not exist) {}"
-                              .format(os.path.join(settings.MEDIA_ROOT, 'bic_list.csv'), e))
-
-            raise forms.ValidationError(_l("BIC is not from a SEPA country"))
+        return check_mandate_bic(str(self.cleaned_data['bic']).strip())
 
     def clean(self):
         cleaned_data = super(RegistrationFormStepAuthorizationDetails, self).clean()
@@ -770,6 +762,29 @@ class StudentNumberForm(forms.Form):
         if not Student.objects.filter(number=self.cleaned_data["student_number"]).exists():
             raise forms.ValidationError(_l("There is no student with this student number."))
         return self.cleaned_data["student_number"]
+
+
+def check_mandate_bic(bic):
+    if bic == "":
+        return bic
+
+    if bic in settings.COOKIE_CORNER_BANK_CODES.values():
+        return bic
+    # handle if does not exist, throw error showing the command to run
+    try:
+        # csv file can be updated with `python manage.py update_bic_csv`
+        with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)  # skip the header
+            for row in csv_reader:
+                # only check the first 8 characters, last 3 are for the branch code
+                if bic[:8] == row[4][:8]:
+                    return bic
+    except IOError as e:
+        raise IOError(u"Reading file at {} failed (run 'manage.py update_bic_csv' to create it if it does not exist) {}"
+                        .format(os.path.join(settings.MEDIA_ROOT, 'bic_list.csv'), e))
+
+    raise forms.ValidationError(_l("BIC is not from a SEPA country"))
 
 
 inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm, ProfilePictureVerificationForm, ProfilePictureUploadForm)
