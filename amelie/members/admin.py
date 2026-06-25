@@ -3,7 +3,7 @@ from django.contrib import admin
 from amelie.members.models import Department, Payment, PaymentType, Committee, CommitteeCategory, Dogroup, \
     DogroupGeneration, Faculty, Function, Membership, MembershipType, Employee, Person, Student, Study, \
     StudyPeriod, Association, Preference, PreferenceCategory, UnverifiedEnrollment
-from amelie.tools.admin import NameAdmin, DescriptionAdmin, AbbreviationAdmin, AbbreviationTypeAdmin
+from amelie.tools.admin import NameAdmin, AbbreviationAdmin, AbbreviationTypeAdmin
 
 
 class PaymentAdmin(admin.ModelAdmin):
