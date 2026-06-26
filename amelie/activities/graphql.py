@@ -1,6 +1,7 @@
 import graphene
-from django_filters import FilterSet
+from django_filters import FilterSet, BooleanFilter
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Q, Count
 from docutils.nodes import description
 from graphene_django import DjangoObjectType
 
@@ -12,6 +13,8 @@ from amelie.graphql.pagination.connection_field import DjangoPaginationConnectio
 
 
 class ActivityFilterSet(FilterSet):
+    has_photos = BooleanFilter(method='filter_has_photos', label=_('Has photos'))
+
     class Meta:
         model = Activity
         fields = {
@@ -21,6 +24,12 @@ class ActivityFilterSet(FilterSet):
             'end': ("gt", "lt", "exact"),
             'dutch_activity': ("exact", ),
         }
+
+    def filter_has_photos(self, queryset, name, value):
+        """Filter activities with 1 or more photos."""
+        if value:
+            return queryset.annotate(photos_count=Count('photos')).filter(photos_count__gte=1)
+        return queryset
 
 
 @check_authorization
