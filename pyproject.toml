@@ -97,7 +97,7 @@ dependencies = [
     # Google API Client
     "google-api-python-client>=2.192.0,<3",
     "google-auth>=2.49.1,<2.54",
-    "pyOpenSSL>=26.0.0,<26.3.0",
+    "pyOpenSSL>=26.0.0,<26.4.0",
 
     # Development
     "django-debug-toolbar>=3.7,<6.4",
