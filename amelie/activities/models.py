@@ -57,6 +57,7 @@ class Activity(Event):
     enrollment = models.BooleanField(default=False, verbose_name=_l('enrollment'))
     enrollment_begin = models.DateTimeField(blank=True, null=True, verbose_name=_l('enrollment start'), help_text=_l('If you want to add options, make sure your activity isn\'t open for enrollment right away'))
     enrollment_end = models.DateTimeField(blank=True, null=True, verbose_name=_l('enrollment end'))
+    enrollment_private = models.BooleanField(default=False, verbose_name=_l('Hide participants'))
     maximum = models.PositiveIntegerField(blank=True, null=True)
     waiting_list_locked = models.BooleanField(default=False, verbose_name=_l('Lock waiting list'))
 

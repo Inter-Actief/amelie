@@ -147,7 +147,7 @@
 	</div>
 
     {% if obj.enrollment %}
-        {% if obj.organizer in request.person.current_committees or request.is_board or is_roomduty %}
+        {% if  request.is_board or is_roomduty or is_committee %}
             <div class="col-xs-12 col-md-12">
                 <div class="current">
                     <h2 class="expand" data-target="export_options">{% trans 'Export enrollments' %}</h2>
@@ -175,14 +175,13 @@
                     </div>
                 </div>
             </div>
-
-
+        {% endif %}
+        {% if not obj.enrollment_private or request.is_board or is_committee or is_roomduty %}
             <div class="col-xs-12 col-md-12">
                 <div class="current">
-                    <h2>{% trans 'Enrollments' %}</h2>
-
-                    <div id="enrollment_overview" class="content">
-                    {% include "activity_enrollment_overview.html" %}
+                    <h2 class="expand" data-target="enrollment_overview">{% trans 'Enrollment' %}</h2>
+                    <div id="enrollment_overview" class="content" style="overflow: hidden;">
+                        {% include "activity_enrollment_overview.html" %}
                     </div>
                 </div>
             </div>

@@ -17,6 +17,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext as _
 
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
@@ -495,6 +496,13 @@ class Person(models.Model, Mappable):
             return ' '.join([first_name, self.last_name_prefix, self.last_name])
         else:
             return ' '.join([first_name, self.last_name])
+
+    def public_enrollment_name(self):
+        """If the preference is set, it returns the first name plus last letter of the surname."""
+        if self.has_preference(name="public_enrollment"):
+            return f"{self.first_name} {self.last_name[:1]}."
+        else:
+            return _("Anonymous")
 
     def initials_last_name(self):
         """
