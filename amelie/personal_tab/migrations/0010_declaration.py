@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('members', '0020_add_public_enrollment_preference'),
-        ('personal_tab', '0009_printlogentry'),
+        ('personal_tab', '0010_alter_pendingpostoken_token'),
     ]
 
     operations = [
