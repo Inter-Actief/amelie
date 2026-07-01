@@ -81,7 +81,7 @@
                                 </td>
                             </tr>
 
-                            <tr>
+                            <tr id="iban-row">
                                 <th>{{ form.iban_choice.label }}</th>
                                 <td>
                                 {% if user.person.has_mandate_consumptions %}
@@ -92,7 +92,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                    {{ form.iban_choice.errors|safe }}
+                                    {{ form.iban_custom.errors|safe }}
                                     <div>{{ form.iban_custom }}</div>
                                     {% if form.iban_custom.help_text %}
                                         <small class="help-text">{{ form.iban_custom.help_text }}</small>
@@ -145,6 +145,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const paymentMethodInput = document.getElementById('id_payment_method');
+            const ibanRow = document.getElementById('iban-row');
+
+            function updateIbanVisibility() {
+                if (!paymentMethodInput || !ibanRow) return;
+                ibanRow.style.display = paymentMethodInput.value === 'BANK' ? '' : 'none';
+            }
+
+            if (paymentMethodInput && ibanRow) {
+                paymentMethodInput.addEventListener('change', updateIbanVisibility);
+                updateIbanVisibility();
+            }
+
             // Add file validation and preview functionality for multiple files
             const fileInput = document.getElementById('id_documents');
             const maxSize = {{ max_file_size_bytes_int }}; // rendered as integer
