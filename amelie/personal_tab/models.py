@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from io import BytesIO
+import json
 
 from django.conf import settings
 from django.urls import reverse
@@ -966,7 +967,7 @@ class Declaration(models.Model):
     description = models.TextField(blank=False)
     """The description of the declaration."""
 
-    document_names = models.TextField(blank=True, default=list)
+    document_names = models.JSONField(blank=True, default=list)
     """A list of filenames of the documents submitted with the declaration."""
 
     submission_date = models.DateField(auto_now_add=True, blank=False)
@@ -986,7 +987,7 @@ class Declaration(models.Model):
         # Returns the document names as a list of strings
         if not self.document_names:
             return []
-        return self.document_names.split('/')
+        return json.loads(self.document_names)
     
     def get_committee(self):
         if not self.committee:
