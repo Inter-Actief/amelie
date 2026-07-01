@@ -30,20 +30,20 @@
 
 {% subject %}{% blocktrans %}Declaration submitted via Amélie{% endblocktrans %}{% endsubject %}
 
-{% htmlify %}{% blocktrans %}Dear Treasurer,
+{% htmlify %}Dear Treasurer,
 
-{{ person }} has submitted a declaration.
+{{ declaration.person }} has submitted a declaration.
 
-<b>Committee:</b> {{ committee }}
-<b>Payment Method:</b> {{ payment_method }}
-<b>IBAN:</b> {{ iban }}
-<b>Amount:</b> {{ amount }}
-<b>Submission date:</b> {{ submission_date }}
-<b>Description:</b> {{ description }}
+<b>{% trans "Committee:" %}</b> {{ declaration.committee }}
+<b>{% trans "Payment Method:" %}</b> {{ declaration.get_payment_method }}
+<b>{% trans "IBAN:" %}</b> {{ declaration.get_iban }}
+<b>{% trans "Amount:" %}</b> € {{ declaration.amount|floatformat:2 }}
+<b>{% trans "Submission date:" %}</b> {{ declaration.submission_date|date:"d-m-Y" }}
+<b>{% trans "Description:" %}</b> {{ declaration.description }}
 
 
 Cheers,
-Amélie{% endblocktrans %}{% endhtmlify %}
+Amélie{% endhtmlify %}
 
 {% onlyhtml %}
 				</td>
