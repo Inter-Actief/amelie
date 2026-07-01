@@ -484,14 +484,7 @@ class DeclarationForm(forms.Form):
             )
 
             # Prepare context for the email
-            context = {'person': person,
-                       'committee': committee,
-                       'payment_method': declaration.get_payment_method(),
-                       'iban': declaration.get_iban(),
-                       'amount': f"{amount:.2f}",
-                       'description': description,
-                       'submission_date': declaration.submission_date.strftime('%d-%m-%Y'),
-                   }
+            context = {'declaration': declaration}
 
             # Generate PDF of the declaration form and add it to the attachments
             pdf = declaration.get_pdf() 
