@@ -1,5 +1,6 @@
 import logging
 import math
+import json
 import traceback
 from localflavor.generic.forms import BICFormField, IBANFormField
 
@@ -478,8 +479,8 @@ class DeclarationForm(forms.Form):
                 iban=iban_choice if iban_choice else iban_custom,
                 amount=amount,
                 description=description,
-                # Saving the document names as a slash-separated string, as they are disallowed in filenames
-                document_names='/'.join(doc.name for doc in documents) 
+                # Saving the document names as a JSON list
+                document_names=json.dumps([doc.name for doc in documents])
             )
 
             # Prepare context for the email
