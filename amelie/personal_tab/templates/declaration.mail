@@ -21,7 +21,7 @@
 			</tr>
             <tr>
 				<td colspan=2 style="padding-top: 15px; padding-left: 20px;">
-					<h1>{% trans I.C.T.S.V. Inter- %}<i>{% trans Actief %}</i></h1>
+					<h1>{% blocktrans %} I.C.T.S.V. Inter-<i>Actief</i>{% endblocktrans %}</h1>
 				</td>
 			</tr>
 			<tr>
