@@ -970,7 +970,7 @@ class Declaration(models.Model):
     document_names = models.JSONField(blank=True, default=list)
     """A list of filenames of the documents submitted with the declaration."""
 
-    submission_date = models.DateField(auto_now_add=True, blank=False)
+    submission_date = models.DateTimeField(auto_now_add=True, blank=False)
     """Submission timestamp of the declaration."""
 
     def get_payment_method(self):
