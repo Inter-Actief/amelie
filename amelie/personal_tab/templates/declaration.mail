@@ -39,7 +39,8 @@
 <b>{% trans "IBAN:" %}</b> {{ declaration.get_iban }}
 <b>{% trans "Amount:" %}</b> € {{ declaration.amount|floatformat:2 }}
 <b>{% trans "Submission date:" %}</b> {{ declaration.submission_date|date:"d-m-Y" }}
-<b>{% trans "Description:" %}</b> {{ declaration.description }}
+<b>{% trans "Description:" %}</b>
+{{ declaration.description }}
 
 
 Cheers,
