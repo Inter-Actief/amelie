@@ -6,7 +6,7 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import TextChoices
+from django.db.models import Exists, OuterRef, TextChoices
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
@@ -397,8 +397,15 @@ class DeclarationForm(forms.Form):
 
     def __init__(self, person: Person, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Only show committees that the person is a member of
-        self.fields['committee'].queryset = person.current_committees()
+
+        # Only show parent committees, sorted by own committees first
+        member_committees = person.current_committees().filter(pk=OuterRef('pk'))
+        self.fields['committee'].queryset = Committee.objects.filter(
+            abolished__isnull=True,
+            parent_committees__isnull=True,
+        ).annotate(
+            is_member=Exists(member_committees),
+        ).order_by('-is_member', 'name')
         
         # Set Declaration Payment Methods as choices for payment method field and default to the first
         self.fields['payment_method'].choices = Declaration.DECLARATION_PAYMENT_METHODS
