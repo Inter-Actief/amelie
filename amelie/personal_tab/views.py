@@ -581,11 +581,17 @@ class CustomTransactionDelete(RequireBoardMixin, DeleteView):
     def get_success_url(self):
         return reverse('personal_tab:dashboard', kwargs={'pk': self.object.person.pk, 'slug': self.object.person.slug})
 
-    def delete(self, request, *args, **kwargs):
-        delete = super(CustomTransactionDelete, self).delete(request, *args, **kwargs)
-        messages.success(request, _("The transaction '{transaction}' has been successfully deleted.")
-                         .format(transaction=self.object))
-        return delete
+    def form_valid(self, form):
+        with transaction.atomic():
+            # If the transaction has a discount linked to it, delete the discount as well.
+            object = self.get_object()
+            if object.discount:
+                object.discount.delete()
+                
+            delete = super(CustomTransactionDelete, self).delete(self.request)
+            messages.success(self.request, _("The transaction '{transaction}' has been successfully deleted.")
+                            .format(transaction=self.object))
+            return delete
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
