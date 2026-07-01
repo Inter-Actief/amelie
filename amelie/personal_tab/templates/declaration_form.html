@@ -23,7 +23,7 @@
                     <li>{% trans "The Treasurer may decline your declaration if it does not follow the " %} <a href="{% url 'gmm:index' %}">{% trans "declaration policy" %}</a>.</li>
                     <li>{% trans "All file types are accepted." %}</li>
                     <li>{% trans "Maximum of " %}{{ max_file_amount }}{% trans " files." %}</li>
-                    <li>{% trans "Maximum file size per file:" %} {{ max_file_size }}.</li>
+                    <li>{% trans "Maximum total file size:" %} {{ max_file_size }}.</li>
                 </ul>
                 <ul>
                     <li>
@@ -149,30 +149,33 @@
             const fileInput = document.getElementById('id_documents');
             const maxSize = {{ max_file_size_bytes_int }}; // rendered as integer
             const maxFiles = {{ max_file_amount }}; // rendered as integer
-            
+
             if (fileInput) {
                 fileInput.addEventListener('change', function(e) {
                     const files = Array.from(e.target.files || []);
                     if (!files.length) return;
 
+                    // Validate number of files
                     if (files.length > maxFiles) {
                         alert("{% trans 'You can upload a maximum of' %} " + maxFiles + " {% trans 'files' %}.");
                         this.value = '';
+
+                        // Remove any existing file-info
                         const existing = document.getElementById('file-info');
                         if (existing) existing.remove();
                         return;
                     }
 
-                    // Validate each selected file
-                    for (let f of files) {
-                        if (f.size > maxSize) {
-                            alert("{% trans 'File size cannot exceed' %} {{ max_file_size }}.");
-                            this.value = '';
-                            // remove any existing file-info
-                            const existing = document.getElementById('file-info');
-                            if (existing) existing.remove();
-                            return;
-                        }
+                    // Validate total size of files
+                    let totalSize = files.reduce((acc, f) => acc + f.size, 0);
+                    if (totalSize > maxSize) {
+                        alert("{% trans 'Total file size cannot exceed' %} {{ max_file_size }}.");
+                        this.value = '';
+
+                        // Remove any existing file-info
+                        const existing = document.getElementById('file-info');
+                        if (existing) existing.remove();
+                        return;
                     }
 
                     // Show files info

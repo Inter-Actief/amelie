@@ -425,11 +425,11 @@ class DeclarationForm(forms.Form):
         if len(documents) > max_files:
             raise forms.ValidationError(_l('You can upload a maximum of {max_files} files.').format(max_files=max_files))
 
-        # Check file sizes
+        # Check combined file size
         max_size = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE
-        for document in documents:
-            if document.size > max_size:
-                raise forms.ValidationError(_l('File size cannot exceed {max_size} MB.').format(max_size=max_size / 1024 / 1024))
+        total_size = sum(document.size for document in documents)
+        if total_size > max_size:
+            raise forms.ValidationError(_l('The total file size cannot exceed {max_size} MB.').format(max_size=max_size / 1024 / 1024))
 
         return documents
 
