@@ -436,25 +436,18 @@ class DeclarationForm(forms.Form):
     def clean(self):
         self.cleaned_data = super().clean()
 
-        committee: Committee = self.cleaned_data.get('committee')
         iban_choice = self.cleaned_data.get('iban_choice')
         iban_custom = self.cleaned_data.get('iban_custom')
+        payment_method = self.cleaned_data.get('payment_method')
 
-
-        # Check if the user is allowed to declare for this committee
-        if committee and not self.person.is_in_committee(committee.abbreviation):
-            raise forms.ValidationError(
-                _l('You are not a member of the committee you want to declare for.')
-            )
-        
         # Check if the user has filled in two IBANs
         if iban_choice and iban_custom:
             raise forms.ValidationError(
                 _l('Please select either an IBAN from the list or enter a custom IBAN, not both.')
             )
         
-        # Check if the user has filled in an IBAN at all
-        elif not iban_choice and not iban_custom:
+        # Check if the user has filled in an IBAN at all if the payment method is "Bank Transfer"
+        elif not iban_choice and not iban_custom and payment_method == Declaration.DECLARATION_PAYMENT_METHODS[0][0]:
             raise forms.ValidationError(
                 _l('Please select an IBAN from the list or enter a custom IBAN.')
             )
