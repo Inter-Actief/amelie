@@ -347,6 +347,17 @@ class Person(models.Model, Mappable):
             RegexValidator(r'^x[0-9]{7}$', _l('You can only enter ^x[0-9]{7}$.'), _l('Invalid account name'))
         ]
     )
+    minecraft_username = models.CharField(
+        max_length=16,
+        blank=True,
+        default="",
+        verbose_name=_l("Minecraft username"),
+    )
+    minecraft_uuid = models.UUIDField(
+        blank=True,
+        null=True,
+        verbose_name=_l("Minecraft UUID"),
+    )
     shell = models.CharField(max_length=10, choices=ShellChoices.choices, default=ShellChoices.DEFAULT, verbose_name=_l('Unix shell'))
     webmaster = models.BooleanField(default=False, verbose_name=_l('Is web master'))
     nda = models.BooleanField(default=False, verbose_name=_l('Has signed NDA'))
@@ -734,6 +745,7 @@ class PaymentType(models.Model):
     """
     name = models.CharField(max_length=20, unique=True, verbose_name=_l('Name'))
     description = models.TextField(verbose_name=_l('Description'))
+    visible = models.BooleanField(default=True, verbose_name=_l('Visible'))
 
     class Meta(object):
         ordering = ['description']
