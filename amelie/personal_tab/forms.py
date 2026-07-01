@@ -1,13 +1,13 @@
 import logging
 import math
+import json
 import traceback
-from decimal import Decimal
 from localflavor.generic.forms import BICFormField, IBANFormField
 
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import TextChoices
+from django.db.models import Exists, OuterRef, TextChoices
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
@@ -16,11 +16,15 @@ from amelie.members.models import Person, Committee
 from amelie.personal_tab.transactions import cookie_corner_sale
 from amelie.style.forms import inject_style
 from amelie.personal_tab import statistics
-from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, RFIDCard, Reversal, AuthorizationType, \
+from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, Declaration, RFIDCard, Reversal, AuthorizationType, \
     DebtCollectionBatch, Authorization
 from amelie.tools.http import get_client_ips
 from amelie.tools.ipp_printer import IPPPrinter
 from amelie.tools.widgets import DateSelector, DateTimeSelector, MemberSelect
+from amelie.iamailer.mailtask import MailTask, Recipient
+from amelie.tools.const import TaskPriority
+from amelie.tools.forms import MultipleFileField
+
 
 
 class CustomTransactionForm(forms.ModelForm):
@@ -343,6 +347,179 @@ class PrintDocumentForm(forms.Form):
                     printer.close()
                 raise e
             return print_log
+
+
+class DeclarationForm(forms.Form):
+    committee = forms.ModelChoiceField(
+        queryset=None,  # Will be set in __init__
+        empty_label=_l("-- No Committee --"),
+        required=False,
+        label=_l('Committee'),
+        help_text=_l('Select a committee for which this declaration is, or leave blank and specify in the description.')
+    )
+    payment_method = forms.ChoiceField(
+        choices=[],  # Will be set in __init__
+        required=True,
+        label=_l('Payment Method'),
+        help_text=_l('Select how you paid for the expense.')
+    )
+    iban_choice = forms.ChoiceField(
+        choices=[],  # Will be set in __init__
+        required=False,
+        label=_l('IBAN'),
+        help_text=_l('Select your IBAN for payment.')
+    )
+    iban_custom = IBANFormField(
+        required=False,
+        label=_l('IBAN'),
+        help_text=_l('Fill in your IBAN if it is not listed above.')
+    )
+    amount = forms.DecimalField(
+        initial=0,
+        required=True,
+        label=_l('Amount'),
+        help_text=_l('Enter the amount of your declaration in euro\'s.'),
+        max_digits=6,
+        decimal_places=2
+    )
+    description = forms.CharField(
+        required=True,
+        max_length=200,
+        label=_l('Description'),
+        help_text=_l('Enter the description for your declaration.'),
+        widget=forms.Textarea
+    )
+    documents = MultipleFileField(
+        label=_l('Attachments'),
+        required = False,
+        help_text=_l('Select documents to attach to the declaration.'),
+    )
+
+
+    def __init__(self, person: Person, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Only show parent committees, sorted by own committees first
+        member_committees = person.current_committees().filter(pk=OuterRef('pk'))
+        self.fields['committee'].queryset = Committee.objects.filter(
+            abolished__isnull=True,
+            parent_committees__isnull=True,
+        ).annotate(
+            is_member=Exists(member_committees),
+        ).order_by('-is_member', 'name')
+        
+        # Set Declaration Payment Methods as choices for payment method field and default to the first
+        self.fields['payment_method'].choices = Declaration.DECLARATION_PAYMENT_METHODS
+        self.initial['payment_method'] = self.fields['payment_method'].choices[0][0] 
+        
+        # Show IBANs of the active consumption mandates as choices and default the newest one
+        self.fields['iban_choice'].choices = [(iban, iban) for iban in person.has_mandate_consumptions().order_by('start_date').values_list('iban', flat=True)]
+        self.fields['iban_choice'].choices += [('', _l("-- Other --"))]
+        self.initial['iban_choice'] = self.fields['iban_choice'].choices[0][0] if self.fields['iban_choice'].choices else None
+        self.person = person
+
+    def clean_documents(self):
+        documents = self.cleaned_data.get('documents')
+
+        # Check number of files
+        max_files = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT
+        if len(documents) > max_files:
+            raise forms.ValidationError(_l('You can upload a maximum of {max_files} files.').format(max_files=max_files))
+
+        # Check combined file size
+        max_size = settings.PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE
+        total_size = sum(document.size for document in documents)
+        if total_size > max_size:
+            raise forms.ValidationError(_l('The total file size cannot exceed {max_size} MB.').format(max_size=max_size / 1024 / 1024))
+
+        return documents
+
+    def clean(self):
+        self.cleaned_data = super().clean()
+
+        iban_choice = self.cleaned_data.get('iban_choice')
+        iban_custom = self.cleaned_data.get('iban_custom')
+        payment_method = self.cleaned_data.get('payment_method')
+        amount = self.cleaned_data.get('amount')
+        description = self.cleaned_data.get('description')
+
+        # Check if the user has filled in two IBANs
+        if iban_choice and iban_custom:
+            raise forms.ValidationError(
+                _l('Please select either an IBAN from the list or enter a custom IBAN, not both.')
+            )
+        
+        # Check if the user has filled in an IBAN at all if the payment method is "Bank Transfer"
+        elif not iban_choice and not iban_custom and payment_method == Declaration.DECLARATION_PAYMENT_METHODS[0][0]:
+            raise forms.ValidationError(
+                _l('Please select an IBAN from the list or enter a custom IBAN.')
+            )
+        
+        elif amount == 0:
+            raise forms.ValidationError(
+                _l('The amount cannot be zero.')
+            )
+        
+        elif amount < 0:
+            raise forms.ValidationError(
+                _l('The amount must be a positive number.')
+            )
+        
+        elif description.strip() == '':
+            raise forms.ValidationError(
+                _l('Please provide a description for your declaration.')
+            )
+
+        return self.cleaned_data
+
+    def save(self, request):
+        """
+        Create the database entry and send the declaration email.
+        """
+
+        person = request.user.person
+        committee = self.cleaned_data.get('committee')
+        payment_method = self.cleaned_data.get('payment_method')
+        iban_choice = self.cleaned_data.get('iban_choice')
+        iban_custom = self.cleaned_data.get('iban_custom')
+        amount = self.cleaned_data.get('amount')
+        description = self.cleaned_data.get('description')
+        documents = self.cleaned_data.get('documents')
+
+        
+        with transaction.atomic():
+            # Create database entry for the declaration
+            declaration = Declaration.objects.create(
+                person=person,
+                committee=committee,
+                payment_method=payment_method,
+                iban=iban_choice if iban_choice else iban_custom,
+                amount=amount,
+                description=description,
+                # Saving the document names as a JSON list
+                document_names=json.dumps([doc.name for doc in documents])
+            )
+
+            # Prepare context for the email
+            context = {'declaration': declaration}
+
+            # Generate PDF of the declaration form and add it to the attachments
+            pdf = declaration.get_pdf() 
+            attachments = [(f"Expense_Claim_{declaration.pk}.pdf", pdf, 'application/pdf')]
+
+            # Prepare attachment tuples for the email
+            attachments += [(doc.name, doc.read(), doc.content_type) for doc in documents] if documents else []
+
+            # Send the email
+            task = MailTask(template_name='declaration.mail', report_to=settings.EMAIL_REPORT_TO,
+                            report_always=False, priority=TaskPriority.MEDIUM)
+
+            task.add_recipient(Recipient(tos=[settings.DECLARATION_EMAIL],
+                                        context=context,
+                                        language='en',
+                                        headers={'Reply-To': settings.TREASURER_EMAIL}, attachments=attachments))
+
+            task.send()
 
 
 inject_style(StatisticsForm, PrintDocumentForm)

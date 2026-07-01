@@ -1,7 +1,11 @@
 # -*- coding: UTF-8 -*-
 
+from io import BytesIO
+import json
+
 from django.conf import settings
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
@@ -932,6 +936,71 @@ class PrintLogEntry(models.Model):
                     _l("for personal use")
                 )
         }
+
+
+class Declaration(models.Model):
+    """
+    Log entry for a declaration submitted by someone via the IA website.
+    """
+
+    DECLARATION_PAYMENT_METHODS = (
+        ('BANK', 'Personal Bank'),
+        ('CASHBOX', 'Inter-Actief Cashbox'),
+        ('CARD', 'Inter-Actief Card'),
+    )
+    
+    person = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.SET(get_sentinel_person))
+    """The person that submitted the declaration."""
+
+    committee = models.ForeignKey(Committee, verbose_name=_l('committee'), on_delete=models.PROTECT, blank=True, null=True)
+    """The committee that the declaration was related to."""
+
+    payment_method = models.TextField(choices=DECLARATION_PAYMENT_METHODS, blank=False)
+    """Payment method used for the expense."""
+
+    iban = IBANField(verbose_name=_l('IBAN'), blank=True)
+    """The IBAN for the payout of the declaration."""
+
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False)
+    """The amount of the declaration."""
+
+    description = models.TextField(blank=False)
+    """The description of the declaration."""
+
+    document_names = models.JSONField(blank=True, default=list)
+    """A list of filenames of the documents submitted with the declaration."""
+
+    submission_date = models.DateTimeField(auto_now_add=True, blank=False)
+    """Submission timestamp of the declaration."""
+
+    def get_payment_method(self):
+        return dict(self.DECLARATION_PAYMENT_METHODS).get(self.payment_method, self.payment_method)
+
+    def get_iban(self):
+        # Formats the IBAN in groups of 4 characters
+        if not self.iban:
+            return 'No IBAN provided'
+        iban = self.iban.replace(' ', '')
+        return ' '.join(iban[i:i+4] for i in range(0, len(iban), 4))
+
+    def get_document_names(self):
+        # Returns the document names as a list of strings
+        if not self.document_names:
+            return []
+        return json.loads(self.document_names)
+    
+    def get_committee(self):
+        if not self.committee:
+            return 'No committee specified'
+        return self.committee.name
+    
+    def get_pdf(self):
+        from amelie.tools.pdf import pdf_declaration_form
+
+        buffer = BytesIO()
+        decla = get_object_or_404(Declaration, id=self.pk)
+        pdf_declaration_form(buffer, decla)
+        return buffer.getvalue()
 
 
 def _complain_with_claudia(sender, **kwargs):
