@@ -440,6 +440,8 @@ class DeclarationForm(forms.Form):
         iban_choice = self.cleaned_data.get('iban_choice')
         iban_custom = self.cleaned_data.get('iban_custom')
         payment_method = self.cleaned_data.get('payment_method')
+        amount = self.cleaned_data.get('amount')
+        description = self.cleaned_data.get('description')
 
         # Check if the user has filled in two IBANs
         if iban_choice and iban_custom:
@@ -451,6 +453,21 @@ class DeclarationForm(forms.Form):
         elif not iban_choice and not iban_custom and payment_method == Declaration.DECLARATION_PAYMENT_METHODS[0][0]:
             raise forms.ValidationError(
                 _l('Please select an IBAN from the list or enter a custom IBAN.')
+            )
+        
+        elif amount == 0:
+            raise forms.ValidationError(
+                _l('The amount cannot be zero.')
+            )
+        
+        elif amount < 0:
+            raise forms.ValidationError(
+                _l('The amount must be a positive number.')
+            )
+        
+        elif description.strip() == '':
+            raise forms.ValidationError(
+                _l('Please provide a description for your declaration.')
             )
 
         return self.cleaned_data
