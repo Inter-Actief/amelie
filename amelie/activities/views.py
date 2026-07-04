@@ -49,8 +49,9 @@ from amelie.activities.utils import check_enrollment_allowed, check_unenrollment
 from amelie.claudia.google import GoogleSuiteAPI
 from amelie.files.models import Attachment
 from amelie.calendar.models import Participation, Event
+from amelie.graphql.helpers import is_board
 from amelie.members.forms import PersonSearchForm
-from amelie.members.models import Person, Photographer
+from amelie.members.models import Person, Photographer, Preference
 from amelie.members.query_forms import ActivityMailingForm
 from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
@@ -230,6 +231,9 @@ def activity(request, pk, deanonymise=False):
     # Sorted set of participations that are used to show the enrollments
     participation_set = activity.participation_set.order_by('added_on')
 
+
+
+
     if only_show_underage:
         confirmed_participation_set = [x for x in
                                        activity.participation_set.filter(waiting_list=False).order_by('added_on') if
@@ -239,7 +243,15 @@ def activity(request, pk, deanonymise=False):
     else:
         confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
 
-    person_enrollment_public = request.person.has_preference(name="public_enrollment")
+    public_participation_set = confirmed_participation_set.filter(
+        person__preferences__name="public_enrollment"
+    ).order_by("person__first_name")
+    anonymous_count = len(confirmed_participation_set) - len(public_participation_set)
+
+    print("Public: ", len(public_participation_set))
+    print("All: ", len(confirmed_participation_set))
+
+    person_enrollment_public = hasattr(request, 'person') and request.person.has_preference(name="public_enrollment")
 
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
 
@@ -259,8 +271,10 @@ def activity(request, pk, deanonymise=False):
     # Enable opengraph on this page
     metadata_enable_opengraph = True
     is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
-    is_committee = obj.organizer in request.person.current_committees().all()
-
+    is_committee = hasattr(request, 'person') and obj.organizer in request.person.current_committees().all()
+    # is_roomduty = False
+    # is_committee = True
+    request.is_board = False
     return render(request, "activity.html", locals())
 
 

@@ -486,12 +486,9 @@ class Person(models.Model, Mappable):
         else:
             return ' '.join([first_name, self.last_name])
 
-    def public_enrollment_name(self):
-        """If the preference is set, it returns the first name plus last letter of the surname."""
-        if self.has_preference(name="public_enrollment"):
-            return f"{self.first_name} {self.last_name[:1]}."
-        else:
-            return _("Anonymous")
+    def public_enrollment_name(self, has_preference=None):
+        """Returns the first name plus last letter of the surname."""
+        return f"{self.first_name} {self.last_name[:1]}."
 
     def initials_last_name(self):
         """
