@@ -32,7 +32,7 @@ urlpatterns = [
 
     path('unpaid_memberships/', views.unpaid_memberships, name='unpaid_memberships'),
     path('unpaid_memberships/<int:year>/', views.unpaid_memberships, name='unpaid_memberships_year'),
-    path('unpaid_memberships/mailing/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
+    path('unpaid_memberships/<int:year>/mailing/<int:type>/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
 
     path('wrapped', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
     path('wrapped/<int:year>/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped_year'),

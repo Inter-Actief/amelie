@@ -490,7 +490,7 @@ def unpaid_memberships(request, year=None):
     # If no year is given, show overview of all years with unpaid memberships
     if year is None:
         unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0)
-        membership_types = unpaid_memberships.values('type__name_en').distinct().order_by('type__name_en')
+        membership_types = unpaid_memberships.values('type__pk', 'type__name_en').distinct().order_by('type__name_en')
         years = unpaid_memberships.values('year').distinct().order_by('-year')
         price = unpaid_memberships.values('type__price', 'year').order_by('year')
 
@@ -501,7 +501,7 @@ def unpaid_memberships(request, year=None):
         for year_total in years:
             totals[year_total['year']] = ({}, sum(item['type__price'] for item in price if item['year'] == year_total['year']))
             for membership_type in membership_types:
-                totals[year_total['year']][0][membership_type['type__name_en']] = unpaid_memberships.filter(type__name_en=membership_type['type__name_en'], year=year_total['year']).count()
+                totals[year_total['year']][0][membership_type['type__name_en']] = unpaid_memberships.filter(type=membership_type['type__pk'], year=year_total['year']).count()
 
         return render(request, 'unpaid_memberships.html', {'totals': totals, 'membership_types': membership_types})
     
@@ -511,7 +511,7 @@ def unpaid_memberships(request, year=None):
     
     grouped = {}
     for membership in unpaid_memberships:
-        membership_type = membership.type.name
+        membership_type = (membership.type.name, membership.type.pk)
         if membership_type not in grouped:
             grouped[membership_type] = []
         grouped[membership_type].append(membership)
@@ -520,11 +520,12 @@ def unpaid_memberships(request, year=None):
 
 
 @require_board
-def unpaid_memberships_mailing(request):
-    # if request.method == 'POST':
+def unpaid_memberships_mailing(request, year, type):
+    """Send a mailing to all persons with unpaid memberships of a certain type in a certain year."""
 
-    persons = None
-    current_year = None
+    memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year, type=type)
+    persons = Person.objects.filter(membership__in=memberships)
+    current_year = year
     study_year = '{}/{}'.format(current_year, current_year + 1)
     name_treasurer = request.person.incomplete_name()
 
@@ -534,49 +535,53 @@ def unpaid_memberships_mailing(request):
         'subject_nl': '[Inter-Actief] Onbetaalde contributie {}'.format(study_year),
         'template_nl': '''Beste {{{{recipient.first_name}}}},
 
-Op {{{{instruction.batch.execution_date}}}} zal de incasso voor de contributie voor studievereniging Inter-Actief van collegejaar {} plaatsvinden.
+In het studiejaar {} was je lid van studievereniging Inter-Actief. Aangezien je geen mandaat hebt gegeven voor automatische incasso, of omdat je mandaat niet heeft gewerkt, moet de contributie nog betaald worden.
 
 Het betreft het volgende lidmaatschap:
  * Naam: {{{{recipient.incomplete_name}}}}
  * Woonplaats: {{{{recipient.city}}}}
  * Type lidmaatschap: {{{{membership.type}}}}
- * Kosten: {{{{instruction.amount}}}} euro
+ * Kosten: {{{{membership.price}}}} euro
 
-Het bedrag zal geïncasseerd worden van rekening {{{{instruction.authorization.iban}}}}. Probeer ervoor te zorgen dat er dan voldoende saldo op deze rekening staat.
+Je kunt de contributie betalen door dit bedrag over te maken naar:
+ * IBAN: NL70 RABO 0103 4210 68
+ * BIC: RABONL2U
+ * Ten name van: Inter-Actief
+ * Omschrijving: Contributie {} - {{{{recipient.incomplete_name}}}}
+ * Bedrag: € {{{{membership.price}}}}
 
-De incasso wordt gekenmerkt door het volgende:
-Incassant-ID: NL81ZZZ400749470000
-Machtigingskenmerk: {{{{instruction.authorization.authorization_reference}}}}
-Referentie: {{{{instruction.end_to_end_id}}}}
-
+Cash of PIN betaling is ook mogelijk door fysiek langs te komen bij de verenigingskamer.
+ 
 Met vriendelijke groet,
 
 {}
-Penningmeester'''.format(study_year, name_treasurer),
+Penningmeester'''.format(study_year, study_year, name_treasurer),
 
 
 'subject_en': '[Inter-Actief] Unpaid contribution {}'.format(study_year),
 'template_en': '''Dear {{{{recipient.first_name}}}},
 
-On {{{{instruction.batch.execution_date}}}} the direct debit for the contribution of study association Inter-Actief for college year {} will be debited.
+In the study year {} you were a member of study association Inter-Actief. Since you have not given a mandate for automatic debit, or because your mandate has not worked, the contribution still needs to be paid.
 
-It concerns the following membership:
+This concerns the following membership:
  * Name: {{{{recipient.incomplete_name}}}}
  * Place of residence: {{{{recipient.city}}}}
  * Membership type: {{{{membership.type}}}}
- * Costs: {{{{instruction.amount}}}} euro
+ * Costs: {{{{membership.price}}}} euro
 
-The amount will be debited from bank account {{{{instruction.authorization.iban}}}}. Try to ensure that your account balance is sufficient.
+You can pay the contribution by making a bank transfer to:
+ * IBAN: NL70 RABO 0103 4210 68
+ * BIC: RABONL2U
+ * In the name of: Inter-Actief
+ * Description: Contribution {} - {{{{recipient.incomplete_name}}}}
+ * Amount: € {{{{membership.price}}}}
 
-The direct debit is referenced by the following:
-Creditor identifier: NL81ZZZ400749470000
-Mandate reference: {{{{instruction.authorization.authorization_reference}}}}
-Reference: {{{{instruction.end_to_end_id}}}}
+Cash or PIN payment is also possible by coming in person to the association room.
 
 Kind regards,
 
 {}
-Treasurer'''.format(study_year, name_treasurer),
+Treasurer'''.format(study_year, study_year, name_treasurer),
 
     })
 
@@ -596,9 +601,17 @@ Treasurer'''.format(study_year, name_treasurer),
     previews = None
     if request.method == "POST" and form.is_valid():
         if request.POST.get('preview', None):
-                previews = form.build_multilang_preview(persons[0])
+            membership = memberships.first()  # Get the first membership to use in the context
+            previews = form.build_multilang_preview(membership.member, context={
+                "membership": {
+                    'type': membership.type.name,
+                    'price': membership.type.price
+                }
+            })
         else:
-            task = form.build_task(persons)
+            recipients = [(person, {'membership': {'type': person.membership.type.name, 'price': person.membership.type.price}}) for person in persons]
+
+            task = form.build_task(recipients)
             task.send()
 
             # Done

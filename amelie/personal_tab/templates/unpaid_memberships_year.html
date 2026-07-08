@@ -9,7 +9,7 @@
         <div class="content">
             
             {% for membership_type, membership_list in unpaid_memberships.items %}
-            <h3>{{ membership_type }}</h3>
+            <h3>{{ membership_type.0 }}</h3>
             <table>
                 <thead>
                     <tr>
@@ -63,7 +63,7 @@
             
             
             <p>
-                <a href="{% url 'personal_tab:unpaid_memberships_mailing' %}" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
+                <a href="{% url 'personal_tab:unpaid_memberships_mailing' year membership_type.1 %}" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
             </p>
 
             <br>
