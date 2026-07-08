@@ -153,12 +153,12 @@ def statistics_activities(start, end):
             event = None
 
         event_transaction_count = activity_transactions.filter(event=event).count()
-        event_active_transaction_count = activity_transactions.filter(event=event, participation__isnull=False).count()
+        event_participants = event.participants.count() if event else activity_transactions.filter(event=event, participation__isnull=False).count()
         event_transaction_sum = activity_transactions.filter(event=event).aggregate(Sum('price'))['price__sum']
         rows.append({
             'event': event,
             'count': event_transaction_count,
-            'active_count': event_active_transaction_count,
+            'active_count': event_participants,
             'sum': event_transaction_sum
         })
     return {'rows': rows, 'sum': total, 'count': number_of_transactions, 'active_count': number_of_enrollments}
