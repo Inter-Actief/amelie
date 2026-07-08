@@ -88,8 +88,13 @@ urlpatterns = [
 
     path('debt_collection_instruction/<int:id>/', views.debt_collection_instruction_view,
         name='debt_collection_instruction_view'),
+
     path('debt_collection_instruction/<int:id>/reversal/', views.debt_collection_instruction_reversal,
         name='debt_collection_instruction_reversal'),
+    path('debt_collection_instruction/<int:id>/reversal/edit/', views.debt_collection_instruction_reversal_edit,
+        name='debt_collection_instruction_reversal_edit'),
+    path('debt_collection_instruction/<int:id>/reversal/delete/', views.debt_collection_instruction_reversal_delete,
+        name='debt_collection_instruction_reversal_delete'),
 
     path('batch/<int:id>/', views.process_batch, name='process_batch'),
 

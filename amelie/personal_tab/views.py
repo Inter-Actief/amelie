@@ -36,7 +36,7 @@ from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
     StatisticsForm
-from amelie.personal_tab.debt_collection import delete_amendment, edit_amendment, generate_contribution_instructions, filter_contribution_instructions, \
+from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
 from amelie.personal_tab.models import Amendment, Category, Transaction, CookieCornerTransaction, ActivityTransaction, \
@@ -1478,6 +1478,56 @@ def debt_collection_instruction_reversal(request, id):
 
     return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
         'form': form,
+        'instruction': instruction
+    })
+
+
+@require_board
+@transaction.atomic
+def debt_collection_instruction_reversal_edit(request, id):
+    instruction = get_object_or_404(DebtCollectionInstruction, id=id)
+    reversal = getattr(instruction, 'reversal', None)
+
+    if not reversal:
+        raise Http404(_('Reversal does not exist'))
+
+    if request.method == 'POST':
+        form = ReversalForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            pre_settlement = form.cleaned_data['pre_settlement']
+            reason = form.cleaned_data['reason']
+
+            reversal.date = date
+            reversal.pre_settlement = pre_settlement
+            reversal.reason = reason
+            reversal.save()
+        
+            edit_reversal(reversal, request.person)
+            return redirect(instruction)
+    else:
+        form = ReversalForm(instance=reversal)
+
+    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+        'form': form,
+        'instruction': instruction
+    })
+
+
+@require_board
+@transaction.atomic
+def debt_collection_instruction_reversal_delete(request, id):
+    instruction = get_object_or_404(DebtCollectionInstruction, id=id)
+    reversal = getattr(instruction, 'reversal', None)
+
+    if not reversal:
+        raise Http404(_('Reversal does not exist'))
+
+    if request.method == 'POST':
+        delete_reversal(reversal)
+        return redirect(instruction)
+
+    return render(request, 'cookie_corner_debt_collection_instruction_reversal_delete.html', {
         'instruction': instruction
     })
 

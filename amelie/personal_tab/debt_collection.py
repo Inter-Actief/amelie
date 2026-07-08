@@ -334,6 +334,44 @@ def process_reversal(reversal, actor):
             cct.save()
 
 
+def edit_reversal(reversal, actor):
+    """
+    :type reversal: Reversal
+    :type actor: Person
+    """
+    timezone_amsterdam = timezone.get_default_timezone()
+    reversal_datetime = datetime.datetime.combine(reversal.date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
+
+    rt = ReversalTransaction.objects.get(reversal=reversal)
+    rt.date = reversal_datetime
+    rt.added_by = actor
+    rt.save()
+
+
+def delete_reversal(reversal):
+    """
+    :type reversal: Reversal
+    """
+    # First we delete the ReversalTransaction and the Reversal object itself.
+    instruction = reversal.instruction
+    rt = ReversalTransaction.objects.get(reversal=reversal)
+    rt.delete()
+    reversal.delete()
+
+    # If there were contribution transactions, we need to reinstate payments and delete reversal contribution transactions.
+    for ct in ContributionTransaction.objects.filter(debt_collection=instruction):
+        if ct.price > 0:
+
+            # Then we need to reinstate the payment that was deleted when the reversal was processed.
+            pm = Payment(membership=ct.membership, payment_type=PaymentType.objects.get(id=4),
+                               amount=ct.price, date=ct.date)
+            pm.save()
+                
+            # Now we filter for the reversal ContributionTransaction that was created when the reversal was processed and delete it.
+            cct = ContributionTransaction.objects.filter(membership=ct.membership, price=-ct.price)
+            cct.delete()
+
+
 def process_amendment(authorization, date, iban, bic, reason):
     """
     Process an amendment to an authorization.
