@@ -109,10 +109,16 @@
             {% else %}
                 <p class="icon warning">{% trans 'No amendments have been found.' %}</p>
             {% endif %}
-            {% if not authorization.next_amendment %}
+            {% if not authorization.next_amendment and not authorization.end_date and authorization.is_signed %}
                 <p><a href="{% url 'personal_tab:authorization_amendment' authorization.id %}" class="icon icon-add">{% trans 'Add amendment' %}</a></p>
             {% else %}
-                <p class="icon warning">{% trans 'Current amendment has not yet been sent to the bank, so a new one cannot be added.' %}</p>
+                {% if authorization.next_amendment %}
+                    <p class="icon warning">{% trans 'Current amendment has not yet been sent to the bank, so a new one cannot be added.' %}</p>
+                {% elif not authorization.is_signed %}
+                    <p class="icon warning">{% trans 'This mandate is not signed, so a new amendment cannot be added.' %}</p>
+                {% elif authorization.end_date %}
+                    <p class="icon warning">{% trans 'This mandate is terminated, so a new amendment cannot be added.' %}</p>
+                {% endif %}
             {% endif %}
         </div>
     </div></div>

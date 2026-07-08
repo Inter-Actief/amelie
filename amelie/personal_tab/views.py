@@ -1197,8 +1197,14 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
 def authorization_amendment(request, authorization_id):
     authorization = get_object_or_404(Authorization, id=authorization_id)
 
+    if authorization.end_date:
+        raise Http404(_('This mandate is terminated, so an amendment cannot be made'))
+
+    if not authorization.is_signed:
+        raise Http404(_('This mandate is not signed, so an amendment cannot be made'))
+
     if authorization.next_amendment():
-        raise Http404(_('Already has an ongoing amendment'))
+        raise Http404(_('This mandate already has an ongoing amendment'))
 
     if request.method == 'POST':
         form = AmendmentForm(request.POST)
