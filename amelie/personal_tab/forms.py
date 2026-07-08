@@ -14,7 +14,6 @@ from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Person, Committee
 from amelie.personal_tab.transactions import cookie_corner_sale
-from amelie.style.forms import inject_style
 from amelie.personal_tab import statistics
 from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, RFIDCard, Reversal, AuthorizationType, \
     DebtCollectionBatch, Authorization
@@ -68,6 +67,8 @@ class DebtCollectionForm(forms.Form):
 
 
 class ReversalForm(forms.ModelForm):
+    date = forms.DateField(label=_l('Date'), widget=DateSelector, initial=timezone.now)
+
     class Meta:
         model = Reversal
         fields = ['date', 'pre_settlement', 'reason']
@@ -83,7 +84,7 @@ class AmendmentForm(forms.Form):
     """Form to enter an amendment"""
 
     """Date of the amendment"""
-    date = forms.DateField(label=_l('Date'))
+    date = forms.DateField(label=_l('Date'), widget=DateSelector, initial=timezone.now)
 
     """IBAN for authorization"""
     iban = IBANFormField(label=_l('IBAN'))
@@ -109,10 +110,6 @@ class AmendmentForm(forms.Form):
             else:
                 self.add_error('bic', _l('BIC could not be generated, please enter yourself.'))
         return cleaned_data
-
-
-inject_style(CustomTransactionForm, CookieCornerTransactionForm, ExamCookieCreditForm, DebtCollectionForm, ReversalForm,
-             AmendmentForm)
 
 
 class SearchAuthorizationForm(forms.Form):
@@ -343,6 +340,3 @@ class PrintDocumentForm(forms.Form):
                     printer.close()
                 raise e
             return print_log
-
-
-inject_style(StatisticsForm, PrintDocumentForm)
