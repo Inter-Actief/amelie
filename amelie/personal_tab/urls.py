@@ -97,6 +97,10 @@ urlpatterns = [
     path('authorization/<int:authorization_id>/', views.authorization_view, name='authorization_view'),
     path('authorization/<int:authorization_id>/amendement/', views.authorization_amendment,
         name='authorization_amendment'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/edit/', views.authorization_amendment_edit,
+        name='authorization_amendment_edit'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/delete/', views.authorization_amendment_delete,
+        name='authorization_amendment_delete'),
     path('authorization/terminate/', AuthorizationTerminateView.as_view(), name='authorization_terminate'),
     path('authorization/anonymize/', AuthorizationAnonymizeView.as_view(), name='authorization_anonymize'),
 

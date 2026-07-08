@@ -349,3 +349,41 @@ def process_amendment(authorization, date, iban, bic, reason):
     authorization.save()
 
     return amendment
+
+
+def edit_amendment(amendment, date, iban, bic, reason):
+    """
+    Edit an unsent amendment to an authorization.
+
+    Make sure you call this method only from within a database transaction!
+    Make sure you call this method only for amendments that have not yet been sent to the bank!
+    """
+    other_bank = bic != amendment.authorization.bic
+    amendment.date = date
+    amendment.other_bank = other_bank
+    amendment.reason = reason
+    amendment.save()
+
+    amendment.authorization.iban = iban
+    amendment.authorization.bic = bic
+    amendment.authorization.save()
+
+    return amendment
+
+
+def delete_amendment(amendment):
+    """
+    Delete an unsent amendment to an authorization.
+
+    Make sure you call this method only from within a database transaction!
+    
+    Make sure you call this method only for amendments that have not yet been sent to the bank!
+    """
+
+    amendment.authorization.iban = amendment.previous_iban
+    amendment.authorization.bic = amendment.previous_bic
+    amendment.authorization.save()
+
+    amendment.delete()
+
+    return

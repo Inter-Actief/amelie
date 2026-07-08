@@ -69,6 +69,9 @@
                                 <th>{% trans 'Other bank' %}</th>
                                 <th>{% trans 'Remarks' %}</th>
                                 <th>{% trans 'Instruction' %}</th>
+                                {% if authorization.next_amendment %}
+                                    <th></th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -88,6 +91,16 @@
                                             &mdash;
                                         {% endif %}
                                     </td>
+                                    {% if authorization.next_amendment %}
+                                        <td> 
+                                            {% if amendment == authorization.next_amendment %}
+                                                <a href="{% url 'personal_tab:authorization_amendment_edit' authorization.id amendment.id %}" class="icon icon-pencil">{% trans 'Edit' %}</a><br />
+                                                <a href="{% url 'personal_tab:authorization_amendment_delete' authorization.id amendment.id %}" class="icon icon-delete ">{% trans 'Delete' %}</a><br />
+                                            {% else %}
+                                                &mdash;
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -99,7 +112,7 @@
             {% if not authorization.next_amendment %}
                 <p><a href="{% url 'personal_tab:authorization_amendment' authorization.id %}" class="icon icon-add">{% trans 'Add amendment' %}</a></p>
             {% else %}
-                <p class="icon warning">{% trans 'No amendments can be added right now.' %}</p>
+                <p class="icon warning">{% trans 'Current amendment has not yet been sent to the bank, so a new one cannot be added.' %}</p>
             {% endif %}
         </div>
     </div></div>
