@@ -459,20 +459,36 @@ def rfid_remove(request, rfid_id):
 
 
 @require_board
-def transaction_overview(request, date_from=False, date_to=False):
-    """Give an overview of transactions."""
+def transaction_form(request):
+    view_name = request.resolver_match.view_name
 
-    # Redirect to a page based on POST (handy for linking)
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
             start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
             end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
+        
+        else:
+            return render(request, 'cookie_corner_transactions_form.html', {
+                'form': form,
+                'view_name': view_name,
+            })
+    else:
+        end_date = timezone.now()
+        begin_date = end_date - timezone.timedelta(days=7)
+        return render(request, 'cookie_corner_transactions_form.html', {
+            'form': PeriodTimeForm(initial={
+                'datetime_from': begin_date,
+                'datetime_to': end_date})
+            ,
+            'view_name': view_name,
+        })
 
-    if not date_from:
-        # No period given
-        return generate_overview_new(request, None)
+
+@require_board
+def transaction_overview(request, date_from, date_to):
+    """Give an overview of transactions."""
 
     # Construct data
     try:
@@ -480,6 +496,7 @@ def transaction_overview(request, date_from=False, date_to=False):
         end = _parsedatetime(date_to)
     except ValueError:
         raise Http404(_('Invalid date`'))
+    
     return generate_overview_new(request, None, start, end)
 
 
