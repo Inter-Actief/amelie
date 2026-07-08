@@ -897,16 +897,30 @@ def balance(request, dt_str=False):
     all_transactions_aggregated = all_transactions.aggregate(Sum('price'))
     all_transactions_sum = all_transactions_aggregated['price__sum']
 
+
+    # --- Personal Tab ---
+    # Members and Former members are displayed separately, so the Treasurer can take appropriate action
+    
     transaction_sum_per_person = all_transactions.values('person').order_by().annotate(Sum('price'))
     transaction_sum_per_person_dict = dict([(s['person'], s['price__sum']) for s in transaction_sum_per_person])
 
     persons = Person.objects.filter(pk__in=transaction_sum_per_person_dict.keys())
+    members = Person.objects.members().filter(pk__in=persons)
+    former_members = persons.exclude(pk__in=members.values('pk'))
 
-    person_totals = []
+    member_totals = []
+    former_member_totals = []
 
-    for person in persons:
-        if transaction_sum_per_person_dict[person.pk]:
-            person_totals.append((person, transaction_sum_per_person_dict[person.pk]))
+    for member in members:
+        if transaction_sum_per_person_dict[member.pk]:
+            member_totals.append((member, transaction_sum_per_person_dict[member.pk]))
+    member_sum = sum([x[1] for x in member_totals])
+
+    for former_member in former_members:
+        if transaction_sum_per_person_dict[former_member.pk]:
+            former_member_totals.append((former_member, transaction_sum_per_person_dict[former_member.pk]))
+    former_member_sum = sum([x[1] for x in former_member_totals])
+
 
     # --- Exam cookie credit ---
     # Give activity statistics over a given period
@@ -918,19 +932,38 @@ def balance(request, dt_str=False):
     exam_cookie_credit_per_person_dict = dict([(c['person'], c['price__sum']) for c in exam_cookie_credit_per_person])
 
     exam_cookie_persons = Person.objects.filter(pk__in=exam_cookie_credit_per_person_dict.keys())
+    exam_cookie_members = Person.objects.members().filter(pk__in=exam_cookie_persons)
+    exam_cookie_former_members = exam_cookie_persons.exclude(pk__in=exam_cookie_members.values('pk'))
 
-    exam_cookie_person_totals = []
+    exam_cookie_member_totals = []
+    exam_cookie_former_member_totals = []
 
-    for person in exam_cookie_persons:
-        if exam_cookie_credit_per_person_dict[person.pk]:
-            exam_cookie_person_totals.append((person, exam_cookie_credit_per_person_dict[person.pk]))
+    for member in exam_cookie_members:
+        if exam_cookie_credit_per_person_dict[member.pk]:
+            exam_cookie_member_totals.append((member, exam_cookie_credit_per_person_dict[member.pk]))
+    exam_cookie_member_sum = sum([x[1] for x in exam_cookie_member_totals])
+
+    for former_member in exam_cookie_former_members:
+        if exam_cookie_credit_per_person_dict[former_member.pk]:
+            exam_cookie_former_member_totals.append((former_member, exam_cookie_credit_per_person_dict[former_member.pk]))
+    exam_cookie_former_member_sum = sum([x[1] for x in exam_cookie_former_member_totals])
+
 
     return render(request, 'cookie_corner_balance_form.html', {
         'form': form,
+
         'all_transactions_sum': all_transactions_sum,
-        'person_totals': person_totals,
+        'member_sum': member_sum,
+        'former_member_sum': former_member_sum,
+        'member_totals': member_totals,
+        'former_member_totals': former_member_totals,
+
         'exam_cookie_sum': exam_cookie_sum,
-        'exam_cookie_person_totals': exam_cookie_person_totals,
+        'exam_cookie_member_sum': exam_cookie_member_sum,
+        'exam_cookie_former_member_sum': exam_cookie_former_member_sum,
+        'exam_cookie_member_totals': exam_cookie_member_totals,
+        'exam_cookie_former_member_totals': exam_cookie_former_member_totals,
+
         'dt': dt,
         'dt_url': dt_url
     })
