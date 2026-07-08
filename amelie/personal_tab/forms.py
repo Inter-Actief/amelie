@@ -111,15 +111,8 @@ class AmendmentForm(forms.Form):
         return cleaned_data
 
 
-class AuthorizationEditForm(forms.ModelForm):
-    """Form to edit an authorization"""
-
-    start_date = forms.DateField(label=_l('Start Date'), widget=DateSelector)
-    authorization_type = forms.ModelChoiceField(queryset=AuthorizationType.objects.filter(active=True), label=_l('Authorization type'))
-
-    class Meta:
-        model = Authorization
-        fields = ['authorization_type', 'iban', 'bic', 'account_holder_name', 'start_date']
+inject_style(CustomTransactionForm, CookieCornerTransactionForm, ExamCookieCreditForm, DebtCollectionForm, ReversalForm,
+             AmendmentForm)
 
 
 class SearchAuthorizationForm(forms.Form):

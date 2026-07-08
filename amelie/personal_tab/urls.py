@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 
 from amelie.personal_tab import pos_views, views, register, print_views
 from amelie.personal_tab.views import ActivityTransactionDetail, \
-    AlexiaTransactionDetail, AuthorizationDeleteView, AuthorizationEditView, CookieCornerTransactionDetail, \
+    AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
     AuthorizationAnonymizeView, CustomTransactionUpdate, CustomTransactionDelete, CookieCornerTransactionUpdate, \
     CookieCornerTransactionDelete
@@ -95,12 +95,8 @@ urlpatterns = [
 
     path('authorization/', views.authorization_list, name='authorization_list'),
     path('authorization/<int:authorization_id>/', views.authorization_view, name='authorization_view'),
-    path('authorization/<int:pk>/edit/', AuthorizationEditView.as_view(), name='authorization_edit'),
-    path('authorization/<int:pk>/delete/', AuthorizationDeleteView.as_view(), name='authorization_delete'),
-
     path('authorization/<int:authorization_id>/amendement/', views.authorization_amendment,
         name='authorization_amendment'),
-
     path('authorization/terminate/', AuthorizationTerminateView.as_view(), name='authorization_terminate'),
     path('authorization/anonymize/', AuthorizationAnonymizeView.as_view(), name='authorization_anonymize'),
 

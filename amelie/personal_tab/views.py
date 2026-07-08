@@ -33,7 +33,7 @@ from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
-from amelie.personal_tab.forms import AuthorizationEditForm, CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
+from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
     StatisticsForm
 from amelie.personal_tab.debt_collection import generate_contribution_instructions, filter_contribution_instructions, \
@@ -1109,47 +1109,6 @@ def authorization_list(request):
         'query': query,
         'date_old_authorizations': date_old_authorizations
     })
-
-
-class AuthorizationEditView(RequireBoardMixin, UpdateView):
-    """
-    View to edit unsigned authorizations.
-    """
-    model = Authorization
-    form_class = AuthorizationEditForm
-    template_name = 'cookie_corner/authorization_edit.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if not obj or obj.is_signed:
-            raise Http404(_('Authorization not editable.'))
-
-        return super(AuthorizationEditView, self).dispatch(request, *args, **kwargs)
-
-
-class AuthorizationDeleteView(RequireBoardMixin, DeleteView):
-    """
-    View to delete unsigned authorizations.
-    """
-    model = Authorization
-    template_name = 'cookie_corner/authorization_delete.html'
-
-    def get_success_url(self):
-        return reverse('personal_tab:dashboard', kwargs={'pk': self.object.person.pk, 'slug': self.object.person.slug})
-
-    def form_valid(self, form):
-        object_name = self.object.__str__()
-        delete = super(AuthorizationDeleteView, self).delete(self.request)
-        messages.success(self.request, _("The authorization '{authorization}' has been successfully deleted.")
-                         .format(authorization=object_name))
-        return delete
-    
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if not obj or obj.is_signed:
-            raise Http404(_('Authorization not deletable.'))
-
-        return super(AuthorizationDeleteView, self).dispatch(request, *args, **kwargs)
 
 
 class AuthorizationTerminateView(RequireBoardMixin, FormView):
