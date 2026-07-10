@@ -949,6 +949,25 @@ class ReversalTransaction(Transaction):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
 
 
+class BadBIC(models.Model):
+    """
+    A known bad SEPA BIC of a bank that is in the SDD Core list but does not in practice accept direct debits
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+
+    bic = BICField(verbose_name=_l('BIC'), unique=True)
+
+    def __str__(self):
+        return self.bic
+
+    class Meta:
+        ordering = ['bic']
+        verbose_name = _l('known bad BIC')
+        verbose_name_plural = _l('known bad BICs')
+
+
 def get_sentinel_person() -> Person:
     return Person.objects.get(pk=settings.ANONIMIZATION_SENTINEL_PERSON_ID)
 
