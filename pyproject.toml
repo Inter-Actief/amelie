@@ -71,7 +71,7 @@ dependencies = [
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
     "Pillow>=12.1.1,<12.3",
-    "python-gitlab>=8.1.0,<8.4",
+    "python-gitlab>=8.1.0,<8.5",
     "python-dateutil>=2.9.0,<2.10",
 
     # python-ldap requires libldap-dev libsasl2-dev (on Debian) to build
