@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+from io import BytesIO
+from typing import Optional
 
 from django.conf import settings
 from django.urls import reverse
@@ -8,6 +10,7 @@ from django.db.models import Q
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _l
+from documenso_sdk import EnvelopeDistributeResponse
 from localflavor.generic.models import BICField, IBANField
 
 from amelie.claudia.tools import verify_instance
@@ -505,6 +508,10 @@ class Authorization(models.Model):
     """This authorization has been signed"""
     is_signed = models.BooleanField(default=False, verbose_name=_l('has been signed'))
 
+    # Document signature fields
+    documenso_id = models.CharField(verbose_name=_l('Documenso ID'), max_length=255, blank=True, null=True)
+    signed_document = models.FileField(verbose_name=_l('Signed document'), blank=True, null=True)
+
     objects = AuthorizationManager()
 
     def authorization_reference(self):
@@ -586,6 +593,31 @@ class Authorization(models.Model):
         ordering = ['person', 'start_date']
         verbose_name = _l('mandate')
         verbose_name_plural = _l('mandates')
+
+    def get_as_pdf(self) -> bytes:
+        from amelie.tools.pdf import pdf_authorization_form
+        buffer = BytesIO()
+        pdf_authorization_form(buffer, self)
+        pdf = buffer.getvalue()
+        return pdf
+
+    def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
+        from amelie.tools.documenso import create_authorization_document, send_document
+        response = create_authorization_document(self)
+        # Save the documenso ID
+        self.documenso_id = response.id
+        self.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(self.documenso_id)
+        else:
+            return None
+
+    def documenso_url(self):
+        if self.documenso_id is not None:
+            return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
+        else:
+            return "#"
 
 
 class Amendment(models.Model):

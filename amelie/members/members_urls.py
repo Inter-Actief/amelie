@@ -26,6 +26,8 @@ urlpatterns = [
     path(r'<int:id>/ajax/membership/', ajax_views.person_membership, name='person_membership'),
     path(r'<int:id>/ajax/membership/new/', ajax_views.person_membership_new, name='person_membership_new'),
     path(r'<int:id>/ajax/membership/end/', ajax_views.person_membership_end, name='person_membership_end'),
+    path(r'<int:person_id>/ajax/membership/sign/<int:membership_id>/', ajax_views.MembershipSignatureView.as_view(), name='person_membership_sign'),
+    path(r'<int:person_id>/ajax/membership/retrieve_signed/<int:membership_id>/', ajax_views.MembershipRetrieveSignedDocumentView.as_view(), name='person_membership_retrieve_signed'),
     path(r'<int:id>/ajax/membership/<str:option>/', ajax_views.person_membership, name='person_membership'),
     path(r'<int:id>/ajax/mandate/', ajax_views.person_mandate, name='person_mandate'),
     path(r'<int:id>/ajax/mandate/new/', ajax_views.person_mandate_new, name='person_mandate_new'),
@@ -57,6 +59,8 @@ urlpatterns = [
     path(r'registration_form/<int:user>/<int:membership>/', views.registration_form, name='registration_form'),
     path(r'membership_form/<int:user>/<int:membership>/', views.membership_form, name='membership_form'),
     path(r'mandate_form/<int:mandate>/', views.mandate_form, name='mandate_form'),
+
+    path(r'membership_form/signed/<int:person_id>/<int:membership_id>/', views.membership_signed_form, name='membership_signed_form'),
 
     path(r'registration_check/', views.registration_check, name='registration_check'),
     path(r'registration_check/<int:id>/<slug:slug>/', views.registration_check_view, name='registration_check_view'),

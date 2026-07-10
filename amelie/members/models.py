@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import logging
 import uuid
 
 import os
+from io import BytesIO
+from typing import Optional
+
 from colorfield.fields import ColorField
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
@@ -15,8 +20,9 @@ from django.db.models import Q, F
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _l
+from documenso_sdk import EnvelopeDistributeResponse
 
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
@@ -880,6 +886,10 @@ class Membership(models.Model):
     ended = models.DateField(null=True, blank=True, verbose_name=_l('Ended preliminary'))
     verified_on = models.DateField(null=True, blank=True, verbose_name=_l('Verified on'))
 
+    # Document signature fields
+    documenso_id = models.CharField(verbose_name=_l('Documenso ID'), max_length=255, blank=True, null=True)
+    signed_document = models.FileField(verbose_name=_l('Signed document'), blank=True, null=True)
+
     class Meta(object):
         ordering = ['member', 'year']
         verbose_name = _l('membership')
@@ -887,6 +897,13 @@ class Membership(models.Model):
 
     def __str__(self):
         return '%s (%s, %s)' % (self.member, self.year, self.type)
+
+    def get_as_pdf(self) -> bytes:
+        from amelie.tools.pdf import pdf_membership_form
+        buffer = BytesIO()
+        pdf_membership_form(buffer, self.member, self)
+        pdf = buffer.getvalue()
+        return pdf
 
     def is_paid(self):
         try:
@@ -902,6 +919,52 @@ class Membership(models.Model):
     def verify(self):
         self.verified_on = datetime.date.today()
         self.save()
+
+    def needs_signature(self):
+        """
+        A membership only needs a signature if none of their previous memberships are signed,
+        and this is the first membership that the member has.
+        """
+        has_signed_memberships = self.member.membership_set.filter(~(Q(signed_document='')|Q(signed_document=None))).exists()
+        if has_signed_memberships:
+            # Member already signed the agreement before
+            return False
+        first_membership =  self.member.membership_set.order_by('year').first()
+        if not first_membership:
+            # No memberships exist in the DB, but we are a Membership, so this is probably the first (unsaved) membership.
+            return True
+        # If this is the first membership the user has, it needs to be signed.
+        return first_membership.pk == self.pk
+
+    def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
+        from amelie.tools.documenso import create_membership_document, send_document
+        response = create_membership_document(self)
+        # Save the documenso ID
+        self.documenso_id = response.id
+        self.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(self.documenso_id)
+        else:
+            return None
+
+    def process_signed_document(self):
+        if not self.documenso_id:
+            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+        # Retrieve the document and save it to the database
+        from amelie.tools.documenso import retrieve_documents
+        documents = retrieve_documents(self.documenso_id)
+        if len(documents) > 1:
+            logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
+        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+        self.save()
+
+    def documenso_url(self):
+        if self.documenso_id is not None:
+            return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
+        else:
+            return "#"
+
 
 class Payment(models.Model):
     """

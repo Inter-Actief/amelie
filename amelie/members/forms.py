@@ -299,6 +299,9 @@ class MembershipEndForm(forms.ModelForm):
                                                (date(current_association_year() + 1, 7, 1),
                                                 _l('At the end of the association year')),)
 
+class MembershipSignatureForm(forms.Form):
+    send_check = forms.BooleanField(label=_l('Send the signature request'), required=True)
+
 
 class MandateForm(forms.ModelForm):
     authorization_type = forms.ModelChoiceField(queryset=AuthorizationType.objects.filter(active=True))
@@ -331,7 +334,7 @@ class MandateForm(forms.ModelForm):
 
         if not cleaned_data['iban']:
             raise forms.ValidationError(_l('An IBAN is required.'))
-        
+
         if not cleaned_data['bic']:
             if not cleaned_data['iban'][:2] == 'NL':
                 raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))

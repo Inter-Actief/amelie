@@ -1302,25 +1302,15 @@ def registration_form(request, user, membership):
 
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def membership_form(request, user, membership):
-    from amelie.tools.pdf import pdf_membership_form
-
-    buffer = BytesIO()
     person = get_object_or_404(Person, id=user)
     membership = get_object_or_404(Membership, id=membership, member=person)
-    pdf_membership_form(buffer, person, membership)
-    pdf = buffer.getvalue()
-    return HttpResponse(pdf, content_type='application/pdf')
+    return HttpResponse(membership.get_as_pdf(), content_type='application/pdf')
 
 
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def mandate_form(request, mandate):
-    from amelie.tools.pdf import pdf_authorization_form
-
-    buffer = BytesIO()
     mandate = get_object_or_404(Authorization, id=mandate)
-    pdf_authorization_form(buffer, mandate)
-    pdf = buffer.getvalue()
-    return HttpResponse(pdf, content_type='application/pdf')
+    return HttpResponse(mandate.get_as_pdf(), content_type='application/pdf')
 
 
 @require_superuser
@@ -1353,6 +1343,16 @@ def registration_check_view(request, id, slug):
     debug = settings.DEBUG
 
     return render(request, 'registration_check.html', locals())
+
+
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def membership_signed_form(request, person_id, membership_id):
+    person = get_object_or_404(Person, id=person_id)
+    membership = get_object_or_404(Membership, id=membership_id, member=person)
+    if membership.signed_document:
+        return HttpResponseSendfile(membership.signed_document.path, content_type='application/pdf')
+    else:
+        raise Http404('Signed form not found')
 
 
 @require_board

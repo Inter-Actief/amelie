@@ -567,6 +567,43 @@ PERSONAL_TAB_PRINTERS = {
     # }
 }
 
+# Documenso signing server for membership and authorization forms.
+# API_BASE should have no trailing slash.
+DOCUMENSO_SETTINGS = {
+    "API_BASE": "https://sign.ia.utwente.nl/api/v2",
+    "API_KEY": None,
+    "WEB_BASE": "https://sign.ia.utwente.nl/t/ictsv-inter-actief",
+    # List of IP addresses that are allowed to call the webhook.
+    "ALLOWED_WEBHOOK_IPS": [],
+    # The secret string Documenso will send in the X-Documenso-Secret header when it calls our webhook.
+    "WEBHOOK_SECRET": "",
+    # If True, will instruct Documenso to actually send e-mails. Otherwise, the documents will stay as drafts. Can be useful for debug environments.
+    "ENABLE_SEND": False,
+    "DOCUMENT_SETTINGS": {
+        # Singular membership forms, manually sent from member page.
+        "MEMBERSHIP": {
+            # Contacts that should receive the fully signed document of a certain type when a signature is requested. List of tuples of (name, email).
+            "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            # Reply-to address that is added to the mail. If the member clicks Reply in their mail client, the mail will be sent here.
+            "REPLY_TO": "board@inter-actief.net",
+            # Folder IDs per type of document that needs to be stored. Will be placed in the root folder if set to None.
+            "DOCUMENSO_FOLDER_ID": None
+        },
+        # Singular mandate forms, manually sent from member page.
+        "AUTHORIZATION": {
+            "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            "REPLY_TO": "board@inter-actief.net",
+            "DOCUMENSO_FOLDER_ID": None
+        },
+        # Complete enrollment documents (membership + mandates), automatically sent when new members enroll.
+        "ENROLLMENT": {
+            "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            "REPLY_TO": "board@inter-actief.net",
+            "DOCUMENSO_FOLDER_ID": None
+        }
+    }
+}
+
 # Celery task scheduler settings
 CELERY_TASK_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
 CELERY_TASK_EAGER_PROPAGATES = True  # If ALWAYS_EAGER, show the exceptions in the foreground

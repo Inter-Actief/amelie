@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 
 import re
@@ -8,16 +9,19 @@ from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.defaultfilters import slugify
+from django.views.generic import FormView, TemplateView
+from documenso_sdk import DocumensoError
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
     MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
-    SaveNewFirstModelFormSet, StudentForm
+    SaveNewFirstModelFormSet, StudentForm, MembershipSignatureForm
 from amelie.members.models import Payment, Committee, Function, Membership, Employee, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
 from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
+from amelie.tools.mixins import RequireCommitteeMixin
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):
@@ -176,6 +180,53 @@ def person_membership_end(request, id):
     else:
         form = MembershipEndForm(instance=obj.membership_set.latest('year'))
         return render(request, "person_end_membership.html", locals())
+
+
+class MembershipSignatureView(RequireCommitteeMixin, FormView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = MembershipSignatureForm
+    template_name = "person_membership_sign.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        context['membership'] = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=context['person'])
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, send the form to Documenso for signing, and then
+        render the regular membership section with a success message option.
+        """
+        person = get_object_or_404(Person, id=self.kwargs['person_id'])
+        membership = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=person)
+        try:
+            membership.send_signature_request()
+            return person_membership(self.request, self.kwargs['person_id'], option="sign_request_sent")
+        except DocumensoError as e:
+            logging.exception(
+                f"Failed to send membership signature request for Person#{person.pk}, Membership#{membership.pk}",
+                exc_info=e
+            )
+            return person_membership(self.request, self.kwargs['person_id'], option="sign_request_error")
+
+
+class MembershipRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    template_name = "person_membership_retrieve_signed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        membership = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=context['person'])
+        context['membership'] = membership
+        try:
+            membership.process_signed_document()
+            context['success'] = True
+        except (ValueError, DocumensoError) as e:
+            context['success'] = False
+            context['error_msg'] = str(e)
+        return context
 
 
 @require_ajax
