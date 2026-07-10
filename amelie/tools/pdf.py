@@ -139,7 +139,7 @@ def pdf_membership_page(c, person, membership, signing_date=None):
             h -= 15
             c.drawString(25, h, _("Student number"))
     elif isinstance(person, UnverifiedEnrollment):
-        # authorization is a tuple of (Authorization, UnverifiedEnrollment), always a student
+        # person is an UnverifiedEnrollment, which is always a student
         c.drawString(25, h, _("Course"))
         h -= 15
         c.drawString(25, h, _("Student number"))

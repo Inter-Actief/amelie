@@ -1,17 +1,21 @@
 import logging
 from enum import StrEnum
-from typing import List, Dict, Any, Optional, NamedTuple
+from typing import List, Dict, Any, Optional, NamedTuple, Union
 
 import requests
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.db import transaction
 from django.utils import translation
 from django.utils.html import strip_tags
+from django.utils.text import slugify
 from django.utils.translation import gettext as _, gettext
 from documenso_sdk import Documenso, \
     EnvelopeCreatePayloadTypedDict, EnvelopeCreateVisibility, EnvelopeCreateFileTypedDict, EnvelopeCreateResponse, \
     EnvelopeCreateRecipientTypedDict, EnvelopeCreateMetaTypedDict, EnvelopeCreateDateFormat, \
     EnvelopeCreateEmailSettingsTypedDict, EnvelopeCreateLanguage, EnvelopeCreateRole, EnvelopeDistributeResponse, \
-    EnvelopeCreateType, EnvelopeGetStatus, EnvelopeItemDownloadVersion
+    EnvelopeCreateType, EnvelopeGetStatus
+
 
 FIELD_TEMPLATES = {
     "MEMBERSHIP": [
@@ -183,8 +187,119 @@ def retrieve_documents(envelope_id) -> List[RetrievedFile]:
     return documents
 
 
-def create_enrollment_document():
-    raise NotImplementedError()
+def create_enrollment_documents(person, membership) -> EnvelopeCreateResponse:
+    from amelie.members.models import Person, UnverifiedEnrollment, Membership, MembershipType
+    from amelie.personal_tab.models import Authorization
+
+    # Construct file list - Membership form first, followed by any authorizations
+    enrollment_files = []
+    authorization_pks = []
+    if isinstance(person, Person):
+        # Normal enrollment
+        person: Person
+        membership: Membership
+        # Membership form
+        enrollment_files.append(
+            DocumensoFile(
+                filename=f"membership_form_{person.slug}_{membership.pk}.pdf",
+                data=membership.get_as_pdf(),
+                field_template_per_page=[DocumensoFieldTemplate.MEMBERSHIP]  # One page with the membership details
+            )
+        )
+        # Authorization form(s)
+        for authorization in person.authorization_set.all():
+            authorization_pks.append(authorization.pk)  # For inclusion in the amelie_reference later
+            enrollment_files.append(
+                DocumensoFile(
+                    filename=f"mandate_form_{person.slug}_{authorization.pk}.pdf",
+                    data=authorization.get_as_pdf(),
+                    field_template_per_page=[DocumensoFieldTemplate.AUTHORIZATION]  # One page with the mandate details
+                )
+            )
+        amelie_reference = f"AML:ENR:{membership.pk}"
+    elif isinstance(person, UnverifiedEnrollment):
+        # Unverified Pre-enrollment
+        person: UnverifiedEnrollment
+        membership: MembershipType
+        person_slug = slugify(person.incomplete_name())
+        # Membership form
+        enrollment_files.append(
+            DocumensoFile(
+                filename=f"membership_form_{person_slug}.pdf",
+                data=person.get_as_pdf(),
+                field_template_per_page=[DocumensoFieldTemplate.MEMBERSHIP]  # One page with the membership details
+            )
+        )
+        # Authorization form(s)
+        for authorization in person.authorizations.all():
+            authorization: Authorization
+            authorization_pks.append(authorization.pk)  # For inclusion in the amelie_reference later
+            enrollment_files.append(
+                DocumensoFile(
+                    filename=f"mandate_form_{person_slug}_{authorization.pk}.pdf",
+                    data=authorization.get_as_pdf(),
+                    field_template_per_page=[DocumensoFieldTemplate.AUTHORIZATION]  # One page with the mandate details
+                )
+            )
+        amelie_reference = f"AML:UEN:{person.pk}"
+    else:
+        raise ValueError(f"Person is neither a Person or an UnverifiedEnrollment! - {person.__class__.__name__} : {person}")
+
+    if authorization_pks:
+        amelie_reference += f"/{",".join(authorization_pks)}"
+
+    if len(enrollment_files) > 1:
+        # Member has authorizations
+        enrollment_message = _(
+            "Dear {name},\n"
+            "\n"
+            "We please request you to check and sign your membership form and mandate form(s).\n"
+            "\n"
+            "By signing the membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.\n"
+            "\n"
+            "You have also opted for one or both direct debit mandate(s) to pay for your membership fee and/or consumptions and activities.\n"
+            "Those forms are also included and will need to be signed in order to use these mandates.\n"
+            "\n"
+            "If you have any questions about this message, please contact the board via e-mail on board@inter-actief.net\n"
+            "\n"
+            "Kind regards,\n"
+            "I.C.T.S.V. Inter-Actief\n"
+            "---\n"
+            "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
+        ).format(name=membership.member.incomplete_name())
+    else:
+        # Member only has a membership
+        enrollment_message = _(
+            "Dear {name},\n"
+            "\n"
+            "We please request you to check and sign your membership form.\n"
+            "By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.\n"
+            "\n"
+            "If you have any questions about this message, please contact the board via e-mail on board@inter-actief.net\n"
+            "\n"
+            "Kind regards,\n"
+            "I.C.T.S.V. Inter-Actief\n"
+            "---\n"
+            "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
+        ).format(name=membership.member.incomplete_name())
+
+    with translation.override(membership.member.preferred_language):
+        return create_document(
+            title=_("Enrollment forms for {name}").format(name=membership.member.incomplete_name()),
+            files=enrollment_files,
+            language=LANGUAGE_MAP.get(membership.member.preferred_language, EnvelopeCreateLanguage.EN),
+            subject=_("[Inter-Actief] Please sign your membership documents"),
+            message=enrollment_message,
+            sign_recipients=[DocumensoRecipient(name=membership.member.incomplete_name(), email=membership.member.email_address)],
+            cc_recipients=[DocumensoRecipient(name=c[0], email=c[1]) for c in settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('MEMBERSHIP', {}).get('CC_CONTACTS', [])],
+            # Comma-separated encoded string containing the object type and ID.
+            # We encode this information here to be able to trace back which document is for which object.
+            # I.E. 'AML:ENR:14/101,102' = Amelie Enrollment for Membership #14 and Authorizations #101 and #102.
+            #  and 'AML:UEN:25' = Amelie UnverifiedEnrollment for Membership #14 and no Authorizations.
+            amelie_reference=amelie_reference,
+            documenso_folder_id=settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('MEMBERSHIP', {}).get('DOCUMENSO_FOLDER_ID', None),
+            email_reply_to=settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('AUTHORIZATION', {}).get('REPLY_TO', None)
+        )
 
 
 def create_membership_document(membership) -> EnvelopeCreateResponse:
@@ -206,7 +321,7 @@ def create_membership_document(membership) -> EnvelopeCreateResponse:
             message=_(
                 "Dear {name},\n"
                 "\n"
-                "We please request you to sign your membership form.\n"
+                "We please request you to check and sign your membership form.\n"
                 "By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.\n"
                 "\n"
                 "If you have any questions about this message, please contact the board via e-mail on board@inter-actief.net\n"
@@ -214,7 +329,7 @@ def create_membership_document(membership) -> EnvelopeCreateResponse:
                 "Kind regards,\n"
                 "I.C.T.S.V. Inter-Actief\n"
                 "---\n"
-                "This message was automatically generated by the Inter-Actief website, contact the board if you have any questions."
+                "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
             ).format(name=membership.member.incomplete_name()),
             sign_recipients=[DocumensoRecipient(name=membership.member.incomplete_name(), email=membership.member.email_address)],
             cc_recipients=[DocumensoRecipient(name=c[0], email=c[1]) for c in settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('MEMBERSHIP', {}).get('CC_CONTACTS', [])],
@@ -251,7 +366,7 @@ def create_authorization_document(authorization) -> EnvelopeCreateResponse:
             message=_(
                 "Dear {name},\n"
                 "\n"
-                "We please request you to sign your direct debit authorization form.\n"
+                "We please request you to check and sign your direct debit authorization form.\n"
                 "\n"
                 "{authorization_text}\n"
                 "\n"
@@ -260,7 +375,7 @@ def create_authorization_document(authorization) -> EnvelopeCreateResponse:
                 "Kind regards,\n"
                 "I.C.T.S.V. Inter-Actief\n"
                 "---\n"
-                "This message was automatically generated by the Inter-Actief website, contact the board if you have any questions."
+                "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
             ).format(name=authorization.person.incomplete_name(), authorization_text=authorization_text_plain),
             sign_recipients=[DocumensoRecipient(name=authorization.person.incomplete_name(), email=authorization.person.email_address)],
             cc_recipients=[DocumensoRecipient(name=c[0], email=c[1]) for c in settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('AUTHORIZATION', {}).get('CC_CONTACTS', [])],
@@ -271,3 +386,50 @@ def create_authorization_document(authorization) -> EnvelopeCreateResponse:
             documenso_folder_id=settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('AUTHORIZATION', {}).get('DOCUMENSO_FOLDER_ID', None),
             email_reply_to=settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('AUTHORIZATION', {}).get('REPLY_TO', None)
         )
+
+
+@transaction.atomic()
+def process_member_enrollment_signed_document(documenso_id: str, membership_id: str, authorization_ids: str):
+    """
+    Retrieves the signed documenso document for the regolar enrollment of a person,
+    and saves it into the membership and authorizations.
+
+    This is not quite the right place for this method, but a regular enrollment doesn't really have
+    its own model, unlike Memberships, Authorizations and UnverifiedEnrollments.
+    So, this is probably as good a place to put it as anywhere else.
+    """
+    from amelie.members.models import Membership
+    from amelie.personal_tab.models import Authorization
+
+    if not documenso_id:
+        raise ValueError(gettext("Documenso ID was not given. Can't do anything."))
+    # Retrieve the document and save it to the database
+    documents = retrieve_documents(documenso_id)
+
+    # Check if we have enough documents
+    if len(documents) > len(authorization_ids.split(",")) + 1:  # Number of authorizations + 1 membership
+        logging.getLogger(__name__).warning(
+            f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too much! Trying to continue anyway."
+        )
+    if len(documents) < len(authorization_ids.split(",")) + 1:  # Number of authorizations + 1 membership
+        logging.getLogger(__name__).warning(
+            f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too little! Can't continue processing."
+        )
+        raise ValueError(f"Received too few documents from Documenso to process DID {documenso_id}, Membership#{membership_id} with Authorization(s)#{authorization_ids}")
+
+    # Save document in Membership
+    try:
+        membership = Membership.objects.get(documenso_id=documenso_id, pk=membership_id)
+        membership.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+        membership.save()
+    except Membership.DoesNotExist:
+        raise ValueError(f"Membership with ID {membership_id} and documenso ID {documenso_id} does not exist")
+
+    # Save documents in Authorization(s)
+    for i, authorization_id in enumerate(authorization_ids.split(","), start=1):
+        try:
+            authorization = Authorization.objects.get(documenso_id=documenso_id, pk=authorization_id)
+            authorization.signed_document = ContentFile(content=documents[i].data, name=documents[i].filename)
+            authorization.save()
+        except Authorization.DoesNotExist:
+            raise ValueError(f"Authorization with ID {authorization_id} and documenso ID {documenso_id} does not exist")

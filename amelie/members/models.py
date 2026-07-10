@@ -27,6 +27,8 @@ from documenso_sdk import EnvelopeDistributeResponse
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
 from amelie.members.managers import PersonManager, CommitteeManager
+from amelie.members.views import send_new_member_email
+from amelie.personal_tab.models import Authorization
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.logic import current_association_year
 from amelie.tools.validators import CheckDigitValidator
@@ -714,6 +716,25 @@ class Person(models.Model, Mappable):
                         'account please use firstname.lastname@gapps.inter-actief.nl as an alternative.'
                     )})
 
+    def send_signature_request(self, membership: Membership) -> Optional[EnvelopeDistributeResponse]:
+        """
+        Sends a signature request for the enrollment form of this person, for the given membership.
+        """
+        from amelie.tools.documenso import create_enrollment_documents, send_document
+        response = create_enrollment_documents(person=self, membership=membership)
+        # Save the documenso ID to the membership and the authorizations
+        with transaction.atomic():
+            membership.documenso_id = response.id
+            membership.save()
+            for authorization in self.authorization_set.all():
+                authorization.documenso_id = response.id
+                authorization.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(response.id)
+        else:
+            return None
+
 
 class MembershipType(models.Model):
     """
@@ -1257,11 +1278,20 @@ class UnverifiedEnrollment(models.Model):
     dogroup = models.ForeignKey(DogroupGeneration, null=True, blank=True, verbose_name=_l('Dogroup'),
                                 on_delete=models.SET_NULL)
 
+    # Document signature fields
+    documenso_id = models.CharField(verbose_name=_l('Documenso ID'), max_length=255, blank=True, null=True)
+
+
     def __str__(self):
         return "Unverified enrollment for '{} {}' of dogroup '{}'".format(self.first_name, self.last_name, self.dogroup)
 
     @transaction.atomic
-    def activate_registration(self):
+    def activate_registration(self) -> Person:
+        """
+        Create a Person, Student, Membership, etc. using the data from the UnverifiedEnrollment,
+        then transfer the wanted authorizations to that person, and delete the pre-enrollment.
+        """
+
         # Import is here because of a circular import between members and personal_tab
         from amelie.personal_tab.models import Authorization, AuthorizationType
 
@@ -1294,33 +1324,9 @@ class UnverifiedEnrollment(models.Model):
         person.preferences.set(self.preferences.all())
         person.save()
 
-        # Add contribution authorization if wanted
-        if self.authorization_contribution:
-            contribution_authorization = Authorization(
-                authorization_type=AuthorizationType.objects.get(active=True, contribution=True),
-                person=person,
-                iban=self.iban,
-                bic=self.bic,
-                account_holder_name=person.initials_last_name(),
-                start_date=self.authorization_date
-            )
-            contribution_authorization.save()
-
-        # Add other authorization if wanted
-        if self.authorization_other:
-            authorization_other = Authorization(
-                authorization_type=AuthorizationType.objects.get(active=True, consumptions=True,
-                                                                 activities=True, other_payments=True),
-                person=person,
-                iban=self.iban,
-                bic=self.bic,
-                account_holder_name=person.initials_last_name(),
-                start_date=self.authorization_date)
-            authorization_other.save()
-
         # Add membership details
         membership = Membership(member=person, type=self.membership_type,
-                                year=current_association_year())
+                                year=self.membership_year)
         membership.save()
 
         # Add student details
@@ -1334,7 +1340,13 @@ class UnverifiedEnrollment(models.Model):
                                        dogroup=self.dogroup)
             study_period.save()
 
-        self.delete()
+        # Add authorizations and activate them.
+        for authorization in self.authorizations.all():
+            authorization.person = person
+            authorization.is_signed = True
+            authorization.save()
+
+        send_new_member_email(person)
 
         return person
 
@@ -1376,6 +1388,87 @@ class UnverifiedEnrollment(models.Model):
         if not self.first_name and self.initials:
             first_name = self.initials
         return ', '.join([self.last_name, first_name])
+
+    def get_as_pdf(self):
+        from amelie.tools.pdf import pdf_membership_form
+        buffer = BytesIO()
+        pdf_membership_form(buffer, self, self.membership_type)
+        pdf = buffer.getvalue()
+        return pdf
+
+    def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
+        """
+        Sends a signature request for the enrollment form of this unverified enrollment.
+        """
+        from amelie.tools.documenso import create_enrollment_documents, send_document
+        response = create_enrollment_documents(person=self, membership=self.membership_type)
+        # Save the documenso ID to the membership and the authorizations
+        with transaction.atomic():
+            self.documenso_id = response.id
+            self.save()
+            for authorization in self.authorizations.all():
+                authorization.documenso_id = response.id
+                authorization.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(response.id)
+        else:
+            return None
+
+    @transaction.atomic()
+    def process_signed_document(self, membership_id: str, authorization_ids: str):
+        if not self.documenso_id:
+            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+        # Retrieve the document and save it to the database
+        from amelie.tools.documenso import retrieve_documents
+        documents = retrieve_documents(self.documenso_id)
+
+        # Check if we have enough documents
+        if len(documents) > len(authorization_ids.split(",")) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too much! Trying to continue anyway."
+            )
+        if len(documents) < len(authorization_ids.split(",")) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too little! Can't continue processing."
+            )
+            raise ValueError(
+                f"Received too few documents from Documenso to process DID {self.documenso_id}, Membership#{membership_id} with Authorization(s)#{authorization_ids}")
+
+        # Activate the membership
+        person = self.activate_registration()
+
+        # Save document in Membership
+        try:
+            membership = Membership.objects.get(member=person, type=self.membership_type, year=self.membership_year)
+            membership.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+            membership.save()
+        except Membership.DoesNotExist:
+            raise ValueError(f"Membership with ID {membership_id} and documenso ID {self.documenso_id} does not exist")
+
+        # Save documents in Authorization(s)
+        for i, authorization_id in enumerate(authorization_ids.split(","), start=1):
+            try:
+                authorization = Authorization.objects.get(documenso_id=self.documenso_id, pk=authorization_id)
+                authorization.signed_document = ContentFile(content=documents[i].data, name=documents[i].filename)
+                authorization.save()
+            except Authorization.DoesNotExist:
+                raise ValueError(f"Authorization with ID {authorization_id} and documenso ID {self.documenso_id} does not exist")
+
+        # Self-destruct
+        self.delete()
+
+        if len(documents) > 1:
+            logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
+        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+        self.save()
+
+    def documenso_url(self):
+        if self.documenso_id is not None:
+            return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
+        else:
+            return "#"
+
 
 
 #
