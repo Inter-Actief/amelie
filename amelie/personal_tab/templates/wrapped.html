@@ -4,248 +4,261 @@
 {% block titel %}{% trans 'Cookie Corner Wrapped' %}{% if global %}{% trans ' - Global statistics' %}{% endif %}{% endblock titel %}
 
 {% block content %}
-  <div class="col-xs-12"><div class="ia">
-    <h2>
-      {% trans 'Cookie Corner Wrapped ' %} {{ year }}{% if global %}{% trans ' - Global statistics' %}{% endif %}
-    </h2>
+<div class="col-xs-12">
+	<div class="ia">
+		<h2>
+			{% trans 'Cookie Corner Wrapped ' %} {{ year }}{% if global %}{% trans ' - Global statistics' %}{% endif %}
+		</h2>
 
-    <div class="content">
-      <p>
-        {% blocktrans with year=year%}
-          Now that the year is over, we can take a look into the usage of the cookie corner in <b>{{ year }}</b>.
-        {% endblocktrans %}
-        {% if global %}
-            {% trans 'On this page you can view the global cookie corner statistics for the entire association.' %}
-        {% else %}
-            {% trans 'On this page you can view your personal statistics for the cookie corner.' %}
-        {% endif %}
-      </p>
-      {% if transaction_years %}
-      <p>
-        {% trans 'Or, look back on a different year:' %}&nbsp;
-        {% for tyear in transaction_years %}
-          {% if forloop.counter0 != 0 %}<span> - </span>{% endif %}
-            {% if year == tyear %}
-              <b>{{ tyear }}</b>
-            {% else %}
-              {% if global %}
-                <a href="{% url 'personal_tab:cookie_corner_wrapped_global_year' year=tyear %}">{{ tyear }}</a>
-              {% else %}
-                <a href="{% url 'personal_tab:cookie_corner_wrapped_year' year=tyear %}">{{ tyear }}</a>
-              {% endif %}
-            {% endif %}
-        {% endfor %}
-      </p>
-      {% endif %}
-    </div>
-  </div></div>
+		<div class="content">
+			<p>
+				{% blocktrans with year=year%}
+				Now that the year is over, we can take a look into the usage of the cookie corner in <b>{{ year }}</b>.
+				{% endblocktrans %}
+				{% if global %}
+				{% trans 'On this page you can view the global cookie corner statistics for the entire association.' %}
+				{% else %}
+				{% trans 'On this page you can view your personal statistics for the cookie corner.' %}
+				{% endif %}
+			</p>
+			{% if transaction_years %}
+			<p>
+				{% trans 'Or, look back on a different year:' %}&nbsp;
+				{% for tyear in transaction_years %}
+				{% if forloop.counter0 != 0 %}<span> - </span>{% endif %}
+				{% if year == tyear %}
+				<b>{{ tyear }}</b>
+				{% else %}
+				{% if global %}
+				<a href="{% url 'personal_tab:cookie_corner_wrapped_global_year' year=tyear %}">{{ tyear }}</a>
+				{% else %}
+				<a href="{% url 'personal_tab:cookie_corner_wrapped_year' year=tyear %}">{{ tyear }}</a>
+				{% endif %}
+				{% endif %}
+				{% endfor %}
+			</p>
+			{% endif %}
+		</div>
+	</div>
+</div>
 
-  <div class="col-xs-12 col-md-6">
-    <div class="ia">
-      <h2>
-        {% trans 'Statistics per day' %}
-      </h2>
-      <div class="content">
-        <p>
-          <b>
-            {% trans 'First transaction of the year: ' %}
-          </b>
-          {{ first_transaction_of_the_year.article }}
-          {% trans 'on' %}
-          {{ first_transaction_of_the_year.date }}
-        </p>
+<div class="col-xs-12 col-md-6">
+	<div class="ia">
+		<h2>
+			{% trans 'Statistics per day' %}
+		</h2>
+		<div class="content">
+			<p>
+				<b>
+					{% trans 'First transaction of the year: ' %}
+				</b>
+				{{ first_transaction_of_the_year.article }}
+				{% trans 'on' %}
+				{{ first_transaction_of_the_year.date }}
+			</p>
 
-        <p>
-          <b>
-            {% trans 'Last transaction of the year: ' %}
-          </b>
-          {{ last_transaction_of_the_year.article }}
-          {% trans 'on' %}
-          {{ last_transaction_of_the_year.date }}
-        </p>
+			<p>
+				<b>
+					{% trans 'Last transaction of the year: ' %}
+				</b>
+				{{ last_transaction_of_the_year.article }}
+				{% trans 'on' %}
+				{{ last_transaction_of_the_year.date }}
+			</p>
 
-      </div>
-    </div>
+		</div>
+	</div>
 
-    <div class="ia">
-      <h2>
-        {% if global %}
-          {% trans 'Top 10 products' %}
-        {% else %}
-          {% trans 'Top 5 products' %}
-        {% endif %}
-      </h2>
+	<div class="ia">
+		<h2>
+			{% if global %}
+			{% trans 'Top 10 products' %}
+			{% else %}
+			{% trans 'Top 5 products' %}
+			{% endif %}
+		</h2>
 
-      <div class="content">
-        <p>
-          {% if global %}
-            {% trans 'Certain items were bought more than others during this year. What was bought the most?' %}
-          {% else %}
-            {% trans 'You bought certain items more than others during this year. What did you buy the most?' %}
-          {% endif %}
-        </p>
+		<div class="content">
+			<p>
+				{% if global %}
+				{% trans 'Certain items were bought more than others during this year. What was bought the most?' %}
+				{% else %}
+				{% trans 'You bought certain items more than others during this year. What did you buy the most?' %}
+				{% endif %}
+			</p>
 
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>{% trans 'Item' %}</th>
-                <th>{% trans 'Price' %}</th>
-                <th>{% trans 'Kcal' %}</th>
-                <th>{% trans 'Amount' %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for top in top_5_products %}
-                <tr>
-                  <td>{{ top.0.name }}</td>
-                  <td>{{ top.0.price }}</td>
-                  <td>{{ top.0.kcal }}</td>
-                  <td>{{ top.1 }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>{% trans 'Item' %}</th>
+							<th>{% trans 'Price' %}</th>
+							<th>{% trans 'Kcal' %}</th>
+							<th>{% trans 'Amount' %}</th>
+							{% if not global %}
+								<th>{% trans 'Ranking' %}</th>
+							{% endif %}
+						</tr>
+					</thead>
+					<tbody>
+						{% for top in top_5_products %}
+						<tr>
+							<td>{{ top.0.name }}</td>
+							<td>{{ top.0.price }}</td>
+							<td>{{ top.0.kcal }}</td>
+							<td>{{ top.1.count }}</td>
+							{% if not global %}
+								{% if top.1.ranking is not None %}
+									<td>Top {{ top.1.ranking }}%</td>
+								{% else %}
+									<td>{% trans 'You are number one!' %}</td>
+								{% endif %}
+							{% endif %}
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 
-    <div class="ia">
-      <h2>
-        {% trans 'Totals' %}
-      </h2>
+	<div class="ia">
+		<h2>
+			{% trans 'Totals' %}
+		</h2>
 
-      <div class="content">
-        <p>
-          {% trans 'Total spent in the cookie corner: ' %}
-          €{{ total.price }}
-        </p>
+		<div class="content">
+			<p>
+				{% trans 'Total spent in the cookie corner: ' %}
+				€{{ total.price }}
+			</p>
 
-        <p>
-          {% trans 'Total calories consumed: ' %}
-          {{ total.kcal }}
-        </p>
+			<p>
+				{% trans 'Total calories consumed: ' %}
+				{{ total.kcal }}
+			</p>
 
-        {% if not global %}
-          <p>
-            {% trans 'That is the caloric equivalent to:' %}
-            {{ total.equivalent }}
-          </p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
+			{% if not global %}
+			<p>
+				{% trans 'That is the caloric equivalent to:' %}
+				{{ total.equivalent }}
+			</p>
+			{% endif %}
+		</div>
+	</div>
+</div>
 
-  <div class="col-xs-12 col-md-6">
-    <div class="ia">
-      <h2>
-        {% trans 'Day with most transactions' %}
-      </h2>
-      <div class="content">
-        {% if global %}
-          <p>
-            {% blocktrans with day=most_transactions.day.day|date:'d-m-Y' c=most_transactions.day.c %}
-              On {{ day }}, something was bought {{ c }} times!
-            {% endblocktrans %}
-          </p>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>{% trans 'Total Price' %}</th>
-                  <th>{% trans 'Kcal' %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ most_transactions.total_price }}</td>
-                  <td>{{ most_transactions.total_kcal }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <p>
-            {% blocktrans with day=most_transactions.day.day|date:'d-m-Y' c=most_transactions.day.c %}
-              On {{ day }} you got a cookie {{ c }} times!
-            {% endblocktrans %}
-          </p>
-          <p>
-            {% trans 'You bought:' %}
-          </p>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>{% trans 'Item' %}</th>
-                  <th>{% trans 'Price' %}</th>
-                  <th>{% trans 'Kcal' %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for transaction in most_transactions.list %}
-                  <tr>
-                    <td>{{ transaction.article.name }}</td>
-                    <td>{{ transaction.article.price }}</td>
-                    <td>{{ transaction.article.kcal }}</td>
-                  </tr>
-                {% endfor %}
+<div class="col-xs-12 col-md-6">
+	<div class="ia">
+		<h2>
+			{% trans 'Day with most transactions' %}
+		</h2>
+		<div class="content">
+			{% if global %}
+			<p>
+				{% blocktrans with day=most_transactions.day.day|date:'d-m-Y' c=most_transactions.day.c %}
+				On {{ day }}, something was bought {{ c }} times!
+				{% endblocktrans %}
+			</p>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>{% trans 'Total Price' %}</th>
+							<th>{% trans 'Kcal' %}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>{{ most_transactions.total_price }}</td>
+							<td>{{ most_transactions.total_kcal }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			{% else %}
+			<p>
+				{% blocktrans with day=most_transactions.day.day|date:'d-m-Y' c=most_transactions.day.c %}
+				On {{ day }} you got {{ c }} products!
+				{% endblocktrans %}
+			</p>
+			<p>
+				{% trans 'You bought:' %}
+			</p>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>{% trans 'Item' %}</th>
+							<th>{% trans 'Price' %}</th>
+							<th>{% trans 'Kcal' %}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for transaction in most_transactions.list %}
+						<tr>
+							<td>{{ transaction.article.name }}</td>
+							<td>{{ transaction.article.price }}</td>
+							<td>{{ transaction.article.kcal }}</td>
+						</tr>
+						{% endfor %}
 
-                <tr>
-                  <td><b>{% trans 'Total' %}</b></td>
-                  <td>{{ most_transactions.total_price }}</td>
-                  <td>{{ most_transactions.total_kcal }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        {% endif %}
-      </div>
-    </div>
+						<tr>
+							<td><b>{% trans 'Total' %}</b></td>
+							<td>{{ most_transactions.total_price }}</td>
+							<td>{{ most_transactions.total_kcal }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			{% endif %}
+		</div>
+	</div>
 
-    <div class="ia">
-      <h2>
-        {% trans 'Drinking rooms' %}
-      </h2>
+	<div class="ia">
+		<h2>
+			{% trans 'Drinking rooms' %}
+		</h2>
 
-      <div class="content">
-        <p>
-          {% trans 'Now, lets take a look into the drinking rooms' %}
-        </p>
-        {% if global %}
-          <p>{% trans 'These are the 10 drinks with the most revenue, and the full total spent at drinks in the entire year.' %}</p>
-        {% endif %}
+		<div class="content">
+			<p>
+				{% trans 'Now, lets take a look into the drinking rooms' %}
+			</p>
+			{% if global %}
+			<p>{% trans 'These are the 10 drinks with the most revenue, and the full total spent at drinks in the entire
+				year.' %}</p>
+			{% endif %}
 
-        {% if drink_spend_most %}
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>{% trans 'Description' %}</th>
-                  <th>{% trans 'Date' %}</th>
-                  <th>{% trans 'Price' %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                  {% for transaction in drink_spend_most %}
-                    <tr>
-                      <td>{{ transaction.description }}</td>
-                      <td>{{ transaction.date__day }}-{{ transaction.date__month }}</td>
-                      <td>{{ transaction.total_price }}</td>
-                    </tr>
-                  {% endfor %}
-                  <tr>
-                    <td><b>{% trans 'Total entire year' %}</b></td>
-                    <td></td>
-                    <td>{{ drinks_total }}</td>
-                  </tr>
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          {% trans 'No transactions found' %}
-        {% endif %}
-      </div>
-    </div>
-  </div>
+			{% if drink_spend_most %}
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>{% trans 'Description' %}</th>
+							<th>{% trans 'Date' %}</th>
+							<th>{% trans 'Price' %}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for transaction in drink_spend_most %}
+						<tr>
+							<td>{{ transaction.description }}</td>
+							<td>{{ transaction.date__day }}-{{ transaction.date__month }}</td>
+							<td>{{ transaction.total_price }}</td>
+						</tr>
+						{% endfor %}
+						<tr>
+							<td><b>{% trans 'Total entire year' %}</b></td>
+							<td></td>
+							<td>{{ drinks_total }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			{% else %}
+			{% trans 'No transactions found' %}
+			{% endif %}
+		</div>
+	</div>
+</div>
 {% endblock content %}
