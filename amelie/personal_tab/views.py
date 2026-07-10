@@ -523,6 +523,7 @@ def unpaid_memberships(request, year=None):
 def unpaid_memberships_forgive(request, year):
     """Forgive the membership fee of persons that were selected in the unpaid memberships overview."""
     
+    # Get the selected memberships from the URL parameters
     selected_memberships = request.GET.get('memberships')
     if not selected_memberships:
         messages.error(request, _("No members were selected."))
@@ -561,6 +562,7 @@ def unpaid_memberships_forgive(request, year):
 def unpaid_memberships_mailing(request, year):
     """Send a mailing to persons that were selected in the unpaid memberships overview."""
 
+    # Get the selected memberships from the URL parameters
     selected_memberships = request.GET.get('memberships')
     if not selected_memberships:
         messages.error(request, _("No members were selected."))
@@ -639,7 +641,8 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
     previews = None
     if request.method == "POST" and form.is_valid():
         if request.POST.get('preview', None):
-            membership = memberships.first()  # Get the first membership to use in the context
+            # Get the first membership to use in the context
+            membership = memberships.first()
             previews = form.build_multilang_preview(membership.member, context={
                 "membership": {
                     'type': membership.type.name,

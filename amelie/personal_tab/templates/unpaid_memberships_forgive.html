@@ -28,9 +28,9 @@
                             </td>
                             <td class="align-right">
                                 {% if membership.member.is_member %}
-                                Yes
+                                {% trans 'Yes' %}
                                 {% else %}
-                                No
+                                {% trans 'No' %}
                                 {% endif %}
                             </td>
                             <td class="align-right">{{ membership.year }}</td>

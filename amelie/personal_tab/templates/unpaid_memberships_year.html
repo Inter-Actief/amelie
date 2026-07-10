@@ -39,9 +39,9 @@
                             </td>
                             <td class="align-right">
                                 {% if membership.member.is_member %}
-                                Yes
+                                {% trans 'Yes' %}
                                 {% else %}
-                                No
+                                {% trans 'No' %}
                                 {% endif %}
                             </td>
                             <td class="align-left">
@@ -58,7 +58,7 @@
                                 {% if membership.member.has_mandate_contribution.0.instructions.all and membership.member.has_mandate_contribution.0.instructions.all.0.reversal %}
                                 {{ membership.member.has_mandate_contribution.0.instructions.all.0.reversal.reason }}
                                 {% else %}
-                                No
+                                {% trans 'No' %}
                                 {% endif %}
                                 {% else %}
                                 -
