@@ -485,7 +485,7 @@ def transaction_overview(request, date_from=False, date_to=False):
 
 @require_board
 def unpaid_memberships(request, year=None):
-    """Give an overview of unpaid memberships per year."""
+    """Give an overview of unpaid memberships per year or, if a year is specified, per type."""
 
     # If no year is given, show overview of all years with unpaid memberships
     if year is None:
@@ -507,7 +507,7 @@ def unpaid_memberships(request, year=None):
     
 
     # If a year is given, show the unpaid memberships for that year, grouped by membership type
-    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type')
+    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type', 'member__first_name')
     
     grouped = {}
     for membership in unpaid_memberships:
@@ -523,8 +523,21 @@ def unpaid_memberships(request, year=None):
 def unpaid_memberships_mailing(request, year, type):
     """Send a mailing to all persons with unpaid memberships of a certain type in a certain year."""
 
-    memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year, type=type)
-    persons = Person.objects.filter(membership__in=memberships)
+    selected_memberships = request.GET.get('memberships')
+    if not selected_memberships:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+    selected_memberships = [int(i) for i in selected_memberships.split(',') if i.isdigit()] # Sanitize input
+    
+    memberships = Membership.objects.filter(pk__in=selected_memberships)
+    persons = Person.objects.filter(pk__in=memberships.values_list('member', flat=True))
+
+    if not persons:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+
     current_year = year
     study_year = '{}/{}'.format(current_year, current_year + 1)
     name_treasurer = request.person.incomplete_name()
@@ -585,19 +598,6 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
 
     })
 
-    if not persons:
-        # No persons found, give 404
-        raise Http404(_("Found nobody."))
-
-    # Variables are used in template, don't remove!
-    longest_first_name = max([p.first_name for p in persons if p.first_name is not None], key=len)
-    longest_last_name = max([p.last_name for p in persons if p.last_name is not None], key=len)
-    longest_address = max([p.address for p in persons if p.address is not None], key=len)
-    longest_postal_code = max([p.postal_code for p in persons if p.postal_code is not None], key=len)
-    longest_city = max([p.city for p in persons if p.city is not None], key=len)
-    longest_country = max([p.country for p in persons if p.country is not None], key=len)
-    longest_student_number = '0123456'
-
     previews = None
     if request.method == "POST" and form.is_valid():
         if request.POST.get('preview', None):
@@ -609,7 +609,7 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
                 }
             })
         else:
-            recipients = [(person, {'membership': {'type': person.membership.type.name, 'price': person.membership.type.price}}) for person in persons]
+            recipients = [(membership.member, {'membership': {'type': membership.type.name, 'price': membership.type.price}}) for membership in memberships]
 
             task = form.build_task(recipients)
             task.send()
@@ -619,6 +619,15 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
                 'message': 'De mails worden nu een voor een verstuurd. '
                            'Dit gebeurt in een achtergrondproces en kan even duren.'
             })
+
+    # Variables are used in template, don't remove!
+    longest_first_name = max([p.first_name for p in persons if p.first_name is not None], key=len)
+    longest_last_name = max([p.last_name for p in persons if p.last_name is not None], key=len)
+    longest_address = max([p.address for p in persons if p.address is not None], key=len)
+    longest_postal_code = max([p.postal_code for p in persons if p.postal_code is not None], key=len)
+    longest_city = max([p.city for p in persons if p.city is not None], key=len)
+    longest_country = max([p.country for p in persons if p.country is not None], key=len)
+    longest_student_number = '0123456'
 
     return render(request, 'includes/query/query_mailing.html', {
         'previews': previews,
