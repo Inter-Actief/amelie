@@ -33,6 +33,9 @@ urlpatterns = [
     path(r'<int:id>/ajax/mandate/new/', ajax_views.person_mandate_new, name='person_mandate_new'),
     path(r'<int:id>/ajax/mandate/activate/<int:mandate>/', ajax_views.person_mandate_activate, name='person_mandate_activate'),
     path(r'<int:id>/ajax/mandate/end/<int:mandate>/', ajax_views.person_mandate_end, name='person_mandate_end'),
+    path(r'<int:person_id>/ajax/mandate/sign/<int:mandate_id>/', ajax_views.MandateSignatureView.as_view(), name='person_mandate_sign'),
+    path(r'<int:person_id>/ajax/mandate/retrieve_signed/<int:mandate_id>/', ajax_views.MandateRetrieveSignedDocumentView.as_view(), name='person_mandate_retrieve_signed'),
+
     path(r'<int:id>/ajax/functions/', ajax_views.person_functions, name='person_functions'),
 
     path(r'ajax/autocomplete/name/', ajax_views.autocomplete_names, name='autocomplete'),
@@ -61,6 +64,7 @@ urlpatterns = [
     path(r'mandate_form/<int:mandate>/', views.mandate_form, name='mandate_form'),
 
     path(r'membership_form/signed/<int:person_id>/<int:membership_id>/', views.membership_signed_form, name='membership_signed_form'),
+    path(r'mandate_form/signed/<int:mandate_id>/', views.mandate_signed_form, name='mandate_signed_form'),
 
     path(r'registration_check/', views.registration_check, name='registration_check'),
     path(r'registration_check/<int:id>/<slug:slug>/', views.registration_check_view, name='registration_check_view'),

@@ -4,17 +4,16 @@ from datetime import date
 import re
 
 from django.conf import settings
-from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import slugify
 from django.views.generic import FormView, TemplateView
 from documenso_sdk import DocumensoError
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
     MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
-    SaveNewFirstModelFormSet, StudentForm, MembershipSignatureForm
+    SaveNewFirstModelFormSet, StudentForm, SignatureRequestForm
 from amelie.members.models import Payment, Committee, Function, Membership, Employee, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
@@ -184,7 +183,7 @@ def person_membership_end(request, id):
 
 class MembershipSignatureView(RequireCommitteeMixin, FormView):
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
-    form_class = MembershipSignatureForm
+    form_class = SignatureRequestForm
     template_name = "person_membership_sign.html"
 
     def get_context_data(self, **kwargs):
@@ -231,7 +230,7 @@ class MembershipRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
 
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
-def person_mandate(request, id):
+def person_mandate(request, id, option=None):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_mandate.html", locals())
 
@@ -243,10 +242,11 @@ def person_mandate_new(request, id):
     if request.method == "POST":
         form = MandateForm(request.POST)
         if form.is_valid():
-            mandate = form.save(commit=False)
+            mandate: Authorization = form.save(commit=False)
             mandate.person = obj
             mandate.save()
-            return render(request, "person_mandate.html", locals())
+            mandate.send_signature_request()  # Send signature request for the new mandate
+            return person_mandate(request, id=id, option="added_and_sign_request_sent")
         else:
             response = render(request, "person_new_mandate.html", locals())
             return response
@@ -291,6 +291,52 @@ def person_mandate_end(request, id, mandate):
     else:
         form = MandateEndForm(instance=mandate, initial={'end_date': date.today()})
         return render(request, "person_end_mandate.html", locals())
+
+class MandateSignatureView(RequireCommitteeMixin, FormView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = SignatureRequestForm
+    template_name = "person_mandate_sign.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        context['mandate'] = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, send the form to Documenso for signing, and then
+        render the regular membership section with a success message option.
+        """
+        person = get_object_or_404(Person, id=self.kwargs['person_id'])
+        mandate = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        try:
+            mandate.send_signature_request()
+            return person_mandate(self.request, id=self.kwargs['person_id'], option="sign_request_sent")
+        except DocumensoError as e:
+            logging.exception(
+                f"Failed to send mandate signature request for Person#{person.pk}, Authorization#{mandate.pk}",
+                exc_info=e
+            )
+            return person_mandate(self.request, id=self.kwargs['person_id'], option="sign_request_error")
+
+
+class MandateRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    template_name = "person_mandate_retrieve_signed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        mandate = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        context['mandate'] = mandate
+        try:
+            mandate.process_signed_document()
+            context['success'] = True
+        except (ValueError, DocumensoError) as e:
+            context['success'] = False
+            context['error_msg'] = str(e)
+        return context
 
 
 @require_ajax

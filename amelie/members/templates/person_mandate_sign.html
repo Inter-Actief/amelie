@@ -2,17 +2,17 @@
 <div class="content">
     <h3 class="legend">{% trans 'Send digital signature request' %}</h3>
 
-    {% if membership.signed_document %}
+    {% if mandate.signed_document %}
     <ul class="ia_messages">
         <li class="error">{% blocktrans %}
-            Warning: This member already has a signed document!
+            Warning: This mandate already has a signature!
             If you re-send the signature request, it will overwrite the existing document and signature!
         {% endblocktrans %}</li>
     </ul>
-    {% elif membership.documenso_id %}
+    {% elif mandate.documenso_id %}
     <ul class="ia_messages">
         <li class="warning">{% blocktrans %}
-            Warning: There already is a signature request in progress for this member!
+            Warning: There already is a signature request in progress for this mandate!
             If you re-send the signature request, it will overwrite the existing request.
         {% endblocktrans %}</li>
     </ul>
@@ -20,7 +20,7 @@
 
     <p>
         {% blocktrans %}
-            This will send an e-mail to the member, with a request to sign the membership form via our signing tool.
+            This will send an e-mail to the member, with a request to sign the mandate form via our signing tool.
             After the member has signed, you can view the signed document on their member page.
             The e-mail will be sent to the following contact:
         {% endblocktrans %}
@@ -39,12 +39,12 @@
             <td>{{ person.get_preferred_language_display }}</td>
         </tr>
     </table>
-    <form action="{% url 'members:person_membership_sign' person.id membership.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+    <form action="{% url 'members:person_mandate_sign' person.id mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
         {% csrf_token %}
         {{ form }}
 
         <div class="buttons">
-            <a href="{% url 'members:person_membership' person.id %}" class="looks-like-a-button danger-button js-load-block" data-container="person_membership">
+            <a href="{% url 'members:person_mandate' person.id %}" class="looks-like-a-button danger-button js-load-block" data-container="person_mandate">
                 {% trans 'Cancel' %}
             </a>
 

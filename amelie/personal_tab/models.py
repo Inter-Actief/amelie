@@ -1,15 +1,17 @@
 # -*- coding: UTF-8 -*-
+import logging
 from io import BytesIO
 from typing import Optional
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.utils import timezone
-from django.utils.translation import get_language, gettext_lazy as _l
+from django.utils.translation import get_language, gettext_lazy as _l, gettext
 from documenso_sdk import EnvelopeDistributeResponse
 from localflavor.generic.models import BICField, IBANField
 
@@ -514,6 +516,11 @@ class Authorization(models.Model):
 
     objects = AuthorizationManager()
 
+    class Meta:
+        ordering = ['person', 'start_date']
+        verbose_name = _l('mandate')
+        verbose_name_plural = _l('mandates')
+
     def authorization_reference(self):
         """Gives the complete authorization reference with prefix"""
         return '%s%08d' % (Authorization.PREFIX, self.id)
@@ -589,11 +596,6 @@ class Authorization(models.Model):
     def get_absolute_url(self):
         return reverse('personal_tab:authorization_view', args=(), kwargs={'authorization_id': self.id, })
 
-    class Meta:
-        ordering = ['person', 'start_date']
-        verbose_name = _l('mandate')
-        verbose_name_plural = _l('mandates')
-
     def get_as_pdf(self) -> bytes:
         from amelie.tools.pdf import pdf_authorization_form
         buffer = BytesIO()
@@ -612,6 +614,18 @@ class Authorization(models.Model):
             return send_document(self.documenso_id)
         else:
             return None
+
+    def process_signed_document(self):
+        if not self.documenso_id:
+            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+        # Retrieve the document and save it to the database
+        from amelie.tools.documenso import retrieve_documents
+        documents = retrieve_documents(self.documenso_id)
+        if len(documents) > 1:
+            logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
+        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+        self.is_signed = True  # Activates the mandate for use
+        self.save()
 
     def documenso_url(self):
         if self.documenso_id is not None:

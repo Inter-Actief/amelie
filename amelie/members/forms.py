@@ -299,7 +299,7 @@ class MembershipEndForm(forms.ModelForm):
                                                (date(current_association_year() + 1, 7, 1),
                                                 _l('At the end of the association year')),)
 
-class MembershipSignatureForm(forms.Form):
+class SignatureRequestForm(forms.Form):
     send_check = forms.BooleanField(label=_l('Send the signature request'), required=True)
 
 

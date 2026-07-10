@@ -211,6 +211,11 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
                 # We don't know how to process these yet.
                 log.warning(f"Received DOCUMENT_COMPLETE webhook from Documenso for an enrollment, but that is unimplemented. Ignoring. "
                             f"(externalId='{external_id}', envelopeId='{envelope_id}')")
+            elif external_id.startswith("AML:UEN:"):
+                # Yup, it's an unverified enrollment form signature package we sent
+                # We don't know how to process these yet.
+                log.warning(f"Received DOCUMENT_COMPLETE webhook from Documenso for an unverified enrollment, but that is unimplemented. Ignoring. "
+                            f"(externalId='{external_id}', envelopeId='{envelope_id}')")
             else:
                 # Nothing we know of, let's make a log of it and ignore it.
                 log.warning(f"Received DOCUMENT_COMPLETE webhook from Documenso for an unknown document, ignoring. "

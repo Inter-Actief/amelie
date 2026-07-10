@@ -1355,6 +1355,15 @@ def membership_signed_form(request, person_id, membership_id):
         raise Http404('Signed form not found')
 
 
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def mandate_signed_form(request, mandate_id):
+    mandate = get_object_or_404(Authorization, id=mandate_id)
+    if mandate.signed_document:
+        return HttpResponseSendfile(mandate.signed_document.path, content_type='application/pdf')
+    else:
+        raise Http404('Signed form not found')
+
+
 @require_board
 def birthdays(request):
     today_minus_three = timezone.now() - datetime.timedelta(days=3)

@@ -3,11 +3,11 @@
 {# Success message in case a signature request for a membership was just sent. #}
 {% if option == "sign_request_sent" %}
     <ul class="ia_messages"><li class="success">
-        {% trans 'The request for a digital signature was sent.' %}
+        {% trans "The request for a digital signature was sent." %}
     </li></ul>
 {% elif option == "sign_request_error" %}
     <ul class="ia_messages"><li class="error">
-        {% trans 'There was an error while sending the digital signature request. Please contact the WWW.' %}
+        {% trans "There was an error while sending the digital signature request. Please contact the WWW." %}
     </li></ul>
 {% endif %}
 
@@ -90,9 +90,13 @@
                             <a title="{% trans 'Download PDF form' %}" href="{% url 'members:membership_form' obj.id membership.id %}" class="icon icon-printer"></a>
                             {% if membership.signed_document %}
                                 <a title="{% trans 'View signed member form' %}" href="{% url 'members:membership_signed_form' obj.id membership.id %}" class="icon icon-report_magnify"></a>
+                            {% endif %}
+                            {% if membership.signed_document or membership.documenso_id %}
                                 <a title="{% trans 'Re-send digital signature request' %}" href="{% url 'members:person_membership_sign' obj.id membership.id %}" class="icon icon-pencil_delete js-load-block" data-container="person_membership"></a>
-                            {% elif membership.needs_signature %}
+                            {% else %}
                                 <a title="{% trans 'Send digital signature request' %}" href="{% url 'members:person_membership_sign' obj.id membership.id %}" class="icon icon-pencil_add js-load-block" data-container="person_membership"></a>
+                            {% endif %}
+                            {% if not membership.signed_document and membership.needs_signature %}
                                 {% if membership.documenso_id %}
                                     <a class="icon icon-page_find" href="{{ membership.documenso_url }}" target="_blank"
                                        title="{% trans 'A signature request for this membership is in progress. Click to open the request in Documenso.' %}"></a>

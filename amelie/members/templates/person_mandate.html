@@ -1,5 +1,20 @@
 {% load i18n %}
 
+{# Success message in case a signature request for a membership was just sent. #}
+{% if option == "sign_request_sent" %}
+    <ul class="ia_messages"><li class="success">
+        {% trans "The request for a digital signature was sent." %}
+    </li></ul>
+{% elif option == "added_and_sign_request_sent" %}
+    <ul class="ia_messages"><li class="success">
+        {% trans "The mandate was created and a request for a digital signature was sent to the member's e-mail." %}
+    </li></ul>
+{% elif option == "sign_request_error" %}
+    <ul class="ia_messages"><li class="error">
+        {% trans "There was an error while sending the digital signature request. Please contact the WWW." %}
+    </li></ul>
+{% endif %}
+
 {% if obj.mandate_set.count == 0 %}
     <p>
         {% blocktrans %}
@@ -61,10 +76,29 @@
                         <td>
                             {% if not mandate.is_signed and not mandate.end_date %}
                                 <a href="{% url 'members:mandate_form' mandate.id %}" class="icon icon-printer">{% trans 'Print' %}</a><br />
-                                <a href="{% url 'members:person_mandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate' %}</a><br />
+                                <a title="{% trans 'The mandate will be automatically activated once the member signs the digital form. You can override and activate it manually here too.' %}" href="{% url 'members:person_mandate_activate' obj.id mandate.id %}" class="icon icon-tick js-load-block" data-container="person_mandate">{% trans 'Activate manually' %}</a><br />
                             {% endif %}
                             {% if not mandate.end_date %}
-                                <a href="{% url 'members:person_mandate_end' obj.id mandate.id %}" class="icon icon-cancel js-load-block" data-container="person_mandate">{% trans 'Terminate' %}</a>
+                                <a href="{% url 'members:person_mandate_end' obj.id mandate.id %}" class="icon icon-cancel js-load-block" data-container="person_mandate">{% trans 'Terminate' %}</a><br />
+                            {% endif %}
+
+                            {% if mandate.signed_document %}
+                                <a title="{% trans 'View signed mandate form' %}" href="{% url 'members:mandate_signed_form' mandate.id %}" class="icon icon-report_magnify">{% trans 'View signed' %}</a><br />
+                            {% endif %}
+                            {% if mandate.signed_document or mandate.documenso_id %}
+                                <a title="{% trans 'Re-send digital signature request' %}" href="{% url 'members:person_mandate_sign' obj.id mandate.id %}" class="icon icon-pencil_delete js-load-block" data-container="person_mandate">{% trans 'Re-request signature' %}</a><br />
+                            {% else %}
+                                <a title="{% trans 'Send digital signature request' %}" href="{% url 'members:person_mandate_sign' obj.id mandate.id %}" class="icon icon-pencil_add js-load-block" data-container="person_mandate">{% trans 'Request signature' %}</a><br />
+                            {% endif %}
+                            {% if not mandate.signed_document %}
+                                {% if mandate.documenso_id %}
+                                    <a class="icon icon-page_find" href="{{ mandate.documenso_url }}" target="_blank"
+                                       title="{% trans 'A signature request for this mandate is in progress. Click to open the request in Documenso.' %}">{% trans 'View in sign tool' %}</a><br />
+                                    <a title="{% trans 'Try to retrieve signed file from Documenso' %}" href="{% url 'members:person_mandate_retrieve_signed' obj.id mandate.id %}" class="icon icon-arrow_down js-load-block" data-container="person_mandate">{% trans 'Retrieve file' %}</a><br />
+                                {% endif %}
+                                {% if mandate.start_date.year < 2026 %}
+                                    <abbr class="icon icon-information" title="{% trans 'This mandate was created before we introduced digital signatures. Its signed copy may be in the physical folders.' %}">{% trans 'Old mandate' %}</abbr><br />
+                                {% endif %}
                             {% endif %}
                         </td>
                         {% endif %}
