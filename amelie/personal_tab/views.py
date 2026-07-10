@@ -28,7 +28,7 @@ from django.views.generic.edit import FormView
 from functools import reduce
 
 from amelie.calendar.models import Event
-from amelie.members.models import Person, Membership
+from amelie.members.models import Payment, PaymentType, Person, Membership
 from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
@@ -520,16 +520,54 @@ def unpaid_memberships(request, year=None):
 
 
 @require_board
-def unpaid_memberships_mailing(request, year, type):
-    """Send a mailing to all persons with unpaid memberships of a certain type in a certain year."""
+def unpaid_memberships_forgive(request, year):
+    """Forgive the membership fee of persons that were selected in the unpaid memberships overview."""
+    
+    selected_memberships = request.GET.get('memberships')
+    if not selected_memberships:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+    # Sanitize input
+    selected_memberships = [int(i) for i in selected_memberships.split(',') if i.isdigit()]
+    memberships = Membership.objects.filter(pk__in=selected_memberships)
+
+    if not memberships:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+    if request.method == "POST":
+        if 'confirm' in request.POST:
+            # Payment Type 12 is the "Forgiven" payment type
+            forgiven_payment_type = PaymentType.objects.get(pk=12)
+            for membership in memberships:
+                # Create a Payment object for the membership with the "Forgiven" payment type
+                payment = Payment(
+                    membership=membership,
+                    amount=membership.type.price,
+                    date=timezone.now(),
+                    payment_type=forgiven_payment_type,
+                )
+                payment.save()
+            messages.success(request, _("The membership fees have been forgiven."))
+            return redirect('personal_tab:unpaid_memberships_year', year)
+
+    else:
+        # Show confirmation page
+        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'year': year})
+
+
+@require_board
+def unpaid_memberships_mailing(request, year):
+    """Send a mailing to persons that were selected in the unpaid memberships overview."""
 
     selected_memberships = request.GET.get('memberships')
     if not selected_memberships:
         messages.error(request, _("No members were selected."))
         return redirect('personal_tab:unpaid_memberships_year', year)
 
-    selected_memberships = [int(i) for i in selected_memberships.split(',') if i.isdigit()] # Sanitize input
-    
+    # Sanitize input
+    selected_memberships = [int(i) for i in selected_memberships.split(',') if i.isdigit()]
     memberships = Membership.objects.filter(pk__in=selected_memberships)
     persons = Person.objects.filter(pk__in=memberships.values_list('member', flat=True))
 
