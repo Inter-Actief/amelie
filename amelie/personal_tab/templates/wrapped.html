@@ -109,7 +109,9 @@
 							<td>{{ top.1.count }}</td>
 							{% if not global %}
 								{% if top.1.ranking is not None %}
-									<td>Top {{ top.1.ranking }}%</td>
+								{% blocktrans with ranking=top.1.ranking %}
+									<td>Top {{ ranking }}%</td>
+								{% endblocktrans %}
 								{% else %}
 									<td>{% trans 'You are number one!' %}</td>
 								{% endif %}
