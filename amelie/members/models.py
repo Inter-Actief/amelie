@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import re
 import uuid
 
 import os
@@ -27,8 +28,6 @@ from documenso_sdk import EnvelopeDistributeResponse
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
 from amelie.members.managers import PersonManager, CommitteeManager
-from amelie.members.views import send_new_member_email
-from amelie.personal_tab.models import Authorization
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.logic import current_association_year
 from amelie.tools.validators import CheckDigitValidator
@@ -716,7 +715,7 @@ class Person(models.Model, Mappable):
                         'account please use firstname.lastname@gapps.inter-actief.nl as an alternative.'
                     )})
 
-    def send_signature_request(self, membership: Membership) -> Optional[EnvelopeDistributeResponse]:
+    def send_signature_request(self, membership: 'Membership') -> Optional[EnvelopeDistributeResponse]:
         """
         Sends a signature request for the enrollment form of this person, for the given membership.
         """
@@ -974,7 +973,7 @@ class Membership(models.Model):
             raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
         # Retrieve the document and save it to the database
         from amelie.tools.documenso import retrieve_documents
-        documents = retrieve_documents(self.documenso_id)
+        documents, _ = retrieve_documents(self.documenso_id)
         if len(documents) > 1:
             logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
         self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
@@ -1289,11 +1288,15 @@ class UnverifiedEnrollment(models.Model):
     def activate_registration(self) -> Person:
         """
         Create a Person, Student, Membership, etc. using the data from the UnverifiedEnrollment,
-        then transfer the wanted authorizations to that person, and delete the pre-enrollment.
+        then transfer the wanted authorizations to that person.
+
+        NOTE: Does not delete the pre-enrollment! This needs to be done manually
+              because it can't be done in the same database transaction.
         """
 
-        # Import is here because of a circular import between members and personal_tab
+        # Import is here because of a circular import between members and personal_tab/claudia
         from amelie.personal_tab.models import Authorization, AuthorizationType
+        from amelie.members.views import send_new_member_email
 
         # Construct the Person object
         person = Person(
@@ -1416,19 +1419,32 @@ class UnverifiedEnrollment(models.Model):
             return None
 
     @transaction.atomic()
-    def process_signed_document(self, membership_id: str, authorization_ids: str):
+    def process_signed_document(self):
+        # Import is here because of a circular import between members and personal_tab
+        from amelie.personal_tab.models import Authorization
+
         if not self.documenso_id:
             raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
         # Retrieve the document and save it to the database
         from amelie.tools.documenso import retrieve_documents
-        documents = retrieve_documents(self.documenso_id)
+        documents, envelope_info = retrieve_documents(self.documenso_id)
+
+        # Parse the external ID
+        external_match = re.match(r"^AML:(?P<type>MEM|MDT|ENR|UEN):(?P<id>[0-9]+)(/(?P<ids>[0-9]+(,[0-9]+)*))?$", envelope_info.external_id)
+        if not external_match:
+            raise ValueError("Processing member enrollment documents has an unknown external ID, ignoring. "
+                            f"(externalId='{envelope_info.external_id}', envelopeId='{envelope_info.id}')")
+        external_id_parts = external_match.groupdict()
+        membership_id = external_id_parts.get('id')
+        authorization_ids = external_id_parts.get('ids', "")
+        authorization_ids_split = authorization_ids.split(",") if authorization_ids else []
 
         # Check if we have enough documents
-        if len(documents) > len(authorization_ids.split(",")) + 1:  # Number of authorizations + 1 membership
+        if len(documents) > len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
             logging.getLogger(__name__).warning(
                 f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too much! Trying to continue anyway."
             )
-        if len(documents) < len(authorization_ids.split(",")) + 1:  # Number of authorizations + 1 membership
+        if len(documents) < len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
             logging.getLogger(__name__).warning(
                 f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too little! Can't continue processing."
             )
@@ -1447,21 +1463,13 @@ class UnverifiedEnrollment(models.Model):
             raise ValueError(f"Membership with ID {membership_id} and documenso ID {self.documenso_id} does not exist")
 
         # Save documents in Authorization(s)
-        for i, authorization_id in enumerate(authorization_ids.split(","), start=1):
+        for i, authorization_id in enumerate(authorization_ids_split, start=1):
             try:
                 authorization = Authorization.objects.get(documenso_id=self.documenso_id, pk=authorization_id)
                 authorization.signed_document = ContentFile(content=documents[i].data, name=documents[i].filename)
                 authorization.save()
             except Authorization.DoesNotExist:
                 raise ValueError(f"Authorization with ID {authorization_id} and documenso ID {self.documenso_id} does not exist")
-
-        # Self-destruct
-        self.delete()
-
-        if len(documents) > 1:
-            logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
-        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
-        self.save()
 
     def documenso_url(self):
         if self.documenso_id is not None:

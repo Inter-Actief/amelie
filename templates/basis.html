@@ -98,12 +98,12 @@
                             <p id="cb-header"></p>
                         </div>
                         <div class="modal-body">
-                            <h2 id="cb-modal-text"><h2>
+                            <h2 id="cb-modal-text"></h2>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="cb-clippy" />
+            <div class="cb-clippy"></div>
         {% endif %}
 
         {% block head %}{% endblock head %}
@@ -119,25 +119,25 @@
 
         <!-- https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color -->
         <meta name="theme-color" content="#1D428A">
-	</head>
-	<body>
-		<div id="top" class="clearfix">
-			<div id="header" class="container">
-				{% if LANGUAGE_CODE != "en" %}
-					<form name="setLangEnglish" action="/i18n/setlang/" method="POST">{% csrf_token %}
-						<input name="next" type="hidden" value="{{ request.path }}" />
-						<input type="hidden" name="language" value="en" />
-					</form>
-				{% endif %}
-				{% if LANGUAGE_CODE != "nl" %}
-					<form name="setLangDutch" action="/i18n/setlang/" method="POST">{% csrf_token %}
-						<input name="next" type="hidden" value="{{ request.path }}" />
-						<input type="hidden" name="language" value="nl" />
-					</form>
-				{% endif %}
-				<div id="banners" class="row">
-					<div id="logo" class="max-col-xs-12 max-col-sm-6 max-col-md-3 max-col-lg-2">
-						<a href="{% url 'frontpage' %}">
+    </head>
+    <body>
+        <div id="top" class="clearfix">
+            <div id="header" class="container">
+                {% if LANGUAGE_CODE != "en" %}
+                    <form name="setLangEnglish" action="/i18n/setlang/" method="POST">{% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.path }}" />
+                        <input type="hidden" name="language" value="en" />
+                    </form>
+                {% endif %}
+                {% if LANGUAGE_CODE != "nl" %}
+                    <form name="setLangDutch" action="/i18n/setlang/" method="POST">{% csrf_token %}
+                        <input name="next" type="hidden" value="{{ request.path }}" />
+                        <input type="hidden" name="language" value="nl" />
+                    </form>
+                {% endif %}
+                <div id="banners" class="row">
+                    <div id="logo" class="max-col-xs-12 max-col-sm-6 max-col-md-3 max-col-lg-2">
+                        <a href="{% url 'frontpage' %}">
                             {% if theme == 'christmas' %}
                                 {% if request.person %}
                                     <img src="{% cached_static 'img/layout/logo_christmas_winter.svg' %}" data-fallback="{% cached_static 'img/layout/logo_christmas_winter.png' %}" alt="Winter-/Actief/"/>
@@ -159,12 +159,12 @@
                                     <img src="{% cached_static 'img/layout/logo_production.svg' %}" data-fallback="{% cached_static 'img/layout/logo_production.png' %}" alt="Inter-/Actief/"/>
                                 {% endif %}
                             {% endif %}
-						</a>
-					</div>
+                        </a>
+                    </div>
 
-					{% banners 3 %}
-				</div>
-				<div class="col-xs-12" id="nav-root">
+                    {% banners 3 %}
+                </div>
+                <div class="col-xs-12" id="nav-root">
                     <a class="pull-right" href="#"><img class="toggle-menu" src="{% cached_static 'img/layout/hamburger.png' %}" alt="menu" /></a>
                     <ul id="nav" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 dropdown dropdown-horizontal">
                         <li class="{% active_menu 'home' %}">
@@ -210,8 +210,8 @@
                                 <li><a href="{% url 'about:page' 5 'association-song' %}">{% trans 'Association song' %}</a></li>
                                 <li><a href="{% url 'about:page' 16 'alumni-association-eniac' %}">{% trans 'Association ENIAC' %}</a></li>
                                 <li><a href="{% url 'about:page' 4 'sister-associations' %}">{% trans 'Sister associations' %}</a></li>
-				<li><a href="{% url 'about:page' 27 'the-inter-actief-app' %}">{% trans 'Inter-<i>Actief</i> app' %}</a></li>
-				<li><a href="https://inter-archief.net">{% trans 'Inter-Archive' %}</a></li>
+                <li><a href="{% url 'about:page' 27 'the-inter-actief-app' %}">{% trans 'Inter-<i>Actief</i> app' %}</a></li>
+                <li><a href="https://inter-archief.net">{% trans 'Inter-Archive' %}</a></li>
                             </ul>
                         </li>
 
@@ -271,7 +271,7 @@
                                 <li><a href="{% url 'education:complaints' %}">{% trans 'Complaints' %}</a></li>
                                 <li><a href="{% url 'education:bouquet' %}">{% trans 'Educational bouquet' %}</a></li>
                                 <li><a href="{% url 'education:awards' %}">{% trans 'Education awards' %}</a></li>
-				<li><a href="{% url 'about:page' 29 'tutoring' %}">{% trans 'Tutoring' %}</a></li>
+                <li><a href="{% url 'about:page' 29 'tutoring' %}">{% trans 'Tutoring' %}</a></li>
                             </ul>
                         </li>
                         <li class="{% active_menu 'contact'  %}">
@@ -315,12 +315,12 @@
                         {% endif %}
                     </ul>
                 </div>
-			</div>
-		</div>
+            </div>
+        </div>
 
-		<div id="middle">
-			<div class="follow-container"><div id="screenfollow" class="container"></div></div>
-			<div id="content" class="container">
+        <div id="middle">
+            <div class="follow-container"><div id="screenfollow" class="container"></div></div>
+            <div id="content" class="container">
                 {% if messages %}
                     <div class="col-xs-12">
                         <ul class="ia_messages">
@@ -330,24 +330,24 @@
                         </ul>
                     </div>
                 {% endif %}
-				<div class="clearfix"></div>
+                <div class="clearfix"></div>
                 {% block content %}{% endblock content %}
-				<div class="clearfix"></div>
-			</div>
-		</div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
 
-		<div id="bottom">
-			<div id="footer" class="container">
-				<a href="https://privacy.ia.utwente.nl/">{% trans 'Privacy policy' %}</a> |
-				<a href="{% url 'about:page' 7 'contact' %}">{% trans 'Contact' %}</a> |
-				<a href="https://www.github.com/Inter-Actief/amelie/issues">{% trans 'Report a problem' %}</a> |
+        <div id="bottom">
+            <div id="footer" class="container">
+                <a href="https://privacy.ia.utwente.nl/">{% trans 'Privacy policy' %}</a> |
+                <a href="{% url 'about:page' 7 'contact' %}">{% trans 'Contact' %}</a> |
+                <a href="https://www.github.com/Inter-Actief/amelie/issues">{% trans 'Report a problem' %}</a> |
                 <a href="{% url 'about:page' 33 'coordinated-vulnerability-disclosure-policy' %}">{% trans 'CVD Policy' %}</a>
                 <div id="sponsor">
                     <span>Sponsored by: </span>
                     <img src="{% cached_static 'img/byte_logo.png' %}" alt="Sponsored by Byte" />
                 </div>
                 <span id="build_info" class="right"
-				      title="{% blocktrans with branch=build_info.branch|default:'?' commit=build_info.commit|default:'?' date=build_info.date|default:'?' pid=host_info.pid|default:'?' host=host_info.host|default:'?' %}Amélie {{ branch }} ({{ commit }} built on {{ date }}) rendered by PID {{ pid }} on {{ host }}{% endblocktrans %}">
+                      title="{% blocktrans with branch=build_info.branch|default:'?' commit=build_info.commit|default:'?' date=build_info.date|default:'?' pid=host_info.pid|default:'?' host=host_info.host|default:'?' %}Amélie {{ branch }} ({{ commit }} built on {{ date }}) rendered by PID {{ pid }} on {{ host }}{% endblocktrans %}">
                     &pi;
                 </span>
             </div>
@@ -459,5 +459,5 @@
                 });
             </script>
         {% endif %}
-	</body>
+    </body>
 </html>

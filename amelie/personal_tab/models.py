@@ -596,10 +596,13 @@ class Authorization(models.Model):
     def get_absolute_url(self):
         return reverse('personal_tab:authorization_view', args=(), kwargs={'authorization_id': self.id, })
 
-    def get_as_pdf(self) -> bytes:
+    def get_as_pdf(self, unverified_enrollment=None) -> bytes:
         from amelie.tools.pdf import pdf_authorization_form
         buffer = BytesIO()
-        pdf_authorization_form(buffer, self)
+        if unverified_enrollment is not None:
+            pdf_authorization_form(buffer, (self, unverified_enrollment))
+        else:
+            pdf_authorization_form(buffer, self)
         pdf = buffer.getvalue()
         return pdf
 
@@ -620,7 +623,7 @@ class Authorization(models.Model):
             raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
         # Retrieve the document and save it to the database
         from amelie.tools.documenso import retrieve_documents
-        documents = retrieve_documents(self.documenso_id)
+        documents, _ = retrieve_documents(self.documenso_id)
         if len(documents) > 1:
             logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
         self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)

@@ -1,5 +1,10 @@
 {% load i18n %}
 <div class="content">
+    {% if debug %}
+        <ul class="ia_messages"><li class="info">
+            {% trans 'Hey there developer! Here are some random unused student numbers for you to use:' %}&nbsp;<span class="monospace-text-bordered">{{ form.get_random_student_numbers|join:", " }}</span>
+        </li></ul>
+    {% endif %}
     <form action="{% url 'members:person_study' obj.id %}" method="post" class="js-ajax-form" data-container="person_study">
     {% csrf_token %}
 

@@ -5,21 +5,23 @@
 
 {% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
 {% onlyhtml %}
-{% blocktrans %}Thank you for wanting to become a member of Inter-<i>Actief</i>! To complete your enrollment, you need to sign your membership form.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
-{% blocktrans %}Thank you for wanting to become a member of Inter-/Actief/! To complete your enrollment, you need to sign your membership form.{% endblocktrans %}{% endonlyplain %}
+{% blocktrans %}Thank you for wanting to become a member of Inter-<i>Actief</i>! To complete your enrollment, you need to sign your membership form. By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
+{% blocktrans %}Thank you for wanting to become a member of Inter-/Actief/! To complete your enrollment, you need to sign your membership form. By signing this membership form, you agree to all terms of membership of the bylaws and the Rules and Regulations of this association.{% endblocktrans %}{% endonlyplain %}
 
-{% blocktrans %}If you opted for one or both authorizations to pay for your membership fee and/or consumptions and activities, you will also need to sign these authorizations as well.{% endblocktrans %}
+{% blocktrans %}If you opted for one or both mandates to pay for your membership fee and/or consumptions and activities, you will also need to sign these mandates.{% endblocktrans %}
 
-{% blocktrans %}You should have received a second mail with a request to sign your membership documents. Open the link in that e-mail and follow the steps to digitally sign the forms.{% endblocktrans %}
+{% blocktrans %}You should have received a second e-mail with a request to sign your membership documents. Open the link in that e-mail and follow the steps to digitally sign the forms.{% endblocktrans %}
 
 {% blocktrans %}Once signed, your membership will be automatically activated and you can start using it!{% endblocktrans %}
 {% onlyhtml %}
-{% blocktrans %}If there are any problems with the signing, or if you didn't receive the sign request mail, send an e-mail to <a href="mailto:secretary@inter-actief.net">secretary@inter-actief.net</a>, we are happy to help you along.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
-{% blocktrans %}If there are any problems with the signing, or if you didn't receive the sign request mail, send an e-mail to secretary@inter-actief.net, we are happy to help you along.{% endblocktrans %}{% endonlyplain %}
+{% blocktrans %}If there are any problems with the signing, or if you didn't receive the second e-mail with the signature request, send an e-mail to <a href="mailto:secretary@inter-actief.net">secretary@inter-actief.net</a>, we are happy to help you along.{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
+{% blocktrans %}If there are any problems with the signing, or if you didn't receive the second e-mail with the signature request, send an e-mail to secretary@inter-actief.net, we are happy to help you along.{% endblocktrans %}{% endonlyplain %}
 {% onlyhtml %}
-{% blocktrans %}Kind regards,
+{% blocktrans %}See you soon at Inter-<i>Actief</i>!
+Kind regards,
 
 The board of Inter-<i>Actief</i>{% endblocktrans %}{% endonlyhtml %}{% onlyplain %}
-{% blocktrans %}Kind regards,
+{% blocktrans %}See you soon at Inter-/Actief/!
+Kind regards,
 
 The board of Inter-/Actief/{% endblocktrans %}{% endonlyplain %}{% endhtmlify %}{% endblock %}

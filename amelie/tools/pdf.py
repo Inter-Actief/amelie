@@ -51,7 +51,13 @@ def pdf_membership_form(file, person, membership):
 
 
 def pdf_authorization_form(file, authorization):
-    with translation.override(authorization.person.preferred_language):
+    # authorization param can be an Authorization object for regular authorizations, or
+    # a tuple of (Authorization, UnverifiedEnrollment) for authorizations linked to unverified enrollments.
+    if isinstance(authorization, tuple):
+        person = authorization[1]
+    else:
+        person = authorization.person
+    with translation.override(person.preferred_language):
         c = canvas.Canvas(file, pagesize=A4)
         c.setTitle(_("Mandate form"))
         pdf_authorization_page(c, authorization)

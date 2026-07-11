@@ -253,10 +253,30 @@ class EmployeeForm(forms.ModelForm):
         fields = ("number", "end",)
 
 
+def get_random_student_numbers(max_count=3):
+    c = CheckDigitValidator(7)
+    numbers = []
+    for i in range(50000):
+        try:
+            c(i)
+            if Student.objects.filter(number=i).exists():
+                continue
+            numbers.append(i)
+        except ValidationError:
+            pass
+        if len(numbers) >= max_count:
+            break
+    return numbers
+
+
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = ("number",)
+
+    @staticmethod
+    def get_random_student_numbers():
+        return get_random_student_numbers(3)
 
 
 class PersonStudyForm(forms.ModelForm):
@@ -369,162 +389,6 @@ def _initial_preferences():
     return [x.pk for x in Preference.objects.filter(default=True).exclude(first_time=False)]
 
 
-class PersonCreateForm(forms.ModelForm):
-    gender = forms.ChoiceField(choices=Person.GenderTypes.choices, widget=widgets.RadioSelect)
-    preferred_language = forms.ChoiceField(choices=LANGUAGE_CHOICES, widget=widgets.RadioSelect)
-    international_member = forms.ChoiceField(choices=Person.InternationalChoices.choices, widget=widgets.RadioSelect)
-
-    student_number = forms.IntegerField(required=False, validators=[CheckDigitValidator(7), MaxValueValidator(9999999)])
-    study = forms.ModelMultipleChoiceField(Study.objects.filter(active=True), widget=widgets.CheckboxSelectMultiple, required=False)
-    generation = forms.IntegerField(required=False)
-
-    membership = forms.ModelChoiceField(MembershipType.objects.filter(
-        Q(name_nl='Secundair jaarlid') | Q(name_nl='Primair jaarlid') |
-        Q(name_nl='Studielang (eerste jaar)') | Q(name_nl='Medewerker jaar')
-    ), required=True, empty_label=None, widget=widgets.RadioSelect)
-
-    iban = IBANFormField(label=_l('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    bic = BICFormField(label=_l('BIC'), required=False)
-    mandate_contribution = forms.BooleanField(required=False)
-    mandate_other = forms.BooleanField(required=False)
-
-    done = forms.BooleanField(required=True)
-
-    # Here you can also disable specific preferences.
-    # If these should be enabled by default, that needs to be done at 'def save()'
-    preferences = forms.ModelMultipleChoiceField(Preference.objects.exclude(first_time=False),
-                                                 initial=_initial_preferences,
-                                                 widget=widgets.CheckboxSelectMultiple, required=False)
-
-    class Meta:
-        model = Person
-        fields = (
-            'first_name', 'last_name_prefix', 'last_name', 'initials', 'gender', 'date_of_birth', 'address',
-            'postal_code', 'city', 'country', 'email_address', 'telephone',
-            'preferred_language', 'preferences', 'international_member')
-        widgets = {'preferred_language': widgets.RadioSelect(), 'date_of_birth': DateSelector}
-
-    def clean(self):
-        cleaned_data = super(PersonCreateForm, self).clean()
-
-        if self.errors:
-            # Skips checks if errors are found.
-            return cleaned_data
-
-        if cleaned_data['study']:
-            # Generation is mandatory if study is chosen
-            if 'generation' not in cleaned_data or not cleaned_data['generation']:
-                raise forms.ValidationError(
-                    _l("A study has been chosen, but no cohort was specified. Enter the missing data to continue.")
-                )
-
-        if cleaned_data['mandate_contribution'] or cleaned_data['mandate_other']:
-            if not cleaned_data['iban']:
-                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
-            if not cleaned_data['bic']:
-                if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
-                elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                    cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-                else:
-                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
-
-        return cleaned_data
-
-    def clean_student_number(self):
-        if self.cleaned_data['student_number'] and Student.objects.filter(
-                number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_l("A student with this student number already exists."))
-        if self.cleaned_data['student_number'] and UnverifiedEnrollment.objects.filter(
-            student_number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_l("This student number is already pre-enrolled. A board member can activate your account."))
-        return self.cleaned_data['student_number']
-
-    def save(self, *args, **kwargs):
-        person = super(PersonCreateForm, self).save(*args, **kwargs)
-        for preference in Preference.objects.filter(first_time=False, default=True):
-            person.preferences.add(preference)
-        return person
-
-
-class RegistrationForm(forms.ModelForm):
-    gender = forms.ChoiceField(choices=Person.GenderTypes.choices, widget=widgets.RadioSelect)
-    preferred_language = forms.ChoiceField(choices=LANGUAGE_CHOICES, widget=widgets.RadioSelect)
-    international_member = forms.ChoiceField(choices=Person.InternationalChoices.choices, widget=widgets.RadioSelect)
-
-    student_number = forms.IntegerField(validators=[CheckDigitValidator(7), MaxValueValidator(9999999)])
-    study = forms.ModelMultipleChoiceField(Study.objects.filter(primary_study=True, active=True),
-                                           widget=widgets.CheckboxSelectMultiple)
-    # Queryset will be set dynamically in __init__
-    dogroup = forms.ModelChoiceField(DogroupGeneration.objects.none(), widget=widgets.RadioSelect, required=False)
-
-    membership = forms.ModelChoiceField(MembershipType.objects.filter(
-            Q(name_nl='Primair jaarlid') | Q(name_nl='Studielang (eerste jaar)')
-    ), required=True, empty_label=None, widget=widgets.RadioSelect)
-
-    iban = IBANFormField(label=_l('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    bic = BICFormField(label=_l('BIC'), required=False)
-    mandate_contribution = forms.BooleanField(required=False)
-    mandate_other = forms.BooleanField(required=False)
-
-    picture = forms.ImageField(required=False)
-
-    done = forms.BooleanField(required=True)
-
-    # Here you can also disable specific preferences.
-    # If these should be enabled by default, that needs to be done at 'def save()'
-    preferences = forms.ModelMultipleChoiceField(Preference.objects.exclude(first_time=False),
-                                                 initial=_initial_preferences,
-                                                 widget=widgets.CheckboxSelectMultiple, required=False)
-
-    class Meta:
-        model = Person
-        fields = (
-            'first_name', 'last_name_prefix', 'last_name', 'initials', 'gender', 'date_of_birth', 'address',
-            'postal_code', 'city', 'country', 'email_address', 'telephone', 'preferred_language', 'preferences',
-            'picture', 'international_member', 'address_parents', 'postal_code_parents', 'city_parents',
-            'country_parents', 'email_address_parents', 'can_use_parents_address')
-        widgets = {'preferred_language': widgets.RadioSelect(), 'date_of_birth': DateSelector}
-
-    def __init__(self, *args, **kwargs):
-        super(RegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['dogroup'].queryset = DogroupGeneration.objects.filter(generation=current_academic_year_with_holidays())
-
-    def clean(self):
-        cleaned_data = super(RegistrationForm, self).clean()
-
-        if self.errors:
-            # Skips checks if errors are found.
-            return cleaned_data
-
-        if cleaned_data['mandate_contribution'] or cleaned_data['mandate_other']:
-            if not cleaned_data['iban']:
-                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
-            if not cleaned_data['bic']:
-                if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
-                elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                    cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-                else:
-                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
-
-        return cleaned_data
-
-    def clean_student_number(self):
-        if Student.objects.filter(number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_l("A student with this student number already exists."))
-        if UnverifiedEnrollment.objects.filter(student_number=self.cleaned_data['student_number']).exists():
-            raise forms.ValidationError(_l("This student number is already pre-enrolled. A board member can activate your account."))
-        return self.cleaned_data['student_number']
-
-    def save(self, *args, **kwargs):
-        person = super(RegistrationForm, self).save(*args, **kwargs)
-        for preference in Preference.objects.filter(first_time=False, default=True):
-            person.preferences.add(preference)
-
-        return person
-
-
 class RegistrationFormPersonalDetails(forms.ModelForm):
     date_of_birth = forms.DateField(required=True, widget=DateSelector)
     gender = forms.ChoiceField(choices=Person.GenderTypes.choices, widget=widgets.RadioSelect)
@@ -595,6 +459,10 @@ class RegistrationFormStepGeneralStudyDetails(forms.Form):
         initial=date.today().year,
     )
 
+    @staticmethod
+    def get_random_student_numbers():
+        return get_random_student_numbers(3)
+
     def clean(self):
         cleaned_data = super(RegistrationFormStepGeneralStudyDetails, self).clean()
 
@@ -627,6 +495,10 @@ class RegistrationFormStepFreshmenStudyDetails(forms.Form):
     student_number = forms.IntegerField(validators=[CheckDigitValidator(7), MaxValueValidator(9999999)])
     # Queryset will be set dynamically in __init__
     dogroup = forms.ModelChoiceField(DogroupGeneration.objects.none(), widget=widgets.RadioSelect, required=False)
+
+    @staticmethod
+    def get_random_student_numbers():
+        return get_random_student_numbers(3)
 
     def __init__(self, *args, **kwargs):
         super(RegistrationFormStepFreshmenStudyDetails, self).__init__(*args, **kwargs)
@@ -797,6 +669,10 @@ class SaveNewFirstModelFormSet(BaseInlineFormSet):
 
 class StudentNumberForm(forms.Form):
     student_number = forms.IntegerField(label=_l('Student number'))
+
+    @staticmethod
+    def get_random_student_numbers():
+        return get_random_student_numbers(3)
 
     def clean_student_number(self):
         if not Student.objects.filter(number=self.cleaned_data["student_number"]).exists():

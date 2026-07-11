@@ -14,8 +14,11 @@
                     {% trans 'These are the current pre-enrollments that are not activated yet, per do-group.' %}
                 </p>
                 <p>
-                    {% trans 'If the member has signed their membership and authorization forms, you can click the "Activate" (<i class="icon icon-accept"></i>) button to activate the membership (and authorizations).' %}<br/>
-                    {% trans 'You can also re-print the forms for that member by clicking the "Print" (<i class="icon icon-printer"></i>) button.' %}
+                    {% trans 'If the member has signed their membership and authorization forms, the membership and any authorizations should automatically get activated and it will disappear from this list.' %}<br/>
+                    {% trans 'You can (re-)print the forms for that member by clicking the "Print" (<i class="icon icon-printer"></i>) button.' %}
+                    {% if request.is_board %}
+                        {% trans 'Additionally, as a board member, you can view the state of the signature requests (<i class="icon icon-page_find"></i>), and attempt re-download of the signed forms (<i class="icon icon-arrow_down"></i>) or even re-send them (<i class="icon icon-pencil_delete"></i>) if it failed for whatever reason.' %}
+                    {% endif %}
                     {% if delete_enabled %}
                         <br/>{% trans 'Click the "Delete" (<i class="icon icon-delete"></i>) button to delete the pre-enrollment.' %}<br/>
                     {% endif %}
@@ -52,19 +55,33 @@
             <div class="ia">
                 <h2>{{ dogroup.grouper }} - {% blocktrans with len=dogroup.list|length %}{{ len }} enrollment(s){% endblocktrans %} <a target="_blank" href="{% url 'members:preregistration_print_dogroup' %}?did={{ dogroup.grouper.pk }}"><i class="icon icon-printer pull-right"></i></a></h2>
                 <div class="content">
-                    <ul>
+                    <table class="borderless">
                         {% for enrollment in dogroup.list %}
-                            <li>
-                                {{ enrollment.incomplete_name }}&nbsp;
-                                <a href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=accept"><i class="icon icon-accept"></i></a>
+                        <tr>
+                            <td>{{ enrollment.incomplete_name }}</td>
+                            <td>
                                 <a target="_blank" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=print"><i class="icon icon-printer"></i></a>
+                                {% if request.is_board %}
+                                    <span>&nbsp;&nbsp;</span>
+                                    <a title="{% trans 'Re-send digital signature request' %}" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=resend" class="icon icon-pencil_delete"></a>
+                                    {% if enrollment.documenso_id %}
+                                        <a class="icon icon-page_find" href="{{ enrollment.documenso_url }}" target="_blank"
+                                           title="{% trans 'A signature request for this membership is in progress. Click to open the request in Documenso.' %}"></a>
+                                        <a title="{% trans 'Try to retrieve signed file from Documenso' %}" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=retrieve" class="icon icon-arrow_down"></a>
+                                    {% endif %}
+                                {% endif %}
+                                {% if request.user.is_superuser %}
+                                    <span>&nbsp;&nbsp;</span>
+                                    <a title="{% trans 'Manually activate. Should not be necessary and will not include any digital signature files.' %}" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=accept"><i class="icon icon-accept"></i></a>
+                                {% endif %}
                                 <span>&emsp;&emsp;</span>
-                                {% if delete_enabled %}<a href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=delete"><i class="icon icon-delete"></i></a>{% endif %}
-                            </li>
+                                {% if delete_enabled %}</td><td><a href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=delete"><i class="icon icon-delete"></i></a>{% endif %}
+                            </td>
+                        </tr>
                         {% empty %}
-                            <li><i>{% trans 'No members' %}</i></li>
+                        <tr><td colspan="{% if delete_enabled %}3{% else %}2{% endif %}"><i>{% trans 'No members' %}</i></td></tr>
                         {% endfor %}
-                    </ul>
+                    </table>
                 </div>
             </div>
         </div>

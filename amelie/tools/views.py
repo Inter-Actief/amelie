@@ -224,16 +224,18 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
                 try:
                     unverified_enrollment = UnverifiedEnrollment.objects.get(documenso_id=envelope_id)
                     # Save the document to the authorization
-                    unverified_enrollment.process_signed_document(membership_id=external_id_parts.get('id', ""), authorization_ids=external_id_parts.get('ids', ""))
+                    unverified_enrollment.process_signed_document()
+                    # Delete the unverified enrollment (it is activated during the processing)
+                    unverified_enrollment.delete()
                 except UnverifiedEnrollment.DoesNotExist:
                     log.warning(f"Could not find an unverified enrollment that is waiting for a signature from envelope_id={envelope_id}. Stopping processing.")
 
             elif external_id_parts.get('type') == "ENR":
                 # Yup, it's a regular enrollment form signature package we sent
                 log.info(f"Received DOCUMENT_COMPLETE webhook for Enrollment for Membership #{external_id_parts.get('id')} with Authorization(s)#{external_id_parts.get('ids')}")
-                # These are the hardest, because there's not a single object to map to.
-                # Best we can do is pass it on to another processing function
-                process_member_enrollment_signed_document(documenso_id=envelope_id, membership_id=external_id_parts.get('id', ""), authorization_ids=external_id_parts.get('ids', ""))
+                # These are the hardest because there's not a single object to map to.
+                # The best we can do is pass it on to another processing function
+                process_member_enrollment_signed_document(documenso_id=envelope_id)
 
             else:
                 # Nothing we know of, let's make a log of it and professionally ignore it.

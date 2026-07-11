@@ -21,7 +21,7 @@ from django.utils.dateparse import parse_date
 from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-from documenso_sdk import EnvelopeDistributeResponse
+from documenso_sdk import EnvelopeDistributeResponse, DocumensoError
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
 
@@ -597,7 +597,7 @@ class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
         send_new_member_email(person)
 
         # Create and send the enrollment forms for signing
-        send_enrollment_signature_request(person=person, membership=membership)
+        person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
         return registration_complete_helper(self.request, person)
@@ -709,7 +709,7 @@ class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
         send_new_member_email(person)
 
         # Create and send the enrollment forms for signing
-        send_enrollment_signature_request(person=person, membership=membership)
+        person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
         return registration_complete_helper(self.request, person)
@@ -819,7 +819,7 @@ class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
         send_new_member_email(person)
 
         # Create and send the enrollment forms for signing
-        send_enrollment_signature_request(person=person, membership=membership)
+        person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
         return registration_complete_helper(self.request, person)
@@ -944,7 +944,7 @@ class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
         send_new_member_email(person)
 
         # Create and send the enrollment forms for signing
-        send_enrollment_signature_request(person=person, membership=membership)
+        person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
         return registration_complete_helper(self.request, person)
@@ -1078,7 +1078,7 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
         welcome_mail.send()
 
         # Create and send the enrollment forms for signing
-        send_enrollment_signature_request(person=person, membership=person.membership_type)
+        person.send_signature_request()
 
         # Redirect to the success page
         return redirect('members:person_preregister_complete')
@@ -1110,7 +1110,7 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
         pre_enrollment_id = request.GET.get('eid', None)
         action = request.GET.get('action', None)
         if pre_enrollment_id is not None:
-            pre_enrollment = UnverifiedEnrollment.objects.get(pk=pre_enrollment_id)
+            pre_enrollment: UnverifiedEnrollment = UnverifiedEnrollment.objects.get(pk=pre_enrollment_id)
         else:
             pre_enrollment = None
         if action is not None:
@@ -1143,6 +1143,21 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
                 messages.info(self.request, "Pre-registration of {} deleted!".format(name))
                 # Redirect to the normal page
                 return redirect('members:preregistration_status')
+            elif action == "resend" and pre_enrollment is not None:
+                self.template_name = "preregistration_resend_confirm.html"
+            elif action == "resend-sure" and pre_enrollment is not None:
+                # Create and re-send the enrollment forms for signing
+                pre_enrollment.send_signature_request()
+            elif action == "retrieve" and pre_enrollment is not None:
+                try:
+                    # Save the document to the authorization
+                    pre_enrollment.process_signed_document()
+                    # Delete the unverified enrollment (it is activated during the processing)
+                    pre_enrollment.delete()
+                    self.template_name = "preregistration_retrieve_error.html"
+                except (ValueError, DocumensoError) as e:
+                    self.template_name = "preregistration_retrieve_error.html"
+
 
         return super(PreRegistrationStatus, self).get(request, *args, **kwargs)
 
