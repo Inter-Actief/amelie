@@ -7,8 +7,8 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
 from amelie.members.models import Person, Membership, PaymentType, Payment
-from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
-    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
+from amelie.personal_tab.models import BadBIC, Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
+    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Amendment
 from amelie.tools.encodings import normalize_to_ascii
 
 
@@ -332,6 +332,11 @@ def process_reversal(reversal, actor):
             cct = ContributionTransaction(date=reversal_datetime, price=-ct.price, person=ct.person,
                                           description=description, membership=ct.membership)
             cct.save()
+
+    # If the reversal reason is 'DNOR', the BIC of the authorization must be added to the Bad BIC list
+    if reversal.reason is 'DNOR':
+        bad_bic = BadBIC(bic=instruction.authorization.bic)
+        bad_bic.save()
 
 
 def edit_reversal(reversal, actor):

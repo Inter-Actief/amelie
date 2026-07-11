@@ -958,6 +958,7 @@ class BadBIC(models.Model):
     """
 
     bic = BICField(verbose_name=_l('BIC'), unique=True)
+    date = models.DateTimeField(verbose_name=_l('Date added'), auto_now_add=True)
 
     def __str__(self):
         return self.bic
