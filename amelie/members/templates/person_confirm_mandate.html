@@ -1,0 +1,29 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Confirm BIC for mandate' %}</h3>
+
+    <form action="{% url 'members:person_mandate_new' obj.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+            <input type="hidden" name="{{ field.html_name }}" value="{{ field.value|default_if_none:'' }}" />
+        {% endfor %}
+        <input type="hidden" name="confirm" value="confirm" />
+
+        <p>{% blocktrans with bic=form.cleaned_data.bic iban=form.cleaned_data.iban %}
+            The BIC for this mandate is on the list of known BICs that do not accept SEPA Direct Debits.
+            Are you sure you want to add a mandate with the following IBAN: <b>{{ iban }}</b> and BIC: <b>{{ bic }}</b>?
+        {% endblocktrans %}</p>
+
+        <p>{% blocktrans %}
+            <b>Only do this if you are sure that this bank accepts SEPA Direct Debits.</b>
+        {% endblocktrans %}</p>
+
+        <div class="buttons">
+            <a href="{% url 'members:person_mandate' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input type="submit" value="{% trans 'Confirm' %}" />
+        </div>
+    </form>
+</div>
