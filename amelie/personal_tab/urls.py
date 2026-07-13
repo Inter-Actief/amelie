@@ -19,8 +19,7 @@ urlpatterns = [
     # Short URL to a person's own dashboard
     path('me/', views.my_dashboard, name='my_dashboard'),
 
-    path('transactions/', views.transaction_form, name='transactions_form'),
-    path('transactions/', views.transaction_overview, name='transactions'), # Needed because of the transaction_link template tag
+    path('transactions/', views.transaction_form, name='transactions'),
     path('transactions/<int:date_from>/<int:date_to>/', views.transaction_overview, name='transactions'),
 
     path('transactions/activity/<int:pk>/', ActivityTransactionDetail.as_view(), name='activity_transaction_detail'),
