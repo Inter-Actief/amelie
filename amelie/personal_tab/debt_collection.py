@@ -68,15 +68,15 @@ def authorization_cookie_corner(person):
     return authorization
 
 
-def generate_contribution_instructions(year):
+def generate_contribution_instructions(years):
     """
     Generate DebtCollectionInstruction objects to collect the contribution of a given association year.
 
     The DebtCollectionInstruction objects that are returned are not saved yet.
     """
     memberships = Membership.objects.filter(Q(ended__gt=datetime.date.today()) | Q(ended__isnull=True),
-                                            payment__isnull=True, type__price__gt=0, year=year)
-
+                                            payment__isnull=True, type__price__gt=0, year__in=years)
+    
     result = {
         'ongoing_frst': [],
         'frst': [],
@@ -97,8 +97,8 @@ def generate_contribution_instructions(year):
         name = person.incomplete_name()
 
         with translation.override(person.preferred_language):
-            description = _('Contribution Inter-Actief {membership_type} {name} Questions? call 053-489 3756')\
-                .format(membership_type=m.type.name, name=name)
+            description = _('Contribution Inter-Actief {membership_year} {membership_type} {name} Questions? Email treasurer@inter-actief.net')\
+                .format(membership_year="{}-{}".format(m.year, m.year + 1), membership_type=m.type.name, name=name)
             description = normalize_to_ascii(description)
 
         instruction = None
@@ -220,7 +220,7 @@ def generate_cookie_corner_instructions(end_date):
             name = person.incomplete_name()
 
             with translation.override(person.preferred_language):
-                description = _('Personal tab Inter-Actief till {date} {name} Questions? call 053-489 3756').format(
+                description = _('Personal tab Inter-Actief till {date} {name} Questions? Email treasurer@inter-actief.net').format(
                     date=_date(end_date_timezone_amsterdam, "j F Y H:i"), name=name
                 )
                 description = normalize_to_ascii(description)

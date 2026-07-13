@@ -1011,7 +1011,7 @@ def export_csv(request, date_from, date_to):
     for row in rows['good']:
         person = row['person']
         writer.writerow([mark_safe(str(person)), row['sumf'], person.city, 'Debt collection cookie corner', period,
-               'For questions call 0534893756', ''])
+               'For questions email treasurer@inter-actief.net', ''])
 
     return response
 
@@ -1256,14 +1256,14 @@ def debt_collection_new(request):
     if request.method == 'POST':
         form = DebtCollectionForm(minimal_execution_date, request.POST)
         if form.is_valid():
+            cookie_corner = form.cleaned_data['cookie_corner']
             end = form.cleaned_data['end'].astimezone(tz.utc)
             contribution = form.cleaned_data['contribution']
-            cookie_corner = form.cleaned_data['cookie_corner']
+            contribution_years = form.cleaned_data['contribution_years']
 
             # Construct data
-            if contribution:
-                year = current_association_year()
-                contribution_instructions = generate_contribution_instructions(year)
+            if contribution and contribution_years:
+                contribution_instructions = generate_contribution_instructions(contribution_years)
                 contribution_totals = _instruction_totals(contribution_instructions)
             else:
                 contribution_instructions = {}
@@ -1329,8 +1329,9 @@ def debt_collection_new(request):
         end_date = timezone.datetime(year=now.year, month=now.month, day=now.day)
         date_text = formats.date_format(end_date)
         form = DebtCollectionForm(minimal_execution_date,
-                                  initial={'description': 'Cookie corner and contribution until {}'.format(date_text),
-                                    'contribution': True, 'cookie_corner': True, 'end': end_date})
+                                  initial={'description': 'Cookie corner until {}'.format(date_text),
+                                           'contribution': False, 'cookie_corner': True, 'end': end_date, 
+                                           'contribution_years': current_association_year()})
 
     return render(request, 'cookie_corner_debt_collection_new.html', {
         'form': form,
