@@ -82,7 +82,7 @@ class DiscountCredit(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_l('amount'))
     person = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.PROTECT)
     description = models.CharField(max_length=200, blank=True, verbose_name=_l('description'))
-    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.PROTECT)
+    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.CASCADE)
 
     added_on = models.DateTimeField(verbose_name=_l('added on'), auto_now_add=True)
 
@@ -122,7 +122,7 @@ class Transaction(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, verbose_name=_l('Price'))
     person = models.ForeignKey(Person, verbose_name=_l('Person'), on_delete=models.PROTECT)
     description = models.CharField(max_length=200, blank=True, verbose_name=_l('Description'))
-    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.PROTECT)
+    discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.SET_NULL)
 
     debt_collection = models.ForeignKey('DebtCollectionInstruction', verbose_name=_l('Direct withdrawal'), blank=True, null=True,
                                         related_name="transactions", on_delete=models.PROTECT)
