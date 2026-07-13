@@ -3,7 +3,6 @@ from datetime import date
 import re
 
 from django.conf import settings
-from django.contrib import messages
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -209,9 +208,15 @@ def person_mandate_new(request, id):
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_activate(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
-    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
-                                end_date__isnull=True, is_signed=False)
-    if request.method == "POST":
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj, end_date__isnull=True, is_signed=False)
+
+    # If there is already an active mandate of this type, we cannot activate this one
+    if obj.authorization_set.filter(
+        is_signed=True, end_date__isnull=True, authorization_type=mandate.authorization_type
+    ).exists():
+        return render(request, "person_existing_mandate.html", locals())
+
+    elif request.method == "POST":
         if 'activate' in request.POST:
             mandate.is_signed = True
             mandate.save()
