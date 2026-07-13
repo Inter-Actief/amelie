@@ -644,7 +644,8 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
             # Skips checks if errors are found.
             return cleaned_data
 
-        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
+        if cleaned_data['authorization_contribution'] or cleaned_data['authorization_other']:
+            cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
 
         return cleaned_data
 
