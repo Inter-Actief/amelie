@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import get_language, gettext_lazy as _l  
 from django.db import transaction
-from django.db.models import Sum, Q, Count, Aggregate
+from django.db.models import Sum, Q, Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
@@ -36,10 +36,10 @@ from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
     StatisticsForm
-from amelie.personal_tab.debt_collection import generate_contribution_instructions, filter_contribution_instructions, \
+from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Category, Transaction, CookieCornerTransaction, ActivityTransaction, \
+from amelie.personal_tab.models import Amendment, Category, Transaction, CookieCornerTransaction, ActivityTransaction, \
     CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
     DebtCollectionInstruction, ReversalTransaction
 from amelie.personal_tab.statistics import get_functions, statistics_totals
@@ -459,20 +459,36 @@ def rfid_remove(request, rfid_id):
 
 
 @require_board
-def transaction_overview(request, date_from=False, date_to=False):
-    """Give an overview of transactions."""
+def transaction_form(request):
+    view_name = request.resolver_match.view_name
 
-    # Redirect to a page based on POST (handy for linking)
     if request.method == 'POST':
         form = PeriodTimeForm(request.POST)
         if form.is_valid():
             start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
             end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
+        
+        else:
+            return render(request, 'cookie_corner_transactions_form.html', {
+                'form': form,
+                'view_name': view_name,
+            })
+    else:
+        end_date = timezone.now()
+        begin_date = end_date - timezone.timedelta(days=7)
+        return render(request, 'cookie_corner_transactions_form.html', {
+            'form': PeriodTimeForm(initial={
+                'datetime_from': begin_date,
+                'datetime_to': end_date})
+            ,
+            'view_name': view_name,
+        })
 
-    if not date_from:
-        # No period given
-        return generate_overview_new(request, None)
+
+@require_board
+def transaction_overview(request, date_from, date_to):
+    """Give an overview of transactions."""
 
     # Construct data
     try:
@@ -480,6 +496,7 @@ def transaction_overview(request, date_from=False, date_to=False):
         end = _parsedatetime(date_to)
     except ValueError:
         raise Http404(_('Invalid date`'))
+    
     return generate_overview_new(request, None, start, end)
 
 
@@ -782,11 +799,17 @@ class CustomTransactionDelete(RequireBoardMixin, DeleteView):
     def get_success_url(self):
         return reverse('personal_tab:dashboard', kwargs={'pk': self.object.person.pk, 'slug': self.object.person.slug})
 
-    def delete(self, request, *args, **kwargs):
-        delete = super(CustomTransactionDelete, self).delete(request, *args, **kwargs)
-        messages.success(request, _("The transaction '{transaction}' has been successfully deleted.")
-                         .format(transaction=self.object))
-        return delete
+    def form_valid(self, form):
+        with transaction.atomic():
+            # If the transaction has a discount linked to it, delete the discount as well.
+            object = self.get_object()
+            if object.discount:
+                object.discount.delete()
+                
+            delete = super(CustomTransactionDelete, self).delete(self.request)
+            messages.success(self.request, _("The transaction '{transaction}' has been successfully deleted.")
+                            .format(transaction=self.object))
+            return delete
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -1098,16 +1121,30 @@ def balance(request, dt_str=False):
     all_transactions_aggregated = all_transactions.aggregate(Sum('price'))
     all_transactions_sum = all_transactions_aggregated['price__sum']
 
+
+    # --- Personal Tab ---
+    # Members and Former members are displayed separately, so the Treasurer can take appropriate action
+
     transaction_sum_per_person = all_transactions.values('person').order_by().annotate(Sum('price'))
     transaction_sum_per_person_dict = dict([(s['person'], s['price__sum']) for s in transaction_sum_per_person])
 
-    persons = Person.objects.filter(pk__in=transaction_sum_per_person_dict.keys())
+    members = Person.objects.members().filter(pk__in=transaction_sum_per_person_dict.keys())
+    non_members_pks = set(transaction_sum_per_person_dict.keys()) - set(members.values_list('pk', flat=True))
+    former_members = Person.objects.filter(pk__in=non_members_pks)
 
-    person_totals = []
+    member_totals = []
+    former_member_totals = []
 
-    for person in persons:
-        if transaction_sum_per_person_dict[person.pk]:
-            person_totals.append((person, transaction_sum_per_person_dict[person.pk]))
+    for member in members:
+        if transaction_sum_per_person_dict[member.pk]:
+            member_totals.append((member, transaction_sum_per_person_dict[member.pk]))
+    member_sum = sum([x[1] for x in member_totals])
+
+    for former_member in former_members:
+        if transaction_sum_per_person_dict[former_member.pk]:
+            former_member_totals.append((former_member, transaction_sum_per_person_dict[former_member.pk]))
+    former_member_sum = sum([x[1] for x in former_member_totals])
+
 
     # --- Exam cookie credit ---
     # Give activity statistics over a given period
@@ -1118,20 +1155,39 @@ def balance(request, dt_str=False):
     exam_cookie_credit_per_person = exam_cookie_transactions.values('person').order_by().annotate(Sum('price'))
     exam_cookie_credit_per_person_dict = dict([(c['person'], c['price__sum']) for c in exam_cookie_credit_per_person])
 
-    exam_cookie_persons = Person.objects.filter(pk__in=exam_cookie_credit_per_person_dict.keys())
+    exam_cookie_members = Person.objects.members().filter(pk__in=exam_cookie_credit_per_person_dict.keys())
+    exam_cookie_non_members_pks = set(exam_cookie_credit_per_person_dict.keys()) - set(exam_cookie_members.values_list('pk', flat=True))
+    exam_cookie_former_members = Person.objects.filter(pk__in=exam_cookie_non_members_pks)
 
-    exam_cookie_person_totals = []
+    exam_cookie_member_totals = []
+    exam_cookie_former_member_totals = []
 
-    for person in exam_cookie_persons:
-        if exam_cookie_credit_per_person_dict[person.pk]:
-            exam_cookie_person_totals.append((person, exam_cookie_credit_per_person_dict[person.pk]))
+    for member in exam_cookie_members:
+        if exam_cookie_credit_per_person_dict[member.pk]:
+            exam_cookie_member_totals.append((member, exam_cookie_credit_per_person_dict[member.pk]))
+    exam_cookie_member_sum = sum([x[1] for x in exam_cookie_member_totals])
+
+    for former_member in exam_cookie_former_members:
+        if exam_cookie_credit_per_person_dict[former_member.pk]:
+            exam_cookie_former_member_totals.append((former_member, exam_cookie_credit_per_person_dict[former_member.pk]))
+    exam_cookie_former_member_sum = sum([x[1] for x in exam_cookie_former_member_totals])
+
 
     return render(request, 'cookie_corner_balance_form.html', {
         'form': form,
+
         'all_transactions_sum': all_transactions_sum,
-        'person_totals': person_totals,
+        'member_sum': member_sum,
+        'former_member_sum': former_member_sum,
+        'member_totals': member_totals,
+        'former_member_totals': former_member_totals,
+
         'exam_cookie_sum': exam_cookie_sum,
-        'exam_cookie_person_totals': exam_cookie_person_totals,
+        'exam_cookie_member_sum': exam_cookie_member_sum,
+        'exam_cookie_former_member_sum': exam_cookie_former_member_sum,
+        'exam_cookie_member_totals': exam_cookie_member_totals,
+        'exam_cookie_former_member_totals': exam_cookie_former_member_totals,
+
         'dt': dt,
         'dt_url': dt_url
     })
@@ -1212,7 +1268,7 @@ def export_csv(request, date_from, date_to):
     for row in rows['good']:
         person = row['person']
         writer.writerow([mark_safe(str(person)), row['sumf'], person.city, 'Debt collection cookie corner', period,
-               'For questions call 0534893756', ''])
+               'For questions email treasurer@inter-actief.net', ''])
 
     return response
 
@@ -1398,8 +1454,14 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
 def authorization_amendment(request, authorization_id):
     authorization = get_object_or_404(Authorization, id=authorization_id)
 
+    if authorization.end_date:
+        raise Http404(_('This mandate is terminated, so an amendment cannot be made'))
+
+    if not authorization.is_signed:
+        raise Http404(_('This mandate is not signed, so an amendment cannot be made'))
+
     if authorization.next_amendment():
-        raise Http404(_('Already has an ongoing amendment'))
+        raise Http404(_('This mandate already has an ongoing amendment'))
 
     if request.method == 'POST':
         form = AmendmentForm(request.POST)
@@ -1415,6 +1477,63 @@ def authorization_amendment(request, authorization_id):
 
     return render(request, 'cookie_corner_authorization_amendment.html', {
         'form': form,
+        'authorization': authorization
+    })
+
+
+@require_board
+@transaction.atomic
+def authorization_amendment_edit(request, authorization_id, amendment_id):
+    amendment = get_object_or_404(Amendment, id=amendment_id)
+    authorization = get_object_or_404(Authorization, id=authorization_id)
+
+    if amendment.authorization != authorization:
+        raise Http404(_('This amendment does not belong to this authorization'))
+
+    elif authorization.next_amendment() != amendment:
+        raise Http404(_('This amendment is not editable'))
+
+    elif request.method == 'POST':
+        form = AmendmentForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            iban = form.cleaned_data['iban']
+            bic = form.cleaned_data['bic']
+            reason = form.cleaned_data['reason']
+            edit_amendment(amendment, date, iban, bic, reason)
+            return redirect(authorization)
+    else:
+        form = AmendmentForm(initial={
+            'date': amendment.date,
+            'iban': authorization.iban,
+            'bic': authorization.bic,
+            'reason': amendment.reason,
+        })
+
+    return render(request, 'cookie_corner_authorization_amendment.html', {
+        'form': form,
+        'object': amendment,
+        'authorization': authorization
+    })
+
+
+@require_board
+@transaction.atomic
+def authorization_amendment_delete(request, authorization_id, amendment_id):
+    amendment = get_object_or_404(Amendment, id=amendment_id)
+    authorization = get_object_or_404(Authorization, id=authorization_id)
+
+    if amendment.authorization != authorization:
+        raise Http404(_('This amendment does not belong to this authorization'))
+
+    elif authorization.next_amendment() != amendment:
+        raise Http404(_('This amendment is not editable'))
+
+    elif request.method == 'POST':
+        delete_amendment(amendment)
+        return redirect(authorization)
+
+    return render(request, 'cookie_corner_authorization_amendment_delete.html', {
         'authorization': authorization
     })
 
@@ -1457,14 +1576,14 @@ def debt_collection_new(request):
     if request.method == 'POST':
         form = DebtCollectionForm(minimal_execution_date, request.POST)
         if form.is_valid():
+            cookie_corner = form.cleaned_data['cookie_corner']
             end = form.cleaned_data['end'].astimezone(tz.utc)
             contribution = form.cleaned_data['contribution']
-            cookie_corner = form.cleaned_data['cookie_corner']
+            contribution_years = form.cleaned_data['contribution_years']
 
             # Construct data
-            if contribution:
-                year = current_association_year()
-                contribution_instructions = generate_contribution_instructions(year)
+            if contribution and contribution_years:
+                contribution_instructions = generate_contribution_instructions(contribution_years)
                 contribution_totals = _instruction_totals(contribution_instructions)
             else:
                 contribution_instructions = {}
@@ -1530,8 +1649,9 @@ def debt_collection_new(request):
         end_date = timezone.datetime(year=now.year, month=now.month, day=now.day)
         date_text = formats.date_format(end_date)
         form = DebtCollectionForm(minimal_execution_date,
-                                  initial={'description': 'Cookie corner and contribution until {}'.format(date_text),
-                                    'contribution': True, 'cookie_corner': True, 'end': end_date})
+                                  initial={'description': 'Cookie corner until {}'.format(date_text),
+                                           'contribution': False, 'cookie_corner': True, 'end': end_date, 
+                                           'contribution_years': current_association_year()})
 
     return render(request, 'cookie_corner_debt_collection_new.html', {
         'form': form,
@@ -1622,6 +1742,56 @@ def debt_collection_instruction_reversal(request, id):
 
     return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
         'form': form,
+        'instruction': instruction
+    })
+
+
+@require_board
+@transaction.atomic
+def debt_collection_instruction_reversal_edit(request, id):
+    instruction = get_object_or_404(DebtCollectionInstruction, id=id)
+    reversal = getattr(instruction, 'reversal', None)
+
+    if not reversal:
+        raise Http404(_('Reversal does not exist'))
+
+    if request.method == 'POST':
+        form = ReversalForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            pre_settlement = form.cleaned_data['pre_settlement']
+            reason = form.cleaned_data['reason']
+
+            reversal.date = date
+            reversal.pre_settlement = pre_settlement
+            reversal.reason = reason
+            reversal.save()
+
+            edit_reversal(reversal, request.person)
+            return redirect(instruction)
+    else:
+        form = ReversalForm(instance=reversal)
+
+    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+        'form': form,
+        'instruction': instruction
+    })
+
+
+@require_board
+@transaction.atomic
+def debt_collection_instruction_reversal_delete(request, id):
+    instruction = get_object_or_404(DebtCollectionInstruction, id=id)
+    reversal = getattr(instruction, 'reversal', None)
+
+    if not reversal:
+        raise Http404(_('Reversal does not exist'))
+
+    if request.method == 'POST':
+        delete_reversal(reversal)
+        return redirect(instruction)
+
+    return render(request, 'cookie_corner_debt_collection_instruction_reversal_delete.html', {
         'instruction': instruction
     })
 
@@ -1919,7 +2089,6 @@ def authorization_view(request, authorization_id):
 Cookie Corner Wrapped
 """
 
-
 @require_lid
 def cookie_corner_wrapped_main(request, year=None):
     # Only allow specifying a year if the year is in the past
@@ -1997,17 +2166,34 @@ def cookie_corner_wrapped_main(request, year=None):
         total['price'] += transaction.price
 
         if article in products_grouped_by_count:
-            products_grouped_by_count[article] += amount
+            products_grouped_by_count[article]["count"] += amount
         else:
-            products_grouped_by_count[article] = amount
-
-    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1])
+            products_grouped_by_count[article] = {"count": amount}
+    
+    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]["count"])
 
     products_grouped_by_count.reverse()
 
     top_5_products = products_grouped_by_count[:5]
 
     total['equivalent'] = kcal_equivalent(total['kcal'], language)
+
+    # Calculating the person ranking percentage for each of the top 5 products
+    for i, top_product in enumerate(top_5_products):
+        top_product_transactions = CookieCornerTransaction.objects.filter(article=top_product[0], date__year=COOKIE_CORNER_WRAPPED_YEAR)
+        product_count_grouped_by_person = top_product_transactions.values('person').annotate(count=Sum('amount')).order_by('-count').values_list('person', 'count')
+        total_persons = len(product_count_grouped_by_person)
+        ranking = {}
+        for index, item in enumerate(product_count_grouped_by_person):
+            if item[0] == person.pk:
+                calculation = round((index) / total_persons * 100, 2)
+                ranking[top_product[0].pk] = calculation if calculation > 0 else None
+                break
+
+        if ranking is not None:
+            top_5_products[i][1].update({"ranking": ranking[top_product[0].pk]})
+        else:
+            top_5_products[i][1].update({"ranking": 0})
 
     """
         Alexia
@@ -2118,11 +2304,11 @@ def cookie_corner_wrapped_global(request, year=None):
         total['price'] += transaction.price
 
         if article in products_grouped_by_count:
-            products_grouped_by_count[article] += amount
+            products_grouped_by_count[article]["count"] += amount
         else:
-            products_grouped_by_count[article] = amount
+            products_grouped_by_count[article] = {"count": amount}
 
-    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1])
+    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]['count'])
 
     products_grouped_by_count.reverse()
 

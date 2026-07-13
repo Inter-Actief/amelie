@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Delete reversal' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Delete reversal' %}</h2>
+            <div class="content">
+                <p>{% blocktrans with person=instruction.authorization.person instruction=instruction url=instruction.get_absolute_url %}
+                    Are you sure you want to delete the reversal for {{ person }}'s direct withdrawal-instruction <a href="{{ url }}">{{ instruction }}</a>?
+                {% endblocktrans %}</p>
+
+                <a class="looks-like-a-button" href="{% url 'personal_tab:debt_collection_instruction_view' id=instruction.id %}">
+                    {% trans 'Cancel' %}
+                </a>
+
+                <form class="inline" action="" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="{% trans 'Delete' %}">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

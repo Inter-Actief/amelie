@@ -19,8 +19,9 @@ urlpatterns = [
     # Short URL to a person's own dashboard
     path('me/', views.my_dashboard, name='my_dashboard'),
 
-    path('transactions/', views.transaction_overview, name='transactions'),
+    path('transactions/', views.transaction_form, name='transactions'),
     path('transactions/<int:date_from>/<int:date_to>/', views.transaction_overview, name='transactions'),
+
     path('transactions/activity/<int:pk>/', ActivityTransactionDetail.as_view(), name='activity_transaction_detail'),
     path('transactions/alexia/<int:pk>/', AlexiaTransactionDetail.as_view(), name='alexia_transaction_detail'),
     path('transactions/cookie_corner/<int:pk>/', CookieCornerTransactionDetail.as_view(),
@@ -35,9 +36,9 @@ urlpatterns = [
     path('unpaid_memberships/<int:year>/mailing/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
     path('unpaid_memberships/<int:year>/forgive/', views.unpaid_memberships_forgive, name='unpaid_memberships_forgive'),
 
-    path('wrapped', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
+    path('wrapped/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
     path('wrapped/<int:year>/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped_year'),
-    path('wrapped_global', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global'),
+    path('wrapped_global/', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global'),
     path('wrapped_global/<int:year>/', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global_year'),
 
     path('transactions/reversal/<int:pk>/', ReversalTransactionDetail.as_view(), name='reversal_transaction_detail'),
@@ -93,8 +94,13 @@ urlpatterns = [
 
     path('debt_collection_instruction/<int:id>/', views.debt_collection_instruction_view,
         name='debt_collection_instruction_view'),
+
     path('debt_collection_instruction/<int:id>/reversal/', views.debt_collection_instruction_reversal,
         name='debt_collection_instruction_reversal'),
+    path('debt_collection_instruction/<int:id>/reversal/edit/', views.debt_collection_instruction_reversal_edit,
+        name='debt_collection_instruction_reversal_edit'),
+    path('debt_collection_instruction/<int:id>/reversal/delete/', views.debt_collection_instruction_reversal_delete,
+        name='debt_collection_instruction_reversal_delete'),
 
     path('batch/<int:id>/', views.process_batch, name='process_batch'),
 
@@ -102,6 +108,10 @@ urlpatterns = [
     path('authorization/<int:authorization_id>/', views.authorization_view, name='authorization_view'),
     path('authorization/<int:authorization_id>/amendement/', views.authorization_amendment,
         name='authorization_amendment'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/edit/', views.authorization_amendment_edit,
+        name='authorization_amendment_edit'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/delete/', views.authorization_amendment_delete,
+        name='authorization_amendment_delete'),
     path('authorization/terminate/', AuthorizationTerminateView.as_view(), name='authorization_terminate'),
     path('authorization/anonymize/', AuthorizationAnonymizeView.as_view(), name='authorization_anonymize'),
 
