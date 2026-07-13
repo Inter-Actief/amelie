@@ -1775,7 +1775,6 @@ def authorization_view(request, authorization_id):
 Cookie Corner Wrapped
 """
 
-
 @require_lid
 def cookie_corner_wrapped_main(request, year=None):
     # Only allow specifying a year if the year is in the past
@@ -1853,17 +1852,34 @@ def cookie_corner_wrapped_main(request, year=None):
         total['price'] += transaction.price
 
         if article in products_grouped_by_count:
-            products_grouped_by_count[article] += amount
+            products_grouped_by_count[article]["count"] += amount
         else:
-            products_grouped_by_count[article] = amount
-
-    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1])
+            products_grouped_by_count[article] = {"count": amount}
+    
+    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]["count"])
 
     products_grouped_by_count.reverse()
 
     top_5_products = products_grouped_by_count[:5]
 
     total['equivalent'] = kcal_equivalent(total['kcal'], language)
+
+    # Calculating the person ranking percentage for each of the top 5 products
+    for i, top_product in enumerate(top_5_products):
+        top_product_transactions = CookieCornerTransaction.objects.filter(article=top_product[0], date__year=COOKIE_CORNER_WRAPPED_YEAR)
+        product_count_grouped_by_person = top_product_transactions.values('person').annotate(count=Sum('amount')).order_by('-count').values_list('person', 'count')
+        total_persons = len(product_count_grouped_by_person)
+        ranking = {}
+        for index, item in enumerate(product_count_grouped_by_person):
+            if item[0] == person.pk:
+                calculation = round((index) / total_persons * 100, 2)
+                ranking[top_product[0].pk] = calculation if calculation > 0 else None
+                break
+
+        if ranking is not None:
+            top_5_products[i][1].update({"ranking": ranking[top_product[0].pk]})
+        else:
+            top_5_products[i][1].update({"ranking": 0})
 
     """
         Alexia
@@ -1974,11 +1990,11 @@ def cookie_corner_wrapped_global(request, year=None):
         total['price'] += transaction.price
 
         if article in products_grouped_by_count:
-            products_grouped_by_count[article] += amount
+            products_grouped_by_count[article]["count"] += amount
         else:
-            products_grouped_by_count[article] = amount
+            products_grouped_by_count[article] = {"count": amount}
 
-    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1])
+    products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]['count'])
 
     products_grouped_by_count.reverse()
 
