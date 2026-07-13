@@ -14,7 +14,6 @@ from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Membership, Person, Committee
 from amelie.members.forms import clean_iban_and_bic
-from amelie.members.models import Membership, Person, Committee
 from amelie.personal_tab.transactions import cookie_corner_sale
 from amelie.personal_tab import statistics
 from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, RFIDCard, Reversal, AuthorizationType, \
