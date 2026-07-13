@@ -6,12 +6,23 @@
 {% block content %}
     <div class="col-xs-12">
         <div class="ia">
-            <h2>{% trans 'Add amendment' %}</h2>
+            {% if object %}
+                <h2>{% blocktrans %}Edit amendment '{{ object }}'{% endblocktrans %}</h2>
+            {% else %}
+                <h2>{% trans 'Add amendment' %}</h2>
+            {% endif %}
+
             <div class="content">
                 <p class="icon warning">
+                    {% if object %}
+                        {% blocktrans with authorization=authorization url=authorization.get_absolute_url %}
+                            With this form, you can edit the amendment to the <a href="{{ url }}">{{ authorization }}</a> authorization.
+                        {% endblocktrans %}
+                    {% else %}
                     {% blocktrans with authorization=authorization url=authorization.get_absolute_url %}
-                        With this form, you can add a debit reversal of direct withdrawal-instruction <a href="{{ url }}">{{ authorization }}</a>.
+                        With this form, you can add an amendment to the <a href="{{ url }}">{{ authorization }}</a> authorization.
                     {% endblocktrans %}
+                    {% endif %}
                 </p>
                 <form class="big" action="" method="post">
                     {{ form }}

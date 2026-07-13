@@ -308,10 +308,16 @@ class MembershipForm(forms.ModelForm):
 
 class MembershipEndForm(forms.ModelForm):
     ended = forms.DateField(widget=widgets.RadioSelect)
+    payment_needed = forms.BooleanField(
+        label=_l('Does the member still have to pay the membership fee?'),
+        widget=widgets.CheckboxInput,
+        initial=True,
+        required=False
+    )
 
     class Meta:
         model = Membership
-        fields = ("ended",)
+        fields = ("ended", "payment_needed")
 
     def __init__(self, *args, **kwargs):
         super(MembershipEndForm, self).__init__(*args, **kwargs)

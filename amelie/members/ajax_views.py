@@ -14,7 +14,7 @@ from documenso_sdk import DocumensoError
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
     MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
     SaveNewFirstModelFormSet, StudentForm, SignatureRequestForm
-from amelie.members.models import Payment, Committee, Function, Membership, Employee, Person, Student, \
+from amelie.members.models import Payment, Committee, Function, Membership, Employee, PaymentType, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
@@ -168,16 +168,21 @@ def person_membership_new(request, id):
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_end(request, id):
     obj = get_object_or_404(Person, id=id)
+    membership = obj.membership_set.latest('year', 'pk')
     if request.method == "POST":
-        form = MembershipEndForm(request.POST, instance=obj.membership_set.latest('year'))
+        form = MembershipEndForm(request.POST, instance=membership)
         if form.is_valid():
+            if form.cleaned_data['payment_needed'] == False and not Payment.objects.filter(membership=membership).exists():
+                # If payment is not needed and payment does not exist yet, create one
+                # PaymentType is 10: "Voortijdige beëindiging, betaling niet noodzakelijk."
+                Payment.objects.create(membership=membership, payment_type=PaymentType.objects.get(pk=10), amount=membership.type.price, date=form.cleaned_data['ended'])
             form.save()
             return render(request, "person_membership.html", locals())
         else:
             response = render(request, "person_end_membership.html", locals())
             return response
     else:
-        form = MembershipEndForm(instance=obj.membership_set.latest('year'))
+        form = MembershipEndForm(instance=membership)
         return render(request, "person_end_membership.html", locals())
 
 
@@ -262,9 +267,15 @@ def person_mandate_new(request, id):
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_activate(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
-    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
-                                end_date__isnull=True, is_signed=False)
-    if request.method == "POST":
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj, end_date__isnull=True, is_signed=False)
+
+    # If there is already an active mandate of this type, we cannot activate this one
+    if obj.authorization_set.filter(
+        is_signed=True, end_date__isnull=True, authorization_type=mandate.authorization_type
+    ).exists():
+        return render(request, "person_existing_mandate.html", locals())
+
+    elif request.method == "POST":
         if 'activate' in request.POST:
             mandate.is_signed = True
             mandate.save()
@@ -339,6 +350,41 @@ class MandateRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
             context['success'] = False
             context['error_msg'] = str(e)
         return context
+
+
+@require_ajax
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def person_mandate_edit(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
+                                end_date__isnull=True, is_signed=False)
+    if request.method == "POST":
+        form = MandateForm(request.POST, instance=mandate)
+        if form.is_valid():
+            mandate = form.save(commit=False)
+            mandate.person = obj
+            mandate.save()
+            return render(request, "person_mandate.html", locals())
+        else:
+            response = render(request, "person_edit_mandate.html", locals())
+            return response
+    else:
+        form = MandateForm(instance=mandate)
+        return render(request, "person_edit_mandate.html", locals())
+
+
+@require_ajax
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def person_mandate_delete(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
+                                end_date__isnull=True, is_signed=False)
+    if request.method == "POST":
+        if 'delete' in request.POST:
+            mandate.delete()
+        return render(request, "person_mandate.html", locals())
+    else:
+        return render(request, "person_delete_mandate.html", locals())
 
 
 @require_ajax
