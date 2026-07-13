@@ -325,6 +325,10 @@ class SignatureRequestForm(forms.Form):
 
 class MandateForm(forms.ModelForm):
     authorization_type = forms.ModelChoiceField(queryset=AuthorizationType.objects.filter(active=True))
+    send_signature_request = forms.BooleanField(
+        label=_l('Send a signature request'), required=False, initial=True,
+        help_text=_l('This will send an e-mail to the member, with a request to sign the mandate form via our signing tool.')
+    )
 
     class Meta:
         model = Authorization

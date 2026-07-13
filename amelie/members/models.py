@@ -28,6 +28,7 @@ from documenso_sdk import EnvelopeDistributeResponse
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
 from amelie.members.managers import PersonManager, CommitteeManager
+from amelie.tools.documenso import retrieve_documents, AMELIE_REFERENCE_REGEX
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.logic import current_association_year
 from amelie.tools.validators import CheckDigitValidator
@@ -734,6 +735,73 @@ class Person(models.Model, Mappable):
         else:
             return None
 
+    """
+    Document type for regular memberships in the digital signatures application
+
+    This is not quite the right place for this constant, but a regular enrollment doesn't really have
+    its own model, unlike Memberships, Authorizations, and UnverifiedEnrollments.
+    So, this is probably as good a place to put it as anywhere else.
+    """
+    DOCUMENT_TYPE_ID = 'ENR'
+
+    @staticmethod
+    @transaction.atomic()
+    def process_member_enrollment_signed_document(documenso_id: str):
+        """
+        Retrieves the signed Documenso document for the regular enrollment of a person
+        and saves it into the membership and authorizations.
+
+        This is not quite the right place for this method, but a regular enrollment doesn't really have
+        its own model, unlike Memberships, Authorizations, and UnverifiedEnrollments.
+        So, this is probably as good a place to put it as anywhere else.
+        """
+        from amelie.personal_tab.models import Authorization
+
+        if not documenso_id:
+            raise ValueError(gettext("Documenso ID was not given. Can't do anything."))
+
+        # Retrieve the document and save it to the database
+        documents, envelope_info = retrieve_documents(documenso_id)
+
+        # Parse the external ID
+        external_match = AMELIE_REFERENCE_REGEX.match(envelope_info.external_id)
+        if not external_match:
+            raise ValueError("Processing member enrollment documents has an unknown external ID, ignoring. "
+                            f"(externalId='{envelope_info.external_id}', envelopeId='{envelope_info.id}')")
+        external_id_parts = external_match.groupdict()
+        membership_id = external_id_parts.get('id')
+        authorization_ids = external_id_parts.get('ids', "")
+        authorization_ids_split = authorization_ids.split(",") if authorization_ids else []
+
+        # Check if we have enough documents
+        if len(documents) > len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too much! Trying to continue anyway."
+            )
+        if len(documents) < len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too little! Can't continue processing."
+            )
+            raise ValueError(f"Received too few documents from Documenso to process DID {documenso_id}, Membership#{membership_id} with Authorization(s)#{authorization_ids}")
+
+        # Save document in Membership
+        try:
+            membership = Membership.objects.get(documenso_id=documenso_id, pk=membership_id)
+            membership.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+            membership.save()
+        except Membership.DoesNotExist:
+            raise ValueError(f"Membership with ID {membership_id} and documenso ID {documenso_id} does not exist")
+
+        # Save documents in Authorization(s)
+        for i, authorization_id in enumerate(authorization_ids_split, start=1):
+            try:
+                authorization = Authorization.objects.get(documenso_id=documenso_id, pk=authorization_id)
+                authorization.signed_document = ContentFile(content=documents[i].data, name=documents[i].filename)
+                authorization.is_signed = True  # Activates the mandate for use
+                authorization.save()
+            except Authorization.DoesNotExist:
+                raise ValueError(f"Authorization with ID {authorization_id} and documenso ID {documenso_id} does not exist")
+
 
 class MembershipType(models.Model):
     """
@@ -900,6 +968,10 @@ class Membership(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
+    """Document type for identification in the digital signatures application"""
+    DOCUMENT_TYPE_ID = 'MEM'
+
+
     member = models.ForeignKey(Person, verbose_name=_l('Member'), on_delete=models.PROTECT)
     type = models.ForeignKey(MembershipType, verbose_name=_l('Type'), on_delete=models.PROTECT)
     year = models.PositiveIntegerField(verbose_name=_l('Year'))
@@ -940,15 +1012,21 @@ class Membership(models.Model):
         self.verified_on = datetime.date.today()
         self.save()
 
+    @property
+    def is_paper_membership(self):
+        """Returns whether this membership was probably signed on paper."""
+        # Memberships only have a year, no creation date, so let's use September (just after the freshman introduction) as a guide date
+        return datetime.date(self.year, 9, 1) < settings.DATE_PRE_DIGITAL_FORMS
+
     def needs_signature(self):
         """
         A membership only needs a signature if none of their previous memberships are signed,
         and this is the first membership that the member has.
         """
-        has_signed_memberships = self.member.membership_set.filter(~(Q(signed_document='')|Q(signed_document=None))).exists()
-        if has_signed_memberships:
-            # Member already signed the agreement before
-            return False
+        # has_signed_memberships = self.member.membership_set.filter(~(Q(signed_document='')|Q(signed_document=None))).exists()
+        # if has_signed_memberships:
+        #     # Member already signed the agreement before
+        #     return False
         first_membership =  self.member.membership_set.order_by('year').first()
         if not first_membership:
             # No memberships exist in the DB, but we are a Membership, so this is probably the first (unsaved) membership.
@@ -1231,6 +1309,9 @@ class Function(models.Model):
 
 
 class UnverifiedEnrollment(models.Model):
+    """Document type for identification in the digital signatures application"""
+    DOCUMENT_TYPE_ID = 'UEN'
+
     # Person details
     first_name = models.CharField(max_length=50, verbose_name=_l('First name'))
     last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_l('Last name pre-fix'))
@@ -1294,8 +1375,7 @@ class UnverifiedEnrollment(models.Model):
               because it can't be done in the same database transaction.
         """
 
-        # Import is here because of a circular import between members and personal_tab/claudia
-        from amelie.personal_tab.models import Authorization, AuthorizationType
+        # Import is here because of a circular import
         from amelie.members.views import send_new_member_email
 
         # Construct the Person object
@@ -1430,7 +1510,7 @@ class UnverifiedEnrollment(models.Model):
         documents, envelope_info = retrieve_documents(self.documenso_id)
 
         # Parse the external ID
-        external_match = re.match(r"^AML:(?P<type>MEM|MDT|ENR|UEN):(?P<id>[0-9]+)(/(?P<ids>[0-9]+(,[0-9]+)*))?$", envelope_info.external_id)
+        external_match = AMELIE_REFERENCE_REGEX.match(envelope_info.external_id)
         if not external_match:
             raise ValueError("Processing member enrollment documents has an unknown external ID, ignoring. "
                             f"(externalId='{envelope_info.external_id}', envelopeId='{envelope_info.id}')")

@@ -583,7 +583,8 @@ DOCUMENSO_SETTINGS = {
         # Singular membership forms, manually sent from member page.
         "MEMBERSHIP": {
             # Contacts that should receive the fully signed document of a certain type when a signature is requested. List of tuples of (name, email).
-            "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            # i.e. "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            "CC_CONTACTS": [],
             # Reply-to address that is added to the mail. If the member clicks Reply in their mail client, the mail will be sent here.
             "REPLY_TO": "board@inter-actief.net",
             # Folder IDs per type of document that needs to be stored. Will be placed in the root folder if set to None.
@@ -591,13 +592,13 @@ DOCUMENSO_SETTINGS = {
         },
         # Singular mandate forms, manually sent from member page.
         "AUTHORIZATION": {
-            "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            "CC_CONTACTS": [],
             "REPLY_TO": "board@inter-actief.net",
             "DOCUMENSO_FOLDER_ID": None
         },
         # Complete enrollment documents (membership + mandates), automatically sent when new members enroll.
         "ENROLLMENT": {
-            "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            "CC_CONTACTS": [],
             "REPLY_TO": "board@inter-actief.net",
             "DOCUMENSO_FOLDER_ID": None
         }
@@ -839,6 +840,8 @@ CSRF_FAILURE_VIEW = 'amelie.views.csrf_failure'
 
 # Date on which old (pre-SEPA) authorizations are registered
 DATE_PRE_SEPA_AUTHORIZATIONS = date(2009, 11, 1)
+# Date before which old paper (pre-digital) memberships and authorizations were used
+DATE_PRE_DIGITAL_FORMS = date(2026, 8, 1)
 
 # Which runner to use to run the django tests
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'

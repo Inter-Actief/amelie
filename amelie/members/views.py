@@ -10,7 +10,7 @@ from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
-from typing import Optional, Union
+from typing import Union
 
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -18,10 +18,9 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
 from django.db.models import Q, Sum, Max, F
 from django.utils.dateparse import parse_date
-from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-from documenso_sdk import EnvelopeDistributeResponse, DocumensoError
+from documenso_sdk import DocumensoError
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
 
@@ -59,9 +58,9 @@ from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCo
 from amelie.tools.mail import PersonRecipient
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
+
 @require_board
 def statistics(request):
-
     dt = None
 
     if 'dt' in request.GET:
@@ -480,7 +479,7 @@ def send_new_member_email(person: Person):
     task.send()
 
 
-def registration_complete_helper(request, person: Union[Person, UnverifiedEnrollment]):
+def _registration_complete_helper(request, person: Union[Person, UnverifiedEnrollment]):
     return render(request, 'person_registration_form_complete.html', {'person': person})
 
 
@@ -600,7 +599,7 @@ class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
         person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
-        return registration_complete_helper(self.request, person)
+        return _registration_complete_helper(self.request, person)
 
 class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
@@ -712,7 +711,7 @@ class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
         person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
-        return registration_complete_helper(self.request, person)
+        return _registration_complete_helper(self.request, person)
 
 
 class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
@@ -822,7 +821,7 @@ class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
         person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
-        return registration_complete_helper(self.request, person)
+        return _registration_complete_helper(self.request, person)
 
 
 class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
@@ -947,7 +946,7 @@ class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
         person.send_signature_request(membership=membership)
 
         # Render the success page with a small explanation of what just happened.
-        return registration_complete_helper(self.request, person)
+        return _registration_complete_helper(self.request, person)
 
 
 class PreRegisterNewFreshmanWizardView(SessionWizardView):
@@ -1092,6 +1091,10 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
     template_name = "preregistration_status.html"
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.error_msg = None
+
     def get_context_data(self, **kwargs):
         context = super(PreRegistrationStatus, self).get_context_data(**kwargs)
 
@@ -1103,6 +1106,10 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
         # If eid is given in GET params, add enrollment context variable
         if self.request.GET.get('eid', None) is not None:
             context['enrollment'] = UnverifiedEnrollment.objects.get(pk=self.request.GET.get('eid', None))
+        if self.request.GET.get('action', None) is not None:
+            context['action'] = self.request.GET.get('action')
+        if self.error_msg:
+            context['error_msg'] = self.error_msg
 
         return context
 
@@ -1147,15 +1154,24 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
                 self.template_name = "preregistration_resend_confirm.html"
             elif action == "resend-sure" and pre_enrollment is not None:
                 # Create and re-send the enrollment forms for signing
-                pre_enrollment.send_signature_request()
+                try:
+                    pre_enrollment.send_signature_request()
+                except (ValueError, DocumensoError) as e:
+                    logging.exception(
+                        f"Failed to re-send signature request for UnverifiedEnrollment#{pre_enrollment.pk}",
+                        exc_info=e
+                    )
+                    self.error_msg = str(e)
+                    self.template_name = "preregistration_resend_error.html"
             elif action == "retrieve" and pre_enrollment is not None:
                 try:
                     # Save the document to the authorization
                     pre_enrollment.process_signed_document()
                     # Delete the unverified enrollment (it is activated during the processing)
                     pre_enrollment.delete()
-                    self.template_name = "preregistration_retrieve_error.html"
+                    self.template_name = "preregistration_retrieve_success.html"
                 except (ValueError, DocumensoError) as e:
+                    self.error_msg = str(e)
                     self.template_name = "preregistration_retrieve_error.html"
 
 

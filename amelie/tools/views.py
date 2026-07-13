@@ -14,10 +14,10 @@ from django.views.generic import ListView
 from django.views.generic.base import TemplateView
 
 from amelie.iamailer.mailer import render_mail
-from amelie.members.models import Membership, UnverifiedEnrollment
+from amelie.members.models import Person, Membership, UnverifiedEnrollment
 from amelie.personal_tab.models import Authorization
 from amelie.tools.decorators import require_superuser
-from amelie.tools.documenso import process_member_enrollment_signed_document
+from amelie.tools.documenso import AMELIE_REFERENCE_REGEX
 from amelie.tools.forms import MailTemplateTestForm, ExportTypeSelectForm
 from amelie.tools.http import HttpJSONResponse
 from amelie.tools.mail import person_dict
@@ -180,7 +180,7 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
             external_id = data.get("payload", {}).get("externalId", "")
 
             # Parse the external ID
-            external_match = re.match(r"^AML:(?P<type>MEM|MDT|ENR|UEN):(?P<id>[0-9]+)(/(?P<ids>[0-9]+(,[0-9]+)*))?$", external_id)
+            external_match = AMELIE_REFERENCE_REGEX.match(external_id)
             if not external_match:
                 if external_id.startswith("AML:"):
                     # It is something we could have known of, but it's unparseable.
@@ -195,7 +195,7 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
             external_id_parts = external_match.groupdict()
 
             # What kind of document just got signed, is it one of ours?
-            if external_id_parts.get('type') == "MEM":
+            if external_id_parts.get('type') == Membership.DOCUMENT_TYPE_ID:
                 # Yup, it's a membership signature we sent
                 log.info(f"Received DOCUMENT_COMPLETE webhook for Membership #{external_id_parts.get('id')}")
                 # Try to find the Membership this was for
@@ -206,7 +206,7 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
                 except Membership.DoesNotExist:
                     log.warning(f"Could not find a membership that is waiting for a signature from envelope_id={envelope_id}. Stopping processing.")
 
-            elif external_id_parts.get('type') == "MDT":
+            elif external_id_parts.get('type') == Authorization.DOCUMENT_TYPE_ID:
                 # Yup, it's a mandate signature we sent
                 log.info(f"Received DOCUMENT_COMPLETE webhook for Authorization #{external_id_parts.get('id')}")
                 # Try to find the Authorization this was for
@@ -217,7 +217,7 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
                 except Authorization.DoesNotExist:
                     log.warning(f"Could not find an authorization that is waiting for a signature from envelope_id={envelope_id}. Stopping processing.")
 
-            elif external_id_parts.get('type') == "UEN":
+            elif external_id_parts.get('type') == UnverifiedEnrollment.DOCUMENT_TYPE_ID:
                 # Yup, it's an unverified enrollment form signature package we sent
                 log.info(f"Received DOCUMENT_COMPLETE webhook for UnverifiedEnrollment #{external_id_parts.get('id')} with Authorization(s)#{external_id_parts.get('ids')}")
                 # Try to find the UnverifiedEnrollment this was for
@@ -230,12 +230,12 @@ class DocumensoWebhookView(RequireAllowlistedIPMixin, View):
                 except UnverifiedEnrollment.DoesNotExist:
                     log.warning(f"Could not find an unverified enrollment that is waiting for a signature from envelope_id={envelope_id}. Stopping processing.")
 
-            elif external_id_parts.get('type') == "ENR":
+            elif external_id_parts.get('type') == Person.DOCUMENT_TYPE_ID:
                 # Yup, it's a regular enrollment form signature package we sent
                 log.info(f"Received DOCUMENT_COMPLETE webhook for Enrollment for Membership #{external_id_parts.get('id')} with Authorization(s)#{external_id_parts.get('ids')}")
                 # These are the hardest because there's not a single object to map to.
                 # The best we can do is pass it on to another processing function
-                process_member_enrollment_signed_document(documenso_id=envelope_id)
+                Person.process_member_enrollment_signed_document(documenso_id=envelope_id)
 
             else:
                 # Nothing we know of, let's make a log of it and professionally ignore it.

@@ -485,6 +485,9 @@ class Authorization(models.Model):
     """Prefix for authorization reference (machtigingskenmerk)"""
     PREFIX = 'IA-MNDT-'
 
+    """Document type for identification in the digital signatures application"""
+    DOCUMENT_TYPE_ID = 'MDT'
+
     """Type of authorization"""
     authorization_type = models.ForeignKey(AuthorizationType, on_delete=models.PROTECT, verbose_name=_l('type'))
 
@@ -605,6 +608,11 @@ class Authorization(models.Model):
             pdf_authorization_form(buffer, self)
         pdf = buffer.getvalue()
         return pdf
+
+    @property
+    def is_paper_authorization(self):
+        """Returns whether this authorization was probably signed on paper."""
+        return self.start_date < settings.DATE_PRE_DIGITAL_FORMS
 
     def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
         from amelie.tools.documenso import create_authorization_document, send_document

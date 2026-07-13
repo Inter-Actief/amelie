@@ -245,8 +245,10 @@ def person_mandate_new(request, id):
             mandate: Authorization = form.save(commit=False)
             mandate.person = obj
             mandate.save()
-            mandate.send_signature_request()  # Send signature request for the new mandate
-            return person_mandate(request, id=id, option="added_and_sign_request_sent")
+            if form.cleaned_data.get('send_signature_request'):
+                mandate.send_signature_request()  # Send signature request for the new mandate
+                return person_mandate(request, id=id, option="added_and_sign_request_sent")
+            return person_mandate(request, id=id, option="added")
         else:
             response = render(request, "person_new_mandate.html", locals())
             return response

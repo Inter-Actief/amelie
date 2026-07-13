@@ -20,4 +20,9 @@ class Migration(migrations.Migration):
             name='signed_document',
             field=models.FileField(blank=True, null=True, upload_to='', verbose_name='Signed document'),
         ),
+        migrations.AddField(
+            model_name='unverifiedenrollment',
+            name='documenso_id',
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Documenso ID'),
+        ),
     ]
