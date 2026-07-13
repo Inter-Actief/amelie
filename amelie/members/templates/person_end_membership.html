@@ -10,6 +10,11 @@
         {% csrf_token %}
         {{ form.ended.errors }}
         {{ form.ended }}
+        {{ form.payment_needed.errors }}
+        <label for="{{ form.payment_needed.id_for_label }}">
+            {{ form.payment_needed }}
+            {{ form.payment_needed.label }}
+        </label>
 
         <div class="buttons">
             <a href="{% url 'members:person_membership' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">

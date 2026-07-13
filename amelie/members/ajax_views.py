@@ -11,7 +11,7 @@ from django.template.defaultfilters import slugify
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
     MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
     SaveNewFirstModelFormSet, StudentForm
-from amelie.members.models import Payment, Committee, Function, Membership, Employee, Person, Student, \
+from amelie.members.models import Payment, Committee, Function, Membership, Employee, PaymentType, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
@@ -164,16 +164,21 @@ def person_membership_new(request, id):
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_end(request, id):
     obj = get_object_or_404(Person, id=id)
+    membership = obj.membership_set.latest('year', 'pk')
     if request.method == "POST":
-        form = MembershipEndForm(request.POST, instance=obj.membership_set.latest('year'))
+        form = MembershipEndForm(request.POST, instance=membership)
         if form.is_valid():
+            if form.cleaned_data['payment_needed'] == False and not Payment.objects.filter(membership=membership).exists():
+                # If payment is not needed and payment does not exist yet, create one
+                # PaymentType is 10: "Voortijdige beëindiging, betaling niet noodzakelijk."
+                Payment.objects.create(membership=membership, payment_type=PaymentType.objects.get(pk=10), amount=membership.type.price, date=form.cleaned_data['ended'])
             form.save()
             return render(request, "person_membership.html", locals())
         else:
             response = render(request, "person_end_membership.html", locals())
             return response
     else:
-        form = MembershipEndForm(instance=obj.membership_set.latest('year'))
+        form = MembershipEndForm(instance=membership)
         return render(request, "person_end_membership.html", locals())
 
 
