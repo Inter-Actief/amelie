@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Membership, Person, Committee
+from amelie.members.forms import clean_iban_and_bic
 from amelie.personal_tab.transactions import cookie_corner_sale
 from amelie.personal_tab import statistics
 from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, RFIDCard, Reversal, AuthorizationType, \
@@ -103,7 +104,7 @@ class AmendmentForm(forms.Form):
     iban = IBANFormField(label=_l('IBAN'))
 
     """BIC for authorization"""
-    bic = BICFormField(label=_l('BIC*'), required=False)
+    bic = BICFormField(label=_l('BIC'), required=False, help_text=_l('BIC is not required for a Dutch IBAN'))
 
     """Short description of the reason of this amendment."""
     reason = forms.CharField(max_length=250, label=_l('Remarks'),
@@ -115,13 +116,8 @@ class AmendmentForm(forms.Form):
             # Skips checks if errors are found.
             return cleaned_data
 
-        if not cleaned_data['bic']:
-            if not cleaned_data['iban'][:2] == 'NL':
-                self.add_error('bic', _l('BIC has to be entered for foreign bank accounts.'))
-            elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-            else:
-                self.add_error('bic', _l('BIC could not be generated, please enter yourself.'))
+        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
+
         return cleaned_data
 
 
