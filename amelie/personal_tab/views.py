@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext_lazy as _l  
 from django.db import transaction
 from django.db.models import Sum, Q, Count, Aggregate
 from django.db.models.functions import TruncDay
@@ -28,7 +28,7 @@ from django.views.generic.edit import FormView
 from functools import reduce
 
 from amelie.calendar.models import Event
-from amelie.members.models import Payment, PaymentType, Person, Membership
+from amelie.members.models import MembershipType, Payment, PaymentType, Person, Membership
 from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
@@ -490,7 +490,7 @@ def unpaid_memberships(request, year=None):
     # If no year is given, show overview of all years with unpaid memberships
     if year is None:
         unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0)
-        membership_types = unpaid_memberships.values('type__pk', 'type__name_en').distinct().order_by('type__name_en')
+        membership_types = [(mt.name, mt.pk) for mt in MembershipType.objects.filter(membership__payment__isnull=True, price__gt=0).distinct()]
         years = unpaid_memberships.values('year').distinct().order_by('-year')
         price = unpaid_memberships.values('type__price', 'year').order_by('year')
 
@@ -501,7 +501,7 @@ def unpaid_memberships(request, year=None):
         for year_total in years:
             totals[year_total['year']] = ({}, sum(item['type__price'] for item in price if item['year'] == year_total['year']))
             for membership_type in membership_types:
-                totals[year_total['year']][0][membership_type['type__name_en']] = unpaid_memberships.filter(type=membership_type['type__pk'], year=year_total['year']).count()
+                totals[year_total['year']][0][membership_type[0]] = unpaid_memberships.filter(type=membership_type[1], year=year_total['year']).count()
 
         return render(request, 'unpaid_memberships.html', {'totals': totals, 'membership_types': membership_types})
     
@@ -555,8 +555,7 @@ def unpaid_memberships_forgive(request, year):
 
     else:
         # Show confirmation page
-        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'year': year})
-
+        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year})
 
 @require_board
 def unpaid_memberships_mailing(request, year):
@@ -657,8 +656,8 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': 'De mails worden nu een voor een verstuurd. '
-                           'Dit gebeurt in een achtergrondproces en kan even duren.'
+                'message': _l('De mails worden nu een voor een verstuurd. '
+                           'Dit gebeurt in een achtergrondproces en kan even duren.')
             })
 
     # Variables are used in template, don't remove!
@@ -1797,8 +1796,8 @@ Treasurer'''.format(study_year, name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': 'De mails worden nu een voor een verstuurd. '
-                           'Dit gebeurt in een achtergrondproces en kan even duren.'
+                'message': _l('De mails worden nu een voor een verstuurd. '
+                           'Dit gebeurt in een achtergrondproces en kan even duren.')
             })
 
     return render(request, 'includes/query/query_mailing.html', {

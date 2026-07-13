@@ -40,13 +40,12 @@
                     </tbody>
                 </table>
 
-                <form action="{% url 'personal_tab:unpaid_memberships_forgive' year %}?memberships={% for membership in memberships %}{% if not forloop.first %},{% endif %}{{ membership.pk }}{% endfor %}" method="post">
-                    {% csrf_token %}
+                <form action="{% url 'personal_tab:unpaid_memberships_forgive' year %}?memberships={{ membership_pks|join:','|urlencode }}" method="post">                    {% csrf_token %}
                     <div class="buttons">
-                        <a href="{% url 'personal_tab:unpaid_memberships_year' year %}" class="looks-like-a-button">
+                        <a href="{% url 'personal_tab:unpaid_memberships_year' year %}" class="looks-like-a-button danger-button">
                             {% trans 'Cancel' %}
                         </a>
-                        <input type="submit" name="confirm" value="{% trans 'Confirm' %}" />
+                        <input type="submit" name="confirm" value="{% trans 'Confirm' %}" class="success-button" />
                     </div>
                 </form>
             </div>

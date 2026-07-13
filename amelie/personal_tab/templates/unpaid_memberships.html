@@ -7,12 +7,12 @@
     <div class="col-xs-12"><div class="ia">
         <h2>{% trans 'Unpaid Memberships' %}</h2>
         <div class="content">
-            <p>{% trans 'Click on a year to see the members who\'s membership is still unpaid.' %}</p>
+            <p>{% trans 'Click on a year to see the members whose membership is still unpaid.' %}</p>
             <table>
             <thead>
                 <th>{% trans 'Year' %}</th>
                     {% for membership_type in membership_types %}
-                        <th>{{ membership_type.type__name_en }}</th>
+                        <th>{{ membership_type.0 }}</th>
                     {% endfor %}
                 <th>{% trans 'Price Total' %}</th>
             </thead>
