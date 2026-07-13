@@ -1248,8 +1248,8 @@ def authorization_amendment_edit(request, authorization_id, amendment_id):
     else:
         form = AmendmentForm(initial={
             'date': amendment.date,
-            'iban': amendment.previous_iban,
-            'bic': amendment.previous_bic,
+            'iban': authorization.iban,
+            'bic': authorization.bic,
             'reason': amendment.reason,
         })
 
@@ -1508,7 +1508,7 @@ def debt_collection_instruction_reversal_edit(request, id):
             reversal.pre_settlement = pre_settlement
             reversal.reason = reason
             reversal.save()
-        
+
             edit_reversal(reversal, request.person)
             return redirect(instruction)
     else:
