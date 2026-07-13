@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('members', '0022_person_minecraft_username_person_minecraft_uuid'),
-        ('personal_tab', '0010_alter_pendingpostoken_token'),
+        ('personal_tab', '0011_alter_discountcredit_discount_and_more'),
     ]
 
     operations = [
