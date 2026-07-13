@@ -21,7 +21,7 @@
                         <td>
                             {% if transaction.person %}
                                 {% if request.is_board %}
-                                    <a href="{% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug  %}">{{ transaction.person }}</a>
+                                    <a href="{{ person.get_absolute_url }}">{{ transaction.person }}</a>
                                 {% else %}
                                     {{ transaction.person }}
                                 {% endif %}

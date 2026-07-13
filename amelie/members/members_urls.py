@@ -31,6 +31,8 @@ urlpatterns = [
     path(r'<int:id>/ajax/mandate/new/', ajax_views.person_mandate_new, name='person_mandate_new'),
     path(r'<int:id>/ajax/mandate/activate/<int:mandate>/', ajax_views.person_mandate_activate, name='person_mandate_activate'),
     path(r'<int:id>/ajax/mandate/end/<int:mandate>/', ajax_views.person_mandate_end, name='person_mandate_end'),
+    path(r'<int:id>/ajax/mandate/edit/<int:mandate>/', ajax_views.person_mandate_edit, name='person_mandate_edit'),
+    path(r'<int:id>/ajax/mandate/delete/<int:mandate>/', ajax_views.person_mandate_delete, name='person_mandate_delete'),
     path(r'<int:id>/ajax/functions/', ajax_views.person_functions, name='person_functions'),
 
     path(r'ajax/autocomplete/name/', ajax_views.autocomplete_names, name='autocomplete'),

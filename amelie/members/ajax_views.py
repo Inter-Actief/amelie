@@ -253,6 +253,41 @@ def person_mandate_end(request, id, mandate):
 
 
 @require_ajax
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def person_mandate_edit(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj, 
+                                end_date__isnull=True, is_signed=False)
+    if request.method == "POST":
+        form = MandateForm(request.POST, instance=mandate)
+        if form.is_valid():
+            mandate = form.save(commit=False)
+            mandate.person = obj
+            mandate.save()
+            return render(request, "person_mandate.html", locals())
+        else:
+            response = render(request, "person_edit_mandate.html", locals())
+            return response
+    else:
+        form = MandateForm(instance=mandate)
+        return render(request, "person_edit_mandate.html", locals())
+
+
+@require_ajax
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def person_mandate_delete(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj, 
+                                end_date__isnull=True, is_signed=False)
+    if request.method == "POST":
+        if 'delete' in request.POST:
+            mandate.delete()
+        return render(request, "person_mandate.html", locals())
+    else:
+        return render(request, "person_delete_mandate.html", locals())
+
+
+@require_ajax
 @require_board
 def person_functions(request, id):
     obj = get_object_or_404(Person, id=id)

@@ -89,8 +89,13 @@ urlpatterns = [
 
     path('debt_collection_instruction/<int:id>/', views.debt_collection_instruction_view,
         name='debt_collection_instruction_view'),
+
     path('debt_collection_instruction/<int:id>/reversal/', views.debt_collection_instruction_reversal,
         name='debt_collection_instruction_reversal'),
+    path('debt_collection_instruction/<int:id>/reversal/edit/', views.debt_collection_instruction_reversal_edit,
+        name='debt_collection_instruction_reversal_edit'),
+    path('debt_collection_instruction/<int:id>/reversal/delete/', views.debt_collection_instruction_reversal_delete,
+        name='debt_collection_instruction_reversal_delete'),
 
     path('batch/<int:id>/', views.process_batch, name='process_batch'),
 
@@ -98,6 +103,10 @@ urlpatterns = [
     path('authorization/<int:authorization_id>/', views.authorization_view, name='authorization_view'),
     path('authorization/<int:authorization_id>/amendement/', views.authorization_amendment,
         name='authorization_amendment'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/edit/', views.authorization_amendment_edit,
+        name='authorization_amendment_edit'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/delete/', views.authorization_amendment_delete,
+        name='authorization_amendment_delete'),
     path('authorization/terminate/', AuthorizationTerminateView.as_view(), name='authorization_terminate'),
     path('authorization/anonymize/', AuthorizationAnonymizeView.as_view(), name='authorization_anonymize'),
 

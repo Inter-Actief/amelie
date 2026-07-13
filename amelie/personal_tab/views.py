@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import get_language
 from django.db import transaction
-from django.db.models import Sum, Q, Count, Aggregate
+from django.db.models import Sum, Q, Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
@@ -36,10 +36,10 @@ from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
     StatisticsForm
-from amelie.personal_tab.debt_collection import generate_contribution_instructions, filter_contribution_instructions, \
+from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Category, Transaction, CookieCornerTransaction, ActivityTransaction, \
+from amelie.personal_tab.models import Amendment, Category, Transaction, CookieCornerTransaction, ActivityTransaction, \
     CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
     DebtCollectionInstruction, ReversalTransaction
 from amelie.personal_tab.statistics import get_functions, statistics_totals
@@ -1253,8 +1253,14 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
 def authorization_amendment(request, authorization_id):
     authorization = get_object_or_404(Authorization, id=authorization_id)
 
+    if authorization.end_date:
+        raise Http404(_('This mandate is terminated, so an amendment cannot be made'))
+
+    if not authorization.is_signed:
+        raise Http404(_('This mandate is not signed, so an amendment cannot be made'))
+
     if authorization.next_amendment():
-        raise Http404(_('Already has an ongoing amendment'))
+        raise Http404(_('This mandate already has an ongoing amendment'))
 
     if request.method == 'POST':
         form = AmendmentForm(request.POST)
@@ -1270,6 +1276,63 @@ def authorization_amendment(request, authorization_id):
 
     return render(request, 'cookie_corner_authorization_amendment.html', {
         'form': form,
+        'authorization': authorization
+    })
+
+
+@require_board
+@transaction.atomic
+def authorization_amendment_edit(request, authorization_id, amendment_id):
+    amendment = get_object_or_404(Amendment, id=amendment_id)
+    authorization = get_object_or_404(Authorization, id=authorization_id)
+
+    if amendment.authorization != authorization:
+        raise Http404(_('This amendment does not belong to this authorization'))
+
+    elif authorization.next_amendment() != amendment:
+        raise Http404(_('This amendment is not editable'))
+
+    elif request.method == 'POST':
+        form = AmendmentForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            iban = form.cleaned_data['iban']
+            bic = form.cleaned_data['bic']
+            reason = form.cleaned_data['reason']
+            edit_amendment(amendment, date, iban, bic, reason)
+            return redirect(authorization)
+    else:
+        form = AmendmentForm(initial={
+            'date': amendment.date,
+            'iban': authorization.iban,
+            'bic': authorization.bic,
+            'reason': amendment.reason,
+        })
+
+    return render(request, 'cookie_corner_authorization_amendment.html', {
+        'form': form,
+        'object': amendment,
+        'authorization': authorization
+    })
+
+
+@require_board
+@transaction.atomic
+def authorization_amendment_delete(request, authorization_id, amendment_id):
+    amendment = get_object_or_404(Amendment, id=amendment_id)
+    authorization = get_object_or_404(Authorization, id=authorization_id)
+
+    if amendment.authorization != authorization:
+        raise Http404(_('This amendment does not belong to this authorization'))
+
+    elif authorization.next_amendment() != amendment:
+        raise Http404(_('This amendment is not editable'))
+
+    elif request.method == 'POST':
+        delete_amendment(amendment)
+        return redirect(authorization)
+
+    return render(request, 'cookie_corner_authorization_amendment_delete.html', {
         'authorization': authorization
     })
 
@@ -1478,6 +1541,56 @@ def debt_collection_instruction_reversal(request, id):
 
     return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
         'form': form,
+        'instruction': instruction
+    })
+
+
+@require_board
+@transaction.atomic
+def debt_collection_instruction_reversal_edit(request, id):
+    instruction = get_object_or_404(DebtCollectionInstruction, id=id)
+    reversal = getattr(instruction, 'reversal', None)
+
+    if not reversal:
+        raise Http404(_('Reversal does not exist'))
+
+    if request.method == 'POST':
+        form = ReversalForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            pre_settlement = form.cleaned_data['pre_settlement']
+            reason = form.cleaned_data['reason']
+
+            reversal.date = date
+            reversal.pre_settlement = pre_settlement
+            reversal.reason = reason
+            reversal.save()
+
+            edit_reversal(reversal, request.person)
+            return redirect(instruction)
+    else:
+        form = ReversalForm(instance=reversal)
+
+    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+        'form': form,
+        'instruction': instruction
+    })
+
+
+@require_board
+@transaction.atomic
+def debt_collection_instruction_reversal_delete(request, id):
+    instruction = get_object_or_404(DebtCollectionInstruction, id=id)
+    reversal = getattr(instruction, 'reversal', None)
+
+    if not reversal:
+        raise Http404(_('Reversal does not exist'))
+
+    if request.method == 'POST':
+        delete_reversal(reversal)
+        return redirect(instruction)
+
+    return render(request, 'cookie_corner_debt_collection_instruction_reversal_delete.html', {
         'instruction': instruction
     })
 
