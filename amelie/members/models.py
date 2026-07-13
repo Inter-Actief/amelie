@@ -1020,13 +1020,8 @@ class Membership(models.Model):
 
     def needs_signature(self):
         """
-        A membership only needs a signature if none of their previous memberships are signed,
-        and this is the first membership that the member has.
+        A membership only needs a signature if this is the first membership that the member has.
         """
-        # has_signed_memberships = self.member.membership_set.filter(~(Q(signed_document='')|Q(signed_document=None))).exists()
-        # if has_signed_memberships:
-        #     # Member already signed the agreement before
-        #     return False
         first_membership =  self.member.membership_set.order_by('year').first()
         if not first_membership:
             # No memberships exist in the DB, but we are a Membership, so this is probably the first (unsaved) membership.
