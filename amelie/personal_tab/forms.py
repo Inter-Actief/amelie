@@ -12,9 +12,9 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
 
-from amelie.members.models import Person, Committee
+from amelie.members.models import Membership, Person, Committee
+from amelie.members.forms import clean_iban_and_bic
 from amelie.personal_tab.transactions import cookie_corner_sale
-from amelie.style.forms import inject_style
 from amelie.personal_tab import statistics
 from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, Declaration, RFIDCard, Reversal, AuthorizationType, \
     DebtCollectionBatch, Authorization
@@ -51,14 +51,21 @@ class ExamCookieCreditForm(forms.Form):
 class DebtCollectionForm(forms.Form):
     description = forms.CharField(max_length=50, label=_l('Description for within Inter-Actief'))
     execution_date = forms.DateField(label=_l('Date of execution'), widget=DateSelector)
-    contribution = forms.BooleanField(required=False, label=_l('Membership fee'))
     cookie_corner = forms.BooleanField(required=False, label=_l('Personal tab'))
     end = forms.SplitDateTimeField(label=_l('Transactions until'), widget=DateTimeSelector)
+    contribution = forms.BooleanField(required=False, label=_l('Membership fee'))
+    contribution_years = forms.MultipleChoiceField(required=False, choices=None, label=_l('Membership fee years'))
 
     def __init__(self, minimal_execution_date, *args, **kwargs):
         super(DebtCollectionForm, self).__init__(*args, **kwargs)
         self.minimal_execution_date = minimal_execution_date
         self.fields['execution_date'].initial = minimal_execution_date
+        # Select the years with unpaid memberships to show
+        contribution_years = Membership.objects.filter(
+            payment__isnull=True,
+            type__price__gt=0
+        ).distinct().order_by('-year').values_list('year', flat=True)
+        self.fields['contribution_years'].choices = [(year, "{}-{}".format(year, year+1)) for year in contribution_years]
 
     def clean_execution_date(self):
         data = self.cleaned_data['execution_date']
@@ -69,9 +76,17 @@ class DebtCollectionForm(forms.Form):
 
         # Always return the cleaned data, whether you have changed it or not.
         return data
+    
+    def clean_contribution_years(self):
+        data = self.cleaned_data.get('contribution_years')
+        if self.cleaned_data.get('contribution') and not data:
+            raise forms.ValidationError(_l('Please select at least one year for the contribution debt collection.'))
+        return data
 
 
 class ReversalForm(forms.ModelForm):
+    date = forms.DateField(label=_l('Date'), widget=DateSelector, initial=timezone.now)
+
     class Meta:
         model = Reversal
         fields = ['date', 'pre_settlement', 'reason']
@@ -87,13 +102,13 @@ class AmendmentForm(forms.Form):
     """Form to enter an amendment"""
 
     """Date of the amendment"""
-    date = forms.DateField(label=_l('Date'))
+    date = forms.DateField(label=_l('Date'), widget=DateSelector, initial=timezone.now)
 
     """IBAN for authorization"""
     iban = IBANFormField(label=_l('IBAN'))
 
     """BIC for authorization"""
-    bic = BICFormField(label=_l('BIC*'), required=False)
+    bic = BICFormField(label=_l('BIC'), required=False, help_text=_l('BIC is not required for a Dutch IBAN'))
 
     """Short description of the reason of this amendment."""
     reason = forms.CharField(max_length=250, label=_l('Remarks'),
@@ -105,18 +120,9 @@ class AmendmentForm(forms.Form):
             # Skips checks if errors are found.
             return cleaned_data
 
-        if not cleaned_data['bic']:
-            if not cleaned_data['iban'][:2] == 'NL':
-                self.add_error('bic', _l('BIC has to be entered for foreign bank accounts.'))
-            elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-            else:
-                self.add_error('bic', _l('BIC could not be generated, please enter yourself.'))
+        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
+
         return cleaned_data
-
-
-inject_style(CustomTransactionForm, CookieCornerTransactionForm, ExamCookieCreditForm, DebtCollectionForm, ReversalForm,
-             AmendmentForm)
 
 
 class SearchAuthorizationForm(forms.Form):
@@ -520,6 +526,3 @@ class DeclarationForm(forms.Form):
                                         headers={'Reply-To': settings.TREASURER_EMAIL}, attachments=attachments))
 
             task.send()
-
-
-inject_style(StatisticsForm, PrintDocumentForm)

@@ -90,11 +90,24 @@
                 </table>
             </div>
             {% if request.is_board %}
-            <p>
-                <a href="{% url 'personal_tab:debt_collection_instruction_reversal' instruction.id %}" class="icon icon-add">
-                    {% trans 'Insert reversal' %}
-                </a>
-            </p>
+                {% if not instruction.reversal %}
+                <p>
+                    <a href="{% url 'personal_tab:debt_collection_instruction_reversal' instruction.id %}" class="icon icon-add">
+                        {% trans 'Insert reversal' %}
+                    </a>
+                </p>
+                {% else %}
+                <p>
+                    <a href="{% url 'personal_tab:debt_collection_instruction_reversal_edit' instruction.id %}" class="icon icon-pencil">
+                        {% trans 'Edit reversal' %}
+                    </a>
+                </p>
+                <p>
+                    <a href="{% url 'personal_tab:debt_collection_instruction_reversal_delete' instruction.id %}" class="icon icon-delete">
+                        {% trans 'Delete reversal' %}
+                    </a>
+                </p>
+                {% endif %}
             {% endif %}
         </div>
     </div></div>

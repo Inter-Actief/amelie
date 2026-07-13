@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Existing mandate' %}</h3>
+
+    {% csrf_token %}
+
+    <p>{% blocktrans with mandate=mandate %}
+        The following mandate cannot be activated: {{ mandate }}.
+    {% endblocktrans %}</p>
+
+    <p>{% blocktrans with existing_mandate=existing_mandates_of_type.0 %}
+        There is already an active mandate of the same type: {{ existing_mandate }}. Please terminate this mandate before activating a new one.
+    {% endblocktrans %}</p>
+
+    <div class="buttons">
+        <a href="{% url 'members:person_mandate' obj.id %}" class="looks-like-a-button js-load-block" data-container="person_mandate">
+            {% trans 'Cancel' %}
+        </a>
+    </div>
+</div>
