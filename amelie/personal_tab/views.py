@@ -900,13 +900,13 @@ def balance(request, dt_str=False):
 
     # --- Personal Tab ---
     # Members and Former members are displayed separately, so the Treasurer can take appropriate action
-    
+
     transaction_sum_per_person = all_transactions.values('person').order_by().annotate(Sum('price'))
     transaction_sum_per_person_dict = dict([(s['person'], s['price__sum']) for s in transaction_sum_per_person])
 
-    persons = Person.objects.filter(pk__in=transaction_sum_per_person_dict.keys())
-    members = Person.objects.members().filter(pk__in=persons)
-    former_members = persons.exclude(pk__in=members.values('pk'))
+    members = Person.objects.members().filter(pk__in=transaction_sum_per_person_dict.keys())
+    non_members_pks = set(transaction_sum_per_person_dict.keys()) - set(members.values_list('pk', flat=True))
+    former_members = Person.objects.filter(pk__in=non_members_pks)
 
     member_totals = []
     former_member_totals = []
@@ -931,9 +931,9 @@ def balance(request, dt_str=False):
     exam_cookie_credit_per_person = exam_cookie_transactions.values('person').order_by().annotate(Sum('price'))
     exam_cookie_credit_per_person_dict = dict([(c['person'], c['price__sum']) for c in exam_cookie_credit_per_person])
 
-    exam_cookie_persons = Person.objects.filter(pk__in=exam_cookie_credit_per_person_dict.keys())
-    exam_cookie_members = Person.objects.members().filter(pk__in=exam_cookie_persons)
-    exam_cookie_former_members = exam_cookie_persons.exclude(pk__in=exam_cookie_members.values('pk'))
+    exam_cookie_members = Person.objects.members().filter(pk__in=exam_cookie_credit_per_person_dict.keys())
+    exam_cookie_non_members_pks = set(exam_cookie_credit_per_person_dict.keys()) - set(exam_cookie_members.values_list('pk', flat=True))
+    exam_cookie_former_members = Person.objects.filter(pk__in=exam_cookie_non_members_pks)
 
     exam_cookie_member_totals = []
     exam_cookie_former_member_totals = []
