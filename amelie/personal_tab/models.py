@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import datetime
 import logging
 from io import BytesIO
 from typing import Optional
@@ -11,7 +12,7 @@ from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.core.validators import RegexValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.utils import timezone
@@ -638,9 +639,18 @@ class Authorization(models.Model):
         documents, _ = retrieve_documents(self.documenso_id)
         if len(documents) > 1:
             logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
-        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
-        self.is_signed = True  # Activates the mandate for use
-        self.save()
+
+        with transaction.atomic():
+            # Deactivate any existing mandates of the same type
+            Authorization.objects.filter(
+                person=self.person, authorization_type=self.authorization_type, is_signed=True, end_date__isnull=True
+            ).exclude(pk=self.pk).update(
+                end_date=datetime.date.today()
+            )
+            # Activate this mandate
+            self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+            self.is_signed = True  # Activates the mandate for use
+            self.save()
 
     def documenso_url(self):
         if self.documenso_id is not None:
@@ -1005,7 +1015,7 @@ class Declaration(models.Model):
         ('CASHBOX', 'Inter-Actief Cashbox'),
         ('CARD', 'Inter-Actief Card'),
     )
-    
+
     person = models.ForeignKey(Person, verbose_name=_l('person'), on_delete=models.SET(get_sentinel_person))
     """The person that submitted the declaration."""
 
@@ -1045,12 +1055,12 @@ class Declaration(models.Model):
         if not self.document_names:
             return []
         return json.loads(self.document_names)
-    
+
     def get_committee(self):
         if not self.committee:
             return 'No committee specified'
         return self.committee.name
-    
+
     def get_pdf(self):
         from amelie.tools.pdf import pdf_declaration_form
 
