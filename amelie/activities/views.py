@@ -477,6 +477,9 @@ def activity_editenrollment(request, participation, obj, edited_by=None):
         # If it was free but now costs money, and the person has a mandate, upgrade to Mandate.
         if participation.person.has_mandate_activities():
             participation.payment_method = Participation.PaymentMethodChoices.AUTHORIZATION
+        # Otherwise, change to cash
+        else:
+            participation.payment_method = Participation.PaymentMethodChoices.CASH
 
     participation.save()
 
