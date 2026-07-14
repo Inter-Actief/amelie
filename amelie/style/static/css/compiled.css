@@ -12241,6 +12241,9 @@ table.borderless td,
 table.borderless th {
   border: none;
 }
+table.full-width {
+  width: 100%;
+}
 table p.icon {
   margin: 0;
 }
