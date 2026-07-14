@@ -411,6 +411,7 @@ GRAPHQL_JWT = {
     'JWT_ALGORITHM': "RS256",
     'JWT_PUBLIC_KEY': "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtAj6EjQ4jYb7n2ipgHHX3EMegOyFMovsTAKOuPKslh5eeckU2aq0Qp/YAGRzXu6HxBXMJ5hFuDE8HgxIS5ZRBxR5AbEpO7YnvpH8CY9jUyFc7caR0L+QmugG649jy8NmkhiFvanKy1AY3DPXwfQS75D4QTrDis4viYF2xn1QAnOzTdtfe3srz2uYk/dAguj2lffAeZ0OoQ20sejO+TGHQeOpXTR7Vk16CPu89JhjWcpnhLWSkBgvwuLrg+3XoMlPum9cSHaIhc9BX1hbqt351XVMZbk8Ui4Kv6elJyMQEklPMDQhPiCCDMTXa51nqyAPkJUceA1IXkP3t1x0HBFkOwIDAQAB\n-----END PUBLIC KEY-----".encode('ascii'),
     'JWT_VERIFY': True,
+    'JWT_AUDIENCE': 'amelink-beta',
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_ALLOW_REFRESH': False,
     'JWT_PAYLOAD_GET_USERNAME_HANDLER': get_username_from_jwt_payload,
@@ -472,74 +473,96 @@ COOKIE_CORNER_FREE_COOKIE_DISCOUNT_LIMIT = 0  # Limit for the free cookie action
 
 COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
 
-# Conversion table from IBAN bank code to BIC
+# Conversion table from IBAN bank code to BIC for Dutch BICs
+# Source: https://www.betaalvereniging.nl/en/knowledge-base/iban-and-bic/bic-code/
 COOKIE_CORNER_BANK_CODES = {
     'ABNA': 'ABNANL2A',
+    'ABNC': 'ABNCNL2A',
+    'ADYB': 'ADYBNL2A',
     'AEGO': 'AEGONL2U',
-    'ANAA': 'ANAANL21',
+    'AINH': 'AINHNL22',
     'ANDL': 'ANDLNL2A',
     'ARBN': 'ARBNNL22',
     'ARSN': 'ARSNNL21',
     'ASNB': 'ASNBNL21',
-    'ATBA': 'ATBANL2A',
-    'BCDM': 'BCDMNL22',
     'BCIT': 'BCITNL2A',
+    'BARC': 'BARCNL22',
     'BICK': 'BICKNL2A',
     'BINK': 'BINKNL21',
+    'BITS': 'BITSNL2A',
     'BKCH': 'BKCHNL2R',
     'BKMG': 'BKMGNL2A',
     'BLGW': 'BLGWNL21',
-    'BMEU': 'BMEUNL21',
+    'BNDA': 'BNDANL2A',
     'BNGH': 'BNGHNL2G',
     'BNPA': 'BNPANL2A',
     'BOFA': 'BOFANLNX',
     'BOFS': 'BOFSNL21002',
     'BOTK': 'BOTKNL2X',
     'BUNQ': 'BUNQNL2A',
+    'BUKK': 'BUKKNL22',
+    'BUNQ': 'BUNQNL2A',
+    'BUUT': 'BUUTNL2A',
     'CHAS': 'CHASNL2X',
     'CITC': 'CITCNL2A',
     'CITI': 'CITINL2X',
+    'CLRB': 'CLRBNL2A',
     'COBA': 'COBANL2X',
-    'DEUT': 'DEUTNL2N',
+    'CCBV': 'CCBVNL2A',
+    'CEPA': 'CEPANL2A',
+    'DELE': 'DELENL22',
+    'DEUT': 'DEUTNL2A',
     'DHBN': 'DHBNNL2R',
-    'DLBK': 'DLBKNL2A',
     'DNIB': 'DNIBNL2G',
+    'EBPB': 'EBPBNL22',
+    'EBUR': 'EBURNL21',
     'FBHL': 'FBHLNL2A',
     'FLOR': 'FLORNL2A',
-    'FRGH': 'FRGHNL21',
-    'FTSB': 'ABNANL2A',
+    'FNOM': 'FNOMNL22',
+    'FRNX': 'FRNXNL2A',
+    'FROM': 'FROMNL2A',
     'FVLB': 'FVLBNL22',
+    'FXBB': 'FXBBNL22',
     'GILL': 'GILLNL2A',
     'HAND': 'HANDNL2A',
-    'HHBA': 'HHBANL22',
+    'HIFX': 'HIFXNL2A',
+    'HUSH': 'HUSHNL2A',
     'HSBC': 'HSBCNL2A',
+    'ICBC': 'ICBCNL2A',
     'ICBK': 'ICBKNL2A',
+    'ICEP': 'ICEPNL21',
     'INGB': 'INGBNL2A',
-    'INSI': 'INSINL2A',
+    'ISAE': 'ISAENL2A',
     'ISBK': 'ISBKNL2A',
     'KABA': 'KABANL2A',
-    'KASA': 'KASANL2A',
     'KNAB': 'KNABNL2H',
     'KOEX': 'KOEXNL2A',
     'KRED': 'KREDNL2X',
-    'LOCY': 'LOCYNL2A',
     'LOYD': 'LOYDNL2A',
     'LPLN': 'LPLNNL2F',
     'MHCB': 'MHCBNL2A',
+    'MODR': 'MODRNL22',
+    'MLLE': 'MLLENL2A',
     'NNBA': 'NNBANL2G',
     'NWAB': 'NWABNL2G',
+    'PANX': 'PANXNL22',
     'PCBC': 'PCBCNL2A',
+    'PNOW': 'PNOWNL2A',
     'RABO': 'RABONL2U',
-    'RBOS': 'RBOSNL2A',
-    'RBRB': 'RBRBNL21',
+    'SBOS': 'SBOSNL2A',
     'SNSB': 'SNSBNL2A',
+    'RBRB': 'RBRBNL21',
+    'REVO': 'REVONL22',
     'SOGE': 'SOGENL2A',
-    'STAL': 'STALNL2G',
-    'TEBU': 'TEBUNL2A',
+    'SWNB': 'SWNBNL22',
+    'TRBK': 'TRBKNL2A',
     'TRIO': 'TRIONL2U',
-    'UBSW': 'UBSWNL2A',
     'UGBI': 'UGBINL2A',
     'VOWA': 'VOWANL21',
+    'VTPS': 'VTPSNL2R',
+    'VVID': 'VVIDNL22',
+    'WOFT': 'WOFTNL22',
+    'YOUR': 'YOURNL2A',
     'ZWLB': 'ZWLBNL21'
 }
 
@@ -565,6 +588,13 @@ PERSONAL_TAB_PRINTERS = {
     #     },
     # }
 }
+
+# Declaration Settings
+DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
+TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB total, because email size limit is 25 MB
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
+
 
 # Celery task scheduler settings
 CELERY_TASK_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
@@ -615,6 +645,11 @@ ALEXIA_API = {
 }
 
 ALEXIA_AGE_CHECK_API_CONFIG = {
+    'api_key': None,
+    'allowed_ips': [],
+}
+
+MINECRAFT_WHITELIST_API_CONFIG = {
     'api_key': None,
     'allowed_ips': [],
 }

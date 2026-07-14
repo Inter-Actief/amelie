@@ -240,7 +240,7 @@ OIDC_RP_CLIENT_SECRET = env("OIDC_RP_CLIENT_SECRET", default="")
 # These limit which JWT tokens are accepted. If not set, this allows any JWT token issued by our Keycloak to access the API.
 # Also need to add the AUTHENTICATION_BACKEND: 'graphql_jwt.backends.JSONWebTokenBackend' to activate these settings.
 GRAPHQL_JWT['JWT_ALGORITHM'] = env("GRAPHQL_JWT_ALGORITHM", default="RS256")
-GRAPHQL_JWT['JWT_AUDIENCE'] = env("GRAPHQL_JWT_AUDIENCE", default="amelink-prod")
+GRAPHQL_JWT['JWT_AUDIENCE'] = env.list("GRAPHQL_JWT_AUDIENCE", default=["amelink-prod"])
 GRAPHQL_JWT['JWT_ISSUER'] = env("GRAPHQL_JWT_ISSUER", default="https://auth.ia.utwente.nl/realms/inter-actief")
 GRAPHQL_JWT['JWT_PUBLIC_KEY'] = env("GRAPHQL_JWT_PUBLIC_KEY", default=GRAPHQL_JWT.get('JWT_PUBLIC_KEY', None))
 GRAPHQL_JWT['JWT_VERIFY'] = env.bool("GRAPHQL_JWT_VERIFY", default=True)
@@ -396,6 +396,11 @@ CLAUDIA_GSUITE['ALLOWED_ALIAS_DOMAINS'] = env.list("CLAUDIA_GSUITE_ALLOWED_ALIAS
 CLAUDIA_KANIDM["API_BASE"] = env("CLAUDIA_KANIDM_API_BASE", default="idm.ia.utwente.nl")
 CLAUDIA_KANIDM["API_KEY"] = env("CLAUDIA_KANIDM_API_KEY", default=None)
 
+# Minecraft whitelist API settings
+MINECRAFT_WHITELIST_API_CONFIG['api_key'] = env("MINECRAFT_WHITELIST_API_KEY", default=None)
+MINECRAFT_WHITELIST_API_CONFIG['allowed_ips'] = env.list("MINECRAFT_WHITELIST_API_ALLOWED_IPS", default=[])
+
+
 ###
 #  Alexia settings
 ###
@@ -506,6 +511,24 @@ for i in range(1, 6):
                 "multiple_document_handling": env(f"PERSONAL_TAB_PRINTER_{i}_MULTIPLE_DOCUMENT_HANDLING", default="separate-documents-collated-copies"),
             },
         }
+
+
+
+###
+# Declaration Settings
+###
+
+# Maximum file size for declarations
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = env.int("PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE", default=PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE)
+
+# Maximum number of files for declarations
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = env.int("PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT", default=PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT)
+
+# E-mail address for declarations
+DECLARATION_EMAIL = env("AMELIE_DECLARATION_EMAIL", default=DECLARATION_EMAIL)
+
+# E-mail address of the Treasurer
+TREASURER_EMAIL = env("AMELIE_TREASURER_EMAIL", default=TREASURER_EMAIL)
 
 ###
 #  Amelie-specific settings

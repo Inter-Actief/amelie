@@ -581,7 +581,7 @@ def activity_unenrollment(request, pk, person_id):
 
             update_waiting_list(obj, request)
 
-        messages.success(request,
+            messages.success(request,
                          _('{person} is now unenrolled for {activity}.').format(
                              person=participation.person,
                              activity=obj,

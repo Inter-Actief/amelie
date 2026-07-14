@@ -3,6 +3,7 @@ import time
 import json
 import re
 import logging
+import uuid
 
 from datetime import date
 from datetime import timezone as tz
@@ -1752,6 +1753,65 @@ class DoGroupTreeViewData(View):
             "data": dogroups,
         }
         return JsonResponse(data)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MinecraftWhitelistAPI(RequireAllowlistedIPMixin, View):
+    """
+    Checks if a given Minecraft UUID is registered in the database.
+    Reachable via: POST /api/minecraft_whitelist/
+    with body: 'apiKey' and 'uuid'
+
+    Returns a HTTP code: 200 for true, 404 for false
+    """
+    http_method_names = ['post']
+    needs_login = False
+    errors_as_json = True
+    allowlisted_ip_addresses = settings.MINECRAFT_WHITELIST_API_CONFIG.get('allowed_ips', [])
+    allow_superusers = False
+
+    def post(self, request):
+        log = logging.getLogger("amelie.members.views.minecraft_whitelist_api")
+
+        # Environment variables must be set
+        if settings.MINECRAFT_WHITELIST_API_CONFIG.get('api_key', None) is None or \
+            settings.MINECRAFT_WHITELIST_API_CONFIG.get('allowed_ips', None) is None:
+            log.error("Minecraft whitelist api config missing from settings.")
+            return HttpJSONResponse({"error": True, "Type": "Amelie environment variables missing"}, status=500)
+
+        # Check if JSON body is valid
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            log.error(f"Bad request, JSON decoding failed - {e}.")
+            return HttpJSONResponse({"error": True, "type": "Malformed body"}, status=400)
+
+        # Must contain 'apiKey' and 'uuid' keys
+        if 'apiKey' not in body or 'uuid' not in body:
+            log.error(f"Bad request, API Key or UUID missing.")
+            return HttpJSONResponse({"error": True, "type": "Malformed body (Missing API key or UUID)"}, status=400)
+
+        # API Key must be valid
+        api_key = body.pop('apiKey')  # Removes apiKey from the returned body
+        if api_key != settings.MINECRAFT_WHITELIST_API_CONFIG['api_key']:
+            log.error(f"Permission denied, provided API key is incorrect.")
+            return HttpJSONResponse({"error": True, "type": "Wrong API key"}, status=403)
+
+        # parse UUID
+        preparsed_uuid = body.get('uuid', None)
+        try:
+            parsed_uuid = uuid.UUID(preparsed_uuid)
+        except (ValueError, TypeError):
+            log.warning(f"Invalid UUID format requested: {preparsed_uuid}")
+            return HttpJSONResponse({"error": True, "type": "Malformed UUID format"}, status=400)
+
+        # if it exists in the database, the uuid is whitelisted
+        exists = Person.objects.filter(minecraft_uuid=parsed_uuid).exists()
+
+        if exists:
+            return HttpJSONResponse({"whitelisted": True})
+        else:
+            return HttpJSONResponse({"whitelisted": False})
 
 
 @method_decorator(csrf_exempt, name='dispatch')

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from amelie.personal_tab.models import DiscountPeriod, Discount, DiscountCredit, Transaction, \
+from amelie.personal_tab.models import Declaration, DiscountPeriod, Discount, DiscountCredit, Transaction, \
     CustomTransaction, ActivityTransaction, CookieCornerTransaction, AlexiaTransaction, ContributionTransaction, \
     Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, \
     DebtCollectionBatch, \
@@ -315,7 +315,7 @@ class DiscountPeriodAdmin(admin.ModelAdmin):
 
 class DiscountAdmin(admin.ModelAdmin):
     list_display = ('id', 'discount_period', 'amount', 'date')
-    list_filter = ('date',)
+    list_filter = ('date', 'discount_period')
     date_hierarchy = 'date'
     search_fields = ['discount_period__description_nl', 'discount_period__description_en']
 
@@ -351,6 +351,15 @@ class PrintLogAdmin(admin.ModelAdmin):
     has_transaction.boolean = True
     has_transaction.short_description = 'Paid'
 
+class DeclarationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'person', 'committee', 'amount', 'submission_date')
+    list_filter = ('submission_date', 'payment_method')
+    date_hierarchy = 'submission_date'
+    search_fields = ['person__first_name', 'person__last_name', 'description', 'committee__name']
+    raw_id_fields = ('person', 'committee')
+    readonly_fields = ('submission_date',)
+    ordering = ['-submission_date']
+
 
 admin.site.register(RFIDCard, RFIDAdmin)
 admin.site.register(Transaction, TransactionAdmin)
@@ -375,3 +384,4 @@ admin.site.register(DiscountPeriod, DiscountPeriodAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(DiscountCredit, DiscountCreditAdmin)
 admin.site.register(PrintLogEntry, PrintLogAdmin)
+admin.site.register(Declaration, DeclarationAdmin)

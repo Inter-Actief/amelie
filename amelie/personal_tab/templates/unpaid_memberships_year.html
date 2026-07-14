@@ -1,0 +1,101 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Unpaid Memberships' %} {{ year }}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-20">
+        <div class="ia">
+            <h2>{% trans 'Unpaid Memberships' %} {{ year }}</h2>
+        </div>
+    </div>
+    {% for membership_type, membership_list in unpaid_memberships.items %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{{ membership_type.0 }}</h2>
+            <div class="content">
+                <div class="table-responsive">
+                    <table class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select_all" onclick="toggle(this, '{{ membership_type.1 }}')"/></th>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Current Member?' %}</th>
+                            <th>{% trans 'Mandate' %}</th>
+                            <th>{% trans 'Debit Refused?' %}</th>
+                            <th>{% trans 'Price' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>  
+                        {% for membership in membership_list %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="type-{{ membership_type.1 }}" value="{{ membership.pk }}"/>
+                            </td>
+                            <td class="align-left">
+                                <a href="{% url 'members:person_view' membership.member.pk membership.member.slug %}">
+                                    {{ membership.member.incomplete_name }}
+                                </a>
+                            </td>
+                            <td class="align-right">
+                                {% if membership.member.is_member %}
+                                {% trans 'Yes' %}
+                                {% else %}
+                                {% trans 'No' %}
+                                {% endif %}
+                            </td>
+                            <td class="align-left">
+                                {% if membership.member.has_mandate_contribution|length > 0%}
+                                <a href="{% url 'personal_tab:authorization_view' membership.member.has_mandate_contribution.0.pk %}">
+                                    {{ membership.member.has_mandate_contribution.0 }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="align-left">
+                                {% if membership.member.has_mandate_contribution|length > 0 %}
+                                {% if membership.member.has_mandate_contribution.0.instructions.all and membership.member.has_mandate_contribution.0.instructions.all.0.reversal %}
+                                {{ membership.member.has_mandate_contribution.0.instructions.all.0.reversal.reason }}
+                                {% else %}
+                                {% trans 'No' %}
+                                {% endif %}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td class="align-right">{{ membership.type.price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                    <a href="{% url 'personal_tab:unpaid_memberships_mailing' year %}" onclick="this.href=getMembershipsURI(this, '{{ membership_type.1 }}');" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
+                    <a href="{% url 'personal_tab:unpaid_memberships_forgive' year %}" onclick="this.href=getMembershipsURI(this, '{{ membership_type.1 }}');" class="looks-like-a-button icon icon-money">{% trans 'Forgive membership fee' %}</a>
+                </div>
+                <br>
+            </div>  
+        </div>
+    </div>
+    {% endfor %}
+    <script>
+        // Function to toggle all checkboxes of a membership type
+        function toggle(source, type) {
+            checkboxes = document.getElementsByName('type-' + type);
+            for(var checkbox in checkboxes)
+                checkboxes[checkbox].checked = source.checked;
+        }
+
+        // Function to get the selected memberships and append them to the URL
+        function getMembershipsURI(source, type) {
+            var checkboxes = document.getElementsByName('type-' + type);
+            var values = [];
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    values.push(checkboxes[i].value);
+                }
+            }
+            return source.href + '?memberships=' + encodeURIComponent(values.join(','));
+        }
+    </script>
+    {% endblock content %}
+    

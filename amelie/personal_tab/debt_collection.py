@@ -68,15 +68,15 @@ def authorization_cookie_corner(person):
     return authorization
 
 
-def generate_contribution_instructions(year):
+def generate_contribution_instructions(years):
     """
     Generate DebtCollectionInstruction objects to collect the contribution of a given association year.
 
     The DebtCollectionInstruction objects that are returned are not saved yet.
     """
     memberships = Membership.objects.filter(Q(ended__gt=datetime.date.today()) | Q(ended__isnull=True),
-                                            payment__isnull=True, type__price__gt=0, year=year)
-
+                                            payment__isnull=True, type__price__gt=0, year__in=years)
+    
     result = {
         'ongoing_frst': [],
         'frst': [],
@@ -97,8 +97,8 @@ def generate_contribution_instructions(year):
         name = person.incomplete_name()
 
         with translation.override(person.preferred_language):
-            description = _('Contribution Inter-Actief {membership_type} {name} Questions? call 053-489 3756')\
-                .format(membership_type=m.type.name, name=name)
+            description = _('Contribution Inter-Actief {membership_year} {membership_type} {name} Questions? Email treasurer@inter-actief.net')\
+                .format(membership_year="{}-{}".format(m.year, m.year + 1), membership_type=m.type.name, name=name)
             description = normalize_to_ascii(description)
 
         instruction = None
@@ -220,7 +220,7 @@ def generate_cookie_corner_instructions(end_date):
             name = person.incomplete_name()
 
             with translation.override(person.preferred_language):
-                description = _('Personal tab Inter-Actief till {date} {name} Questions? call 053-489 3756').format(
+                description = _('Personal tab Inter-Actief till {date} {name} Questions? Email treasurer@inter-actief.net').format(
                     date=_date(end_date_timezone_amsterdam, "j F Y H:i"), name=name
                 )
                 description = normalize_to_ascii(description)
@@ -334,6 +334,44 @@ def process_reversal(reversal, actor):
             cct.save()
 
 
+def edit_reversal(reversal, actor):
+    """
+    :type reversal: Reversal
+    :type actor: Person
+    """
+    timezone_amsterdam = timezone.get_default_timezone()
+    reversal_datetime = datetime.datetime.combine(reversal.date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
+
+    rt = ReversalTransaction.objects.get(reversal=reversal)
+    rt.date = reversal_datetime
+    rt.added_by = actor
+    rt.save()
+
+
+def delete_reversal(reversal):
+    """
+    :type reversal: Reversal
+    """
+    # First we delete the ReversalTransaction and the Reversal object itself.
+    instruction = reversal.instruction
+    rt = ReversalTransaction.objects.get(reversal=reversal)
+    rt.delete()
+    reversal.delete()
+
+    # If there were contribution transactions, we need to reinstate payments and delete reversal contribution transactions.
+    for ct in ContributionTransaction.objects.filter(debt_collection=instruction):
+        if ct.price > 0:
+
+            # Then we need to reinstate the payment that was deleted when the reversal was processed.
+            pm = Payment(membership=ct.membership, payment_type=PaymentType.objects.get(id=4),
+                               amount=ct.price, date=ct.date)
+            pm.save()
+                
+            # Now we filter for the reversal ContributionTransaction that was created when the reversal was processed and delete it.
+            cct = ContributionTransaction.objects.filter(membership=ct.membership, price=-ct.price)
+            cct.delete()
+
+
 def process_amendment(authorization, date, iban, bic, reason):
     """
     Process an amendment to an authorization.
@@ -349,3 +387,41 @@ def process_amendment(authorization, date, iban, bic, reason):
     authorization.save()
 
     return amendment
+
+
+def edit_amendment(amendment, date, iban, bic, reason):
+    """
+    Edit an unsent amendment to an authorization.
+
+    Make sure you call this method only from within a database transaction!
+    Make sure you call this method only for amendments that have not yet been sent to the bank!
+    """
+    other_bank = bic != amendment.authorization.bic
+    amendment.date = date
+    amendment.other_bank = other_bank
+    amendment.reason = reason
+    amendment.save()
+
+    amendment.authorization.iban = iban
+    amendment.authorization.bic = bic
+    amendment.authorization.save()
+
+    return amendment
+
+
+def delete_amendment(amendment):
+    """
+    Delete an unsent amendment to an authorization.
+
+    Make sure you call this method only from within a database transaction!
+    
+    Make sure you call this method only for amendments that have not yet been sent to the bank!
+    """
+
+    amendment.authorization.iban = amendment.previous_iban
+    amendment.authorization.bic = amendment.previous_bic
+    amendment.authorization.save()
+
+    amendment.delete()
+
+    return

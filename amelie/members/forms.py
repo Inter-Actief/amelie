@@ -2,14 +2,17 @@
 import datetime
 import csv
 import os
+import uuid
 from datetime import date
 from difflib import SequenceMatcher
 
 import re
 
+import requests
 from django import forms
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
 from django.db.models import Q, TextChoices
 from django.forms import widgets
 from django.forms.models import BaseInlineFormSet
@@ -19,7 +22,6 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 
 from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
-from amelie.style.forms import inject_style
 from amelie.members.models import Department, PaymentType, Committee, CommitteeCategory, DogroupGeneration, \
     Function, Membership, MembershipType, Employee, Person, Student, Study, StudyPeriod, Preference, \
     LANGUAGE_CHOICES, UnverifiedEnrollment
@@ -38,6 +40,40 @@ class PersonalDetailsEditForm(forms.ModelForm):
     date_of_birth = forms.DateField(widget=DateSelector, label=_l('Birth date'))
     preferences = forms.ModelMultipleChoiceField(Preference.objects.filter(adjustable=True), required=False,
                                                  widget=widgets.CheckboxSelectMultiple, label=_l('Preferences'))
+    def clean_minecraft_username(self):
+        username = self.cleaned_data.get('minecraft_username', '').strip()
+        if not username:
+            self.instance.minecraft_uuid = None
+            return ""
+
+        if not re.match(r'^[a-zA-Z0-9_]{3,16}$', username):
+            raise ValidationError(_("Invalid Minecraft username format."))
+
+        if 'minecraft_username' in self.changed_data:
+            try:
+                response = requests.get(
+                    f"https://api.minecraftservices.com/minecraft/profile/lookup/name/{username}",
+                    timeout=5
+                )
+            except requests.RequestException:
+                raise ValidationError(
+                    _("Could not connect to Minecraft verification servers. Please try again later.")
+                )
+
+            if response.status_code in (204, 404):
+                raise ValidationError(_("This Minecraft username does not exist."))
+            elif response.status_code != 200:
+                raise ValidationError(_("An error occurred while verifying the Minecraft username."))
+
+            try:
+                data = response.json()
+                self.instance.minecraft_uuid = uuid.UUID(data['id'])
+
+                return data['name']
+            except (ValueError, KeyError):
+                raise ValidationError(_("Failed to parse verification response from Mojang."))
+        else:
+            return username
 
     def save(self, *args, **kwargs):
         if self.has_changed():
@@ -94,7 +130,7 @@ class PersonalDetailsEditForm(forms.ModelForm):
         fields = ('gender', 'date_of_birth', 'preferred_language', 'address', 'postal_code', 'city', 'country',
                   'address_parents', 'postal_code_parents', 'city_parents', 'country_parents', 'email_address_parents',
                   'can_use_parents_address', 'telephone', 'email_address', 'preferences',
-                  'shell', 'international_member')
+                  'shell', 'international_member', 'minecraft_username')
 
 
 class PersonalStudyEditForm(forms.Form):
@@ -232,7 +268,7 @@ class PersonStudyForm(forms.ModelForm):
 
 class PersonPaymentForm(forms.Form):
     date = forms.DateField(initial=datetime.date.today())
-    method = forms.ModelChoiceField(PaymentType.objects.all())
+    method = forms.ModelChoiceField(PaymentType.objects.filter(visible=True))
 
 
 class MembershipForm(forms.ModelForm):
@@ -251,10 +287,16 @@ class MembershipForm(forms.ModelForm):
 
 class MembershipEndForm(forms.ModelForm):
     ended = forms.DateField(widget=widgets.RadioSelect)
+    payment_needed = forms.BooleanField(
+        label=_l('Does the member still have to pay the membership fee?'),
+        widget=widgets.CheckboxInput,
+        initial=True,
+        required=False
+    )
 
     class Meta:
         model = Membership
-        fields = ("ended",)
+        fields = ("ended", "payment_needed")
 
     def __init__(self, *args, **kwargs):
         super(MembershipEndForm, self).__init__(*args, **kwargs)
@@ -269,7 +311,7 @@ class MandateForm(forms.ModelForm):
     class Meta:
         model = Authorization
         fields = ('authorization_type', 'iban', 'bic', 'account_holder_name', 'start_date')
-        labels = {"bic": "BIC*"}
+        labels = {"bic": "BIC"}
 
     def __init__(self, *args, **kwargs):
         super(MandateForm, self).__init__(*args, **kwargs)
@@ -281,14 +323,11 @@ class MandateForm(forms.ModelForm):
         if self.errors:
             # Skips checks if errors are found.
             return cleaned_data
+        if not cleaned_data['authorization_type']:
+            raise forms.ValidationError(_l('A mandate type is required.'))
 
-        if not cleaned_data['bic']:
-            if not cleaned_data['iban'][:2] == 'NL':
-                raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
-            elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-            else:
-                raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
+        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
+
         return cleaned_data
 
 
@@ -366,15 +405,7 @@ class PersonCreateForm(forms.ModelForm):
                 )
 
         if cleaned_data['mandate_contribution'] or cleaned_data['mandate_other']:
-            if not cleaned_data['iban']:
-                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
-            if not cleaned_data['bic']:
-                if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
-                elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                    cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-                else:
-                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
+            cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
 
         return cleaned_data
 
@@ -445,15 +476,7 @@ class RegistrationForm(forms.ModelForm):
             return cleaned_data
 
         if cleaned_data['mandate_contribution'] or cleaned_data['mandate_other']:
-            if not cleaned_data['iban']:
-                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
-            if not cleaned_data['bic']:
-                if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
-                elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                    cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-                else:
-                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
+            cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
 
         return cleaned_data
 
@@ -620,35 +643,6 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
     iban = IBANFormField(label=_l('IBAN'), required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     bic = BICFormField(label=_l('BIC'), required=False)
 
-    def clean_iban(self):
-        if str(self.cleaned_data['iban']).strip() == "NL18ABNA0484869868":
-            raise forms.ValidationError(_l("Please enter your own bank account number!"))
-        return self.cleaned_data['iban']
-
-    def clean_bic(self):
-        bic = str(self.cleaned_data['bic']).strip()
-        if bic == "":
-            return self.cleaned_data['bic']
-
-        if not settings.DEBUG:
-            if bic in settings.COOKIE_CORNER_BANK_CODES.values():
-                return self.cleaned_data['bic']
-            # handle if does not exist, throw error showing the command to run
-            try:
-                # csv file can be updated with `python manage.py update_bic_csv`
-                with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
-                    csv_reader = csv.reader(csv_file, delimiter=',')
-                    next(csv_reader)  # skip the header
-                    for row in csv_reader:
-                        # only check the first 8 characters, last 3 are for the branch code
-                        if bic[:8] == row[4][:8]:
-                            return self.cleaned_data['bic']
-            except IOError as e:
-                raise IOError(u"Reading file at {} failed (run 'manage.py update_bic_csv' to create it if it does not exist) {}"
-                              .format(os.path.join(settings.MEDIA_ROOT, 'bic_list.csv'), e))
-
-            raise forms.ValidationError(_l("BIC is not from a SEPA country"))
-
     def clean(self):
         cleaned_data = super(RegistrationFormStepAuthorizationDetails, self).clean()
 
@@ -657,15 +651,7 @@ class RegistrationFormStepAuthorizationDetails(forms.Form):
             return cleaned_data
 
         if cleaned_data['authorization_contribution'] or cleaned_data['authorization_other']:
-            if not cleaned_data['iban']:
-                raise forms.ValidationError(_l('IBAN is required if a mandate is checked!'))
-            if not cleaned_data['bic']:
-                if not cleaned_data['iban'][:2] == 'NL':
-                    raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
-                elif cleaned_data['iban'][4:8] in settings.COOKIE_CORNER_BANK_CODES:
-                    cleaned_data['bic'] = settings.COOKIE_CORNER_BANK_CODES[cleaned_data['iban'][4:8]]
-                else:
-                    raise forms.ValidationError(_l('BIC could not be generated, please enter yourself.'))
+            cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
 
         return cleaned_data
 
@@ -772,4 +758,56 @@ class StudentNumberForm(forms.Form):
         return self.cleaned_data["student_number"]
 
 
-inject_style(SearchForm, CommitteeForm, PersonalDetailsEditForm, PersonalStudyEditForm, PersonDataForm, ProfilePictureVerificationForm, ProfilePictureUploadForm)
+def clean_iban_and_bic(iban, bic):
+    iban = str(iban).strip()
+    bic = str(bic).strip()
+
+    if not iban:
+        raise forms.ValidationError(_l('An IBAN is required.'))
+
+    # Do not accept the example IBAN
+    if iban == "NL18ABNA0484869868":
+        raise forms.ValidationError(_l("Please enter your own bank account number!"))
+
+    if not bic:
+        if not iban[:2] == 'NL':
+            raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
+        elif iban[4:8] in settings.COOKIE_CORNER_BANK_CODES:
+            bic = settings.COOKIE_CORNER_BANK_CODES[iban[4:8]]
+            # BIC is known, so cleaning is done
+            return iban, bic
+        else:
+            raise forms.ValidationError(_l('BIC could not be generated, please enter it yourself.'))
+
+    if bic[4:6] != iban[:2]:
+        raise forms.ValidationError(_l('The BIC country does not match the IBAN country.'))
+
+    # If the IBAN bank is known, check if the filled BIC is that same bank.
+    if iban[4:8] in settings.COOKIE_CORNER_BANK_CODES:
+        if bic != settings.COOKIE_CORNER_BANK_CODES[iban[4:8]]:
+            raise forms.ValidationError(_l('The BIC bank does not match the IBAN bank.'))
+        # BIC is from the same bank, so cleaning is done
+        return iban, bic
+
+    # If the BIC bank is known, but the IBAN bank was not, there is a mismatch.
+    elif bic in settings.COOKIE_CORNER_BANK_CODES.values():
+        raise forms.ValidationError(_l('The BIC bank does not match the IBAN bank.'))
+
+    try:
+        # Now we check the list of BICs in SEPA Direct Debit Core
+        # CSV file can be updated with `python manage.py update_bic_csv`
+        with open(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), 'r', encoding="utf_8") as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            next(csv_reader)  # skip the header
+            for row in csv_reader:
+                # Only check the first 8 characters, last 3 are for the branch code
+                if bic[:8] == row[4][:8]:
+                    return iban, bic
+
+    # If the CSV file is not found, throw error showing the command to run
+    except IOError as e:
+        raise IOError(u"Reading file at {} failed (run 'python manage.py update_bic_csv' to create it if it does not exist): {}"
+                        .format(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), e))
+
+    # If the BIC is not in the list, the BIC is not from a SEPA country
+    raise forms.ValidationError(_l("BIC is not from a SEPA country"))
