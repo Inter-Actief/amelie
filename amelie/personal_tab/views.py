@@ -102,7 +102,7 @@ def price_list(request):
         category.update({'articles': articles})
         categories.append(category)
 
-    return render(request, 'price_list.html', {'categories': categories})
+    return render(request, 'cookie_corner_price_list.html', {'categories': categories})
 
 
 def generate_overview(request, person, date_from=None, date_to=None):
@@ -251,7 +251,7 @@ def generate_overview(request, person, date_from=None, date_to=None):
     form = PeriodTimeForm(initial={'datetime_from': date_from, 'datetime_to': date_to})
 
     # Done!
-    return render(request, 'transactions.html', {
+    return render(request, 'cookie_corner_transactions.html', {
         'person': person,
         'form': form,
         'date_from': date_from,
@@ -471,14 +471,14 @@ def transaction_form(request):
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
         
         else:
-            return render(request, 'transactions_form.html', {
+            return render(request, 'cookie_corner_transactions_form.html', {
                 'form': form,
                 'view_name': view_name,
             })
     else:
         end_date = timezone.now()
         begin_date = end_date - timezone.timedelta(days=7)
-        return render(request, 'transactions_form.html', {
+        return render(request, 'cookie_corner_transactions_form.html', {
             'form': PeriodTimeForm(initial={
                 'datetime_from': begin_date,
                 'datetime_to': end_date})
