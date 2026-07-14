@@ -2119,7 +2119,7 @@ def cookie_corner_wrapped_main(request, year=None):
 
     if len(transactions) == 0:
         # No transactions found, display the no transactions page
-        return render(request, 'wrapped_no_transactions.html', {
+        return render(request, 'wrapped/wrapped_no_transactions.html', {
             'year': COOKIE_CORNER_WRAPPED_YEAR,
             'transaction_years': transaction_years,
         })
@@ -2212,7 +2212,7 @@ def cookie_corner_wrapped_main(request, year=None):
 
     drinks_total = sum(d['total_price'] for d in drink_spend_most)
 
-    return render(request, 'wrapped.html', {
+    return render(request, 'wrapped/wrapped.html', {
         'year': COOKIE_CORNER_WRAPPED_YEAR,
         'transaction_years': transaction_years,
         'first_transaction_of_the_year': first_transaction_of_the_year,
@@ -2257,7 +2257,7 @@ def cookie_corner_wrapped_global(request, year=None):
 
     if len(transactions) == 0:
         # No transactions found, display the no transactions page
-        return render(request, 'wrapped_no_transactions.html', {
+        return render(request, 'wrapped/wrapped_no_transactions.html', {
             'year': COOKIE_CORNER_WRAPPED_YEAR,
             'transaction_years': transaction_years,
         })
@@ -2330,7 +2330,7 @@ def cookie_corner_wrapped_global(request, year=None):
 
     drinks_total = sum(d['total_price'] for d in drink_spend_most)
 
-    return render(request, 'wrapped.html', {
+    return render(request, 'wrapped/wrapped.html', {
         'global': True,
         'year': COOKIE_CORNER_WRAPPED_YEAR,
         'transaction_years': transaction_years,
