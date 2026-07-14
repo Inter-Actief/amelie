@@ -1541,7 +1541,7 @@ def authorization_amendment_delete(request, authorization_id, amendment_id):
 
 @require_board
 def debt_collection_list(request):
-    return render(request, 'cookie_corner_debt_collection_list.html', {
+    return render(request, 'debt_collection/list.html', {
         'assignments': DebtCollectionAssignment.objects.all()
     })
 
@@ -1654,7 +1654,7 @@ def debt_collection_new(request):
                                            'contribution': False, 'cookie_corner': True, 'end': end_date, 
                                            'contribution_years': current_association_year()})
 
-    return render(request, 'cookie_corner_debt_collection_new.html', {
+    return render(request, 'debt_collection/new.html', {
         'form': form,
         'minimal_execution_date': minimal_execution_date,
         'contribution_instructions': contribution_instructions,
@@ -1690,12 +1690,12 @@ def debt_collection_view(request, id):
             messages.warning(request, _(
                 "Could not create data export, because something went wrong while saving information about the export."
             ))
-            return render(request, 'cookie_corner_debt_collection_view.html', locals())
+            return render(request, 'debt_collection/view.html', locals())
 
     else:
         export_form = ExportForm(rows=1)
         export_form.fields['export_details'].initial = str(assignment)
-        return render(request, 'cookie_corner_debt_collection_view.html', locals())
+        return render(request, 'debt_collection/view.html', locals())
 
 
 def debt_collection_export(request, id):
@@ -1718,7 +1718,7 @@ def debt_collection_instruction_view(request, id):
     instruction = get_object_or_404(DebtCollectionInstruction, id=id)
     if not request.is_board and request.person != instruction.authorization.person:
         raise PermissionDenied
-    return render(request, 'cookie_corner_debt_collection_instruction_view.html', {
+    return render(request, 'debt_collection/instruction_view.html', {
         'instruction': instruction
     })
 
@@ -1741,7 +1741,7 @@ def debt_collection_instruction_reversal(request, id):
     else:
         form = ReversalForm()
 
-    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+    return render(request, 'debt_collection/instruction_reversal.html', {
         'form': form,
         'instruction': instruction
     })
@@ -1773,7 +1773,7 @@ def debt_collection_instruction_reversal_edit(request, id):
     else:
         form = ReversalForm(instance=reversal)
 
-    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+    return render(request, 'debt_collection/instruction_reversal.html', {
         'form': form,
         'instruction': instruction
     })
@@ -1792,7 +1792,7 @@ def debt_collection_instruction_reversal_delete(request, id):
         delete_reversal(reversal)
         return redirect(instruction)
 
-    return render(request, 'cookie_corner_debt_collection_instruction_reversal_delete.html', {
+    return render(request, 'debt_collection/instruction_reversal_delete.html', {
         'instruction': instruction
     })
 
@@ -1810,7 +1810,7 @@ def debt_collection_mailing(request, assignment_id):
         authorization__authorization_type__contribution=False
     ).exists()
 
-    return render(request, 'cookie_corner_debt_collection_mailing.html', {
+    return render(request, 'debt_collection/mailing.html', {
         'assignment': assignment,
         'has_contribution': has_contribution,
         'has_cookie_corner': has_cookie_corner
