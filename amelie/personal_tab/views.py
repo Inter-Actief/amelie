@@ -717,12 +717,12 @@ class TransactionSecurityMixin(RequirePersonMixin):
 
 class ActivityTransactionDetail(TransactionSecurityMixin, DetailView):
     model = ActivityTransaction
-    template_name = 'cookie_corner/activity_transaction_detail.html'
+    template_name = 'transactions/activity_transaction_detail.html'
 
 
 class AlexiaTransactionDetail(TransactionSecurityMixin, DetailView):
     model = AlexiaTransaction
-    template_name = 'cookie_corner/alexia_transaction_detail.html'
+    template_name = 'transactions/alexia_transaction_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(AlexiaTransactionDetail, self).get_context_data(**kwargs)
@@ -747,17 +747,17 @@ class AlexiaTransactionDetail(TransactionSecurityMixin, DetailView):
 
 class CookieCornerTransactionDetail(TransactionSecurityMixin, DetailView):
     model = CookieCornerTransaction
-    template_name = 'cookie_corner/cookie_corner_transaction_detail.html'
+    template_name = 'transactions/cookie_corner_transaction_detail.html'
 
 
 class ReversalTransactionDetail(TransactionSecurityMixin, DetailView):
     model = ReversalTransaction
-    template_name = 'cookie_corner/reversal_transaction_detail.html'
+    template_name = 'transactions/reversal_transaction_detail.html'
 
 
 class TransactionDetail(TransactionSecurityMixin, DetailView):
     model = Transaction
-    template_name = 'cookie_corner/transaction_detail.html'
+    template_name = 'transactions/transaction_detail.html'
 
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -778,7 +778,7 @@ class TransactionDetail(TransactionSecurityMixin, DetailView):
 class CustomTransactionUpdate(RequireBoardMixin, UpdateView):
     model = CustomTransaction
     form_class = CustomTransactionForm
-    template_name = 'cookie_corner/transaction_form.html'
+    template_name = 'transactions/transaction_form.html'
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -795,7 +795,7 @@ class CookieCornerTransactionUpdate(CustomTransactionUpdate):
 
 class CustomTransactionDelete(RequireBoardMixin, DeleteView):
     model = CustomTransaction
-    template_name = 'cookie_corner/transaction_delete.html'
+    template_name = 'transactions/transaction_delete.html'
 
     def get_success_url(self):
         return reverse('personal_tab:dashboard', kwargs={'pk': self.object.person.pk, 'slug': self.object.person.slug})
@@ -929,7 +929,7 @@ def person_new_transaction(request, person_id, slug, transaction_type):
             return HttpResponseRedirect(reverse('personal_tab:dashboard', args=[person.pk, person.slug]))
 
     # Done!
-    return render(request, 'cookie_corner/transaction_form.html', {
+    return render(request, 'transactions/transaction_form.html', {
         'transaction_type': transaction_type,
         'form': form
     })
@@ -1305,7 +1305,7 @@ def activity_transactions(request, event_id):
     totals = transactions.aggregate(Sum('price'))['price__sum'] or 0
 
     # Done
-    return render(request, 'cookie_corner_activity_transactions.html', {
+    return render(request, 'transactions/activity_transactions.html', {
         'event': event,
         'transactions': transactions,
         'totals': totals
