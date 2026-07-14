@@ -1102,7 +1102,7 @@ def balance(request, dt_str=False):
     # Redirect to form if no date given
     if not dt_str:
         form = DateTimeForm()
-        return render(request, 'cookie_corner_balance_form.html', {
+        return render(request, 'balance_form.html', {
             'form': form,
         })
 
@@ -1174,7 +1174,7 @@ def balance(request, dt_str=False):
     exam_cookie_former_member_sum = sum([x[1] for x in exam_cookie_former_member_totals])
 
 
-    return render(request, 'cookie_corner_balance_form.html', {
+    return render(request, 'balance_form.html', {
         'form': form,
 
         'all_transactions_sum': all_transactions_sum,
