@@ -1361,7 +1361,7 @@ def authorization_list(request):
     # Date on which old (pre-SEPA) authorizations are registered
     date_old_authorizations = DATE_PRE_SEPA_AUTHORIZATIONS
 
-    return render(request, 'cookie_corner_authorization_list.html', {
+    return render(request, 'authorization/list.html', {
         'form': form,
         'authorizations': authorizations,
         'query': query,
@@ -1476,7 +1476,7 @@ def authorization_amendment(request, authorization_id):
     else:
         form = AmendmentForm()
 
-    return render(request, 'cookie_corner_authorization_amendment.html', {
+    return render(request, 'authorization/amendment.html', {
         'form': form,
         'authorization': authorization
     })
@@ -1511,7 +1511,7 @@ def authorization_amendment_edit(request, authorization_id, amendment_id):
             'reason': amendment.reason,
         })
 
-    return render(request, 'cookie_corner_authorization_amendment.html', {
+    return render(request, 'authorization/amendment.html', {
         'form': form,
         'object': amendment,
         'authorization': authorization
@@ -1534,7 +1534,7 @@ def authorization_amendment_delete(request, authorization_id, amendment_id):
         delete_amendment(amendment)
         return redirect(authorization)
 
-    return render(request, 'cookie_corner_authorization_amendment_delete.html', {
+    return render(request, 'authorization/amendment_delete.html', {
         'authorization': authorization
     })
 
@@ -2081,7 +2081,7 @@ Treasurer'''.format(name_treasurer),
 
 @require_board
 def authorization_view(request, authorization_id):
-    return render(request, 'cookie_corner_authorization_view.html', {
+    return render(request, 'authorization/view.html', {
         'authorization': get_object_or_404(Authorization, id=authorization_id)
     })
 
