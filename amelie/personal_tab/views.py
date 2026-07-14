@@ -1375,7 +1375,7 @@ class AuthorizationTerminateView(RequireBoardMixin, FormView):
     """
     form_class = AuthorizationSelectForm
     success_url = reverse_lazy('personal_tab:overview')
-    template_name = 'cookie_corner/authorization_terminate.html'
+    template_name = 'authorization/terminate.html'
 
     def __init__(self, **kwargs):
         super(AuthorizationTerminateView, self).__init__(**kwargs)
@@ -1415,7 +1415,7 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
     """
     form_class = AuthorizationSelectForm
     success_url = reverse_lazy('personal_tab:overview')
-    template_name = 'cookie_corner/authorization_anonymize.html'
+    template_name = 'authorization/anonymize.html'
 
     def __init__(self, **kwargs):
         super(AuthorizationAnonymizeView, self).__init__(**kwargs)
@@ -1441,7 +1441,7 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
             # Anonimize authorization
             authorization.anonymize()
 
-        return render(self.request, "cookie_corner/authorization_anonymize_success.html", {
+        return render(self.request, "authorization/anonymize_success.html", {
             'authorizations': to_anonymize,
         })
 
