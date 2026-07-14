@@ -1,6 +1,4 @@
-{% comment %} Copy of email_basic, because the logo must be removed. This is to prevent the logo from being saved in the bookkeeping for every declaration. {% endcomment %}
-
-{% load attach i18n only subject absolute_url htmlify%}{% onlyhtml %}
+{% load attach i18n only subject absolute_url htmlify%}{% comment %} Whitespace IS important in this file {% endcomment %}{% comment %} Copy of email_basic, because the logo must be removed. This is to prevent the logo from being saved in the bookkeeping for every declaration. {% endcomment %}{% subject %}{% blocktrans %}Declaration submitted via Amélie{% endblocktrans %}{% endsubject %}{% onlyhtml %}
 <html>
 	<body>
 
@@ -26,27 +24,21 @@
 			</tr>
 			<tr>
 				<td valign="top" style="padding: 20px 20px; line-height: 1.4em;">
-{% endonlyhtml %}
+{% endonlyhtml %}{% htmlify %}{% trans "Dear Treasurer," %}
 
-{% subject %}{% blocktrans %}Declaration submitted via Amélie{% endblocktrans %}{% endsubject %}
+{% blocktrans with name=declaration.person %}{{ name }} has submitted a declaration.{% endblocktrans %}
 
-{% htmlify %}{% trans Dear Treasurer, %}
-
-{{ declaration.person }} {% trans has submitted a declaration. %}
-
-<b>{% trans "Committee:" %}</b> {{ declaration.committee }}
-<b>{% trans "Payment Method:" %}</b> {{ declaration.get_payment_method }}
-<b>{% trans "IBAN:" %}</b> {{ declaration.get_iban }}
-<b>{% trans "Amount:" %}</b> € {{ declaration.amount|floatformat:2 }}
-<b>{% trans "Submission date:" %}</b> {{ declaration.submission_date|date:"d-m-Y" }}
-<b>{% trans "Description:" %}</b>
+{% onlyhtml %}<b>{% endonlyhtml %}{% trans "Committee:" %}{% onlyhtml %}</b>{% endonlyhtml %} {{ declaration.committee }}
+{% onlyhtml %}<b>{% endonlyhtml %}{% trans "Payment Method:" %}{% onlyhtml %}</b>{% endonlyhtml %} {{ declaration.get_payment_method }}
+{% onlyhtml %}<b>{% endonlyhtml %}{% trans "IBAN:" %}{% onlyhtml %}</b>{% endonlyhtml %} {{ declaration.get_iban }}
+{% onlyhtml %}<b>{% endonlyhtml %}{% trans "Amount:" %}{% onlyhtml %}</b>{% endonlyhtml %} € {{ declaration.amount|floatformat:2 }}
+{% onlyhtml %}<b>{% endonlyhtml %}{% trans "Submission date:" %}{% onlyhtml %}</b>{% endonlyhtml %} {{ declaration.submission_date|date:"d-m-Y" }}
+{% onlyhtml %}<b>{% endonlyhtml %}{% trans "Description:" %}{% onlyhtml %}</b>{% endonlyhtml %}
 {{ declaration.description }}
 
 
-{% trans Cheers, %}
-{% trans Amélie %}{% endhtmlify %}
-
-{% onlyhtml %}
+{% blocktrans %}Cheers,
+Amélie{% endblocktrans %}{% endhtmlify %}{% onlyhtml %}
 				</td>
 				<td style="width: 0px; height: 300px;">
 
@@ -78,4 +70,3 @@ https://www.inter-actief.net{% endblocktrans %}
 
 {% trans "Change language preference:" %} {% absolute_url 'profile_edit' %}
 {% endonlyplain %}
-
