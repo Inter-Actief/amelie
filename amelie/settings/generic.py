@@ -601,6 +601,8 @@ DOCUMENSO_SETTINGS = {
     "API_BASE": "https://sign.ia.utwente.nl/api/v2",
     "API_KEY": None,
     "WEB_BASE": "https://sign.ia.utwente.nl/t/ictsv-inter-actief",
+    # Part of the e-mail subjects that indicates the source of the e-mails. Can be used to indicate a beta/staging server
+    "EMAIL_SUBJECT_TAG": "Inter-Actief",
     # List of IP addresses that are allowed to call the webhook.
     "ALLOWED_WEBHOOK_IPS": [],
     # The secret string Documenso will send in the X-Documenso-Secret header when it calls our webhook.

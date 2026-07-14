@@ -291,7 +291,7 @@ def create_enrollment_documents(person, membership) -> EnvelopeCreateResponse:
             title=_("Enrollment forms for {name}").format(name=person.incomplete_name()),
             files=enrollment_files,
             language=LANGUAGE_MAP.get(person.preferred_language, EnvelopeCreateLanguage.EN),
-            subject=_("[Inter-Actief] Please sign your membership documents"),
+            subject=_("[{tag}] Please sign your membership documents").format(tag=settings.DOCUMENSO_SETTINGS['EMAIL_SUBJECT_TAG']),
             message=enrollment_message,
             sign_recipients=[DocumensoRecipient(name=person.incomplete_name(), email=person.email_address)],
             cc_recipients=[DocumensoRecipient(name=c[0], email=c[1]) for c in settings.DOCUMENSO_SETTINGS.get('DOCUMENT_SETTINGS', {}).get('ENROLLMENT', {}).get('CC_CONTACTS', [])],
@@ -320,7 +320,7 @@ def create_membership_document(membership) -> EnvelopeCreateResponse:
                 )
             ],
             language=LANGUAGE_MAP.get(membership.member.preferred_language, EnvelopeCreateLanguage.EN),
-            subject=_("[Inter-Actief] Please sign your membership documents"),
+            subject=_("[{tag}] Please sign your membership documents").format(tag=settings.DOCUMENSO_SETTINGS['EMAIL_SUBJECT_TAG']),
             message=_(
                 "Dear {name},\n"
                 "\n"
@@ -365,7 +365,7 @@ def create_authorization_document(authorization) -> EnvelopeCreateResponse:
                 )
             ],
             language=LANGUAGE_MAP.get(authorization.person.preferred_language, EnvelopeCreateLanguage.EN),
-            subject=_("[Inter-Actief] Please sign your direct debit authorization"),
+            subject=_("[{tag}] Please sign your direct debit authorization").format(tag=settings.DOCUMENSO_SETTINGS['EMAIL_SUBJECT_TAG']),
             message=_(
                 "Dear {name},\n"
                 "\n"
