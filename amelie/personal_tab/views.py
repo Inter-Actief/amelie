@@ -941,7 +941,7 @@ def person_debt_collection_instructions(request, person_id, slug):
     debt_collection_instructions = DebtCollectionInstruction.objects.filter(authorization__person=person)
 
     # Done
-    return render(request, 'cookie_corner_person_debt_collection_instructions.html', {
+    return render(request, 'debt_collection/person_instructions.html', {
         'person': person,
         'debt_collection_instructions': debt_collection_instructions
     })
@@ -1828,7 +1828,7 @@ def process_batch(request, id):
     else:
         form = DebtCollectionBatchForm(instance=batch)
 
-    return render(request, 'cookie_corner_process_batch.html', {
+    return render(request, 'debt_collection/process_batch.html', {
         'form': form,
         'batch': batch,
     })
