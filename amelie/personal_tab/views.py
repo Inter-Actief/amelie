@@ -2357,7 +2357,7 @@ class DeclarationView(RequirePersonMixin, FormView):
 
     form_class = DeclarationForm
     success_url = reverse_lazy('personal_tab:declaration_view')
-    template_name = 'declaration_form.html'
+    template_name = 'declaration/declaration_form.html'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
