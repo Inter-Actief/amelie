@@ -1,0 +1,54 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Send digital signature request' %}</h3>
+
+    {% if membership.signed_document %}
+    <ul class="ia_messages">
+        <li class="error">{% blocktrans %}
+            Warning: This member already has a signed document!
+            If you re-send the signature request, it will overwrite the existing document and signature!
+        {% endblocktrans %}</li>
+    </ul>
+    {% elif membership.documenso_id %}
+    <ul class="ia_messages">
+        <li class="warning">{% blocktrans %}
+            Warning: There already is a signature request in progress for this member!
+            If you re-send the signature request, it will overwrite the existing request.
+        {% endblocktrans %}</li>
+    </ul>
+    {% endif %}
+
+    <p>
+        {% blocktrans %}
+            This will send an e-mail to the member, with a request to sign the membership form via our signing tool.
+            After the member has signed, you can view the signed document on their member page.
+            The e-mail will be sent to the following contact:
+        {% endblocktrans %}
+    </p>
+    <table>
+        <tr>
+            <th>{% trans 'Name' %}</th>
+            <td>{{ person.incomplete_name }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'E-mail' %}</th>
+            <td>{{ person.email_address }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Language' %}</th>
+            <td>{{ person.get_preferred_language_display }}</td>
+        </tr>
+    </table>
+    <form action="{% url 'members:person_membership_sign' person.id membership.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+        {% csrf_token %}
+        {{ form }}
+
+        <div class="buttons">
+            <a href="{% url 'members:person_membership' person.id %}" class="looks-like-a-button danger-button js-load-block" data-container="person_membership">
+                {% trans 'Cancel' %}
+            </a>
+
+            <input class="success-button" type="submit" name="send" value="{% trans 'Send' %}" />
+        </div>
+    </form>
+</div>

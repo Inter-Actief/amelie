@@ -12234,6 +12234,16 @@ table th {
   padding: 5px 5px;
   border: 1px solid #ddd;
 }
+table.borderless {
+  border: none;
+}
+table.borderless td,
+table.borderless th {
+  border: none;
+}
+table.full-width {
+  width: 100%;
+}
 table p.icon {
   margin: 0;
 }

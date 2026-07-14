@@ -10,6 +10,7 @@ from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
+from typing import Union
 
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -17,9 +18,9 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
 from django.db.models import Q, Sum, Max, F
 from django.utils.dateparse import parse_date
-from django.template.defaultfilters import slugify
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
+from documenso_sdk import DocumensoError
 from formtools.wizard.views import SessionWizardView
 from oauth2_provider.models import AccessToken, Grant
 
@@ -57,9 +58,9 @@ from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCo
 from amelie.tools.mail import PersonRecipient
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
+
 @require_board
 def statistics(request):
-
     dt = None
 
     if 'dt' in request.GET:
@@ -478,6 +479,10 @@ def send_new_member_email(person: Person):
     task.send()
 
 
+def _registration_complete_helper(request, person: Union[Person, UnverifiedEnrollment]):
+    return render(request, 'person_registration_form_complete.html', {'person': person})
+
+
 class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
     template_name = "person_registration_form_general.html"
@@ -590,12 +595,11 @@ class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
         # Send an email confirming the new enrolment
         send_new_member_email(person)
 
-        # Render the enrollment forms to PDF for printing
-        from amelie.tools.pdf import pdf_enrollment_form
-        buffer = BytesIO()
-        pdf_enrollment_form(buffer, person, membership)
-        pdf = buffer.getvalue()
-        return HttpResponse(pdf, content_type='application/pdf')
+        # Create and send the enrollment forms for signing
+        person.send_signature_request(membership=membership)
+
+        # Render the success page with a small explanation of what just happened.
+        return _registration_complete_helper(self.request, person)
 
 class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
@@ -703,12 +707,11 @@ class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
         # Send an email confirming the new enrolment
         send_new_member_email(person)
 
-        # Render the enrollment forms to PDF for printing
-        from amelie.tools.pdf import pdf_enrollment_form
-        buffer = BytesIO()
-        pdf_enrollment_form(buffer, person, membership)
-        pdf = buffer.getvalue()
-        return HttpResponse(pdf, content_type='application/pdf')
+        # Create and send the enrollment forms for signing
+        person.send_signature_request(membership=membership)
+
+        # Render the success page with a small explanation of what just happened.
+        return _registration_complete_helper(self.request, person)
 
 
 class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
@@ -814,12 +817,11 @@ class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
         # Send an email confirming the new enrolment
         send_new_member_email(person)
 
-        # Render the enrollment forms to PDF for printing
-        from amelie.tools.pdf import pdf_enrollment_form
-        buffer = BytesIO()
-        pdf_enrollment_form(buffer, person, membership)
-        pdf = buffer.getvalue()
-        return HttpResponse(pdf, content_type='application/pdf')
+        # Create and send the enrollment forms for signing
+        person.send_signature_request(membership=membership)
+
+        # Render the success page with a small explanation of what just happened.
+        return _registration_complete_helper(self.request, person)
 
 
 class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
@@ -940,12 +942,11 @@ class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
         # Send an email confirming the new enrolment
         send_new_member_email(person)
 
-        # Render the enrollment forms to PDF for printing
-        from amelie.tools.pdf import pdf_enrollment_form
-        buffer = BytesIO()
-        pdf_enrollment_form(buffer, person, membership)
-        pdf = buffer.getvalue()
-        return HttpResponse(pdf, content_type='application/pdf')
+        # Create and send the enrollment forms for signing
+        person.send_signature_request(membership=membership)
+
+        # Render the success page with a small explanation of what just happened.
+        return _registration_complete_helper(self.request, person)
 
 
 class PreRegisterNewFreshmanWizardView(SessionWizardView):
@@ -1063,13 +1064,7 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
         for study in cleaned_data['study']:
             person.studies.add(study)
 
-        # Generate PDF enrollment forms
-        from amelie.tools.pdf import pdf_enrollment_form
-        buffer = BytesIO()
-        pdf_enrollment_form(buffer, person, person.membership_type)
-        pdf = buffer.getvalue()
-
-        # Send a welcome e-mail with forms attached.
+        # Send a welcome e-mail
         from amelie.iamailer import MailTask
         from amelie.tools.mail import PersonRecipient
         welcome_mail = MailTask(from_='I.C.T.S.V. Inter-Actief <secretary@inter-actief.net>',
@@ -1078,12 +1073,11 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
                                 report_language='nl',
                                 report_always=False,
                                 priority=TaskPriority.URGENT)
-        person_slug = slugify(person.incomplete_name())
-
-        welcome_mail.add_recipient(PersonRecipient(recipient=person, context={}, attachments=[
-            ('inter-actief_enrollment_{}.pdf'.format(person_slug), pdf, 'application/pdf')
-        ]))
+        welcome_mail.add_recipient(PersonRecipient(recipient=person, context={}))
         welcome_mail.send()
+
+        # Create and send the enrollment forms for signing
+        person.send_signature_request()
 
         # Redirect to the success page
         return redirect('members:person_preregister_complete')
@@ -1097,18 +1091,25 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
     template_name = "preregistration_status.html"
     abbreviation = settings.ROOM_DUTY_ABBREVIATION
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.error_msg = None
+
     def get_context_data(self, **kwargs):
         context = super(PreRegistrationStatus, self).get_context_data(**kwargs)
 
         enrollments = UnverifiedEnrollment.objects.all()
         enrollments = sorted(enrollments, key=lambda x: str(x.dogroup) + " " + str(x.sortable_name()))
         context['pre_enrollments'] = enrollments
-
         context['delete_enabled'] = self.request.GET.get("deletion", False)
 
         # If eid is given in GET params, add enrollment context variable
         if self.request.GET.get('eid', None) is not None:
             context['enrollment'] = UnverifiedEnrollment.objects.get(pk=self.request.GET.get('eid', None))
+        if self.request.GET.get('action', None) is not None:
+            context['action'] = self.request.GET.get('action')
+        if self.error_msg:
+            context['error_msg'] = self.error_msg
 
         return context
 
@@ -1116,75 +1117,18 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
         pre_enrollment_id = request.GET.get('eid', None)
         action = request.GET.get('action', None)
         if pre_enrollment_id is not None:
-            pre_enrollment = UnverifiedEnrollment.objects.get(pk=pre_enrollment_id)
+            pre_enrollment: UnverifiedEnrollment = UnverifiedEnrollment.objects.get(pk=pre_enrollment_id)
         else:
             pre_enrollment = None
         if action is not None:
             if action == "accept" and pre_enrollment is not None:
-                # Create a Person, Student, Membership, etc. using the data from the UnverifiedEnrollment,
-                # then transfer the wanted authorizations to that person, and delete the pre-enrollment.
-
-                # Construct the Person object
-                person = Person(
-                    first_name=pre_enrollment.first_name,
-                    last_name_prefix=pre_enrollment.last_name_prefix,
-                    last_name=pre_enrollment.last_name,
-                    initials=pre_enrollment.initials,
-                    gender=pre_enrollment.gender,
-                    preferred_language=pre_enrollment.preferred_language,
-                    international_member=pre_enrollment.international_member,
-                    date_of_birth=pre_enrollment.date_of_birth,
-                    address=pre_enrollment.address,
-                    postal_code=pre_enrollment.postal_code,
-                    city=pre_enrollment.city,
-                    country=pre_enrollment.country,
-                    email_address=pre_enrollment.email_address,
-                    telephone=pre_enrollment.telephone,
-                    address_parents=pre_enrollment.address_parents,
-                    postal_code_parents=pre_enrollment.postal_code_parents,
-                    city_parents=pre_enrollment.city_parents,
-                    country_parents=pre_enrollment.country_parents,
-                    email_address_parents=pre_enrollment.email_address_parents,
-                    can_use_parents_address=pre_enrollment.can_use_parents_address,
-                )
-                person.save()
-                # Preferences (m2m relations) can only be added after a person has been saved.
-                person.preferences.set(pre_enrollment.preferences.all())
-                person.save()
-
-                # Add membership details
-                membership = Membership(member=person, type=pre_enrollment.membership_type,
-                                        year=pre_enrollment.membership_year)
-                membership.save()
-
-                # Add student details
-                student = Student(person=person, number=pre_enrollment.student_number)
-                student.save()
-
-                # Add study periods
-                for study in pre_enrollment.studies.all():
-                    study_period = StudyPeriod(student=student, study=study,
-                                               begin=pre_enrollment.study_start_date,
-                                               dogroup=pre_enrollment.dogroup)
-                    study_period.save()
-
-                # Add authorizations and activate them.
-                for authorization in pre_enrollment.authorizations.all():
-                    authorization.person = person
-                    authorization.is_signed = True
-                    authorization.save()
-
-                # Delete the pre-enrollment
+                person = pre_enrollment.activate_registration()
+                # Delete pre-enrollment
                 pre_enrollment.delete()
-
-                send_new_member_email(person)
-
                 # Set message
                 messages.info(self.request, "Pre-registration of {} activated!".format(person.incomplete_name()))
-
                 # Redirect to the normal page
                 return redirect('members:preregistration_status')
-
             elif action == "print" and pre_enrollment is not None:
                 from amelie.tools.pdf import pdf_enrollment_form
                 buffer = BytesIO()
@@ -1206,6 +1150,30 @@ class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
                 messages.info(self.request, "Pre-registration of {} deleted!".format(name))
                 # Redirect to the normal page
                 return redirect('members:preregistration_status')
+            elif action == "resend" and pre_enrollment is not None:
+                self.template_name = "preregistration_resend_confirm.html"
+            elif action == "resend-sure" and pre_enrollment is not None:
+                # Create and re-send the enrollment forms for signing
+                try:
+                    pre_enrollment.send_signature_request()
+                except (ValueError, DocumensoError) as e:
+                    logging.exception(
+                        f"Failed to re-send signature request for UnverifiedEnrollment#{pre_enrollment.pk}",
+                        exc_info=e
+                    )
+                    self.error_msg = str(e)
+                    self.template_name = "preregistration_resend_error.html"
+            elif action == "retrieve" and pre_enrollment is not None:
+                try:
+                    # Save the document to the authorization
+                    pre_enrollment.process_signed_document()
+                    # Delete the unverified enrollment (it is activated during the processing)
+                    pre_enrollment.delete()
+                    self.template_name = "preregistration_retrieve_success.html"
+                except (ValueError, DocumensoError) as e:
+                    self.error_msg = str(e)
+                    self.template_name = "preregistration_retrieve_error.html"
+
 
         return super(PreRegistrationStatus, self).get(request, *args, **kwargs)
 
@@ -1302,25 +1270,15 @@ def registration_form(request, user, membership):
 
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def membership_form(request, user, membership):
-    from amelie.tools.pdf import pdf_membership_form
-
-    buffer = BytesIO()
     person = get_object_or_404(Person, id=user)
     membership = get_object_or_404(Membership, id=membership, member=person)
-    pdf_membership_form(buffer, person, membership)
-    pdf = buffer.getvalue()
-    return HttpResponse(pdf, content_type='application/pdf')
+    return HttpResponse(membership.get_as_pdf(), content_type='application/pdf')
 
 
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def mandate_form(request, mandate):
-    from amelie.tools.pdf import pdf_authorization_form
-
-    buffer = BytesIO()
     mandate = get_object_or_404(Authorization, id=mandate)
-    pdf_authorization_form(buffer, mandate)
-    pdf = buffer.getvalue()
-    return HttpResponse(pdf, content_type='application/pdf')
+    return HttpResponse(mandate.get_as_pdf(), content_type='application/pdf')
 
 
 @require_superuser
@@ -1353,6 +1311,25 @@ def registration_check_view(request, id, slug):
     debug = settings.DEBUG
 
     return render(request, 'registration_check.html', locals())
+
+
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def membership_signed_form(request, person_id, membership_id):
+    person = get_object_or_404(Person, id=person_id)
+    membership = get_object_or_404(Membership, id=membership_id, member=person)
+    if membership.signed_document:
+        return HttpResponseSendfile(membership.signed_document.path, content_type='application/pdf')
+    else:
+        raise Http404('Signed form not found')
+
+
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def mandate_signed_form(request, mandate_id):
+    mandate = get_object_or_404(Authorization, id=mandate_id)
+    if mandate.signed_document:
+        return HttpResponseSendfile(mandate.signed_document.path, content_type='application/pdf')
+    else:
+        raise Http404('Signed form not found')
 
 
 @require_board

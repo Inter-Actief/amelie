@@ -1,0 +1,47 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Pre-enrollment' %} - {% trans 'Re-send digital signature request' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Re-send digital signature request' %}</h2>
+        <div class="content">
+
+            {% if enrollment.documenso_id %}
+            <ul class="ia_messages">
+                <li class="warning">{% blocktrans %}
+                    Warning: There already is a signature request in progress for this member!
+                    If you re-send the signature request, it will overwrite the existing request.
+                {% endblocktrans %}</li>
+            </ul>
+            {% endif %}
+
+            <p>
+                {% blocktrans %}
+                    This will send an e-mail to the member, with a request to sign the membership form via our signing tool.
+                    After the member has signed, you can view the signed document on their member page.
+                    The e-mail will be sent to the following contact:
+                {% endblocktrans %}
+            </p>
+            <table>
+                <tr>
+                    <th>{% trans 'Name' %}</th>
+                    <td>{{ enrollment.incomplete_name }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'E-mail' %}</th>
+                    <td>{{ enrollment.email_address }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Language' %}</th>
+                    <td>{{ enrollment.get_preferred_language_display }}</td>
+                </tr>
+            </table>
+            <div class="buttons">
+                <a class="looks-like-a-button danger-button" href="{% url 'members:preregistration_status' %}">{% trans 'Cancel' %}</a>
+                <a class="looks-like-a-button success-button" href="{% url 'members:preregistration_status' %}?eid={{ enrollment.pk }}&action=resend-sure">{% trans 'Send' %}</a>
+            </div>
+        </div>
+    </div></div>
+{% endblock content %}

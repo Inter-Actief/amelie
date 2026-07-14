@@ -4,10 +4,10 @@
         <h2>{% trans 'Mandates' %}</h2>
         <div class="content">
             <p>
-                {% trans 'You have to pay your membership fee via a direct debit authorization.' %}
+                {% trans 'You have to pay your membership fee, either via a direct debit authorization or by cash/PIN at the association.' %}
             </p>
             <p>
-                {% trans 'If you chose the yearly membership above, then you authorize the association to withdraw the membership fee from your bank account automatically in the coming years. Your membership will be extended automatically each your until terminate it.' %}
+                {% trans 'If you chose the yearly membership in the previous step, then you authorize the association to withdraw the membership fee from your bank account automatically in the coming years. Your membership will be extended automatically each year until you terminate it.' %}
             </p>
             <p>
                 {% trans 'If you have chosen for a study long membership, then the authorization will only be used once.' %}
@@ -19,7 +19,7 @@
                 <div class="col-xs-1 col-sm-1">{{ wizard.form.authorization_contribution }}</div>
                 <label class="col-xs-11 col-sm-11" for="{{ wizard.form.authorization_contribution.auto_id }}">
                     {% trans 'I authorize the association to withdraw my membership fee from my bank account. ' %}<br/>
-                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you need to pay your membership fee in cash.' %}</small>
+                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you need to pay your membership fee in cash or by PIN.' %}</small>
                 </label>
             </div>
             <div class="small-form-spacer"></div>
@@ -37,19 +37,14 @@
                 <div class="col-xs-1 col-sm-1">{{ wizard.form.authorization_other }}</div>
                 <label class="col-xs-11 col-sm-11" for="{{ wizard.form.authorization_other.auto_id }}">
                     {% trans 'I authorize the association to debit my bank account for consumptions and activities.' %}<br/>
-                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you have to pay in cash during activities, and you will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and activities.' %}</small>
+                    <small class="form-text text-muted">{% trans 'If you do not give permission, then you have to pay in cash or by PIN during activities, and you will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and activities.' %}</small>
                 </label>
             </div>
             <div class="small-form-spacer"></div>
 
-            <p><b>
-                {% blocktrans %}If you choose not to sign an authorization, you will need to pay your contribution fee in cash. This can only be done in person at the Inter-<i>Actief</i> room. Your membership will not be activated until the payment has been completed.{% endblocktrans %}
-            </b></p>
-            <div class="small-form-spacer"></div>
-
             <!-- Bank details -->
             <p>
-                {% trans 'If you did choose an authorization above, then we need your bank details.' %}
+                {% trans 'If you chose one or all of the authorizations above, then we need your bank details.' %}
             </p>
 
             <!-- IBAN -->

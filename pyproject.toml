@@ -94,6 +94,9 @@ dependencies = [
     "pypdf>=6.1.1,<7",
     "pyipp>=0.17.2,<0.18",
 
+    # Documenso API to interface with our document signing software
+    "documenso_sdk>=0.6.0",
+
     # Google API Client
     "google-api-python-client>=2.192.0,<3",
     "google-auth>=2.49.1,<2.54",

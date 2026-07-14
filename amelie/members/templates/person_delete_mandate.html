@@ -2,6 +2,15 @@
 <div class="content">
     <h3 class="legend">{% trans 'Delete mandate' %}</h3>
 
+    {% if not mandate.signed_document and mandate.documenso_id %}
+    <ul class="ia_messages">
+        <li class="error">{% blocktrans %}
+            Warning: There is a signature request in progress for this mandate!<br/>
+            Before you delete the mandate, the pending signature request should be manually canceled in the signing tool so it is never completed.
+        {% endblocktrans %}</li>
+    </ul>
+    {% endif %}
+
     <form action="{% url 'members:person_mandate_delete' obj.id  mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
         {% csrf_token %}
         <input type="hidden" name="delete" value="delete" />

@@ -51,10 +51,15 @@ def pdf_membership_form(file, person, membership):
 
 
 def pdf_authorization_form(file, authorization):
-    with translation.override(authorization.person.preferred_language):
+    # authorization param can be an Authorization object for regular authorizations, or
+    # a tuple of (Authorization, UnverifiedEnrollment) for authorizations linked to unverified enrollments.
+    if isinstance(authorization, tuple):
+        person = authorization[1]
+    else:
+        person = authorization.person
+    with translation.override(person.preferred_language):
         c = canvas.Canvas(file, pagesize=A4)
         c.setTitle(_("Mandate form"))
-
         pdf_authorization_page(c, authorization)
         c.save()
 
@@ -140,7 +145,7 @@ def pdf_membership_page(c, person, membership, signing_date=None):
             h -= 15
             c.drawString(25, h, _("Student number"))
     elif isinstance(person, UnverifiedEnrollment):
-        # authorization is a tuple of (Authorization, UnverifiedEnrollment), always a student
+        # person is an UnverifiedEnrollment, which is always a student
         c.drawString(25, h, _("Course"))
         h -= 15
         c.drawString(25, h, _("Student number"))
@@ -195,7 +200,7 @@ def pdf_membership_page(c, person, membership, signing_date=None):
     h -= 15
     if person.postal_code_parents is None:
         postal_code_parents = ''
-    else: 
+    else:
         postal_code_parents = person.postal_code_parents
 
     if person.city_parents is None:
@@ -262,16 +267,6 @@ def pdf_membership_page(c, person, membership, signing_date=None):
 
     h -= 20
 
-    c.setFont("Helvetica", 12)
-    # signature
-    if signing_date is not None:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': signing_date})
-    else:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': timezone.now().strftime('%d-%m-%Y')})
-
-    h -= 60
-    c.line(25, h, 290, h)
-
     # student number barcode
     try:
         student_number = None
@@ -284,19 +279,23 @@ def pdf_membership_page(c, person, membership, signing_date=None):
             from reportlab.graphics.barcode import code128
 
             barcode = code128.Code128(str(student_number), barHeight=90, barWidth=2)
-            barcode.drawOn(c, 15, 50)
+            barcode.drawOn(c, 325, 25)
     except Person.student.RelatedObjectDoesNotExist:
         pass
 
-    c.setFont("Helvetica", 9)
-    c.drawString(305, 170, _("Stamp IA if paid:"))
+    # signature box, always at static position for digital signature.
+    c.setFont("Helvetica", 12)
+    if signing_date is not None:
+        c.drawString(25, 145, _("Signature on %(date)s:") % {'date': signing_date.strftime('%d-%m-%Y')})
+    else:
+        c.drawString(25, 145, _("Signature:"))
 
     p = c.beginPath()
-    p.moveTo(300, 180)
-    p.lineTo(550, 180)
-    p.lineTo(550, 50)
-    p.lineTo(300, 50)
-    p.lineTo(300, 180)
+    p.moveTo(25, 135)
+    p.lineTo(275, 135)
+    p.lineTo(275, 25)
+    p.lineTo(25, 25)
+    p.lineTo(25, 135)
     c.setDash([], 0)
     c.drawPath(p)
 
@@ -463,20 +462,23 @@ def pdf_authorization_page(c, authorization, signing_date=None):
         if authorization[0].bic:
             c.drawString(160, h, authorization[0].bic)
 
-    # signature
-    h -= 37
-    c.drawString(25, h, _(u"By signing this form, undersigned agrees with the arrangement as described above."))
-    h -= 17
+    # signature box, always at static position for digital signature.
+    c.setFont("Helvetica", 12)
+    c.drawString(25, 170, _("By signing this form, undersigned agrees with the arrangement as described above."))
     if signing_date is not None:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': signing_date})
+        c.drawString(25, 145, _("Signature on %(date)s:") % {'date': signing_date.strftime('%d-%m-%Y')})
     else:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': timezone.now().strftime('%d-%m-%Y')})
+        c.drawString(25, 145, _("Signature:"))
+
     p = c.beginPath()
-    h -= 70
-    c.setLineWidth(1)
-    p.moveTo(25, h)
-    p.lineTo(290, h)
+    p.moveTo(25, 135)
+    p.lineTo(275, 135)
+    p.lineTo(275, 25)
+    p.lineTo(25, 25)
+    p.lineTo(25, 135)
+    c.setDash([], 0)
     c.drawPath(p)
+
 
     c.showPage()
 

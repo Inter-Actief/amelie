@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 
 import re
@@ -5,18 +6,21 @@ import re
 from django.conf import settings
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import slugify
+from django.views.generic import FormView, TemplateView
+from documenso_sdk import DocumensoError
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
     MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
-    SaveNewFirstModelFormSet, StudentForm
+    SaveNewFirstModelFormSet, StudentForm, SignatureRequestForm
 from amelie.members.models import Payment, Committee, Function, Membership, Employee, PaymentType, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
 from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
+from amelie.tools.mixins import RequireCommitteeMixin
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):
@@ -182,9 +186,56 @@ def person_membership_end(request, id):
         return render(request, "person_end_membership.html", locals())
 
 
+class MembershipSignatureView(RequireCommitteeMixin, FormView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = SignatureRequestForm
+    template_name = "person_membership_sign.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        context['membership'] = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=context['person'])
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, send the form to Documenso for signing, and then
+        render the regular membership section with a success message option.
+        """
+        person = get_object_or_404(Person, id=self.kwargs['person_id'])
+        membership = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=person)
+        try:
+            membership.send_signature_request()
+            return person_membership(self.request, self.kwargs['person_id'], option="sign_request_sent")
+        except DocumensoError as e:
+            logging.exception(
+                f"Failed to send membership signature request for Person#{person.pk}, Membership#{membership.pk}",
+                exc_info=e
+            )
+            return person_membership(self.request, self.kwargs['person_id'], option="sign_request_error")
+
+
+class MembershipRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    template_name = "person_membership_retrieve_signed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        membership = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=context['person'])
+        context['membership'] = membership
+        try:
+            membership.process_signed_document()
+            context['success'] = True
+        except (ValueError, DocumensoError) as e:
+            context['success'] = False
+            context['error_msg'] = str(e)
+        return context
+
+
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
-def person_mandate(request, id):
+def person_mandate(request, id, option=None):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_mandate.html", locals())
 
@@ -196,10 +247,13 @@ def person_mandate_new(request, id):
     if request.method == "POST":
         form = MandateForm(request.POST)
         if form.is_valid():
-            mandate = form.save(commit=False)
+            mandate: Authorization = form.save(commit=False)
             mandate.person = obj
             mandate.save()
-            return render(request, "person_mandate.html", locals())
+            if form.cleaned_data.get('send_signature_request'):
+                mandate.send_signature_request()  # Send signature request for the new mandate
+                return person_mandate(request, id=id, option="added_and_sign_request_sent")
+            return person_mandate(request, id=id, option="added")
         else:
             response = render(request, "person_new_mandate.html", locals())
             return response
@@ -250,12 +304,58 @@ def person_mandate_end(request, id, mandate):
         form = MandateEndForm(instance=mandate, initial={'end_date': date.today()})
         return render(request, "person_end_mandate.html", locals())
 
+class MandateSignatureView(RequireCommitteeMixin, FormView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = SignatureRequestForm
+    template_name = "person_mandate_sign.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        context['mandate'] = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, send the form to Documenso for signing, and then
+        render the regular membership section with a success message option.
+        """
+        person = get_object_or_404(Person, id=self.kwargs['person_id'])
+        mandate = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        try:
+            mandate.send_signature_request()
+            return person_mandate(self.request, id=self.kwargs['person_id'], option="sign_request_sent")
+        except DocumensoError as e:
+            logging.exception(
+                f"Failed to send mandate signature request for Person#{person.pk}, Authorization#{mandate.pk}",
+                exc_info=e
+            )
+            return person_mandate(self.request, id=self.kwargs['person_id'], option="sign_request_error")
+
+
+class MandateRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    template_name = "person_mandate_retrieve_signed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        mandate = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        context['mandate'] = mandate
+        try:
+            mandate.process_signed_document()
+            context['success'] = True
+        except (ValueError, DocumensoError) as e:
+            context['success'] = False
+            context['error_msg'] = str(e)
+        return context
+
 
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_edit(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
-    mandate = get_object_or_404(Authorization, id=mandate, person=obj, 
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
                                 end_date__isnull=True, is_signed=False)
     if request.method == "POST":
         form = MandateForm(request.POST, instance=mandate)
@@ -276,7 +376,7 @@ def person_mandate_edit(request, id, mandate):
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_delete(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
-    mandate = get_object_or_404(Authorization, id=mandate, person=obj, 
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
                                 end_date__isnull=True, is_signed=False)
     if request.method == "POST":
         if 'delete' in request.POST:

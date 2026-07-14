@@ -2,6 +2,25 @@
 <div class="content">
     <h3 class="legend">{% trans 'Edit mandate' %}</h3>
 
+    {% if mandate.signed_document %}
+    {# This case should not be possible, if a signed document is present the mandate should be active and therefore should not be editable. #}
+    <ul class="ia_messages">
+        <li class="error">{% blocktrans %}
+            Warning: This mandate already has a signature!
+            If you edit the mandate, this signature will become invalid and will need to be re-requested!
+        {% endblocktrans %}</li>
+    </ul>
+    {% elif mandate.documenso_id %}
+    {# This case however is very possible.. #}
+    <ul class="ia_messages">
+        <li class="error">{% blocktrans %}
+            Warning: There already is a signature request in progress for this mandate!<br/>
+            Before you edit the mandate, the pending signature request should be manually canceled in the signing tool so it is never completed.<br/>
+            Also, after the edit, a new signature request will need to be sent and the member should be informed to only sign the new one.
+        {% endblocktrans %}</li>
+    </ul>
+    {% endif %}
+
     <form action="{% url 'members:person_mandate_edit' obj.id mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
         {% csrf_token %}
         {{ form.as_p }}

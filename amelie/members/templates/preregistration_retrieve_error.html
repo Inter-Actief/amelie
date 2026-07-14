@@ -1,0 +1,19 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Pre-enrollment' %} - {% trans 'Error during document retrieval' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Error during document retrieval' %}</h2>
+        <div class="content">
+            <p>
+                {% trans "There was an error while retrieving the digital signature documents. The received error message was:" %}
+            </p>
+            <p><span class="monospace-text-bordered">{{ error_msg }}</span></p>
+            <div class="buttons">
+                <a class="looks-like-a-button" href="{% url 'members:preregistration_status' %}">{% trans 'Return to overview' %}</a>
+            </div>
+        </div>
+    </div></div>
+{% endblock content %}

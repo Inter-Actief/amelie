@@ -1,9 +1,13 @@
 # -*- coding: UTF-8 -*-
+import logging
+from io import BytesIO
+from typing import Optional
 
 from io import BytesIO
 import json
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.core.validators import RegexValidator
@@ -11,7 +15,8 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.utils import timezone
-from django.utils.translation import get_language, gettext_lazy as _l
+from django.utils.translation import get_language, gettext_lazy as _l, gettext
+from documenso_sdk import EnvelopeDistributeResponse
 from localflavor.generic.models import BICField, IBANField
 
 from amelie.claudia.tools import verify_instance
@@ -484,6 +489,9 @@ class Authorization(models.Model):
     """Prefix for authorization reference (machtigingskenmerk)"""
     PREFIX = 'IA-MNDT-'
 
+    """Document type for identification in the digital signatures application"""
+    DOCUMENT_TYPE_ID = 'MDT'
+
     """Type of authorization"""
     authorization_type = models.ForeignKey(AuthorizationType, on_delete=models.PROTECT, verbose_name=_l('type'))
 
@@ -509,7 +517,16 @@ class Authorization(models.Model):
     """This authorization has been signed"""
     is_signed = models.BooleanField(default=False, verbose_name=_l('has been signed'))
 
+    # Document signature fields
+    documenso_id = models.CharField(verbose_name=_l('Documenso ID'), max_length=255, blank=True, null=True)
+    signed_document = models.FileField(verbose_name=_l('Signed document'), blank=True, null=True)
+
     objects = AuthorizationManager()
+
+    class Meta:
+        ordering = ['person', 'start_date']
+        verbose_name = _l('mandate')
+        verbose_name_plural = _l('mandates')
 
     def authorization_reference(self):
         """Gives the complete authorization reference with prefix"""
@@ -586,10 +603,50 @@ class Authorization(models.Model):
     def get_absolute_url(self):
         return reverse('personal_tab:authorization_view', args=(), kwargs={'authorization_id': self.id, })
 
-    class Meta:
-        ordering = ['person', 'start_date']
-        verbose_name = _l('mandate')
-        verbose_name_plural = _l('mandates')
+    def get_as_pdf(self, unverified_enrollment=None) -> bytes:
+        from amelie.tools.pdf import pdf_authorization_form
+        buffer = BytesIO()
+        if unverified_enrollment is not None:
+            pdf_authorization_form(buffer, (self, unverified_enrollment))
+        else:
+            pdf_authorization_form(buffer, self)
+        pdf = buffer.getvalue()
+        return pdf
+
+    @property
+    def is_paper_authorization(self):
+        """Returns whether this authorization was probably signed on paper."""
+        return self.start_date < settings.DATE_PRE_DIGITAL_FORMS
+
+    def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
+        from amelie.tools.documenso import create_authorization_document, send_document
+        response = create_authorization_document(self)
+        # Save the documenso ID
+        self.documenso_id = response.id
+        self.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(self.documenso_id)
+        else:
+            return None
+
+    def process_signed_document(self):
+        if not self.documenso_id:
+            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+        # Retrieve the document and save it to the database
+        from amelie.tools.documenso import retrieve_documents
+        documents, _ = retrieve_documents(self.documenso_id)
+        if len(documents) > 1:
+            logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
+        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+        self.is_signed = True  # Activates the mandate for use
+        self.save()
+
+    def documenso_url(self):
+        if self.documenso_id is not None:
+            return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
+        else:
+            return "#"
 
 
 class Amendment(models.Model):
