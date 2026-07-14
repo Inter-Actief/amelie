@@ -105,9 +105,9 @@ def price_list(request):
     return render(request, 'price_list.html', {'categories': categories})
 
 
-def generate_overview_new(request, person, date_from=None, date_to=None):
+def generate_overview(request, person, date_from=None, date_to=None):
     """
-    New method to generate a transaction overview based on DateTimes instead of Dates.
+    Method to generate a transaction overview based on DateTimes.
     """
     view_name = request.resolver_match.view_name
 
@@ -251,7 +251,7 @@ def generate_overview_new(request, person, date_from=None, date_to=None):
     form = PeriodTimeForm(initial={'datetime_from': date_from, 'datetime_to': date_to})
 
     # Done!
-    return render(request, 'cookie_corner_transactions_new.html', {
+    return render(request, 'transactions.html', {
         'person': person,
         'form': form,
         'date_from': date_from,
@@ -471,14 +471,14 @@ def transaction_form(request):
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
         
         else:
-            return render(request, 'cookie_corner_transactions_form.html', {
+            return render(request, 'transactions_form.html', {
                 'form': form,
                 'view_name': view_name,
             })
     else:
         end_date = timezone.now()
         begin_date = end_date - timezone.timedelta(days=7)
-        return render(request, 'cookie_corner_transactions_form.html', {
+        return render(request, 'transactions_form.html', {
             'form': PeriodTimeForm(initial={
                 'datetime_from': begin_date,
                 'datetime_to': end_date})
@@ -498,7 +498,7 @@ def transaction_overview(request, date_from, date_to):
     except ValueError:
         raise Http404(_('Invalid date`'))
     
-    return generate_overview_new(request, None, start, end)
+    return generate_overview(request, None, start, end)
 
 
 @require_board
@@ -896,7 +896,7 @@ def person_transactions(request, pk, slug, date_from=None, date_to=None):
 
     if not date_from:
         # No period given
-        return generate_overview_new(request, person)
+        return generate_overview(request, person)
 
     # Construct data
     try:
@@ -905,7 +905,7 @@ def person_transactions(request, pk, slug, date_from=None, date_to=None):
     except ValueError:
         raise Http404(_('Invalid date'))
 
-    return generate_overview_new(request, person, start, end)
+    return generate_overview(request, person, start, end)
 
 
 @require_board
@@ -1038,12 +1038,12 @@ def statistics_form(request):
                 'date_to': _urlize(end),
                 'checkboxes': '-'.join(form.cleaned_data['checkboxes'])}))
         else:
-            return render(request, 'cookie_corner_statistics_form.html', {'form': form})
+            return render(request, 'statistics_form.html', {'form': form})
     else:
         end_date = timezone.datetime(timezone.now().year, timezone.now().month, 1)
         begin_date = end_date - timezone.timedelta(days=1)
         begin_date = begin_date.replace(day=1)
-        return render(request, 'cookie_corner_statistics_form.html', {
+        return render(request, 'statistics_form.html', {
             'form': StatisticsForm(initial={
                 'start_date': begin_date,
                 'end_date': end_date,
@@ -1083,7 +1083,7 @@ def statistics(request, date_from, date_to, checkboxes):
     if 't' in choices:
         tables['t'] = statistics_totals(start, end, tables)
 
-    return render(request, 'cookie_corner_statistics.html', {
+    return render(request, 'statistics.html', {
         'form': form, 'tables': tables, 'start': start, 'end': end,
         'total': 0, 'start_url': date_from, 'end_url': date_to
     })
