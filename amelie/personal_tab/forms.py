@@ -419,7 +419,7 @@ class DeclarationForm(forms.Form):
         self.initial['payment_method'] = self.fields['payment_method'].choices[0][0] 
         
         # Show IBANs of the active consumption mandates as choices and default the newest one
-        self.fields['iban_choice'].choices = [(iban, iban) for iban in person.has_mandate_consumptions().order_by('start_date').values_list('iban', flat=True)]
+        self.fields['iban_choice'].choices = [(iban, iban) for iban in person.has_mandate().distinct().order_by('start_date').values_list('iban', flat=True)]
         self.fields['iban_choice'].choices += [('', _l("-- Other --"))]
         self.initial['iban_choice'] = self.fields['iban_choice'].choices[0][0] if self.fields['iban_choice'].choices else None
         self.person = person
