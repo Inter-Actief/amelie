@@ -2,7 +2,6 @@
 
 {% if obj.enrollment_open and not obj.oauth_application %}
     {% if not obj.enrollment_full %}
-
         <p>
             {% if request.person %}
                 {# Begin of logged in user #}
@@ -23,6 +22,11 @@
                         {%  endblocktrans %}
                     {% endif %}
                 {% endif %}
+                {% if obj.enrollment_private %}
+                    {% blocktrans %}
+                        Enrollments for this activity are private.
+                    {% endblocktrans %}
+                {% endif %}
             {% else %}
                 {# Begin of guest user, don't display sign-up numbers #}
                 {% if obj.places_available == 1 %}
@@ -39,7 +43,8 @@
                     {% endblocktrans %}
                 {% endif %}
             {% endif %}
-
+        </p>
+        <p>
             {% if obj.places_available == None %}
                 {# Some shared text between logged in and logged out #}
                 {% blocktrans %}
