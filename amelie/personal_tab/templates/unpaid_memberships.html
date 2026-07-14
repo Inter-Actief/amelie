@@ -1,0 +1,42 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Unpaid Memberships' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Unpaid Memberships' %}</h2>
+        <div class="content">
+            <p>{% trans 'Click on a year to see the members whose membership is still unpaid.' %}</p>
+            <table>
+            <thead>
+                <th>{% trans 'Year' %}</th>
+                    {% for membership_type in membership_types %}
+                        <th>{{ membership_type.0 }}</th>
+                    {% endfor %}
+                <th>{% trans 'Price Total' %}</th>
+            </thead>
+            <tbody>
+                {% for year, tuple in totals.items %}
+                    <tr>
+                        <td class="align-right">
+                            <a href="{% url 'personal_tab:unpaid_memberships_year' year %}">
+                                {{ year }}
+                            </a>
+                        </td>
+                        {% for type, count in tuple.0.items %}
+                            <td class="align-right">
+                                {{ count }}
+                            </td>
+                        {% endfor %}
+                        <td class="align-right">
+                            {{ tuple.1 }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+        </div>  
+    </div></div>
+{% endblock content %}

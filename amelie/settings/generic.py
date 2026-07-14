@@ -589,6 +589,12 @@ PERSONAL_TAB_PRINTERS = {
     # }
 }
 
+# Declaration Settings
+DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
+TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB total, because email size limit is 25 MB
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
+
 # Documenso signing server for membership and authorization forms.
 # API_BASE should have no trailing slash.
 DOCUMENSO_SETTINGS = {

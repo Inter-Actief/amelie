@@ -31,6 +31,11 @@ urlpatterns = [
     path('transactions/cookie_corner/<int:pk>/delete/', CookieCornerTransactionDelete.as_view(),
         name='cookie_corner_transaction_delete'),
 
+    path('unpaid_memberships/', views.unpaid_memberships, name='unpaid_memberships'),
+    path('unpaid_memberships/<int:year>/', views.unpaid_memberships, name='unpaid_memberships_year'),
+    path('unpaid_memberships/<int:year>/mailing/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
+    path('unpaid_memberships/<int:year>/forgive/', views.unpaid_memberships_forgive, name='unpaid_memberships_forgive'),
+
     path('wrapped/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
     path('wrapped/<int:year>/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped_year'),
     path('wrapped_global/', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global'),
@@ -130,6 +135,10 @@ urlpatterns = [
     path('print/refund/<int:pk>/', print_views.PrintRefundConfirmView.as_view(), name='print_refund'),
     path('print/log/', print_views.PrintLogView.as_view(), name='print_log'),
     path('print/status/<str:printer_key>/', print_views.printer_status, name='printer_status'),
+
+    # Declaration views
+    path('declaration/', views.DeclarationView.as_view(), name='declaration_view'),
+    path('declaration/<int:declaration_id>/', views.declaration_pdf, name='declaration_pdf'),
 
     # Redirects for old Dutch URL's that people might have bookmarked
     path('mijn/', RedirectView.as_view(url=reverse_lazy("personal_tab:my_dashboard"), permanent=True)),
