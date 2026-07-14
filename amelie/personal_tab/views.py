@@ -6,8 +6,8 @@ from decimal import Decimal
 import itertools
 import traceback
 import operator
-
 from functools import reduce
+
 import django.conf
 from django.conf import settings
 from django.contrib import messages
