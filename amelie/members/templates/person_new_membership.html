@@ -2,7 +2,7 @@
 <div class="content">
     <h3 class="legend">{% trans 'Add a membership' %}</h3>
 
-    <form action="{% url 'members:person_membership_new' obj.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+    <form id="addMembershipForm" action="{% url 'members:person_membership_new' obj.id %}" method="post" class="js-ajax-form" data-container="person_membership">
         {% csrf_token %}
         {{ form }}
 
@@ -12,6 +12,12 @@
             </a>
 
             <input type="submit" name="add" value="{% trans 'Add' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#addMembershipForm').one('submit', function () {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

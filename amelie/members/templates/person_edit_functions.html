@@ -3,7 +3,7 @@
     {% if not obj.account_name %}
         <ul class="errorlist"><li>{% trans 'There is no accountname set. Without accountname, a person cannot log in.' %}</li></ul>
     {% endif %}
-    <form action="{% url 'members:person_functions' obj.id %}" method="post" class="js-ajax-form" data-container="person_functions">
+    <form id="editFunctionsForm" action="{% url 'members:person_functions' obj.id %}" method="post" class="js-ajax-form" data-container="person_functions">
         {% for error in form.non_field_errors %}
             <div class="error">{{ error }}</div>
         {% endfor %}
@@ -58,6 +58,12 @@
             </a>
 
             <input type="submit" value="{% trans 'Save' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#editFunctionsForm').one('submit', function () {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

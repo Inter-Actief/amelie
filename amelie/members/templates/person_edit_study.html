@@ -5,7 +5,7 @@
             {% trans 'Hey there developer! Here are some random unused student numbers for you to use:' %}&nbsp;<span class="monospace-text-bordered">{{ form.get_random_student_numbers|join:", " }}</span>
         </li></ul>
     {% endif %}
-    <form action="{% url 'members:person_study' obj.id %}" method="post" class="js-ajax-form" data-container="person_study">
+    <form id="editStudyForm" action="{% url 'members:person_study' obj.id %}" method="post" class="js-ajax-form" data-container="person_study">
     {% csrf_token %}
 
     {{ form }}
@@ -54,6 +54,12 @@
         </a>
 
         <input type="submit" value="{% trans 'Save' %}" />
+        <script type="text/javascript">
+            // Disable submit button after one click.
+            $('#editStudyForm').one('submit', function () {
+                $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+            });
+        </script>
     </div>
     </form>
 </div>

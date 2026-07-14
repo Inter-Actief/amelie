@@ -11,7 +11,7 @@
     </ul>
     {% endif %}
 
-    <form action="{% url 'members:person_mandate_delete' obj.id  mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
+    <form id="deleteMandateForm" action="{% url 'members:person_mandate_delete' obj.id  mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
         {% csrf_token %}
         <input type="hidden" name="delete" value="delete" />
 
@@ -29,6 +29,12 @@
             </a>
 
             <input type="submit" value="{% trans 'Delete' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#deleteMandateForm').one('submit', function() {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

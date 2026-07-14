@@ -39,7 +39,7 @@
             <td>{{ person.get_preferred_language_display }}</td>
         </tr>
     </table>
-    <form action="{% url 'members:person_membership_sign' person.id membership.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+    <form id="signMembershipForm" action="{% url 'members:person_membership_sign' person.id membership.id %}" method="post" class="js-ajax-form" data-container="person_membership">
         {% csrf_token %}
         {{ form }}
 
@@ -49,6 +49,12 @@
             </a>
 
             <input class="success-button" type="submit" name="send" value="{% trans 'Send' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#signMembershipForm').one('submit', function () {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

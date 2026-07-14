@@ -2,7 +2,7 @@
 <div class="content">
     <h3 class="legend">{% trans 'Terminate memberships' %}</h3>
 
-    <form action="{% url 'members:person_membership_end' obj.id %}" method="post" class="js-ajax-form" data-container="person_membership">
+    <form id="endMembershipForm" action="{% url 'members:person_membership_end' obj.id %}" method="post" class="js-ajax-form" data-container="person_membership">
         {% for error in form.non_field_errors %}
             <div class="error">{{ error }}</div>
         {% endfor %}
@@ -22,6 +22,12 @@
             </a>
 
             <input type="submit" name="end" value="{% trans 'Save' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#endMembershipForm').one('submit', function () {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

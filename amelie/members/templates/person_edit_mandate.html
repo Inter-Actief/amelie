@@ -21,7 +21,7 @@
     </ul>
     {% endif %}
 
-    <form action="{% url 'members:person_mandate_edit' obj.id mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
+    <form id="editMandateForm" action="{% url 'members:person_mandate_edit' obj.id mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
         {% csrf_token %}
         {{ form.as_p }}
         <p class="icon icon-information">{% blocktrans %}BIC is not required for a Dutch IBAN{% endblocktrans %}</p>
@@ -31,6 +31,12 @@
             </a>
 
             <input type="submit" name="edit" value="{% trans 'Edit' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#editMandateForm').one('submit', function () {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

@@ -32,11 +32,17 @@
                     {% endif %}
                 </ul>
 
-                <form method="post">
+                <form id="deletePersonForm" method="post">
                     {% csrf_token %}
                     <div class="buttons">
                         <input type="submit" value="{% trans "Yes, throw away" %}"/>
                     </div>
+                    <script type="text/javascript">
+                        // Disable submit button after one click.
+                        $('#deletePersonForm').one('submit', function() {
+                            $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                        });
+                    </script>
                 </form>
             </div>
         </div>
