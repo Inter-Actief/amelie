@@ -1038,12 +1038,12 @@ def statistics_form(request):
                 'date_to': _urlize(end),
                 'checkboxes': '-'.join(form.cleaned_data['checkboxes'])}))
         else:
-            return render(request, 'statistics_form.html', {'form': form})
+            return render(request, 'statistics/statistics_form.html', {'form': form})
     else:
         end_date = timezone.datetime(timezone.now().year, timezone.now().month, 1)
         begin_date = end_date - timezone.timedelta(days=1)
         begin_date = begin_date.replace(day=1)
-        return render(request, 'statistics_form.html', {
+        return render(request, 'statistics/statistics_form.html', {
             'form': StatisticsForm(initial={
                 'start_date': begin_date,
                 'end_date': end_date,
@@ -1083,7 +1083,7 @@ def statistics(request, date_from, date_to, checkboxes):
     if 't' in choices:
         tables['t'] = statistics_totals(start, end, tables)
 
-    return render(request, 'statistics.html', {
+    return render(request, 'statistics/statistics.html', {
         'form': form, 'tables': tables, 'start': start, 'end': end,
         'total': 0, 'start_url': date_from, 'end_url': date_to
     })
@@ -1102,7 +1102,7 @@ def balance(request, dt_str=False):
     # Redirect to form if no date given
     if not dt_str:
         form = DateTimeForm()
-        return render(request, 'balance_form.html', {
+        return render(request, 'balance/balance_form.html', {
             'form': form,
         })
 
@@ -1174,7 +1174,7 @@ def balance(request, dt_str=False):
     exam_cookie_former_member_sum = sum([x[1] for x in exam_cookie_former_member_totals])
 
 
-    return render(request, 'balance_form.html', {
+    return render(request, 'balance/balance_form.html', {
         'form': form,
 
         'all_transactions_sum': all_transactions_sum,
