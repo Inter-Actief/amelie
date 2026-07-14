@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext_lazy as _l  
 from django.db import transaction
 from django.db.models import Sum, Q, Count
 from django.db.models.functions import TruncDay
@@ -28,7 +28,7 @@ from django.views.generic.edit import FormView
 from functools import reduce
 
 from amelie.calendar.models import Event
-from amelie.members.models import Person, Membership
+from amelie.members.models import MembershipType, Payment, PaymentType, Person, Membership
 from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
@@ -498,6 +498,207 @@ def transaction_overview(request, date_from, date_to):
         raise Http404(_('Invalid date`'))
     
     return generate_overview_new(request, None, start, end)
+
+
+@require_board
+def unpaid_memberships(request, year=None):
+    """Give an overview of unpaid memberships per year or, if a year is specified, per type."""
+
+    # If no year is given, show overview of all years with unpaid memberships
+    if year is None:
+        unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0)
+        membership_types = [(mt.name, mt.pk) for mt in MembershipType.objects.filter(membership__payment__isnull=True, price__gt=0).distinct()]
+        years = unpaid_memberships.values('year').distinct().order_by('-year')
+        price = unpaid_memberships.values('type__price', 'year').order_by('year')
+
+
+        # Amount totals looks like this:
+        # {'2025' : ({'Primary Yearlong' : 47, 'Secondary Yearlong' : 47}, 470.00), '2024' : ...}
+        totals = {}
+        for year_total in years:
+            totals[year_total['year']] = ({}, sum(item['type__price'] for item in price if item['year'] == year_total['year']))
+            for membership_type in membership_types:
+                totals[year_total['year']][0][membership_type[0]] = unpaid_memberships.filter(type=membership_type[1], year=year_total['year']).count()
+
+        return render(request, 'unpaid_memberships.html', {'totals': totals, 'membership_types': membership_types})
+    
+
+    # If a year is given, show the unpaid memberships for that year, grouped by membership type
+    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type', 'member__first_name')
+    
+    grouped = {}
+    for membership in unpaid_memberships:
+        membership_type = (membership.type.name, membership.type.pk)
+        if membership_type not in grouped:
+            grouped[membership_type] = []
+        grouped[membership_type].append(membership)
+    
+    return render(request, 'unpaid_memberships_year.html', {'unpaid_memberships': grouped, 'year': year})
+
+
+@require_board
+def unpaid_memberships_forgive(request, year):
+    """Forgive the membership fee of persons that were selected in the unpaid memberships overview."""
+    
+    # Get the selected memberships from the URL parameters
+    selected_memberships = request.GET.get('memberships')
+    if not selected_memberships:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+    # Sanitize input
+    selected_memberships = [int(i) for i in selected_memberships.split(',') if i.isdigit()]
+    memberships = Membership.objects.filter(pk__in=selected_memberships)
+
+    if not memberships:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+    if request.method == "POST":
+        if 'confirm' in request.POST:
+            # Payment Type 12 is the "Forgiven" payment type
+            forgiven_payment_type = PaymentType.objects.get(pk=12)
+            for membership in memberships:
+                # Create a Payment object for the membership with the "Forgiven" payment type
+                payment = Payment(
+                    membership=membership,
+                    amount=membership.type.price,
+                    date=timezone.now(),
+                    payment_type=forgiven_payment_type,
+                )
+                payment.save()
+            messages.success(request, _("The membership fees have been forgiven."))
+            return redirect('personal_tab:unpaid_memberships_year', year)
+
+    else:
+        # Show confirmation page
+        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year})
+
+@require_board
+def unpaid_memberships_mailing(request, year):
+    """Send a mailing to persons that were selected in the unpaid memberships overview."""
+
+    # Get the selected memberships from the URL parameters
+    selected_memberships = request.GET.get('memberships')
+    if not selected_memberships:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+    # Sanitize input
+    selected_memberships = [int(i) for i in selected_memberships.split(',') if i.isdigit()]
+    memberships = Membership.objects.filter(pk__in=selected_memberships)
+    persons = Person.objects.filter(pk__in=memberships.values_list('member', flat=True))
+
+    if not persons:
+        messages.error(request, _("No members were selected."))
+        return redirect('personal_tab:unpaid_memberships_year', year)
+
+
+    current_year = year
+    study_year = '{}/{}'.format(current_year, current_year + 1)
+    name_treasurer = request.person.incomplete_name()
+
+    form = MailingForm(data=request.POST or None, initial={
+        'sender': '[Inter-Actief] {}'.format(name_treasurer),
+        'email': 'penningmeester@inter-actief.net',
+        'subject_nl': '[Inter-Actief] Onbetaalde contributie {}'.format(study_year),
+        'template_nl': '''Beste {{{{recipient.first_name}}}},
+
+In het studiejaar {} was je lid van studievereniging Inter-Actief. Aangezien je geen mandaat hebt gegeven voor automatische incasso, of omdat je mandaat niet heeft gewerkt, moet de contributie nog betaald worden.
+
+Het betreft het volgende lidmaatschap:
+ * Naam: {{{{recipient.incomplete_name}}}}
+ * Woonplaats: {{{{recipient.city}}}}
+ * Type lidmaatschap: {{{{membership.type}}}}
+ * Kosten: {{{{membership.price}}}} euro
+
+Je kunt de contributie betalen door dit bedrag over te maken naar:
+ * IBAN: NL70 RABO 0103 4210 68
+ * BIC: RABONL2U
+ * Ten name van: Inter-Actief
+ * Omschrijving: Contributie {} - {{{{recipient.incomplete_name}}}}
+ * Bedrag: € {{{{membership.price}}}}
+
+Cash of PIN betaling is ook mogelijk door fysiek langs te komen bij de verenigingskamer.
+ 
+Met vriendelijke groet,
+
+{}
+Penningmeester'''.format(study_year, study_year, name_treasurer),
+
+
+'subject_en': '[Inter-Actief] Unpaid contribution {}'.format(study_year),
+'template_en': '''Dear {{{{recipient.first_name}}}},
+
+In the study year {} you were a member of study association Inter-Actief. Since you have not given a mandate for automatic debit, or because your mandate has not worked, the contribution still needs to be paid.
+
+This concerns the following membership:
+ * Name: {{{{recipient.incomplete_name}}}}
+ * Place of residence: {{{{recipient.city}}}}
+ * Membership type: {{{{membership.type}}}}
+ * Costs: {{{{membership.price}}}} euro
+
+You can pay the contribution by making a bank transfer to:
+ * IBAN: NL70 RABO 0103 4210 68
+ * BIC: RABONL2U
+ * In the name of: Inter-Actief
+ * Description: Contribution {} - {{{{recipient.incomplete_name}}}}
+ * Amount: € {{{{membership.price}}}}
+
+Cash or PIN payment is also possible by coming in person to the association room.
+
+Kind regards,
+
+{}
+Treasurer'''.format(study_year, study_year, name_treasurer),
+
+    })
+
+    previews = None
+    if request.method == "POST" and form.is_valid():
+        if request.POST.get('preview', None):
+            # Get the first membership to use in the context
+            membership = memberships.first()
+            previews = form.build_multilang_preview(membership.member, context={
+                "membership": {
+                    'type': membership.type.name,
+                    'price': membership.type.price
+                }
+            })
+        else:
+            recipients = [(membership.member, {'membership': {'type': membership.type.name, 'price': membership.type.price}}) for membership in memberships]
+
+            task = form.build_task(recipients)
+            task.send()
+
+            # Done
+            return render(request, 'message.html', {
+                'message': _l('The e-mails are now being sent one by one. '
+                           'This happens in a background process, so it may take a while.')
+            })
+
+    # Variables are used in template, don't remove!
+    longest_first_name = max([p.first_name for p in persons if p.first_name is not None], key=len)
+    longest_last_name = max([p.last_name for p in persons if p.last_name is not None], key=len)
+    longest_address = max([p.address for p in persons if p.address is not None], key=len)
+    longest_postal_code = max([p.postal_code for p in persons if p.postal_code is not None], key=len)
+    longest_city = max([p.city for p in persons if p.city is not None], key=len)
+    longest_country = max([p.country for p in persons if p.country is not None], key=len)
+    longest_student_number = '0123456'
+
+    return render(request, 'includes/query/query_mailing.html', {
+        'previews': previews,
+        'persons': persons,
+        'longest_first_name': longest_first_name,
+        'longest_last_name': longest_last_name,
+        'longest_address': longest_address,
+        'longest_postal_code': longest_postal_code,
+        'longest_city': longest_city,
+        'longest_country': longest_country,
+        'longest_student_number': longest_student_number,
+        'form': form,
+    })
+
 
 
 class TransactionSecurityMixin(RequirePersonMixin):
@@ -1765,8 +1966,8 @@ Treasurer'''.format(study_year, name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': 'De mails worden nu een voor een verstuurd. '
-                           'Dit gebeurt in een achtergrondproces en kan even duren.'
+                'message': _l('The e-mails are now being sent one by one. '
+                           'This happens in a background process, so it may take a while.')
             })
 
     return render(request, 'includes/query/query_mailing.html', {
