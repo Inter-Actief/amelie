@@ -18,10 +18,10 @@
                     {% endblocktrans %}
                 </p>
             {% endfor %}
-            {% if exam_cookie_credit %}
+            {% if exam_cookie_credits %}
                 <p>
                     {% blocktrans with credit=exam_cookie_credits %}
-                        Because you have submitted an exam paper, you may spend {{ credit }} on consumptions.
+                        Because you have submitted an exam paper, you may spend &euro; {{ credit }} on consumptions.
                     {% endblocktrans %}
                 </p>
             {% endif %}
@@ -74,7 +74,6 @@
 
     {% if person and not date_from %}
         {% include "info/debt_collection_instructions.html" %}
-        {% include "info/exam_cookie_credit.html" %}
         {% include "info/account_information.html" %}
 
         <div id="rfid_cards">
