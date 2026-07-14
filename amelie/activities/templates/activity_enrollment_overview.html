@@ -84,12 +84,11 @@
                     </th>
                 {% endif %}
 
-
-                {% for enrollmentoption in obj.enrollmentoption_set.all %}
-                    <th>{{ enrollmentoption.title }}</th>
-                {% endfor %}
-
                 {% if request.is_board or is_committee or is_roomduty %}
+                    {% for enrollmentoption in obj.enrollmentoption_set.all %}
+                        <th>{{ enrollmentoption.title }}</th>
+                    {% endfor %}
+
                     <th>{% trans 'Payment' %}</th>
                 {% endif %}
 
@@ -125,11 +124,6 @@
                                 {% trans 'Anonymous' %}
                             {% endif %}
                         </td>
-    {#                    {% else %}#}
-    {#                        <td>#}
-    {#                            {{ forloop.counter }}#}
-    {#                        </td>#}
-    {#                    {% endif %}#}
                         {% for answer in participation.enrollmentoptionanswer_set.all %}
                             <td>{{ answer.display_answer }}</td>
                         {% endfor %}
@@ -167,9 +161,11 @@
                  <tr>
                      <td>
                         <i>
-                            {% blocktrans with count=anonymous_count%}
-                                ...and <b>{{ count }}</b> Anonymous members.
-                            {% endblocktrans %}
+                          {% blocktranslate count count=anonymous_count %}
+                            ...and <b>{{ count }}</b> Anonymous member.
+                          {% plural %}
+                            ...and <b>{{ count }}</b> Anonymous members.
+                          {% endblocktranslate %}
                         </i>
                      </td>
                 </tr>

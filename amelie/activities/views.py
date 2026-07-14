@@ -248,9 +248,6 @@ def activity(request, pk, deanonymise=False):
     ).order_by("person__first_name")
     anonymous_count = len(confirmed_participation_set) - len(public_participation_set)
 
-    print("Public: ", len(public_participation_set))
-    print("All: ", len(confirmed_participation_set))
-
     person_enrollment_public = hasattr(request, 'person') and request.person.has_preference(name="public_enrollment")
 
     waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
@@ -272,9 +269,6 @@ def activity(request, pk, deanonymise=False):
     metadata_enable_opengraph = True
     is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
     is_committee = hasattr(request, 'person') and obj.organizer in request.person.current_committees().all()
-    # is_roomduty = False
-    # is_committee = True
-    request.is_board = False
     return render(request, "activity.html", locals())
 
 
