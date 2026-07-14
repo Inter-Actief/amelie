@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('personal_tab', '0011_alter_discountcredit_discount_and_more'),
+        ('personal_tab', '0012_declaration'),
     ]
 
     operations = [
