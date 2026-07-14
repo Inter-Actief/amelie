@@ -2,7 +2,7 @@ import logging
 import math
 import json
 import traceback
-from typing import Optional
+from typing import Optional, List
 
 from django.forms.models import ModelChoiceIterator
 from localflavor.generic.forms import BICFormField, IBANFormField
@@ -368,11 +368,18 @@ class MyCommitteesFirstIterator(ModelChoiceIterator):
             if self.field.empty_label is not None:
                 yield ("", self.field.empty_label)
 
-            my_committees = self.field.person.current_committees()
-            other_committees = self.queryset.exclude(pk__in=my_committees.values_list('pk', flat=True))
+            my_committees_children: List[Committee] = self.field.person.current_committees()
+            my_parent_committees = []
+            for c in my_committees_children:
+                while c.parent_committees.count() > 0:
+                    c = c.parent_committees.first()
+                my_parent_committees.append(c)
+            my_parent_committees_pks = [c.pk for c in my_parent_committees]
+            other_committees = self.queryset.exclude(pk__in=my_parent_committees_pks)
+
             yield [
                 _l('My committees'),
-                [(c.id, str(c)) for c in my_committees]
+                [(c.id, str(c)) for c in my_parent_committees]
             ]
             yield [
                 _l('Other committees'),
