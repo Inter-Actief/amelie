@@ -521,7 +521,7 @@ def unpaid_memberships(request, year=None):
             for membership_type in membership_types:
                 totals[year_total['year']][0][membership_type[0]] = unpaid_memberships.filter(type=membership_type[1], year=year_total['year']).count()
 
-        return render(request, 'unpaid_memberships.html', {'totals': totals, 'membership_types': membership_types})
+        return render(request, 'unpaid_memberships/overview.html', {'totals': totals, 'membership_types': membership_types})
     
 
     # If a year is given, show the unpaid memberships for that year, grouped by membership type
@@ -534,7 +534,7 @@ def unpaid_memberships(request, year=None):
             grouped[membership_type] = []
         grouped[membership_type].append(membership)
     
-    return render(request, 'unpaid_memberships_year.html', {'unpaid_memberships': grouped, 'year': year})
+    return render(request, 'unpaid_memberships/year_overview.html', {'unpaid_memberships': grouped, 'year': year})
 
 
 @require_board
@@ -573,7 +573,7 @@ def unpaid_memberships_forgive(request, year):
 
     else:
         # Show confirmation page
-        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year})
+        return render(request, 'unpaid_memberships/forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year})
 
 @require_board
 def unpaid_memberships_mailing(request, year):
