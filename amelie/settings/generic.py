@@ -589,6 +589,13 @@ PERSONAL_TAB_PRINTERS = {
     # }
 }
 
+# Declaration Settings
+DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
+TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB total, because email size limit is 25 MB
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
+
+
 # Celery task scheduler settings
 CELERY_TASK_ALWAYS_EAGER = True  # Always execute tasks in the foreground (blocking)
 CELERY_TASK_EAGER_PROPAGATES = True  # If ALWAYS_EAGER, show the exceptions in the foreground

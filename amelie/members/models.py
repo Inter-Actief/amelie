@@ -552,14 +552,18 @@ class Person(models.Model, Mappable):
         except Preference.DoesNotExist:
             return default
 
-    def has_mandate(self, mandate_type):
+    def has_mandate(self, mandate_type=None):
         """
-        Returns if this person has an active mandate for the requested mandate type.
+        Returns the active mandates for the requested mandate type.
+        If no mandate_type is given, returns all active mandates.
 
         Mandate type can be: contribution, consumptions, activities, or other_payments
 
         See amelie.personal_tab.models.AuthorizationType
         """
+        if not mandate_type:
+            return self.authorization_set.filter(is_signed=True, end_date__isnull=True)
+        
         kwargs = {'authorization_type__%s' % mandate_type: True}
         return self.authorization_set.filter(is_signed=True,
                                              end_date__isnull=True, **kwargs)
