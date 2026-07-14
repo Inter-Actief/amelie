@@ -1,14 +1,14 @@
 # coding=utf-8
-import csv
 import datetime
 from datetime import timezone as tz
 import logging
 from decimal import Decimal
 import itertools
 import traceback
-
-import django.conf
 import operator
+
+from functools import reduce
+import django.conf
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -28,7 +28,6 @@ from django.utils.translation import gettext as _, get_language
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.edit import FormView
-from functools import reduce
 
 from amelie.calendar.models import Event
 from amelie.members.models import MembershipType, Payment, PaymentType, Person, Membership
@@ -1192,108 +1191,6 @@ def balance(request, dt_str=False):
         'dt': dt,
         'dt_url': dt_url
     })
-
-
-@require_board
-def export(request, date_from=False, date_to=False):
-    """Export debt collection list over a certain period."""
-
-    # TODO: Remove this export because it is not used any more and not compliant with GDPR.
-    # Redirect to a page based on GET (handy for links)
-    if request.method == 'POST':
-        form = PeriodTimeForm(request.POST)
-        if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
-            return HttpResponseRedirect(reverse('personal_tab:export', args=[_urlize(start), _urlize(end)]))
-
-    # Redirect to form if no date given
-    if not date_from:
-        form = PeriodTimeForm()
-        return render(request, 'cookie_corner_export_form.html', {
-            'form': form
-        })
-
-    # Construct data
-    try:
-        start = _parsedatetime(date_from)
-        end = _parsedatetime(date_to)
-    except ValueError:
-        raise Http404(_('Invalid date`'))
-    form = PeriodTimeForm(initial={'datetime_from': start, 'datetime_to': end})
-
-    start_url = _urlize(start)
-    end_url = _urlize(end)
-
-    # Filter transactions
-    rows = export_filter(start, end)
-    total = 0
-
-    # Calculate totals
-    for row in rows['good']:
-        total += row['sum']
-
-    # Done
-    amount_rows = len(rows['good'])
-    return render(request, 'cookie_corner_export_form.html', {
-        'form': form,
-        'start': start,
-        'end': end,
-        'start_url': start_url,
-        'end_url': end_url,
-        'rows': rows,
-        'total': total,
-        'amount_rows': amount_rows
-    })
-
-
-@require_board
-def export_csv(request, date_from, date_to):
-    try:
-        start = _parsedatetime(date_from)
-        end = _parsedatetime(date_to)
-    except ValueError:
-        raise Http404(_('Invalid date`'))
-    rows = export_filter(start, end)
-
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    # Use .txt. Excel 2007 forces the wrong character encoding (not UTF-8) with .csv
-    response['Content-Disposition'] = 'attachment; filename=amelie-cookie-corner-%s-to-%s.txt' % (
-        _urlize(start), _urlize(end))
-
-    writer = csv.writer(response, dialect=csv.excel)
-    writer.writerow(['Name', 'Amount', 'City', 'Payment reference', 'Description 2', 'Description 3', 'Description 4'])
-
-    period = 'from ' + start.strftime("%Y-%m-%d") + ' to ' + end.strftime("%Y-%m-%d")
-
-    for row in rows['good']:
-        person = row['person']
-        writer.writerow([mark_safe(str(person)), row['sumf'], person.city, 'Debt collection cookie corner', period,
-               'For questions email treasurer@inter-actief.net', ''])
-
-    return response
-
-
-def export_filter(begin, end):
-    all_transactions = Transaction.objects.filter(date__gte=begin, date__lt=end)
-
-    # Do not use order, so distinct works properly. See Django manual.
-    persons = all_transactions.filter(person__isnull=False).order_by('person').distinct().values('person')
-    result = {'good': [], 'negative': []}
-
-    for p in persons:
-        person = Person.objects.get(id=p['person'])
-        if not person.has_mandate_consumptions():
-            continue
-        price = all_transactions.filter(person=person).aggregate(Sum('price'))['price__sum']
-        rij = {'person': person, 'sum': price, 'sumf': ("%.2f" % price).replace('.', ',')}
-
-        if price < 0:
-            result['negative'].append(rij)
-        elif price > 0:
-            result['good'].append(rij)
-
-    return result
 
 
 @require_board
