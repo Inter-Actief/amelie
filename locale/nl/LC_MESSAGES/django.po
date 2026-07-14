@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-14 11:36+0200\n"
-"PO-Revision-Date: 2026-06-25 21:11+0000\n"
-"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
+"PO-Revision-Date: 2026-07-14 11:30+0000\n"
+"Last-Translator: Lars Kruitwagen <kruitwagenly@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
@@ -378,10 +378,8 @@ msgid "Activity"
 msgstr "Activiteit"
 
 #: amelie/activities/graphql.py:16
-#, fuzzy
-#| msgid "All photos"
 msgid "Has photos"
-msgstr "Alle fotos"
+msgstr "Heeft fotos"
 
 #: amelie/activities/graphql.py:81
 msgid "The absolute URL to an activity."
@@ -479,10 +477,8 @@ msgid "enrollment end"
 msgstr "inschrijving stop"
 
 #: amelie/activities/models.py:60
-#, fuzzy
-#| msgid "Add participants"
 msgid "Hide participants"
-msgstr "Deelnemers toevoegen"
+msgstr "Deelnemers verbergen"
 
 #: amelie/activities/models.py:62
 msgid "Lock waiting list"
@@ -2100,7 +2096,8 @@ msgid ""
 "\t\t    "
 msgstr ""
 "\n"
-"Liever geen machtiging tekenen? Neem dan contact op met het bestuur of de organiserende commissie en betaal contant."
+"\t\t        Liever geen machtiging tekenen? Neem dan contact op met het bestuur of de organiserende commissie en betaal contant.\n"
+"\t\t    "
 
 #: amelie/activities/templates/activity_enrollment_overview.html:21
 msgid "For privacy reasons, this page only shows anonymized enrollment data. For more detailed information please export or print it."
@@ -2128,13 +2125,11 @@ msgstr "Heb je een lijst met minderjarige deelnemers nodig? Vraag het bestuur!"
 
 #: amelie/activities/templates/activity_enrollment_overview.html:55
 msgid "Your enrollments are visible to other members."
-msgstr ""
+msgstr "Je inschrijvingen zijn zichtbaar voor andere leden."
 
 #: amelie/activities/templates/activity_enrollment_overview.html:57
-#, fuzzy
-#| msgid "Your pre-enrollment was successful!"
 msgid "Your enrollments are anonymous."
-msgstr "Je voorinschrijving is geslaagd!"
+msgstr "Je inschrijvingen zijn anoniem."
 
 #: amelie/activities/templates/activity_enrollment_overview.html:59
 msgid ""
@@ -2142,6 +2137,9 @@ msgid ""
 "        You can change this preference on <a href=\"/profile\">your profile</a>.\n"
 "    "
 msgstr ""
+"\n"
+"        Je kunt deze voorkeur aanpassen op <a href=\"/profile\">je profiel</a>.\n"
+"    "
 
 #: amelie/activities/templates/activity_enrollment_overview.html:66
 msgid "You are currently only viewing underage participants!"
@@ -2196,11 +2194,7 @@ msgid "Deregister"
 msgstr "Uitschrijven"
 
 #: amelie/activities/templates/activity_enrollment_overview.html:164
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            Last %(count)s transactions\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                            ...and <b>%(count)s</b> Anonymous member.\n"
@@ -2211,10 +2205,12 @@ msgid_plural ""
 "                          "
 msgstr[0] ""
 "\n"
-"Laatste %(count)s toegevoegde transacties."
+"                            ...en <b>%(count)s</b> Anoniem lid.\n"
+"                          "
 msgstr[1] ""
 "\n"
-"Laatste %(count)s toegevoegde transacties."
+"                            ...en <b>%(count)s</b> Anonieme leden.\n"
+"                          "
 
 #: amelie/activities/templates/activity_enrollment_overview.html:180
 #: amelie/activities/templates/activity_enrollment_print.html:66
@@ -2558,18 +2554,13 @@ msgstr ""
 "                        "
 
 #: amelie/activities/templates/includes/activity_enrollment.html:26
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        For this activity, there is one place left.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Enrollments for this activity are private.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Voor deze activiteit is nog 1 plaats beschikbaar.\n"
+"                        Inschrijvingen voor deze activiteit zijn privé.\n"
 "                    "
 
 #: amelie/activities/templates/includes/activity_enrollment.html:33
@@ -6911,7 +6902,7 @@ msgstr "Volgend verenigingsjaar"
 
 #: amelie/members/forms.py:311
 msgid "Does the member still have to pay the membership fee?"
-msgstr ""
+msgstr "Moet het lid de contributie nog wel betalen?"
 
 #: amelie/members/forms.py:323
 msgid "Immediately"
@@ -6923,15 +6914,15 @@ msgstr "Aan het einde van het verenigingsjaar"
 
 #: amelie/members/forms.py:328
 msgid "Send the signature request"
-msgstr ""
+msgstr "Verstuur het ondertekeningsverzoek"
 
 #: amelie/members/forms.py:334
 msgid "Send a signature request"
-msgstr ""
+msgstr "Verstuur ondertekeningsverzoek"
 
 #: amelie/members/forms.py:335
 msgid "This will send an e-mail to the member, with a request to sign the mandate form via our signing tool."
-msgstr ""
+msgstr "Dit zal een e-mail naar het lid toe sturen met het verzoek om de machtiging te ondertekenen via onze ondertekeningstool."
 
 #: amelie/members/forms.py:354
 msgid "A mandate type is required."
@@ -7056,18 +7047,16 @@ msgid "BIC has to be entered for foreign bankaccounts."
 msgstr "BIC moet ingevuld worden met een buitenlandse rekening."
 
 #: amelie/members/forms.py:682
-#, fuzzy
-#| msgid "BIC could not be generated, please enter yourself."
 msgid "BIC could not be generated, please enter it yourself."
 msgstr "Kon BIC niet automatisch bepalen, vul deze alsjeblieft zelf in."
 
 #: amelie/members/forms.py:685
 msgid "The BIC country does not match the IBAN country."
-msgstr ""
+msgstr "Het land in de BIC komt niet overeen met het land in het IBAN."
 
 #: amelie/members/forms.py:690 amelie/members/forms.py:696
 msgid "The BIC bank does not match the IBAN bank."
-msgstr ""
+msgstr "De bank in de BIC komt niet overeen met de bank in het IBAN."
 
 #: amelie/members/forms.py:715
 msgid "BIC is not from a SEPA country"
@@ -7486,7 +7475,7 @@ msgstr "Je E-mailadres mag niet naar een Inter-Actief server verwijzen. Als je e
 
 #: amelie/members/models.py:769
 msgid "Documenso ID was not given. Can't do anything."
-msgstr ""
+msgstr "Documenso-ID is niet opgegeven. Ik kan hier niks doen."
 
 #: amelie/members/models.py:822
 msgid "Needs verification"
@@ -7579,16 +7568,12 @@ msgstr "Geverifiëerd op"
 
 #: amelie/members/models.py:990 amelie/members/models.py:1365
 #: amelie/personal_tab/models.py:521
-#, fuzzy
-#| msgid "GMM Documents"
 msgid "Documenso ID"
-msgstr "ALV-stukken"
+msgstr "Documenso-ID"
 
 #: amelie/members/models.py:991 amelie/personal_tab/models.py:522
-#, fuzzy
-#| msgid "Print document"
 msgid "Signed document"
-msgstr "Print document"
+msgstr "Getekend document"
 
 #: amelie/members/models.py:995
 msgid "membership"
@@ -7601,7 +7586,7 @@ msgstr "lidmaatschappen"
 #: amelie/members/models.py:1054 amelie/members/models.py:1510
 #: amelie/personal_tab/models.py:635
 msgid "Documenso ID is not set. No documents are due to be signed."
-msgstr ""
+msgstr "Documenso-ID is niet ingesteld. Er zijn geen documenten wachtend op ondertekening."
 
 #: amelie/members/models.py:1080
 #: amelie/members/templates/includes/query/query_membership.html:3
@@ -8431,16 +8416,12 @@ msgid "Mandates"
 msgstr "Machtigingen"
 
 #: amelie/members/templates/includes/registration/authorizations.html:7
-#, fuzzy
-#| msgid "You have to pay your membership fee via a direct debit authorization."
 msgid "You have to pay your membership fee, either via a direct debit authorization or by cash/PIN at the association."
-msgstr "Je moet je lidmaatschap betalen via een automatische machtiging."
+msgstr "Je moet je lidmaatschap betalen. Dit kan ofwel via een automatische incassomachtiging, of contant/via PIN ter plekke bij de vereniging."
 
 #: amelie/members/templates/includes/registration/authorizations.html:10
-#, fuzzy
-#| msgid "If you chose the yearly membership above, then you authorize the association to withdraw the membership fee from your bank account automatically in the coming years. Your membership will be extended automatically each your until terminate it."
 msgid "If you chose the yearly membership in the previous step, then you authorize the association to withdraw the membership fee from your bank account automatically in the coming years. Your membership will be extended automatically each year until you terminate it."
-msgstr "Indien je hierboven voor een jaarlidmaatschap hebt gekozen, dan machtig je de vereniging om in de komende jaren elk jaar het lidmaatschapsgeld van je rekening af te laten schrijven. Je lidmaatschap wordt dan elk jaar (totdat je het opzegt) automatisch verlengd."
+msgstr "Indien je in de vorige stap voor een jaarlidmaatschap hebt gekozen, dan machtig je de vereniging om in de komende jaren elk jaar het lidmaatschapsgeld van je rekening af te laten schrijven. Je lidmaatschap wordt dan elk jaar automatisch verlengd totdat je je lidmaatschap opzegt."
 
 #: amelie/members/templates/includes/registration/authorizations.html:13
 msgid "If you have chosen for a study long membership, then the authorization will only be used once."
@@ -8451,10 +8432,8 @@ msgid "I authorize the association to withdraw my membership fee from my bank ac
 msgstr "Ik machtig de vereniging om de kosten van het lidmaatschap van mijn rekening af te schrijven."
 
 #: amelie/members/templates/includes/registration/authorizations.html:22
-#, fuzzy
-#| msgid "If you do not give permission, then you need to pay your membership fee in cash."
 msgid "If you do not give permission, then you need to pay your membership fee in cash or by PIN."
-msgstr "Als je geen toestemming geeft, dan moet je je lidmaatschapsgeld contant betalen."
+msgstr "Als je geen toestemming geeft, dan moet je je lidmaatschapsgeld contant of met PIN betalen."
 
 #: amelie/members/templates/includes/registration/authorizations.html:28
 msgid "At Inter-<i>Actief</i> you can participate in activities; pay for consumptions during the activities; or pay for cookies, drinks and candy at the cookie corner in the Inter-<i>Actief</i> room."
@@ -8469,16 +8448,12 @@ msgid "I authorize the association to debit my bank account for consumptions and
 msgstr "Ik machtig de vereniging geld af te schrijven voor consumpties en activiteiten."
 
 #: amelie/members/templates/includes/registration/authorizations.html:40
-#, fuzzy
-#| msgid "If you do not give permission, then you have to pay in cash during activities, and you will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and activities."
 msgid "If you do not give permission, then you have to pay in cash or by PIN during activities, and you will not be able to use the cookie corner in the Inter-Actief room or the personal tab during drinks and activities."
-msgstr "Als je geen toestemming geeft, dan moet je op activiteiten contant betalen en kan je niet strepen op de streeplijst in de Inter-Actief-kamer of bij borrels en activiteiten."
+msgstr "Als je geen toestemming geeft, dan moet je op activiteiten contant of met PIN betalen en kan je geen gebruik maken van de streeplijst in de Inter-Actief-kamer of bij borrels en activiteiten."
 
 #: amelie/members/templates/includes/registration/authorizations.html:47
-#, fuzzy
-#| msgid "If you did choose an authorization above, then we need your bank details."
 msgid "If you chose one or all of the authorizations above, then we need your bank details."
-msgstr "Als je hierboven wel een machtiging hebt afgesloten, dan hebben we je bankgegevens nodig."
+msgstr "Als je hierboven voor een of alle machtigingen hebt gekozen, dan hebben we je bankgegevens nodig."
 
 #: amelie/members/templates/includes/registration/authorizations.html:58
 msgid "Your IBAN bank account number. For example \"<b>NL18ABNA0484869868</b>\"."
@@ -8703,7 +8678,7 @@ msgstr "Als je onder de 16 bent <b>moet</b> je je ouders daadwerkelijk vragen om
 
 #: amelie/members/templates/includes/registration/final_check.html:63
 msgid "After you send the form, you will get an e-mail requesting you to sign your membership documents digitally."
-msgstr ""
+msgstr "Nadat je het formulier hebt verstuurd, krijg je een e-mail met daarin het verzoek om digitaal je lidmaatschapsdocumenten te ondertekenen."
 
 #: amelie/members/templates/includes/registration/introduction.html:7
 msgid "Pre-enroll at Inter-<em>Actief</em>"
@@ -8832,10 +8807,8 @@ msgid "These are the initials of your first name (and optional baptismal name(s)
 msgstr "Dit zijn de voorletters van je voornaam en doopnamen, niet de eerste letter van je achternaam."
 
 #: amelie/members/templates/includes/registration/personal_details.html:47
-#, fuzzy
-#| msgid "Please fill in your date of birth in the format \"<b>yyyy-mm-dd</b>\"."
 msgid "Please fill in your date of birth. If no datepicker is shown, please use the format \"<b>yyyy-mm-dd</b>\"."
-msgstr "Vul aub. je geboortedatum in in het formaat \"<b>jjjj-mm-dd</b>\"."
+msgstr "Vul aub. je geboortedatum in. Als er geen datumkiezer getoond wordt, gebruik het formaat \"<b>jjjj-mm-dd</b>\"."
 
 #: amelie/members/templates/includes/registration/personal_details.html:60
 #: amelie/members/templates/includes/registration/personal_details_employee.html:60
@@ -8890,7 +8863,7 @@ msgstr "Welke studie(s) je gaat volgen."
 #: amelie/members/templates/includes/registration/study_general.html:36
 #: amelie/members/templates/person_edit_study.html:5
 msgid "Hey there developer! Here are some random unused student numbers for you to use:"
-msgstr ""
+msgstr "Hallo developer! Hier zijn een aantal willekeurige ongebruikte studentnummers om te gebruiken:"
 
 #: amelie/members/templates/includes/registration/study_freshmen.html:44
 #: amelie/members/templates/includes/registration/study_general.html:44
@@ -9177,52 +9150,40 @@ msgstr "Als je hebt gekozen voor een van de, of beide machtigingen om voor je co
 
 #: amelie/members/templates/members/preregistration_welcome.mail:13
 msgid "You should have received a second e-mail with a request to sign your membership documents. Open the link in that e-mail and follow the steps to digitally sign the forms."
-msgstr ""
+msgstr "Je zou een tweede e-mail ontvangen moeten hebben met het verzoek om je lidmaatschapsdocumenten te ondertekenen. Open de link in die e-mail en volg de stappen om de formulieren digitaal te ondertekenen."
 
 #: amelie/members/templates/members/preregistration_welcome.mail:15
-#, fuzzy
-#| msgid "On the first of July your membership will be automatically renewed."
 msgid "Once signed, your membership will be automatically activated and you can start using it!"
-msgstr "Op 1 juli wordt je lidmaatschap van Inter-Actief verlengd."
+msgstr "Na ondertekening wordt je lidmaatschap automatisch geactiveerd en kan je er gebruik van maken!"
 
 #: amelie/members/templates/members/preregistration_welcome.mail:17
-#, fuzzy
-#| msgid "Once signed, reply to this e-mail and attach the signed form(s), or send the form(s) to <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, stating \"Enrollment %(number)s\" in the subject of the email."
 msgid "If there are any problems with the signing, or if you didn't receive the second e-mail with the signature request, send an e-mail to <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, we are happy to help you along."
-msgstr "Wanneer je de formulieren hebt ondertekend, reageer dan op deze e-mail en voeg de ondertekende formulieren toe als bijlage, of stuur ze op naar <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, zorg ervoor dat er \"Enrollment %(number)s\" in het onderwerp van de mail staat."
+msgstr "Als je problemen ondervindt met het ondertekenen, of als je de tweede e-mail met het ondertekeningsverzoek niet hebt ontvangen, stuur dan een e-mail naar <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, dan helpen we je uit de brand."
 
 #: amelie/members/templates/members/preregistration_welcome.mail:18
 msgid "If there are any problems with the signing, or if you didn't receive the second e-mail with the signature request, send an e-mail to secretary@inter-actief.net, we are happy to help you along."
-msgstr ""
+msgstr "Als je problemen ondervindt met het ondertekenen, of als je de tweede e-mail met het ondertekeningsverzoek niet hebt ontvangen, stuur dan een e-mail naar <a href=\"mailto:secretary@inter-actief.net\">secretary@inter-actief.net</a>, dan helpen we je uit de brand."
 
 #: amelie/members/templates/members/preregistration_welcome.mail:20
-#, fuzzy
-#| msgid ""
-#| "Kind regards,\n"
-#| "\n"
-#| "The board of Inter-<i>Actief</i>"
 msgid ""
 "See you soon at Inter-<i>Actief</i>!\n"
 "Kind regards,\n"
 "\n"
 "The board of Inter-<i>Actief</i>"
 msgstr ""
+"Tot ziens bij Inter-<i>Actief</i>!\n"
 "Met vriendelijke groet,\n"
 "\n"
 "Het bestuur van Inter-<i>Actief</i>"
 
 #: amelie/members/templates/members/preregistration_welcome.mail:24
-#, fuzzy
-#| msgid ""
-#| "Kind regards,\n"
-#| "\n"
-#| "The board of Inter-/Actief/"
 msgid ""
 "See you soon at Inter-/Actief/!\n"
 "Kind regards,\n"
 "\n"
 "The board of Inter-/Actief/"
 msgstr ""
+"Tot ziens bij Inter-/Actief/!\n"
 "Met vriendelijke groet,\n"
 "\n"
 "Het bestuur van Inter-/Actief/"
@@ -9532,10 +9493,8 @@ msgid "Yes, throw away"
 msgstr "Ja, gooi maar weg."
 
 #: amelie/members/templates/person_delete_mandate.html:3
-#, fuzzy
-#| msgid "Delete page"
 msgid "Delete mandate"
-msgstr "Verwijder pagina"
+msgstr "Machtiging verwijderen"
 
 #: amelie/members/templates/person_delete_mandate.html:7
 msgid ""
@@ -9544,35 +9503,31 @@ msgid ""
 "            Before you delete the mandate, the pending signature request should be manually canceled in the signing tool so it is never completed.\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Er is al een ondertekeningsverzoek in behandeling voor deze machtiging!<br/>\n"
+"            Voordat je de machtiging verwijderd, moet het openstaande tekenverzoek handmatig geannuleerd worden in de ondertekeningstool zodat deze niet voltooid kan worden.\n"
+"        "
 
 #: amelie/members/templates/person_delete_mandate.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            Do you wish to activate mandate %(mandate)s?\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "            Do you wish to delete mandate %(mandate)s?\n"
 "        "
 msgstr ""
 "\n"
-"Wil je machtiging %(mandate)s activeren?"
+"            Wil je de machtiging %(mandate)s verwijderen?\n"
+"        "
 
 #: amelie/members/templates/person_delete_mandate.html:22
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            Only do this if the mandate has been signed and is in the treasurer's folder or mailbox.\n"
-#| "        "
 msgid ""
 "\n"
 "            Only do this if the mandate has not been signed! Otherwise activate and terminate the mandate instead.\n"
 "        "
 msgstr ""
 "\n"
-"Doe dit alleen wanneer de machtiging getekend is en deze in de map of\n"
-"het postvakje van de penningmeester zit."
+"            Doe dit alleen wanneer de machtiging nog niet getekend is! Als hij wel getekend is, activeer en beëindig hem dan.\n"
+"        "
 
 #: amelie/members/templates/person_edit_data.html:4
 #: amelie/members/templates/person_edit_data.html:8
@@ -9588,10 +9543,8 @@ msgid "There is no accountname set. Without accountname, a person cannot log in.
 msgstr "Er is geen accountnaam ingesteld. Zonder accountnaam kan deze persoon niet inloggen."
 
 #: amelie/members/templates/person_edit_mandate.html:3
-#, fuzzy
-#| msgid "End mandate"
 msgid "Edit mandate"
-msgstr "Machtiging beëindigen"
+msgstr "Machtiging wijzigen"
 
 #: amelie/members/templates/person_edit_mandate.html:8
 msgid ""
@@ -9600,6 +9553,10 @@ msgid ""
 "            If you edit the mandate, this signature will become invalid and will need to be re-requested!\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Deze machtiging is al ondertekend!\n"
+"            Als je de machtiging aanpast, zal deze handtekening ongeldig worden, en zal er een nieuw ondertekeningsverzoek moeten worden verstuurd!\n"
+"        "
 
 #: amelie/members/templates/person_edit_mandate.html:16
 msgid ""
@@ -9609,6 +9566,11 @@ msgid ""
 "            Also, after the edit, a new signature request will need to be sent and the member should be informed to only sign the new one.\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Er is al een ondertekeningsverzoek in behandeling voor deze machtiging!<br/>\n"
+"            Voordat je de machtiging aanpast, moet het openstaande tekenverzoek handmatig geannuleerd worden in de ondertekeningstool zodat deze niet voltooid kan worden.<br/>\n"
+"            Daarnaast moet na het aanpassen een nieuw ondertekeningsverzoek worden verstuurd, en het lid moet geinformeerd worden dat hij alleen het nieuwe verzoek hoeft te tekenen.\n"
+"        "
 
 #: amelie/members/templates/person_edit_mandate.html:27
 #: amelie/members/templates/person_new_mandate.html:8
@@ -9662,24 +9624,19 @@ msgid "Terminate memberships"
 msgstr "Lidmaatschap beëindigen"
 
 #: amelie/members/templates/person_existing_mandate.html:3
-#, fuzzy
-#| msgid "End mandate"
 msgid "Existing mandate"
-msgstr "Machtiging beëindigen"
+msgstr "Bestaande machtiging"
 
 #: amelie/members/templates/person_existing_mandate.html:7
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            Do you wish to activate mandate %(mandate)s?\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "        The following mandate cannot be activated: %(mandate)s.\n"
 "    "
 msgstr ""
 "\n"
-"Wil je machtiging %(mandate)s activeren?"
+"        De volgende machtiging kan niet worden geactiveerd: %(mandate)s.\n"
+"    "
 
 #: amelie/members/templates/person_existing_mandate.html:11
 #, python-format
@@ -9688,6 +9645,9 @@ msgid ""
 "        There is already an active mandate of the same type: %(existing_mandate)s. Please terminate this mandate before activating a new one.\n"
 "    "
 msgstr ""
+"\n"
+"        Er bestaat al een actieve machtiging van hetzelfde soort: %(existing_mandate)s. Deze moet eerst beëindigd worden voordat een nieuwe geactiveerd kan worden.\n"
+"    "
 
 #: amelie/members/templates/person_functions.html:5
 #, python-format
@@ -9703,21 +9663,21 @@ msgstr ""
 #: amelie/members/templates/person_mandate.html:6
 #: amelie/members/templates/person_membership.html:6
 msgid "The request for a digital signature was sent."
-msgstr ""
+msgstr "Het digitale ondertekeningsverzoek is verstuurd."
 
 #: amelie/members/templates/person_mandate.html:10
 msgid "The mandate was created and a request for a digital signature was sent to the member's e-mail."
-msgstr ""
+msgstr "De machtiging is aangemaakt en een digitaal ondertekeningsverzoek is naar het e-mailadres van het lid verstuurd."
 
 #: amelie/members/templates/person_mandate.html:14
 msgid "The mandate was created. No signature request was sent."
-msgstr ""
+msgstr "De machtiging is aangemaakt. Er is geen ondertekeningsverzoek verstuurd."
 
 #: amelie/members/templates/person_mandate.html:18
 #: amelie/members/templates/person_membership.html:10
 #: amelie/members/templates/preregistration_resend_error.html:11
 msgid "There was an error while sending the digital signature request. Please contact the WWW."
-msgstr ""
+msgstr "Er ging wat fout bij het versturen van het digitale ondertekeningsverzoek. Neem a.u.b. contact op met de WWW."
 
 #: amelie/members/templates/person_mandate.html:24
 #, python-format
@@ -9783,29 +9743,23 @@ msgstr "voor september 2013"
 
 #: amelie/members/templates/person_mandate.html:83
 msgid "The mandate will be automatically activated once the member signs the digital form. You can override and activate it manually here too."
-msgstr ""
+msgstr "De machtiging zal automatisch worden geactiveerd als het lid het digitale formulier heeft ondertekend. Je kunt dit ook overschrijven en de machtiging hier handmatig activeren."
 
 #: amelie/members/templates/person_mandate.html:83
-#, fuzzy
-#| msgid "Activate mandate"
 msgid "Activate manually"
-msgstr "Machtiging activeren"
+msgstr "Handmatig activeren"
 
 #: amelie/members/templates/person_mandate.html:87
 msgid "Terminate"
 msgstr "Beëindigen"
 
 #: amelie/members/templates/person_mandate.html:91
-#, fuzzy
-#| msgid "Mandate form"
 msgid "View signed mandate form"
-msgstr "Machtigingsformulier"
+msgstr "Ondertekend machtigingsformulier tonen"
 
 #: amelie/members/templates/person_mandate.html:91
-#, fuzzy
-#| msgid "New picture"
 msgid "View signature"
-msgstr "Nieuwe foto"
+msgstr "Handtekening tonen"
 
 #: amelie/members/templates/person_mandate.html:94
 #: amelie/members/templates/person_membership.html:96
@@ -9813,75 +9767,67 @@ msgstr "Nieuwe foto"
 #: amelie/members/templates/preregistration_resend_confirm.html:8
 #: amelie/members/templates/preregistration_status.html:76
 msgid "Re-send digital signature request"
-msgstr ""
+msgstr "Digitaal ondertekeningsverzoek opnieuw versturen"
 
 #: amelie/members/templates/person_mandate.html:94
 msgid "Re-request signature"
-msgstr ""
+msgstr "Handtekening opnieuw aanvragen"
 
 #: amelie/members/templates/person_mandate.html:96
 #: amelie/members/templates/person_mandate_sign.html:3
 #: amelie/members/templates/person_membership.html:98
 #: amelie/members/templates/person_membership_sign.html:3
 msgid "Send digital signature request"
-msgstr ""
+msgstr "Verstuur digitaal ondertekeningsverzoek"
 
 #: amelie/members/templates/person_mandate.html:96
-#, fuzzy
-#| msgid "Requested on"
 msgid "Request signature"
-msgstr "Aangevraagd op"
+msgstr "Handtekening aanvragen"
 
 #: amelie/members/templates/person_mandate.html:101
 msgid "A signature request for this mandate is in progress. Click to open the request in Documenso."
-msgstr ""
+msgstr "Een ondertekeningsverzoek voor deze machtiging is in behandeling. Klik om het verzoek te openen in Documenso."
 
 #: amelie/members/templates/person_mandate.html:101
 msgid "View in sign tool"
-msgstr ""
+msgstr "Tonen in ondertekeningstool"
 
 #: amelie/members/templates/person_mandate.html:102
 #: amelie/members/templates/person_membership.html:104
 #: amelie/members/templates/preregistration_status.html:82
 msgid "Try to retrieve signed file from Documenso"
-msgstr ""
+msgstr "Probeer het ondertekende document op te halen uit Documenso"
 
 #: amelie/members/templates/person_mandate.html:102
-#, fuzzy
-#| msgid "Retried"
 msgid "Retrieve file"
-msgstr "Opnieuw geprobeerd"
+msgstr "Document ophalen"
 
 #: amelie/members/templates/person_mandate.html:105
 msgid "This mandate was created before we introduced digital signatures. Its signed copy may be in the physical folders."
-msgstr ""
+msgstr "Deze machtiging is aangemaakt voordat we digitale handtekeningen hebben geintroduceerd. Het ondertekende exemplaar bevindt zich mogelijk in de fysieke mappen."
 
 #: amelie/members/templates/person_mandate.html:105
-#, fuzzy
-#| msgid "End mandate"
 msgid "Old mandate"
-msgstr "Machtiging beëindigen"
+msgstr "Oude machtiging"
 
 #: amelie/members/templates/person_mandate_retrieve_signed.html:3
 #: amelie/members/templates/person_membership_retrieve_signed.html:3
 msgid "Retrieve signed document from Documenso"
-msgstr ""
+msgstr "Getekende document ophalen uit Documenso"
 
 #: amelie/members/templates/person_mandate_retrieve_signed.html:6
 msgid "The following document was successfully retrieved from Documenso and saved to the mandate:"
-msgstr ""
+msgstr "Het volgende document is succesvol opgehaald uit Dcouemso en opgeslagen in de machtiging:"
 
 #: amelie/members/templates/person_mandate_retrieve_signed.html:14
 #: amelie/members/templates/person_membership_retrieve_signed.html:14
 msgid "Could not retrieve any document from Documenso. The error received was:"
-msgstr ""
+msgstr "Kon geen documenten ophalen van Documenso. De ontvangen foutmelding is:"
 
 #: amelie/members/templates/person_mandate_retrieve_signed.html:18
 #: amelie/members/templates/person_membership_retrieve_signed.html:18
-#, fuzzy
-#| msgid "Return to home"
 msgid "Return"
-msgstr "Terug naar hoofdpagina"
+msgstr "Terug"
 
 #: amelie/members/templates/person_mandate_sign.html:7
 msgid ""
@@ -9890,6 +9836,10 @@ msgid ""
 "            If you re-send the signature request, it will overwrite the existing document and signature!\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Deze machtiging is al ondertekend!\n"
+"            Als je het ondertekeningsverzoek opnieuw verstuurt, wordt het bestaande document en de handtekening overschreven!\n"
+"        "
 
 #: amelie/members/templates/person_mandate_sign.html:14
 msgid ""
@@ -9898,6 +9848,10 @@ msgid ""
 "            If you re-send the signature request, it will overwrite the existing request.\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Er is al een ondertekeningsverzoek in behandeling voor deze machtiging!\n"
+"            Als je het ondertekeningsverzoek opnieuw verstuurt, wordt het bestaande verzoek overschreven.\n"
+"        "
 
 #: amelie/members/templates/person_mandate_sign.html:22
 msgid ""
@@ -9907,6 +9861,11 @@ msgid ""
 "            The e-mail will be sent to the following contact:\n"
 "        "
 msgstr ""
+"\n"
+"            Dit zal een e-mail naar het lid toe sturen met het verzoek om de machtiging te ondertekenen via onze ondertekeningstool.\n"
+"            Nadat het lid heeft getekend, kan je het ondertekende document vinden op hun ledenpagina.\n"
+"            De e-mail zal worden gestuurd naar de volgende contactgegevens:\n"
+"        "
 
 #: amelie/members/templates/person_mandate_sign.html:38
 #: amelie/members/templates/person_membership_sign.html:38
@@ -9972,22 +9931,20 @@ msgid "Process payment"
 msgstr "Voer betaling in"
 
 #: amelie/members/templates/person_membership.html:90
-#, fuzzy
-#| msgid "Download export"
 msgid "Download PDF form"
-msgstr "Download export"
+msgstr "Download PDF-formulier"
 
 #: amelie/members/templates/person_membership.html:92
 msgid "View signed member form"
-msgstr ""
+msgstr "Ondertekend lidmaatschapsformulier tonen"
 
 #: amelie/members/templates/person_membership.html:103
 msgid "A signature request for this membership is in progress. Click to open the request in Documenso."
-msgstr ""
+msgstr "Een ondertekeningsverzoek voor deze machtiging is in behandeling. Klik om het verzoek te openen in Documenso."
 
 #: amelie/members/templates/person_membership.html:107
 msgid "This membership was created before we introduced digital signatures. Its signed copy may be in the physical folders."
-msgstr ""
+msgstr "Dit lidmaatschap is aangemaakt voordat we digitale handtekeningen hebben geintroduceerd. Het ondertekende exemplaar bevindt zich mogelijk in de fysieke mappen."
 
 #: amelie/members/templates/person_membership.html:122
 msgid "Terminate membership"
@@ -9995,7 +9952,7 @@ msgstr "Einde lidmaatschap"
 
 #: amelie/members/templates/person_membership_retrieve_signed.html:6
 msgid "The following document was successfully retrieved from Documenso and saved to the membership:"
-msgstr ""
+msgstr "Het volgende document is succesvol opgehaald uit Dcouemso en opgeslagen in het lidmaatschap:"
 
 #: amelie/members/templates/person_membership_sign.html:7
 msgid ""
@@ -10004,6 +9961,10 @@ msgid ""
 "            If you re-send the signature request, it will overwrite the existing document and signature!\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Dit lid heeft al een getekend document!\n"
+"            Als je het ondertekeningsverzoek opnieuw verstuurt, wordt het bestaande document en de handtekening overschreven!\n"
+"        "
 
 #: amelie/members/templates/person_membership_sign.html:14
 msgid ""
@@ -10012,6 +9973,10 @@ msgid ""
 "            If you re-send the signature request, it will overwrite the existing request.\n"
 "        "
 msgstr ""
+"\n"
+"            Waarschuwing: Er is al een ondertekeningsverzoek in behandeling voor dit lid!\n"
+"            Als je het ondertekeningsverzoek opnieuw verstuurt, wordt het bestaande verzoek overschreven.\n"
+"        "
 
 #: amelie/members/templates/person_membership_sign.html:22
 msgid ""
@@ -10021,6 +9986,11 @@ msgid ""
 "            The e-mail will be sent to the following contact:\n"
 "        "
 msgstr ""
+"\n"
+"            Dit zal een e-mail naar het lid toe sturen met het verzoek om het lidmaatschapsformulier te ondertekenen via onze ondertekeningstool.\n"
+"            Nadat het lid heeft getekend, kan je het ondertekende document vinden op hun ledenpagina.\n"
+"            De e-mail zal worden gestuurd naar de volgende contactgegevens:\n"
+"        "
 
 #: amelie/members/templates/person_new_membership.html:3
 msgid "Add a membership"
@@ -10035,16 +10005,12 @@ msgid "Input"
 msgstr "Invoeren"
 
 #: amelie/members/templates/person_registration_form_complete.html:5
-#, fuzzy
-#| msgid "Pre-enrollment successful"
 msgid "Enrollment successful"
-msgstr "Voorinschrijving geslaagd"
+msgstr "Inschrijving geslaagd"
 
 #: amelie/members/templates/person_registration_form_complete.html:12
-#, fuzzy
-#| msgid "Your pre-enrollment was successful!"
 msgid "Your enrollment was successful!"
-msgstr "Je voorinschrijving is geslaagd!"
+msgstr "Je inschrijving is geslaagd!"
 
 #: amelie/members/templates/person_registration_form_complete.html:15
 #: amelie/members/templates/person_registration_form_preregister_complete.html:15
@@ -10192,6 +10158,10 @@ msgid ""
 "                    If you re-send the signature request, it will overwrite the existing request.\n"
 "                "
 msgstr ""
+"\n"
+"                    Waarschuwing: Er is al een ondertekeningsverzoek in behandeling voor dit lid!\n"
+"                    Als je het ondertekeningsverzoek opnieuw verstuurt, wordt het bestaande verzoek overschreven.\n"
+"                "
 
 #: amelie/members/templates/preregistration_resend_confirm.html:21
 msgid ""
@@ -10201,37 +10171,36 @@ msgid ""
 "                    The e-mail will be sent to the following contact:\n"
 "                "
 msgstr ""
+"\n"
+"                    Dit zal een e-mail naar het lid toe sturen met het verzoek om het lidmaatschapsformulier te ondertekenen via onze ondertekeningstool.\n"
+"                    Nadat het lid heeft getekend, kan je het ondertekende document vinden op hun ledenpagina.\n"
+"                    De e-mail zal worden gestuurd naar de volgende contactgegevens:\n"
+"                "
 
 #: amelie/members/templates/preregistration_resend_error.html:4
 #: amelie/members/templates/preregistration_resend_error.html:8
 msgid "Error sending signature request"
-msgstr ""
+msgstr "Fout tijdens versturen van het ondertekeningsverzoek"
 
 #: amelie/members/templates/preregistration_resend_error.html:14
 #: amelie/members/templates/preregistration_retrieve_error.html:15
 #: amelie/members/templates/preregistration_retrieve_success.html:18
-#, fuzzy
-#| msgid "Return to home"
 msgid "Return to overview"
-msgstr "Terug naar hoofdpagina"
+msgstr "Terug naar overzicht"
 
 #: amelie/members/templates/preregistration_retrieve_error.html:4
 #: amelie/members/templates/preregistration_retrieve_error.html:8
-#, fuzzy
-#| msgid "Error during exporting"
 msgid "Error during document retrieval"
-msgstr "Fout tijdens exporteren"
+msgstr "Fout tijdens het ophalen van het document"
 
 #: amelie/members/templates/preregistration_retrieve_error.html:11
 msgid "There was an error while retrieving the digital signature documents. The received error message was:"
-msgstr ""
+msgstr "Er ging wat fout bij het ophalen van de digitaal ondertekende docuemten. De ontvangen foutmelding is:"
 
 #: amelie/members/templates/preregistration_retrieve_success.html:4
 #: amelie/members/templates/preregistration_retrieve_success.html:8
-#, fuzzy
-#| msgid "Unknown token verified successfully!"
 msgid "Document retrieved successfully"
-msgstr "Onbekend token succesvol geverifiëerd!"
+msgstr "Document succesvol opgehaald"
 
 #: amelie/members/templates/preregistration_retrieve_success.html:12
 #, python-format
@@ -10241,6 +10210,10 @@ msgid ""
 "                    The membership and authorizations have been automatically activated as well.\n"
 "                "
 msgstr ""
+"\n"
+"                    De getekende documenten voor %(name)s zijn succesvol opgehaald.\n"
+"                    Het lidmaatschap en eventuele machtigingen zijn ook automatisch geactiveerd.\n"
+"                "
 
 #: amelie/members/templates/preregistration_status.html:5
 #: amelie/members/templates/preregistration_status.html:20
@@ -10249,38 +10222,31 @@ msgid "Pre-enrollment status"
 msgstr "Status van voorinschrijvingen"
 
 #: amelie/members/templates/preregistration_status.html:12
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                Signature request for %(name)s's membership was sent.\n"
 "            "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                Ondertekeningsverzoek voor %(name)s's lidmaatschap is verstuurd.\n"
+"            "
 
 #: amelie/members/templates/preregistration_status.html:23
 msgid "These are the current pre-enrollments that are not activated yet, per do-group."
 msgstr "Dit zijn de huidige voorinschrinvingen die nog niet zijn geactiveerd, per doegroep."
 
 #: amelie/members/templates/preregistration_status.html:26
-#, fuzzy
-#| msgid "If the member has signed their membership and authorization forms, you can click the \"Activate\" (<i class=\"icon icon-accept\"></i>) button to activate the membership (and authorizations)."
 msgid "If the member has signed their membership and authorization forms, the membership and any authorizations should automatically get activated and it will disappear from this list."
-msgstr "Als het lid hun lidmaatschaps- en machtigingsformulieren hebben ondertekend, dan kan je op de \"Activeer\" (<i class=\"icon icon-accept\"></i>) knop drukken om het lidmaatschap (en de machtigingen) van het lid te activeren."
+msgstr "Als het lid hun lidmaatschaps- en machtigingsformulieren heeft ondertekend, dan zal het lidmaatschap en de eventuele machtigingen automatisch worden geactiveerd, en zal het lid verdwijnen uit deze lijst."
 
 #: amelie/members/templates/preregistration_status.html:27
-#, fuzzy
-#| msgid "You can also re-print the forms for that member by clicking the \"Print\" (<i class=\"icon icon-printer\"></i>) button."
 msgid "You can (re-)print the forms for that member by clicking the \"Print\" (<i class=\"icon icon-printer\"></i>) button."
-msgstr "Je kan ook de formulieren van een lid opnieuw printen door op de \"Print\" (<i class=\"icon icon-printer\"></i>) knop te drukken."
+msgstr "Je kunt de formulieren van een lid (opnieuw) printen door op de \"Print\" (<i class=\"icon icon-printer\"></i>) knop te drukken."
 
 #: amelie/members/templates/preregistration_status.html:29
 msgid "Additionally, as a board member, you can view the state of the signature requests (<i class=\"icon icon-page_find\"></i>), and attempt re-download of the signed forms (<i class=\"icon icon-arrow_down\"></i>) or even re-send them (<i class=\"icon icon-pencil_delete\"></i>) if it failed for whatever reason."
-msgstr ""
+msgstr "Daarnaast kun je als bestuurslid de status van ondertekeningsverzoeken zien (<i class=\"icon icon-page_find\"></i>), en proberen de ondertekende documenten opnieuw op te halen (<i class=\"icon icon-arrow_down\"></i>) of deze zelfs opnieuw te versturen naar het lid (<i class=\"icon icon-pencil_delete\"></i>) als dit voor een of andere reden is mislukt."
 
 #: amelie/members/templates/preregistration_status.html:32
 msgid "Click the \"Delete\" (<i class=\"icon icon-delete\"></i>) button to delete the pre-enrollment."
@@ -10305,21 +10271,19 @@ msgstr "%(len)s inschrijving(en)"
 
 #: amelie/members/templates/preregistration_status.html:73
 msgid "Print membership forms (opens in new tab)"
-msgstr ""
+msgstr "Lidmaatschapsformulieren printen (opent in nieuwe tab)"
 
 #: amelie/members/templates/preregistration_status.html:80
 msgid "A signature request for this membership is in progress. Click to open the request in Documenso"
-msgstr ""
+msgstr "Een ondertekeningsverzoek voor dit lidmaatschap is in behandeling. Klik om het verzoek te openen in Documenso."
 
 #: amelie/members/templates/preregistration_status.html:87
 msgid "Manually activate. Should not be necessary and will not include any digital signature files"
-msgstr ""
+msgstr "Handmatig activeren. Zou niet nodig moeten zijn en er zullen geen digitaal getekende bestanden worden toegevoegd"
 
 #: amelie/members/templates/preregistration_status.html:90
-#, fuzzy
-#| msgid "No pre-enrollments"
 msgid "Delete this pre-enrollment"
-msgstr "Geen voorinschrijvingen"
+msgstr "Verwijder deze voorinschrijving"
 
 #: amelie/members/templates/preregistration_status.html:94
 msgid "No members"
@@ -10884,10 +10848,9 @@ msgid "Application Name"
 msgstr "Applicatienaam"
 
 #: amelie/personal_tab/debt_collection.py:100
-#, fuzzy, python-brace-format
-#| msgid "Contribution Inter-Actief {membership_type} {name} Questions? call 053-489 3756"
+#, python-brace-format
 msgid "Contribution Inter-Actief {membership_year} {membership_type} {name} Questions? Email treasurer@inter-actief.net"
-msgstr "Contributie Inter-Actief {membership_type} {name} Voor vragen bel 053-489 3756"
+msgstr "Contributie Inter-Actief {membership_year} {membership_type} {name} Voor vragen bel 053-489 3756"
 
 #: amelie/personal_tab/debt_collection.py:159
 #, python-brace-format
@@ -10900,10 +10863,9 @@ msgid "Contribution {membership_type} ({begin_year}/{end_year})"
 msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
 
 #: amelie/personal_tab/debt_collection.py:223
-#, fuzzy, python-brace-format
-#| msgid "Personal tab Inter-Actief till {date} {name} Questions? call 053-489 3756"
+#, python-brace-format
 msgid "Personal tab Inter-Actief till {date} {name} Questions? Email treasurer@inter-actief.net"
-msgstr "Streeplijst Inter-Actief tot {date} {name} Voor vragen bel 053-489 3756"
+msgstr "Streeplijst Inter-Actief tot {date} {name} Vragen? E-mail treasurer@inter-actief.net"
 
 #: amelie/personal_tab/debt_collection.py:288
 #, python-brace-format
@@ -10950,10 +10912,8 @@ msgid "Membership fee"
 msgstr "Contributie"
 
 #: amelie/personal_tab/forms.py:60
-#, fuzzy
-#| msgid "Membership fee"
 msgid "Membership fee years"
-msgstr "Contributie"
+msgstr "Contributiejaren"
 
 #: amelie/personal_tab/forms.py:76
 msgid "Date of execution is too soon"
@@ -10965,7 +10925,7 @@ msgstr "Uitvoerdatum kan niet in het weekend vallen"
 
 #: amelie/personal_tab/forms.py:86
 msgid "Please select at least one year for the contribution debt collection."
-msgstr ""
+msgstr "Selecteer ten minste 1 jaar voor de incassopoging voor contributie."
 
 #: amelie/personal_tab/forms.py:118 amelie/personal_tab/models.py:677
 msgid "Short description of the reason for the amendment"
@@ -11065,95 +11025,82 @@ msgid "Printing article not found. Please contact the WWW committee."
 msgstr "Printartikel niet gevonden. Neem a.u.b. contact op met de WWW-commissie."
 
 #: amelie/personal_tab/forms.py:381
-#, fuzzy
-#| msgid "committees"
 msgid "My committees"
-msgstr "commissies"
+msgstr "Mijn commissies"
 
 #: amelie/personal_tab/forms.py:385
-#, fuzzy
-#| msgid "committees"
 msgid "Other committees"
-msgstr "commissies"
+msgstr "Andere commissies"
 
 #: amelie/personal_tab/forms.py:402
-#, fuzzy
-#| msgid "Committee"
 msgid "-- No Committee --"
-msgstr "Commissie"
+msgstr "-- Geen commissie --"
 
 #: amelie/personal_tab/forms.py:405
-#, fuzzy
-#| msgid "Select a committee for free printing, or leave blank to pay for printing"
 msgid "Select a committee for which this declaration is, or leave blank and specify in the description."
-msgstr "Selecteer een commissie om gratis te printen, of laat leeg om te betalen voor het printen"
+msgstr "Selecteer een commissie waar deze declaratie voor is, of laat het leeg en leg uit waar het voor is in de omschrijving."
 
 #: amelie/personal_tab/forms.py:410 amelie/tools/pdf.py:568
-#, fuzzy
-#| msgid "Payment"
 msgid "Payment Method"
-msgstr "Betaling"
+msgstr "Betalingsmethode"
 
 #: amelie/personal_tab/forms.py:411
 msgid "Select how you paid for the expense."
-msgstr ""
+msgstr "Selecteer hoe je hebt betaald voor de uitgave."
 
 #: amelie/personal_tab/forms.py:417
 msgid "Select your IBAN for payment."
-msgstr ""
+msgstr "Selecteer je IBAN voor betaling."
 
 #: amelie/personal_tab/forms.py:422
 msgid "Fill in your IBAN if it is not listed above."
-msgstr ""
+msgstr "Vul je IBAN in als deze niet hierboven staat."
 
 #: amelie/personal_tab/forms.py:428
 msgid "Enter the amount of your declaration in euro's."
-msgstr ""
+msgstr "Vul het bedrag in van je declaratie, in euros."
 
 #: amelie/personal_tab/forms.py:436
 msgid "Enter the description for your declaration."
-msgstr ""
+msgstr "Vul een omschrijving in voor je declaratie."
 
 #: amelie/personal_tab/forms.py:442
 msgid "Select documents to attach to the declaration."
-msgstr ""
+msgstr "Selecteer documenten om toe te voegen aan de declaratie."
 
 #: amelie/personal_tab/forms.py:458
-#, fuzzy
-#| msgid "Other"
 msgid "-- Other --"
-msgstr "Overig"
+msgstr "-- Anders --"
 
 #: amelie/personal_tab/forms.py:468
 #, python-brace-format
 msgid "You can upload a maximum of {max_files} files."
-msgstr ""
+msgstr "Je kunt maximaal {max_files} bestanden uploaden."
 
 #: amelie/personal_tab/forms.py:474
-#, fuzzy, python-brace-format
-#| msgid "File size cannot exceed %(size)s."
+#, python-brace-format
 msgid "The total file size cannot exceed {max_size} MB."
-msgstr "Bestand mag maximaal %(size)s groot zijn."
+msgstr "De totale bestandsgrootte mag maximaal %(max_size)s MB zijn."
 
 #: amelie/personal_tab/forms.py:490
 msgid "Please select either an IBAN from the list or enter a custom IBAN, not both."
-msgstr ""
+msgstr "Selecteer ofwel een IBAN uit de lijst, of vul er zelf een in, niet beide."
 
 #: amelie/personal_tab/forms.py:496
 msgid "Please select an IBAN from the list or enter a custom IBAN."
-msgstr ""
+msgstr "Selecteer een IBAN uit de lijst, of vul zelf een IBAN in."
 
 #: amelie/personal_tab/forms.py:501
 msgid "The amount cannot be zero."
-msgstr ""
+msgstr "Het bedrag kan niet nul zijn."
 
 #: amelie/personal_tab/forms.py:506
 msgid "The amount must be a positive number."
-msgstr ""
+msgstr "Het bedrag moet positief zijn."
 
 #: amelie/personal_tab/forms.py:511
 msgid "Please provide a description for your declaration."
-msgstr ""
+msgstr "Vul een omschrijving in voor je declaratie."
 
 #: amelie/personal_tab/models.py:28 amelie/personal_tab/models.py:706
 msgid "begin"
@@ -12033,59 +11980,47 @@ msgid "Add amendment"
 msgstr "Amendement invoeren"
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_amendment.html:10
-#, fuzzy, python-format
-#| msgid "Edit transaction '%(object)s'"
+#, python-format
 msgid "Edit amendment '%(object)s'"
-msgstr "Wijzig transactie '%(object)s'"
+msgstr "Wijzig amendement '%(object)s'"
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_amendment.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        With this form, you can add a debit reversal of direct withdrawal-instruction <a href=\"%(url)s\">%(authorization)s</a>.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                            With this form, you can edit the amendment to the <a href=\"%(url)s\">%(authorization)s</a> authorization.\n"
 "                        "
 msgstr ""
 "\n"
-"Met dit formulier kun je een amendement invoeren voor machtiging <a href=\"%(url)s\">%(authorization)s</a>."
+"                            Met dit formulier kun je een amendement aanpassen voor machtiging <a href=\"%(url)s\">%(authorization)s</a>.\n"
+"                        "
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_amendment.html:22
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        With this form, you can add a debit reversal of direct withdrawal-instruction <a href=\"%(url)s\">%(authorization)s</a>.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                        With this form, you can add an amendment to the <a href=\"%(url)s\">%(authorization)s</a> authorization.\n"
 "                    "
 msgstr ""
 "\n"
-"Met dit formulier kun je een amendement invoeren voor machtiging <a href=\"%(url)s\">%(authorization)s</a>."
+"                        Met dit formulier kun je een amendement toevoegen voor machtiging <a href=\"%(url)s\">%(authorization)s</a>.\n"
+"                    "
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_amendment_delete.html:4
 #: amelie/personal_tab/templates/cookie_corner_authorization_amendment_delete.html:9
-#, fuzzy
-#| msgid "Delete payment"
 msgid "Delete amendment"
-msgstr "Verwijder betaling"
+msgstr "Amendement verwijderen"
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_amendment_delete.html:11
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Edit the enrollment options for <a href=\"%(url)s\">%(activity)s</a> here.\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                    Are you sure you want to delete the amendment for the <a href=\"%(url)s\">%(authorization)s</a> authorization?\n"
 "                "
 msgstr ""
 "\n"
-"Wijzig hier de inschrijfopties voor <a href=\"%(url)s\">%(activity)s</a>."
+"                    Weet je zeker dat je het amendement voor machtiging <a href=\"%(url)s\">%(authorization)s</a> wilt verwijderen?\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_list.html:8
 msgid "Search mandates for collection"
@@ -12140,15 +12075,15 @@ msgstr "Er zijn geen amendementen gevonden."
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:116
 msgid "Current amendment has not yet been sent to the bank, so a new one cannot be added."
-msgstr ""
+msgstr "Het huidige amendement is nog niet naar de bank verstuurd, dus er kan nog geen nieuwe toegevoegd worden."
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:118
 msgid "This mandate is not signed, so a new amendment cannot be added."
-msgstr ""
+msgstr "Deze machtiging is niet ondertekend, dus er kan geen amendement aan worden toegevoegd."
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:120
 msgid "This mandate is terminated, so a new amendment cannot be added."
-msgstr ""
+msgstr "Deze machtiging is beëindigd, dus er kan geen amendenemt aan worden toegevoegd."
 
 #: amelie/personal_tab/templates/cookie_corner_authorization_view.html:127
 msgid "Instructions"
@@ -12198,10 +12133,8 @@ msgstr "Tentamenkoekentegoed"
 
 #: amelie/personal_tab/templates/cookie_corner_balance.html:36
 #: amelie/personal_tab/templates/cookie_corner_balance.html:89
-#, fuzzy
-#| msgid "For members"
 msgid "Former Member"
-msgstr "Voor leden"
+msgstr "Voormalige leden"
 
 #: amelie/personal_tab/templates/cookie_corner_balance.html:37
 #: amelie/personal_tab/templates/cookie_corner_balance.html:61
@@ -12316,24 +12249,19 @@ msgstr ""
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_reversal_delete.html:4
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_reversal_delete.html:9
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:107
-#, fuzzy
-#| msgid "Debit reversal"
 msgid "Delete reversal"
-msgstr "Terugboeking"
+msgstr "Terugboeking verwijderen"
 
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_reversal_delete.html:11
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    With this form, you can add a debit reversal of direct withdrawal-instruction <a href=\"%(url)s\">%(instruction)s</a>.\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                    Are you sure you want to delete the reversal for %(person)s's direct withdrawal-instruction <a href=\"%(url)s\">%(instruction)s</a>?\n"
 "                "
 msgstr ""
 "\n"
-"Met dit formulier kun je een terugboeking invoeren van incasso-instructie <a href=\"%(url)s\">%(instruction)s</a>."
+"                    Weet je zeker dat je de terugboeking voor %(person)s's incasso-instructie <a href=\"%(url)s\">%(instruction)s</a> wilt verwijderen?\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:4
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:8
@@ -12365,10 +12293,8 @@ msgid "Debit reversal"
 msgstr "Terugboeking"
 
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:102
-#, fuzzy
-#| msgid "debit reversal"
 msgid "Edit reversal"
-msgstr "terugboeking"
+msgstr "Terugboeking wijzigen"
 
 #: amelie/personal_tab/templates/cookie_corner_debt_collection_instruction_view.html:158
 msgid "Pre-settlement"
@@ -12619,10 +12545,8 @@ msgid "Direct withdrawal-tasks (SEPA)"
 msgstr "Incasso-opdrachten  (SEPA)"
 
 #: amelie/personal_tab/templates/cookie_corner_overview.html:28
-#, fuzzy
-#| msgid "memberships"
 msgid "Unpaid memberships"
-msgstr "lidmaatschappen"
+msgstr "Onbetaalde lidmaatschappen"
 
 #: amelie/personal_tab/templates/cookie_corner_overview.html:30
 msgid "Deprecated pages"
@@ -12686,85 +12610,60 @@ msgid "Alexia"
 msgstr "Alexia"
 
 #: amelie/personal_tab/templates/declaration.mail:3
-#, fuzzy
-#| msgid "Someone submitted a complaint."
 msgid "Declaration submitted via Amélie"
-msgstr "Iemand heeft een klacht geplaatst."
+msgstr "Declaratie verstuurd via Amélie"
 
 #: amelie/personal_tab/templates/declaration.mail:24
-#, fuzzy
-#| msgid "I.C.T.S.V. Inter-<i>Actief</i>"
 msgid " I.C.T.S.V. Inter-<i>Actief</i>"
-msgstr "I.C.T.S.V. Inter-<i>Actief</i>"
+msgstr " I.C.T.S.V. Inter-<i>Actief</i>"
 
 #: amelie/personal_tab/templates/declaration.mail:29
-#, fuzzy
-#| msgid "Dear board member,"
 msgid "Dear Treasurer,"
-msgstr "Beste bestuurder,"
+msgstr "Beste Penningmeester,"
 
 #: amelie/personal_tab/templates/declaration.mail:31
-#, fuzzy, python-format
-#| msgid "Someone submitted a complaint."
+#, python-format
 msgid "%(name)s has submitted a declaration."
-msgstr "Iemand heeft een klacht geplaatst."
+msgstr "%(name)s heeft een declaratie ingediend."
 
 #: amelie/personal_tab/templates/declaration.mail:33
-#, fuzzy
-#| msgid "Committees:"
 msgid "Committee:"
-msgstr "Commissies:"
+msgstr "Commissie:"
 
 #: amelie/personal_tab/templates/declaration.mail:34
-#, fuzzy
-#| msgid "Payment"
 msgid "Payment Method:"
-msgstr "Betaling"
+msgstr "Betalingsmethode:"
 
 #: amelie/personal_tab/templates/declaration.mail:35
-#, fuzzy
-#| msgid "IBAN"
 msgid "IBAN:"
-msgstr "IBAN"
+msgstr "IBAN:"
 
 #: amelie/personal_tab/templates/declaration.mail:36
-#, fuzzy
-#| msgid "Amount"
 msgid "Amount:"
-msgstr "Aantal"
+msgstr "Bedrag:"
 
 #: amelie/personal_tab/templates/declaration.mail:37
-#, fuzzy
-#| msgid "Submission timestamp;"
 msgid "Submission date:"
-msgstr "Tijdstempel van indiening;"
+msgstr "Datum van indiening:"
 
 #: amelie/personal_tab/templates/declaration.mail:38
-#, fuzzy
-#| msgid "Description"
 msgid "Description:"
-msgstr "Omschrijving"
+msgstr "Omschrijving:"
 
 #: amelie/personal_tab/templates/declaration.mail:42
 msgid ""
 "Cheers,\n"
 "Amélie"
 msgstr ""
+"Cheers,\n"
+"Amélie"
 
 #: amelie/personal_tab/templates/declaration_form.html:4
 #: amelie/personal_tab/templates/declaration_form.html:9
-#, fuzzy
-#| msgid "publication"
 msgid "Submit Declaration"
-msgstr "publicatie"
+msgstr "Declaratie versturen"
 
 #: amelie/personal_tab/templates/declaration_form.html:13
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                                If your print is for a committee, select it in the form above.\n"
-#| "                                In that case the print will be free.\n"
-#| "                            "
 msgid ""
 "\n"
 "                        Fill in the details of your declaration and attach any receipts or other proofs.\n"
@@ -12773,57 +12672,46 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"                                Als je print voor een commissie, selecteer die dan in het bovenstaande formulier.\n"
-"In dat geval zal de print gratis zijn.\n"
-"                            "
+"                        Vul de details van je declaratie in en voeg eventuele bonnetjes en andere bewijzen toe als bijlagen.\n"
+"                        <br>\n"
+"                        Een declaratieformulier is niet nodig.\n"
+"                    "
 
 #: amelie/personal_tab/templates/declaration_form.html:20
-#, fuzzy
-#| msgid "Printing Information"
 msgid "Declaration Information"
-msgstr "Printinformatie"
+msgstr "Declaratie-informatie"
 
 #: amelie/personal_tab/templates/declaration_form.html:22
 msgid "You are responsible for the accuracy of your declaration."
-msgstr ""
+msgstr "Jij bent verantwoordelijk voor de juistheid van je declaratie."
 
 #: amelie/personal_tab/templates/declaration_form.html:23
 msgid "The Treasurer may decline your declaration if it does not follow the "
-msgstr ""
+msgstr "De Penningmeester kan je declaratie weigeren als hij niet overeen komt met ons "
 
 #: amelie/personal_tab/templates/declaration_form.html:23
 msgid "declaration policy"
-msgstr ""
+msgstr "declaratiebeleid"
 
 #: amelie/personal_tab/templates/declaration_form.html:24
-#, fuzzy
-#| msgid "Only PDF files are accepted"
 msgid "All file types are accepted."
-msgstr "Alleen PDF-bestanden worden geaccepteerd"
+msgstr "Alle bestandstypen worden geaccepteerd."
 
 #: amelie/personal_tab/templates/declaration_form.html:25
-#, fuzzy
-#| msgid "Maximum file size:"
 msgid "Maximum of "
-msgstr "Maximale bestandsgrootte:"
+msgstr "Maximaal "
 
 #: amelie/personal_tab/templates/declaration_form.html:25
-#, fuzzy
-#| msgid "Profiles"
 msgid " files."
-msgstr "Profielen"
+msgstr " bestanden."
 
 #: amelie/personal_tab/templates/declaration_form.html:26
-#, fuzzy
-#| msgid "Maximum file size:"
 msgid "Maximum total file size:"
-msgstr "Maximale bestandsgrootte:"
+msgstr "Maximale totale bestandsgrootte:"
 
 #: amelie/personal_tab/templates/declaration_form.html:31
-#, fuzzy
-#| msgid "For administrative purposes and to be able to trace rogue prints, a log will be saved of each submitted print, containing the following details about the print:"
 msgid "For administrative purposes, a copy of each submitted declaration will be saved in our database, containing the following details:"
-msgstr "Voor administratieve doeleinden en om valse afdrukken te traceren, zal er een log worden opgeslagen van elke verstuurde print, die de volgende printdetails bevat:"
+msgstr "Voor administratieve doeleinden zal er een kopie van elke verstuurde declaratie worden opgeslagen in onze database, die de volgende gegevens bevat:"
 
 #: amelie/personal_tab/templates/declaration_form.html:33
 #: amelie/personal_tab/templates/print_form.html:49
@@ -12832,13 +12720,11 @@ msgstr "Een referentie naar je lidmaatschapsgegevens;"
 
 #: amelie/personal_tab/templates/declaration_form.html:34
 msgid "The committee, payment method, IBAN, amount, and description of your declaration;"
-msgstr ""
+msgstr "De commissie, betalingswijze, en beschrijving, en het IBAN en bedrag van je declaratie;"
 
 #: amelie/personal_tab/templates/declaration_form.html:35
-#, fuzzy
-#| msgid "The filename of the printed file;"
 msgid "The filenames of the submitted files;"
-msgstr "De bestandsnaam van het geprintte bestand;"
+msgstr "De bestandsnaam van de/het opgestuurde bestand(en);"
 
 #: amelie/personal_tab/templates/declaration_form.html:36
 #: amelie/personal_tab/templates/print_form.html:48
@@ -12847,26 +12733,20 @@ msgstr "Tijdstempel van indiening;"
 
 #: amelie/personal_tab/templates/declaration_form.html:139
 #: templates/basis.html:314
-#, fuzzy
-#| msgid "Short description"
 msgid "Submit declaration"
-msgstr "Korte omschrijving"
+msgstr "Declaratie versturen"
 
 #: amelie/personal_tab/templates/declaration_form.html:173
 msgid "You can upload a maximum of"
-msgstr ""
+msgstr "Upload maximaal"
 
 #: amelie/personal_tab/templates/declaration_form.html:173
-#, fuzzy
-#| msgid "Files"
 msgid "files"
-msgstr "Bestanden"
+msgstr "bestanden"
 
 #: amelie/personal_tab/templates/declaration_form.html:185
-#, fuzzy
-#| msgid "File size cannot exceed 50MB."
 msgid "Total file size cannot exceed"
-msgstr "Bestand mag maximaal 50MB groot zijn."
+msgstr "Totale bestandsgrootte moet kleiner zijn dan"
 
 #: amelie/personal_tab/templates/declaration_form.html:205
 #: amelie/personal_tab/templates/print_form.html:197
@@ -13580,56 +13460,42 @@ msgstr "Ga nu terug"
 #: amelie/personal_tab/templates/unpaid_memberships.html:8
 #: amelie/personal_tab/templates/unpaid_memberships_year.html:4
 #: amelie/personal_tab/templates/unpaid_memberships_year.html:9
-#, fuzzy
-#| msgid "Membership"
 msgid "Unpaid Memberships"
-msgstr "Lidmaatschap"
+msgstr "Onbetaalde lidmaatschappen"
 
 #: amelie/personal_tab/templates/unpaid_memberships.html:10
 msgid "Click on a year to see the members whose membership is still unpaid."
-msgstr ""
+msgstr "Klik op een jaar om te zien wiens lidmaatschappen nog onbetaald zijn."
 
 #: amelie/personal_tab/templates/unpaid_memberships.html:17
-#, fuzzy
-#| msgid "Price extra"
 msgid "Price Total"
-msgstr "Prijs extra"
+msgstr "Totaalprijs"
 
 #: amelie/personal_tab/templates/unpaid_memberships_forgive.html:4
 #: amelie/personal_tab/templates/unpaid_memberships_forgive.html:9
-#, fuzzy
-#| msgid "Terminate memberships"
 msgid "Forgive Unpaid Memberships"
-msgstr "Lidmaatschap beëindigen"
+msgstr "Onbetaalde lidmaatschappen kwijtschelden"
 
 #: amelie/personal_tab/templates/unpaid_memberships_forgive.html:11
-#, fuzzy
-#| msgid "You are on the waiting list for this event with the following options:"
 msgid "You are about to forgive the membership fee of the following persons:"
-msgstr "Je hebt je ingeschreven voor deze activiteit op de wachtlijst met de volgende inschrijfopties:"
+msgstr "Je staat op het punt de contributie kwijt te schelden voor de volgende personen:"
 
 #: amelie/personal_tab/templates/unpaid_memberships_forgive.html:16
 #: amelie/personal_tab/templates/unpaid_memberships_year.html:23
-#, fuzzy
-#| msgid "Current"
 msgid "Current Member?"
-msgstr "Actueel"
+msgstr "Huidig lid?"
 
 #: amelie/personal_tab/templates/unpaid_memberships_forgive.html:48
-#, fuzzy
-#| msgid "Configure"
 msgid "Confirm"
-msgstr "Stel in"
+msgstr "Bevestigen"
 
 #: amelie/personal_tab/templates/unpaid_memberships_year.html:25
 msgid "Debit Refused?"
-msgstr ""
+msgstr "Incasso geweigerd?"
 
 #: amelie/personal_tab/templates/unpaid_memberships_year.html:73
-#, fuzzy
-#| msgid "membership fee"
 msgid "Forgive membership fee"
-msgstr "contributie"
+msgstr "Contributie kwijtschelden"
 
 #: amelie/personal_tab/templates/wrapped.html:4
 #: amelie/personal_tab/templates/wrapped.html:10
@@ -13642,19 +13508,15 @@ msgid "Cookie Corner Wrapped "
 msgstr "Cookie Corner Wrapped "
 
 #: amelie/personal_tab/templates/wrapped.html:15
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "          Now that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>.\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "\t\t\t\tNow that the year is over, we can take a look into the usage of the cookie corner in <b>%(year)s</b>.\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"          Nu het jaar voorbij is, kunnen we een kijkje doen in de statistieken van de cookie corner in <b>%(year)s</b>.\n"
-"        "
+"\t\t\t\tNu het jaar voorbij is, kunnen we een kijkje doen in de statistieken van de cookie corner in <b>%(year)s</b>.\n"
+"\t\t\t\t"
 
 #: amelie/personal_tab/templates/wrapped.html:19
 msgid "On this page you can view the global cookie corner statistics for the entire association."
@@ -13714,7 +13576,7 @@ msgstr "Kcal"
 
 #: amelie/personal_tab/templates/wrapped.html:99
 msgid "Ranking"
-msgstr ""
+msgstr "Ranglijst"
 
 #: amelie/personal_tab/templates/wrapped.html:112
 #, python-format
@@ -13723,10 +13585,13 @@ msgid ""
 "\t\t\t\t\t\t\t\t\t<td>Top %(ranking)s%%</td>\n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\t\t<td>Top %(ranking)s%%</td>\n"
+"\t\t\t\t\t\t\t\t"
 
 #: amelie/personal_tab/templates/wrapped.html:116
 msgid "You are number one!"
-msgstr ""
+msgstr "Jij bent nummer één!"
 
 #: amelie/personal_tab/templates/wrapped.html:134
 msgid "Total spent in the cookie corner: "
@@ -13745,19 +13610,15 @@ msgid "Day with most transactions"
 msgstr "Dag met de meeste transacties"
 
 #: amelie/personal_tab/templates/wrapped.html:161
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              On %(day)s, something was bought %(c)s times!\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "\t\t\t\tOn %(day)s, something was bought %(c)s times!\n"
 "\t\t\t\t"
 msgstr ""
 "\n"
-"              Op %(day)s is er %(c)s keer iets gekocht!\n"
-"            "
+"\t\t\t\tOp %(day)s is er %(c)s keer iets gekocht!\n"
+"\t\t\t\t"
 
 #: amelie/personal_tab/templates/wrapped.html:169
 msgid "Total Price"
@@ -13770,6 +13631,9 @@ msgid ""
 "\t\t\t\tOn %(day)s you got %(c)s products!\n"
 "\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\tOp %(day)s heb je %(c)s producten gehaald!\n"
+"\t\t\t\t"
 
 #: amelie/personal_tab/templates/wrapped.html:188
 msgid "You bought:"
@@ -13848,22 +13712,16 @@ msgstr "Ongeldige datum"
 
 #: amelie/personal_tab/views.py:547 amelie/personal_tab/views.py:555
 #: amelie/personal_tab/views.py:585 amelie/personal_tab/views.py:594
-#, fuzzy
-#| msgid "Members per study"
 msgid "No members were selected."
-msgstr "Leden per Studie"
+msgstr "Er zijn geen leden geselecteerd."
 
 #: amelie/personal_tab/views.py:571
-#, fuzzy
-#| msgid "No amendments have been found."
 msgid "The membership fees have been forgiven."
-msgstr "Er zijn geen amendementen gevonden."
+msgstr "De contributie is kwijtgescholden."
 
 #: amelie/personal_tab/views.py:677 amelie/personal_tab/views.py:1970
-#, fuzzy
-#| msgid "The mails are now being sent one by one. This happens in a background process and might take a while."
 msgid "The e-mails are now being sent one by one. This happens in a background process, so it may take a while."
-msgstr "De mails worden nu een voor een verstuurd. Dit gebeurt in een achtergrondproces en kan even duren."
+msgstr "De e-mails worden nu een voor een verstuurd. Dit gebeurt in een achtergrondproces en kan even duren."
 
 #: amelie/personal_tab/views.py:786
 msgid "Transaction not editable."
@@ -13892,37 +13750,31 @@ msgstr "Inactieve machtigingen beëindigd."
 
 #: amelie/personal_tab/views.py:1459
 msgid "This mandate is terminated, so an amendment cannot be made"
-msgstr ""
+msgstr "Deze machtiging is beëindigd, dus er kan geen amendenemt worden aangemaakt"
 
 #: amelie/personal_tab/views.py:1462
 msgid "This mandate is not signed, so an amendment cannot be made"
-msgstr ""
+msgstr "Deze machtiging is niet getekend, dus er kan geen amendenemt worden aangemaakt"
 
 #: amelie/personal_tab/views.py:1465
-#, fuzzy
-#| msgid "Already has an ongoing amendment"
 msgid "This mandate already has an ongoing amendment"
-msgstr "Al een lopend amendement"
+msgstr "Deze machtiging heeft al een amendement in behandeling"
 
 #: amelie/personal_tab/views.py:1492 amelie/personal_tab/views.py:1528
 msgid "This amendment does not belong to this authorization"
-msgstr ""
+msgstr "Dit amendement hoort niet bij deze machtiging"
 
 #: amelie/personal_tab/views.py:1495 amelie/personal_tab/views.py:1531
-#, fuzzy
-#| msgid "Transaction not editable."
 msgid "This amendment is not editable"
-msgstr "Transactie niet te wijzigen"
+msgstr "Dit amendement kan niet worden aangepast"
 
 #: amelie/personal_tab/views.py:1731
 msgid "Reversal already exists"
 msgstr "Terugboeking bestaat al"
 
 #: amelie/personal_tab/views.py:1757 amelie/personal_tab/views.py:1789
-#, fuzzy
-#| msgid "Reversal already exists"
 msgid "Reversal does not exist"
-msgstr "Terugboeking bestaat al"
+msgstr "Terugboeking bestaat niet"
 
 #: amelie/personal_tab/views.py:1946 amelie/personal_tab/views.py:2040
 #: amelie/room_duty/templates/room_duty/pool/persons_change.html:52
@@ -13931,16 +13783,13 @@ msgid "Found nobody."
 msgstr "Geen personen gevonden."
 
 #: amelie/personal_tab/views.py:2377
-#, fuzzy
-#| msgid "New card registration verified successfully!"
 msgid "Declaration was submitted successfully."
-msgstr "Nieuwe kaartregistratie succesvol geverifiëerd!"
+msgstr "Declaratie is succesvol verstuurd."
 
 #: amelie/personal_tab/views.py:2382
-#, fuzzy, python-brace-format
-#| msgid "Error while getting chat messages"
+#, python-brace-format
 msgid "Error while submitting declaration: {ex}"
-msgstr "Fout bij het ophalen van chatberichten"
+msgstr "Fout bij het versturen van de declaratie: {ex}"
 
 #: amelie/publications/models.py:13
 msgid "type name"
@@ -14660,7 +14509,7 @@ msgstr "Uitsluitend toegankelijk voor commissieleden."
 #: amelie/tools/documenso.py:178
 #, python-brace-format
 msgid "Requested documents are not completed yet. (EID: {envelope_id})"
-msgstr ""
+msgstr "De aangevraagde documenten zijn nog niet voltooid. (EID: {envelope_id})"
 
 #: amelie/tools/documenso.py:257
 #, python-brace-format
@@ -14681,6 +14530,21 @@ msgid ""
 "---\n"
 "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
 msgstr ""
+"Beste {name},\n"
+"\n"
+"We verzoeken je om je lidmaatschapsformulier en incassomachtigingsformulier(en) te controleren en te ondertekenen.\n"
+"\n"
+"Door dit formulier te ondertekenen ga je akkoord met alle voorwaarden van het lidmaatschap volgens het Huishoudelijk Regelement en de Statuten van de vereniging.\n"
+"\n"
+"Je hebt ook gekozen voor een van de, of beide incassomachtiging(en) om voor je contributie en/of consumpties en activiteiten te betalen.\n"
+"Deze formulieren zijn ook bijgevoegd en zullen ook ondertekend moeten worden om deze machtigingen te kunnen gebruiken.\n"
+"\n"
+"Als je vragen hebt over dit bericht, neem dan contact op met het bestuur via e-mail op board@inter-actief.net\n"
+"\n"
+"Met vriendelijke groeten,\n"
+"I.C.T.S.V. Inter-Actief\n"
+"---\n"
+"Dit bericht is automatisch gegenereerd door de ledenadministratiesystemen van Inter-Actief. Neem contact op met het bestuur als je vragen hebt."
 
 #: amelie/tools/documenso.py:276 amelie/tools/documenso.py:325
 #, python-brace-format
@@ -14697,35 +14561,40 @@ msgid ""
 "---\n"
 "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
 msgstr ""
+"Beste {name},\n"
+"\n"
+"We verzoeken je om je lidmaatschapsformulier te controleren en te ondertekenen.\n"
+"Door dit formulier te ondertekenen ga je akkoord met alle voorwaarden van het lidmaatschap volgens het Huishoudelijk Regelement en de Statuten van de vereniging.\n"
+"\n"
+"Als je vragen hebt over dit bericht, neem dan contact op met het bestuur via e-mail op board@inter-actief.net\n"
+"\n"
+"Met vriendelijke groeten,\n"
+"I.C.T.S.V. Inter-Actief\n"
+"---\n"
+"Dit bericht is automatisch gegenereerd door de ledenadministratiesystemen van Inter-Actief. Neem contact op met het bestuur als je vragen hebt."
 
 #: amelie/tools/documenso.py:291
-#, fuzzy, python-brace-format
-#| msgid "Enrollment for courses starts"
+#, python-brace-format
 msgid "Enrollment forms for {name}"
-msgstr "Inschrijving vakken start"
+msgstr "Inschrijvingsformulieren voor {name}"
 
 #: amelie/tools/documenso.py:294 amelie/tools/documenso.py:323
-#, fuzzy
-#| msgid "[Inter-Actief] Welcome to Inter-/Actief/, %(name)s, please sign your membership documents!"
 msgid "[Inter-Actief] Please sign your membership documents"
-msgstr "[Inter-Actief] Welkom bij Inter-/Actief/, %(name)s, onderteken je lidmaatschapsdocumenten!"
+msgstr "[Inter-Actief] Onderteken je lidmaatschapsdocumenten"
 
 #: amelie/tools/documenso.py:314
-#, fuzzy, python-brace-format
-#| msgid "Membership form"
+#, python-brace-format
 msgid "Membership form #{id} for {name}"
-msgstr "Lidmaatschapformulier"
+msgstr "Lidmaatschapformulier #{id} voor {name}"
 
 #: amelie/tools/documenso.py:359
 #, python-brace-format
 msgid "Mandate form #{id} for {name}"
-msgstr ""
+msgstr "Machtigingsformulier #{id} voor {name}"
 
 #: amelie/tools/documenso.py:368
-#, fuzzy
-#| msgid "[Inter-Actief] Welcome to our association"
 msgid "[Inter-Actief] Please sign your direct debit authorization"
-msgstr "[Inter-Actief] Welkom bij onze vereniging"
+msgstr "[Inter-Actief] Onderteken je automatische incassomachtiging"
 
 #: amelie/tools/documenso.py:370
 #, python-brace-format
@@ -14743,6 +14612,18 @@ msgid ""
 "---\n"
 "This message was automatically generated by the Inter-Actief member administration systems, contact the board if you have any questions."
 msgstr ""
+"Beste {name},\n"
+"\n"
+"We verzoeken je om je incassomachtigingsformulier te controleren en te ondertekenen.\n"
+"\n"
+"{authorization_text}\n"
+"\n"
+"Als je vragen hebt over dit bericht, neem dan contact op met het bestuur via e-mail op board@inter-actief.net\n"
+"\n"
+"Met vriendelijke groeten,\n"
+"I.C.T.S.V. Inter-Actief\n"
+"---\n"
+"Dit bericht is automatisch gegenereerd door de ledenadministratiesystemen van Inter-Actief. Neem contact op met het bestuur als je vragen hebt."
 
 #: amelie/tools/forms.py:53
 msgid "Keywords"
@@ -14877,16 +14758,13 @@ msgid "E-mail of parent(s)/guardian(s)"
 msgstr "E-mail van ouder(s)/verzorger(s)"
 
 #: amelie/tools/pdf.py:289 amelie/tools/pdf.py:469
-#, fuzzy, python-format
-#| msgid "Signed in Enschede on %(datum)s:"
+#, python-format
 msgid "Signature on %(date)s:"
-msgstr "Was getekend in Enschede op %(datum)s:"
+msgstr "Was getekend op %(datum)s:"
 
 #: amelie/tools/pdf.py:291 amelie/tools/pdf.py:471
-#, fuzzy
-#| msgid "Signed"
 msgid "Signature:"
-msgstr "Getekend"
+msgstr "Handtekening:"
 
 #: amelie/tools/pdf.py:311
 msgid "Direct debit mandate"
@@ -14934,33 +14812,27 @@ msgstr "Ondergetekende verklaart zich akkoord met de regeling zoals hierboven be
 
 #: amelie/tools/pdf.py:498 amelie/tools/pdf.py:503
 msgid "Expense claim"
-msgstr ""
+msgstr "Declaratie"
 
 #: amelie/tools/pdf.py:516
 msgid "This expense claim form has been automatically generated by Amélie."
-msgstr ""
+msgstr "Dit declaratieformulier is automatisch gegenereerd door Amélie."
 
 #: amelie/tools/pdf.py:527
 msgid "The following expense claim was submitted via the website."
-msgstr ""
+msgstr "De volgende declaratie is verstuurd via de website."
 
 #: amelie/tools/pdf.py:539
-#, fuzzy
-#| msgid "Details of this change"
 msgid "Details of the claimant:"
-msgstr "Details van deze wijziging"
+msgstr "Gegevens van de indiener:"
 
 #: amelie/tools/pdf.py:563
-#, fuzzy
-#| msgid "Details of this change"
 msgid "Details of the declaration:"
-msgstr "Details van deze wijziging"
+msgstr "Gegevens van de declaratie:"
 
 #: amelie/tools/pdf.py:572
-#, fuzzy
-#| msgid "Submission timestamp;"
 msgid "Submission date"
-msgstr "Tijdstempel van indiening;"
+msgstr "Datum van indiening"
 
 #: amelie/tools/templates/data_export_statistics.html:29
 msgid "Exported by"
