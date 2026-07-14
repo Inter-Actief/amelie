@@ -216,9 +216,8 @@ def person_mandate_activate(request, id, mandate):
     mandate = get_object_or_404(Authorization, id=mandate, person=obj, end_date__isnull=True, is_signed=False)
 
     # If there is already an active mandate of this type, we cannot activate this one
-    if obj.authorization_set.filter(
-        is_signed=True, end_date__isnull=True, authorization_type=mandate.authorization_type
-    ).exists():
+    existing_mandates_of_type = obj.authorization_set.filter(is_signed=True, end_date__isnull=True, authorization_type=mandate.authorization_type)
+    if existing_mandates_of_type.exists():
         return render(request, "person_existing_mandate.html", locals())
 
     elif request.method == "POST":
