@@ -673,8 +673,8 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': _l('De mails worden nu een voor een verstuurd. '
-                           'Dit gebeurt in een achtergrondproces en kan even duren.')
+                'message': _l('The e-mails are now being sent one by one. '
+                           'This happens in a background process, so it may take a while.')
             })
 
     # Variables are used in template, don't remove!
@@ -1966,8 +1966,8 @@ Treasurer'''.format(study_year, name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': _l('De mails worden nu een voor een verstuurd. '
-                           'Dit gebeurt in een achtergrondproces en kan even duren.')
+                'message': _l('The e-mails are now being sent one by one. '
+                           'This happens in a background process, so it may take a while.')
             })
 
     return render(request, 'includes/query/query_mailing.html', {
