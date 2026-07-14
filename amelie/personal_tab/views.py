@@ -402,7 +402,7 @@ def generate_overview_exam_cookie_credit(request, person, date_from=None, date_t
     form = PeriodTimeForm(initial={'datetime_from': date_from, 'datetime_to': date_to})
 
     # Done!
-    return render(request, 'cookie_corner_exam_cookie_credit.html', {
+    return render(request, 'exam_cookie_credit/overview.html', {
         'view_name': view_name,
         'form': form,
         'person': person,
@@ -1020,7 +1020,7 @@ def person_exam_cookie_credit_new(request, person_id, slug):
             return HttpResponseRedirect(reverse('personal_tab:dashboard', args=[person.pk, person.slug]))
 
     # Done
-    return render(request, 'cookie_corner_exam_cookie_credit_add.html', {
+    return render(request, 'exam_cookie_credit/add.html', {
         'person': person,
         'form': form
     })
