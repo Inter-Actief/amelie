@@ -21,7 +21,7 @@ from django.db.models import Q, F
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
-from django.utils.translation import get_language, gettext
+from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _l
 from documenso_sdk import EnvelopeDistributeResponse
 
@@ -504,6 +504,10 @@ class Person(models.Model, Mappable):
         else:
             return ' '.join([first_name, self.last_name])
 
+    def public_enrollment_name(self, has_preference=None):
+        """Returns the first name plus last letter of the surname."""
+        return f"{self.first_name} {self.last_name[:1]}."
+
     def initials_last_name(self):
         """
         Gives the initials and last name of this person.
@@ -571,7 +575,7 @@ class Person(models.Model, Mappable):
         """
         if not mandate_type:
             return self.authorization_set.filter(is_signed=True, end_date__isnull=True)
-        
+
         kwargs = {'authorization_type__%s' % mandate_type: True}
         return self.authorization_set.filter(is_signed=True,
                                              end_date__isnull=True, **kwargs)
@@ -762,7 +766,7 @@ class Person(models.Model, Mappable):
         from amelie.personal_tab.models import Authorization
 
         if not documenso_id:
-            raise ValueError(gettext("Documenso ID was not given. Can't do anything."))
+            raise ValueError(_l("Documenso ID was not given. Can't do anything."))
 
         # Retrieve the document and save it to the database
         documents, envelope_info = retrieve_documents(documenso_id)
@@ -1047,7 +1051,7 @@ class Membership(models.Model):
 
     def process_signed_document(self):
         if not self.documenso_id:
-            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+            raise ValueError(_l("Documenso ID is not set. No documents are due to be signed."))
         # Retrieve the document and save it to the database
         from amelie.tools.documenso import retrieve_documents
         documents, _ = retrieve_documents(self.documenso_id)
@@ -1503,7 +1507,7 @@ class UnverifiedEnrollment(models.Model):
         from amelie.personal_tab.models import Authorization
 
         if not self.documenso_id:
-            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+            raise ValueError(_l("Documenso ID is not set. No documents are due to be signed."))
         # Retrieve the document and save it to the database
         from amelie.tools.documenso import retrieve_documents
         documents, envelope_info = retrieve_documents(self.documenso_id)
