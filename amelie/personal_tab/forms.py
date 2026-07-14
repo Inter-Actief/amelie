@@ -398,7 +398,7 @@ class DeclarationForm(forms.Form):
         help_text=_l('Select a committee for which this declaration is, or leave blank and specify in the description.')
     )
     payment_method = forms.ChoiceField(
-        choices=Declaration.DECLARATION_PAYMENT_METHODS,  # Will be set in __init__
+        choices=Declaration.DECLARATION_PAYMENT_METHODS,
         required=True,
         label=_l('Payment Method'),
         help_text=_l('Select how you paid for the expense.')
