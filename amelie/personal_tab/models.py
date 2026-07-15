@@ -958,7 +958,9 @@ class BadBIC(models.Model):
     """
 
     bic = BICField(verbose_name=_l('BIC'), unique=True)
-    date = models.DateTimeField(verbose_name=_l('Date added'), auto_now_add=True)
+    date_added = models.DateTimeField(verbose_name=_l('Date added'), auto_now_add=True)
+    first_reversal = models.ForeignKey(Reversal, verbose_name=_l("First reversal"), related_name=_l('+'), null=True, on_delete=models.SET_NULL)
+    last_reversal = models.ForeignKey(Reversal, verbose_name=_l("Last reversal"), related_name=_l('+'), null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.bic

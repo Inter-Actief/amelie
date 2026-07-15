@@ -305,7 +305,7 @@ class ReversalAdmin(admin.ModelAdmin):
 
 
 class BadBICAdmin(admin.ModelAdmin):
-    list_display = ('id', 'bic', 'date')
+    list_display = ('id', 'bic', 'date_added', 'last_reversal', 'first_reversal')
     search_fields = ['bic']
     ordering = ['bic']
 
