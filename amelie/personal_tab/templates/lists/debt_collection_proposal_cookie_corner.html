@@ -15,10 +15,14 @@
             {% for row in rows %}
                 <tr>
                     {% if enabled %}
-                        <td>
-                            <input type="checkbox" {% if default %}checked="checked"{% endif %}
-                                name="cookie_corner_{{ row.person.id }}" value="true"/>
-                        </td>
+                        {% if not row.above_maximum %}
+                            <td>
+                                <input type="checkbox" {% if default %}checked="checked"{% endif %}
+                                    name="cookie_corner_{{ row.person.id }}" value="true"/>
+                            </td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
                     {% endif %}
                     <td>
                         <a href="{{ row.person.get_absolute_url }}">
@@ -35,7 +39,11 @@
                 </tr>
                 <tr>
                     <td colspan="{% if enabled %}4{% else %}3{% endif %}">
-                        {{ row.instruction.description }}
+                        {% if not row.above_maximum %}
+                            {{ row.instruction.description }}
+                        {% else %}
+                            <b>{% blocktrans with maximum=maximum_debit_amount|floatformat:2 %}This persons balance is higher than &euro; {{ maximum }}, so they cannot be debited.{% endblocktrans %}</b>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
