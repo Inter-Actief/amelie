@@ -8,7 +8,7 @@
                     {% if enabled %}<th>{% trans 'Collect' %}</th>{% endif %}
                     <th>{% trans 'Person' %}</th>
                     <th>{% trans 'Mandate' %}</th>
-                    <th class="number">{% trans 'Price' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,7 +39,7 @@
                             {% trans 'None' %}
                         {% endif %}
                     </td>
-                    <td class="number">{{ row.sumf }}</td>
+                    <td class="align-right">{{ row.sumf }}</td>
                 </tr>
                 <tr>
                     <td colspan="{% if enabled %}4{% else %}3{% endif %}">
@@ -59,7 +59,7 @@
                     {% endif %}
                     <td>{% trans 'Total' %}</td>
                     <td></td>
-                    <td class="number">{{ total }}</td>
+                    <td class="align-right">{{ total }}</td>
                 </tr>
             </tfoot>
         </table>
