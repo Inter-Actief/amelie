@@ -21,7 +21,9 @@
                                     name="cookie_corner_{{ row.person.id }}" value="true"/>
                             </td>
                         {% else %}
-                            <td></td>
+                            <td>
+                                <p class="icon icon-error"></p>
+                            </td>
                         {% endif %}
                     {% endif %}
                     <td>
@@ -46,7 +48,7 @@
                         {% if not row.above_maximum %}
                             {{ row.instruction.description }}
                         {% else %}
-                            <b>{% blocktrans with maximum=maximum_debit_amount|floatformat:2 %}This persons balance is higher than &euro; {{ maximum }}, so they cannot be debited.{% endblocktrans %}</b>
+                            <b>{% blocktrans with maximum=maximum_debit_amount|floatformat:2 %}This person's balance is higher than &euro; {{ maximum }}, so they cannot be debited.{% endblocktrans %}</b>
                         {% endif %}
                     </td>
                 </tr>
