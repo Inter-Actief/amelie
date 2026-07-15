@@ -488,6 +488,10 @@ PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal(env("PERSONAL_TAB_MAXIMUM_ACTIVITY
 # Cookie corner Wrapped
 COOKIE_CORNER_WRAPPED_YEAR = env.int("COOKIE_CORNER_WRAPPED_YEAR", default=COOKIE_CORNER_WRAPPED_YEAR)
 
+# The maximum amount Inter-Actief can debit from a person per direct debit
+MAXIMUM_DIRECT_DEBIT_AMOUNT = Decimal(env("MAXIMUM_DIRECT_DEBIT_AMOUNT", default=MAXIMUM_DIRECT_DEBIT_AMOUNT))
+
+
 # Printer configuration
 
 # Maximum file size for printed files, in bytes (i.e. 50MB = 50 * 1024 * 1024 bytes)
