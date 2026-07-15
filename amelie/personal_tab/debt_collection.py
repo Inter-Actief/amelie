@@ -87,7 +87,7 @@ def generate_contribution_instructions(years):
     for m in memberships:
         person = m.member
         price = m.type.price
-        sumf = ("%.2f" % price).replace('.', ',')
+        sumf = ("%.2f" % price)
 
         authorization = authorization_contribution(person)
 
@@ -206,6 +206,7 @@ def generate_cookie_corner_instructions(end_date):
         person = Person.objects.get(id=p['person'])
         transactions = all_transactions.filter(person=person)
         price = transactions.aggregate(Sum('price'))['price__sum']
+        sumf = ("%.2f" % price)
         above_maximum = False
 
         if price == 0:

@@ -30,9 +30,13 @@
                         </a>
                     </td>
                     <td>
-                        <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
-                        {% if row.instruction.amendment %}
-                            (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
+                        {% if row.authorization %}
+                            <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
+                            {% if row.instruction.amendment %}
+                                (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
+                            {% endif %}
+                        {% else %}
+                            {% trans 'None' %}
                         {% endif %}
                     </td>
                     <td class="number">{{ row.sumf }}</td>
