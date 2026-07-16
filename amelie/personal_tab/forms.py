@@ -395,6 +395,12 @@ class MyCommitteesFirstChoiceField(forms.ModelChoiceField):
         super().__init__(*args, **kwargs)
 
 
+class MyBookkeepingChoiceField(forms.ModelChoiceField):
+    # Overriding label_from_instance to show the abbreviation instead of full committee name
+    def label_from_instance(self, obj: Committee):
+        return obj.abbreviation
+
+
 class DeclarationForm(forms.Form):
     committee = MyCommitteesFirstChoiceField(
         person=None,  # Will be set in __init__
@@ -441,10 +447,18 @@ class DeclarationForm(forms.Form):
         required = False,
         help_text=_l('Select documents to attach to the declaration.'),
     )
+    bookkeeping = MyBookkeepingChoiceField(
+        queryset=Committee.objects.filter(abbreviation__in=settings.DECLARATION_EMAIL_COMMITTEE_OVERRIDE),
+        empty_label=("Inter-Actief"),
+        required=False,
+        label=_l('Bookkeeping'),
+        help_text=_l('Select the bookkeeping where the declaration should be sent.\nIf you do not know what this means, do not change it.')
+    )
 
 
     def __init__(self, person: Person, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.person = person
 
         # Only show parent committees, sorted by name, but set person to show own committees first
         self.fields['committee'].person = person
@@ -457,7 +471,6 @@ class DeclarationForm(forms.Form):
         self.fields['iban_choice'].choices = list(set((iban, iban) for iban in person.has_mandate().distinct().order_by('start_date').values_list('iban', flat=True)))
         self.fields['iban_choice'].choices += [('', _l("-- Other --"))]
         self.initial['iban_choice'] = self.fields['iban_choice'].choices[0][0] if self.fields['iban_choice'].choices else None
-        self.person = person
 
     def clean_documents(self):
         documents = self.cleaned_data.get('documents')
@@ -526,6 +539,7 @@ class DeclarationForm(forms.Form):
         amount = self.cleaned_data.get('amount')
         description = self.cleaned_data.get('description')
         documents = self.cleaned_data.get('documents', [])
+        bookkeeping = self.cleaned_data.get('bookkeeping')
 
         # Create database entry for the declaration
         declaration = Declaration.objects.create(
@@ -536,8 +550,12 @@ class DeclarationForm(forms.Form):
             amount=amount,
             description=description,
             # Saving the document names as a JSON list
-            document_names=json.dumps([doc.name for doc in documents])
+            document_names=json.dumps([doc.name for doc in documents]),
+            bookkeeping=bookkeeping,
         )
+
+        # Set the declaration email to committee email if a different bookkeeping was selected, otherwise normal declaration email
+        email_to = settings.DECLARATION_EMAIL_COMMITTEE_OVERRIDE.get(bookkeeping.abbreviation) if bookkeeping else settings.DECLARATION_EMAIL
 
         # Prepare context for the email
         context = {'declaration': declaration}
@@ -553,9 +571,10 @@ class DeclarationForm(forms.Form):
         task = MailTask(template_name='declaration/declaration.mail', report_to=settings.EMAIL_REPORT_TO,
                         report_always=False, priority=TaskPriority.MEDIUM)
 
-        task.add_recipient(Recipient(tos=[settings.DECLARATION_EMAIL],
-                                    context=context,
-                                    language='en',
-                                    headers={'Reply-To': settings.TREASURER_EMAIL}, attachments=attachments))
+        task.add_recipient(Recipient(tos=[email_to],
+                                     ccs=[person.email_address],
+                                     context=context,
+                                     headers={'Reply-To': settings.TREASURER_EMAIL}, 
+                                     attachments=attachments))
 
         task.send()

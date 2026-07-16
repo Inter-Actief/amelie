@@ -1030,6 +1030,10 @@ class Declaration(models.Model):
     submission_date = models.DateTimeField(auto_now_add=True, blank=False)
     """Submission timestamp of the declaration."""
 
+    # '+' related_name makes sure no reverse relation is added to Committee
+    bookkeeping = models.ForeignKey(Committee, verbose_name=_l('bookkeeping'), related_name='+', on_delete=models.PROTECT, blank=True, null=True)
+    """The committee that the declaration should be sent to."""
+
     def get_payment_method(self):
         return dict(self.DECLARATION_PAYMENT_METHODS).get(self.payment_method, self.payment_method)
 
