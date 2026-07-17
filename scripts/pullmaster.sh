@@ -77,8 +77,8 @@ git merge -m "Merge [$changeset] to production (ac)" origin/main
 git push origin production
 echo "### Changes pulled, merged/fast-forward and committed"
 
-echo "### Updating pip packages"
-pip install -r /data/applications/amelie/requirements.txt --upgrade
+echo "### Updating Python packages"
+uv sync --directory=/data/applications/amelie
 echo "### update completed"
 
 echo "### Collecting static files"
