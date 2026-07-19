@@ -12,7 +12,7 @@ from django.views.generic import FormView, ListView, DeleteView
 from pyipp import IPPConnectionError
 
 from amelie.personal_tab.forms import PrintDocumentForm
-from amelie.personal_tab.models import PrintLogEntry, Article, CustomTransaction
+from amelie.personal_tab.models import CookieCornerTransaction, PrintLogEntry, Article
 from amelie.tools.decorators import require_superuser
 from amelie.tools.mixins import RequirePersonalTabAuthorizationOrActiveMemberMixin, RequireBoardMixin
 
@@ -95,12 +95,10 @@ class PrintRefundConfirmView(RequireBoardMixin, DeleteView):
 
     def _refund_transaction(self):
         old_transaction = self.object.transaction
-        CustomTransaction.objects.create(
-            person=old_transaction.person,
-            added_by=self.request.user.person,
-            description=_("Refund for print, transaction #{tid}").format(tid=old_transaction.id),
-            price=-old_transaction.price,
-        )
+        CookieCornerTransaction.objects.create(price=-old_transaction.price, person=old_transaction.person, 
+                                               description=_("Refund for print, transaction #{tid}").format(tid=old_transaction.id),
+                                               article=old_transaction.article, amount=old_transaction.amount, added_by=self.request.user.person)
+
         self.object.transaction = None
         self.object.save()
         messages.success(self.request, _("Print by {person} was refunded successfully.").format(person=self.object.actor))
