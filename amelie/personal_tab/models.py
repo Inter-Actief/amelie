@@ -897,6 +897,7 @@ class Reversal(models.Model):
         RR03 = 'RR03', 'RR03 - Missing Creditor Name or Address'
         RR04 = 'RR04', 'RR04 - Regulatory Reason'
         SL01 = 'SL01', 'SL01 - Specific Service offered by Debtor Agent'
+        XXXX = 'XXXX', 'XXXX - Debt collection cancelled by Inter-Actief'
 
     """Debt collection instruction that was reversed."""
     instruction = models.OneToOneField(DebtCollectionInstruction, related_name='reversal', on_delete=models.PROTECT,
