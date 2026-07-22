@@ -4,11 +4,20 @@
 {% block titel %}{% trans 'Unpaid Memberships' %} {{ year }}{% endblock titel %}
 
 {% block content %}
-    <div class="col-xs-20">
-        <div class="ia">
-            <h2>{% trans 'Unpaid Memberships' %} {{ year }}</h2>
+<div class="col-xs-20">
+    <div class="ia">
+        <h2>{% trans 'Unpaid Memberships' %} {{ year }}</h2>
+        <div class="content">
+            <p class="icon warning">
+                {% trans 'Use these buttons to send a mailing or forgive the membership fee of the selected members.' %}
+            </p>
+            <div class="buttons">
+                <a href="{% url 'personal_tab:unpaid_memberships_mailing' year %}" onclick="this.href=getMembershipsURI(this);" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
+                <a href="{% url 'personal_tab:unpaid_memberships_forgive' year %}" onclick="this.href=getMembershipsURI(this);" class="looks-like-a-button icon icon-money">{% trans 'Forgive membership fee' %}</a>
+            </div>
         </div>
     </div>
+</div>
     {% for membership_type, membership_list in unpaid_memberships.items %}
     <div class="col-xs-12">
         <div class="ia">
@@ -64,13 +73,11 @@
                                 -
                                 {% endif %}
                             </td>
-                            <td class="align-right">{{ membership.type.price }}</td>
+                            <td class="align-right">&euro; {{ membership.type.price }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     </table>
-                    <a href="{% url 'personal_tab:unpaid_memberships_mailing' year %}" onclick="this.href=getMembershipsURI(this, '{{ membership_type.1 }}');" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
-                    <a href="{% url 'personal_tab:unpaid_memberships_forgive' year %}" onclick="this.href=getMembershipsURI(this, '{{ membership_type.1 }}');" class="looks-like-a-button icon icon-money">{% trans 'Forgive membership fee' %}</a>
                 </div>
                 <br>
             </div>  
@@ -80,14 +87,15 @@
     <script>
         // Function to toggle all checkboxes of a membership type
         function toggle(source, type) {
-            checkboxes = document.getElementsByName('type-' + type);
-            for(var checkbox in checkboxes)
-                checkboxes[checkbox].checked = source.checked;
+            var checkboxes = document.getElementsByName('type-' + type);
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
         }
 
         // Function to get the selected memberships and append them to the URL
-        function getMembershipsURI(source, type) {
-            var checkboxes = document.getElementsByName('type-' + type);
+        function getMembershipsURI(source) {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name^="type-"]');
             var values = [];
             for (var i = 0; i < checkboxes.length; i++) {
                 if (checkboxes[i].checked) {
