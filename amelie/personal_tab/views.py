@@ -2061,8 +2061,8 @@ Treasurer'''.format(name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': _('The mails are now being sent one by one. '
-                             'This happens in a background process and might take a while.')
+                'message': _l('The e-mails are now being sent one by one. '
+                           'This happens in a background process, so it may take a while.')
             })
 
     return render(request, 'includes/query/query_mailing.html', {
