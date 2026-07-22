@@ -42,7 +42,7 @@ from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransac
 from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, ActivityTransaction, \
+from amelie.personal_tab.models import Amendment, Category, Declaration, Reversal, Transaction, CookieCornerTransaction, ActivityTransaction, \
     CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
     DebtCollectionInstruction, ReversalTransaction
 from amelie.personal_tab.statistics import get_functions, statistics_totals
@@ -1818,11 +1818,36 @@ def debt_collection_mailing(request, assignment_id):
 
 
 @require_board
+@transaction.atomic
 def process_batch(request, id):
     batch = get_object_or_404(DebtCollectionBatch, id=id)
+    previous_status = batch.status
     if request.POST:
         form = DebtCollectionBatchForm(request.POST, instance=batch)
         if form.is_valid():
+            SC = DebtCollectionBatch.StatusChoices
+
+            # If the status changed from NEW or PROCESSED to DECLINED or CANCELLED
+            if previous_status in [SC.NEW, SC.PROCESSED] and form.cleaned_data["status"] in [SC.DECLINED, SC.CANCELLED]:
+                for instruction in batch.instructions.all():
+                    # If there is not already a reversal, create one with reason XXXX.
+                    try:
+                        instruction.reversal
+                    except Reversal.DoesNotExist:
+                        reversal = Reversal(instruction=instruction, date=batch.assignment.created_on, pre_settlement=True, reason=Reversal.ReversalReasons.XXXX)
+                        reversal.save()
+                        process_reversal(reversal, request.person)
+
+            # If the status changed from DECLINED or CANCELLED to NEW or PROCESSED
+            elif previous_status in [SC.DECLINED, SC.CANCELLED] and form.cleaned_data["status"] in [SC.NEW, SC.PROCESSED]:
+                for instruction in batch.instructions.all():
+                    # If the reversal reason is XXXX, delete the reversal.
+                    try:
+                        if instruction.reversal.reason == Reversal.ReversalReasons.XXXX:
+                            delete_reversal(instruction.reversal)
+                    except Reversal.DoesNotExist:
+                        pass
+
             form.save()
             return redirect('personal_tab:debt_collection_view', id=batch.assignment.id)
     else:
