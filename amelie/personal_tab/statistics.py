@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import connection
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
@@ -30,29 +32,29 @@ def statistics_cookie_corner_ledger_breakdown(ledger):
 
         for article_aggregation in articles_aggregator:
             if article_aggregation['amount__sum']:
-                article_sum = article_aggregation['price__sum']
-                article_discount_sum = article_aggregation['discount__amount__sum']
+                article_sum = article_aggregation['price__sum'] or Decimal("0.00")
+                article_discount_sum = article_aggregation['discount__amount__sum'] or Decimal("0.00")
 
                 rows.append({
                     'article': all_articles[article_aggregation['article']],
-                    'count': article_aggregation['amount__sum'],
+                    'count': article_aggregation['amount__sum'] or 0,
                     'discount': article_discount_sum,
                     'sum': article_sum,
-                    'total': article_sum + (article_discount_sum or 0)
+                    'total': article_sum + article_discount_sum
                 })
 
         # Total row
         ledger_aggregation = cookie_corner_transactions.aggregate(
                 Sum('amount'), Sum('price'), Sum('discount__amount'))
 
-        ledger_sum = ledger_aggregation['price__sum'] or 0
-        ledger_discount_sum = ledger_aggregation['discount__amount__sum']
+        ledger_sum = ledger_aggregation['price__sum'] or Decimal("0.00")
+        ledger_discount_sum = ledger_aggregation['discount__amount__sum'] or Decimal("0.00")
 
         total = {
             'count': ledger_aggregation['amount__sum'] or 0,
             'discount': ledger_discount_sum,
             'sum': ledger_sum,
-            'total': ledger_sum + (ledger_discount_sum or 0)
+            'total': ledger_sum + ledger_discount_sum
         }
 
         return {'rows': rows, 'total': total}
@@ -71,8 +73,8 @@ def statistics_cookie_corner_breakdown(start, end):
         category_transactions = cookie_corner_transactions.filter(article__category_id=category)
         category_aggregation = category_transactions.aggregate(Sum('amount'), Sum('price'), Sum('discount__amount'))
         category_count = category_aggregation['amount__sum'] or 0
-        category_sum = category_aggregation['price__sum'] or 0
-        category_discount_sum = category_aggregation['discount__amount__sum'] or 0
+        category_sum = category_aggregation['price__sum'] or Decimal("0.00")
+        category_discount_sum = category_aggregation['discount__amount__sum'] or Decimal("0.00")
         category_total = category_sum + category_discount_sum
 
         articles = category_transactions.order_by().distinct().values('article')
@@ -84,10 +86,10 @@ def statistics_cookie_corner_breakdown(start, end):
             article_aggregation = category_transactions.filter(article=article).aggregate(Sum('amount'), Sum('price'),
                                                                                           Sum('discount__amount'))
 
-            article_count = article_aggregation['amount__sum']
-            article_sum = article_aggregation['price__sum']
-            article_discount_sum = article_aggregation['discount__amount__sum']
-            article_total = article_sum + (article_discount_sum or 0)
+            article_count = article_aggregation['amount__sum'] or 0
+            article_sum = article_aggregation['price__sum'] or Decimal("0.00")
+            article_discount_sum = article_aggregation['discount__amount__sum'] or Decimal("0.00")
+            article_total = article_sum + article_discount_sum
 
             cat_rows.append({
                 'article': article,
@@ -122,8 +124,8 @@ def _statistics_cookie_corner_totals_category(cookie_corner_transactions, ledger
     transactions = cookie_corner_transactions.filter(article__ledger_account_id=ledger_account)
     totals = transactions.aggregate(Sum('amount'), Sum('price'), Sum('discount__amount'))
     amount = totals['amount__sum'] or 0
-    paid = totals['price__sum'] or 0
-    discount = totals['discount__amount__sum'] or 0
+    paid = totals['price__sum'] or Decimal("0.00")
+    discount = totals['discount__amount__sum'] or Decimal("0.00")
     total = paid + discount
     return [LedgerAccount.objects.get(id=ledger_account), amount, discount, paid, total]
 
@@ -131,7 +133,7 @@ def _statistics_cookie_corner_totals_category(cookie_corner_transactions, ledger
 def statistics_cookie_corner_total(start, end):
     totals = CookieCornerTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'),
                                                                                              Sum('discount__amount'))
-    return (totals['price__sum'] or 0) + (totals['discount__amount__sum'] or 0)
+    return (totals['price__sum'] or Decimal("0.00")) + (totals['discount__amount__sum'] or Decimal("0.00"))
 
 
 def statistics_activities(start, end):
@@ -140,7 +142,7 @@ def statistics_activities(start, end):
 
     number_of_transactions = activity_transactions.count()
     number_of_enrollments = activity_transactions.filter(participation__isnull=False).count()
-    total = activity_transactions.aggregate(Sum('price'))['price__sum'] or 0
+    total = activity_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
     # Do not use order, so that distinct works well. See Django manual.
     events = activity_transactions.order_by().distinct().values('event')
@@ -154,7 +156,7 @@ def statistics_activities(start, end):
 
         event_transaction_count = activity_transactions.filter(event=event).count()
         event_participants = event.participants.count() if event else activity_transactions.filter(event=event, participation__isnull=False).count()
-        event_transaction_sum = activity_transactions.filter(event=event).aggregate(Sum('price'))['price__sum']
+        event_transaction_sum = activity_transactions.filter(event=event).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
         rows.append({
             'event': event,
             'count': event_transaction_count,
@@ -165,12 +167,12 @@ def statistics_activities(start, end):
 
 
 def statistics_activities_total(start, end):
-    return ActivityTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'))['price__sum'] or 0
+    return ActivityTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
 
 def statistics_contribution_transactions(start, end):
     contribution_transactions = ContributionTransaction.objects.filter(date__gte=start, date__lt=end)
-    contribution_sum = contribution_transactions.aggregate(Sum('price'))['price__sum'] or 0
+    contribution_sum = contribution_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
     # Do not use order, so that values works well. See Django manual.
     sum_per_membership_type = contribution_transactions.order_by().values('membership__type').annotate(Sum('price'))
@@ -179,11 +181,11 @@ def statistics_contribution_transactions(start, end):
     # Count positive and negative transactions
     positive_transactions_per_membership_type = contribution_transactions.filter(price__gt=0).order_by().values(
         'membership__type').annotate(Count('price'))
-    positive_transactions_per_membership_type_dict = {x['membership__type']: x['price__count']
+    positive_transactions_per_membership_type_dict = {x['membership__type']: x['price__count'] or 0
                                                       for x in positive_transactions_per_membership_type}
     negative_transactions_per_membership_type = contribution_transactions.filter(price__lt=0).order_by().values(
         'membership__type').annotate(Count('price'))
-    negative_transactions_per_membership_type_dict = {x['membership__type']: x['price__count']
+    negative_transactions_per_membership_type_dict = {x['membership__type']: x['price__count'] or 0
                                                       for x in negative_transactions_per_membership_type}
 
     types = MembershipType.objects.filter(pk__in=sum_per_membership_type_dict.keys())
@@ -204,12 +206,12 @@ def statistics_contribution_transactions(start, end):
 
 def statistics_contribution_transactions_total(start, end):
     return ContributionTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(
-        Sum('price'))['price__sum'] or 0
+        Sum('price'))['price__sum'] or Decimal("0.00")
 
 
 def statistics_discount_periods(start, end):
     discount_transactions = Discount.objects.filter(date__gte=start, date__lt=end)
-    discount_sum = discount_transactions.aggregate(Sum('amount'))['amount__sum'] or 0
+    discount_sum = discount_transactions.aggregate(Sum('amount'))['amount__sum'] or Decimal("0.00")
     discount_aggregated = discount_transactions.order_by().values('discount_period').annotate(
         Count('amount'), Sum('amount')).order_by('discount_period')
 
@@ -218,8 +220,8 @@ def statistics_discount_periods(start, end):
     for discount in discount_aggregated:
         discount_period = DiscountPeriod.objects.get(id=discount['discount_period'])
 
-        discount_count = discount['amount__count']
-        discount_sum = discount['amount__sum']
+        discount_count = discount['amount__count'] or 0
+        discount_sum = discount['amount__sum'] or Decimal("0.00")
 
         rows.append({
             'discount_period': discount_period,
@@ -233,32 +235,35 @@ def statistics_discount_periods(start, end):
 def statistics_other_transactions(start, end):
     rows = CustomTransaction.objects.filter(date__gte=start, date__lt=end).select_related('person')
     count = rows.count()
-    custom_sum = rows.aggregate(Sum('price'))['price__sum'] or 0
+    custom_sum = rows.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
     return {'rows': rows, 'count': count, 'sum': custom_sum}
 
 
 def statistics_other_transactions_total(start, end):
-    return CustomTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'))['price__sum'] or 0
+    return CustomTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
 
 def statistics_discount_credits(start, end):
     transactions = DiscountCredit.objects.filter(date__gte=start, date__lt=end, discount__isnull=True)
     credit_count = transactions.count()
-    credit_sum = transactions.aggregate(Sum('price'))['price__sum'] or 0
+    credit_sum = transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
     credit_aggregated = transactions.order_by().values('discount_period').annotate(
         Count('price'), Sum('price')).order_by('discount_period')
 
     rows = []
     for credit in credit_aggregated:
         discount_period = DiscountPeriod.objects.get(id=credit['discount_period'])
-        row = {'discount_period': discount_period, 'count': credit['price__count'], 'sum': credit['price__sum'], }
-        rows.append(row)
+        rows.append({
+            'discount_period': discount_period,
+            'count': credit['price__count'] or 0,
+            'sum': credit['price__sum'] or Decimal("0.00")
+        })
     return {'count': credit_count, 'rows': rows, 'sum': credit_sum}
 
 
 def statistics_alexia_transactions(start, end):
     alexia_transactions = AlexiaTransaction.objects.filter(date__gte=start, date__lt=end)
-    alexia_sum = alexia_transactions.aggregate(Sum('price'))['price__sum'] or 0
+    alexia_sum = alexia_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
     # https://stackoverflow.com/questions/8746014/django-group-sales-by-month
     alexia_rows = alexia_transactions.annotate(day=TruncDay('date')).values('day', 'description').annotate(
@@ -267,7 +272,7 @@ def statistics_alexia_transactions(start, end):
 
 
 def statistics_alexia_transactions_total(start, end):
-    return AlexiaTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'))['price__sum'] or 0
+    return AlexiaTransaction.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
 
 def statistics_functions_ledgers():

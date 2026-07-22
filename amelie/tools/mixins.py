@@ -89,6 +89,12 @@ class PassesTestAsyncMixin(object):
                 return await super(PassesTestAsyncMixin, self).dispatch(request, *args, **kwargs)
 
 
+class RequireAjaxMixin(PassesTestMixin):
+    reason = _l('AJAX request required')
+
+    def test_requirement(self, request):
+        return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
 class RequirePersonMixin(PassesTestMixin):
     needs_login = True
     reason = _l('Access for (former) members only.')

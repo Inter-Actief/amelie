@@ -1,0 +1,21 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}{% blocktrans %}[Inter-Actief] Reminder of open balance on your personal tab{% endblocktrans %}{% endblock %}
+
+{% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
+
+{% blocktrans %}This e-mail serves as a reminder that you have an open balance on your personal tab that needs to be paid.{% endblocktrans %}
+
+{% blocktrans %}Because you do not have an active, signed mandate for consumptions, we cannot collect this money from your bank automatically, so you will need to pay manually. Please visit the association room or contact the board to pay the balance by cash, bank transfer or PIN.{% endblocktrans %}
+
+{% blocktrans with costs=balance num_unpaid=num_unpaid_transactions %}Your open balance is {{ costs }} euro. This consists of {{ num_unpaid }} transactions.{% endblocktrans %}
+
+{% onlyhtml %}{% blocktrans with link=overview_link %}To view more details about the balance and the unpaid transactions, you can view your <a href="{{ link }}">unpaid transaction overview</a>.{% endblocktrans %}
+{% endonlyhtml %}{% onlyplain %}{% blocktrans with link=overview_link %}To view more details about the balance and the unpaid transactions, you can view your unpaid transaction overview at {{ link }}{% endblocktrans %}
+{% endonlyplain %}
+{% blocktrans %}If you have any questions you can contact us by replying to this email.{% endblocktrans %}
+
+{% blocktrans %}Kind regards,
+
+The treasurer of Inter-Actief{% endblocktrans %}{% endhtmlify %}{% endblock %}

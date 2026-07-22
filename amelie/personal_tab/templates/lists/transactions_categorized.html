@@ -1,0 +1,49 @@
+{% load humanize %}
+{% load i18n %}
+
+{% if transactions %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Date' %}</th>
+                    <th>{% trans 'Time' %}</th>
+                    <th>{% trans 'Person' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
+                    {% if not hide_kcal %}<th class="align-right">{% trans 'kCal' %}</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in transactions %}
+                    {% if category.title %}
+                        <tr class="text-bold">
+                            <td colspan="{{ hide_kcal|yesno:'5,6' }}">{{ category.title }}</td>
+                        </tr>
+                    {% endif %}
+                    {% for transaction in category.transactions %}
+                        {% include 'lists/transaction_row.html' with transaction=transaction hide_kcal=hide_kcal %}
+                    {% endfor %}
+                    {% if category.show_total %}
+                        <tr class="text-bold">
+                            <td colspan="3"></td>
+                            <td>{% trans 'Subtotal' %}</td>
+                            <td class="align-right">&euro;&nbsp;{{ category.totals|intcomma }}</td>
+                            {% if not hide_kcal %}<td class="align-right">{{ category.kcal_totals }}</td>{% endif %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                {% if total %}
+                    <tr class="text-bold">
+                        <td colspan="3"></td>
+                        <td>{% trans 'Total' %}</td>
+                        <td class="align-right">&euro;&nbsp;{{ totals|intcomma }}</td>
+                        {% if not hide_kcal %}<td class="align-right">{{ kcal_totals }}</td>{% endif %}
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">{% trans 'No transactions' %}</p>
+{% endif %}

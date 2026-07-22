@@ -8,6 +8,7 @@ from django.conf import settings
 
 from amelie.api.api import api_server
 from amelie.api.decorators import auth_required
+from amelie.members.models import Person
 
 
 @api_server.register_procedure(name='getUserId', auth=auth_required(), context_target='ctx')
@@ -253,14 +254,28 @@ def get_person_membership(ctx: RpcRequestContext = None, **kwargs) -> Union[Dict
             "hasEnded": person.membership.ended if person.membership.ended else False,
         }
 
-        if hasattr(person.membership, "payment") and person.membership.payment is not None:
-            result["payment"] = {
-                "date": person.membership.payment.date,
+        # Get payment info
+        if person.membership.is_paid():
+            payment_transaction = person.membership.payment_transaction()
+            if payment_transaction.settlement.settlement_type == "INSTR":
+                payment_method_name = "Direct debit"
+                payment_method_description = "Authorization via Direct Debit."
+                payment_date = payment_transaction.settlement.debtcollectioninstruction.batch.execution_date
+            elif payment_transaction.settlement.settlement_type == "MANUAL":
+                payment_method_name = payment_transaction.settlement.manualpaymentsettlement.payment_method.name
+                payment_method_description = payment_transaction.settlement.manualpaymentsettlement.payment_method.description
+                payment_date = payment_transaction.settlement.manualpaymentsettlement.payment_date
+            else:
+                payment_method_name = "Unknown"
+                payment_method_description = "-"
+                payment_date = None
+            result['payment'] = {
+                "date": payment_date,
                 "method": {
-                    "name": person.membership.payment.payment_type.name,
-                    "description": person.membership.payment.payment_type.description,
+                    "name": payment_method_name,
+                    "description": payment_method_description
                 },
-                "amount": person.membership.payment.amount,
+                "amount": payment_transaction.price
             }
 
         return result

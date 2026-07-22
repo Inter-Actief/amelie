@@ -3,13 +3,13 @@ from django.utils import translation
 from amelie.calendar.models import Participation
 from amelie.iamailer import MailTask, Recipient
 from amelie.tools.const import TaskPriority
-from amelie.members.models import Preference
+from amelie.members.models import Preference, Person
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mail import PersonRecipient
 from django.utils.translation import gettext_lazy as _l
 
 
-def activity_send_cashrefundmail(cash_participants, activity, request):
+def activity_send_cashrefundmail(cash_participants, activity):
     """
     Notify the treasurer that cash paying participants from a cancelled activity should get their money back.
     """
@@ -97,7 +97,7 @@ def activity_send_cancellationmail(participations, activity, from_waiting_list=F
         task.add_recipient(PersonRecipient(participation.person, context={
             'activity': activity,
             'participation_costs': participation.calculate_costs()[0],
-            'paymentmethod': participation.get_payment_method_display()
+            'has_mandate': participation.person.has_mandate_activities()
         }))
     task.send()
 
@@ -105,7 +105,7 @@ def activity_send_price_change_mail(old_activity, new_activity):
     """
     Email all enrolled people to notify them of a price change
     """
-    participations = old_activity.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION)
+    participations = old_activity.participation_set.all()
     template_name = "activities/activity_price_change.mail"
     can_unenroll = new_activity.can_unenroll
     task = MailTask(template_name=template_name, priority=TaskPriority.HIGH)
@@ -125,7 +125,7 @@ def activity_send_enrollment_option_price_change_mail(old_enrollment_option, new
     """
     Email all enrolled people to notify them of a price change
     """
-    participations = new_enrollment_option.activity.participation_set.filter(payment_method=Participation.PaymentMethodChoices.AUTHORIZATION)
+    participations = new_enrollment_option.activity.participation_set.all()
     template_name = "activities/activity_price_change.mail"
     can_unenroll = new_enrollment_option.activity.can_unenroll
     task = MailTask(template_name=template_name, priority=TaskPriority.HIGH)
@@ -140,6 +140,8 @@ def activity_send_enrollment_option_price_change_mail(old_enrollment_option, new
             'on_waiting_list': participation.waiting_list
         }))
     task.send()
+
+
 def activity_send_on_waiting_listmail(participation):
     """
     Send a confirmation of enrollment on the waiting list for an activity.

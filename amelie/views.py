@@ -32,8 +32,7 @@ from amelie.members.models import Person, Committee, StudyPeriod
 from amelie.education.models import Complaint, EducationEvent
 from amelie.statistics.decorators import track_hits
 from amelie.tools.auth import get_user_info, unlink_totp, unlink_acount, unlink_passkey, register_totp, register_passkey
-from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin, RequireActiveMemberMixin, \
-    RequireSuperuserAsyncMixin
+from amelie.tools.mixins import RequirePersonMixin, RequireSuperuserMixin, RequireBoardMixin, RequireSuperuserAsyncMixin
 from amelie.tools.buildinfo import get_build_info
 from amelie.tools.models import Profile
 from amelie.videos.models import BaseVideo

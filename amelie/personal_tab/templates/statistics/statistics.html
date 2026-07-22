@@ -27,13 +27,13 @@
                         {% for row in tables.t.rows %}
                             <tr>
                                 <th>{{ row.0 }}</th>
-                                <td class="align-right">{{ row.1|intcomma }}</td>
+                                <td class="align-right">&euro;&nbsp;{{ row.1|intcomma }}</td>
                             </tr>
                         {% endfor %}
 
                         <tr>
                             <th>{% trans 'Total costs' %}</th>
-                            <td class="align-right">{{ tables.t.sum|intcomma }}</td>
+                            <td class="align-right text-bold">&euro;&nbsp;{{ tables.t.sum|intcomma }}</td>
                         </tr>
                     {% endif %}
                     </thead>
@@ -62,14 +62,14 @@
                                 </thead>
                                 <tbody>
                                 {% for category in tables.u.rows %}
-                                    <tr class="important">
+                                    <tr class="text-bold">
                                         <td>{{ category.category }}</td>
                                         <td></td>
                                         <td></td>
                                         <td class="align-right">{{ category.count }}</td>
-                                        <td class="align-right">{{ category.discount|stringformat:".2f" }}</td>
-                                        <td class="align-right">{{ category.sum|stringformat:".2f" }}</td>
-                                        <td class="align-right">{{ category.total|stringformat:".2f" }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ category.discount|intcomma }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ category.sum|intcomma }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ category.total|intcomma }}</td>
                                     </tr>
                                     {% for article in category.articles %}
                                         <tr>
@@ -77,9 +77,9 @@
                                             <td>{{ article.article }}</td>
                                             <td>{{ article.article.ledger_account|default:"&mdash;" }}</td>
                                             <td class="align-right">{{ article.count }}</td>
-                                            <td class="align-right">{{ article.discount|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ article.sum|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ article.total|stringformat:".2f" }}</td>
+                                            <td class="align-right">{% if article.discount %}&euro;&nbsp;{{ article.discount|intcomma }}{% endif %}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ article.sum|intcomma }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ article.total|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% endfor %}
@@ -108,20 +108,20 @@
                                 </thead>
                                 <tbody>
                                     {% for row in tables.s.rows %}
-                                        <tr class="important">
+                                        <tr>
                                             <td>{{ row.0|default:"&mdash;" }}</td>
                                             <td class="align-right">{{ row.1 }}</td>
-                                            <td class="align-right">{{ row.2|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ row.3|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ row.4|stringformat:".2f" }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ row.2|intcomma }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ row.3|intcomma }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ row.4|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
-                                    <tr class="important">
+                                    <tr class="text-bold">
                                         <td>{% trans 'Total' %}</td>
                                         <td class="align-right">{{ tables.s.totals.0 }}</td>
-                                        <td class="align-right">{{ tables.s.totals.1 }}</td>
-                                        <td class="align-right">{{ tables.s.totals.2 }}</td>
-                                        <td class="align-right">{{ tables.s.totals.3 }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ tables.s.totals.1|intcomma }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ tables.s.totals.2|intcomma }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ tables.s.totals.3|intcomma }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -142,7 +142,7 @@
                                     <tr>
                                         <th>{% trans 'Article' %}</th>
                                         <th class="align-right">{% trans 'Amount' %}</th>
-                                        <th class="align-right">{% trans 'discount' %}</th>
+                                        <th class="align-right">{% trans 'Discount' %}</th>
                                         <th class="align-right">{% trans 'Total cost' %}</th>
                                         <th class="align-right">{% trans 'Total costs' %}</th>
                                     </tr>
@@ -152,17 +152,17 @@
                                         <tr>
                                             <td>{{ article.article }}</td>
                                             <td class="align-right">{{ article.count }}</td>
-                                            <td class="align-right">{{ article.discount|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ article.sum|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ article.total|stringformat:".2f" }}</td>
+                                            <td class="align-right">{% if article.discount %}&euro;&nbsp;{{ article.discount|intcomma }}{% endif %}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ article.sum|intcomma }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ article.total|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
-                                        <tr class="important">
+                                        <tr class="text-bold">
                                             <td>{% trans 'Total' %}</td>
                                             <td class="align-right">{{ table.total.count }}</td>
-                                            <td class="align-right">{{ table.total.discount|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ table.total.sum|stringformat:".2f" }}</td>
-                                            <td class="align-right">{{ table.total.total|stringformat:".2f" }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ table.total.discount|intcomma }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ table.total.sum|intcomma }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ table.total.total|intcomma }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -191,7 +191,7 @@
                                 </thead>
                                 <tbody>
                                     {% for row in tables.a.rows %}
-                                        <tr class="important">
+                                        <tr>
                                             <td>{{ row.event.begin|date:"d F Y" }}</td>
                                             <td>{{ row.event.begin|date:"G:i"}}</td>
                                             <td>
@@ -207,16 +207,16 @@
                                             </td>
                                             <td class="align-right">{{ row.count }}</td>
                                             <td class="align-right">{{ row.active_count }}</td>
-                                            <td class="align-right">{{ row.sum }}</td>
+                                            <td class="align-right">&euro;&nbsp;{{ row.sum|intcomma }}</td>
                                         </tr>
                                     {% endfor %}
-                                    <tr class="important">
+                                    <tr class="text-bold">
                                         <td></td>
                                         <td></td>
                                         <td>{% trans 'Total' %}</td>
                                         <td class="align-right">{{ tables.a.count }}</td>
                                         <td class="align-right">{{ tables.a.active_count }}</td>
-                                        <td class="align-right">{{ tables.a.sum }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ tables.a.sum|intcomma }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -254,17 +254,17 @@
                                             {{ row.description }}
                                         </td>
                                         <td class="align-right">
-                                            {{ row.price__sum }}
+                                            &euro;&nbsp;{{ row.price__sum|intcomma }}
                                         </td>
                                     </tr>
                                 {% endfor %}
-                                <tr>
+                                <tr class="text-bold">
                                     <td></td>
                                     <td>
                                         {% trans 'Total' %}
                                     </td>
                                     <td class="align-right">
-                                        {{ tables.x.sum }}
+                                        &euro;&nbsp;{{ tables.x.sum|intcomma }}
                                     </td>
                                 </tr>
                             </table>
@@ -289,16 +289,16 @@
                                 </thead>
                                 <tbody>
                                 {% for row in tables.c.rows %}
-                                    <tr class="important">
+                                    <tr>
                                         <td>{{ row.membership_type }}</td>
                                         <td class="align-right">{{ row.amount }}</td>
-                                        <td class="align-right">{{ row.total }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ row.total|intcomma }}</td>
                                     </tr>
                                 {% endfor %}
-                                <tr class="important">
+                                <tr class="text-bold">
                                     <td>{% trans 'Total' %}</td>
                                     <td class="align-right"></td>
-                                    <td class="align-right">{{ tables.c.sum }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ tables.c.sum|intcomma }}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -344,18 +344,16 @@
                                                 {{ row.description }}
                                             </a>
                                         </td>
-                                        <td class="align-right">{{ row.price|stringformat:".2f" }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ row.price|intcomma }}</td>
                                     </tr>
                                 {% endfor %}
-                                {% if total %}
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>{% trans 'Total' %} ({{ tables.o.count }})</td>
-                                        <td class="align-right">{{ tables.o.sum|stringformat:".2f" }}</td>
-                                    </tr>
-                                {% endif %}
+                                <tr class="text-bold">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{% trans 'Total' %} ({{ tables.o.count }})</td>
+                                    <td class="align-right">&euro;&nbsp;{{ tables.o.sum|intcomma }}</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -382,13 +380,13 @@
                                     <tr>
                                         <td>{{ row.discount_period }}</td>
                                         <td class="align-right">{{ row.count }}</td>
-                                        <td class="align-right">{{ row.sum|stringformat:".2f" }}</td>
+                                        <td class="align-right">&euro;&nbsp;{{ row.sum|intcomma }}</td>
                                     </tr>
                                 {% endfor %}
-                                <tr>
+                                <tr class="text-bold">
                                     <td>{% trans 'Total' %}</td>
                                     <td class="align-right">{{ tables.g.count }}</td>
-                                    <td class="align-right">{{ tables.g.sum|stringformat:".2f" }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ tables.g.sum|intcomma }}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -426,17 +424,17 @@
                                             {{ row.count }}
                                         </td>
                                         <td class="align-right">
-                                            {{ row.sum }}
+                                            &euro;&nbsp;{{ row.sum|intcomma }}
                                         </td>
                                     </tr>
                                 {% endfor %}
-                                <tr>
+                                <tr class="text-bold">
                                     <td>
                                         {% trans 'Total' %}
                                     </td>
                                     <td></td>
                                     <td class="align-right">
-                                        {{ tables.k.sum }}
+                                        &euro;&nbsp;{{ tables.k.sum|intcomma }}
                                     </td>
                                 </tr>
                             </table>

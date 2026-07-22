@@ -2,7 +2,27 @@
 {% load i18n %}
 
 {% block titel %}
-	{% trans 'Enroll for' %} {{ activity.summary }}
+    {% if update %}
+        {% if indirect %}
+            {% blocktrans with person=person summary=activity.summary %}
+                Update enrollment of {{ person }} for {{ summary }}
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans with summary=activity.summary %}
+                Update enrollment for {{ summary }}
+            {% endblocktrans %}
+        {% endif %}
+    {% else %}
+        {% if indirect %}
+            {% blocktrans with person=person summary=activity.summary %}
+                Enroll {{ person }} for {{ summary }}
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans with summary=activity.summary %}
+                Enroll for {{ summary }}
+            {% endblocktrans %}
+        {% endif %}
+    {% endif %}
 {% endblock titel %}
 
 {% block content %}
@@ -10,15 +30,42 @@
 		{% csrf_token %}
 		<div class="col-xs-12"><div class="current">
             <h2>
-				{% if indirect %}
-			    	{{ person }} {% trans 'enroll for' %} {{ activity.summary }}
-			    {% else %}
-			    	{% trans 'Enroll for' %} {{ activity.summary }}
-			    {% endif %}
+                {% if update %}
+                    {% if indirect %}
+                        {% blocktrans with person=person summary=activity.summary %}
+                            Update enrollment of {{ person }} for {{ summary }}
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans with summary=activity.summary %}
+                            Update enrollment for {{ summary }}
+                        {% endblocktrans %}
+                    {% endif %}
+                {% else %}
+                    {% if indirect %}
+                        {% blocktrans with person=person summary=activity.summary %}
+                            Enroll {{ person }} for {{ summary }}
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans with summary=activity.summary %}
+                            Enroll for {{ summary }}
+                        {% endblocktrans %}
+                    {% endif %}
+                {% endif %}
 			</h2>
 
 			<div class="content">
 				<p>
+                {% if update %}
+					{% if indirect %}
+						{% blocktrans with name=person.first_name %}
+						 	With this form, you will update the enrollment of {{ name }} for the activity.
+						{% endblocktrans %}
+					{% else %}
+						{% blocktrans %}
+						 	Click "Update" below this form to save the changes to your enrollment.
+						{% endblocktrans %}
+					{% endif %}
+                {% else %}
 					{% if indirect %}
 						{% blocktrans with name=person.first_name %}
 						 	With this form, you will enroll {{ name }} for the activity.
@@ -28,15 +75,20 @@
 						 	Click "Enroll" below this form to confirm your enrollment.
 						{% endblocktrans %}
 					{% endif %}
+                {% endif %}
 
 					{% if activity.price != 0 %}
 						{% trans 'The enrollment fee is' %} <b>{{ activity.price }} euro</b>.
 					{% endif %}
 				</p>
 
-				{% if activity_full and not person in obj.confirmed_participants %}
+				{% if not update and activity.enrollment_full and not person in obj.confirmed_participants %}
 					<p class="icon attention">
+					{% if indirect %}
+						{% trans 'There are no more openings. The person will be enrolled on the waiting list unless you override this.' %}
+					{% else %}
 						{% trans 'Unfortunately, there are no more openings. You will be enrolled on the waiting list.' %}
+					{% endif %}
 					</p>
 				{% endif %}
 			</div>
@@ -48,27 +100,27 @@
 
                 <div class="content">
                     <p>
-                        {% blocktrans %}
-                            The activity has a few enrollment options. Please fill these out before you enroll.
-						    <b> Warning:</b> some of these options may cost extra!
-                        {% endblocktrans %}
+                        {% trans 'The activity has a few enrollment options. Please fill these out before you enroll.' %}
+                    </p>
+                    <p>
+                        {% trans '<b>Warning:</b> some of these options may cost extra!' %}
                     </p>
 
-                    {% for form in enrollmentoptions_forms %}
-                        {% if form.enrollmentoption_type == 'EnrollmentoptionQuestion' %}
-                            {% include "forms/enrollmentoption_question_answer.html" with form=form %}
+                    {% for form_id, subform in form.forms.items %}
+                        {% if subform.enrollmentoption_type == 'EnrollmentoptionQuestion' %}
+                            {% include "forms/enrollmentoption_question_answer.html" with form=subform %}
                         {% endif %}
 
-                        {% if form.enrollmentoption_type == 'EnrollmentoptionCheckbox' %}
-                            {% include "forms/enrollmentoption_checkbox_answer.html" with form=form %}
+                        {% if subform.enrollmentoption_type == 'EnrollmentoptionCheckbox' %}
+                            {% include "forms/enrollmentoption_checkbox_answer.html" with form=subform %}
                         {% endif %}
 
-                        {% if form.enrollmentoption_type == 'EnrollmentoptionNumeric' %}
-                            {% include "forms/enrollmentoption_numeric_answer.html" with form=form %}
+                        {% if subform.enrollmentoption_type == 'EnrollmentoptionNumeric' %}
+                            {% include "forms/enrollmentoption_numeric_answer.html" with form=subform %}
                         {% endif %}
 
-                        {% if form.enrollmentoption_type == 'EnrollmentoptionFood' %}
-                            {% include "forms/enrollmentoption_foodquestion_answer.html" with form=form %}
+                        {% if subform.enrollmentoption_type == 'EnrollmentoptionFood' %}
+                            {% include "forms/enrollmentoption_foodquestion_answer.html" with form=subform %}
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -81,14 +133,21 @@
             <div class="content">
                 {% if indirect %}
                     <p>
-                        {% blocktrans with name=person.first_name %}
-                            It is assumed that {{ name }} has given their permission to be enrolled.
-                        {% endblocktrans %}
+                        {% if update %}
+                            {% blocktrans with name=person.first_name %}
+                                It is assumed that {{ name }} has given their permission for their enrollment to be modified.
+                            {% endblocktrans %}
+                        {% else %}
+                            {% blocktrans with name=person.first_name %}
+                                It is assumed that {{ name }} has given their permission to be enrolled.
+                            {% endblocktrans %}
+                        {% endif %}
                     </p>
                     <p>
-                        {{ form_payment }}
+                        {{ form.forms.indirect }}
                     </p>
                 {% else %}
+                    {# Direct enrollments are only allowed if the person has an active mandate. #}
                     <p>
                         {% blocktrans %}
                             By pressing the sign-up-button, I declare to be aware that any enrollment costs will be
@@ -101,6 +160,27 @@
                 <p>
                     <b>{% trans 'Total' %}:</b>&nbsp;<span id="totalprice">{{ activity.price }}</span> euro
                 </p>
+
+                {% if indirect and activity.price > 0 %}
+                    <ul class="ia_messages">
+                        {% if person.has_mandate_activities %}
+                            <li class="info">
+                                {% blocktrans with name=person.first_name %}
+                                    The costs will be deducted from {{ name }}'s personal tab
+                                    and will be paid via their direct debit mandate.
+                                {% endblocktrans %}
+                            </li>
+                        {% else %}
+                            <li class="warning">
+                                {% blocktrans with name=person.first_name %}
+                                    {{ name }} has no direct debit mandate for activities.
+                                    The costs will be deducted from their personal tab balance and will
+                                    need to be paid manually, either at the activity or at the board.
+                                {% endblocktrans %}
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
 
                 <div class="buttons">
                     <input type="submit" name="submit" value="{% if update %}{% trans 'Update' %}{% else %}{% trans 'Enroll' %}{% endif %}" />
