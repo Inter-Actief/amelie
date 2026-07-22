@@ -1756,6 +1756,9 @@ def debt_collection_instruction_reversal_edit(request, id):
     if not reversal:
         raise Http404(_('Reversal does not exist'))
 
+    if reversal.transaction and reversal.transaction.debt_collection:
+        raise Http404(_('Reversal is already debited in a new debt collection.'))
+
     if request.method == 'POST':
         form = ReversalForm(request.POST)
         if form.is_valid():
@@ -1787,6 +1790,9 @@ def debt_collection_instruction_reversal_delete(request, id):
 
     if not reversal:
         raise Http404(_('Reversal does not exist'))
+
+    if reversal.transaction and reversal.transaction.debt_collection:
+        raise Http404(_('Reversal is already debited in a new debt collection.'))
 
     if request.method == 'POST':
         delete_reversal(reversal)
@@ -1822,6 +1828,7 @@ def debt_collection_mailing(request, assignment_id):
 def process_batch(request, id):
     batch = get_object_or_404(DebtCollectionBatch, id=id)
     previous_status = batch.status
+       
     if request.POST:
         form = DebtCollectionBatchForm(request.POST, instance=batch)
         if form.is_valid():
@@ -1831,22 +1838,35 @@ def process_batch(request, id):
             if previous_status in [SC.NEW, SC.PROCESSED] and form.cleaned_data["status"] in [SC.DECLINED, SC.CANCELLED]:
                 for instruction in batch.instructions.all():
                     # If there is not already a reversal, create one with reason XXXX.
-                    try:
-                        instruction.reversal
-                    except Reversal.DoesNotExist:
+                    reversal = getattr(instruction, 'reversal', None)
+                    if not reversal:
                         reversal = Reversal(instruction=instruction, date=batch.assignment.created_on, pre_settlement=True, reason=Reversal.ReversalReasons.XXXX)
                         reversal.save()
                         process_reversal(reversal, request.person)
 
             # If the status changed from DECLINED or CANCELLED to NEW or PROCESSED
             elif previous_status in [SC.DECLINED, SC.CANCELLED] and form.cleaned_data["status"] in [SC.NEW, SC.PROCESSED]:
-                for instruction in batch.instructions.all():
-                    # If the reversal reason is XXXX, delete the reversal.
-                    try:
-                        if instruction.reversal.reason == Reversal.ReversalReasons.XXXX:
-                            delete_reversal(instruction.reversal)
-                    except Reversal.DoesNotExist:
-                        pass
+                try:
+                    # We try to delete all the reversals, except if one of them has a debt collection linked.
+                    with transaction.atomic():
+                        for instruction in batch.instructions.all():
+                            reversal = getattr(instruction, 'reversal', None)
+
+                            if not reversal:
+                                continue
+
+                            # If the Reversal has a ReversalTransaction with a linked debt collection, we cannot remove it.
+                            # Therefore, the whole batch will not be edtiable
+                            if reversal.transaction and reversal.transaction.debt_collection:
+                                raise Exception("Reversal has debt collection linked, so cannot be deleted.")
+
+                            # If the reversal reason is XXXX, delete the reversal.
+                            if reversal.reason == Reversal.ReversalReasons.XXXX:
+                                delete_reversal(instruction.reversal)
+
+                except Exception:
+                    messages.error(request, _("An instruction in this batch has a reversal debited in another batch, therefore the status of this batch cannot be edited to New or Processed."))
+                    return redirect('personal_tab:debt_collection_view', id=batch.assignment.id)
 
             form.save()
             return redirect('personal_tab:debt_collection_view', id=batch.assignment.id)
