@@ -1858,14 +1858,14 @@ def process_batch(request, id):
                             # If the Reversal has a ReversalTransaction with a linked debt collection, we cannot remove it.
                             # Therefore, the whole batch will not be edtiable
                             if reversal.transaction and reversal.transaction.debt_collection:
-                                raise Exception("Reversal has debt collection linked, so cannot be deleted.")
+                                raise Exception("Reversal has a debt collection linked, so cannot be deleted.")
 
                             # If the reversal reason is XXXX, delete the reversal.
                             if reversal.reason == Reversal.ReversalReasons.XXXX:
                                 delete_reversal(instruction.reversal)
 
                 except Exception:
-                    messages.error(request, _("An instruction in this batch has a reversal debited in another batch, therefore the status of this batch cannot be edited to New or Processed."))
+                    messages.error(request, _("The status of this batch cannot be edited to New or Processed, because a reversal of this batch is already being debited in another batch."))
                     return redirect('personal_tab:debt_collection_view', id=batch.assignment.id)
 
             form.save()
