@@ -1856,7 +1856,7 @@ def process_batch(request, id):
                                 continue
 
                             # If the Reversal has a ReversalTransaction with a linked debt collection, we cannot remove it.
-                            # Therefore, the whole batch will not be edtiable
+                            # Therefore, the whole batch will not be editable
                             if reversal.transaction and reversal.transaction.debt_collection:
                                 raise Exception("Reversal has a debt collection linked, so cannot be deleted.")
 
