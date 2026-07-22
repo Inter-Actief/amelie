@@ -554,6 +554,8 @@ def unpaid_memberships_forgive(request, year):
     if not memberships:
         messages.error(request, _("No members were selected."))
         return redirect('personal_tab:unpaid_memberships_year', year)
+    
+    total_price = sum((membership.type.price for membership in memberships), Decimal('0.00'))
 
     if request.method == "POST":
         if 'confirm' in request.POST:
@@ -573,7 +575,7 @@ def unpaid_memberships_forgive(request, year):
 
     else:
         # Show confirmation page
-        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year})
+        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year, 'total_price': total_price})
 
 @require_board
 def unpaid_memberships_mailing(request, year):
