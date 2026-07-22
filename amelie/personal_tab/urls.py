@@ -70,10 +70,6 @@ urlpatterns = [
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),
 
-    path('export/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/csv/', views.export_csv, name='export_csv'),
-
     path('statistics/', views.statistics_form, name='statistics_form'),
     path('statistics/<int:date_from>/<int:date_to>/<str:checkboxes>/', views.statistics, name='statistics'),
 

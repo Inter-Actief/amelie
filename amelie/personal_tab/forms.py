@@ -550,7 +550,7 @@ class DeclarationForm(forms.Form):
         attachments += [(doc.name, doc.read(), doc.content_type) for doc in documents] if documents else []
 
         # Send the email
-        task = MailTask(template_name='declaration.mail', report_to=settings.EMAIL_REPORT_TO,
+        task = MailTask(template_name='declaration/declaration.mail', report_to=settings.EMAIL_REPORT_TO,
                         report_always=False, priority=TaskPriority.MEDIUM)
 
         task.add_recipient(Recipient(tos=[settings.DECLARATION_EMAIL],
