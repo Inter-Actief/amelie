@@ -59,6 +59,7 @@
                 </p>
 
                 {% if membership.is_paid %}
+                    {# TODO: REVAMP #}
                     <p class="icon paid">
                         {% blocktrans with payment_type=membership.payment.payment_type.name date=membership.payment.date|date:"j b Y"|default:"?" %}
                             Your membership fees have been paid through {{ payment_type }} on {{ date }}.

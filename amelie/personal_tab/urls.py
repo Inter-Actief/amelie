@@ -20,6 +20,7 @@ urlpatterns = [
     path('me/', views.my_dashboard, name='my_dashboard'),
 
     path('transactions/', views.transaction_form, name='transactions'),
+    path('transactions/unpaid/', views.UnpaidTransactionsListView.as_view(), name='unpaid_transactions_list'),
     path('transactions/<int:date_from>/<int:date_to>/', views.transaction_overview, name='transactions'),
 
     path('transactions/activity/<int:pk>/', ActivityTransactionDetail.as_view(), name='activity_transaction_detail'),
@@ -66,6 +67,11 @@ urlpatterns = [
         views.person_exam_cookie_credit, name='person_exam_cookie_credit'),
     path('person/<int:person_id>/<slug:slug>/exam_cookie_credit/new/', views.person_exam_cookie_credit_new,
         name='person_exam_cookie_credit_new'),
+
+    path('manual_payments/', views.ManualPaymentsListView.as_view(), name='manual_payments_list'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/', views.person_manual_payments, name='person_manual_payments'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/new/', views.CreateManualPaymentSettlementView.as_view(), name='person_manual_payment_new'),
+    path('manual_payments/<int:id>/', views.manual_payment_settlement_view, name='manual_payment_settlement_view'),
 
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),

@@ -1,7 +1,12 @@
+import logging
 from datetime import timedelta
+from decimal import Decimal
+from typing import OrderedDict, Optional, Tuple, List
 
+from betterforms.multiform import MultiForm
 from django import forms
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from django.core.validators import FileExtensionValidator
 from django.forms import widgets, SplitDateTimeField
@@ -11,44 +16,15 @@ from django.utils.translation import gettext_lazy as _l
 from amelie.activities.models import Activity, EnrollmentoptionQuestion, \
     EnrollmentoptionCheckbox, EnrollmentoptionCheckboxAnswer, \
     EnrollmentoptionQuestionAnswer, EnrollmentoptionFood, \
-    EnrollmentoptionFoodAnswer, Restaurant, EnrollmentoptionNumericAnswer, EnrollmentoptionNumeric, ActivityLabel
-from amelie.style.forms import inject_style
+    EnrollmentoptionFoodAnswer, Restaurant, EnrollmentoptionNumericAnswer, EnrollmentoptionNumeric, ActivityLabel, \
+    EnrollmentoptionAnswer
 from amelie.calendar.models import Participation
 from amelie.members.models import Person, Committee
 from amelie.tools.forms import MultipleFileField
 from amelie.tools.widgets import DateTimeSelector, DateTimeSelectorWithToday
 
 
-class PaymentForm(forms.Form):
-    method = forms.ChoiceField(
-        choices=[
-            ('', ''),
-            (Participation.PaymentMethodChoices.CASH.value,
-             Participation.PaymentMethodChoices.CASH.label),
-        ],
-        label=_l('Method of payment'))
-
-    def __init__(self, mandate=False, waiting_list=False, board=False, *args, **kwargs):
-        super(PaymentForm, self).__init__(*args, **kwargs)
-
-        if mandate:
-            choices = self.fields['method'].choices
-            choices.append((Participation.PaymentMethodChoices.AUTHORIZATION.value,
-                            Participation.PaymentMethodChoices.AUTHORIZATION.label))
-            self.fields['method'].choices = choices
-
-        if waiting_list:
-            self.fields['waiting_list'] = forms.ChoiceField(choices=[
-                ('Wait', _l("Place on bottom of waiting list")),
-            ], label=_l("Waiting list action"))
-            if board:
-                choices = self.fields['waiting_list'].choices
-                choices.append(('Skip', _l("Skip waiting list and enroll immediately")))
-                self.fields['waiting_list'].choices = choices
-
-
 class ActivityForm(forms.ModelForm):
-
     price = forms.DecimalField(required=False, initial="0.00", min_value=0, decimal_places=2, label=_l('Price'), help_text=_l('Enrolled participants will be emailed when you change the price.'))
 
     class Meta:
@@ -110,9 +86,18 @@ class ActivityForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class ActivityModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "%s (%s)" % (obj.summary, formats.date_format(obj.begin))
+class IndirectEnrollmentForm(forms.Form):
+    def __init__(self, waiting_list=False, board=False, *args, **kwargs):
+        super(IndirectEnrollmentForm, self).__init__(*args, **kwargs)
+
+        if waiting_list:
+            self.fields['waiting_list'] = forms.ChoiceField(choices=[
+                ('wait', _l("Place on bottom of waiting list")),
+            ], label=_l("Waiting list action"))
+            if board:
+                choices = self.fields['waiting_list'].choices
+                choices.append(('skip', _l("Skip waiting list and enroll immediately")))
+                self.fields['waiting_list'].choices = choices
 
 
 class EnrollmentoptionQuestionForm(forms.ModelForm):
@@ -228,6 +213,104 @@ class EnrollmentoptionFoodAnswerForm(EnrollmentoptionAnswerForm):
         fields = ("dishprice",)
 
 
+ENROLLMENTOPTION_FORM_TYPES = {
+    EnrollmentoptionQuestion: EnrollmentoptionQuestionForm,
+    EnrollmentoptionCheckbox: EnrollmentoptionCheckboxForm,
+    EnrollmentoptionFood: EnrollmentoptionFoodForm,
+    EnrollmentoptionNumeric: EnrollmentoptionNumericForm,
+}
+
+
+class ActivityEnrollmentOptionsForm(MultiForm):
+    ENROLLMENTOPTION_ANSWER_TYPES = {
+        EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswer,
+        EnrollmentoptionCheckbox: EnrollmentoptionCheckboxAnswer,
+        EnrollmentoptionFood: EnrollmentoptionFoodAnswer,
+        EnrollmentoptionNumeric: EnrollmentoptionNumericAnswer,
+    }
+
+    ENROLLMENTOPTIONANSWER_FORM_TYPES = {
+        EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswerForm,
+        EnrollmentoptionCheckbox: EnrollmentoptionCheckboxAnswerForm,
+        EnrollmentoptionFood: EnrollmentoptionFoodAnswerForm,
+        EnrollmentoptionNumeric: EnrollmentoptionNumericAnswerForm,
+    }
+
+    form_classes = OrderedDict([])
+
+    def __init__(self, activity: Activity, *args, participation: Optional[Participation] = None, add_indirect_form: bool = False, **kwargs):
+        # Built the forms for the enrollment options
+        self.form_classes = OrderedDict([])
+        self.activity = activity
+        self.participation = participation
+
+        initials = kwargs.get('initial', {})  # Reference to add the EnrollmentOptionForm initial data to.
+
+        if add_indirect_form:
+            self.form_classes['indirect'] = IndirectEnrollmentForm
+
+        for enrollmentoption in activity.enrollmentoption_set.all():
+            prefix = 'enrollmentoption_{}'.format(enrollmentoption.pk)
+
+            answer_type: type[EnrollmentoptionAnswer] = ActivityEnrollmentOptionsForm.ENROLLMENTOPTION_ANSWER_TYPES[enrollmentoption.content_type.model_class()]
+            content_type = ContentType.objects.get_for_model(answer_type)
+
+            # Try to resolve the instance to an actual object if the person is enrolled for the activity
+            instance: EnrollmentoptionAnswer = answer_type(enrollmentoption=enrollmentoption, content_type=content_type)
+            if participation is not None:
+                try:
+                    instance: EnrollmentoptionAnswer = answer_type.objects.get(
+                        enrollment=participation,
+                        enrollmentoption=enrollmentoption,
+                        content_type=content_type
+                    )
+                except EnrollmentoptionAnswer.DoesNotExist:
+                    pass
+
+            form_type: type[EnrollmentoptionAnswerForm] = ActivityEnrollmentOptionsForm.ENROLLMENTOPTIONANSWER_FORM_TYPES[enrollmentoption.content_type.model_class()]
+
+            # Make sure that if someone adjusts their enrollment, and they have a spot with a limited capacity,
+            # they can still keep their spot.
+            checked = False
+            if instance.pk:
+                if form_type == EnrollmentoptionCheckboxAnswerForm:
+                    instance: EnrollmentoptionCheckboxAnswer
+                    checked = instance.answer
+                elif form_type == EnrollmentoptionNumericAnswerForm:
+                    instance: EnrollmentoptionNumericAnswer
+                    checked = instance.answer > 0
+
+            # Add the enrollment option form to the MultiForm
+            self.form_classes[prefix] = form_type
+            initials[prefix] = {
+                'enrollmentoption': enrollmentoption,
+                'checked': checked,
+                'prefix': prefix,
+                'instance': instance
+            }
+        super().__init__(*args, **kwargs)
+
+    def get_form_args_kwargs(self, key, args, kwargs):
+        args, fkwargs = super().get_form_args_kwargs(key=key, args=args, kwargs=kwargs)
+        # Extra per-form kwargs are stored in the initial values for the forms, which also includes a nested 'initial' key for the actual initial values.
+        fkwargs['initial'] = None
+        fkwargs.update(**self.initials.get(key, {}))
+        logging.error(f"Form {key} - args {args}, fkwargs {fkwargs}")  # TODO REMOVE
+        return args, fkwargs
+
+    def get_costs(self) -> Tuple[Decimal, Decimal, bool]:
+        if not self.is_valid():
+            raise ValueError("Cannot calculate costs. The forms are not valid.")
+        answers = [f.save(commit=False) for f in self.forms.values() if isinstance(f, EnrollmentoptionAnswerForm)]
+        prices_extra: List[Decimal] = [enrollment_option_answer.get_price_extra() for enrollment_option_answer in answers]
+        return self.activity.price, Decimal(sum(prices_extra)), len(prices_extra) > 0
+
+
+class ActivityModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s (%s)" % (obj.summary, formats.date_format(obj.begin))
+
+
 class PhotoCheckboxSelectMultiple(widgets.CheckboxSelectMultiple):
     option_template_name = 'photo_upload_checkbox_option.html'
 
@@ -286,6 +369,3 @@ class EventDeskActivityMatchForm(forms.Form):
     def __init__(self, activities, *args, **kwargs):
         super(EventDeskActivityMatchForm, self).__init__(*args, **kwargs)
         self.fields['activity'].queryset = activities
-
-
-inject_style(ActivityForm, PaymentForm, PhotoUploadForm, EventDeskActivityMatchForm)

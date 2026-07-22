@@ -33,7 +33,7 @@
         </div>
         {% if request.is_board %}
         <div class="underage-button">
-                <a href=".?underage={% if only_show_underage %}False{% else %}True{% endif %}" class="looks-like-a-button no-margin">
+                <a href=".?underage={{ only_show_underage|yesno:"False,True" }}" class="looks-like-a-button no-margin">
                     {% if only_show_underage %}
                         {% trans 'Show all participants' %}
                     {% else %}
@@ -128,18 +128,32 @@
                             <td>{{ answer.display_answer }}</td>
                         {% endfor %}
                         {% if request.is_board or is_roomduty %}
-                            <td>{% if participation.has_paid %}<p class="icon pos">{{ participation.get_payment_method_display }}{% else %}<p class="icon icon-cancel"><a title="{% trans "By clicking here, you confirm to have received the full amount of money." %}" href="{% url 'calendar:pay_participation' participation.pk %}">{% trans "Register cash payment" %}</a>{% endif %}</p></td>
+                            <td>
+                                {# TODO: Figure out how this is going to work... #}
+                                {% if participation.person.has_mandate_activities %}
+                                    <p class="icon pos">
+                                        &nbsp;{% trans 'Via mandate' %}
+                                    </p>
+                                {% else %}
+                                    <p class="icon icon-cancel">
+                                        <a href="#"
+                                           title="{% trans "This person has no direct debit mandate for activities, and has to pay manually. By clicking here, you confirm to have received the full amount of money." %}">
+                                            {% trans "Manual" %}
+                                        </a>
+                                    </p>
+                                {% endif %}
+                            </td>
                         {% elif is_committee %}
                             <td>{{ participation.get_payment_method_display }}</td>
                         {% endif %}
                         {% if request.is_board %}
                             <td>
-                                <a href="{% url 'activities:editenrollment_other' obj.id participation.person.id %}">
+                                <a href="{% url 'activities:editenrollment_person' obj.id participation.person.id %}">
                                     {% trans 'Edit enrollment' %}
                                 </a>
                             </td>
                             <td>
-                                <a href="{% url 'activities:unenrollment' obj.id participation.person.id %}">
+                                <a href="{% url 'activities:unenrollment_person' obj.id participation.person.id %}">
                                     {% trans 'Deregister' %}
                                 </a>
                                 {% if participation.remark %}
@@ -270,12 +284,12 @@
                             <td>{{ participation.get_payment_method_display }}</td>
                             {% if request.is_board or deanonymise %}
                                 <td>
-                                    <a href="{% url 'activities:editenrollment_other' obj.id participation.person.id %}">
+                                    <a href="{% url 'activities:editenrollment_person' obj.id participation.person.id %}">
                                         {% trans 'Edit enrollment' %}
                                     </a>
                                 </td>
                                 <td>
-                                    <a href="{% url 'activities:unenrollment' obj.id participation.person.id %}">
+                                    <a href="{% url 'activities:unenrollment_person' obj.id participation.person.id %}">
                                         {% trans 'Deregister' %}
                                     </a>
                                     {% if participation.remark %}

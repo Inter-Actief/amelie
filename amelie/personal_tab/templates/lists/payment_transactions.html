@@ -1,0 +1,79 @@
+{% load class_helpers %}
+{% load humanize %}
+{% load i18n %}
+
+{% if transactions.0 or transactions.1 or transactions.2 or transactions.3 %}
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Date' %}</th>
+                    <th>{% trans 'Time' %}</th>
+                    <th>{% trans 'Person' %}</th>
+                    <th>{% trans 'Payment method' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction_set in transactions %}
+                    {% for transaction in transaction_set %}
+                        <tr>
+                            <td>{{ transaction.date|date:"d F Y" }}</td>
+                            <td>{{ transaction.date|date:"G:i"}}</td>
+                            <td>
+                                {% if transaction.person %}
+                                    {% if request.is_board %}
+                                        <a href="{{ transaction.person.get_absolute_url }}">
+                                            {{ transaction.person }}
+                                        </a>
+                                        &nbsp;
+                                        <a title="{% blocktrans with name=transaction.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                           href="{% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug  %}">
+                                            <span class="icon personal_tab"></span>
+                                        </a>
+                                    {% else %}
+                                        {{ transaction.person }}
+                                    {% endif %}
+                                {% else %}
+                                    &mdash;
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if transaction|get_class == "DebtCollectionTransaction" %}
+                                    {% trans 'Direct debit' %}
+                                {% elif transaction|get_class == "ReversalTransaction" %}
+                                    {% trans 'Reversal of direct debit' %}
+                                {% elif transaction|get_class == "ExtraManualPaymentTransaction" %}
+                                    {{ transaction.settlement.manualpaymentsettlement.payment_method.name|default:_("Unknown") }}
+                                {% elif transaction|get_class == "ManualPaymentSettlementTransaction" %}
+                                    {{ transaction.settlement.manualpaymentsettlement.payment_method.name|default:_("Unknown") }}
+                                {% else %}
+                                    {% trans 'Unknown' %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ transaction.get_absolute_url }}">
+                                    {{ transaction.description }}
+                                </a>{% if transaction.settlement.description %}<br/>
+                                <small class="icon scaled-icon icon-tag_blue">
+                                    {{ transaction.settlement.description }}
+                                </small>{% endif %}
+                            </td>
+                            <td class="align-right">&euro;&nbsp;{{ transaction.price|intcomma }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+                {% if total %}
+                    <tr class="text-bold">
+                        <td colspan="4"></td>
+                        <td>{% trans 'Total' %}</td>
+                        <td class="align-right">&euro;&nbsp;{{ totals|intcomma }}</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="icon warning">{% trans 'No contribution transactions.' %}</p>
+{% endif %}

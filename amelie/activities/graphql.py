@@ -107,10 +107,10 @@ class ActivityType(EventType):
         return self.get_calendar_url()
 
     def resolve_enrollment_open(self: Activity, info):
-        return self.enrollment_open()
+        return self.enrollment_open
 
     def resolve_enrollment_closed(self: Activity, info):
-        return self.enrollment_closed()
+        return self.enrollment_closed
 
     def resolve_can_edit(self: Activity, info):
         if is_logged_in(info):
@@ -118,16 +118,16 @@ class ActivityType(EventType):
         return False
 
     def resolve_enrollment_full(self: Activity, info):
-        return self.enrollment_full()
+        return self.enrollment_full
 
     def resolve_enrollment_almost_full(self: Activity, info):
-        return self.enrollment_almost_full()
+        return self.enrollment_almost_full
 
     def resolve_has_enrollment_option(self: Activity, info):
-        return self.has_enrollmentoptions()
+        return self.has_enrollmentoptions
 
     def resolve_has_costs(self: Activity, info):
-        return self.has_costs()
+        return self.has_costs
 
 
 @check_authorization

@@ -7,43 +7,49 @@ import itertools
 import traceback
 import operator
 from functools import reduce
+from typing import Optional
 
 import django.conf
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import get_language, gettext_lazy as _l  
+from django.utils.translation import gettext_lazy as _l
 from django.db import transaction
 from django.db.models import Sum, Q, Count
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import formats, timezone
+from django.utils import formats, timezone, translation
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, get_language
+from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.views.generic.edit import FormView
 
 from amelie.calendar.models import Event
-from amelie.members.models import MembershipType, Payment, PaymentType, Person, Membership
+from amelie.members.models import MembershipType, Person, Membership
 from amelie.members.query_forms import MailingForm
 from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
-    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
-    StatisticsForm, DeclarationForm
+    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, \
+    AuthorizationSelectForm, \
+    StatisticsForm, DeclarationForm, ManualPaymentSettlementForm, ManualPaymentTransactionFormSet
 from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, ActivityTransaction, \
-    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
-    DebtCollectionInstruction, ReversalTransaction
+from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, \
+    ActivityTransaction, \
+    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, \
+    DiscountCredit, \
+    DebtCollectionInstruction, ReversalTransaction, ManualPaymentSettlement, ManualPaymentSettlementTransaction, \
+    ExtraManualPaymentTransaction, DebtCollectionTransaction, ContributionTransaction, PaymentMethod
 from amelie.personal_tab.statistics import get_functions, statistics_totals
 from amelie.personal_tab.transactions import exam_cookie_discount, \
     exam_cookie_credit as transactions_exam_cookie_credit, add_exam_cookie_credit
@@ -115,7 +121,8 @@ def generate_overview(request, person, date_from=None, date_to=None):
     start_url = _urlize(date_from) if date_from else None
     end_url = _urlize(date_to) if date_to else None
 
-    transaction_types = [CookieCornerTransaction, ActivityTransaction, AlexiaTransaction, CustomTransaction]
+    transaction_types = [CookieCornerTransaction, ActivityTransaction, AlexiaTransaction, ContributionTransaction, CustomTransaction]
+    payment_transaction_types = [DebtCollectionTransaction, ReversalTransaction, ManualPaymentSettlementTransaction, ExtraManualPaymentTransaction]
     transaction_filter = []
     if date_from or date_to:
         transaction_filter.append(Q(date__gte=date_from, date__lt=date_to))
@@ -134,8 +141,10 @@ def generate_overview(request, person, date_from=None, date_to=None):
     overview_type = None
     total = False
     totals = None
+    all_payment_totals = None
     kcal_totals = None
     all_transactions = None
+    payment_transactions = None
     rows = None
 
     if has_transactions:
@@ -157,20 +166,22 @@ def generate_overview(request, person, date_from=None, date_to=None):
         # Execute query
         if len(transaction_filter) > 0:
             all_transactions = [x.objects.filter(reduce(operator.and_, transaction_filter)) for x in transaction_types]
+            payment_transactions = [x.objects.filter(reduce(operator.and_, transaction_filter)) for x in payment_transaction_types]
         else:
             all_transactions = [x.objects.all() for x in transaction_types]
+            payment_transactions = [x.objects.all() for x in payment_transaction_types]
 
         if overview_type == 'day':
             all_transactions[0] = all_transactions[0].select_related('person', 'article', 'discount')
             all_transactions[1] = all_transactions[1].select_related('person', 'event')
             all_transactions[2] = all_transactions[2].select_related('person')
             all_transactions[3] = all_transactions[3].select_related('person')
+            all_transactions[4] = all_transactions[4].select_related('person')
 
-        # On total page show the latest 10 transactions
-        # TODO: variable does not seem to be used? - albertskja 26-04-2018
-        if not date_from:
-            # Table with latest 10 transactions
-            latest_10_transactions = _trans.order_by('-added_on')[:10]
+            payment_transactions[0] = payment_transactions[0].select_related('person')
+            payment_transactions[1] = payment_transactions[1].select_related('person')
+            payment_transactions[2] = payment_transactions[2].select_related('person')
+            payment_transactions[3] = payment_transactions[3].select_related('person')
 
         # Generate table with data
         if overview_type != 'day':
@@ -206,13 +217,20 @@ def generate_overview(request, person, date_from=None, date_to=None):
 
             for trans in itertools.chain.from_iterable(all_transactions):
                 data.add(_datetime_start(trans.date.astimezone(localtz)))
+            for trans in itertools.chain.from_iterable(payment_transactions):
+                data.add(_datetime_start(trans.date.astimezone(localtz)))
 
             for date in sorted(data):
                 amounts = [
-                    x.filter(date__gte=date, date__lt=_datetime_end(date)).aggregate(Sum('price'))['price__sum'] or 0
-                    for x in all_transactions]
+                    x.filter(date__gte=date, date__lt=_datetime_end(date)).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
+                    for x in all_transactions
+                ]
+                payment_totals = [
+                    x.filter(date__gte=date, date__lt=_datetime_end(date)).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
+                    for x in payment_transactions
+                ]
 
-                # Add the total to the end
+                # Add the totals to the end
                 amounts.append(sum(amounts))
 
                 # TODO: BLEGH, custom SQL! - albertskja 2018-04-25
@@ -229,13 +247,15 @@ def generate_overview(request, person, date_from=None, date_to=None):
                 rows.append({
                     'date': date,
                     'amounts': amounts,
+                    'payment_totals': sum(payment_totals),
                     'kcal_total': kcal_total,
                     'start_url': start_url_d,
                     'end_url': end_url_d
                 })
 
         # Calculate totals
-        totals = [x.aggregate(Sum('price'))['price__sum'] or 0 for x in all_transactions]
+        totals = [x.aggregate(Sum('price'))['price__sum'] or Decimal("0.00") for x in all_transactions]
+        all_payment_totals = [x.aggregate(Sum('price'))['price__sum'] or Decimal("0.00") for x in payment_transactions]
 
         # Add totals to the end
         totals.append(sum(totals))
@@ -255,11 +275,14 @@ def generate_overview(request, person, date_from=None, date_to=None):
         'form': form,
         'date_from': date_from,
         'date_to': date_to,
+        'date_now': datetime.datetime.now(tz.utc),
         'has_transactions': has_transactions,
         'all_transactions': all_transactions,
+        'payment_transactions': payment_transactions,
         'overview_type': overview_type,
         'total': total,
         'totals': totals,
+        'payment_totals': sum(all_payment_totals),
         'kcal_totals': kcal_totals,
         'rows': rows,
         'view_name': view_name
@@ -468,7 +491,7 @@ def transaction_form(request):
             start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
             end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
-        
+
         else:
             return render(request, 'cookie_corner_transactions_form.html', {
                 'form': form,
@@ -496,7 +519,7 @@ def transaction_overview(request, date_from, date_to):
         end = _parsedatetime(date_to)
     except ValueError:
         raise Http404(_('Invalid date`'))
-    
+
     return generate_overview(request, None, start, end)
 
 
@@ -506,40 +529,41 @@ def unpaid_memberships(request, year=None):
 
     # If no year is given, show overview of all years with unpaid memberships
     if year is None:
-        unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0)
-        membership_types = [(mt.name, mt.pk) for mt in MembershipType.objects.filter(membership__payment__isnull=True, price__gt=0).distinct()]
+        # For memberships specifically, checking for the existence of a ContributionTransaction without settlement
+        # is enough to see if it is unpaid, because even if a contribution direct debit is cancelled, it will create
+        # a new ContributionTransaction without a settlement so it can be debited again later.
+        unpaid_memberships = Membership.objects.filter(contributiontransaction__settlement=None, type__price__gt=0).distinct()
+        membership_types = [(mt.name, mt.pk) for mt in MembershipType.objects.filter(membership__contributiontransaction__settlement=None, price__gt=0).distinct()]
         years = unpaid_memberships.values('year').distinct().order_by('-year')
         price = unpaid_memberships.values('type__price', 'year').order_by('year')
 
-
         # Amount totals looks like this:
-        # {'2025' : ({'Primary Yearlong' : 47, 'Secondary Yearlong' : 47}, 470.00), '2024' : ...}
+        # {'2025': ({'Primary Yearlong': 47, 'Secondary Yearlong': 47}, 470.00), '2024': ...}
         totals = {}
         for year_total in years:
-            totals[year_total['year']] = ({}, sum(item['type__price'] for item in price if item['year'] == year_total['year']))
+            totals[year_total['year']] = ({}, unpaid_memberships.aggregate(price_sum=Sum('type__price', filter=Q(year=year_total['year'])))['price_sum'])
             for membership_type in membership_types:
                 totals[year_total['year']][0][membership_type[0]] = unpaid_memberships.filter(type=membership_type[1], year=year_total['year']).count()
 
         return render(request, 'unpaid_memberships/overview.html', {'totals': totals, 'membership_types': membership_types})
-    
 
     # If a year is given, show the unpaid memberships for that year, grouped by membership type
-    unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type', 'member__first_name')
-    
+    unpaid_memberships = Membership.objects.filter(contributiontransaction__settlement=None, type__price__gt=0, year=year).distinct().select_related('member').order_by('type', 'member__first_name')
+
     grouped = {}
     for membership in unpaid_memberships:
         membership_type = (membership.type.name, membership.type.pk)
         if membership_type not in grouped:
             grouped[membership_type] = []
         grouped[membership_type].append(membership)
-    
+
     return render(request, 'unpaid_memberships/year_overview.html', {'unpaid_memberships': grouped, 'year': year})
 
 
 @require_board
 def unpaid_memberships_forgive(request, year):
     """Forgive the membership fee of persons that were selected in the unpaid memberships overview."""
-    
+
     # Get the selected memberships from the URL parameters
     selected_memberships = request.GET.get('memberships')
     if not selected_memberships:
@@ -556,6 +580,7 @@ def unpaid_memberships_forgive(request, year):
 
     if request.method == "POST":
         if 'confirm' in request.POST:
+            # TODO: Revamp this
             # Payment Type 12 is the "Forgiven" payment type
             forgiven_payment_type = PaymentType.objects.get(pk=12)
             for membership in memberships:
@@ -620,7 +645,7 @@ Je kunt de contributie betalen door dit bedrag over te maken naar:
  * Bedrag: € {{{{membership.price}}}}
 
 Cash of PIN betaling is ook mogelijk door fysiek langs te komen bij de verenigingskamer.
- 
+
 Met vriendelijke groet,
 
 {}
@@ -698,7 +723,6 @@ Treasurer'''.format(study_year, study_year, name_treasurer),
         'longest_student_number': longest_student_number,
         'form': form,
     })
-
 
 
 class TransactionSecurityMixin(RequirePersonMixin):
@@ -805,7 +829,7 @@ class CustomTransactionDelete(RequireBoardMixin, DeleteView):
             object = self.get_object()
             if object.discount:
                 object.discount.delete()
-                
+
             delete = super(CustomTransactionDelete, self).delete(self.request)
             messages.success(self.request, _("The transaction '{transaction}' has been successfully deleted.")
                             .format(transaction=self.object))
@@ -834,15 +858,11 @@ def dashboard(request, pk, slug):
 
     personal_transactions = Transaction.objects.filter(person=person).order_by('-added_on')[:5]
 
-    # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
     now = timezone.now()
     today = now.astimezone(timezone.get_default_timezone()).date()
 
-    curr_balance = Transaction.objects.filter(person=person, date__gte=begin, date__lt=now).aggregate(
-        Sum('price'))['price__sum'] or Decimal('0.00')
-    all_balance = Transaction.objects.filter(person=person, date__gte=begin).aggregate(
-        Sum('price'))['price__sum'] or Decimal('0.00')
+    curr_balance = Transaction.objects.filter(person=person, date__lt=now).aggregate(Sum('price'))['price__sum'] or Decimal('0.00')
+    all_balance = Transaction.objects.filter(person=person).aggregate(Sum('price'))['price__sum'] or Decimal('0.00')
 
     future_debt_collection_instructions = DebtCollectionInstruction.objects.filter(authorization__person=person,
                                                                                    batch__execution_date__gt=today)
@@ -850,6 +870,7 @@ def dashboard(request, pk, slug):
     exam_cookie_credits = transactions_exam_cookie_credit(person)
     debt_collection_instructions = DebtCollectionInstruction.objects.filter(authorization__person=person
                                                                             ).order_by('-batch__execution_date')[:5]
+    manual_payment_settlements = ManualPaymentSettlement.objects.filter(person=person)[:5]
 
     # Date on which the old (pre-SEPA) authorizations are registered
     date_old_authorizations = DATE_PRE_SEPA_AUTHORIZATIONS
@@ -861,6 +882,7 @@ def dashboard(request, pk, slug):
         'all_balance': all_balance,
         'future_debt_collection_instructions': future_debt_collection_instructions,
         'debt_collection_instructions': debt_collection_instructions,
+        'manual_payment_settlements': manual_payment_settlements,
         'exam_cookie_credits': exam_cookie_credits,
         'date_old_authorizations': date_old_authorizations,
         'wrapped_year': django.conf.settings.COOKIE_CORNER_WRAPPED_YEAR
@@ -944,6 +966,135 @@ def person_debt_collection_instructions(request, person_id, slug):
         'person': person,
         'debt_collection_instructions': debt_collection_instructions
     })
+
+
+class ManualPaymentsListView(ListView):
+    model = ManualPaymentSettlement
+    template_name = 'cookie_corner_manual_payments_list.html'
+    paginate_by = 100
+
+
+class UnpaidTransactionsListView(ListView):
+    model = Person
+    template_name = 'cookie_corner_unpaid_transactions_list.html'
+    paginate_by = 50
+
+    def get_queryset(self):
+        return Person.objects.prefetch_related('transaction_set').filter(
+            transaction__isnull=False, transaction__settlement=None
+        ).distinct()
+
+
+@login_required
+def person_manual_payments(request, person_id, slug):
+    person = get_object_or_404(Person, id=person_id, slug=slug)
+    manual_payments = ManualPaymentSettlement.objects.filter(person=person)
+
+    # Done
+    return render(request, 'cookie_corner_person_manual_payments.html', {
+        'person': person,
+        'manual_payments': manual_payments
+    })
+
+
+@login_required
+def manual_payment_settlement_view(request, id):
+    settlement = get_object_or_404(ManualPaymentSettlement, id=id)
+    if not request.is_board and request.person != settlement.person:
+        raise PermissionDenied
+    return render(request, 'cookie_corner_manual_payment_settlement_view.html', {
+        'settlement': settlement
+    })
+
+
+class CreateManualPaymentSettlementView(CreateView):
+    model = ManualPaymentSettlement
+    form_class = ManualPaymentSettlementForm
+    template_name = 'cookie_corner_person_manual_payment_create.html'
+
+    def __init__(self, *args, **kwargs):
+        self.object = None
+        super().__init__(*args, **kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.person = Person.objects.get(pk=self.kwargs['person_id'])
+        return super().dispatch(request=request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateManualPaymentSettlementView, self).get_context_data(**kwargs)
+
+        context['person'] = self.person
+        person_unpaid_transactions = [
+            {'transaction': t, 'include': False}
+            for t in Transaction.objects.filter(person=context['person'], settlement=None)
+        ]
+        context['transaction_formset'] = ManualPaymentTransactionFormSet(self.request.POST or None, initial=person_unpaid_transactions)
+        context['date_now'] = datetime.datetime.now(tz.utc)
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({
+            'person': Person.objects.get(pk=self.kwargs['person_id'])
+        })
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
+        form = self.get_form()  # ManualPaymentSettlement metadata
+        transaction_formset = ManualPaymentTransactionFormSet(self.request.POST)  # Selected transactions
+        if form.is_valid() and transaction_formset.is_valid():
+            try:
+                return self.form_valid(form, transaction_formset)
+            except ValidationError as e:
+                # Could be thrown if no transactions were selected and no extra money is deposited (empty payment)
+                form.add_error(None, e)
+                return self.form_invalid(form)
+        else:
+            return self.form_invalid(form)
+
+    @transaction.atomic
+    def form_valid(self, form: ManualPaymentSettlementForm, transaction_formset):
+        payment_date: datetime.date = form.cleaned_data.get('payment_date')
+        payment_method: PaymentMethod = form.cleaned_data.get('payment_method')
+        extra_amount: Optional[Decimal] = form.cleaned_data.get('extra_amount')
+        if extra_amount == Decimal("0.00"):
+            extra_amount = None
+
+        # Get description strings in the person's preferred language
+        with translation.override(self.person.preferred_language):
+            credit_description = _("Extra deposit on personal tab balance on {date} for {name}").format(
+                date=payment_date, name=self.person.incomplete_name()
+            )
+            settlement_description = _("Manual payment on {date} for {name}").format(
+                date=payment_date, name=self.person.incomplete_name()
+            )
+
+        # Get datetime for settlement and transactions
+        timezone_amsterdam = timezone.get_default_timezone()
+        transaction_datetime = datetime.datetime.combine(payment_date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
+
+        # Get transactions
+        transaction_candidates = Transaction.objects.filter(person=self.person, settlement=None)
+        transaction_pks = [t.get('id') for t in transaction_formset.cleaned_data if t.get('include', False)]
+        transactions = transaction_candidates.filter(id__in=transaction_pks)
+
+        settlement: ManualPaymentSettlement = ManualPaymentSettlement.create_for_transactions(
+            transactions=transactions,
+            payment_method=payment_method,
+            person=self.person,
+            description=settlement_description,
+            created_by=self.request.person,
+            payment_datetime=transaction_datetime,
+            extra_amount=extra_amount,
+            extra_amount_description=credit_description,
+        )
+
+        # Redirect to the settlement detail page.
+        return redirect(settlement)
 
 
 @require_board
@@ -1114,10 +1265,7 @@ def balance(request, dt_str=False):
 
     dt_url = _urlize(dt)
 
-    # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
-
-    all_transactions = Transaction.objects.filter(date__gte=begin, date__lt=dt)
+    all_transactions = Transaction.objects.filter(date__lt=dt)
     all_transactions_aggregated = all_transactions.aggregate(Sum('price'))
     all_transactions_sum = all_transactions_aggregated['price__sum']
 
@@ -1548,7 +1696,7 @@ def debt_collection_new(request):
         date_text = formats.date_format(end_date)
         form = DebtCollectionForm(minimal_execution_date,
                                   initial={'description': 'Cookie corner until {}'.format(date_text),
-                                           'contribution': False, 'cookie_corner': True, 'end': end_date, 
+                                           'contribution': False, 'cookie_corner': True, 'end': end_date,
                                            'contribution_years': current_association_year()})
 
     return render(request, 'debt_collection/new.html', {
@@ -1769,7 +1917,7 @@ def _get_person_context_contribution(instruction):
     """
     person, context = _get_person_context(instruction)
 
-    membership = Membership.objects.get(contributiontransaction__debt_collection=instruction)
+    membership = Membership.objects.get(contributiontransaction__settlement=instruction)
     context['membership'] = {
         'type': membership.type.name
     }
@@ -2067,7 +2215,7 @@ def cookie_corner_wrapped_main(request, year=None):
             products_grouped_by_count[article]["count"] += amount
         else:
             products_grouped_by_count[article] = {"count": amount}
-    
+
     products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]["count"])
 
     products_grouped_by_count.reverse()
@@ -2246,9 +2394,9 @@ def cookie_corner_wrapped_global(request, year=None):
 
 
 class DeclarationView(RequirePersonMixin, FormView):
-    """ 
+    """
     Form view for submitting a declarations via the website.
-    
+
     Only available to logged in (former) members.
     """
 
@@ -2272,7 +2420,7 @@ class DeclarationView(RequirePersonMixin, FormView):
         try:
             form.save(request=self.request)
             messages.success(self.request, _("Declaration was submitted successfully."))
-            
+
         except Exception as e:
             trace = traceback.format_exc()
             logging.error(f"Error while submitting declaration: {str(e.__class__.__name__)} - {trace}")
@@ -2282,9 +2430,9 @@ class DeclarationView(RequirePersonMixin, FormView):
 
 @require_board
 def declaration_pdf(request, declaration_id):
-    """ 
+    """
     View for generating the PDF of a declaration.
-    
+
     Only available to board members.
     """
     declaration = get_object_or_404(Declaration, id=declaration_id)

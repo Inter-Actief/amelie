@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from amelie.activities.models import EventDeskRegistrationMessage, Activity
-from amelie.activities.utils import setlocale
+from amelie.tools.locale import setlocale
 from amelie.claudia.google import GoogleSuiteAPI
 
 EVENT_REGISTERED_REGEX_NL = re.compile("Uw aanmelding voor bijeenkomst '(?P<meeting_name>.*)'")

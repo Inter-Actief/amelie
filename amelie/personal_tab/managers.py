@@ -21,11 +21,7 @@ def _people_with_outstanding_balance():
     """
     Returns a QuerySet with all Persons having a non-zero cookie corner balance.
     """
-    # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
-
-    return Person.objects.filter(transaction__date__gte=begin).annotate(balance=Sum('transaction__price')).filter(
-        balance__gt=0)
+    return Person.objects.all().annotate(balance=Sum('transaction__price')).filter(balance__gt=0)
 
 
 def _people_with_recent_or_future_transactions(days):

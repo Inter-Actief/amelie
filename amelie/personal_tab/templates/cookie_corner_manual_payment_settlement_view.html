@@ -1,0 +1,68 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Manual Payment Settlement' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Manual Payment Settlement' %}</h2>
+        <div class="content">
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>{% trans 'Reference of manual payment' %}</th>
+                            <td>{{ settlement.payment_reference }}</td>
+                        </tr>
+                        {% if request.is_board %}
+                        <tr>
+                            <th>{% trans 'Person' %}</th>
+                            <td>
+                                {% if settlement.person %}
+                                    <a href="{{ settlement.person.get_absolute_url }}">
+                                        {{ settlement.person }}
+                                    </a>
+                                    &nbsp;
+                                    <a title="{% blocktrans with name=settlement.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                       href="{% url 'personal_tab:dashboard' settlement.person.pk settlement.person.slug  %}">
+                                        <span class="icon personal_tab"></span>
+                                    </a>
+                                {% else %}
+                                    &mdash;
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>{% trans 'Date of payment' %}</th>
+                            <td>{{ settlement.payment_date|date:"d F Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Method of payment' %}</th>
+                            <td>
+                                <i class="icon icon-{{ settlement.payment_method.icon_name }}"></i>
+                                {{ settlement.payment_method.name }}<br />
+                                <span class="small">{{ settlement.payment_method.description }}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Description' %}</th>
+                            <td>{{ settlement.description }}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans 'Price' %}</th>
+                            <td>&euro;&nbsp;{{ settlement.amount }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% trans 'Transactions' %}</h2>
+        <div class="content">
+            {% include 'lists/transactions.html' with transactions=settlement.transactions.all %}
+        </div>
+    </div></div>
+{% endblock content %}

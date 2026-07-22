@@ -1,5 +1,7 @@
-import itertools
 import uuid
+from decimal import Decimal
+from typing import List, Tuple
+
 import pytz
 
 import logging
@@ -30,9 +32,6 @@ class Participation(models.Model):
     person = models.ForeignKey(Person, verbose_name=_l('Person'), on_delete=models.PROTECT)
     event = models.ForeignKey('Event', verbose_name=_l('Activities'), on_delete=models.PROTECT)
     remark = models.TextField(blank=True, verbose_name=_l('Remarks'))
-
-    payment_method = models.CharField(max_length=1, choices=PaymentMethodChoices.choices, verbose_name=_l('Method of payment'))
-    cash_payment_made = models.BooleanField(verbose_name=_l("Cash payment made"), default=False)
     waiting_list = models.BooleanField(verbose_name=_l("On waiting list"), default=False)
 
     added_on = models.DateTimeField(verbose_name=_l('Added on'), auto_now_add=True, null=True, blank=True)
@@ -51,10 +50,7 @@ class Participation(models.Model):
         else:
             return '(%s -> %s)' % (self.person, _l('deleted activity'))
 
-    def has_paid(self):
-        return not (self.payment_method == Participation.PaymentMethodChoices.CASH and self.cash_payment_made == False)
-
-    def calculate_costs(self):
+    def calculate_costs(self) -> Tuple[Decimal, bool]:
         from amelie.activities.models import Activity
 
         # For now only Activities!
@@ -63,12 +59,13 @@ class Participation(models.Model):
         except:
             raise NotImplementedError("Non-activities are not yet supported!")
 
-        prices_extra = (enrollment_option_answer.get_price_extra() for enrollment_option_answer in
-                        self.enrollmentoptionanswer_set.all())
-
-        with_enrollment_option, prices_extra = _has_next(prices_extra)
-
-        return activity.price + sum(prices_extra), with_enrollment_option
+        # List of extra costs per enrollment option
+        prices_extra: List[Decimal] = [
+            enrollment_option_answer.get_price_extra() for enrollment_option_answer in self.enrollmentoptionanswer_set.all()
+        ]
+        # Calculate and return total costs, and if there were any additional costs due to enrollment options.
+        total_costs = activity.price + sum(prices_extra)
+        return total_costs, len(prices_extra) > 0
 
 
 @receiver(post_save, sender=Participation)
@@ -210,10 +207,3 @@ class Event(models.Model):
         if len(total_string) > char_limit:
             total_string = total_string[:char_limit] + '...'
         return total_string
-
-def _has_next(iterable):
-    try:
-        first = next(iterable)
-    except StopIteration:
-        return False, []
-    return True, itertools.chain([first], iterable)

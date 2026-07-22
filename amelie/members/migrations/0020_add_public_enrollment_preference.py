@@ -1,13 +1,12 @@
 # Made by Conner v5.2.12 on 2026-05-06 08:41
 
 from django.db import migrations
-import time
 import logging
 
+
 logger = logging.getLogger(__name__)
-handler = logging.StreamHandler()
-logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+
 
 def forwards(apps, schema_editor):
     Preference = apps.get_model("members", "Preference")

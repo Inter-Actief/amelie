@@ -1,25 +1,33 @@
 {% extends "basis.html" %}
 {% load i18n %}
 
-{% block titel %}{% trans 'Confirmation cancel' %} {{ obj }}{% endblock titel %}
+{% block titel %}{% if object.cancelled %}{% trans 'Confirmation undo cancel' %}{% else %}{% trans 'Confirmation cancel' %}{% endif %} {{ object }}{% endblock titel %}
 
 {% block content %}
     <div class="col-xs-12"><div class="current">
-        <h2>{% trans 'Confirmation cancel' %} {{ obj }}</h2>
+        <h2>{% if object.cancelled %}{% trans 'Confirmation undo cancel' %}{% else %}{% trans 'Confirmation cancel' %}{% endif %} {{ object }}</h2>
         <div class="content">
-            <p>
-            {% blocktrans with obj=obj %}
-                Are you sure you want to cancel {{ obj }}?
-            {% endblocktrans %}
-            </p>
-
-            <p><b>{% trans 'All enrollments will be cancelled, the transactions will be undone, and all the participants will receive an email.' %}</b></p>
+            {% if object.cancelled %}
+                <p>
+                {% blocktrans with obj=object %}
+                    Are you sure you want to undo the cancelation of {{ obj }}?
+                {% endblocktrans %}
+                </p>
+                <p><b>{% trans 'The event will be available again, but enrollments will stay closed and need to be manually re-opened.' %}</b></p>
+            {% else %}
+                <p>
+                {% blocktrans with obj=object %}
+                    Are you sure you want to cancel {{ obj }}?
+                {% endblocktrans %}
+                </p>
+                <p><b>{% trans 'All enrollments will be cancelled, the transactions will be undone, and all the participants will receive an email.' %}</b></p>
+            {% endif %}
 
             <form method="post" action="">
                 {% csrf_token %}
                 <p>
                     <input type="submit" name="yes" value="{% trans 'Yes' %}"/>
-                    <input type="submit" name="no" value="{% trans 'No' %}"/>
+                    <a href="{% url 'activities:activity' pk=object.pk %}" class="looks-like-a-button">{% trans 'No' %}</a>
                 </p>
             </form>
         </div>

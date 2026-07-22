@@ -18,12 +18,17 @@
                             <th>{% trans 'Price' %}</th>
                         </tr>
                     </thead>
-                    <tbody>  
+                    <tbody>
                         {% for membership in memberships %}
                         <tr>
                             <td class="align-left">
-                                <a href="{% url 'members:person_view' membership.member.pk membership.member.slug %}">
-                                    {{ membership.member.incomplete_name }}
+                                <a href="{{ membership.member.get_absolute_url }}">
+                                    {{ membership.member }}
+                                </a>
+                                &nbsp;
+                                <a title="{% blocktrans with name=membership.member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                   href="{% url 'personal_tab:dashboard' membership.member.pk membership.member.slug  %}">
+                                    <span class="icon personal_tab"></span>
                                 </a>
                             </td>
                             <td class="align-right">

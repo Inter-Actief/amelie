@@ -1,12 +1,13 @@
 import datetime
 from datetime import timezone as tz
 
+from django.db import transaction
 from django.db.models import Sum, Q
 from django.template.defaultfilters import date as _date
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
-from amelie.members.models import Person, Membership, PaymentType, Payment
+from amelie.members.models import Person, Membership
 from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
     DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
 from amelie.tools.encodings import normalize_to_ascii
@@ -25,8 +26,6 @@ def authorization_contribution(person):
 
     :type person: Person
     """
-    # 2   Contribution
-    # 4   Contribution (old version)
     authorizations = person.authorization_set.filter(is_signed=True, end_date__isnull=True,
                                                      authorization_type__contribution=True).order_by('authorization_type__id')
     return authorizations[0] if authorizations else None
@@ -48,10 +47,6 @@ def authorization_cookie_corner(person):
 
     :type person: Person
     """
-    # 1   Consumptions, activities and other
-    # 4   Consumptions and activities
-    # 5   Consumptions
-
     authorizations = person.authorization_set.filter(
                         is_signed=True, end_date__isnull=True, authorization_type__consumptions=True
                      ).order_by('authorization_type__id')
@@ -74,19 +69,18 @@ def generate_contribution_instructions(years):
 
     The DebtCollectionInstruction objects that are returned are not saved yet.
     """
-    memberships = Membership.objects.filter(Q(ended__gt=datetime.date.today()) | Q(ended__isnull=True),
-                                            payment__isnull=True, type__price__gt=0, year__in=years)
-    
     result = {
         'ongoing_frst': [],
         'frst': [],
         'rcur': []
     }
 
-    for m in memberships:
-        person = m.member
-        price = m.type.price
-        sumf = ("%.2f" % price).replace('.', ',')
+    unpaid_membership_transactions = ContributionTransaction.objects.filter(
+        settlement=None, membership__type__price__gt=0, year__in=years
+    )
+    for umt in unpaid_membership_transactions:
+        person = umt.membership.member
+        sumf = ("%.2f" % umt.price).replace('.', ',')
 
         authorization = authorization_contribution(person)
 
@@ -98,21 +92,22 @@ def generate_contribution_instructions(years):
 
         with translation.override(person.preferred_language):
             description = _('Contribution Inter-Actief {membership_year} {membership_type} {name} Questions? Email treasurer@inter-actief.net')\
-                .format(membership_year="{}-{}".format(m.year, m.year + 1), membership_type=m.type.name, name=name)
+                .format(membership_year="{}-{}".format(umt.membership.year, umt.membership.year + 1), membership_type=umt.membership.type.name, name=name)
             description = normalize_to_ascii(description)
 
         instruction = None
 
         sequence_type = authorization.next_sequence_type()
         if sequence_type:
-            instruction = DebtCollectionInstruction(amount=price, authorization=authorization, description=description,
-                                                    amendment=authorization.next_amendment())
+            instruction = DebtCollectionInstruction(
+                amount=umt.price, authorization=authorization, description=description,
+                mendment=authorization.next_amendment()
+            )
 
         row = {
             'person': person,
             'authorization': authorization,
-            'membership': m,
-            'sum': price,
+            'transaction': umt,
             'sumf': sumf,
             'instruction': instruction
         }
@@ -147,18 +142,14 @@ def save_contribution_instructions(rows, batch):
     debt_collection_datetime = timezone.make_aware(datetime.datetime.combine(execution_date, datetime.time(0, 0)),
                                                    timezone.get_default_timezone())
     # Annual authorization
-    payment_method = PaymentType.objects.get(id=4)
-
     for row in rows:
-        person = row['person']
-        price = row['sum']
-        membership = row['membership']
-        instruction = row['instruction']
+        person: Person = row['person']
+        contribution_transaction: ContributionTransaction = row['transaction']
+        instruction: DebtCollectionInstruction = row['instruction']
 
         with translation.override(person.preferred_language):
-            dct_description = _('Direct withdrawal of contribution {date}').format(date=_date(execution_date, "j F Y"))
-            ct_description = _('Contribution {membership_type} ({begin_year}/{end_year})').format(
-                membership_type=membership.type.name, begin_year=membership.year, end_year=(membership.year + 1)
+            dct_description = _('Direct withdrawal of contribution {date}').format(
+                date=_date(execution_date, "j F Y")
             )
 
         instruction.batch = batch
@@ -167,25 +158,19 @@ def save_contribution_instructions(rows, batch):
         instruction.end_to_end_id = instruction.debt_collection_reference()
         instruction.save()
 
-        ct = ContributionTransaction(date=debt_collection_datetime, price=price, person=person,
-                                     description=ct_description, membership=membership, debt_collection=instruction)
-        ct.save()
+        # Set the contribution transaction settlement, so it is considered paid.
+        contribution_transaction.settlement = instruction
+        contribution_transaction.save()
 
-        dct = DebtCollectionTransaction(date=debt_collection_datetime, price=-price, person=person,
-                                        description=dct_description, debt_collection=instruction)
+        dct = DebtCollectionTransaction(
+            date=debt_collection_datetime, price=-instruction.amount, person=person,
+            description=dct_description, settlement=instruction
+        )
         dct.save()
-
-        payment = Payment(date=execution_date, payment_type=payment_method, amount=price, membership=membership)
-        payment.save()
 
 
 def generate_cookie_corner_instructions(end_date):
-    all_transactions = Transaction.objects.filter(debt_collection=None)
-
-    # Date the SEPA debt collection went into effect: 2013-10-31 00:00 CET
-    begin_date = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
-
-    all_transactions = all_transactions.filter(date__gte=begin_date, date__lt=end_date)
+    all_transactions = Transaction.objects.filter(settlement=None, date__lt=end_date)
 
     # Order only by person, so distinct works as intended. See Django manual.
     people = all_transactions.filter(person__isnull=False).order_by('person').distinct().values('person')
@@ -294,11 +279,11 @@ def save_cookie_corner_instructions(rows, batch):
         instruction.save()
 
         for transaction in transactions:
-            transaction.debt_collection = instruction
+            transaction.settlement = instruction
             transaction.save()
 
         dct = DebtCollectionTransaction(date=debt_collection_datetime, price=-price, person=person,
-                                        description=description, debt_collection=instruction)
+                                        description=description, settlement=instruction)
         dct.save()
 
 
@@ -319,19 +304,26 @@ def process_reversal(reversal, actor):
                              person=person, description=description, added_by=actor)
     rt.save()
 
-    for ct in ContributionTransaction.objects.filter(debt_collection=instruction):
-        # Only reverse real transactions, do not reverse other reversals.
-        if ct.price > 0:
-            Payment.objects.filter(membership__contributiontransaction=ct).delete()
+    # Filter for real (positive) ContributionTransactions to avoid reversing other reversals.
+    for ct in ContributionTransaction.objects.filter(settlement=instruction, price__gt=0):
+        with translation.override(ct.person.preferred_language):
+            description = _('Reversal contribution {membership_type} ({start_year}/{end_year})').format(
+                membership_type=ct.membership.type.name, start_year=ct.membership.year,
+                end_year=ct.membership.year + 1
+            )
 
-            with translation.override(ct.person.preferred_language):
-                description = _('Reversal contribution {membership_type} ({start_year}/{end_year})').format(
-                    membership_type=ct.membership.type.name, start_year=ct.membership.year,
-                    end_year=ct.membership.year + 1
-                )
-            cct = ContributionTransaction(date=reversal_datetime, price=-ct.price, person=ct.person,
-                                          description=description, membership=ct.membership)
-            cct.save()
+        # TODO: This next bit is a bit convoluted, but it is the quickest way to get it working nicely.
+        #       Maybe another refactor step is necessary to get rid of all of these extra ContributionTransactions.
+        #       albertskja - 2026-07-22
+
+        # Create a ContributionTransaction to reverse the original transaction which was marked paid in the debt collection instruction
+        cct = ContributionTransaction(date=reversal_datetime, price=-ct.price, person=ct.person,
+                                      description=description, membership=ct.membership)
+        cct.save()
+        # And create another ContributionTransaction to mark that the contribution still needs to be paid.
+        cct = ContributionTransaction(date=reversal_datetime, price=ct.price, person=ct.person,
+                                      description=ct.description, membership=ct.membership)
+        cct.save()
 
 
 def edit_reversal(reversal, actor):
@@ -348,28 +340,33 @@ def edit_reversal(reversal, actor):
     rt.save()
 
 
+@transaction.atomic
 def delete_reversal(reversal):
     """
     :type reversal: Reversal
     """
-    # First we delete the ReversalTransaction and the Reversal object itself.
-    instruction = reversal.instruction
     rt = ReversalTransaction.objects.get(reversal=reversal)
+
+    # TODO: This next bit is a bit convoluted, but we need to clean up what we did in `process_reversal`.
+    #       Maybe another refactor step is necessary to get rid of all of this hassle with ContributionTransactions.
+    #       albertskja - 2026-07-22
+
+    # If there were any (positive) contribution transactions in the original instruction, we need to delete the
+    # contribution transactions that were created to reverse that payment and re-incur it. We assume that
+    # multiple reversals have not been made for the same membership on the same date.
+    for ct in ContributionTransaction.objects.filter(settlement=reversal.instruction, price__gt=0):
+        # Delete the reversal ContributionTransactions that were created when the reversal was processed.
+        ContributionTransaction.objects.filter(
+            Q(price=-ct.price) | Q(price=ct.price),
+            date=rt.date,
+            person=ct.person, membership=ct.membership,
+        ).delete()
+
+    # Then, delete the ReversalTransaction that re-incurred the costs of the original direct debit to the personal tab.
     rt.delete()
+
+    # Finally, delete the entire Reversal.
     reversal.delete()
-
-    # If there were contribution transactions, we need to reinstate payments and delete reversal contribution transactions.
-    for ct in ContributionTransaction.objects.filter(debt_collection=instruction):
-        if ct.price > 0:
-
-            # Then we need to reinstate the payment that was deleted when the reversal was processed.
-            pm = Payment(membership=ct.membership, payment_type=PaymentType.objects.get(id=4),
-                               amount=ct.price, date=ct.date)
-            pm.save()
-                
-            # Now we filter for the reversal ContributionTransaction that was created when the reversal was processed and delete it.
-            cct = ContributionTransaction.objects.filter(membership=ct.membership, price=-ct.price)
-            cct.delete()
 
 
 def process_amendment(authorization, date, iban, bic, reason):
@@ -414,7 +411,7 @@ def delete_amendment(amendment):
     Delete an unsent amendment to an authorization.
 
     Make sure you call this method only from within a database transaction!
-    
+
     Make sure you call this method only for amendments that have not yet been sent to the bank!
     """
 

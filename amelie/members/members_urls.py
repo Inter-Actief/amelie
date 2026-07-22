@@ -3,7 +3,6 @@ from django.views.decorators.cache import cache_page
 from django.views.generic import RedirectView
 
 from amelie.members import ajax_views, query_views, views
-from amelie.members.views import PaymentDeleteView
 
 urlpatterns = [
     path('', query_views.query, name='query'),
@@ -11,7 +10,6 @@ urlpatterns = [
     path('mailing/', query_views.send_mailing, name='send_mailing'),
     path('push/', query_views.SendNotification.as_view(), name='send_push'),
     path('data_export/', query_views.DataExport.as_view(), name='data_export'),
-    path('statistics/payments/', views.payment_statistics, name='statistics_payments'),
     path('statistics/', views.statistics, name='statistics'),
     path('<int:id>/<slug:slug>/', views.person_view, name='person_view'),
     path('<int:id>/<slug:slug>/edit/', views.person_edit, name='person_edit'),
@@ -21,8 +19,8 @@ urlpatterns = [
     path('<int:id>/ajax/employee/', ajax_views.person_employee, name='person_employee'),
     path('<int:id>/ajax/preferences/', ajax_views.person_preferences, name='person_preferences'),
     path('<int:id>/ajax/study/', ajax_views.person_study, name='person_study'),
-    path('<int:id>/ajax/membership/payments/<int:membership>/', ajax_views.person_payments, name='person_pay'),
     path('<int:id>/ajax/membership/', ajax_views.person_membership, name='person_membership'),
+    path('<int:id>/ajax/membership/payments/<int:membership>/', ajax_views.person_membership_payments, name='person_membership_payments'),
     path('<int:id>/ajax/membership/new/', ajax_views.person_membership_new, name='person_membership_new'),
     path('<int:id>/ajax/membership/end/', ajax_views.person_membership_end, name='person_membership_end'),
     path('<int:id>/ajax/membership/<str:option>/', ajax_views.person_membership, name='person_membership'),
@@ -44,8 +42,6 @@ urlpatterns = [
     path('userinfo/', views.person_userinfo, name='person_userinfo'),
     path('groupinfo/', views.person_groupinfo, name='person_groupinfo'),
     path('send_link_code/<int:person_id>/', views.person_send_link_code, name='send_oauth_link_code'),
-
-    path('payment/<int:pk>/delete/', PaymentDeleteView.as_view(), name='payment_delete'),
 
     path('birthdays/', views.birthdays, name='birthdays'),
 

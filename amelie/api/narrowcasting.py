@@ -170,7 +170,7 @@ def get_television_promotions() -> List[Dict]:
     promotions = TelevisionPromotion.objects.filter(start__lte=timezone.now(), end__gte=timezone.now())
 
     for promotion in promotions:
-        res_dict: Dict[str, Union[str, int, bool]] = {
+        res_dict: Dict[str, Union[str, int, bool, None]] = {
             "image": "%s%s" % (settings.MEDIA_URL, str(promotion.attachment))
         }
 
@@ -181,7 +181,7 @@ def get_television_promotions() -> List[Dict]:
                 res_dict["signupStart"] = promotion.activity.enrollment_begin.isoformat()
                 res_dict["signupStop"] = promotion.activity.enrollment_end.isoformat()
                 res_dict["signupMaximum"] = promotion.activity.maximum
-                res_dict["signupAvailable"] = promotion.activity.places_available()
+                res_dict["signupAvailable"] = promotion.activity.places_available
 
         result.append(res_dict)
 

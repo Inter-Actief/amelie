@@ -50,26 +50,32 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
     transaction.save()
 
 
-def add_participation(participation, added_by=None, is_edited_participation=False):
+def add_participation(participation, added_by=None, is_edited_participation=False, reason=None):
     """Adds a transaction for a participation in an event."""
 
-    with translation.override(participation.person.preferred_language):
-        if is_edited_participation:
-            reason = _("Edited enrollment for {activity} (addition of updated costs)").format(activity=participation.event.summary)
-        else:
-            reason = _("Enrolled for {activity}").format(activity=participation.event.summary)
+    if reason is None:
+        with translation.override(participation.person.preferred_language):
+            if is_edited_participation:
+                reason = _("Edited enrollment for {activity} (addition of updated costs)").format(
+                    activity=participation.event.summary
+                )
+            else:
+                reason = _("Enrolled for {activity}").format(activity=participation.event.summary)
 
     participation_transaction(participation, reason, added_by=added_by)
 
 
-def remove_participation(participation, added_by=None, is_edited_participation=False):
+def remove_participation(participation, added_by=None, is_edited_participation=False, reason=None):
     """Adds a transaction to nullify a participation in an event."""
 
-    with translation.override(participation.person.preferred_language):
-        if is_edited_participation:
-            reason = _("Edited enrollment for {activity} (reversal of old costs)").format(activity=participation.event.summary)
-        else:
-            reason = _("Unenrolled for {activity}").format(activity=participation.event.summary)
+    if reason is None:
+        with translation.override(participation.person.preferred_language):
+            if is_edited_participation:
+                reason = _("Edited enrollment for {activity} (reversal of old costs)").format(
+                    activity=participation.event.summary
+                )
+            else:
+                reason = _("Unenrolled for {activity}").format(activity=participation.event.summary)
 
     participation_transaction(participation, reason, cancel=True, added_by=added_by)
 

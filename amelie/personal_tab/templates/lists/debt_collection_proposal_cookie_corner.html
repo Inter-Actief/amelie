@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 {% if rows %}
@@ -24,6 +25,11 @@
                         <a href="{{ row.person.get_absolute_url }}">
                             {{ row.person }}
                         </a>
+                        &nbsp;
+                        <a title="{% blocktrans with name=row.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                           href="{% url 'personal_tab:dashboard' row.person.pk row.person.slug  %}">
+                            <span class="icon personal_tab"></span>
+                        </a>
                     </td>
                     <td>
                         <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
@@ -31,7 +37,7 @@
                             (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
                         {% endif %}
                     </td>
-                    <td class="number">{{ row.sumf }}</td>
+                    <td class="number">&euro;&nbsp;{{ row.sumf|intcomma }}</td>
                 </tr>
                 <tr>
                     <td colspan="{% if enabled %}4{% else %}3{% endif %}">
@@ -41,13 +47,13 @@
             {% endfor %}
             </tbody>
             <tfoot>
-                <tr>
+                <tr class="text-bold">
                     {% if enabled %}
                         <td></td>
                     {% endif %}
                     <td>{% trans 'Total' %}</td>
                     <td></td>
-                    <td class="number">{{ total }}</td>
+                    <td class="number">&euro;&nbsp;{{ total|intcomma }}</td>
                 </tr>
             </tfoot>
         </table>

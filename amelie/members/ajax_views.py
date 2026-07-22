@@ -4,6 +4,7 @@ from datetime import date
 import re
 
 from django.conf import settings
+from django.db import transaction
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -12,9 +13,9 @@ from django.views.generic import FormView, TemplateView
 from documenso_sdk import DocumensoError
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
-    MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
+    MandateEndForm, MandateForm, EmployeeForm, PersonStudyForm, PersonPreferencesForm, \
     SaveNewFirstModelFormSet, StudentForm, SignatureRequestForm
-from amelie.members.models import Payment, Committee, Function, Membership, Employee, PaymentType, Person, Student, \
+from amelie.members.models import Committee, Function, Membership, Employee, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization
@@ -118,24 +119,20 @@ def person_study_new(request, id):
 
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
-def person_payments(request, id, membership):
-    obj = get_object_or_404(Person, id=id)
+def person_membership_payments(request, id, membership):
+    """
+    Shows a table of ContributionTransasctions for this membership, and their payment states.
+    """
+    person = get_object_or_404(Person, id=id)
     membership = get_object_or_404(Membership, id=membership)
-    if request.method == "GET":
-        if 'original' in request.GET:
-            return render(request, "person_membership.html", locals())
-        form = PersonPaymentForm()
-        return render(request, "person_payment.html", locals())
-    elif request.method == "POST":
-        form = PersonPaymentForm(request.POST)
-        if form.is_valid():
-            payment = Payment(membership=membership, payment_type=form.cleaned_data['method'],
-                               amount=membership.type.price, date=form.cleaned_data["date"])
-            payment.save()
-            return render(request, "person_membership.html", locals())
-        else:
-            response = render(request, "person_payment.html", locals())
-            return response
+    transactions = membership.contributiontransaction_set.all()
+    context = {
+        'person': person,
+        'membership': membership,
+        'transactions': transactions
+    }
+    return render(request, "person_membership_payments.html", context)
+
 
 
 @require_ajax
@@ -152,9 +149,12 @@ def person_membership_new(request, id):
     if request.method == "POST":
         form = MembershipForm(request.POST)
         if form.is_valid():
-            membership = form.save(commit=False)
-            membership.member = obj
-            membership.save()
+            with transaction.atomic():
+                # Save the membership and create a ContributionTransaction on the person's tab.
+                membership = form.save(commit=False)
+                membership.member = obj
+                membership.save()
+                membership.create_contribution_transaction()
             return render(request, "person_membership.html", locals())
         else:
             response = render(request, "person_new_membership.html", locals())
@@ -172,6 +172,7 @@ def person_membership_end(request, id):
     if request.method == "POST":
         form = MembershipEndForm(request.POST, instance=membership)
         if form.is_valid():
+            # TODO: Revamp
             if form.cleaned_data['payment_needed'] == False and not Payment.objects.filter(membership=membership).exists():
                 # If payment is not needed and payment does not exist yet, create one
                 # PaymentType is 10: "Voortijdige beëindiging, betaling niet noodzakelijk."

@@ -257,8 +257,8 @@ def get_person_membership(ctx: RpcRequestContext = None, **kwargs) -> Union[Dict
             result["payment"] = {
                 "date": person.membership.payment.date,
                 "method": {
-                    "name": person.membership.payment.payment_type.name,
-                    "description": person.membership.payment.payment_type.description,
+                    "name": person.membership.payment.payment_method.name,
+                    "description": person.membership.payment.payment_method.description,
                 },
                 "amount": person.membership.payment.amount,
             }

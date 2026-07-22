@@ -24,7 +24,12 @@
                             <td>
                                 {% if instruction.authorization.person %}
                                     <a href="{{ instruction.authorization.person.get_absolute_url }}">
-                                        {{ instruction.authorization.person  }}
+                                        {{ instruction.authorization.person }}
+                                    </a>
+                                    &nbsp;
+                                    <a title="{% blocktrans with name=instruction.authorization.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                       href="{% url 'personal_tab:dashboard' instruction.authorization.person.pk instruction.authorization.person.slug  %}">
+                                        <span class="icon personal_tab"></span>
                                     </a>
                                 {% else %}
                                     &mdash;
@@ -68,7 +73,7 @@
                         </tr>
                         <tr>
                             <th>{% trans 'Price' %}</th>
-                            <td>{{ instruction.amount }}</td>
+                            <td>&euro;&nbsp;{{ instruction.amount }}</td>
                         </tr>
                         {% if request.is_board %}
                         <tr>

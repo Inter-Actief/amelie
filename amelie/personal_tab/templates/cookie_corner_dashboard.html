@@ -10,7 +10,15 @@
         </h2>
 
         <div class="content">
-            <p>{% blocktrans %}Your current balance is &euro; {{ curr_balance }}. Including future transactions that will be &euro; {{ all_balance }}.{% endblocktrans %}</p>
+            <p>{% blocktrans %}
+                Your current balance is <b>&euro; {{ curr_balance }}</b>. Including future transactions that will be <b>&euro; {{ all_balance }}</b>.
+            {% endblocktrans %}</p>
+
+            <p>{% blocktrans %}
+                If you signed a direct debit mandate, the balance is usually settled by withdrawing it from your bank account periodically.
+                If you do not have a mandate, you can settle any outstanding balance with a manual payment. To arrange such a payment, please contact the board.
+            {% endblocktrans %}</p>
+
             {% for instruction in future_debt_collection_instructions %}
                 <p>
                     {% blocktrans with date=instruction.batch.execution_date amount=instruction.amount url=instruction.get_absolute_url %}
@@ -55,25 +63,26 @@
                     {% trans 'Cookie Corner Wrapped' %} {{ wrapped_year }}
                 </a>
             {% endif %}
-        </div>
 
-        {% if request.is_board %}
-            <div class="buttons">
-                <a href="{% url 'personal_tab:person_new_transaction' person_id=person.pk slug=person.slug transaction_type='cookie_corner' %}" class="looks-like-a-button">
-                    {% trans 'Add transaction to personal tab' %}
-                </a>
-                <a href="{% url 'personal_tab:person_new_transaction' person_id=person.pk slug=person.slug transaction_type='other' %}" class="looks-like-a-button">
-                    {% trans 'Add other transaction' %}
-                </a>
-                <a href="{% url 'personal_tab:person_exam_cookie_credit_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
-                    {% trans 'Add credit for exams' %}
-                </a>
-            </div>
-        {% endif %}
+            {% if request.is_board %}
+                <div class="buttons">
+                    <h4 style="margin-bottom: 0;">{% trans 'Board tasks:' %}</h4>
+                    <a href="{% url 'personal_tab:person_new_transaction' person_id=person.pk slug=person.slug transaction_type='cookie_corner' %}" class="looks-like-a-button">
+                        {% trans 'Add transaction to personal tab' %}
+                    </a>
+                    <a href="{% url 'personal_tab:person_new_transaction' person_id=person.pk slug=person.slug transaction_type='other' %}" class="looks-like-a-button">
+                        {% trans 'Add other transaction' %}
+                    </a>
+                    <a href="{% url 'personal_tab:person_exam_cookie_credit_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                        {% trans 'Add credit for exams' %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div></div>
 
     {% if person and not date_from %}
-        {% include "info/debt_collection_instructions.html" %}
+        {% include "info/payments.html" %}
         {% include "info/account_information.html" %}
 
         <div id="rfid_cards">

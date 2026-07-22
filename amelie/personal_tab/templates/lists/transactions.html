@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 {% if transactions %}
@@ -21,7 +22,16 @@
                         <td>
                             {% if transaction.person %}
                                 {% if request.is_board %}
-                                    <a href="{{ person.get_absolute_url }}">{{ transaction.person }}</a>
+                                    <a href="{{ transaction.person.get_absolute_url }}">
+                                        {{ transaction.person }}
+                                    </a>
+                                    {% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug as personal_overview %}
+                                    {% if request.path != personal_overview %}
+                                        &nbsp;
+                                        <a title="{% blocktrans with name=transaction.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}" href="{{ personal_overview }}">
+                                            <span class="icon personal_tab"></span>
+                                        </a>
+                                    {% endif %}
                                 {% else %}
                                     {{ transaction.person }}
                                 {% endif %}
@@ -34,15 +44,15 @@
                                 {{ transaction.description }}
                             </a>
                         </td>
-                        <td class="align-right">{{ transaction.price }}</td>
+                        <td class="align-right">&euro;&nbsp;{{ transaction.price|intcomma }}</td>
                         <td class="align-right">{{ transaction.cookiecornertransaction.kcal|default:"&mdash;" }}</td>
                     </tr>
                 {% endfor %}
                 {% if total %}
-                    <tr>
+                    <tr class="text-bold">
                         <td colspan="3"></td>
                         <td>{% trans 'Total' %}</td>
-                        <td class="align-right">{{ totals }}</td>
+                        <td class="align-right">&euro;&nbsp;{{ totals|intcomma }}</td>
                         <td class="align-right">{{ kcal_totals }}</td>
                     </tr>
                 {% endif %}

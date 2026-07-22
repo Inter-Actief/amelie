@@ -9,7 +9,7 @@ from amelie.tools.mail import PersonRecipient
 from django.utils.translation import gettext_lazy as _l
 
 
-def activity_send_cashrefundmail(cash_participants, activity, request):
+def activity_send_cashrefundmail(cash_participants, activity):
     """
     Notify the treasurer that cash paying participants from a cancelled activity should get their money back.
     """
@@ -140,6 +140,8 @@ def activity_send_enrollment_option_price_change_mail(old_enrollment_option, new
             'on_waiting_list': participation.waiting_list
         }))
     task.send()
+
+
 def activity_send_on_waiting_listmail(participation):
     """
     Send a confirmation of enrollment on the waiting list for an activity.

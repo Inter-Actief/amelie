@@ -9,19 +9,12 @@
 </tr>
 <tr>
     <th>{% trans 'Price' %}</th>
-    <td class="align-right">{{ object.price }}</td>
+    <td class="align-right">&euro;&nbsp;{{ object.price }}</td>
 </tr>
 <tr>
-    <th>{% trans 'Direct withdrawal' %}</th>
+    <th>{% trans 'Settled in' %}</th>
     <td>
-        {% if object.debt_collection %}
-            <a href="{{ object.debt_collection.get_absolute_url }}">
-                {{ object.debt_collection }}
-            </a><br />
-            <span class="small">{{ object.debt_collection.batch.execution_date }}</span>
-        {% else %}
-            &mdash;
-        {% endif %}
+        {% include 'info/transaction_settlement_info.html' with settlement=object.settlement %}
     </td>
 </tr>
 {% if object.discount %}
@@ -39,7 +32,14 @@
         <th>{% trans 'Person' %}</th>
         <td>
             {% if object.person %}
-                <a href="{% url 'personal_tab:dashboard' object.person.pk object.person.slug  %}">{{ object.person }}</a>
+                <a href="{{ object.person.get_absolute_url }}">
+                    {{ object.person }}
+                </a>
+                &nbsp;
+                <a title="{% blocktrans with name=object.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                   href="{% url 'personal_tab:dashboard' object.person.pk object.person.slug  %}">
+                    <span class="icon personal_tab"></span>
+                </a>
             {% else %}
                 &mdash;
             {% endif %}
