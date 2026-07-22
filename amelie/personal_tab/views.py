@@ -42,7 +42,7 @@ from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransac
 from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, ActivityTransaction, \
+from amelie.personal_tab.models import Amendment, Category, Declaration, Reversal, Transaction, CookieCornerTransaction, ActivityTransaction, \
     CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
     DebtCollectionInstruction, ReversalTransaction
 from amelie.personal_tab.statistics import get_functions, statistics_totals
@@ -1756,6 +1756,9 @@ def debt_collection_instruction_reversal_edit(request, id):
     if not reversal:
         raise Http404(_('Reversal does not exist'))
 
+    if reversal.transaction and reversal.transaction.debt_collection:
+        raise Http404(_('Reversal is already debited in a new debt collection.'))
+
     if request.method == 'POST':
         form = ReversalForm(request.POST)
         if form.is_valid():
@@ -1788,6 +1791,9 @@ def debt_collection_instruction_reversal_delete(request, id):
     if not reversal:
         raise Http404(_('Reversal does not exist'))
 
+    if reversal.transaction and reversal.transaction.debt_collection:
+        raise Http404(_('Reversal is already debited in a new debt collection.'))
+
     if request.method == 'POST':
         delete_reversal(reversal)
         return redirect(instruction)
@@ -1818,11 +1824,50 @@ def debt_collection_mailing(request, assignment_id):
 
 
 @require_board
+@transaction.atomic
 def process_batch(request, id):
     batch = get_object_or_404(DebtCollectionBatch, id=id)
+    previous_status = batch.status
+       
     if request.POST:
         form = DebtCollectionBatchForm(request.POST, instance=batch)
         if form.is_valid():
+            SC = DebtCollectionBatch.StatusChoices
+
+            # If the status changed from NEW or PROCESSED to DECLINED or CANCELLED
+            if previous_status in [SC.NEW, SC.PROCESSED] and form.cleaned_data["status"] in [SC.DECLINED, SC.CANCELLED]:
+                for instruction in batch.instructions.all():
+                    # If there is not already a reversal, create one with reason XXXX.
+                    reversal = getattr(instruction, 'reversal', None)
+                    if not reversal:
+                        reversal = Reversal(instruction=instruction, date=batch.assignment.created_on, pre_settlement=True, reason=Reversal.ReversalReasons.XXXX)
+                        reversal.save()
+                        process_reversal(reversal, request.person)
+
+            # If the status changed from DECLINED or CANCELLED to NEW or PROCESSED
+            elif previous_status in [SC.DECLINED, SC.CANCELLED] and form.cleaned_data["status"] in [SC.NEW, SC.PROCESSED]:
+                try:
+                    # We try to delete all the reversals, except if one of them has a debt collection linked.
+                    with transaction.atomic():
+                        for instruction in batch.instructions.all():
+                            reversal = getattr(instruction, 'reversal', None)
+
+                            if not reversal:
+                                continue
+
+                            # If the Reversal has a ReversalTransaction with a linked debt collection, we cannot remove it.
+                            # Therefore, the whole batch will not be editable
+                            if reversal.transaction and reversal.transaction.debt_collection:
+                                raise Exception("Reversal has a debt collection linked, so cannot be deleted.")
+
+                            # If the reversal reason is XXXX, delete the reversal.
+                            if reversal.reason == Reversal.ReversalReasons.XXXX:
+                                delete_reversal(instruction.reversal)
+
+                except Exception:
+                    messages.error(request, _("The status of this batch cannot be edited to New or Processed, because a reversal of this batch is already being debited in another batch."))
+                    return redirect('personal_tab:debt_collection_view', id=batch.assignment.id)
+
             form.save()
             return redirect('personal_tab:debt_collection_view', id=batch.assignment.id)
     else:
@@ -2061,8 +2106,8 @@ Treasurer'''.format(name_treasurer),
 
             # Done
             return render(request, 'message.html', {
-                'message': _('The mails are now being sent one by one. '
-                             'This happens in a background process and might take a while.')
+                'message': _l('The e-mails are now being sent one by one. '
+                           'This happens in a background process, so it may take a while.')
             })
 
     return render(request, 'includes/query/query_mailing.html', {

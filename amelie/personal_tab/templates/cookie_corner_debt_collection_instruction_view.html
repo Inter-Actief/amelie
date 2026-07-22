@@ -96,7 +96,7 @@
                         {% trans 'Insert reversal' %}
                     </a>
                 </p>
-                {% else %}
+                {% elif not instruction.reversal.transaction.debt_collection %}
                 <p>
                     <a href="{% url 'personal_tab:debt_collection_instruction_reversal_edit' instruction.id %}" class="icon icon-pencil">
                         {% trans 'Edit reversal' %}
@@ -105,6 +105,13 @@
                 <p>
                     <a href="{% url 'personal_tab:debt_collection_instruction_reversal_delete' instruction.id %}" class="icon icon-delete">
                         {% trans 'Delete reversal' %}
+                    </a>
+                </p>
+                {% else %}
+                <p class="icon warning">
+                    {% trans 'This reversal is not editable or deletable, because it is already being debited in' %}
+                    <a href="{{ instruction.reversal.transaction.debt_collection.get_absolute_url }}">
+                        {{ instruction.reversal.transaction.debt_collection }}
                     </a>
                 </p>
                 {% endif %}
