@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from amelie.personal_tab.models import Declaration, DiscountPeriod, Discount, DiscountCredit, Transaction, \
+from amelie.personal_tab.models import BadBIC, Declaration, DiscountPeriod, Discount, DiscountCredit, Transaction, \
     CustomTransaction, ActivityTransaction, CookieCornerTransaction, AlexiaTransaction, ContributionTransaction, \
     Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, \
     DebtCollectionBatch, \
@@ -304,6 +304,12 @@ class ReversalAdmin(admin.ModelAdmin):
         return False
 
 
+class BadBICAdmin(admin.ModelAdmin):
+    list_display = ('id', 'bic', 'date_added', 'last_reversal', 'first_reversal')
+    search_fields = ['bic']
+    ordering = ['bic']
+
+
 class DiscountPeriodAdmin(admin.ModelAdmin):
     list_display = ('id', 'description_nl', 'description_en', 'begin', 'end', 'ledger_account_number',
                     'balance_account_number')
@@ -380,6 +386,7 @@ admin.site.register(DebtCollectionAssignment, DebtCollectionAssignmentAdmin)
 admin.site.register(DebtCollectionBatch, DebtCollectionBatchAdmin)
 admin.site.register(DebtCollectionInstruction, DebtCollectionInstructionAdmin)
 admin.site.register(Reversal, ReversalAdmin)
+admin.site.register(BadBIC, BadBICAdmin)
 admin.site.register(DiscountPeriod, DiscountPeriodAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(DiscountCredit, DiscountCreditAdmin)

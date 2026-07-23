@@ -7,8 +7,8 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
 from amelie.members.models import Person, Membership, PaymentType, Payment
-from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
-    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
+from amelie.personal_tab.models import BadBIC, Reversal, Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
+    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Amendment
 from amelie.tools.encodings import normalize_to_ascii
 
 
@@ -333,12 +333,22 @@ def process_reversal(reversal, actor):
                                           description=description, membership=ct.membership)
             cct.save()
 
+    # If the reversal reason is DNOR, the BIC of the authorization must be added to the Bad BIC list
+    if reversal.reason == Reversal.ReversalReasons.DNOR:
+        bad_bic = BadBIC.objects.filter(bic=instruction.authorization.bic).first()
+        if not bad_bic:
+            bad_bic = BadBIC(bic=instruction.authorization.bic, first_reversal=reversal, last_reversal=reversal)
+        else:
+            bad_bic.last_reversal = reversal
+        bad_bic.save()
+
 
 def edit_reversal(reversal, actor):
     """
     :type reversal: Reversal
     :type actor: Person
     """
+    instruction = reversal.instruction
     timezone_amsterdam = timezone.get_default_timezone()
     reversal_datetime = datetime.datetime.combine(reversal.date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
 
@@ -347,16 +357,46 @@ def edit_reversal(reversal, actor):
     rt.added_by = actor
     rt.save()
 
+    # If the reversal reason is DNOR, the BIC of the authorization must be added to the Bad BIC list
+    if reversal.reason == Reversal.ReversalReasons.DNOR:
+        bad_bic = BadBIC.objects.filter(bic=instruction.authorization.bic).first()
+        if not bad_bic:
+            bad_bic = BadBIC(bic=instruction.authorization.bic, first_reversal=reversal, last_reversal=reversal)
+        else:
+            bad_bic.last_reversal = reversal
+        bad_bic.save()
+
+    # Otherwise, check if there wasn't any BadBIC made because of the reversal before the edit
+    else:
+        bad_bic_first = BadBIC.objects.filter(first_reversal=reversal).first()
+        bad_bic_last = BadBIC.objects.filter(last_reversal=reversal).first()
+
+        # If a BIC exists where this reversal was the first occurence
+        if bad_bic_first:
+            # If it was the first and last occurence, we can delete the BIC from the list
+            if bad_bic_first.last_reversal == reversal:
+                bad_bic_first.delete()
+            # Otherwise, we set the first occurence to the last occurence
+            else:
+                bad_bic_first.first_reversal = bad_bic_first.last_reversal
+                bad_bic_first.save()
+
+        # Otherwise, if a BIC exists where this reversal was the last occurence
+        elif bad_bic_last:
+            # We set the last occurence to the first occurence
+            bad_bic_last.last_reversal = bad_bic_last.first_reversal
+            bad_bic_last.save()
+
+
 
 def delete_reversal(reversal):
     """
     :type reversal: Reversal
     """
-    # First we delete the ReversalTransaction and the Reversal object itself.
+    # First we delete the ReversalTransaction
     instruction = reversal.instruction
     rt = ReversalTransaction.objects.get(reversal=reversal)
     rt.delete()
-    reversal.delete()
 
     # If there were contribution transactions, we need to reinstate payments and delete reversal contribution transactions.
     for ct in ContributionTransaction.objects.filter(debt_collection=instruction):
@@ -370,6 +410,31 @@ def delete_reversal(reversal):
             # Now we filter for the reversal ContributionTransaction that was created when the reversal was processed and delete it.
             cct = ContributionTransaction.objects.filter(membership=ct.membership, price=-ct.price)
             cct.delete()
+
+
+    # If the reversal reason was DNOR, the BIC of the authorization must be removed from the Bad BIC list
+    if reversal.reason == Reversal.ReversalReasons.DNOR:
+        bad_bic_first = BadBIC.objects.filter(first_reversal=reversal).first()
+        bad_bic_last = BadBIC.objects.filter(last_reversal=reversal).first()
+
+        # If a BIC exists where this reversal was the first occurence
+        if bad_bic_first:
+            # If it was the first and last occurence, we can delete the BIC from the list
+            if bad_bic_first.last_reversal == reversal:
+                bad_bic_first.delete()
+            # Otherwise, we set the first occurence to the last occurence
+            else:
+                bad_bic_first.first_reversal = bad_bic_first.last_reversal
+                bad_bic_first.save()
+
+        # Otherwise, if a BIC exists where this reversal was the last occurence
+        elif bad_bic_last:
+            # We set the last occurence to the first occurence
+            bad_bic_last.last_reversal = bad_bic_last.first_reversal
+            bad_bic_last.save()
+
+    # Finally, we delete the Reversal object itself
+    reversal.delete()
 
 
 def process_amendment(authorization, date, iban, bic, reason):

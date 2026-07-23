@@ -17,7 +17,7 @@ from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm,
 from amelie.members.models import Payment, Committee, Function, Membership, Employee, PaymentType, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
-from amelie.personal_tab.models import Authorization
+from amelie.personal_tab.models import Authorization, BadBIC
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
 from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
 from amelie.tools.mixins import RequireCommitteeMixin
@@ -246,8 +246,17 @@ def person_mandate_new(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
         form = MandateForm(request.POST)
+
         if form.is_valid():
+            # If the filled BIC is in the Bad BIC list, ask for a confirmation.
+            if BadBIC.objects.filter(bic=form.cleaned_data['bic']).exists():
+                if 'confirm' in request.POST:
+                    pass
+                else:
+                    return render(request, "person_confirm_mandate.html", locals())
+            
             mandate: Authorization = form.save(commit=False)
+            mandate = form.save(commit=False)
             mandate.person = obj
             mandate.save()
             if form.cleaned_data.get('send_signature_request'):
