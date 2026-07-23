@@ -10,7 +10,7 @@ yes/no
 **Does your PR include any django migrations?**
 yes/no
 
-**Does your PR add/modify translatable strings (that must be translated via the [Weblate](https://weblate.ia.utwente.nl/projects/amelie/))?**
+**Does your PR add/modify translatable strings? These must be translated with [Weblate](https://weblate.ia.utwente.nl/projects/amelie/-/en/) once the PR has merged.**
 yes/no
 
 **Does your PR include CSS changes (and did you run the `compile_css.sh` script in the `scripts` directory to regenerate the `compiled.css` file)?**
