@@ -54,7 +54,7 @@ IGNORE_NAMES = [
 IGNORE_RESULT = [
     "token", "authorize", "ckeditor_upload", "oauth2:token",
     "personal_tab:pos_process", "members:autocomplete", "members:autocomplete_cookie_corner",
-    "activities:random_photo",  # Media folder may not be working, so will not test it.
+    "personal_tab:register_process", "activities:random_photo",  # Media folder may not be working, so will not test it.
 ]
 
 # Names or urls of which the redirects should be followed (namespaces must be prepended).
@@ -66,8 +66,8 @@ REDIRECTS_FOLLOW = [
 REDIRECTS = REDIRECTS_FOLLOW + [
     "favicon_redirect",  # Static files can't be checked, so we will just
     "personal_tab:pos_logout", "personal_tab:pos_register_external", "personal_tab:pos_scan_external",
-    "personal_tab:pos_shop", "personal_tab:register_scan", "personal_tab:my_dashboard",
-    "account:password_reset", "account:password_reset_success"
+    "personal_tab:pos_shop", "personal_tab:register_logout", "personal_tab:register_generate_qr",
+    "personal_tab:my_dashboard", "account:password_reset", "account:password_reset_success",
 ]
 
 

@@ -308,7 +308,7 @@ class PosCheckLoginAjaxView(RequireCookieCornerMixin, View):
             pending_login = PendingPosToken.objects.get(token=uuid)
         except PendingPosToken.DoesNotExist:
             return HttpJSONResponse({
-                'message': str(_("The login code is invalid or expired, please try again!.")),
+                'message': str(_("The login code is invalid or expired, please try again!")),
                 'status': False,
                 'error': True,
             })

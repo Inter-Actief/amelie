@@ -124,7 +124,11 @@ urlpatterns = [
 
     # RFID card registration views
     path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
-    path('register/scan/', register.CardRegistrationScan.as_view(), name='register_scan'),
+    path('register/process_rfid/', register.RegisterProcessRFIDView.as_view(), name='register_process'),
+    path('register/user_logout/', register.RegisterLogoutView.as_view(), name='register_logout'),
+    path('register/qr/', register.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
+    path('register/verify/<uuid:uuid>/', register.RegisterVerifyTokenView.as_view(), name='register_verify'),
+    path('register/login_check/<uuid:uuid>/', register.RegisterCheckLoginAjaxView.as_view(), name='register_check'),
 
     # Document printing views
     path('print/', print_views.PrintIndexView.as_view(), name='print_index'),

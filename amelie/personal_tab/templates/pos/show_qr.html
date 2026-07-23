@@ -45,10 +45,18 @@
 
 {% block javascript_pre %}
     <script type="text/javascript">
-        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
-        var tokenCheckURL = null;
-        {% if token %}
-        tokenCheckURL = "{% url 'personal_tab:pos_check' uuid=token.token %}";
+        {% if register_mode %}
+            var logoutURL = "{% url 'personal_tab:register_logout' %}";
+            var tokenCheckURL = null;
+            {% if token %}
+            tokenCheckURL = "{% url 'personal_tab:register_check' uuid=token.token %}";
+            {% endif %}
+        {% else %}
+            var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+            var tokenCheckURL = null;
+            {% if token %}
+            tokenCheckURL = "{% url 'personal_tab:pos_check' uuid=token.token %}";
+            {% endif %}
         {% endif %}
     </script>
 {% endblock %}
