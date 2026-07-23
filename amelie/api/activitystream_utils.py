@@ -36,6 +36,8 @@ def get_basic_result(activity):
 
 # Add detailed properties to a result item
 def add_detailed_properties(activity, authentication: Authentication, result):
+    from amelie.activities.models import Activity
+    activity: Activity  # For type checking
     authenticated = not isinstance(authentication, AnonymousAuthentication)
 
     result["description"] = strip_markdown(activity.description)
@@ -48,10 +50,10 @@ def add_detailed_properties(activity, authentication: Authentication, result):
         result["signupStart"] = activity.enrollment_begin.isoformat() if activity.enrollment_begin else None
         result["signupStop"] = activity.enrollment_end.isoformat() if activity.enrollment_end else None
         result["availability"] = activity.maximum if activity.maximum is not None else 0
-        result["signupAvailable"] = activity.enrollment and activity.enrollment_open() \
-                                    and not activity.enrollment_full()
-        result["signupWaitinglist"] = activity.enrollment_full()
-        result["resignAvailable"] = activity.enrollment and activity.enrollment_open() \
+        result["signupAvailable"] = activity.enrollment and activity.enrollment_open \
+                                    and not activity.enrollment_full
+        result["signupWaitinglist"] = activity.enrollment_full
+        result["resignAvailable"] = activity.enrollment and activity.enrollment_open \
                                     and activity.can_unenroll
         result["signedUp"] = authentication.represents() in activity.participants.all() if authenticated else False
 

@@ -1,0 +1,166 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans %}Create manual payment for {{ person }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <form action="" method="POST" class="big">
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% blocktrans %}New manual payment for {{ person }}{% endblocktrans %}</h2>
+            <div class="content">
+                {% if not object %}
+                    <p>
+                        {% if transaction_type == 'cookie_corner' %}
+                            {% trans 'You are now adding a transaction to a personal tab' %}
+                        {% elif transaction_type == 'other' %}
+                            {% trans 'You are now adding a transaction in the category "Other"' %}
+                        {% endif %}
+                    </p>
+                {% endif %}
+
+                {% csrf_token %}
+                {{ form }}
+
+                <div class="buttons">
+                    <input type="submit" value="{% if object %}{% trans 'Edit' %}{% else %}{% trans 'Add' %}{% endif %}">
+                </div>
+            </div>
+        </div></div>
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% blocktrans %}Total price{% endblocktrans %}</h2>
+            <div class="content">
+                <h2>
+                    {% trans 'Total price of payment:' %}&nbsp;<b>&euro;&nbsp;<span id="total_price">0.00</span></b>
+                </h2>
+            </div>
+        </div></div>
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% blocktrans %}Unpaid transactions{% endblocktrans %}</h2>
+            <div class="content">
+                <p>{% blocktrans %}
+                    Please select the transactions that you want to manually pay for.
+                {% endblocktrans %}</p>
+                <p>{% blocktrans %}
+                    Rows marked in green are transactions that have a date in the future.
+                {% endblocktrans %}</p>
+                {{ transaction_formset.management_form }}
+
+
+                {% if transaction_formset.non_form_errors or transaction_formset.total_error_count %}
+                    <p>There were errors while submitting the form.</p>
+                    {% if formset.non_form_errors %}
+                        <ul class="ia_messages">
+                            {% for error in transaction_formset.non_form_errors %}
+                            <li class="danger">
+                                {{ error }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% if formset.total_error_count %}
+                            <p>For more errors, see below.</p>
+                        {% endif %}
+                    {% else %}
+                        <p>See below for the errors.</p>
+                    {% endif %}
+                {% endif %}
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">
+                                <label for="select_all" style="margin-right: 8px;">{% trans 'Include?' %}</label><br />
+                                <input type="checkbox" name="select_all" id="select_all" />
+                            </th>
+                            <th>{% trans '#ID' %}</th>
+                            <th>{% trans 'Date' %}</th>
+                            <th>{% trans 'Description' %}</th>
+                            <th>{% trans 'Price' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in transaction_formset %}
+                            <input type="hidden" value="{{ form.transaction.id }}" id="{{ form.id.html_name }}" name="{{ form.id.html_name }}" />
+                            <tr{% if form.transaction.date > date_now %} style="background: rgba(0, 255, 0, 0.15)"{% endif %}>
+                                <td class="transaction_include" style="text-align: center;">
+                                    {% if form.errors %}
+                                        {{ form.include.errors }}
+                                    {% endif %}
+                                    {{ form.include }}
+                                </td>
+                                <td>
+                                    {{ form.transaction.id }}
+                                </td>
+                                <td>{{ form.transaction.date }}</td>
+                                <td>
+                                    <a href="{{ form.transaction.get_absolute_url }}">
+                                        {{ form.transaction.description }}
+                                    </a>
+                                </td>
+                                <td class="transaction_price" data-price="{{ form.transaction.price_cents }}">
+                                    &euro;&nbsp;{{ form.transaction.price }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5"><i>No unpaid transactions found!</i></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div></div>
+    </form>
+
+    <script type="text/javascript">
+        // (De)Select all transactions if the top row is (de)selected.
+        $('#select_all').click(function(event) {
+            if(this.checked) {
+                $('.transaction_include input[type="checkbox"]').each(function () {
+                    this.checked = true;
+                });
+            }else{
+                $('.transaction_include input[type="checkbox"]').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+        // Toggle the checkbox if the table cell is clicked
+        $('.transaction_include').click(function(e){
+            if (e.target.closest('input[type="checkbox"]')){
+                return;
+            }
+            let checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            updateTotalPrice();
+        })
+        // Update total price when the extra amount field is changed
+        $('input[type="checkbox"]').change(function(){
+            updateTotalPrice();
+        })
+        // Update total price when the extra amount field is changed
+        $('#id_extra_amount').change(function(){
+            updateTotalPrice();
+        })
+        // Helper function to update the total price tag
+        function updateTotalPrice() {
+            let totalPrice = 0;
+
+            // Sum all the selected transactions
+            $('.transaction_include input[type="checkbox"]:checked').each(function(){
+                totalPrice += parseInt(this.parentNode.parentNode.querySelector('.transaction_price').dataset.price)
+            })
+
+            // Add the filled-in extra amount
+            totalPrice += Math.round($('#id_extra_amount').val() * 100)
+
+            // Divide and round to two decimals
+            totalPrice = Number.parseFloat(totalPrice / 100).toFixed(2);
+
+            $('#total_price').text(`${totalPrice}`)
+        }
+        $().ready(function(){
+            updateTotalPrice();
+        })
+    </script>
+
+{% endblock content %}

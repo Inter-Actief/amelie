@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n transaction_link %}
 
 {% if rows %}
@@ -41,15 +42,15 @@
                         </td>
                         {% for amount in row.amounts %}
                             <td class="align-right">
-                                {{ amount }}
+                                &euro;&nbsp;{{ amount|intcomma }}
                             </td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
-                <tr>
+                <tr class="text-bold">
                     <td>{% trans 'Total' %}</td>
                     {% for total in totals %}
-                        <td class="align-right">{{ total }}</td>
+                        <td class="align-right">&euro;&nbsp;{{ total|intcomma }}</td>
                     {% endfor %}
                 </tr>
             </tbody>

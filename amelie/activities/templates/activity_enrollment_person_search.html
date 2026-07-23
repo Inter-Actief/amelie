@@ -22,7 +22,7 @@
             </h2>
 
             <div class="content">
-                <form class="big" action="{% url 'activities:enrollment_person_search' activity.id %}"
+                <form class="big" action="{% url 'activities:enrollment_person_search' pk=activity.id %}"
                       method="POST">
                     {% csrf_token %}
                     {{ form.as_p }}

@@ -1,5 +1,4 @@
 import datetime
-from decimal import Decimal
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.encoding import smart_str
@@ -7,7 +6,7 @@ from django.utils.encoding import smart_str
 from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask
 from amelie.members.management.commands.dataupdatemail import dataupdate_context
-from amelie.members.models import Payment, PaymentType, Membership, MembershipType
+from amelie.members.models import Membership, MembershipType
 from amelie.personal_tab.debt_collection import authorization_contribution
 from amelie.tools.mail import PersonRecipient
 
@@ -46,7 +45,6 @@ class Command(BaseCommand):
             new_year = int(options['to_year'])
         except ValueError:
             raise CommandError("Type numbers for years...")
-
 
         # These memberships are automatically prolonged without change,
         # unless the membership was terminated by the member
@@ -136,9 +134,6 @@ class Command(BaseCommand):
             priority=TaskPriority.LOW
         )
 
-        paymenttype_continuation = PaymentType.objects.filter(name='Studielang (vervolg)')[0]
-        paymenttype_sponsored = PaymentType.objects.filter(name='Sponsoring')[0]
-
         if prev_prolong:
             memberships = Membership.objects.filter(year=current_year, type__needs_verification=True)
         else:
@@ -153,16 +148,12 @@ class Command(BaseCommand):
                 next_type = next_membership_type[membership.type]
 
                 prolong = False
-                payment_type = None
 
                 if membership.type in yearmembershiptypes:
                     prolong = True
-                    if next_type.price == Decimal("0.00"):
-                        payment_type = paymenttype_sponsored
 
                 elif membership.type in studylongmembershiptypes and membership.is_verified():
                     prolong = True
-                    payment_type = paymenttype_continuation
 
                 # Check if there actually is a new membership already,
                 # and set prolong to True if it was not yet, so they get a prolongation mail instead of a discontinuation mail.
@@ -193,22 +184,14 @@ class Command(BaseCommand):
                                                                         context=context))
 
                     if commit:
-                        l, created = Membership.objects.get_or_create(member=membership.member, type=next_type,
-                                                                      year=new_year)
-                        if not created:
+                        m, created = Membership.objects.get_or_create(
+                            member=membership.member, type=next_type, year=new_year
+                        )
+                        if created:
+                            # Create a ContributionTransaction for the membership, if necessary, so it will be paid for.
+                            m.create_contribution_transaction()
+                        else:
                             errorfile.write(smart_str(f"{membership.member} ({membership.type}) was already enrolled for the new year\n"))
-
-                        if payment_type:
-                            if created:
-                                b = Payment.objects.create(date=datetime.datetime(new_year, 7, 1),
-                                                           membership=l,
-                                                           payment_type=payment_type,
-                                                           amount=next_type.price)
-                                b.save()
-                            else:
-                                errorfile.write(smart_str(f"{membership.member} ({membership.type}) was already enrolled for the new year, no payment was created!\n"))
-
-                        l.save()
 
                 else:
                     if not prev_prolong and membership.type != ENIAC_MEMBERSHIP:

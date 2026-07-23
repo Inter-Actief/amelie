@@ -1,22 +1,9 @@
 from django.contrib import admin
 
-from amelie.members.models import Department, Payment, PaymentType, Committee, CommitteeCategory, Dogroup, \
+from amelie.members.models import Department, Committee, CommitteeCategory, Dogroup, \
     DogroupGeneration, Faculty, Function, Membership, MembershipType, Employee, Person, Student, Study, \
     StudyPeriod, Association, Preference, PreferenceCategory, UnverifiedEnrollment
 from amelie.tools.admin import NameAdmin, AbbreviationAdmin, AbbreviationTypeAdmin
-
-
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'membership', 'payment_type', 'date', 'amount')
-    search_fields = ('membership__member__first_name', 'membership__member__last_name',)
-    list_filter = ('payment_type', 'amount', 'membership__type', 'membership__year',)
-    date_hierarchy = 'date'
-    raw_id_fields = ('membership',)
-
-class PaymentTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description', 'visible')
-    list_filter = ('visible',)
-    search_fields = ('name', 'description')
 
 
 class CommitteeAdmin(admin.ModelAdmin):
@@ -93,12 +80,10 @@ class StudyAdmin(admin.ModelAdmin):
 admin.site.register(Function, FunctionAdmin)
 admin.site.register(Committee, CommitteeAdmin)
 admin.site.register(CommitteeCategory, NameAdmin)
-admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(StudyPeriod, StudyPeriodAdmin)
 admin.site.register(Student, StudentAdmin)
-admin.site.register(PaymentType, PaymentTypeAdmin)
 admin.site.register(MembershipType, MembershipTypeAdmin)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Preference, PreferenceAdmin)

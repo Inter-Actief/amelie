@@ -126,11 +126,8 @@
                                     <img class="dutch-indicator" src="{{ STATIC_URL }}img/layout/flag_nl.png"
                                          alt="{% trans 'Dutch-only' %}">
                                     <a class="activity-{{ activity.activity_type }}"
-                                       href="{{ activity.get_absolute_url }}" title="
-
-
-
-                                            {{ activity.description|striptags|truncatewords:30 }}">{{ activity.summary }}</a>
+                                       href="{{ activity.get_absolute_url }}"
+                                       title="{{ activity.description|striptags|truncatewords:30 }}">{{ activity.summary }}</a>
                                 </td>
                                 <td>
                                     {% include "includes/activity_list_photos.html" %}

@@ -22,7 +22,7 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 
 from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
-from amelie.members.models import Department, PaymentType, Committee, CommitteeCategory, DogroupGeneration, \
+from amelie.members.models import Department, Committee, CommitteeCategory, DogroupGeneration, \
     Function, Membership, MembershipType, Employee, Person, Student, Study, StudyPeriod, Preference, \
     LANGUAGE_CHOICES, UnverifiedEnrollment
 from amelie.personal_tab.models import Authorization, AuthorizationType
@@ -284,11 +284,6 @@ class PersonStudyForm(forms.ModelForm):
     class Meta:
         model = StudyPeriod
         fields = ("study", "begin", "dogroup",)
-
-
-class PersonPaymentForm(forms.Form):
-    date = forms.DateField(initial=datetime.date.today())
-    method = forms.ModelChoiceField(PaymentType.objects.filter(visible=True))
 
 
 class MembershipForm(forms.ModelForm):

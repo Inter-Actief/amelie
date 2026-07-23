@@ -52,6 +52,11 @@
                                         <i class="icon icon-user"></i>
                                         {{ entry.actor }}
                                     </a>
+                                    &nbsp;
+                                    <a title="{% blocktrans with name=entry.actor.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                       href="{% url 'personal_tab:dashboard' entry.actor.pk entry.actor.slug  %}">
+                                        <span class="icon personal_tab"></span>
+                                    </a>
                                 </td>
                                 <td>
                                     {% if entry.job_id %}<i class="icon icon-printer"></i>

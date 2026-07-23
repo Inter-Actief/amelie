@@ -1,21 +1,27 @@
 from datetime import datetime
+from decimal import Decimal
+from typing import Optional, Tuple, List, Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db.models import Sum
+from django.db.models import Sum, QuerySet
+from django.dispatch import receiver
 from django.urls import reverse
-from django.db import models
-from django.db.models.signals import post_save, pre_save
-from django.utils import timezone
+from django.db import models, transaction
+from django.db.models.signals import post_save, pre_save, pre_delete
+from django.utils import timezone, translation
 from django.utils.timezone import make_aware
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language, gettext_lazy as _l
 from oauth2_provider.models import Application
 
-from amelie.activities.utils import setlocale, update_waiting_list
+from amelie.activities.mail import activity_send_enrollmentmail, activity_send_cancellationmail
+from amelie.tools.locale import setlocale
 from amelie.files.models import Attachment
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event, Participation
+from amelie.members.models import Person
 from amelie.tools.discord import send_discord, send_discord_presave
 from amelie.tools.managers import SubclassManager
 
@@ -85,26 +91,6 @@ class Activity(Event):
     def __str__(self):
         return self.summary
 
-    @property
-    def activity_type(self):
-        return "regular"
-
-    @property
-    def confirmed_participants(self):
-        return self.participants.filter(participation__waiting_list=False)
-
-    @property
-    def confirmed_participations(self):
-        return self.participation_set.filter(waiting_list=False)
-
-    @property
-    def waiting_participants(self):
-        return self.participants.filter(participation__waiting_list=True)
-
-    @property
-    def waiting_participations(self):
-        return self.participation_set.filter(waiting_list=True)
-
     def clean(self):
         super(Activity, self).clean()
 
@@ -115,84 +101,79 @@ class Activity(Event):
             if self.enrollment_end is None:
                 raise ValidationError(_l('There is no enrollment end date entered.'))
 
-    def get_absolute_url(self):
-        return reverse('activities:activity', args=[self.id])
+    ##
+    # Properties and simple getter functions
+    ##
 
-    def get_photo_url_random(self):
-        return reverse('activities:random_photo', args=[self.id])
+    @property
+    def activity_type(self) -> str:
+        return "regular"
 
-    def get_photo_url(self):
-        return reverse('activities:gallery', args=[self.id])
+    @property
+    def confirmed_participants(self) -> QuerySet['Person']:
+        return self.participants.filter(participation__waiting_list=False)
 
-    def get_calendar_url(self):
-        return reverse('activities:ics', args=[self.id])
+    @property
+    def confirmed_participations(self) -> QuerySet['Participation']:
+        return self.participation_set.filter(waiting_list=False)
 
-    def random_photo(self, only_public=True):
-        photos = self.photos.filter_public(only_public)
+    @property
+    def waiting_participants(self) -> QuerySet['Person']:
+        return self.participants.filter(participation__waiting_list=True)
 
-        # Select a random photo
-        photo = photos.order_by('?')[:1]
+    @property
+    def waiting_participations(self) -> QuerySet['Participation']:
+        return self.participation_set.filter(waiting_list=True)
 
-        # Done
-        return photo[0] if len(photo) > 0 else None
-
-    def random_public_photo(self):
-        return self.random_photo(only_public=True)
-
-    def enrollment_open(self):
+    @property
+    def enrollment_open(self) -> bool:
         """Shows whether the enrollment is open at this time"""
         return self.enrollment_begin < timezone.now() < self.enrollment_end
 
-    enrollment_open.boolean = True
-
-    def enrollment_closed(self):
+    @property
+    def enrollment_closed(self) -> bool:
         """
-        If True then the enrollment deadline is over thus you are too late to enroll.
+        If True, then the enrollment deadline is over, thus you are too late to enroll.
         """
-
         return timezone.now() > self.enrollment_end
 
-    def can_edit(self, person):
-        """
-
-        """
-
-        return person.is_board() or (self.organizer in person.current_committees()) or person.user.is_superuser
-
-    def places_available(self):
+    @property
+    def places_available(self) -> Optional[int]:
         """
         Calculates the number of available places.
         If there is no maximum, then the result of this function is None.
         """
-
         return max(0, self.maximum - self.participants.filter(participation__waiting_list=False).count()) if self.maximum else None
 
-    def enrollment_full(self):
+    @property
+    def enrollment_full(self) -> bool:
         """
         True if there are no more places available to enroll and if there is a maximum.
         """
-
-        places_available = self.places_available()
+        places_available = self.places_available
         return places_available is not None and places_available == 0
 
-    def has_waiting_participants(self):
+    @property
+    def has_waiting_participants(self) -> bool:
         """
         True if there is a waiting list that is not empty.
         """
         return self.waiting_participants.count() > 0
 
-    def enrollment_almost_full(self):
+    @property
+    def enrollment_almost_full(self) -> bool:
         """
         True if there are less than ten places available and if there is a maximum.
         """
-
-        places_available = self.places_available()
+        places_available = self.places_available
         return places_available is not None and places_available <= 10
 
-    def has_enrollmentoptions(self):
+    @property
+    def has_enrollmentoptions(self) -> bool:
         return self.enrollmentoption_set.exists()
 
-    def has_costs(self):
+    @property
+    def has_costs(self) -> bool:
         """
         An activity has costs if there are enrollment costs, or if there are
         enrollment options, optional or not, that have costs. In this case the
@@ -201,7 +182,6 @@ class Activity(Event):
         It does not matter if enrollment costs or enrollment options result in
         a discount.
         """
-
         # Trivial check
         if self.price != 0:
             return True
@@ -210,8 +190,214 @@ class Activity(Event):
         return any([enrollmentoption.has_extra_costs() for enrollmentoption
                     in self.enrollmentoption_set.all()])
 
-    def latest_event_registration_message(self):
+    @property
+    def latest_event_registration_message(self) -> Optional['EventDeskRegistrationMessage']:
         return self.eventdeskregistrationmessage_set.all().order_by('-message_date').first()
+
+    def get_absolute_url(self) -> str:
+        return reverse('activities:activity', args=[self.id])
+
+    def get_photo_url_random(self) -> str:
+        return reverse('activities:random_photo', args=[self.id])
+
+    def get_photo_url(self) -> str:
+        return reverse('activities:gallery', args=[self.id])
+
+    def get_calendar_url(self) -> str:
+        return reverse('activities:ics', args=[self.id])
+
+    def random_photo(self, only_public=True) -> Optional['Attachment']:
+        photos: QuerySet['Attachment'] = self.photos.filter_public(only_public)
+
+        # Select a random photo
+        photo = photos.order_by('?')[:1]
+
+        # Done
+        return photo[0] if len(photo) > 0 else None
+
+    def random_public_photo(self) -> Optional['Attachment']:
+        return self.random_photo(only_public=True)
+
+    def can_edit(self, person) -> bool:
+        return person.is_board() or (self.organizer in person.current_committees()) or person.user.is_superuser
+
+    ##
+    # Enrollment helper functions
+    ##
+    def check_enrollment_allowed(self, person: Person, indirect: bool = False,
+                                 ignore_start_enrollment: bool = False,
+                                 authentication_application: Optional[Application] = None) -> Tuple[bool, Optional[str]]:
+        """Checks whether a person can enroll for this activity
+
+        :param person: The person who wants to enroll for an activity, standard is request.person
+        :param indirect: Whether the enrollment is done by the person him-/herself, or done for him/her
+        :param ignore_start_enrollment: Ignore the enrollment period of the activity
+        :param authentication_application: The oauth application being used to process this enrollment
+        :returns: Whether the person can enroll for the given activity
+        """
+        if not self.enrollment:
+            return False, _l('Enrollment for {activity} is not possible.').format(activity=self)
+
+        if not person.is_member():
+            return False, _l(
+                'Enrollment for {activity} is not possible. You do not have an active membership at Inter-Actief'
+            ).format(activity=self)
+
+        if self.oauth_application and (authentication_application is None or self.oauth_application != authentication_application):
+            return False, _l(
+                'Enrollment for {activity} is only possible on the website of this activity.'
+            ).format(activity=self)
+
+        if not self.enrollment_open:
+            if not ignore_start_enrollment:
+                return False, _l(
+                    "The enrollment period for {activity} hasn't started yet or has already passed."
+                ).format(activity=self)
+
+        if person in self.participants.all():
+            if indirect:
+                return False, _l('{person} is already enrolled for {activity}.').format(
+                    person=person,
+                    activity=self
+                )
+            else:
+                return False, _l('You are already enrolled for {activity}.').format(activity=self)
+
+        return True, None
+
+    def check_unenrollment_allowed(self, person: Person, indirect: bool = False, ignore_can_unenroll: bool = False,
+                                   ignore_unenrollment_period: bool = False,
+                                   authentication_application: Optional[Application] = None) -> Tuple[bool, Optional[str]]:
+        """Checks whether a person can unenroll for an activity
+
+        :param person: The person who wants to unenroll for an activity, standard is request.person
+        :param indirect: Whether the unenrollment is done by the person him-/herself or for him/her
+        :param ignore_can_unenroll: Ignore the unenrollment prohibition of the activity
+        :param ignore_unenrollment_period: Ignore the unenrollment period of the activity
+        :param authentication_application: The oauth application being used to process this unenrollment
+        :returns: Whether the person can unenroll for the given activity
+
+        :side_effect: Puts an elaborate description of the error in django messages
+        """
+        if not self.enrollment:
+            return False, _l('Unenrollment for {activity} is not possible.').format(activity=self)
+
+        if self.oauth_application and (authentication_application is None or self.oauth_application != authentication_application):
+            return False, _l(
+                'Unenrollment for {activity} is only possible on the website of this activity.'
+            ).format(activity=self)
+
+        try:
+            # The select_for_update makes sure to acquire a write lock
+            Participation.objects.select_for_update().get(person=person, event=self)
+        except Participation.DoesNotExist:
+            if indirect:
+                return False, _l('{person} is not enrolled for {activity}.').format(
+                    person=person,
+                    activity=self
+                )
+            else:
+                return False, _l('You are not enrolled for {activity}.').format(activity=self)
+
+        if not self.can_unenroll and not ignore_can_unenroll:
+            return False, _l('Unenrollment for {activity} is not possible.').format(activity=self)
+
+        if not self.enrollment_open and not ignore_unenrollment_period:
+            return False, _l('The unenrollment term for {activity} has already passed.').format(activity=self)
+
+        return True, None
+
+    @transaction.atomic
+    def update_waiting_list(self) -> List[Participation]:
+        """
+        Checks if any participants on the waiting list for this activity can be enrolled into the activity.
+        If there is room, the participants will be definitively enrolled.
+
+        The list of newly enrolled participants is returned.
+
+        :return: List of newly enrolled participants
+        :rtype: List[Participation]
+        """
+        new_participants: List[Participation] = []
+        while not self.enrollment_full and self.has_waiting_participants and not self.waiting_list_locked:
+            new_participation = Participation.objects.get(
+                person=self.waiting_participants.order_by('participation__added_on').first(),
+                event=self
+            )
+            activity_send_enrollmentmail(new_participation, from_waiting_list=True)
+            new_participation.waiting_list = False
+            new_participation.save()
+            from amelie.personal_tab import transactions
+            transactions.add_participation(new_participation, added_by=new_participation.added_by)
+            new_participants.append(new_participation)
+        return new_participants
+
+    @transaction.atomic
+    def unenroll_all_participants(self, actor: Optional[Person] = None):
+        """
+        Neatly unenroll all participants from this activity, undoing any transactions that
+        may have been added to the personal tabs of the participants.
+        :param actor: A person that is registered as the 'added by' actor for the cancellation transaction.
+        :type actor: Person
+        """
+        # Undo transactions and remove participations
+        from amelie.personal_tab import transactions
+        for participation in self.participation_set.all():
+            # If necessary, compensate the person for the enrollment costs.
+            with translation.override(participation.person.preferred_language):
+                transactions.remove_participation(participation, added_by=actor, reason=_("Activity was cancelled"))
+            # Remove the participation
+            participation.delete()
+
+    @transaction.atomic
+    def cancel_activity(self, actor: Optional[Person] = None):
+        """
+        Cancel this activity.
+        Events may only be canceled if they have not yet started.
+        This will also remove all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
+        :param actor: A person that is registered as the 'added by' actor for the cancellation transaction.
+        :type actor: Person
+        """
+        # Can only cancel if the activity hasn't started yet.
+        if self.begin < timezone.now():
+            raise ValueError(_("Activity has already started, it cannot be canceled any more."))
+
+        # Send cancellation e-mails
+        # First to regular participants (filtered by waiting_list=False)
+        activity_send_cancellationmail(self.participation_set.filter(waiting_list=False), self)
+        # Then to waiting list participants, if present
+        if self.waiting_participations.exists():
+            activity_send_cancellationmail(self.waiting_participations.all(), self, from_waiting_list=True)
+
+        # Undo transactions and remove participations
+        self.unenroll_all_participants(actor=actor)
+
+        # Mark the activity as canceled and close enrollments.
+        self.cancelled = True
+        self.enrollment = False
+        self.save()
+
+    def uncancel_activity(self):
+        """
+        Uncancel an activity.
+        The cancellation status will be removed, but enrollments will not be re-opened
+        (because we can't know if it was open before).
+        """
+        self.cancelled = False
+        self.save()
+
+    def enroll_person(self, person: Person):
+        # TODO Implement
+        pass
+
+    def unenroll_person(self, person: Person):
+        # TODO Implement
+        pass
+
+    def edit_enrollment(self, participation: Participation):
+        # TODO Implement
+        pass
+
 
 
 class Enrollmentoption(models.Model):
@@ -395,12 +581,11 @@ class EnrollmentoptionAnswer(models.Model):
 
         return new_model
 
-    def get_price_extra(self):
+    def get_price_extra(self) -> Decimal:
         """
         Calculate extra costs based on data
         """
-
-        return 0
+        return Decimal("0")
 
 
 class EnrollmentoptionQuestionAnswer(EnrollmentoptionAnswer):
@@ -430,7 +615,7 @@ class EnrollmentoptionCheckboxAnswer(EnrollmentoptionAnswer):
     def is_empty(self):
         return EnrollmentoptionCheckboxAnswer.objects.filter(id=self.id).filter(answer=False).exists()
 
-    def get_price_extra(self):
+    def get_price_extra(self) -> Decimal:
         if self.answer:
             return self.enrollmentoption.enrollmentoptioncheckbox.price_extra
         else:
@@ -448,7 +633,7 @@ class EnrollmentoptionNumericAnswer(EnrollmentoptionAnswer):
     def is_empty(self):
         return EnrollmentoptionNumericAnswer.objects.filter(id=self.id).filter(answer=0).exists()
 
-    def get_price_extra(self):
+    def get_price_extra(self) -> Decimal:
         return self.enrollmentoption.enrollmentoptionnumeric.price_extra * self.answer
 
 
@@ -463,7 +648,7 @@ class EnrollmentoptionSelectboxAnswer(EnrollmentoptionAnswer):
     def is_empty(self):
         return EnrollmentoptionSelectboxAnswer.objects.filter(id=self.id).filter(answer__isnull=True).exists()
 
-    def get_price_extra(self):
+    def get_price_extra(self) -> Decimal:
         return self.answer.price_extra
 
 
@@ -530,26 +715,8 @@ class EnrollmentoptionFoodAnswer(EnrollmentoptionAnswer):
     def is_empty(self):
         return EnrollmentoptionFoodAnswer.objects.filter(id=self.id).filter(dishprice__isnull=True).exists()
 
-    def get_price_extra(self):
+    def get_price_extra(self) -> Decimal:
         return self.dishprice.price if self.dishprice else super(EnrollmentoptionFoodAnswer, self).get_price_extra()
-
-
-def createdishprice(sender, **kwargs):
-    if kwargs['created']:
-        instance = kwargs['instance']
-        for dish in instance.restaurant.dish_set.all():
-            dishprice = DishPrice(dish=dish, price=dish.price, question=instance)
-            dishprice.save()
-
-
-post_save.connect(createdishprice, sender=EnrollmentoptionFood)
-# IRC notifications disabled because the bot is broken -- albertskja 2023-03-28
-# post_save.connect(send_irc, sender=Activity)
-post_save.connect(send_discord, sender=Activity)
-post_save.connect(update_waiting_list, sender=Activity)
-
-# Pre-save hook for activity to send_discord to be able to check if pictures were added
-pre_save.connect(send_discord_presave, sender=Activity)
 
 
 class EventDeskRegistrationMessage(models.Model):
@@ -617,4 +784,36 @@ class EventDeskRegistrationMessage(models.Model):
         else:
             return self.match_ratio > 0.6
 
-post_save.connect(update_waiting_list, Activity)
+
+##
+# Event hooks for Activities module
+##
+def createdishprice(sender, **kwargs):
+    if kwargs['created']:
+        instance = kwargs['instance']
+        for dish in instance.restaurant.dish_set.all():
+            dishprice = DishPrice(dish=dish, price=dish.price, question=instance)
+            dishprice.save()
+
+
+def updatewaitinglist(sender, **kwargs):
+    instance: Activity = kwargs['instance']
+    instance.update_waiting_list()
+
+
+post_save.connect(createdishprice, sender=EnrollmentoptionFood)
+post_save.connect(updatewaitinglist, sender=Activity)
+post_save.connect(send_discord, sender=Activity)
+
+# Pre-save hook for activity to send_discord to be able to check if pictures were added
+pre_save.connect(send_discord_presave, sender=Activity)
+
+@receiver(pre_delete, sender=Activity)
+def pre_delete_cleanup_activity_participations(sender: Type[Activity] , instance: Activity, **kwargs):
+    """
+    Pre-delete hook as a final catch to make sure to unenroll everyone properly from an activity before it is deleted.
+    This makes sure everyone gets a cancellation e-mail even if it is forgotten in the deleting party.
+    However, ideally, this method (Activity.unenroll_all_participants) is called earlier with the actor argument set,
+    so that it is recorded who deleted the activity and unenrolled the participants.
+    """
+    instance.unenroll_all_participants()

@@ -1,8 +1,9 @@
 # -*- coding: UTF-8 -*-
 import datetime
+import decimal
 import logging
-from io import BytesIO
-from typing import Optional
+from decimal import Decimal
+from typing import Optional, Iterable
 
 from io import BytesIO
 import json
@@ -121,8 +122,8 @@ class Transaction(models.Model):
     price:              The price that this transaction is for.
     person:             The person this transaction is for.
     description:        The description of this transaction.
-    discount:           Links to the Discount object in which this credit is used.
-    debt_collection:    Links to the Debt Collection Entry on which this transaction was collected.
+    discount:           Links to the Discount object in which credit was used to pay for (part of) this transaction.
+    settlement:         Links to the Personal Tab Settlement with which this transaction was settled.
 
     added_on:           The date and time on which this object was created.
     added_by:           The person that created this object.
@@ -134,8 +135,8 @@ class Transaction(models.Model):
     description = models.CharField(max_length=200, blank=True, verbose_name=_l('Description'))
     discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.SET_NULL)
 
-    debt_collection = models.ForeignKey('DebtCollectionInstruction', verbose_name=_l('Direct withdrawal'), blank=True, null=True,
-                                        related_name="transactions", on_delete=models.PROTECT)
+    settlement = models.ForeignKey('PersonalTabSettlement', verbose_name=_l('Settlement'), blank=True, null=True,
+                                   related_name="transactions", on_delete=models.PROTECT)
 
     added_on = models.DateTimeField(verbose_name=_l('Added on'), auto_now_add=True)
 
@@ -154,6 +155,14 @@ class Transaction(models.Model):
         return '{} ({})'.format(self.description, self.price)
 
     @property
+    def price_cents(self):
+        return (self.price * 100).quantize(Decimal("0"), decimal.ROUND_HALF_UP)
+
+    def is_paid(self):
+        # A transaction is paid if a settlement exists, and that settlement is also paid.
+        return self.settlement.is_paid() if self.settlement else False
+
+    @property
     def editable(self):
         return False
 
@@ -166,7 +175,7 @@ class CustomTransaction(Transaction):
     """
     @property
     def editable(self):
-        return not self.debt_collection
+        return not self.settlement
 
 
 class ActivityTransaction(Transaction):
@@ -218,7 +227,7 @@ class CookieCornerTransaction(Transaction):
 
     @property
     def editable(self):
-        return not self.debt_collection
+        return not self.settlement
 
 
 class AlexiaTransaction(Transaction):
@@ -805,7 +814,59 @@ class DebtCollectionBatch(models.Model):
         verbose_name_plural = _l('direct withdrawal-batches')
 
 
-class DebtCollectionInstruction(models.Model):
+class PersonalTabSettlement(models.Model):
+    """
+    Base class to represent a payment to settle the personal tab balance.
+
+    This can either represent a DebtCollectionInstruction, or a ManualPaymentSettlement.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+    """Description rule."""
+    description = models.CharField(max_length=140, verbose_name=_l('description'), validators=[SEPA_CHAR_VALIDATOR])
+
+    """Amount of the settlement. (Either to be collected via debit, or paid manually.)"""
+    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('amount'))
+
+    @property
+    def settlement_type(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.settlement_type
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.settlement_type
+        raise NotImplementedError("Base class Personal tab settlement has no settlement type.")
+
+    def is_paid(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.is_paid()
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.is_paid()
+        raise NotImplementedError("Base class Personal tab settlement cannot be paid.")
+
+    def __str__(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.__str__()
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.__str__()
+        if self.id:
+            return f'Personal tab settlement #{self.id}'
+        return 'Personal tab settlement (new)'
+
+    def get_absolute_url(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.get_absolute_url()
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.get_absolute_url()
+        raise NotImplementedError("Base class Personal tab settlement has no detail view.")
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = _l('personal tab settlement')
+        verbose_name_plural = _l('personal tab settlements')
+
+
+class DebtCollectionInstruction(PersonalTabSettlement):
     """
     Instruction to collect some amount from a certain account.
 
@@ -829,22 +890,25 @@ class DebtCollectionInstruction(models.Model):
     """End-to-end-id. This will be passed on to the cashed (the person paying)."""
     end_to_end_id = models.CharField(max_length=35, verbose_name=_l('end-to-end-id'), validators=[SEPA_CHAR_VALIDATOR])
 
-    """Description rule."""
-    description = models.CharField(max_length=140, verbose_name=_l('description'), validators=[SEPA_CHAR_VALIDATOR])
-
-    """Amount to be collected."""
-    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('amount'))
-
     """An amendment given with this instruction."""
     amendment = models.OneToOneField(Amendment, related_name='instruction', on_delete=models.PROTECT,
                                      verbose_name=_l('amendment'), null=True, blank=True)
 
     objects = DebtCollectionInstructionManager()
 
+    @property
+    def settlement_type(self):
+        return "INSTR"
+
+    def is_paid(self):
+        # A debt collection is paid if there is no reversal for it, or if the reversal is also paid.
+        return self.reversal.is_paid() if hasattr(self, 'reversal') else True
+
     def debt_collection_reference(self):
-        """Returns the debt collection reference with prefix."""
+        """Returns the debt collection reference with a prefix."""
         if self.id:
             return '%s%08d' % (DebtCollectionInstruction.PREFIX, self.id)
+        return None
 
     def __str__(self):
         return self.debt_collection_reference() or 'New debt collection instruction'
@@ -858,6 +922,135 @@ class DebtCollectionInstruction(models.Model):
         verbose_name_plural = _l('direct withdrawal-instructions')
 
 
+class PaymentMethod(models.Model):
+    """
+    Payment method used for a manual payment.
+    """
+    name = models.CharField(max_length=20, unique=True, verbose_name=_l('Name'))
+    description = models.TextField(verbose_name=_l('Description'))
+    visible = models.BooleanField(default=True, verbose_name=_l('Visible'))
+    frontend_icon_name = models.CharField(max_length=20, blank=True, null=True, verbose_name=_l('Icon name for frontend'))
+
+    class Meta(object):
+        ordering = ['description']
+        verbose_name = _l('payment method')
+        verbose_name_plural = _l('payment methods')
+
+    def __str__(self):
+        return '%s' % self.description
+
+    @property
+    def icon_name(self):
+        return self.frontend_icon_name or 'wand'
+
+
+class ManualPaymentSettlement(PersonalTabSettlement):
+    """
+    Record of a manual payment to settle a personal tab balance.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+
+    """Prefix for payment reference."""
+    PREFIX = 'IA-MANUAL-'
+
+    """The date on which this manualpayment was made."""
+    payment_date = models.DateField(verbose_name=_l('payment date'))
+
+    """Person that the settlement relates to."""
+    person = models.ForeignKey(Person, verbose_name=_l('person'), null=True, blank=True, on_delete=models.PROTECT)
+
+    """Payment method"""
+    payment_method = models.ForeignKey(PaymentMethod, verbose_name=_l('Payment method'), on_delete=models.PROTECT)
+
+    """Person that created the manual payment settlement."""
+    created_by = models.ForeignKey(Person, verbose_name=_l('Created by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
+    # '+' related_name makes sure no reverse relation is added to Person
+
+    class Meta:
+        ordering = ['-payment_date', '-person', '-id']
+        verbose_name = _l('manual payment settlement')
+        verbose_name_plural = _l('manual payment settlements')
+
+    @property
+    def settlement_type(self):
+        return "MANUAL"
+
+    def is_paid(self):
+        # A manual payment settlement is considered to always be paid when it is created.
+        return True
+
+    def payment_reference(self):
+        """Returns the payment reference with a prefix."""
+        if self.id:
+            return '%s%08d' % (ManualPaymentSettlement.PREFIX, self.id)
+        return None
+
+    def __str__(self):
+        return self.payment_reference() or 'New manual payment settlement'
+
+    def get_absolute_url(self):
+        return reverse('personal_tab:manual_payment_settlement_view', args=(), kwargs={'id': self.id, })
+
+    @classmethod
+    def create_for_transactions(
+        cls, transactions: Iterable[Transaction], payment_method: PaymentMethod, person: Person, description: str,
+        created_by: Optional[Person] = None, payment_datetime: Optional[datetime.datetime] = None,
+        extra_amount: Optional[Decimal] = None, extra_amount_description: Optional[str] = None
+    ) -> 'ManualPaymentSettlement':
+        if payment_datetime is None:
+            payment_datetime = timezone.now()
+
+        # If extra amount is passed, description must be set.
+        if extra_amount is not None and extra_amount_description is None:
+            raise ValueError("If an extra amount is passed, a description for it must also be given")
+
+        transactions = list(transactions)
+        if not transactions and extra_amount is None:
+            raise ValueError("No transactions given and no extra amount given! Cannot create an empty manual payment")
+
+        # Calculate the total settlement amount
+        total_transactions_price = sum(t.price for t in transactions) or Decimal("0.00")
+        if extra_amount is not None:
+            total_transactions_price += extra_amount
+
+        # Create a ManualPayment settlement with the given payment method.
+        settlement = ManualPaymentSettlement.objects.create(
+            payment_date=payment_datetime.date(),
+            payment_method=payment_method,
+            description=description[:140],
+            person=person,
+            created_by=created_by,
+            amount=total_transactions_price,
+        )
+
+        # Save the settlement reference in all transactions
+        for transaction in transactions:
+            transaction.settlement = settlement
+            transaction.save()
+
+        # Add an ExtraManualPaymentTransaction if an extra amount was given
+        if extra_amount is not None:
+            credit_transaction = ExtraManualPaymentTransaction(
+                date=payment_datetime, price=-extra_amount,
+                person=person, settlement=settlement,
+                description=extra_amount_description[:200],  # Will not be None, because of the earlier check
+            )
+            credit_transaction.save()
+
+        # If transactions come out to a non-zero amount, add a ManualPaymentSettlementTransaction for
+        # the total transaction amount to cancel out the balance of those transactions
+        if total_transactions_price != 0:
+            settlement_transaction = ManualPaymentSettlementTransaction(
+                date=payment_datetime, price=-total_transactions_price, person=person,
+                description=description[:200], settlement=settlement
+            )
+            settlement_transaction.save()
+
+        return settlement
+
+
 class Reversal(models.Model):
     """
     Reversal of an already collected amount.
@@ -865,7 +1058,6 @@ class Reversal(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
-
 
     class ReversalReasons(models.TextChoices):
         """Possible reasons for reversals"""
@@ -917,6 +1109,10 @@ class Reversal(models.Model):
     def __str__(self):
         return _l('Debit reversal %s') % self.instruction.debt_collection_reference()
 
+    def is_paid(self):
+        # A reversal is paid when the related ReversalTransaction is paid.
+        return self.transaction.is_paid()
+
     class Meta:
         ordering = ['date']
         verbose_name = _l('debit reversal')
@@ -951,6 +1147,27 @@ class ReversalTransaction(Transaction):
 
 def get_sentinel_person() -> Person:
     return Person.objects.get(pk=settings.ANONIMIZATION_SENTINEL_PERSON_ID)
+
+
+class ManualPaymentSettlementTransaction(Transaction):
+    """
+    Transaction for an executed manual payment.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+    pass
+
+
+class ExtraManualPaymentTransaction(Transaction):
+    """
+    Transaction for extra money that was manually deposited on the personal tab balance.
+    Can only be created from extra deposited money in a ManualPaymentSettlement.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+    pass
 
 
 class PrintLogEntry(models.Model):

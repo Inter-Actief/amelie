@@ -1,0 +1,117 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans "Payments" %}</h2>
+
+    <div class="content">
+        <div class="row">
+            <div class="col col-sm-12 col-md-6">
+                <h3 style="margin-top: 0;">{% trans "Direct debits" %}</h3>
+                <p>
+                    {% blocktrans count counter=debt_collection_instructions|length %}
+                        Your most recently executed or planned direct debit.
+                    {% plural %}
+                        Your most recently executed or planned direct debits.
+                    {% endblocktrans %}
+                </p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                                <th class="align-right">{% trans 'Price' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for instruction in debt_collection_instructions %}
+                                <tr>
+                                    <td>
+                                        {{ instruction.batch.execution_date }}
+                                    </td>
+                                    <td>
+                                        <a href="{{ instruction.get_absolute_url }}">
+                                            {{ instruction.description }}
+                                        </a>
+                                    </td>
+                                    <td class="align-right">&euro;&nbsp;{{ instruction.amount }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">
+                                        <p class="icon warning"><i>{% trans "There are no direct debits executed or planned yet." %}</i></p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if debt_collection_instructions %}
+                    <p>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:person_debt_collection_instructions' person.id person.slug %}">
+                            {% trans "View all direct debits." %}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+            <div class="col col-sm-12 col-md-6">
+                <h3 style="margin-top: 0;">
+                    {% trans "Manual payments" %}
+                    {% if request.is_board %}
+                        <a style="float: right;" href="{% url 'personal_tab:person_manual_payment_new' person_id=person.pk slug=person.slug %}" class="looks-like-a-button">
+                            {% trans 'Add manual payment' %}
+                        </a>
+                    {% endif %}
+                </h3>
+                <p>
+                    {% blocktrans count counter=manual_payment_settlements|length %}
+                        Your most recent manual payment.
+                    {% plural %}
+                        Your most recent manual payments.
+                    {% endblocktrans %}
+                </p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                                <th>{% trans 'Payment method' %}</th>
+                                <th class="align-right">{% trans 'Price' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for settlement in manual_payment_settlements %}
+                                <tr>
+                                    <td>
+                                        {{ settlement.payment_date }}
+                                    </td>
+                                    <td>
+                                        <a href="{{ settlement.get_absolute_url }}">
+                                            {{ settlement.description }}
+                                        </a>
+                                    </td>
+                                    <td>{{ settlement.payment_method.name }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ settlement.amount }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">
+                                        <p class="icon warning"><i>{% trans "There are no manual payments yet." %}</i></p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if manual_payment_settlements %}
+                    <p>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:person_manual_payments' person_id=person.id slug=person.slug %}">
+                            {% trans "View all manual payments." %}
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div></div>

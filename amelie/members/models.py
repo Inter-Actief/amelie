@@ -2,14 +2,14 @@
 
 import datetime
 import logging
-import re
 import uuid
 
 import os
+from decimal import Decimal
 from io import BytesIO
 from typing import Optional
-
 from colorfield.fields import ColorField
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -17,11 +17,13 @@ from django.core.files.base import ContentFile
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
+from django.utils import translation, timezone
 from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
 from documenso_sdk import EnvelopeDistributeResponse
 
@@ -432,10 +434,11 @@ class Person(models.Model, Mappable):
     is_active_member.boolean = True
 
     def is_member_strict(self):
-        member = self.membership_set.filter(Q(type__price=0) | Q(payment__isnull=False),
-                                            year=current_association_year())
-        member = member.filter(models.Q(ended__isnull=True) | models.Q(ended__gt=datetime.date.today()))
-        return member.count() > 0
+        memberships = self.membership_set.filter(
+            Q(ended__isnull=True) | Q(ended__gt=datetime.date.today()),
+            year=current_association_year()
+        )
+        return any(m.type.price == 0 or m.is_paid() for m in memberships)
 
     is_member_strict.boolean = True
 
@@ -603,6 +606,12 @@ class Person(models.Model, Mappable):
         Returns if this person has an active mandate for other payments.
         """
         return self.has_mandate('other_payments')
+
+    def unpaid_transactions(self):
+        return self.transaction_set.filter(settlement=None)
+
+    def unpaid_transactions_total_cost(self) -> Decimal:
+        return self.unpaid_transactions().aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
     def oauth_consumer_set(self):
         consumers = {}
@@ -841,22 +850,6 @@ class MembershipType(models.Model):
     def __str__(self):
         return '{} (€{})'.format(self.name, self.price)
 
-class PaymentType(models.Model):
-    """
-    e.g. Cash or Debit transaction
-    """
-    name = models.CharField(max_length=20, unique=True, verbose_name=_l('Name'))
-    description = models.TextField(verbose_name=_l('Description'))
-    visible = models.BooleanField(default=True, verbose_name=_l('Visible'))
-
-    class Meta(object):
-        ordering = ['description']
-        verbose_name = _l('way of payment')
-        verbose_name_plural = _l('ways of payment')
-
-    def __str__(self):
-        return '%s' % self.description
-
 
 class Student(models.Model):
     """
@@ -1005,11 +998,68 @@ class Membership(models.Model):
         pdf = buffer.getvalue()
         return pdf
 
-    def is_paid(self):
-        try:
-            return self.payment
-        except Payment.DoesNotExist:
-            return self.type.price == 0
+    def is_free(self) -> bool:
+        """
+        Returns if this membership is free and thus requires no payment.
+        """
+        return self.type.price == 0
+
+    def is_paid(self) -> bool:
+        """
+        A membership is paid if it costs nothing, or if all ContributionTransactions that exist for it are paid.
+        """
+        if self.is_free():
+            return True
+        else:
+            # ContributionTransactions are created when the membership is created but also when the
+            # direct debit collection is reversed. So you can have multiple, that all need to be paid.
+            return all(t.is_paid() for t in self.contributiontransaction_set.all())
+
+    @transaction.atomic
+    def create_contribution_transaction(self, date: Optional[datetime.datetime] = None):
+        """
+        Create a ContributionTransaction if none exist and if the member needs to pay for this membership.
+        """
+        from amelie.personal_tab.models import ContributionTransaction  # Avoid circular import
+        if date is None:
+            date = timezone.now()
+        if not self.contributiontransaction_set.exists() and self.type.price != 0:
+            with translation.override(self.member.preferred_language):
+                ct = ContributionTransaction(
+                    date=date, price=self.type.price, person=self.member, membership=self, settlement=None,
+                    description=_('Contribution {membership_type} ({begin_year}/{end_year})').format(
+                        membership_type=self.type.name,
+                        begin_year=self.year,
+                        end_year=(self.year + 1)
+                    )
+                )
+                ct.save()
+                return ct
+        return None
+
+    @transaction.atomic
+    def mark_as_paid(self, payment_method, actor: Optional[Person] = None):
+        # Avoid circular import
+        from amelie.personal_tab.models import ContributionTransaction, PaymentMethod, ManualPaymentSettlement
+        # Get the ContributionTransaction for this Membership that still needs to be paid
+        ct = self.contributiontransaction_set.get(settlement=None)
+
+        # Create a ManualPayment settlement with the given payment method to mark the contribution transaction as paid.
+        # Override language to get the description strings in the person's preferred language
+        with translation.override(self.member.preferred_language):
+            payment_datetime = timezone.now()
+            settlement: ManualPaymentSettlement = ManualPaymentSettlement.create_for_transactions(
+                transactions=[ct],
+                payment_method=payment_method,
+                person=self.member,
+                created_by=actor,
+                payment_datetime=payment_datetime,
+                description=_("Payment on {date} for contribution {membership_type} ({begin_year}/{end_year})").format(
+                    date=payment_datetime.date(), membership_type=self.type.name,
+                    begin_year=self.year, end_year=(self.year + 1)
+                )
+            )
+        return settlement
 
     def is_verified(self):
         if self.type.needs_verification and self.member.membership_set.filter(ended__isnull=True, year=current_association_year()+1).count() == 0:
@@ -1065,27 +1115,6 @@ class Membership(models.Model):
             return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
         else:
             return "#"
-
-
-class Payment(models.Model):
-    """
-    Payment of a Membership.
-    Please note that processing properties of this model may be subject to privacy regulations. Refer to
-    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
-    """
-    date = models.DateField(null=True, verbose_name=_l('Date'))
-    payment_type = models.ForeignKey(PaymentType, verbose_name=_l('Payment'), on_delete=models.PROTECT)
-    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_l('Price'))
-
-    membership = models.OneToOneField(Membership, verbose_name=_l('Membership'), on_delete=models.PROTECT)
-
-    class Meta(object):
-        ordering = ['date']
-        verbose_name = _l('payment')
-        verbose_name_plural = _l('payments')
-
-    def __str__(self):
-        return '%s (%.2f)' % (self.membership, self.amount)
 
 
 class CommitteeCategory(models.Model):
@@ -1410,10 +1439,11 @@ class UnverifiedEnrollment(models.Model):
         person.preferences.set(self.preferences.all())
         person.save()
 
-        # Add membership details
+        # Add membership details and create a transaction for it if necessary
         membership = Membership(member=person, type=self.membership_type,
                                 year=self.membership_year)
         membership.save()
+        membership.create_contribution_transaction()
 
         # Add student details
         student = Student(person=person, number=self.student_number)

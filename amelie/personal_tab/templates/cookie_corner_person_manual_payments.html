@@ -1,0 +1,46 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans %}Manual payments for {{ person }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans %}Manual payments for {{ person }}{% endblocktrans %}</h2>
+        <div class="content">
+            {% if manual_payments %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                                <th>{% trans 'Payment method' %}</th>
+                                <th class="align-right">{% trans 'Price' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for manual_payment in manual_payments.select_related %}
+                            <tr>
+                                <td>
+                                    {{ manual_payment.payment_date }}
+                                </td>
+                                <td>
+                                    <a href="{{ manual_payment.get_absolute_url }}">
+                                        {{ manual_payment.description }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ manual_payment.payment_method.name }}
+                                </td>
+                                <td class="align-right">&euro;&nbsp;{{ manual_payment.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="icon warning">{% trans "No manual payments have been found." %}</p>
+            {% endif %}
+        </div>
+    </div></div>
+{% endblock content %}

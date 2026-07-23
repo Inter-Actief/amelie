@@ -26,8 +26,8 @@ app_name = 'activities'
 
 urlpatterns = [
     # URLs that are not about a specific activity
-    path('', views.activities, name='activities'),
-    path('old/', views.activities_old, name='activities_old'),
+    path('', views.ActivityListView.as_view(), name='activities'),
+    path('old/', views.OldActivityListView.as_view(), name='activities_old'),
     # URLs about the photo gallery
     path('photos/', views.photos, name='photos'),
     path('photos/<int:page>/', views.photos, name='photos'),
@@ -38,7 +38,7 @@ urlpatterns = [
     path('photos/upload/clear/', views.ClearPhotoUploadDirView.as_view(), name='photo_upload_clear'),
 
     # URLs about an activity
-    path('<int:pk>/', views.activity, name='activity'),
+    path('<int:pk>/', views.ActivityDetailView.as_view(), name='activity'),
     path('<int:pk>/mailing/', views.activity_mailing, name='mailing'),
     path('<int:pk>/photos/random/', views.activity_random_photo, name='random_photo'),
     path('<int:pk>/photo/<int:photo>/', views.gallery_photo, name='gallery_photo'),
@@ -49,19 +49,18 @@ urlpatterns = [
 
     path('<int:pk>/edit/', ActivityUpdateView.as_view(), name='edit'),
     path('new/', ActivityCreateView.as_view(), name='new'),
-    path('<int:pk>/cancel/', views.activity_cancel, name='cancel'),
-    path('<int:pk>/delete/', views.activity_delete, name='delete'),
+    path('<int:pk>/cancel/', views.ActivityCancelView.as_view(), name='cancel'),
+    path('<int:pk>/delete/', views.ActivityDeleteView.as_view(), name='delete'),
 
     # URLs about enrollments
-    path('<int:pk>/enrollment/', views.activity_enrollment, name='enrollment'),
-    path('<int:pk>/enrollment_export/', views.DataExport.as_view(), name='enrollment_data_export'),
-    path('<int:pk>/enrollmentform/', views.activity_enrollment_self, name='enrollment_self'),
-    path('<int:pk>/enrollmentform/search/', views.activity_enrollment_person_search, name='enrollment_person_search'),
-    path('<int:pk>/enrollmentform/<int:person_id>/', views.activity_enrollment_person, name='enrollment_person'),
-    path('<int:pk>/unenrollment/<int:person_id>/', views.activity_unenrollment, name='unenrollment'),
-    path('<int:pk>/unenrollment/', views.activity_unenrollment_self, name='unenrollment_self'),
-    path('<int:pk>/edit_enrollment/', views.activity_editenrollment_self, name='editenrollment_self'),
-    path('<int:pk>/edit_enrollment/<int:person_id>/', views.activity_editenrollment_other, name='editenrollment_other'),
+    path('<int:pk>/enrollment/', views.ActivityEnrollView.as_view(), name='enrollment'),
+    path('<int:pk>/enrollment/<int:person_id>/', views.ActivityEnrollView.as_view(), name='enrollment_person'),
+    path('<int:pk>/enrollment/search/', views.ActivityEnrollSearchPersonView.as_view(), name='enrollment_person_search'),
+    path('<int:pk>/enrollment/unenroll/', views.ActivityUnenrollView.as_view(), name='unenrollment'),
+    path('<int:pk>/enrollment/<int:person_id>/unenroll/', views.ActivityUnenrollView.as_view(), name='unenrollment_person'),
+    path('<int:pk>/enrollment/edit/', views.ActivityEditEnrollView.as_view(), name='editenrollment'),
+    path('<int:pk>/enrollment/<int:person_id>/edit/', views.ActivityEditEnrollView.as_view(), name='editenrollment_person'),
+    path('<int:pk>/enrollment/export/', views.DataExport.as_view(), name='enrollment_data_export'),
 
     # URLs about adding a new enrollmentoption to an activity
     path('<int:pk>/enrollmentoptions/checkbox/new/', EnrollmentoptionCreateView.as_view(model=EnrollmentoptionCheckbox), name='enrollmentoption_checkbox_new'),
@@ -74,10 +73,10 @@ urlpatterns = [
     path('enrollmentoptions/<int:pk>/edit/', EnrollmentoptionUpdateView.as_view(), name='enrollmentoption_edit'),
     path('enrollmentoptions/<int:pk>/delete/', EnrollmentoptionDeleteView.as_view(), name='enrollmentoption_delete'),
 
-    # URLs about calendars, two times due to reverse-urls
-    path('calendar.ics', views.activities_ics, name='activities_ics'),
-    re_path(r'calendar_(?P<lang>(nl|en))\.ics', views.activities_ics, name='activities_ics_international'),
-    path('<int:pk>/activity.ics', views.activity_ics, name='ics'),
+    # URLs about calendars
+    path('calendar.ics', views.ActivitiesICSView.as_view(), name='activities_ics'),
+    re_path(r'calendar_(?P<lang>(nl|en))\.ics', views.ActivitiesICSView.as_view(), name='activities_ics_international'),
+    path('<int:pk>/activity.ics', views.ActivityICSView.as_view(), name='ics'),
 
     # URLs for the eventdesk check pages
     path('eventdesk/', views.EventDeskMessageList.as_view(), name='eventdesk_list'),
@@ -93,5 +92,5 @@ urlpatterns = [
     path('<int:pk>/activiteit.ics', RedirectView.as_view(url='/activities/%(pk)s/activity.ics', permanent=True)),
 
     # Activity label filtering (last because it would override other URLs otherwise)
-    path('<str:act_type>', views.activities, name='activities_type'),
+    path('<str:act_type>', views.ActivityListView.as_view(), name='activities_type'),
 ]

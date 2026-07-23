@@ -26,15 +26,20 @@
                             <th>{% trans 'Price' %}</th>
                         </tr>
                     </thead>
-                    <tbody>  
+                    <tbody>
                         {% for membership in membership_list %}
                         <tr>
                             <td>
                                 <input type="checkbox" name="type-{{ membership_type.1 }}" value="{{ membership.pk }}"/>
                             </td>
                             <td class="align-left">
-                                <a href="{% url 'members:person_view' membership.member.pk membership.member.slug %}">
-                                    {{ membership.member.incomplete_name }}
+                                <a href="{{ membership.member.get_absolute_url }}">
+                                    {{ membership.member }}
+                                </a>
+                                &nbsp;
+                                <a title="{% blocktrans with name=membership.member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                   href="{% url 'personal_tab:dashboard' membership.member.pk membership.member.slug  %}">
+                                    <span class="icon personal_tab"></span>
                                 </a>
                             </td>
                             <td class="align-right">
@@ -73,7 +78,7 @@
                     <a href="{% url 'personal_tab:unpaid_memberships_forgive' year %}" onclick="this.href=getMembershipsURI(this, '{{ membership_type.1 }}');" class="looks-like-a-button icon icon-money">{% trans 'Forgive membership fee' %}</a>
                 </div>
                 <br>
-            </div>  
+            </div>
         </div>
     </div>
     {% endfor %}
@@ -98,4 +103,3 @@
         }
     </script>
     {% endblock content %}
-    

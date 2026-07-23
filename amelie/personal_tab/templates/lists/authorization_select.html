@@ -35,6 +35,11 @@
                         <a href="{{ authorization.person.get_absolute_url }}">
                             {{ authorization.person }}
                         </a>
+                        &nbsp;
+                        <a title="{% blocktrans with name=authorization.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                           href="{% url 'personal_tab:dashboard' authorization.person.pk authorization.person.slug  %}">
+                            <span class="icon personal_tab"></span>
+                        </a>
                     {% else %}
                         &mdash;
                     {% endif %}

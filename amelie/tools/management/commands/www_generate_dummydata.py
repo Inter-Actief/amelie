@@ -309,39 +309,43 @@ class Command(DevelopmentOnlyCommand):
         # 10 Preferences
         self.stdout.write("- 10 preferences...")
         baker.make('members.Preference', _quantity=10)
-        # 2 PaymentTypes
-        self.stdout.write("- 2 payment types...")
-        baker.make('members.PaymentType', _quantity=2)
         # 80 Persons with Memberships and Students and StudyPeriods
         self.stdout.write("- 80 persons with memberships, students and study periods...")
         students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=80)
         for student in students:
-            baker.make('members.Membership',
+            ms = baker.make('members.Membership',
                        member=student,
                        year=current_association_year(),
                        ended=None)
+            for m in ms:
+                m.create_contribution_transaction()
             s = baker.make('members.Student', person=student)
             baker.make('members.StudyPeriod', student=s, begin=gen_date_before_today)
         # 10 Persons with expired memberships (old members) and Students and StudyPeriods
         self.stdout.write("- 10 persons with expired memberships (old members), students and study periods...")
         students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=10)
         for student in students:
-            baker.make('members.Membership',
+            ms = baker.make('members.Membership',
                        member=student,
                        year=current_association_year()-1,
                        ended=None)
+            for m in ms:
+                m.create_contribution_transaction()
             s = baker.make('members.Student', person=student)
             baker.make('members.StudyPeriod', student=s, begin=gen_date_before_today)
         # 20 Persons with Memberships and Employees
         self.stdout.write("- 20 persons with memberships and employees...")
         employees = baker.make(PERSON_MODEL_STRING, user=None, _quantity=20)
         for employee in employees:
-            baker.make('members.Membership',
+            ms = baker.make('members.Membership',
                        member=employee,
                        year=current_association_year(),
                        ended=None)
+            for m in ms:
+                m.create_contribution_transaction()
             baker.make('members.Employee', person=employee, end=None)
         # 50 Payments (half of students and half of employees)
+        # TODO: Cash Revamp
         self.stdout.write("- 50 payments for half of the students and half of the employees...")
         random.shuffle(students)
         half_students = students[:40]
@@ -447,6 +451,9 @@ class Command(DevelopmentOnlyCommand):
         # Personal Tab models
         ###
         self.stdout.write("Creating random models from the Personal Tab module...")
+        # 4 PaymentMethods
+        self.stdout.write("- 4 payment methods...")
+        baker.make('personal_tab.PaymentMethod', _quantity=4)
         # Create 6 categories
         self.stdout.write("- 6 personal tab categories with 4 articles each...")
         categories = baker.make('personal_tab.Category', _quantity=6)

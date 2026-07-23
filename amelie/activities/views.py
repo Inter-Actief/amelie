@@ -8,6 +8,7 @@ import os
 import re
 import csv
 from pathlib import Path
+from typing import Dict, Union, Optional, Tuple
 
 from PIL import Image
 from django.conf import settings
@@ -17,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.core.paginator import EmptyPage, PageNotAnInteger
+from django.forms import Form
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import F, Q, Count, Sum
@@ -28,248 +30,693 @@ from urllib.parse import quote
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 
-from amelie.activities.forms import ActivityForm, PaymentForm, PhotoUploadForm, \
-    EnrollmentoptionCheckboxAnswerForm, EnrollmentoptionCheckboxForm, EnrollmentoptionFoodAnswerForm, \
-    EnrollmentoptionFoodForm, EnrollmentoptionQuestionAnswerForm, EnrollmentoptionQuestionForm, \
-    EventDeskActivityMatchForm, EnrollmentoptionNumericForm, EnrollmentoptionNumericAnswerForm, PhotoFileUploadForm
+from amelie.activities.forms import ActivityForm, PhotoUploadForm, PhotoFileUploadForm, \
+    ActivityEnrollmentOptionsForm, EnrollmentoptionAnswerForm, ENROLLMENTOPTION_FORM_TYPES, EventDeskActivityMatchForm
 from amelie.activities.mail import activity_send_enrollmentmail, activity_send_on_waiting_listmail, \
-    activity_send_cancellationmail, activity_send_cashrefundmail, activity_send_price_change_mail, \
-    activity_send_enrollment_option_price_change_mail
+    activity_send_price_change_mail, activity_send_enrollment_option_price_change_mail
 from amelie.activities.models import Activity, DishPrice, Enrollmentoption, EnrollmentoptionCheckbox, \
-    EnrollmentoptionCheckboxAnswer, EnrollmentoptionFood, EnrollmentoptionFoodAnswer, EnrollmentoptionQuestion, \
-    EnrollmentoptionQuestionAnswer, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric, \
-    EnrollmentoptionNumericAnswer, EnrollmentoptionAnswer
+    EnrollmentoptionFood, EnrollmentoptionQuestion, EventDeskRegistrationMessage, Restaurant, EnrollmentoptionNumeric
 from amelie.activities.tasks import save_photos
-from amelie.activities.utils import check_enrollment_allowed, check_unenrollment_allowed, update_waiting_list
 from amelie.claudia.google import GoogleSuiteAPI
 from amelie.files.models import Attachment
 from amelie.calendar.models import Participation, Event
-from amelie.graphql.helpers import is_board
 from amelie.members.forms import PersonSearchForm
-from amelie.members.models import Person, Photographer, Preference
+from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import ActivityMailingForm
 from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
 from amelie.tools.const import TaskPriority
-from amelie.tools.decorators import require_actief, require_lid, require_committee, require_board
-from amelie.tools.forms import PeriodForm, ExportForm, PeriodKeywordForm
+from amelie.tools.decorators import require_committee
+from amelie.tools.forms import ExportForm, PeriodKeywordForm
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mixins import RequireActiveMemberMixin, DeleteMessageMixin, PassesTestMixin, RequireBoardMixin, \
-    RequireCommitteeMixin
+    RequireCommitteeMixin, RequireMemberMixin
 from amelie.tools.paginator import RangedPaginator
 
 logger = logging.getLogger(__name__)
 
-ENROLLMENTOPTION_ANSWER_TYPES = {
-    EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswer,
-    EnrollmentoptionCheckbox: EnrollmentoptionCheckboxAnswer,
-    EnrollmentoptionFood: EnrollmentoptionFoodAnswer,
-    EnrollmentoptionNumeric: EnrollmentoptionNumericAnswer,
-}
 
-ENROLLMENTOPTIONANSWER_FORM_TYPES = {
-    EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswerForm,
-    EnrollmentoptionCheckbox: EnrollmentoptionCheckboxAnswerForm,
-    EnrollmentoptionFood: EnrollmentoptionFoodAnswerForm,
-    EnrollmentoptionNumeric: EnrollmentoptionNumericAnswerForm,
-}
+class ActivitiesICSView(View):
+    """iCal-feed for activities."""
+    def get(self):
+        if self.kwargs.get('lang') is not None:
+            translation.activate(self.kwargs.get('lang'))
 
-ENROLLMENTOPTION_FORM_TYPES = {
-    EnrollmentoptionQuestion: EnrollmentoptionQuestionForm,
-    EnrollmentoptionCheckbox: EnrollmentoptionCheckboxForm,
-    EnrollmentoptionFood: EnrollmentoptionFoodForm,
-    EnrollmentoptionNumeric: EnrollmentoptionNumericForm,
-}
+        activities = Activity.objects.filter_public(self.request) \
+            .filter(begin__gte=timezone.now() - datetime.timedelta(100)) \
+            .order_by('begin')
+
+        return HttpResponse(
+            ical_calendar(_('Events of Inter-Actief'), activities, max_duration_before_split=datetime.timedelta(days=5)),
+            content_type='text/calendar; charset=UTF-8'
+        )
 
 
-def activities_ics(request, lang=None):
-    """
-    ical-feed for activities.
-    """
-    if lang is not None:
-        translation.activate(lang)
+class ActivityICSView(View):
+    """Returns the ical for an activity."""
+    def get(self):
+        activity: Activity = get_object_or_404(Activity, pk=self.kwargs.get('pk'))
 
-    act = Activity.objects \
-        .filter_public(request) \
-        .filter(begin__gte=timezone.now() - datetime.timedelta(100)) \
-        .order_by('begin')
+        if not activity.public and not self.request.user.is_authenticated:
+            raise PermissionDenied
 
-    ical_contents = ical_calendar(_('Events of Inter-Actief'), act,
-                                  max_duration_before_split=datetime.timedelta(days=5))
-
-    return HttpResponse(ical_contents, content_type='text/calendar; charset=UTF-8')
+        return HttpResponse(
+            ical_calendar(_(activity.summary), [activity, ]),
+            content_type='text/calendar; charset=UTF-8'
+        )
 
 
-def activity_ics(request, pk):
-    """
-    Returns the ical for an activity.
-    """
-    activity = get_object_or_404(Activity, pk=pk)
-    if not activity.public and not request.user.is_authenticated:
-        raise PermissionDenied
-
-    resp = HttpResponse(content_type='text/calendar; charset=UTF-8')
-    resp.write(ical_calendar(_(activity.summary), [activity, ]))
-
-    return resp
-
-
-def activities(request, act_type=None):
+class ActivityListView(ListView):
     """
     Gives an overview of all upcoming activities and recent past activities.
     """
-    activities = Event.objects.filter_public(request)
 
-    if act_type:
-        activities = activities.filter(Q(activity__activity_label__name_en=act_type) | Q(activity__activity_label__name_nl=act_type))
+    model = Event
+    template_name = "activity_list.html"
 
-    old_activities = list(activities.filter(end__lt=timezone.now()))[-10:]
-    new_activities = list(activities.filter(end__gte=timezone.now()))
+    def get_queryset(self):
+        qs = self.model.objects.filter_public(self.request)
+        act_type = self.kwargs.get('act_type')
+        if act_type is not None:
+            qs = qs.filter(
+                Q(activity__activity_label__name_en=act_type) | Q(activity__activity_label__name_nl=act_type)
+            )
+        return qs
 
-    old_activities = [a.as_leaf_class() for a in old_activities]
-    new_activities = [a.as_leaf_class() for a in new_activities]
-    only_open_enrollments = 'openEnrollments' in request.GET
+    def get_context_data(self, *args, **kwargs):
+        qs = self.get_queryset()
+        return {
+            'old_activities': [a.as_leaf_class() for a in qs.filter(end__lt=timezone.now()).order_by('-begin')[:10]],
+            'new_activities': [a.as_leaf_class() for a in qs.filter(end__gte=timezone.now())],
+            'only_open_enrollments': 'openEnrollments' in self.request.GET
+        }
 
-    return render(request, "activity_list.html", locals())
-
-
-def activities_old(request):
+class OldActivityListView(ListView):
     """
     Gives an overview of past activities.
-
     You can filter on a date and on a few keywords.
     """
-    form = PeriodKeywordForm(to_date_required=False, keywords_required=False, data=request.GET or None)
 
-    if form.is_valid():
-        keywords = form.cleaned_data['keywords']
-        start_date = form.cleaned_data['from_date']
-        end_date = form.cleaned_data['to_date'] or timezone.now()
-    else:
-        keywords = ""
-        start_date = form.fields['from_date'].initial
-        end_date = form.fields['to_date'].initial
+    model = Activity
+    template_name = "activity_old.html"
 
-    # Convert dates to datetimes
-    start_datetime = timezone.make_aware(datetime.datetime.combine(start_date, datetime.time()))
-    end_datetime = timezone.make_aware(datetime.datetime.combine(end_date, datetime.time()))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form = None
 
-    # Filter for activities in tim  range
-    old_activities = Activity.objects.filter_public(request).filter(end__range=(start_datetime, end_datetime)) \
-        .order_by('-end')
+    def _get_form(self):
+        if self.form is None:
+            self.form = PeriodKeywordForm(to_date_required=False, keywords_required=False, data=self.request.GET or None)
+        return self.form
 
-    if 'keywords' in form.data.keys():
-        # Filter for activities with keyword
-        old_activities = old_activities.filter(Q(summary_en__icontains=keywords) |
-                                               Q(description_en__icontains=keywords) |
-                                               Q(summary_nl__icontains=keywords) |
-                                               Q(description_nl__icontains=keywords))
+    def _get_params(self) -> Dict[str, Union[str, datetime.datetime]]:
+        form = self._get_form()
+        if form.is_valid():
+            keywords = form.cleaned_data['keywords']
+            start_date = form.cleaned_data['from_date']
+            end_date = form.cleaned_data['to_date'] or timezone.now()
+        else:
+            keywords = ""
+            start_date = form.fields['from_date'].initial
+            end_date = form.fields['to_date'].initial
 
-    return render(request, "activity_old.html", {
-        'form': form,
-        'old_activities': old_activities,
-    })
+        # Convert dates to datetimes
+        return {
+            'keywords': keywords,
+            'from_date': timezone.make_aware(datetime.datetime.combine(start_date, datetime.time())),
+            'to_date': timezone.make_aware(datetime.datetime.combine(end_date, datetime.time()))
+        }
+
+    def get_queryset(self):
+        qs = self.model.objects.filter_public(self.request).order_by('-end')
+        get_params = self._get_params()
+
+        # Filter date range
+        qs = qs.filter(end__range=(get_params.get('from_date'), get_params.get('to_date')))
+
+        # Filter keywords
+        keywords = get_params.get('keywords')
+        if keywords:
+            qs = qs.filter(
+                Q(summary_en__icontains=keywords) | Q(description_en__icontains=keywords) |
+                Q(summary_nl__icontains=keywords) | Q(description_nl__icontains=keywords)
+            )
+
+        return qs
+
+    def get_context_data(self, *args, **kwargs):
+        return {
+            'form': self._get_form(),
+            'old_activities': self.get_queryset()
+        }
+
+class ActivityDetailView(DetailView):
+    """Shows an activity."""
+    model = Activity
+    template_name = "activity.html"
+    deanonymise = False
+
+    def __init__(self, deanonymise=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.deanonymise = deanonymise
+
+    def get_context_data(self, **kwargs):
+        if not self.object.public and not self.request.user.is_authenticated:
+            raise PermissionDenied
+
+        request_person: Optional[Person] = self.request.person if hasattr(self.request, 'person') else None
+
+        context = super().get_context_data(**kwargs)
+        context['obj'] = self.object  # Template laziness
+        if self.object.participants:
+            context['number_participants'] = self.object.participants.count()
+            context['number_confirmed_participants'] = self.object.confirmed_participants.count()
+            context['number_waiting_participants'] = self.object.waiting_participants.count()
+        if self.request.user.is_authenticated and request_person:
+            context['can_edit'] = self.object.can_edit(request_person)
+        else:
+            context['can_edit'] = False
+        context['current_time'] = timezone.now()  # For determining whether to show the Cancel button.
+        context['only_show_underage'] = hasattr(self.request, 'is_board') and self.request.is_board and (self.request.GET.get('underage') == "True")
+
+        # Extra check to make sure that no sensitive data will be leaked
+        if context['can_edit']:
+            context['restaurants'] = Restaurant.objects.filter(
+                enrollmentoptionfood__activity=self.object,
+                dish__dishprice__enrollmentoptionfoodanswer__enrollmentoption__activity=self.object
+            ).annotate(
+                amount=Count('enrollmentoptionfood__activity'), total_price=Sum('dish__dishprice__price')
+            ).distinct()
+            # Add dishes to restaurant data
+            for restaurant in context['restaurants']:
+                restaurant.dishes = DishPrice.objects.filter(
+                    enrollmentoptionfoodanswer__enrollmentoption__activity=self.object,
+                    dish__restaurant=restaurant, enrollmentoptionfoodanswer__enrollment__waiting_list=False
+                ).annotate(
+                    amount=Count('enrollmentoptionfoodanswer', filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)),
+                    total_price=Sum('price', filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False))
+                )
+
+            context['total_price'] = sum(
+                restaurant.dishes.aggregate(Sum('total_price')).get('total_price__sum', 0)
+                for restaurant in context['restaurants']
+            )
+            context['total_amount'] = sum(
+                restaurant.dishes.aggregate(Sum('amount')).get('amount__sum', 0)
+                for restaurant in context['restaurants']
+            )
+
+        # Sorted set of participations that are used to show the enrollments
+        context['participation_set'] = self.object.participation_set.order_by('added_on')
+
+        context['confirmed_participation_set'] = self.object.participation_set.filter(waiting_list=False).order_by('added_on')
+        context['public_participation_set'] = context['confirmed_participation_set'].filter(person__preferences__name="public_enrollment").order_by("person__first_name")
+        context['anonymous_count'] = context['confirmed_participation_set'].count() - context['public_participation_set'].count()
+        if context['only_show_underage']:
+            context['confirmed_participation_set'] = [
+                x for x in self.object.participation_set.filter(waiting_list=False).order_by('added_on')
+                if x.person.age(at=self.object.begin) < 18
+            ]
+            context['confirmed_participation_set_turns_18_during_event'] = [
+                x for x in context['confirmed_participation_set']
+                if x.person.age(at=self.object.end) >= 18
+            ]
+
+        context['person_enrollment_public'] = request_person and request_person.has_preference(name="public_enrollment")
+        context['waiting_participation_set'] = self.object.participation_set.filter(waiting_list=True).order_by('added_on')
+
+        if request_person and context['waiting_participation_set'].filter(person=request_person).exists():
+            # Spot is equal to the count of people that were earlier or at the same point in the waiting list than the person.
+            added_on = context['waiting_participation_set'].get(person=request_person).added_on
+            context['number_on_waiting_list'] = context['waiting_participation_set'].filter(added_on__lte=added_on).count()
+
+        if request_person and self.object.participation_set.filter(person=request_person).exists():
+            context['participation'] = self.object.participation_set.get(person=request_person)
+
+        context['has_enrollment_options'] = self.object.has_enrollmentoptions
+
+        # Data Export form for GDPR compliance.
+        context['export_form'] = ExportForm()
+        context['export_form'].fields['export_details'].initial = str(self.object)
+
+        # Enable opengraph on this page
+        context['metadata_enable_opengraph'] = True
+        context['is_roomduty'] = request_person and request_person.is_room_duty()
+        context['is_committee'] = request_person and self.object.organizer in request_person.current_committees().all()
+        context['deanonymise'] = self.deanonymise
+
+        return context
 
 
-def activity(request, pk, deanonymise=False):
+class ActivityDeleteView(RequireBoardMixin, DeleteView):
     """
-    Shows an activity.
+    Deletes an activity.
+
+    Activities may only be removed when these do not have any remaining enrollments left.
+
+    Asks for a confirmation.
     """
-    activity = get_object_or_404(Activity, pk=pk)
-    if not activity.public and not request.user.is_authenticated:
-        raise PermissionDenied
+    model = Activity
+    template_name = "activity_confirm_delete.html"
+    success_url = reverse_lazy('activities:activities')
 
-    if activity.participants:
-        number_participants = activity.participants.count()
-        number_confirmed_participants = activity.confirmed_participants.count()
-        number_waiting_participants = activity.waiting_participants.count()
-    if request.user.is_authenticated and hasattr(request, 'person'):
-        can_edit = activity.can_edit(request.person)
-    else:
-        can_edit = False
-
-    import icalendar
-    evt = icalendar.Event()
-    evt.add('dtstart', activity.begin)
-    evt.add('dtend', activity.end)
-    evt.add('summary', activity.summary)
-
-    current_time = timezone.now()
-
-    only_show_underage = hasattr(request, 'is_board') and request.is_board and (request.GET.get('underage') == "True")
-
-    # Extra check to make sure that no sensitive data will be leaked
-    if can_edit:
-        restaurants = Restaurant.objects \
-            .filter(enrollmentoptionfood__activity=activity,
-                    dish__dishprice__enrollmentoptionfoodanswer__enrollmentoption__activity=activity) \
-            .annotate(amount=Count('enrollmentoptionfood__activity'),
-                      total_price=Sum('dish__dishprice__price')) \
-            .distinct()
-        for restaurant in restaurants:
-            restaurant.dishes = DishPrice.objects \
-                .filter(enrollmentoptionfoodanswer__enrollmentoption__activity=activity,
-                        dish__restaurant=restaurant, enrollmentoptionfoodanswer__enrollment__waiting_list=False) \
-                .annotate(amount=Count('enrollmentoptionfoodanswer',
-                                       filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)),
-                          total_price=Sum('price',
-                                          filter=Q(enrollmentoptionfoodanswer__enrollment__waiting_list=False)))
-        total_price = sum([(restaurant.dishes.aggregate(Sum('total_price')).get(
-            'total_price__sum')) if restaurant.dishes.aggregate(Sum('total_price')).get(
-            'total_price__sum') is not None else 0 for restaurant in restaurants])
-        total_amount = sum(
-            [restaurant.dishes.aggregate(Sum('amount')).get('amount__sum') for restaurant in restaurants if restaurant is not None])
-
-    can_view_photos = activity.photos.filter_public(request).count() > 0
-    obj = activity  # Template laziness
-
-    # Sorted set of participations that are used to show the enrollments
-    participation_set = activity.participation_set.order_by('added_on')
+    @transaction.atomic
+    def form_valid(self, request, *args, **kwargs):
+        """
+        Make sure everyone is unenrolled from the activity, delete it, and then redirect to the success URL.
+        """
+        self.object: Activity = self.get_object()
+        success_url = self.get_success_url()
+        # Make sure everyone is unenrolled from the activity
+        self.object.unenroll_all_participants(actor=self.request.person if hasattr(self.request, 'person') else None)
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
 
 
+class ActivityCancelView(RequireBoardMixin, DeleteView):
+    """
+    Cancels or re-publishes an activity (depending on the current status of this event).
+    Note: Even though this view extends DeleteView, we override the Delete method so the Activity will not be deleted.
+
+    Events may only be canceled if they have not yet started.
+    Cancelling an activity is only allowed by the board due to possible transactions that should be undone.
+
+    In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
+    In the case of re-publishing, the cancellation will be removed, but enrollments will not be re-opened.
+
+    Asks for a confirmation.
+    """
+    model = Activity
+    template_name = "activity_confirm_cancellation.html"
+
+    def get_success_url(self):
+        return reverse('activities:activity', kwargs={'pk': self.object.pk})
+
+    @transaction.atomic
+    def form_valid(self, form):
+        self.object: Activity = self.get_object()
+        success_url = self.get_success_url()
+
+        # If the event is already canceled, re-publish it.
+        if self.object.cancelled:
+            self.object.uncancel_activity()
+            messages.success(
+                self.request,
+                _("{obj} has been successfully re-opened. Please note that any previous enrollments are not added "
+                  "again and that enrollments will have to be manually re-opened.").format(obj=self.object)
+            )
+            return HttpResponseRedirect(success_url)
+
+        # Else, cancel the activity.
+        try:
+            self.object.cancel_activity(actor=self.request.person if hasattr(self.request, 'person') else None)
+            messages.success(self.request, _("{obj} was cancelled successfully.").format(obj=self.object))
+            return HttpResponseRedirect(success_url)
+        except ValueError:
+            # Error during canceling. Only occurs if the activity has already started.
+            messages.error(
+                self.request, _("We were unable to cancel {obj}, since it has already started.").format(obj=self.object)
+            )
+            return redirect(self.object)
 
 
-    if only_show_underage:
-        confirmed_participation_set = [x for x in
-                                       activity.participation_set.filter(waiting_list=False).order_by('added_on') if
-                                       x.person.age(at=activity.begin) < 18]
-        confirmed_participation_set_turns_18_during_event = [x for x in confirmed_participation_set if
-                                                             x.person.age(at=activity.end) >= 18]
-    else:
-        confirmed_participation_set = activity.participation_set.filter(waiting_list=False).order_by('added_on')
+class ActivityEnrollSearchPersonView(RequireActiveMemberMixin, FormView):
+    """
+    Search for a person to enroll for this activity.
+    """
+    template_name = "activity_enrollment_person_search.html"
+    form_class = PersonSearchForm
 
-    public_participation_set = confirmed_participation_set.filter(
-        person__preferences__name="public_enrollment"
-    ).order_by("person__first_name")
-    anonymous_count = len(confirmed_participation_set) - len(public_participation_set)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.activity = None
 
-    person_enrollment_public = hasattr(request, 'person') and request.person.has_preference(name="public_enrollment")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['activity'] = self.activity
+        return context
 
-    waiting_participation_set = activity.participation_set.filter(waiting_list=True).order_by('added_on')
+    def dispatch(self, request, *args, **kwargs):
+        self.activity: Activity = get_object_or_404(Activity, pk=self.kwargs['pk'])
+        if not (self.activity.can_edit(request.person) or request.person.is_room_duty()):
+            raise PermissionDenied
+        return super().dispatch(request=request, *args, **kwargs)
 
-    if hasattr(request, 'person') and waiting_participation_set.filter(person=request.person).exists():
-        added_on = waiting_participation_set.get(person=request.person).added_on
-        number_on_waiting_list = waiting_participation_set.filter(added_on__lte=added_on).count()
+    def form_valid(self, form):
+        return redirect('activities:enrollment_person', pk=self.activity.id, person_id=form.cleaned_data['person'])
 
-    if hasattr(request, 'person') and (request.person in obj.participants.all()):
-        participation = Participation.objects.get(person=request.person, event=activity)
 
-    has_enrollment_options = activity.has_enrollmentoptions()
+class BaseActivityEnrollmentView(RequireMemberMixin, FormView):
+    """
+    Base view that has some shared functionality between Enrollment, Unenrollment and Edit views
+    to handle if someone accesses the page for themselves or for someone else (indirect as board/roomduty).
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.activity = None
+        self.person = None
+        self.indirect: bool = False
 
-    # Data Export form for GDPR compliance.
-    export_form = ExportForm()
-    export_form.fields['export_details'].initial = str(obj)
+    def indirect_permisison_error_msg(self):
+        return _("You are not allowed to access this activity page for other people.")
 
-    # Enable opengraph on this page
-    metadata_enable_opengraph = True
-    is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
-    is_committee = hasattr(request, 'person') and obj.organizer in request.person.current_committees().all()
-    return render(request, "activity.html", locals())
+    def action_allowed_check(self) -> Tuple[bool, Optional[str]]:
+        return False, _("Not implemented on base enrollment view.")
+
+    def dispatch_post_hook(self) -> Optional[HttpResponse]:
+        return None
+
+    @transaction.atomic
+    def dispatch(self, request, *args, **kwargs):
+        # Determine for which person the action is being taken
+        self.activity: Activity = get_object_or_404(Activity, pk=self.kwargs['pk'])
+        person_id = self.kwargs.get('person_id', None)
+        if person_id:
+            self.person: Person = get_object_or_404(Person, pk=person_id)
+            self.indirect = True
+        else:
+            self.person: Person = request.person
+
+        # Indirect action is only allowed by board members or roomduty members
+        is_roomduty = request.person.is_room_duty()
+        if self.indirect and not (self.activity.can_edit(request.person) or is_roomduty):
+            messages.error(request, self.indirect_permisison_error_msg())
+            return redirect(self.activity)
+
+        # If action is not possible, set the reason in the django messages and return back to the activity view.
+        action_allowed, reason = self.action_allowed_check()
+        if not action_allowed:
+            if reason is not None:
+                messages.error(request, reason)
+            return redirect(self.activity)
+
+        resp = self.dispatch_post_hook()
+        if resp is not None:
+            return resp
+
+        return super().dispatch(request, *args, **kwargs)
+
+    @transaction.atomic
+    def post(self, *args, **kwargs):
+        # Locks the Activity object for updating, prevent concurrent (un)enrollments
+        Activity.objects.select_for_update().get(pk=self.activity.pk)
+        return super().post(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['activity'] = self.activity
+        context['person'] = self.person
+        context['indirect'] = self.indirect
+        return context
+
+class ActivityEnrollView(BaseActivityEnrollmentView):
+    """
+    Enrolls a person for an activity.
+
+    If the activity is free and has no options, the enrollment is instant.
+    If there are costs for the enrollment, or if it has any enrollment options, a form is shown.
+
+    The person is either the currently logged-in person or,
+    if the person is a board member and the `person_id` argument is given, it will enroll the selected person.
+    """
+    template_name = "activity_enrollment_form.html"
+    form_class = ActivityEnrollmentOptionsForm
+
+    def indirect_permisison_error_msg(self):
+        return _("You are not allowed to enroll other people for this activity.")
+
+    def action_allowed_check(self) -> Tuple[bool, Optional[str]]:
+        return self.activity.check_enrollment_allowed(
+            person=self.person, indirect=self.indirect, ignore_start_enrollment=self.indirect
+        )
+
+    def dispatch_post_hook(self) -> Optional[HttpResponse]:
+        # If it's a self-enrollment for an activity with costs, and the person has no mandate, deny the enrollment.
+        if not self.indirect and not self.person.has_mandate_activities() and self.activity.has_costs:
+            return render(self.request, "activity_enrollment_mandate.html", {'activity': self.activity})
+        return None
+
+    def get_form_kwargs(self):
+        return {
+            'activity': self.activity,
+            'participation': None,
+            'add_indirect_form': self.indirect,
+            'data': self.request.POST if self.request.method == 'POST' else None,
+            'initial': {
+                'indirect': {'waiting_list': self.activity.enrollment_full, 'board': self.request.is_board}
+            } if self.indirect else {}
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['activity_full'] = self.activity.enrollment_full
+        return context
+
+    def send_enrollment_mail(self, participation: Participation):
+        # Send mail if preference asks for it, or if it is an indirect enrollment
+        if self.indirect or self.person.has_preference(name='mail_enrollment'):
+            if participation.waiting_list:
+                activity_send_on_waiting_listmail(participation)
+            else:
+                activity_send_enrollmentmail(participation)
+
+    def set_enrolled_status_message(self, participation: Participation):
+        # Set the status message in the request.
+        if self.indirect:
+            if participation.waiting_list:
+                msg = _('{person} is now enrolled for the waitinglist of {activity}.')
+            else:
+                msg = _('{person} is now enrolled for {activity}.')
+            messages.success(self.request, msg.format(person=self.person, activity=self.activity))
+        else:
+            if participation.waiting_list:
+                msg = _('You are now enrolled for the waitinglist of {activity}.')
+            else:
+                msg = _('You are now enrolled for {activity}.')
+            messages.success(self.request, msg.format(activity=self.activity))
+
+    def get(self, *args, **kwargs):
+        """
+        Immediately enroll the person if it is their own enrollment, there are no options and the activity is free.
+        Otherwise, render the enrollment form.
+        """
+        if not self.indirect and self.activity.enrollmentoption_set.count() == 0 and self.activity.price == 0:
+            # Simple enrollment: no questions or costs. Enroll the person immediately
+            enrollment_full = self.activity.enrollment_full
+            participation = Participation(
+                person=self.person,
+                event=self.activity,
+                added_by=self.request.person,
+                waiting_list=enrollment_full
+            )
+            participation.save()
+
+            # Maybe send a notification e-mail to the person and set a status message in the request.
+            self.send_enrollment_mail(participation=participation)
+            self.set_enrolled_status_message(participation=participation)
+
+            # Redirect back to the activity details
+            return redirect(self.activity)
+        else:
+            return super().get(*args, **kwargs)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        # Check if the enrollment was indirect and the option to skip the waiting list for this enrollment was selected.
+        force_skip_waiting_list = self.indirect and form.cleaned_data.get('indirect', {}).get('waiting_list', None) == "skip"
+
+        # Enroll the person
+        participation = Participation(
+            person=self.person,
+            event=self.activity,
+            added_by=self.request.person,
+            waiting_list=(self.activity.enrollment_full and not force_skip_waiting_list)
+        )
+
+        if self.indirect:
+            participation.remark = 'Indirect enrollment.'
+
+        participation.save()
+
+        # Save enrollment option answers
+        for subform_id, subform in form.forms.items():
+            if isinstance(subform, EnrollmentoptionAnswerForm):
+                answer = subform.save(commit=False)
+                answer.enrollment = participation
+                answer.save()
+                subform.save_m2m()
+
+        # Create personal tab transaction (if the activity is paid)
+        price, with_enrollmentoptions = participation.calculate_costs()
+
+        # Sanity check to disallow self-enrollment for options that cost money
+        if price and not self.indirect and not self.person.has_mandate_activities():
+            # Remember to delete the participation we created!
+            participation.delete()
+            return render(self.request, "activity_enrollment_mandate.html", {'activity': self.activity})
+
+        if price and (force_skip_waiting_list or not self.activity.enrollment_full):
+            from amelie.personal_tab import transactions
+            transactions.add_participation(participation=participation, added_by=self.request.person)
+
+        # Maybe send a notification e-mail to the person and set a status message in the request.
+        self.send_enrollment_mail(participation=participation)
+        self.set_enrolled_status_message(participation=participation)
+
+        # Redirect back to the activity details
+        return redirect(self.activity)
+
+
+class ActivityUnenrollView(BaseActivityEnrollmentView):
+    """
+    Unenrolls a person for an activity.
+
+    The person is either the currently logged-in person or,
+    if the person is a board member and the `person_id` argument is given, it will unenroll the selected person.
+    """
+    template_name = "activity_confirm_unenrollment.html"
+    form_class = Form
+
+    def indirect_permisison_error_msg(self):
+        return _("You are not allowed to unenroll other people for this activity.")
+
+    def action_allowed_check(self) -> Tuple[bool, Optional[str]]:
+        return self.activity.check_unenrollment_allowed(
+            person=self.person, indirect=self.indirect,
+            ignore_can_unenroll=self.indirect, ignore_unenrollment_period=self.indirect
+        )
+
+    @transaction.atomic
+    def form_valid(self, form):
+        # Retrieve the person's participation object and lock it for updating to prevent concurrent (un)enrollments
+        participation = get_object_or_404(Participation, person=self.person, event=self.activity)
+        Participation.objects.select_for_update().get(pk=participation.pk)
+
+        # If necessary, compensate the person for the enrollment costs.
+        from amelie.personal_tab import transactions
+        transactions.remove_participation(participation)
+
+        # Delete the participation
+        participation.delete()
+
+        # Set a status message for the user so they know the action is successful.
+        if self.indirect:
+            messages.success(self.request, _('{person} is now unenrolled for {activity}.').format(
+                person=participation.person, activity=self.activity
+            ))
+        else:
+            messages.success(self.request, _('You are now unenrolled for {activity}.').format(activity=self.activity))
+
+        # Update the waitlist, and if the unenrollment was indirect, show if anyone new was promoted from the waitlist.
+        new_participants = self.activity.update_waiting_list()
+        if self.indirect:
+            for np in new_participants:
+                messages.info(
+                    self.request, _('{person} has been promoted from the waiting list for {activity}.').format(
+                        person=np.person.incomplete_name(), activity=self.activity
+                    )
+                )
+
+        # Redirect back to the activity
+        return redirect(self.activity)
+
+
+class ActivityEditEnrollView(BaseActivityEnrollmentView):
+    """
+    Edits an enrollment of a person for an activity.
+
+    The person is either the currently logged-in person or,
+    if the person is a board member and the `person_id` argument is given, it will enroll the selected person.
+    """
+    template_name = "activity_enrollment_form.html"
+    form_class = ActivityEnrollmentOptionsForm
+
+    def indirect_permisison_error_msg(self):
+        return _("You are not allowed to edit enrollments of other people for this activity.")
+
+    def action_allowed_check(self) -> Tuple[bool, Optional[str]]:
+        participation = Participation.objects.select_for_update().get(person=self.person, event=self.activity)
+        return self.activity.check_unenrollment_allowed(
+            person=self.person, ignore_can_unenroll=participation.waiting_list
+        )
+
+    def get_form_kwargs(self):
+        # Retrieve the person's participation object and lock it for updating to prevent concurrent (un)enrollments
+        participation = get_object_or_404(Participation, person=self.person, event=self.activity)
+        Participation.objects.select_for_update().get(pk=participation.pk)
+        return {
+            'activity': self.activity,
+            'participation': participation,
+            'add_indirect_form': False,  # Edits can't modify the waiting list placement.
+            'data': self.request.POST if self.request.method == 'POST' else None,
+            'initial': {
+                'indirect': {'waiting_list': self.activity.enrollment_full, 'board': self.request.is_board}
+            } if self.indirect else {}
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['update'] = True
+        return context
+
+    def send_enrollment_mail(self, participation: Participation):
+        # Send mail if preference asks for it, or if it is an indirect enrollment
+        if self.indirect or self.person.has_preference(name='mail_enrollment'):
+            if participation.waiting_list:
+                activity_send_on_waiting_listmail(participation)
+            else:
+                activity_send_enrollmentmail(participation)
+
+    def set_enrolled_status_message(self, participation: Participation):
+        # Set the status message in the request.
+        if self.indirect:
+            if participation.waiting_list:
+                msg = _('{person} is now enrolled for the waitinglist of {activity}.')
+            else:
+                msg = _('{person} is now enrolled for {activity}.')
+            messages.success(self.request, msg.format(person=self.person, activity=self.activity))
+        else:
+            if participation.waiting_list:
+                msg = _('You are now enrolled for the waitinglist of {activity}.')
+            else:
+                msg = _('You are now enrolled for {activity}.')
+            messages.success(self.request, msg.format(activity=self.activity))
+
+    @transaction.atomic
+    def form_valid(self, form):
+        from amelie.personal_tab import transactions
+        # It is important to NOT delete the Participation, because the person's spot in the activity
+        # or on the waiting list could be given away to the next waiting list entry.
+        # So we need to update the enrollment options of the participation in-place
+
+        participation: Optional[Participation] = form.participation
+        if participation is None:
+            raise ValueError(_("Participation not found while editing enrollment."))
+
+        if not participation.waiting_list:
+            # If this is a regular Participation (not waiting list), we need to remove the old transaction from
+            # their personal tab to not charge them twice and to be able to re-add the updated costs later
+            transactions.remove_participation(participation, added_by=self.request.person, is_edited_participation=True)
+
+        # Save enrollment option answers
+        for subform_id, subform in form.forms.items():
+            if isinstance(subform, EnrollmentoptionAnswerForm):
+                answer = subform.save(commit=False)
+                answer.enrollment = participation
+                answer.save()
+                subform.save_m2m()
+
+        if not participation.waiting_list:
+            # If this is a regular Participation (not waiting list), we need to re-add
+            # the transaction to update the costs on the personal tab
+            transactions.add_participation(participation, added_by=self.request.person, is_edited_participation=True)
+
+        # Redirect back to the activity details
+        return redirect(self.activity)
 
 
 def activity_random_photo(request, pk, *args, **kwargs):
@@ -283,516 +730,6 @@ def activity_random_photo(request, pk, *args, **kwargs):
 
     # No photo
     raise Http404(_('No photo'))
-
-
-@require_board
-@transaction.atomic
-def activity_delete(request, pk):
-    """
-    Deletes an activity.
-
-    Activities may only be removed when these do not have any remaining enrollments left.
-
-    Asks for a confirmation.
-    """
-    obj = get_object_or_404(Activity, pk=pk)
-    if not obj.can_edit(request.person):
-        raise PermissionDenied
-
-    if request.POST:
-        if 'yes' in request.POST:
-            # Undo transactions and remove participations
-            from amelie.personal_tab import transactions
-            for participation in obj.participation_set.all():
-                transactions.participation_transaction(participation, "Cancelled event", cancel=True,
-                                                       added_by=request.person)
-                # Remove the participation
-                participation.delete()
-
-            obj.delete()
-            return redirect(reverse('activities:activities'))
-        elif 'no' in request.POST:
-            return redirect(obj)
-
-    return render(request, "activity_confirm_delete.html", locals())
-
-
-@require_board  # Cancelling an activity is only allowed by the board due to possible transactions that should be undone.
-@transaction.atomic
-def activity_cancel(request, pk):
-    """
-    Cancels or re-publishes an activity (depending on the current status of this event).
-
-    Events may only be canceled if they have not yet started.
-
-    In the case of cancellation, this function removes all enrollments (and closes the option to enroll) and undoes the corresponding transactions.
-    In the case of re-publishing, the event name will be reverted to its original name and enrollments will be re-opened.
-
-    Asks for a confirmation.
-    """
-    obj = get_object_or_404(Activity, pk=pk)
-
-    # If the event is already canceled, immediately re-publish it without any confirmation screen.
-    if obj.cancelled:
-        obj.cancelled = False
-        obj.save()
-        messages.success(request, _(f"{obj} has been successfully re-opened. Please note that any previous enrollments are not added again and that enrollments will have to be manually re-opened."))
-        return redirect(obj)
-
-    if request.POST:
-        if 'yes' in request.POST:
-
-            if obj.begin < timezone.now():
-                messages.error(_(f'We were unable to cancel {obj}, since it has already started.'))
-                return redirect(obj)
-            else:
-                # We need to explicitly set the waiting list to false because they are also included in this set.
-                activity_send_cancellationmail(obj.participation_set.filter(waiting_list=False), obj)
-                if obj.waiting_participations.exists():
-                    activity_send_cancellationmail(obj.waiting_participations.all(), obj, from_waiting_list=True)
-
-                # Send an e-mail to the treasurer if people have paid in cash.
-                # This email contains the names and amount paid by each person.
-                if obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).exists():
-                    activity_send_cashrefundmail(obj.participation_set.filter(payment_method=Participation.PaymentMethodChoices.CASH, cash_payment_made=True).all(), obj, request)
-
-                # Undo transactions and remove participations
-                from amelie.personal_tab import transactions
-                for participation in obj.participation_set.all():
-                    if participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
-                        transactions.participation_transaction(participation, f"Cancelled {obj}", cancel=True, added_by=request.person)
-                    # Remove the participation
-                    participation.delete()
-
-                obj.cancelled = True
-                obj.enrollment = False
-                obj.save()
-                messages.success(request, _(f"{obj} was cancelled successfully."))
-        return redirect(obj)
-
-    return render(request, "activity_confirm_cancellation.html", locals())
-
-
-@require_POST
-@require_lid
-@transaction.atomic
-def activity_enrollment(request, pk):
-    """
-    Enrolls the currently logged in person for this activity.
-
-    Redirect to the elaborate form if more data is needed,
-    or if there are any costs associated with the activity.
-    """
-
-    # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
-    enrollment_full = obj.enrollment_full()
-
-    if not check_enrollment_allowed(request, obj):
-        # The method check_enrollment_allowed makes sure that something is in django messages if the enrollment is not allowed.
-        return redirect(obj)
-
-    # Check whether the user needs to be redirected to an enrollment form
-    if obj.enrollmentoption_set.count() == 0 and obj.price == 0:
-        # Simple enrollment: no questions or costs
-        participation = Participation(person=request.person, event=obj,
-                                      payment_method=Participation.PaymentMethodChoices.NONE, added_by=request.person,
-                                      waiting_list=enrollment_full)
-        participation.save()
-
-        # Send mail if preference asks for it
-        if request.person.has_preference(name='mail_enrollment'):
-            if not enrollment_full:
-                activity_send_enrollmentmail(participation)
-                messages.success(request,
-                                 _('You are now enrolled for {activity}.').format(
-                                     activity=obj,
-                                 ))
-            else:
-                activity_send_on_waiting_listmail(participation)
-                messages.success(request,
-                                 _('You are now on the waiting list for {activity}.').format(
-                                     activity=obj,
-                                 ))
-    else:
-        # Elaborate enrollment, redirect to the form
-        return redirect('activities:enrollment_self', pk=obj.pk)
-
-    return redirect(obj)
-
-
-@require_POST
-@require_lid
-@transaction.atomic
-def activity_unenrollment_self(request, pk):
-    """
-    Unenroll the person that is logged in for this activity.
-    """
-
-    # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
-
-    if not check_unenrollment_allowed(request, obj):
-        # If something went wrong, it will be stated in the django errors
-        return redirect(obj)
-
-    # No exception can occur here, this has been checked before
-    participation = Participation.objects.select_for_update().get(person=request.person, event=obj)
-
-    # If necessary, compensate the enrollment costs.
-    from amelie.personal_tab import transactions
-    transactions.remove_participation(participation)
-
-    # Delete the participation
-    participation.delete()
-
-    messages.success(request,
-                     _('You are now unenrolled for {activity}.').format(
-                         activity=obj,
-                     ))
-
-    update_waiting_list(obj, request)
-
-    # Redirect back to the activity
-    return redirect(obj)
-
-
-@transaction.atomic
-def activity_editenrollment(request, participation, obj, edited_by=None):
-    from amelie.personal_tab import transactions
-
-    # It is important to not delete the Participation, because the person's spot in the activity or on the waiting list
-    # could be given away to the next waiting list entry.
-    # So we need to update the enrollment options of the participation in-place
-
-    if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
-        # If this is a regular Participation (not waiting list and via mandate), we need to remove the old transaction from
-        # their personal tab to not charge them twice and to be able to re-add the updated costs later
-        transactions.remove_participation(participation, added_by=edited_by, is_edited_participation=True)
-
-    enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj, request.POST if request.POST else None,
-                                                                    participation.person.user)
-
-    # Make enrollmentoptions
-    for form in enrollmentoptions_forms:
-        if form.is_valid():
-            answer = form.save(commit=False)
-            answer.enrollment = participation
-            answer.save()
-            form.save_m2m()
-
-    if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
-        # If this is a regular Participation (not waiting list and via mandate), we need to re-add
-        # the transaction to update the costs on the personal tab
-        transactions.add_participation(participation, added_by=edited_by, is_edited_participation=True)
-
-
-@require_lid
-@transaction.atomic
-def activity_editenrollment_self(request, pk):
-    """
-    Edit enrollment of the person that is logged in for this activity.
-    """
-
-    # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
-    activity = obj
-
-    # No exception can occur here, this has been checked before
-    participation = Participation.objects.select_for_update().get(person=request.person, event=obj)
-
-    if not check_unenrollment_allowed(request, obj, ignore_can_unenroll=participation.waiting_list):
-        # If something went wrong, it will be stated in the django errors
-        return redirect(obj)
-
-    if request.method == 'POST':
-        activity_editenrollment(request, participation, obj, edited_by=None)
-        # Redirect back to the activity
-        return redirect(obj)
-    else:
-        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj,
-                                                                        request.POST if request.POST else None,
-                                                                        request.user)
-        update = True
-        return render(request, "activity_enrollment_form.html", locals())
-
-
-@require_committee(settings.ROOM_DUTY_ABBREVIATION)
-@transaction.atomic
-def activity_editenrollment_other(request, pk, person_id):
-    """
-    Edit enrollment of the person that is logged in for this activity.
-    """
-    # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
-    person = get_object_or_404(Person, pk=person_id)
-    activity = obj
-
-
-    try:
-        participation = Participation.objects.select_for_update().get(person=person, event=obj)
-    except Participation.DoesNotExist:
-        raise Http404
-
-    if request.method == 'POST':
-        activity_editenrollment(request, participation, obj, edited_by=request.person)
-        # Redirect back to the activity
-        return redirect(obj)
-    else:
-        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj,
-                                                                        request.POST if request.POST else None,
-                                                                        person.user)
-        update = True
-        return render(request, "activity_enrollment_form.html", locals())
-
-
-@require_committee(settings.ROOM_DUTY_ABBREVIATION)
-@transaction.atomic
-def activity_unenrollment(request, pk, person_id):
-    """
-    Unenroll the given person for this activity.
-    """
-
-    # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
-
-    participation = get_object_or_404(Participation.objects.select_for_update(), person_id=person_id, event=obj)
-    person = participation.person
-
-    if not check_unenrollment_allowed(request, obj, person, indirect=True, ignore_can_unenroll=True,
-                                      ignore_unenrollment_period=True):
-        # if something went wrong, it will be stated in the django errors
-        return redirect(obj)
-
-    if request.POST:
-        if 'yes' in request.POST:
-            # If necessary, compensate the enrollment costs.
-            from amelie.personal_tab import transactions
-            transactions.remove_participation(participation)
-
-            # Delete the participation
-            participation.delete()
-
-            update_waiting_list(obj, request)
-
-            messages.success(request,
-                         _('{person} is now unenrolled for {activity}.').format(
-                             person=participation.person,
-                             activity=obj,
-                         ))
-        # Redirect back to the activity
-        return redirect(obj)
-
-    # Render the confirmation page
-    return render(request, "activity_confirm_unenrollment.html", locals())
-
-
-@require_actief
-def activity_enrollment_person_search(request, pk):
-    """
-    Search for a person to enroll for this activity.
-    """
-    activity = get_object_or_404(Activity, pk=pk)
-    is_roomduty = request.person.is_room_duty()
-    if not (activity.can_edit(request.person) or is_roomduty):
-        raise PermissionDenied
-
-    form = PersonSearchForm(request.POST if request.POST else None)
-    if form.is_valid():
-        return redirect('activities:enrollment_person', activity.id, form.cleaned_data['person'])
-
-    # Render the template
-    return render(request, "activity_enrollment_person_search.html", locals())
-
-
-@require_lid
-def activity_enrollment_self(request, pk):
-    """
-    Enroll yourself for an activity with an elaborate enrollment form.
-    """
-    activity = get_object_or_404(Activity, pk=pk)
-
-    # Enrollment for an activity with enrollment options or a price may only be done through a special form.
-    # However, since enrollment options possibly have costs associated with them, the person should have a mandate.
-    # If the person has no mandate, then (s)he should be redirected to an explanation page.
-    if not request.person.has_mandate_activities() and activity.has_costs():
-        return render(request, "activity_enrollment_mandate.html", locals())
-
-    return activity_enrollment_form(request, activity)
-
-
-@require_lid
-def activity_enrollment_person(request, pk, person_id):
-    """
-    Enroll someone else for an activity with an elaborate enrollment form.
-    """
-    activity = get_object_or_404(Activity, pk=pk)
-    person = get_object_or_404(Person, id=person_id)
-
-    return activity_enrollment_form(request, activity, person)
-
-
-def _build_enrollmentoptionsanswers_forms(activity_obj, data, user):
-    forms = []
-
-    for enrollmentoption in activity_obj.enrollmentoption_set.all():
-        prefix = 'enrollmentoption_{}'.format(enrollmentoption.pk)
-
-        answer_type = ENROLLMENTOPTION_ANSWER_TYPES[enrollmentoption.content_type.model_class()]
-        content_type = ContentType.objects.get_for_model(answer_type)
-        instance = answer_type(enrollmentoption=enrollmentoption, content_type=content_type)
-
-        # Try to resolve the instance to an actual object if the person is enrolled for the activity
-        try:
-            participation = Participation.objects.get(person__user=user, event=activity_obj)
-            try:
-                instance = answer_type.objects.get(
-                    enrollment=participation,
-                    enrollmentoption=enrollmentoption,
-                    content_type=content_type
-                )
-            except EnrollmentoptionAnswer.DoesNotExist:
-                pass
-        except Participation.DoesNotExist:
-            pass
-
-        form_type = ENROLLMENTOPTIONANSWER_FORM_TYPES[enrollmentoption.content_type.model_class()]
-
-        # Make sure that if someone adjusts their enrollment, and they have a spot with a limited capacity,
-        # they still have the option to keep their spot.
-        checked = False
-        if instance.pk:
-            if form_type == EnrollmentoptionCheckboxAnswerForm:
-                checked = instance.answer
-            elif form_type == EnrollmentoptionNumericAnswerForm:
-                checked = instance.answer > 0
-
-        forms.append(
-            form_type(enrollmentoption=enrollmentoption, checked=checked, data=data,
-                      prefix=prefix, instance=instance))
-    return forms
-
-
-@require_lid
-@transaction.atomic
-def activity_enrollment_form(request, activity, person=None):
-    """
-    Elaborate enrollment form.
-
-    This is used to enroll for activities with costs and/or enrollment options.
-    or for enrolling other people.
-    """
-
-    # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    Activity.objects.select_for_update().get(pk=activity.pk)
-
-    per_mandate = False
-    indirect = person is not None
-    activity_full = activity.enrollment_full()
-
-    if person is None:
-        person = request.person
-
-    if not check_enrollment_allowed(request, activity, person=person, indirect=indirect,
-                                    ignore_full=request.is_board, ignore_start_enrollment=indirect):
-        # Django messages have been set in check_enrollment_allowed
-        return redirect(activity)
-
-    is_roomduty = request.person.is_room_duty()
-    if indirect and not (activity.can_edit(request.person) or is_roomduty):
-        raise PermissionDenied
-
-    per_mandate = (request.is_board or settings.PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE) \
-                  and person.has_mandate_activities()
-
-    enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(activity, request.POST if request.POST else None,
-                                                                    person.user)
-    if request.method == 'POST':
-
-        if indirect:
-            form_payment = PaymentForm(mandate=per_mandate, data=request.POST, files=request.FILES,
-                                       waiting_list=activity_full, board=request.is_board)
-            valid = all([form.is_valid() for form in enrollmentoptions_forms]) and form_payment.is_valid()
-            errors = [form.errors for form in enrollmentoptions_forms]
-        else:
-            valid = all([form.is_valid() for form in enrollmentoptions_forms])
-            errors = [form.errors for form in enrollmentoptions_forms]
-            form_payment = None
-
-        if valid:
-            # Check if a participation is forced to skip waiting list
-            force_skip_waiting_list = False
-            if form_payment is not None and form_payment.cleaned_data.get('waiting_list', None) == "Skip":
-                force_skip_waiting_list = True
-
-            participation = Participation(person=person, event=activity, added_by=request.person,
-                                          waiting_list=(activity_full and not force_skip_waiting_list))
-
-            # Place a remark if someone else does the enrollment
-            if indirect:
-                participation.remark = 'Indirect enrollment.'
-                participation.payment_method = form_payment.cleaned_data['method']
-            else:
-                participation.payment_method = Participation.PaymentMethodChoices.AUTHORIZATION
-
-            # Make participation (Deelname)
-            participation.save()
-
-            # Make enrollmentoptions
-            for form in enrollmentoptions_forms:
-                answer = form.save(commit=False)
-                answer.enrollment = participation
-                answer.save()
-                form.save_m2m()
-
-            price, with_enrollmentoptions = participation.calculate_costs()
-
-            if not price:
-                # No payment method when nothing needs to be paid.
-                participation.payment_method = Participation.PaymentMethodChoices.NONE
-                participation.save()
-
-            # Make transactions if there is a mandate
-            if participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION and (
-                force_skip_waiting_list or not activity_full):
-                from amelie.personal_tab import transactions
-                transactions.add_participation(participation, request.person)
-
-            # Send mail per preference. Always send email if indirect.
-            if indirect or person.has_preference(name='mail_enrollment'):
-                if activity_full:
-                    activity_send_on_waiting_listmail(participation)
-                else:
-                    activity_send_enrollmentmail(participation)
-
-            msg_waiting_list = ""
-            if activity_full:
-                msg_waiting_list = _("the waitinglist of")
-            # Done
-            if indirect:
-                messages.success(request,
-                                 _('{person} is now enrolled for {waiting_list} {activity}.').format(
-                                     person=person,
-                                     activity=activity,
-                                     waiting_list=msg_waiting_list,
-                                 ))
-            else:
-                messages.success(request,
-                                 _('You are now enrolled for {waiting_list} {activity}.').format(
-                                     activity=activity,
-                                     waiting_list=msg_waiting_list
-                                 ))
-            return HttpResponseRedirect(activity.get_absolute_url())
-        else:
-            for error in errors:
-                for key in error.keys():
-                    messages.error(request, error[key][0])
-    else:
-        if indirect:
-            form_payment = PaymentForm(mandate=per_mandate, waiting_list=activity_full, board=request.is_board)
-
-    # Render the template
-    return render(request, "activity_enrollment_form.html", locals())
 
 
 @require_committee('MediaCie')
@@ -1520,9 +1457,11 @@ class DataExport(PassesTestMixin, View):
     @staticmethod
     def export_html(request, pk):
         """
-        Returns a HTML overview of participants for this activity.
+        Returns an HTML overview of participants for this activity. (Regular ActivityView but deanonimised).
         """
-        return activity(request, pk, deanonymise=True)
+        av = ActivityDetailView(deanonymise=True)
+        av.setup(request=request, pk=pk)
+        return av.get(request=request, pk=pk)
 
     @staticmethod
     def export_csv(request, pk):

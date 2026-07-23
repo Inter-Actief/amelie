@@ -44,7 +44,7 @@
                 <tr>
                     <th>{% trans 'Course year' %}</th>
                     <th>{% trans 'Sort' %}</th>
-                    <th>{% trans 'Payment' %}</th>
+                    <th>{% trans 'Paid?' %}</th>
                     {% if request.is_board %}<th></th>{% endif %}
                 </tr>
             </thead>
@@ -68,20 +68,26 @@
                             {{ membership.type.name }}
                         </td>
                         <td>
-                            {% if membership.payment %}
-                                {{ membership.payment.payment_type.name }}
-                                {% if membership.payment.amount != 0 %}
-                                    {% if membership.contributiontransaction_set.count == 0 %}
-                                        <a href="{% url 'members:payment_delete' membership.payment.pk %}" class="icon icon-delete">{% trans 'Delete payment' %}</a>
-                                    {% endif %}
+                            {% if membership.is_free %}
+                                <i>{% trans 'n.a.' %}</i>
+                                &nbsp;
+                                {% if membership.contributiontransaction_set.exists %}
+                                    <span class="icon icon-error" title="{% trans 'For some reason this free membership has payments! This should not happen.' %}"></span>
+                                    <a title="{% trans 'Inspect payments' %}"
+                                       href="{% url 'members:person_membership_payments' obj.id membership.id %}"
+                                       class="icon icon-zoom js-load-block" data-container="person_membership">
+                                    </a>
                                 {% endif %}
-                                <br>
-                                 <span class="small">{{ membership.payment.date|date:"j b Y"|default:"?" }}</span>
-                            {% endif %}
-
-                            {% if not membership.is_paid %}
-                                <a href="{% url 'members:person_pay' obj.id membership.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
-                                    {% trans 'Process payment' %}
+                            {% else %}
+                                {% if membership.is_paid %}
+                                    <span class="icon icon-accept">{% trans 'Paid' %}</span>
+                                {% else %}
+                                    <span class="icon icon-cross">{% trans 'Not paid yet' %}</span>
+                                {% endif %}
+                                &nbsp;
+                                <a title="{% trans 'Inspect payments' %}"
+                                   href="{% url 'members:person_membership_payments' obj.id membership.id %}"
+                                   class="icon icon-zoom js-load-block" data-container="person_membership">
                                 </a>
                             {% endif %}
                         </td>

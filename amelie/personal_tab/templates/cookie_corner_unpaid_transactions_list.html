@@ -1,0 +1,83 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Unpaid transactions - Page {{ page }}/{{ total }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Unpaid transactions - Page {{ page }}/{{ total }}{% endblocktrans %}</h2>
+        <div class="content">
+
+            <p>
+                {% blocktrans %}
+                    These are people with transactions that have not been paid for in a debt collection instrution or with a manual payment.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Each person can be expanded to view details about the individual transactions.
+                {% endblocktrans %}
+            </p>
+
+            {% include 'paginator.html' with page=page_obj %}
+        </div>
+    </div></div>
+
+    {% if page_obj.object_list %}
+        {% for person in page_obj.object_list.select_related %}
+            <div class="col-xs-12"><div class="ia">
+                <h2 class="expand" data-target="person_{{ person.pk }}">
+                    {% blocktrans with name=person.incomplete_name num_transactions=person.unpaid_transactions.count total_cost=person.unpaid_transactions_total_cost %}
+                        {{ name }} - ({{ num_transactions }}) - &euro;&nbsp;{{ total_cost }}
+                    {% endblocktrans %}
+                </h2>
+                <div class="content">
+                    <div id="person_{{ person.pk }}" hidden>
+                        <a href="{% url 'personal_tab:dashboard' person.pk person.slug  %}">
+                            <i class="icon personal_tab"></i>&nbsp;
+                            {% blocktrans with name=person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}
+                        </a>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>{% trans 'Date' %}</th>
+                                        <th>{% trans 'Description' %}</th>
+                                        <th>{% trans 'Payment method' %}</th>
+                                        <th class="align-right">{% trans 'Price' %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in person.unpaid_transactions %}
+                                    <tr>
+                                        <td>
+                                            {{ transaction.date }}
+                                        </td>
+                                        <td>
+                                            <a href="{{ transaction.get_absolute_url }}">
+                                                {{ transaction.description }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ "" }}
+                                        </td>
+                                        <td class="align-right">{{ transaction.amount }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+        {% endfor %}
+    {% else %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'No unpaid transactions' %}</h2>
+            <div class="content">
+                <p>{% trans 'There are no people with unpaid transactions! Woah! 🎉🎉🎉' %}</p>
+            </div>
+        </div></div>
+    {% endif %}
+{% endblock content %}

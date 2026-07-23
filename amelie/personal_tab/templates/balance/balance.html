@@ -40,7 +40,16 @@
                     <tbody>
                     {% for former_member, total in former_member_totals %}
                     <tr class="important">
-                        <td><a href="{% url 'personal_tab:dashboard' former_member.pk former_member.slug  %}">{{ former_member }}</a></td>
+                        <td>
+                            <a href="{{ former_member.get_absolute_url }}">
+                                {{ former_member }}
+                            </a>
+                            &nbsp;
+                            <a title="{% blocktrans with name=former_member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                               href="{% url 'personal_tab:dashboard' former_member.pk former_member.slug  %}">
+                                <span class="icon personal_tab"></span>
+                            </a>
+                        </td>
                         <td class="align-right">{{ total|stringformat:".2f" }}</td>
                     </tr>
                     {% endfor %}
@@ -64,7 +73,16 @@
                 <tbody>
                 {% for member, total in member_totals %}
                 <tr class="important">
-                    <td><a href="{% url 'personal_tab:dashboard' member.pk member.slug  %}">{{ member }}</a></td>
+                    <td>
+                        <a href="{{ member.get_absolute_url }}">
+                            {{ member }}
+                        </a>
+                        &nbsp;
+                        <a title="{% blocktrans with name=member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                           href="{% url 'personal_tab:dashboard' member.pk member.slug  %}">
+                            <span class="icon personal_tab"></span>
+                        </a>
+                    </td>
                     <td class="align-right">{{ total|stringformat:".2f" }}</td>
                 </tr>
                 {% endfor %}
@@ -94,7 +112,14 @@
                         {% for former_member, total in exam_cookie_former_member_totals %}
                             <tr class="important">
                                 <td>
-                                    <a href="{% url 'personal_tab:dashboard' former_member.pk former_member.slug  %}">{{ former_member }}</a>
+                                    <a href="{{ former_member.get_absolute_url }}">
+                                        {{ former_member }}
+                                    </a>
+                                    &nbsp;
+                                    <a title="{% blocktrans with name=former_member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                       href="{% url 'personal_tab:dashboard' former_member.pk former_member.slug  %}">
+                                        <span class="icon personal_tab"></span>
+                                    </a>
                                 </td>
                                 <td class="align-right">{{ total|stringformat:".2f" }}</td>
                             </tr>
@@ -120,7 +145,14 @@
                     {% for member, total in exam_cookie_member_totals %}
                         <tr class="important">
                             <td>
-                                <a href="{% url 'personal_tab:dashboard' member.pk member.slug  %}">{{ member }}</a>
+                                <a href="{{ member.get_absolute_url }}">
+                                    {{ member }}
+                                </a>
+                                &nbsp;
+                                <a title="{% blocktrans with name=member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                   href="{% url 'personal_tab:dashboard' member.pk member.slug  %}">
+                                    <span class="icon personal_tab"></span>
+                                </a>
                             </td>
                             <td class="align-right">{{ total|stringformat:".2f" }}</td>
                         </tr>

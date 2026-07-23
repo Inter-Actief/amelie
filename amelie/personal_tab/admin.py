@@ -4,7 +4,8 @@ from amelie.personal_tab.models import Declaration, DiscountPeriod, Discount, Di
     CustomTransaction, ActivityTransaction, CookieCornerTransaction, AlexiaTransaction, ContributionTransaction, \
     Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, \
     DebtCollectionBatch, \
-    DebtCollectionInstruction, Reversal, DebtCollectionTransaction, ReversalTransaction, LedgerAccount, PrintLogEntry
+    DebtCollectionInstruction, Reversal, DebtCollectionTransaction, ReversalTransaction, LedgerAccount, PrintLogEntry, \
+    PaymentMethod
 
 
 class RFIDAdmin(admin.ModelAdmin):
@@ -19,7 +20,7 @@ class CookieCornerTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['article__name_nl', 'article__name_en', 'person__slug']
-    raw_id_fields = ('person', 'discount', 'debt_collection',)
+    raw_id_fields = ('person', 'discount', 'settlement',)
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -27,13 +28,13 @@ class CookieCornerTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(CookieCornerTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(CookieCornerTransactionAdmin, self).has_delete_permission(request, obj)
@@ -44,7 +45,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug']
-    raw_id_fields = ('person', 'discount', 'debt_collection',)
+    raw_id_fields = ('person', 'discount', 'settlement',)
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -55,13 +56,13 @@ class TransactionAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(TransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(TransactionAdmin, self).has_delete_permission(request, obj)
@@ -72,7 +73,7 @@ class CustomTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug']
-    raw_id_fields = ('person', 'discount', 'debt_collection',)
+    raw_id_fields = ('person', 'discount', 'settlement',)
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -80,13 +81,13 @@ class CustomTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(CustomTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(CustomTransactionAdmin, self).has_delete_permission(request, obj)
@@ -97,7 +98,7 @@ class ActivityTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on', 'with_enrollment_options')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug', 'event__summary_nl', 'event__summary_en']
-    raw_id_fields = ('person', 'discount', 'debt_collection', 'event', 'participation')
+    raw_id_fields = ('person', 'discount', 'settlement', 'event', 'participation')
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -105,13 +106,13 @@ class ActivityTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(ActivityTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(ActivityTransactionAdmin, self).has_delete_permission(request, obj)
@@ -122,7 +123,7 @@ class AlexiaTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug', 'transaction_id']
-    raw_id_fields = ('person', 'discount', 'debt_collection')
+    raw_id_fields = ('person', 'discount', 'settlement')
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -130,13 +131,13 @@ class AlexiaTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(AlexiaTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(AlexiaTransactionAdmin, self).has_delete_permission(request, obj)
@@ -147,7 +148,7 @@ class ContributionTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug']
-    raw_id_fields = ('person', 'membership', 'discount', 'debt_collection')
+    raw_id_fields = ('person', 'membership', 'discount', 'settlement')
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -155,13 +156,13 @@ class ContributionTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(ContributionTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(ContributionTransactionAdmin, self).has_delete_permission(request, obj)
@@ -172,7 +173,7 @@ class DebtCollectionTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug']
-    raw_id_fields = ('person', 'discount', 'debt_collection')
+    raw_id_fields = ('person', 'discount', 'settlement')
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -180,13 +181,13 @@ class DebtCollectionTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(DebtCollectionTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(DebtCollectionTransactionAdmin, self).has_delete_permission(request, obj)
@@ -197,7 +198,7 @@ class ReversalTransactionAdmin(admin.ModelAdmin):
     list_filter = ('date', 'added_on')
     date_hierarchy = 'date'
     search_fields = ['description', 'person__slug']
-    raw_id_fields = ('person', 'reversal', 'discount', 'debt_collection')
+    raw_id_fields = ('person', 'reversal', 'discount', 'settlement')
     readonly_fields = ('added_on', 'added_by')
     ordering = ['-added_on']
 
@@ -205,13 +206,13 @@ class ReversalTransactionAdmin(admin.ModelAdmin):
     actions = None
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(ReversalTransactionAdmin, self).has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj and obj.debt_collection:
+        if obj and obj.settlement:
             return False
         else:
             return super(ReversalTransactionAdmin, self).has_delete_permission(request, obj)
@@ -304,6 +305,12 @@ class ReversalAdmin(admin.ModelAdmin):
         return False
 
 
+class PaymentMethodAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description', 'visible')
+    list_filter = ('visible',)
+    search_fields = ('name', 'description')
+
+
 class DiscountPeriodAdmin(admin.ModelAdmin):
     list_display = ('id', 'description_nl', 'description_en', 'begin', 'end', 'ledger_account_number',
                     'balance_account_number')
@@ -380,6 +387,7 @@ admin.site.register(DebtCollectionAssignment, DebtCollectionAssignmentAdmin)
 admin.site.register(DebtCollectionBatch, DebtCollectionBatchAdmin)
 admin.site.register(DebtCollectionInstruction, DebtCollectionInstructionAdmin)
 admin.site.register(Reversal, ReversalAdmin)
+admin.site.register(PaymentMethod, PaymentMethodAdmin)
 admin.site.register(DiscountPeriod, DiscountPeriodAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(DiscountCredit, DiscountCreditAdmin)

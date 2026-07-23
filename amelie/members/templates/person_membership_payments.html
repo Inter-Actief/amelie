@@ -1,0 +1,63 @@
+{% load humanize %}
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">
+        {% blocktrans with membership=membership.type.name year_1=membership.year year_2=membership.year|add:1 %}
+            Payments for {{ membership }} {{ year_1 }}/{{ year_2 }}
+        {% endblocktrans %}
+        &nbsp;
+        {% if membership.is_paid %}
+            (<span class="icon icon-accept">{% trans 'Paid' %}</span>)
+        {% else %}
+            (<span class="icon icon-cross">{% trans 'Not paid yet' %}</span>)
+        {% endif %}
+    </h3>
+
+    <div class="table-responsive">
+        <table class="person_table table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Timestamp' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'Amount' %}</th>
+                    <th>{% trans 'Settled in' %}</th>
+                    {% if request.is_board %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>
+                            {{ transaction.date|date:"d-m-Y H:i" }}
+                        </td>
+                        <td>
+                            <a title="{% trans 'Transaction details (opens in new tab)' %}" href="{{ transaction.get_absolute_url }}" target="_blank">
+                                {{ transaction.description }}
+                            </a>
+                        </td>
+                        <td>
+                            &euro;&nbsp;{{ transaction.price|intcomma }}
+                        </td>
+                        <td>
+                            {% include 'info/transaction_settlement_info.html' with settlement=transaction.settlement highlight_unpaid=True %}
+                        </td>
+                        {% if request.is_board %}
+                        <td>
+                            TODO: Actions
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="{{ request.is_board|yesno:'4,3' }}">
+                            <i>{% trans 'No transactions found. If this is a paid membership, this is probably wrong! Please contact the WWW.' %}</i>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{% url 'members:person_membership' person.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+        {% trans 'Return' %}
+    </a>
+</div>

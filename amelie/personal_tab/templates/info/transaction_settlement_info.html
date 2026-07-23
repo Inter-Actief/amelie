@@ -1,0 +1,40 @@
+{% load i18n %}
+{% if settlement %}
+    <a href="{{ settlement.get_absolute_url }}">
+        {{ settlement }}
+    </a><br />
+    {% if settlement.settlement_type == "INSTR" %}
+        <span class="small">
+            <i class="icon scaled-icon icon-creditcards"></i>
+            {% blocktrans with date=settlement.debtcollectioninstruction.batch.execution_date %}
+                Direct debit on {{ date }}
+            {% endblocktrans %}
+        </span>
+        {% if settlement.debtcollectioninstruction.reversal %}
+            <br />
+            <span class="small">
+                <i class="icon scaled-icon icon-arrow_undo"></i>
+                {% blocktrans with date=settlement.debtcollectioninstruction.reversal.date %}
+                    Reversal on {{ date }}
+                {% endblocktrans %}
+            </span>
+        {% endif %}
+    {% elif settlement.settlement_type == "MANUAL" %}
+        <span class="small">
+            {% blocktrans with date=settlement.manualpaymentsettlement.payment_date %}
+                Manual payment on {{ date }}
+            {% endblocktrans %}
+        </span>
+        <br />
+        <span title="{% trans 'Payment method' %}" class="small">
+            <i class="icon scaled-icon icon-{{ settlement.manualpaymentsettlement.payment_method.icon_name }}"></i>
+            {{ settlement.manualpaymentsettlement.payment_method.name }}
+        </span>
+    {% endif %}
+{% else %}
+    {% if highlight_unpaid %}
+        <span class="icon icon-cross">{% trans 'Unpaid!' %}</span>
+    {% else %}
+        &mdash;
+    {% endif %}
+{% endif %}

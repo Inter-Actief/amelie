@@ -30,7 +30,7 @@
                         </tr>
                         <tr>
                             <th>{% trans 'Total cost' %}</th>
-                            <td class="align-right">{{ batch.control_sum }}</td>
+                            <td class="align-right">&euro;&nbsp;{{ batch.control_sum }}</td>
                         </tr>
                         <tr>
                             <th>{% trans 'Status' %}</th>
@@ -65,6 +65,11 @@
                                             <a href="{{ instruction.authorization.person.get_absolute_url }}">
                                                 {{ instruction.authorization.person }}
                                             </a>
+                                            &nbsp;
+                                            <a title="{% blocktrans with name=instruction.authorization.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                               href="{% url 'personal_tab:dashboard' instruction.authorization.person.pk instruction.authorization.person.slug  %}">
+                                                <span class="icon personal_tab"></span>
+                                            </a>
                                         {% else %}
                                             &mdash;
                                         {% endif %}
@@ -82,7 +87,7 @@
                                             &mdash;
                                         {% endif %}
                                     </td>
-                                    <td class="align-right">{{ instruction.amount }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ instruction.amount }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="6">{{ instruction.description }}</td>
