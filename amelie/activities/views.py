@@ -481,6 +481,21 @@ def activity_editenrollment(request, participation, obj, edited_by=None):
             answer.save()
             form.save_m2m()
 
+    # Update the payment method depending on the new price
+    new_price, _ = participation.calculate_costs()
+    if new_price == 0:
+        # If the enrollment is now free, no payment needs to be made
+        participation.payment_method = Participation.PaymentMethodChoices.NONE
+    elif participation.payment_method == Participation.PaymentMethodChoices.NONE:
+        # If it was free but now costs money, and the person has a mandate, upgrade to Mandate.
+        if participation.person.has_mandate_activities():
+            participation.payment_method = Participation.PaymentMethodChoices.AUTHORIZATION
+        # Otherwise, change to cash
+        else:
+            participation.payment_method = Participation.PaymentMethodChoices.CASH
+
+    participation.save()
+
     if not participation.waiting_list and participation.payment_method == Participation.PaymentMethodChoices.AUTHORIZATION:
         # If this is a regular Participation (not waiting list and via mandate), we need to re-add
         # the transaction to update the costs on the personal tab
@@ -495,22 +510,27 @@ def activity_editenrollment_self(request, pk):
     """
 
     # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
-    activity = obj
+    activity = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
+
+    # Do not allow editing an enrollment for an activity that may cost money if the user does not have a mandate.
+    # If this was allowed, users without a mandate would be able to sign up to activities that are free,
+    # but have some options that are not free. Currently, this is not supported.
+    if not request.person.has_mandate_activities() and activity.has_costs():
+        return render(request, "activity_enrollment_mandate.html", locals())
 
     # No exception can occur here, this has been checked before
-    participation = Participation.objects.select_for_update().get(person=request.person, event=obj)
+    participation = Participation.objects.select_for_update().get(person=request.person, event=activity)
 
-    if not check_unenrollment_allowed(request, obj, ignore_can_unenroll=participation.waiting_list):
+    if not check_unenrollment_allowed(request, activity, ignore_can_unenroll=participation.waiting_list):
         # If something went wrong, it will be stated in the django errors
-        return redirect(obj)
+        return redirect(activity)
 
     if request.method == 'POST':
-        activity_editenrollment(request, participation, obj, edited_by=None)
+        activity_editenrollment(request, participation, activity, edited_by=None)
         # Redirect back to the activity
-        return redirect(obj)
+        return redirect(activity)
     else:
-        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj,
+        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(activity,
                                                                         request.POST if request.POST else None,
                                                                         request.user)
         update = True
@@ -524,22 +544,21 @@ def activity_editenrollment_other(request, pk, person_id):
     Edit enrollment of the person that is logged in for this activity.
     """
     # Lock the Activity object for updating, prevent concurrent (un)enrollments
-    obj = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
+    activity = get_object_or_404(Activity.objects.select_for_update(), pk=pk)
     person = get_object_or_404(Person, pk=person_id)
-    activity = obj
 
 
     try:
-        participation = Participation.objects.select_for_update().get(person=person, event=obj)
+        participation = Participation.objects.select_for_update().get(person=person, event=activity)
     except Participation.DoesNotExist:
         raise Http404
 
     if request.method == 'POST':
-        activity_editenrollment(request, participation, obj, edited_by=request.person)
+        activity_editenrollment(request, participation, activity, edited_by=request.person)
         # Redirect back to the activity
-        return redirect(obj)
+        return redirect(activity)
     else:
-        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(obj,
+        enrollmentoptions_forms = _build_enrollmentoptionsanswers_forms(activity,
                                                                         request.POST if request.POST else None,
                                                                         person.user)
         update = True
@@ -925,6 +944,7 @@ class UploadPhotoFilesView(RequireCommitteeMixin, FormView):
         else:
             return self.form_invalid(form)
 
+
 class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
     abbreviation = "MediaCie"
     http_method_names = ['get', 'post']
@@ -944,6 +964,7 @@ class ClearPhotoUploadDirView(RequireCommitteeMixin, View):
                 if os.path.isfile(os.path.join(upload_dir, file)):
                     os.remove(os.path.join(upload_dir, file))
         return redirect("activities:photo_upload")
+
 
 def gallery_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
@@ -977,6 +998,7 @@ def gallery_photo(request, pk, photo):
 
     return render(request, "gallery_photo.html", locals())
 
+
 @require_committee('MediaCie')
 def delete_photo(request, pk, photo):
     activity = get_object_or_404(Activity, pk=pk)
@@ -988,6 +1010,7 @@ def delete_photo(request, pk, photo):
     photo.delete()
 
     return redirect(activity)
+
 
 @require_committee('MediaCie')
 def toggle_visibility(request, pk, photo):
@@ -1002,6 +1025,7 @@ def toggle_visibility(request, pk, photo):
     photo.save(create_thumbnails=False)
 
     return redirect("activities:gallery_photo", pk=pk, photo=photo_id)
+
 
 def gallery(request, pk, page=1):
     activity = get_object_or_404(Activity, pk=pk)

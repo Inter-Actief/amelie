@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block titel %}
-	{% blocktrans with name=obj.summary %}
+	{% blocktrans with name=activity.summary %}
 		Enroll for {{ name }}
 	{% endblocktrans %}
 {% endblock titel %}
@@ -10,7 +10,7 @@
 {% block content %}
 	<div class="col-xs-12"><div class="current">
 		<h2>
-			{% blocktrans with name=obj.summary %}
+			{% blocktrans with name=activity.summary %}
 				Enroll for {{ name }}
 			{% endblocktrans %}
 		</h2>

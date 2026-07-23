@@ -34,7 +34,7 @@
 					{% endif %}
 				</p>
 
-				{% if activity_full and not person in obj.confirmed_participants %}
+				{% if activity_full and not person in activity.confirmed_participants %}
 					<p class="icon attention">
 						{% trans 'Unfortunately, there are no more openings. You will be enrolled on the waiting list.' %}
 					</p>
