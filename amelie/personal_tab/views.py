@@ -1557,7 +1557,8 @@ def debt_collection_new(request):
         'contribution_instructions': contribution_instructions,
         'contribution_totals': contribution_totals,
         'cookie_corner_instructions': cookie_corner_instructions,
-        'cookie_corner_totals': cookie_corner_totals
+        'cookie_corner_totals': cookie_corner_totals,
+        'maximum_debit_amount': settings.MAXIMUM_DIRECT_DEBIT_AMOUNT,
     })
 
 

@@ -74,6 +74,9 @@ POOL_CATEGORY = "Pools"
 # The direct debit debtor ID of Inter-Actief that needs to be printed on the autorization forms
 DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 
+# The maximum amount Inter-Actief can debit from a person per direct debit
+MAXIMUM_DIRECT_DEBIT_AMOUNT = 250.00
+
 # The LDAP host that is used to verify login attempts in the LDAP authentication module
 LDAP_HOST = 'hexia.ia.utwente.nl'
 
