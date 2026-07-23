@@ -126,7 +126,7 @@ urlpatterns = [
     path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
     path('register/process_rfid/', register.RegisterProcessRFIDView.as_view(), name='register_process'),
     path('register/user_logout/', register.RegisterLogoutView.as_view(), name='register_logout'),
-    re_path('register/qr/', register.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
+    path('register/qr/', register.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
     path('register/verify/<uuid:uuid>/', register.RegisterVerifyTokenView.as_view(), name='register_verify'),
     path('register/login_check/<uuid:uuid>/', register.RegisterCheckLoginAjaxView.as_view(), name='register_check'),
 
