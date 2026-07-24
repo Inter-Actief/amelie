@@ -43,6 +43,9 @@ urlpatterns = [
     path('activities/delete/<int:event_id>/', views.event_delete, name='event_delete'),
     path('activities/new/', views.event_new, name='event_new'),
 
+    # Legacy URLs kept for backwards-compatible permalinks
+    path('bouquet/',RedirectView.as_view(pattern_name='education:cake', permanent=True)),
+
     # Dutch URLs for permalink compatibility
     path('nieuws/<str:path>', RedirectView.as_view(url='/news/%(path)s', permanent=True)),
     path('klachten/<str:path>', RedirectView.as_view(url='/complaints/%(path)s', permanent=True)),
