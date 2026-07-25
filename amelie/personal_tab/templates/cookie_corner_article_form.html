@@ -1,0 +1,44 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}
+    {% if object %}
+        {% trans "Edit article" %}
+    {% else %}
+        {% trans "Add article" %}
+    {% endif %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+            <h2>
+                {% if object %}
+                    {% blocktrans with name=object.name %}
+                        Edit {{ name }}
+                    {% endblocktrans %}
+                {% else %}
+                    {% trans "Add article" %}
+                {% endif %}
+            </h2>
+
+            <div class="content">
+                <form action="" method="post" class="big" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form }}
+
+                    <button type="submit">
+                        {% if object %}
+                            {% trans "Save changes" %}
+                        {% else %}
+                            {% trans "Add article" %}
+                        {% endif %}
+                    </button>
+
+                    <a href="{% url 'personal_tab:price_list' %}">
+                        {% trans "Cancel" %}
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

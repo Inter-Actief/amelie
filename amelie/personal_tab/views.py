@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import get_language, gettext_lazy as _l  
+from django.utils.translation import get_language, gettext_lazy as _l
 from django.db import transaction
 from django.db.models import Sum, Q, Count
 from django.db.models.functions import TruncDay
@@ -25,6 +25,7 @@ from django.utils import formats, timezone
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, get_language
+from django.views.generic import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.edit import FormView
@@ -36,14 +37,17 @@ from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
-    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
-    StatisticsForm, DeclarationForm
+    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, \
+    AuthorizationSelectForm, \
+    StatisticsForm, DeclarationForm, ArticleForm
 from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, ActivityTransaction, \
-    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
-    DebtCollectionInstruction, ReversalTransaction
+from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, \
+    ActivityTransaction, \
+    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, \
+    DiscountCredit, \
+    DebtCollectionInstruction, ReversalTransaction, Article
 from amelie.personal_tab.statistics import get_functions, statistics_totals
 from amelie.personal_tab.transactions import exam_cookie_discount, \
     exam_cookie_credit as transactions_exam_cookie_credit, add_exam_cookie_credit
@@ -103,6 +107,17 @@ def price_list(request):
 
     return render(request, 'cookie_corner_price_list.html', {'categories': categories})
 
+class ArticleCreate(RequireBoardMixin, CreateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = "cookie_corner_article_form.html"
+    success_url = reverse_lazy('personal_tab:price_list')
+
+class ArticleUpdate(RequireBoardMixin, UpdateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = "cookie_corner_article_form.html"
+    success_url = reverse_lazy('personal_tab:price_list')
 
 def generate_overview(request, person, date_from=None, date_to=None):
     """
@@ -468,7 +483,7 @@ def transaction_form(request):
             start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
             end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
-        
+
         else:
             return render(request, 'cookie_corner_transactions_form.html', {
                 'form': form,
@@ -496,7 +511,7 @@ def transaction_overview(request, date_from, date_to):
         end = _parsedatetime(date_to)
     except ValueError:
         raise Http404(_('Invalid date`'))
-    
+
     return generate_overview(request, None, start, end)
 
 
@@ -521,25 +536,25 @@ def unpaid_memberships(request, year=None):
                 totals[year_total['year']][0][membership_type[0]] = unpaid_memberships.filter(type=membership_type[1], year=year_total['year']).count()
 
         return render(request, 'unpaid_memberships/overview.html', {'totals': totals, 'membership_types': membership_types})
-    
+
 
     # If a year is given, show the unpaid memberships for that year, grouped by membership type
     unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type', 'member__first_name')
-    
+
     grouped = {}
     for membership in unpaid_memberships:
         membership_type = (membership.type.name, membership.type.pk)
         if membership_type not in grouped:
             grouped[membership_type] = []
         grouped[membership_type].append(membership)
-    
+
     return render(request, 'unpaid_memberships/year_overview.html', {'unpaid_memberships': grouped, 'year': year})
 
 
 @require_board
 def unpaid_memberships_forgive(request, year):
     """Forgive the membership fee of persons that were selected in the unpaid memberships overview."""
-    
+
     # Get the selected memberships from the URL parameters
     selected_memberships = request.GET.get('memberships')
     if not selected_memberships:
@@ -620,7 +635,7 @@ Je kunt de contributie betalen door dit bedrag over te maken naar:
  * Bedrag: € {{{{membership.price}}}}
 
 Cash of PIN betaling is ook mogelijk door fysiek langs te komen bij de verenigingskamer.
- 
+
 Met vriendelijke groet,
 
 {}
@@ -805,7 +820,7 @@ class CustomTransactionDelete(RequireBoardMixin, DeleteView):
             object = self.get_object()
             if object.discount:
                 object.discount.delete()
-                
+
             delete = super(CustomTransactionDelete, self).delete(self.request)
             messages.success(self.request, _("The transaction '{transaction}' has been successfully deleted.")
                             .format(transaction=self.object))
@@ -1548,7 +1563,7 @@ def debt_collection_new(request):
         date_text = formats.date_format(end_date)
         form = DebtCollectionForm(minimal_execution_date,
                                   initial={'description': 'Cookie corner until {}'.format(date_text),
-                                           'contribution': False, 'cookie_corner': True, 'end': end_date, 
+                                           'contribution': False, 'cookie_corner': True, 'end': end_date,
                                            'contribution_years': current_association_year()})
 
     return render(request, 'debt_collection/new.html', {
@@ -2067,7 +2082,7 @@ def cookie_corner_wrapped_main(request, year=None):
             products_grouped_by_count[article]["count"] += amount
         else:
             products_grouped_by_count[article] = {"count": amount}
-    
+
     products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]["count"])
 
     products_grouped_by_count.reverse()
@@ -2246,9 +2261,9 @@ def cookie_corner_wrapped_global(request, year=None):
 
 
 class DeclarationView(RequirePersonMixin, FormView):
-    """ 
+    """
     Form view for submitting a declarations via the website.
-    
+
     Only available to logged in (former) members.
     """
 
@@ -2272,7 +2287,7 @@ class DeclarationView(RequirePersonMixin, FormView):
         try:
             form.save(request=self.request)
             messages.success(self.request, _("Declaration was submitted successfully."))
-            
+
         except Exception as e:
             trace = traceback.format_exc()
             logging.error(f"Error while submitting declaration: {str(e.__class__.__name__)} - {trace}")
@@ -2282,9 +2297,9 @@ class DeclarationView(RequirePersonMixin, FormView):
 
 @require_board
 def declaration_pdf(request, declaration_id):
-    """ 
+    """
     View for generating the PDF of a declaration.
-    
+
     Only available to board members.
     """
     declaration = get_object_or_404(Declaration, id=declaration_id)

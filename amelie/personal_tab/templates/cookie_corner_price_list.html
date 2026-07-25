@@ -1,11 +1,18 @@
 {% extends "basis.html" %}
 {% load i18n %}
 
-{% block titel %}{% trans 'Transactions' %}{% endblock titel %}
+{% block titel %}{% trans 'Price list' %}{% endblock titel %}
 
 {% block content %}
     <div class="col-xs-12"><div class="ia">
-        <h2>{% trans 'Price list' %}</h2>
+        <h2 class="h2-with-buttons">
+            <span>{% trans "Price list" %}</span>
+            {% if request.is_board %}
+                <a class="looks-like-a-button" href="{% url 'personal_tab:price_list_article_new' %}">
+                    {% trans "Add article" %}
+                </a>
+            {% endif %}
+        </h2>
         <div class="content">
             <div class="table-responsive">
                 <table class="table">
@@ -26,7 +33,15 @@
                             {% for article in cat.articles %}
                                 <tr>
                                     <td></td>
-                                    <td>{{ article.article.name }}</td>
+                                    <td>
+                                        {% if request.is_board %}
+                                        <a href="{% url 'personal_tab:price_list_article_edit' pk=article.article.pk %}">
+                                            {{ article.article.name }}
+                                        </a>
+                                        {% else %}
+                                            {{ article.article.name }}
+                                        {% endif %}
+                                    </td>
                                     <td class="align-right">{{ article.article.price }}</td>
                                     <td class="align-right">{{ article.article.kcal|default_if_none:"-" }} </td>
                                     <td class="align-right">{{ article.kcal_per_euro|default_if_none:"-" }}</td>
