@@ -15,7 +15,7 @@ from amelie.news.models import NewsItem
 from amelie.members.models import Committee, Person
 from amelie.education import utils
 from amelie.education.forms import DEANominationForm, DEAVoteForm, ComplaintForm, ComplaintCommentForm, \
-    EducationalBouquetFormHTML, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
+    EducationalCakeFormHTML, PageForm, SearchSummariesForm, CategoryForm, CourseForm, EducationEventForm, ModuleForm
 from amelie.education.models import Complaint, ComplaintComment, Page, Course, Category, EducationEvent, Module
 from amelie.statistics.decorators import track_hits
 from amelie.tools.decorators import require_education, require_lid
@@ -123,23 +123,23 @@ def news_archive(request):
     return render(request, 'education_news.html', locals())
 
 
-def educational_bouquet(request):
-    bouquet_form = EducationalBouquetFormHTML()
+def educational_cake(request):
+    cake_form = EducationalCakeFormHTML()
     try:
-        prev_bouquets = AboutPage.objects.get(id=22)
+        prev_cakes = AboutPage.objects.get(id=22)
     except AboutPage.DoesNotExist:
-        prev_bouquets = None
+        prev_cakes = None
 
     is_education = hasattr(request, 'person') and request.is_education_committee
 
     if request.POST:
-       bouquet_form = EducationalBouquetFormHTML(request.POST)
+       cake_form = EducationalCakeFormHTML(request.POST)
 
-       if bouquet_form.is_valid():
-           bouquet_form.save()
+       if cake_form.is_valid():
+           cake_form.save()
            message_sent = True
 
-    return render(request, 'educational_bouquet.html', locals())
+    return render(request, 'educational_cake.html', locals())
 
 
 def awards(request):
