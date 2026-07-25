@@ -18,21 +18,19 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>{% trans 'Category' %}</th>
                             <th>{% trans 'Article' %}</th>
-                            <th class="align-right">{% trans 'Price' %}</th>
+                            <th class="align-right">{% trans 'Price (€)' %}</th>
                             <th class="align-right">{% trans 'kCal' %}</th>
-                            <th class="align-right">{% trans 'kCal/euro' %}</th>
+                            <th class="align-right">{% trans 'kCal/€' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for cat in categories %}
                             <tr>
-                                <td colspan="5"><h3>{{ cat.name }}</h3></td>
+                                <td colspan="4"><h3>{{ cat.name }}</h3></td>
                             </tr>
                             {% for article in cat.articles %}
                                 <tr>
-                                    <td></td>
                                     <td>
                                         {% if request.is_board %}
                                         <a href="{% url 'personal_tab:price_list_article_edit' pk=article.article.pk %}">
