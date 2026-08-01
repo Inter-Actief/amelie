@@ -315,7 +315,7 @@
                             </li>
                         {% else %}
                             <li class="{% active_menu 'login'  %}">
-                                <a href="{% url 'oidc_authentication_init' %}">{% trans 'Log in' %}</a>
+                                <a href="{% url 'oidc_authentication_init' %}?next={{ request.path|urlencode }}">{% trans 'Log in' %}</a>
                             </li>
                         {% endif %}
                     </ul>
