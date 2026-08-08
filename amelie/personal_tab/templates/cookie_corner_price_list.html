@@ -53,10 +53,10 @@
     </div></div>
     {% if request.is_board %}
         <div class="col-xs-12"><div class="ia">
-            <h2 class="h2-with-buttons">
-                <span>{% trans "Inactive articles" %}</span>
+            <h2 id="inactive_articles" class="expand h2-with-buttons" data-target="expand_inactive_articles">
+                {% trans "Inactive articles" %}
             </h2>
-            <div class="content">
+            <div hidden id="expand_inactive_articles" class="content">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
