@@ -10,7 +10,7 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Exists, OuterRef, TextChoices
+from django.db.models import TextChoices
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
