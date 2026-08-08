@@ -7,8 +7,8 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
 from amelie.members.models import Person, Membership, PaymentType, Payment
-from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
-    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
+from amelie.personal_tab.models import BadBIC, Reversal, Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
+    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Amendment
 from amelie.tools.encodings import normalize_to_ascii
 
 
@@ -76,7 +76,7 @@ def generate_contribution_instructions(years):
     """
     memberships = Membership.objects.filter(Q(ended__gt=datetime.date.today()) | Q(ended__isnull=True),
                                             payment__isnull=True, type__price__gt=0, year__in=years)
-    
+
     result = {
         'ongoing_frst': [],
         'frst': [],
@@ -333,12 +333,23 @@ def process_reversal(reversal, actor):
                                           description=description, membership=ct.membership)
             cct.save()
 
+    # If the reversal reason is DNOR, the BIC of the authorization must be added to the Bad BIC list
+    if reversal.reason == Reversal.ReversalReasons.DNOR:
+        bad_bic = BadBIC.objects.filter(bic=instruction.authorization.bic).first()
+        if bad_bic:
+            bad_bic.update_reversals()
+        else:
+            BadBIC.objects.create(
+                bic=instruction.authorization.bic, first_reversal=reversal, last_reversal=reversal
+            )
+
 
 def edit_reversal(reversal, actor):
     """
     :type reversal: Reversal
     :type actor: Person
     """
+    instruction = reversal.instruction
     timezone_amsterdam = timezone.get_default_timezone()
     reversal_datetime = datetime.datetime.combine(reversal.date, datetime.time(0, 0)).replace(tzinfo=timezone_amsterdam)
 
@@ -347,16 +358,20 @@ def edit_reversal(reversal, actor):
     rt.added_by = actor
     rt.save()
 
+    # Update any BadBic objects with this BIC or this reversal as their first/last reversal
+    bad_bics = list(BadBIC.objects.filter(Q(bic=instruction.authorization.bic) | Q(first_reversal=reversal) | Q(last_reversal=reversal)))
+    for bad_bic in bad_bics:
+        bad_bic.update_reversals()
+
 
 def delete_reversal(reversal):
     """
     :type reversal: Reversal
     """
-    # First we delete the ReversalTransaction and the Reversal object itself.
+    # First we delete the ReversalTransaction
     instruction = reversal.instruction
     rt = ReversalTransaction.objects.get(reversal=reversal)
     rt.delete()
-    reversal.delete()
 
     # If there were contribution transactions, we need to reinstate payments and delete reversal contribution transactions.
     for ct in ContributionTransaction.objects.filter(debt_collection=instruction):
@@ -366,10 +381,20 @@ def delete_reversal(reversal):
             pm = Payment(membership=ct.membership, payment_type=PaymentType.objects.get(id=4),
                                amount=ct.price, date=ct.date)
             pm.save()
-                
+
             # Now we filter for the reversal ContributionTransaction that was created when the reversal was processed and delete it.
             cct = ContributionTransaction.objects.filter(membership=ct.membership, price=-ct.price)
             cct.delete()
+
+    # Finally, we delete the Reversal object itself
+    reversal_reason = reversal.reason
+    reversal.delete()
+
+    # If the reversal reason was DNOR, the BadBIC with this BIC should be re-checked if it exists
+    if reversal_reason == Reversal.ReversalReasons.DNOR:
+        bad_bic = BadBIC.objects.filter(bic=instruction.authorization.bic).first()
+        if bad_bic:
+            bad_bic.update_reversals()
 
 
 def process_amendment(authorization, date, iban, bic, reason):
@@ -414,7 +439,7 @@ def delete_amendment(amendment):
     Delete an unsent amendment to an authorization.
 
     Make sure you call this method only from within a database transaction!
-    
+
     Make sure you call this method only for amendments that have not yet been sent to the bank!
     """
 
