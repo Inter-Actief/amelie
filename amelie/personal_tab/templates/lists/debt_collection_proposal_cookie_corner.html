@@ -8,17 +8,23 @@
                     {% if enabled %}<th>{% trans 'Collect' %}</th>{% endif %}
                     <th>{% trans 'Person' %}</th>
                     <th>{% trans 'Mandate' %}</th>
-                    <th class="number">{% trans 'Price' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
                 </tr>
             </thead>
             <tbody>
             {% for row in rows %}
                 <tr>
                     {% if enabled %}
-                        <td>
-                            <input type="checkbox" {% if default %}checked="checked"{% endif %}
-                                name="cookie_corner_{{ row.person.id }}" value="true"/>
-                        </td>
+                        {% if not row.above_maximum %}
+                            <td>
+                                <input type="checkbox" {% if default %}checked="checked"{% endif %}
+                                    name="cookie_corner_{{ row.person.id }}" value="true"/>
+                            </td>
+                        {% else %}
+                            <td>
+                                <p class="icon icon-error"></p>
+                            </td>
+                        {% endif %}
                     {% endif %}
                     <td>
                         <a href="{{ row.person.get_absolute_url }}">
@@ -26,16 +32,24 @@
                         </a>
                     </td>
                     <td>
-                        <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
-                        {% if row.instruction.amendment %}
-                            (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
+                        {% if row.authorization %}
+                            <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
+                            {% if row.instruction.amendment %}
+                                (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
+                            {% endif %}
+                        {% else %}
+                            {% trans 'None' %}
                         {% endif %}
                     </td>
-                    <td class="number">{{ row.sumf }}</td>
+                    <td class="align-right">{{ row.sumf }}</td>
                 </tr>
                 <tr>
                     <td colspan="{% if enabled %}4{% else %}3{% endif %}">
-                        {{ row.instruction.description }}
+                        {% if not row.above_maximum %}
+                            {{ row.instruction.description }}
+                        {% else %}
+                            <b>{% blocktrans with maximum=maximum_debit_amount|floatformat:2 %}This person's balance is higher than &euro; {{ maximum }}, so they cannot be debited.{% endblocktrans %}</b>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -47,7 +61,7 @@
                     {% endif %}
                     <td>{% trans 'Total' %}</td>
                     <td></td>
-                    <td class="number">{{ total }}</td>
+                    <td class="align-right">{{ total }}</td>
                 </tr>
             </tfoot>
         </table>
