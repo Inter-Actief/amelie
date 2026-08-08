@@ -3,15 +3,15 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-08 15:25+0200\n"
-"PO-Revision-Date: 2026-07-15 19:51+0000\n"
-"Last-Translator: Lars Kruitwagen <kruitwagenly@inter-actief.net>\n"
+"PO-Revision-Date: 2026-08-08 13:42+0000\n"
+"Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.6.1\n"
+"X-Generator: Weblate 2026.8\n"
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.9\n"
 
@@ -6416,25 +6416,11 @@ msgstr ""
 "Amélie"
 
 #: amelie/education/templates/education/educational_cake.mail:4
-#, fuzzy
-#| msgid "[Educational bouquet] Submissions educational bouquet"
 msgid "[Educational cake] Submissions educational cake"
-msgstr "[Onderwijsbloemetje] Indiening onderwijsbloemetje"
+msgstr "[Onderwijsbloemetje] Indiening onderwijstaart"
 
 #: amelie/education/templates/education/educational_cake.mail:6
-#, fuzzy, python-format
-#| msgid ""
-#| "Dear EC member,\n"
-#| "\n"
-#| "%(author)s has nominated someone for the educational bouquet!\n"
-#| "\n"
-#| "The email address of the submitter is %(email)s.\n"
-#| "He/she nominated %(teacher)s for the course %(course)s.\n"
-#| "His/her reason is: \"%(reason)s\".\n"
-#| "\n"
-#| "\n"
-#| "Cheers,\n"
-#| "Amélie"
+#, python-format
 msgid ""
 "Dear EC member,\n"
 "\n"
@@ -6450,7 +6436,7 @@ msgid ""
 msgstr ""
 "Beste EC'er,\n"
 "\n"
-"%(author)s heeft iemand genomineerd voor het onderwijsbloemetje!\n"
+"%(author)s heeft iemand genomineerd voor het onderwijstaart!\n"
 "\n"
 "Het emailadres van de indiener is %(email)s.\n"
 "Het gaat om docent %(teacher)s voor het vak %(course)s.\n"
@@ -6535,24 +6521,14 @@ msgstr "Er zijn geen onderwijsnieuwsberichten beschikbaar."
 
 #: amelie/education/templates/educational_cake.html:4
 #: amelie/education/templates/educational_cake.html:10 templates/basis.html:278
-#, fuzzy
-#| msgid "Educational page?"
 msgid "Educational cake"
-msgstr "Onderwijspagina?"
+msgstr "Onderwijstaart"
 
 #: amelie/education/templates/educational_cake.html:15
-#, fuzzy
-#| msgid "Thank you for your nomination for an educational bouquet!"
 msgid "Thank you for your nomination for an educational cake!"
-msgstr "Bedankt voor het insturen van je onderwijsbloemetje!"
+msgstr "Bedankt voor het insturen van je nominatie voor een onderwijstaart!"
 
 #: amelie/education/templates/educational_cake.html:19
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                  Do you know someone who is extremely committed to improve the quality of education or is always willing to help students without hesitation?\n"
-#| "                  Then, what are you waiting for? Nominate him or her for the education bouquet!\n"
-#| "                  "
 msgid ""
 "\n"
 "                  Do you know someone who is extremely committed to improve the quality of education or is always willing to help students without hesitation?\n"
@@ -6560,7 +6536,8 @@ msgid ""
 "                  "
 msgstr ""
 "\n"
-"Ken jij iemand die zich buitengewoon heeft ingezet voor het onderwijs en altijd klaarstaat om studenten te helpen? Nomineer hem/haar dan voor een onderwijsbloemetje!"
+"                  Ken jij iemand die zich buitengewoon heeft ingezet voor het onderwijs en altijd klaarstaat om studenten te helpen? Nomineer hem/haar dan voor een onderwijstaart!\n"
+"                  "
 
 #: amelie/education/templates/educational_cake.html:25
 msgid ""
@@ -6583,10 +6560,8 @@ msgstr ""
 "Het kan zijn dat het vak dat je zoekt nog niet bestaat. Als dat zo is, maak dan a.u.b. een <a href=\"%(new_course_url)s?next=%(return_url)s\">nieuw vak</a> of een <a href=\"%(new_module_url)s?next=%(return_url)s\">nieuwe module</a> aan."
 
 #: amelie/education/templates/educational_cake.html:54
-#, fuzzy
-#| msgid "Previous bouquets"
 msgid "Previous cakes"
-msgstr "Vorige bloemetjes"
+msgstr "Vorige taarten"
 
 #: amelie/education/templates/module.html:12
 msgid "These complaints have been received concerning this module"
@@ -12070,40 +12045,30 @@ msgid "Select a period and click Balance."
 msgstr "Selecteer een periode en klik op Balans."
 
 #: amelie/personal_tab/templates/cookie_corner_article_form.html:6
-#, fuzzy
-#| msgid "articles"
 msgid "Edit article"
-msgstr "artikelen"
+msgstr "Artikel aanpassen"
 
 #: amelie/personal_tab/templates/cookie_corner_article_form.html:8
 #: amelie/personal_tab/templates/cookie_corner_article_form.html:20
 #: amelie/personal_tab/templates/cookie_corner_article_form.html:33
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:12
-#, fuzzy
-#| msgid "Article"
 msgid "Add article"
-msgstr "Artikel"
+msgstr "Artikel toevoegen"
 
 #: amelie/personal_tab/templates/cookie_corner_article_form.html:16
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                %(time)s ago\n"
-#| "                            "
+#, python-format
 msgid ""
 "\n"
 "                        Edit %(name)s\n"
 "                    "
 msgstr ""
 "\n"
-"                                %(time)s geleden\n"
-"                            "
+"                        %(name)s aanpassen\n"
+"                    "
 
 #: amelie/personal_tab/templates/cookie_corner_article_form.html:31
-#, fuzzy
-#| msgid "Save page"
 msgid "Save changes"
-msgstr "Pagina opslaan"
+msgstr "Wijzigingen opslaan"
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:4
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:9
@@ -12129,18 +12094,14 @@ msgstr ""
 "Er wordt op %(date)s <a href=\"%(url)s\">&euro; %(amount)s geincasseerd</a> van je rekening."
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:23
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        Because you have submitted an exam paper, you may spend %(credit)s on consumptions.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                        Because you have submitted an exam paper, you may spend &euro; %(credit)s on consumptions.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Omdat je tentamens hebt ingeleverd, mag je nog voor %(credit)s aan consumpties kopen.\n"
+"                        Omdat je tentamens hebt ingeleverd, mag je nog voor &euro; %(credit)s aan consumpties kopen.\n"
 "                    "
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:38
@@ -12218,43 +12179,31 @@ msgstr "Onbetaalde lidmaatschappen"
 
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:22
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:65
-#, fuzzy
-#| msgid "Price"
 msgid "Price (€)"
-msgstr "Prijs"
+msgstr "Prijs (€)"
 
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:24
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:67
-#, fuzzy
-#| msgid "kCal"
 msgid "kCal/€"
-msgstr "kCal"
+msgstr "kCal/€"
 
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:57
-#, fuzzy
-#| msgid "news articles"
 msgid "Inactive articles"
-msgstr "nieuwsartikelen"
+msgstr "Inactieve artikelen"
 
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:82
-#, fuzzy
-#| msgid "reversal"
 msgid "never"
-msgstr "terugboeking"
+msgstr "nooit"
 
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:83
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                                (&euro; %(per_page_cost)s per page)\n"
-#| "                                            "
+#, python-format
 msgid ""
 "\n"
 "                                                (last used: %(last_used_date)s)\n"
 "                                            "
 msgstr ""
 "\n"
-"                                                (&euro; %(per_page_cost)s per pagina)\n"
+"                                                (laatst gebruikt: %(last_used_date)s)\n"
 "                                            "
 
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:21
@@ -14603,10 +14552,9 @@ msgid "Enrollment forms for {name}"
 msgstr "Inschrijvingsformulieren voor {name}"
 
 #: amelie/tools/documenso.py:294 amelie/tools/documenso.py:323
-#, fuzzy, python-brace-format
-#| msgid "[Inter-Actief] Please sign your membership documents"
+#, python-brace-format
 msgid "[{tag}] Please sign your membership documents"
-msgstr "[Inter-Actief] Onderteken je lidmaatschapsdocumenten"
+msgstr "[{tag}] Onderteken je lidmaatschapsdocumenten"
 
 #: amelie/tools/documenso.py:314
 #, python-brace-format
@@ -14619,10 +14567,9 @@ msgid "Mandate form #{id} for {name}"
 msgstr "Machtigingsformulier #{id} voor {name}"
 
 #: amelie/tools/documenso.py:368
-#, fuzzy, python-brace-format
-#| msgid "[Inter-Actief] Please sign your direct debit authorization"
+#, python-brace-format
 msgid "[{tag}] Please sign your direct debit authorization"
-msgstr "[Inter-Actief] Onderteken je automatische incassomachtiging"
+msgstr "[{tag}] Onderteken je automatische incassomachtiging"
 
 #: amelie/tools/documenso.py:370
 #, python-brace-format
