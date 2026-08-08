@@ -250,13 +250,10 @@ def person_mandate_new(request, id):
         if form.is_valid():
             # If the filled BIC is in the Bad BIC list, ask for a confirmation.
             if BadBIC.objects.filter(bic=form.cleaned_data['bic']).exists():
-                if 'confirm' in request.POST:
-                    pass
-                else:
+                if 'confirm' not in request.POST:
                     return render(request, "person_confirm_mandate.html", locals())
-            
+
             mandate: Authorization = form.save(commit=False)
-            mandate = form.save(commit=False)
             mandate.person = obj
             mandate.save()
             if form.cleaned_data.get('send_signature_request'):

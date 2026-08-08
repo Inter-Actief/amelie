@@ -959,11 +959,32 @@ class BadBIC(models.Model):
 
     bic = BICField(verbose_name=_l('BIC'), unique=True)
     date_added = models.DateTimeField(verbose_name=_l('Date added'), auto_now_add=True)
-    first_reversal = models.ForeignKey(Reversal, verbose_name=_l("First reversal"), related_name=_l('+'), null=True, on_delete=models.SET_NULL)
-    last_reversal = models.ForeignKey(Reversal, verbose_name=_l("Last reversal"), related_name=_l('+'), null=True, on_delete=models.SET_NULL)
+    first_reversal = models.ForeignKey(Reversal, verbose_name=_l("First reversal"), related_name='+', null=True, on_delete=models.SET_NULL)
+    last_reversal = models.ForeignKey(Reversal, verbose_name=_l("Last reversal"), related_name='+', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.bic
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_reversals()
+
+    def update_reversals(self):
+        # Update the first and last reversal for this BadBIC
+        self.first_reversal = Reversal.objects.filter(
+            instruction__authorization__bic=self.bic,
+            reason=Reversal.ReversalReasons.DNOR
+        ).order_by('date').first()
+        self.last_reversal = Reversal.objects.filter(
+            instruction__authorization__bic=self.bic,
+            reason=Reversal.ReversalReasons.DNOR
+        ).order_by('date').last()
+
+        # If both first and last are None (no reversals any more for this BIC), self-destruct.
+        if self.first_reversal is None and self.last_reversal is None:
+            self.delete()
+        else:
+            self.save()
 
     class Meta:
         ordering = ['bic']

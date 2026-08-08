@@ -356,7 +356,7 @@ class MandateForm(forms.ModelForm):
         if not cleaned_data['iban']:
             raise forms.ValidationError(_l('An IBAN is required.'))
 
-        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
+        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'), ignore_bad_bic=True)
 
         return cleaned_data
 
@@ -660,7 +660,7 @@ class StudentNumberForm(forms.Form):
         return self.cleaned_data["student_number"]
 
 
-def clean_iban_and_bic(iban, bic, registration=False):
+def clean_iban_and_bic(iban, bic, ignore_bad_bic=False):
     iban = str(iban).strip()
     bic = str(bic).strip()
 
@@ -679,8 +679,8 @@ def clean_iban_and_bic(iban, bic, registration=False):
         else:
             raise forms.ValidationError(_l('BIC could not be generated, please enter it yourself.'))
 
-    # If the BIC is in the Bad BICs list and it is filled in via the RegistrationForm, do not accept it.
-    if registration and BadBIC.objects.filter(bic=bic):
+    # If the BIC is in the Bad BICs list, and it can't be ignored, do not accept it.
+    if not ignore_bad_bic and BadBIC.objects.filter(bic=bic).exists():
         raise forms.ValidationError(_l('The bank associated with your BIC does not accept SEPA Direct Debits.'))
 
     if bic[4:6] != iban[:2]:
