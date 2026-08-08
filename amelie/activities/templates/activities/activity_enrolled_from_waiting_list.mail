@@ -6,7 +6,8 @@
 
 {% blocktrans with summary=activity.summary begindate=activity.begin|date:"l j F Y" begintime=activity.begin|date:"G:i" %}You receive this email because you have been enrolled for {{ summary }} and are no longer on the waiting list. This activity starts at {{ begindate }} hour on {{ begintime }}.{% endblocktrans %}{% endhtmlify %}
 
-{% with costs=participation.calculate_costs|first paymentmethod=participation.get_payment_method_display %}{% if costs > 0 %}{% htmlify %}{% blocktrans %}The total costs are {{ costs }} euro. Payment method: {{ paymentmethod }}.{% endblocktrans %}{% endhtmlify %}
+{% with costs=participation.calculate_costs|first has_mandate=participation.person.has_mandate_activities %}{% if costs > 0 %}{% htmlify %}{% blocktrans %}The total costs are {{ costs }} euro.{% endblocktrans %}{% endhtmlify %}
+{% if has_mandate %}{% htmlify %}{% blocktrans %}These costs will be debited from your bank account via your direct debit mandate.{% endblocktrans %}{% endhtmlify %}{% else %}{% htmlify %}{% blocktrans %}These costs will need to be paid manually by you, either at the activity or at the board.{% endblocktrans %}{% endhtmlify %}{% endif %}
 
 {% endif %}{% endwith %}{% if participation.enrollmentoptionanswer_set.all %}{% htmlify %}{% blocktrans %}For this activity, the following enrollment options exist:{% endblocktrans %}{% endhtmlify %}
 

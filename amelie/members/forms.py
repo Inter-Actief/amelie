@@ -22,10 +22,10 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 
 from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
-from amelie.members.models import Department, PaymentType, Committee, CommitteeCategory, DogroupGeneration, \
+from amelie.members.models import Department, Committee, CommitteeCategory, DogroupGeneration, \
     Function, Membership, MembershipType, Employee, Person, Student, Study, StudyPeriod, Preference, \
     LANGUAGE_CHOICES, UnverifiedEnrollment
-from amelie.personal_tab.models import Authorization, AuthorizationType
+from amelie.personal_tab.models import Authorization, AuthorizationType, PaymentMethod
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
 from amelie.tools.validators import CheckDigitValidator
 from amelie.tools.widgets import DateSelector, MemberSelect
@@ -286,11 +286,6 @@ class PersonStudyForm(forms.ModelForm):
         fields = ("study", "begin", "dogroup",)
 
 
-class PersonPaymentForm(forms.Form):
-    date = forms.DateField(initial=datetime.date.today())
-    method = forms.ModelChoiceField(PaymentType.objects.filter(visible=True))
-
-
 class MembershipForm(forms.ModelForm):
     year = forms.IntegerField(initial=current_association_year, widget=widgets.RadioSelect())
     type = forms.ModelChoiceField(MembershipType.objects.filter(active=True), label=_l('Type'))
@@ -303,6 +298,13 @@ class MembershipForm(forms.ModelForm):
         super(MembershipForm, self).__init__(*args, **kwargs)
         self.fields['year'].widget.choices = ((current_association_year(), _l('Current association year')),
                                               (current_association_year() + 1, _l('Upcoming association year')),)
+
+
+class MembershipManualPaymentForm(forms.Form):
+    payment_method = forms.ModelChoiceField(
+        queryset=PaymentMethod.objects.filter(visible_memberships=True),
+        label=_l('Payment method')
+    )
 
 
 class MembershipEndForm(forms.ModelForm):
@@ -323,6 +325,7 @@ class MembershipEndForm(forms.ModelForm):
         self.fields['ended'].widget.choices = ((date.today(), _l('Immediately')),
                                                (date(current_association_year() + 1, 7, 1),
                                                 _l('At the end of the association year')),)
+
 
 class SignatureRequestForm(forms.Form):
     send_check = forms.BooleanField(label=_l('Send the signature request'), required=True)

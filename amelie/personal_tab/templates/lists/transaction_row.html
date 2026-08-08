@@ -1,0 +1,33 @@
+{% load humanize %}
+{% load i18n %}
+<tr>
+    <td>{{ transaction.date|date:"d F Y" }}</td>
+    <td>{{ transaction.date|date:"G:i"}}</td>
+    <td>
+        {% if transaction.person %}
+            {% if request.is_board %}
+                <a href="{{ transaction.person.get_absolute_url }}">
+                    {{ transaction.person }}
+                </a>
+                {% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug as personal_overview %}
+                {% if request.path != personal_overview %}
+                    &nbsp;
+                    <a title="{% blocktrans with name=transaction.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}" href="{{ personal_overview }}">
+                        <span class="icon personal_tab"></span>
+                    </a>
+                {% endif %}
+            {% else %}
+                {{ transaction.person }}
+            {% endif %}
+        {% else %}
+            &mdash;
+        {% endif %}
+    </td>
+    <td>
+        <a href="{{ transaction.get_absolute_url }}">
+            {{ transaction.description }}
+        </a>
+    </td>
+    <td class="align-right">&euro;&nbsp;{{ transaction.price|intcomma }}</td>
+    {% if not hide_kcal %}<td class="align-right">{{ transaction.cookiecornertransaction.kcal|default:"&mdash;" }}</td>{% endif %}
+</tr>

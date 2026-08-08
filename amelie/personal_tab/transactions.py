@@ -1,15 +1,17 @@
 import datetime
 import random
+from decimal import Decimal
+from typing import Optional, Tuple, Union, List, Dict, Any
 
 from django.conf import settings
 from django.db.models import Sum, Q
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
-from amelie.members.models import Study, Student
+from amelie.members.models import Study, Student, Person
 from amelie.personal_tab.models import ActivityTransaction, DiscountPeriod, DiscountCredit, CookieCornerTransaction, \
-    Discount
-from amelie.tools.logic import current_academic_year_strict
+    Discount, Transaction, PersonalTabSettlement, ReversalTransaction, Authorization
+from amelie.tools.logic import current_academic_year_strict, current_association_year
 
 
 def participation_transaction(participation, reason, cancel=False, added_by=None):
@@ -50,26 +52,32 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
     transaction.save()
 
 
-def add_participation(participation, added_by=None, is_edited_participation=False):
+def add_participation(participation, added_by=None, is_edited_participation=False, reason=None):
     """Adds a transaction for a participation in an event."""
 
-    with translation.override(participation.person.preferred_language):
-        if is_edited_participation:
-            reason = _("Edited enrollment for {activity} (addition of updated costs)").format(activity=participation.event.summary)
-        else:
-            reason = _("Enrolled for {activity}").format(activity=participation.event.summary)
+    if reason is None:
+        with translation.override(participation.person.preferred_language):
+            if is_edited_participation:
+                reason = _("Edited enrollment for {activity} (addition of updated costs)").format(
+                    activity=participation.event.summary
+                )
+            else:
+                reason = _("Enrolled for {activity}").format(activity=participation.event.summary)
 
     participation_transaction(participation, reason, added_by=added_by)
 
 
-def remove_participation(participation, added_by=None, is_edited_participation=False):
+def remove_participation(participation, added_by=None, is_edited_participation=False, reason=None):
     """Adds a transaction to nullify a participation in an event."""
 
-    with translation.override(participation.person.preferred_language):
-        if is_edited_participation:
-            reason = _("Edited enrollment for {activity} (reversal of old costs)").format(activity=participation.event.summary)
-        else:
-            reason = _("Unenrolled for {activity}").format(activity=participation.event.summary)
+    if reason is None:
+        with translation.override(participation.person.preferred_language):
+            if is_edited_participation:
+                reason = _("Edited enrollment for {activity} (reversal of old costs)").format(
+                    activity=participation.event.summary
+                )
+            else:
+                reason = _("Unenrolled for {activity}").format(activity=participation.event.summary)
 
     participation_transaction(participation, reason, cancel=True, added_by=added_by)
 
@@ -229,3 +237,66 @@ def free_cookies_sale(article, amount, person, added_by):
                                           discount=discount, article=article, amount=amount, added_by=added_by)
     transaction.save()
     return transaction
+
+
+def get_transaction_payment_status(transaction: Optional[Transaction], mandate_type: Optional[str] = None) -> Tuple[str, Optional[Union[PersonalTabSettlement, ReversalTransaction, Authorization]]]:
+    """
+    Returns information on how the given transaction was paid, or how it might probably be paid in the future.
+
+    If the transaction is None, it returns ('no_transaction', None)
+    If the transaction is paid, returns ('paid', <the settlement in which it was paid>).
+    If the transaction is not paid:
+      - If the transaction was reversed, it returns ('reversed', <the ReversalTransaction>).
+      - If the transaction was not reversed:
+         - If the person has a direct debit mandate, returns ('unpaid', <the mandate>).
+         - If the person has no mandate, it returns ('unpaid', None).
+    """
+    # Short-circuit if no transaction was given
+    if not transaction:
+        return 'no_transaction', None  # No transaction!
+
+    # If the participation is paid, returns the settlement in which it was paid.
+    if transaction.is_paid():
+        settlement_type = transaction.settlement.settlement_type
+        if settlement_type == "INSTR" and hasattr(transaction.settlement, 'debtcollectioninstruction'):
+            return 'paid', transaction.settlement.debtcollectioninstruction
+        elif settlement_type == "MANUAL" and hasattr(transaction.settlement, 'manualpaymentsettlement'):
+            return 'paid', transaction.settlement.manualpaymentsettlement
+        return 'paid', transaction.settlement
+
+    # If the participation is not paid:
+    else:
+        # If the transaction was reversed, it returns the ReversalTransaction.
+        if transaction.settlement and transaction.settlement.settlement_type == "INSTR" and hasattr(transaction.settlement, 'debtcollectioninstruction') and hasattr(transaction.settlement.debtcollectioninstruction, 'reversal'):
+            return 'reversed', transaction.settlement.debtcollectioninstruction.reversal.transaction
+        # If the transaction was not reversed, returns the direct debit mandate if the person has one, else None.
+        return 'unpaid', transaction.person.has_mandate(mandate_type=mandate_type).order_by('authorization_type__id').first()  # Returns None if no authorization exists.
+
+
+def get_personal_tab_balances(only_members: bool = False, only_without_mandate: bool = True) -> List[Dict[str, Any]]:
+    """
+    Gets a list of dictionaries, containing the personal tab balances of all people/members.
+    """
+    people = Person.objects.all()
+    if only_members:
+        people = people.filter(Q(membership__ended__isnull=True) | Q(membership__ended__gt=datetime.date.today()), membership__year=current_association_year()).distinct()
+    if only_without_mandate:
+        people = people.exclude(authorization__is_signed=True, authorization__end_date__isnull=True, authorization__authorization_type__consumptions=True).distinct()
+
+    results = []
+    now = timezone.now()
+
+    for person in people:
+        person_transactions = Transaction.objects.filter(person=person, date__lt=now)
+        unpaid_transactions = person_transactions.filter(settlement=None)
+        curr_balance = person_transactions.aggregate(Sum('price'))['price__sum'] or Decimal('0.00')
+        results.append({
+            'person': person,
+            'balance': curr_balance,
+            'transactions': person_transactions,
+            'unpaid_transactions': unpaid_transactions,
+            'unpaid_sum': unpaid_transactions.aggregate(Sum('price'))['price__sum'],
+        })
+
+    return results
+

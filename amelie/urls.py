@@ -6,7 +6,6 @@ from django.urls import reverse_lazy, path, re_path, include
 from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
 from django.views.static import serve
-from health_check.views import HealthCheckView
 
 from amelie import views
 from amelie.activities.feeds import Activities
@@ -55,7 +54,6 @@ urlpatterns = [
     path('videos/', include('amelie.videos.urls')),
     path('data_export/', include('amelie.data_export.urls')),
     path('publications/', include('amelie.publications.urls')),
-    path('participation/', include('amelie.calendar.participation_urls')),
 
     # API
     path('api/', include('amelie.api.urls')),

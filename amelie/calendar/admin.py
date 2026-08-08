@@ -12,10 +12,9 @@ class EventAdmin(admin.ModelAdmin):
 
 
 class ParticipationAdmin(admin.ModelAdmin):
-    list_display = ('id',  'event', 'person', 'payment_method', 'added_on', 'added_by',)
+    list_display = ('id',  'event', 'person', 'added_on', 'added_by',)
     search_fields = ('event__summary_nl', 'event__summary_en', 'person__first_name', 'person__last_name',)
     date_hierarchy = 'added_on'
-    list_filter = ('payment_method',)
     raw_id_fields = ('event', 'person', 'added_by', )
 
 

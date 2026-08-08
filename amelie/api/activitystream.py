@@ -15,7 +15,6 @@ from amelie.activities.mail import activity_send_enrollmentmail, activity_send_o
 from amelie.activities.models import Activity, EnrollmentoptionQuestion, EnrollmentoptionCheckbox, EnrollmentoptionFood
 from amelie.activities.models import EnrollmentoptionQuestionAnswer, EnrollmentoptionCheckboxAnswer, \
     EnrollmentoptionFoodAnswer
-from amelie.activities.utils import update_waiting_list
 from amelie.api.api import api_server
 from amelie.api.activitystream_utils import add_detailed_properties, add_images_property, add_thumbnails_property, \
     get_basic_result
@@ -654,20 +653,21 @@ def activity_signup(activity_id: int, price: float, options: dict, ctx: RpcReque
 
     try:
         # Lock the Activity object for updating, prevent concurrent (un)enrollments
-        activity = Activity.objects.select_for_update().get(id=activity_id)
+        activity: Activity = Activity.objects.select_for_update().get(id=activity_id)
     except Activity.DoesNotExist as e:
         raise DoesNotExistError(str(e))
 
-    if activity.oauth_application and not activity.oauth_application == authentication.get_application():
-        raise SignupError("You can only subscribe to this activity on the website of this activity.")
-    elif not authentication.represents():
+    # Check signup restrictions
+    if not authentication.represents():
         raise SignupError("Could not determine who you are based on your login credentials.")
-    elif authentication.represents() in activity.participants.all():
-        raise SignupError("You are already signed up for this activity")
-    elif not activity.enrollment:
-        raise SignupError("You cannot sign up for this activity, there is no subscription.")
-    elif not activity.enrollment_open():
-        raise SignupError("You cannot sign up for this activity, the subscription is not open")
+    enrollment_allowed, reason = activity.check_enrollment_allowed(
+        person=authentication.represents(), indirect=False, ignore_start_enrollment=False,
+        authentication_application=authentication.get_application()
+    )
+    if not enrollment_allowed:
+        if reason is None:
+            raise SignupError("Could not enroll for this activity.")
+        raise SignupError(reason)
 
     # check if all required options are present and filled in
     for option in activity.enrollmentoption_set.all():
@@ -680,33 +680,34 @@ def activity_signup(activity_id: int, price: float, options: dict, ctx: RpcReque
             raise MissingOptionError()
 
     # save attendance
-    attendance = Participation(event=activity,
-                               person=authentication.represents(),
-                               remark='Enrollment through OAuth',
-                               payment_method=Participation.PaymentMethodChoices.NONE,
-                               added_by=authentication.represents(),
-                               waiting_list=activity.enrollment_full())
-    attendance.save()
+    participation = Participation(
+        person=authentication.represents(),
+        event=activity,
+        added_by=authentication.represents(),
+        waiting_list=activity.enrollment_full,
+        remark='Enrollment through OAuth'
+    )
+    participation.save()
 
     # save options
     for option in activity.enrollmentoption_set.all():
         answer = None
         if option.content_type.model_class() == EnrollmentoptionQuestion:
             result = optionset[option.id] if option.id in optionset.keys() else ''
-            answer = EnrollmentoptionQuestionAnswer(answer=result, enrollment=attendance, enrollmentoption=option)
+            answer = EnrollmentoptionQuestionAnswer(answer=result, enrollment=participation, enrollmentoption=option)
         elif option.content_type.model_class() == EnrollmentoptionCheckbox:
             result = option.id in optionset.keys() and optionset[option.id]
-            answer = EnrollmentoptionCheckboxAnswer(answer=result, enrollment=attendance, enrollmentoption=option)
+            answer = EnrollmentoptionCheckboxAnswer(answer=result, enrollment=participation, enrollmentoption=option)
         elif option.content_type.model_class() == EnrollmentoptionFood:
             result = option.dishprice_set.get(id=optionset[option.id]) if option.id in optionset.keys() else None
-            answer = EnrollmentoptionFoodAnswer(dishprice=result, enrollment=attendance, enrollmentoption=option)
+            answer = EnrollmentoptionFoodAnswer(dishprice=result, enrollment=participation, enrollmentoption=option)
 
         if answer:
             answer.content_type = ContentType.objects.get_for_model(answer)
             answer.save()
 
     # check for inconsistency in app
-    amount, with_options = attendance.calculate_costs()
+    amount, with_options = participation.calculate_costs()
     if abs(Decimal(price) - amount) > 0.02:  # allow for floating point precision bugs
         raise SignupError("An inconsistency was detected. Please use the website to sign up.")
 
@@ -716,20 +717,16 @@ def activity_signup(activity_id: int, price: float, options: dict, ctx: RpcReque
         if not authentication.represents().has_mandate_activities():
             raise SignupError("A signed mandate is required. Please ask the board for a mandate.")
 
-        # Set payment by direct debit.
-        attendance.payment_method = Participation.PaymentMethodChoices.AUTHORIZATION
-        attendance.save()
-
-        if not activity.enrollment_full():
+        if not activity.enrollment_full:
             # add transaction
-            transactions.add_participation(attendance, authentication.represents())
+            transactions.add_participation(participation=participation, added_by=authentication.represents())
 
         # Send mail if desired
         if authentication.represents().has_preference(name='mail_enrollment'):
-            if not activity.enrollment_full():
-                activity_send_enrollmentmail(attendance)
+            if participation.waiting_list:
+                activity_send_on_waiting_listmail(participation)
             else:
-                activity_send_on_waiting_listmail(attendance)
+                activity_send_enrollmentmail(participation)
 
     return True
 
@@ -767,33 +764,35 @@ def activity_signup_revoke(activity_id: int, ctx: RpcRequestContext = None, **kw
 
     try:
         # Lock the Activity object for updating, prevent concurrent (un)enrollments
-        activity = Activity.objects.select_for_update().get(id=activity_id)
+        activity: Activity = Activity.objects.select_for_update().get(id=activity_id)
     except Activity.DoesNotExist as e:
         raise DoesNotExistError(str(e))
 
-    if activity.oauth_application and not activity.oauth_application == authentication.get_application():
-        raise SignupError("You can only unsubscribe to this activity on the website of this activity.")
-    elif not activity.enrollment:
-        raise SignupError("You cannot unsubscribe for this activity, it has no subscription.")
-    elif not authentication.represents():
+    # Check signup restrictions
+    if not authentication.represents():
         raise SignupError("Could not determine who you are based on your login credentials.")
-    elif not authentication.represents() in activity.participants.all():
-        raise SignupError("You were not subscribed for this activity.")
-    elif not activity.can_unenroll:
-        raise SignupError(
-            "You cannot revoke your attendance anymore, it is not possible to unsubscribe for this activity.")
-    elif not activity.enrollment_open():
-        raise SignupError("You cannot revoke your attendance anymore, subscription term has expired.")
+    unenrollment_allowed, reason = activity.check_unenrollment_allowed(
+        person=authentication.represents(), indirect=False,
+        ignore_can_unenroll=False, ignore_unenrollment_period=False,
+        authentication_application=authentication.get_application()
+    )
+    if not unenrollment_allowed:
+        if reason is None:
+            raise SignupError("Could not unenroll for this activity.")
+        raise SignupError(reason)
 
-    attendance = Participation.objects.select_for_update().get(person=authentication.represents(),
-                                                               event=activity)
+    participation = Participation.objects.select_for_update().get(
+        person=authentication.represents(), event=activity
+    )
 
-    # If necessary, create a compensation for attendance
-    transactions.remove_participation(attendance)
+    # If necessary, compensate the person for the enrollment costs.
+    from amelie.personal_tab import transactions
+    transactions.remove_participation(participation)
 
-    # Delete attendance
-    attendance.delete()
+    # Delete the participation
+    participation.delete()
 
-    update_waiting_list(activity=activity)
+    # Update the waiting list.
+    activity.update_waiting_list()
 
     return True

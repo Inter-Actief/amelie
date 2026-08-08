@@ -2,7 +2,7 @@
 {% load i18n htmlify only %}
 {% block subject %}{% blocktrans %}Cancellation of {% endblocktrans %} {{ activity.summary }} {% endblock %}
 {% block content %}{% htmlify %}{% blocktrans %}Dear{% endblocktrans %} {{ recipient.first_name }},
-{% blocktrans with summary=activity.summary begindate=activity.begin|date:"l j F Y" begintime=activity.begin|date:"G:i" %}
+{% blocktrans with summary=activity.summary %}
 You receive this email because you were on the waiting list for {{ summary }}. This activity has been cancelled.
 {% endblocktrans %}{% endhtmlify %} {% blocktrans %}
 Kind regards,{% endblocktrans %}

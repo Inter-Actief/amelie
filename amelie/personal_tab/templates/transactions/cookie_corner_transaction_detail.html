@@ -10,18 +10,6 @@
         <div class="content">
             <table>
                 {% include "info/transaction_information.html" %}
-                <tr>
-                    <th>{% trans 'Article' %}</th>
-                    <td>{{ object.article|default:"&mdash;" }}</td>
-                </tr>
-                <tr>
-                    <th>{% trans 'Amount' %}</th>
-                    <td class="align-right">{{ object.amount }}</td>
-                </tr>
-                <tr>
-                    <th>{% trans 'kCal' %}</th>
-                    <td class="align-right">{{ object.kcal|default_if_none:"&mdash;" }}</td>
-                </tr>
             </table>
 
             {% if object.editable and request.is_board %}
