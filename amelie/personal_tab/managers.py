@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.aggregates import Sum
 from django.utils import timezone
-from datetime import timezone as tz
 
 from amelie.members.models import Person
 

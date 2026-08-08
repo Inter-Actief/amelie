@@ -1,6 +1,5 @@
 # coding=utf-8
 import datetime
-from collections import OrderedDict
 from datetime import timezone as tz
 import logging
 from decimal import Decimal
@@ -41,8 +40,9 @@ from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransac
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, \
     AuthorizationSelectForm, \
     StatisticsForm, DeclarationForm, ManualPaymentSettlementForm, ManualPaymentTransactionFormSet
-from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
-    save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
+from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, \
+    generate_contribution_instructions, filter_contribution_instructions, save_contribution_instructions, \
+    generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
 from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, \
     ActivityTransaction, \

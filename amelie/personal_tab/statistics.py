@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from django.db import connection
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDay
 from django.utils.translation import gettext_lazy as _l

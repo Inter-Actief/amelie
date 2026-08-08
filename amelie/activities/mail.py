@@ -1,9 +1,8 @@
 from django.utils import translation
 
-from amelie.calendar.models import Participation
 from amelie.iamailer import MailTask, Recipient
 from amelie.tools.const import TaskPriority
-from amelie.members.models import Preference, Person
+from amelie.members.models import Preference
 from amelie.tools.calendar import ical_calendar
 from amelie.tools.mail import PersonRecipient
 from django.utils.translation import gettext_lazy as _l

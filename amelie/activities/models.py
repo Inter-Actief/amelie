@@ -386,19 +386,6 @@ class Activity(Event):
         self.cancelled = False
         self.save()
 
-    def enroll_person(self, person: Person):
-        # TODO Implement
-        pass
-
-    def unenroll_person(self, person: Person):
-        # TODO Implement
-        pass
-
-    def edit_enrollment(self, participation: Participation):
-        # TODO Implement
-        pass
-
-
 
 class Enrollmentoption(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)

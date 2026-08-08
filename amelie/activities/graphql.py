@@ -1,8 +1,7 @@
 import graphene
 from django_filters import FilterSet, BooleanFilter
 from django.utils.translation import gettext_lazy as _
-from django.db.models import Q, Count
-from docutils.nodes import description
+from django.db.models import Count
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel

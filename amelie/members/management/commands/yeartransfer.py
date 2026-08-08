@@ -1,6 +1,7 @@
 import datetime
 
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 from django.utils.encoding import smart_str
 
 from amelie.tools.const import TaskPriority
@@ -188,8 +189,9 @@ class Command(BaseCommand):
                             member=membership.member, type=next_type, year=new_year
                         )
                         if created:
-                            # Create a ContributionTransaction for the membership, if necessary, so it will be paid for.
-                            m.create_contribution_transaction()
+                            # Create a ContributionTransaction on 07-01 for the membership, if necessary, so it will be paid for.
+                            ct_date =  timezone.make_aware(datetime.datetime(year=membership.year, month=7, day=1))
+                            m.create_contribution_transaction(date=ct_date)
                         else:
                             errorfile.write(smart_str(f"{membership.member} ({membership.type}) was already enrolled for the new year\n"))
 

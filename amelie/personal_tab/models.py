@@ -1046,10 +1046,10 @@ class ManualPaymentSettlement(PersonalTabSettlement):
     created_by = models.ForeignKey(Person, verbose_name=_l('Created by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
     # '+' related_name makes sure no reverse relation is added to Person
 
-    """The ManualPaymentTransaction that was created in this settlement."""
+    """The SettlementManualPaymentTransaction that was created in this settlement."""
     manual_payment_transaction = models.OneToOneField(SettlementManualPaymentTransaction, on_delete=models.RESTRICT, related_name='manual_settlement', blank=True, null=True)
 
-    """The ManualPaymentTransaction that was created in this settlement."""
+    """The SettlementExtraBalanceTransaction that was created in this settlement."""
     extra_balance_transaction = models.OneToOneField(SettlementExtraBalanceTransaction, on_delete=models.RESTRICT, related_name='manual_settlement', blank=True, null=True)
 
     class Meta:
@@ -1159,7 +1159,7 @@ class ManualPaymentSettlement(PersonalTabSettlement):
             # Calculate the total settlement amount
             total_transaction_price = sum(t.price for t in transactions) or Decimal("0.00")
             if paid_amount is None:
-                paid_amount = -total_transaction_price
+                paid_amount = total_transaction_price
             leftover_balance_amount =  total_transaction_price - paid_amount
 
             # Get the default descriptions if none were given
@@ -1199,7 +1199,7 @@ class ManualPaymentSettlement(PersonalTabSettlement):
             if total_transaction_price != 0:
                 payment_transaction = SettlementManualPaymentTransaction(
                     date=payment_datetime, price=-total_transaction_price, person=person,
-                    description=payment_description[:200], settlement=settlement
+                    description=payment_description[:200], settlement=settlement, added_by=created_by
                 )
                 payment_transaction.save()
                 settlement.manual_payment_transaction = payment_transaction
@@ -1211,7 +1211,8 @@ class ManualPaymentSettlement(PersonalTabSettlement):
                 leftover_balance_transaction = SettlementExtraBalanceTransaction(
                     date=payment_datetime, price=leftover_balance_amount, person=person,
                     description=leftover_balance_description[:200],
-                    settlement=None  # Leaves it as unpaid so it can be used.
+                    settlement=None,  # Leaves it as unpaid so it can be used.
+                    added_by=created_by
                 )
                 leftover_balance_transaction.save()
                 settlement.extra_balance_transaction = leftover_balance_transaction

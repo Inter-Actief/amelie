@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib import admin
 
 from amelie.personal_tab.models import Declaration, DiscountPeriod, Discount, DiscountCredit, Transaction, \
@@ -5,7 +7,7 @@ from amelie.personal_tab.models import Declaration, DiscountPeriod, Discount, Di
     Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, \
     DebtCollectionBatch, \
     DebtCollectionInstruction, Reversal, DebtCollectionTransaction, ReversalTransaction, LedgerAccount, PrintLogEntry, \
-    PaymentMethod
+    PaymentMethod, ManualPaymentSettlement, SettlementExtraBalanceTransaction, SettlementManualPaymentTransaction
 
 
 class RFIDAdmin(admin.ModelAdmin):
@@ -27,13 +29,13 @@ class CookieCornerTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[CookieCornerTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(CookieCornerTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[CookieCornerTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -55,13 +57,13 @@ class TransactionAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[Transaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(TransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[Transaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -80,13 +82,13 @@ class CustomTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[CustomTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(CustomTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[CustomTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -105,13 +107,13 @@ class ActivityTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[ActivityTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(ActivityTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[ActivityTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -130,13 +132,13 @@ class AlexiaTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[AlexiaTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(AlexiaTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[AlexiaTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -155,13 +157,13 @@ class ContributionTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[ContributionTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(ContributionTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[ContributionTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -180,13 +182,13 @@ class DebtCollectionTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[DebtCollectionTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(DebtCollectionTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[DebtCollectionTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
@@ -205,17 +207,55 @@ class ReversalTransactionAdmin(admin.ModelAdmin):
     # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
     actions = None
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj: Optional[ReversalTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(ReversalTransactionAdmin, self).has_change_permission(request, obj)
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj: Optional[ReversalTransaction] = None):
         if obj and obj.settlement:
             return False
         else:
             return super(ReversalTransactionAdmin, self).has_delete_permission(request, obj)
+
+
+class SettlementExtraBalanceTransactionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'manual_settlement', 'description', 'price', 'person', 'discount', 'date', 'added_on')
+    list_filter = ('date', 'added_on')
+    date_hierarchy = 'date'
+    search_fields = ['description', 'person__slug']
+    raw_id_fields = ('person', 'discount', 'settlement')
+    readonly_fields = ('added_on', 'added_by')
+    ordering = ['-added_on']
+
+    # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
+    actions = None
+
+    def has_change_permission(self, request, obj: Optional[SettlementExtraBalanceTransaction] = None):
+        return False
+
+    def has_delete_permission(self, request, obj: Optional[SettlementExtraBalanceTransaction] = None):
+        return False  # Deletion must go via ManualPaymentSettlement deletion
+
+
+class SettlementManualPaymentTransactionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'manual_settlement', 'description', 'price', 'person', 'discount', 'date', 'added_on')
+    list_filter = ('date', 'added_on')
+    date_hierarchy = 'date'
+    search_fields = ['description', 'person__slug']
+    raw_id_fields = ('person', 'discount', 'settlement')
+    readonly_fields = ('added_on', 'added_by')
+    ordering = ['-added_on']
+
+    # Jelte 2015-04-01: Disable mass deletion because has_delete_permission seems to be ignored
+    actions = None
+
+    def has_change_permission(self, request, obj: Optional[SettlementManualPaymentTransaction] = None):
+        return False
+
+    def has_delete_permission(self, request, obj: Optional[SettlementManualPaymentTransaction] = None):
+        return False  # Deletion must go via ManualPaymentSettlement deletion
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -285,11 +325,34 @@ class DebtCollectionBatchAdmin(admin.ModelAdmin):
         return False
 
 
+class TransactionsInline(admin.TabularInline):
+    model = Transaction
+    fk_name = 'settlement'
+    extra = 0
+    can_delete = False
+    show_change_link = True
+
+    fields = ('id', 'date', 'price', 'description')
+    ordering = ['-added_on']
+
+    def has_add_permission(self, *args, **kwargs):
+        return False
+
+    def has_change_permission(self, *args, **kwargs):
+        return False
+
+    def has_delete_permission(self, *args, **kwargs):
+        return False
+
+
 class DebtCollectionInstructionAdmin(admin.ModelAdmin):
     list_display = ('id', 'batch', 'authorization', 'end_to_end_id', 'amount',)
     search_fields = ['authorization__person__first_name', 'authorization__person__last_name',
                      'authorization__iban', 'authorization__account_holder_name', 'description']
     raw_id_fields = ('batch', 'authorization',)
+    inlines = [
+        TransactionsInline
+    ]
 
     def has_add_permission(self, request):
         return False
@@ -309,6 +372,34 @@ class PaymentMethodAdmin(admin.ModelAdmin):
     list_display = ('id', 'name_nl', 'name_en', 'description_nl', 'description_en', 'visible', 'visible_memberships', 'visible_activities', 'frontend_icon_display')
     list_filter = ('visible', 'visible_memberships', 'visible_activities')
     search_fields = ('name_nl', 'name_en', 'description_nl', 'description_en')
+
+
+class ManualPaymentSettlementAdmin(admin.ModelAdmin):
+    list_display = ('id', 'payment_date', 'person', 'get_payment_method_display', 'amount', 'description')
+    list_filter = ('payment_date', 'payment_method')
+    search_fields = ['person__first_name', 'person__last_name', 'description']
+    raw_id_fields = ('person', 'payment_method',)
+    readonly_fields = ('amount', 'person', 'payment_date', 'created_by', 'manual_payment_transaction', 'extra_balance_transaction')
+    inlines = [
+        TransactionsInline
+    ]
+
+    def get_payment_method_display(self, obj):
+        return obj.payment_method.name
+    get_payment_method_display.short_description = 'Payment method'
+    get_payment_method_display.admin_order_field = 'payment_method'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj: Optional[ManualPaymentSettlement] = None):
+        if not obj or not obj.deletion_possible()[0]:
+            return False
+        else:
+            return super().has_change_permission(request, obj=obj)
+
+    def has_delete_permission(self, request, obj: Optional[ManualPaymentSettlement] = None):
+        return False  # Deletion only via website due to required deletion procedure
 
 
 class DiscountPeriodAdmin(admin.ModelAdmin):
@@ -358,6 +449,7 @@ class PrintLogAdmin(admin.ModelAdmin):
     has_transaction.boolean = True
     has_transaction.short_description = 'Paid'
 
+
 class DeclarationAdmin(admin.ModelAdmin):
     list_display = ('id', 'person', 'committee', 'amount', 'submission_date')
     list_filter = ('submission_date', 'payment_method')
@@ -369,27 +461,36 @@ class DeclarationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(RFIDCard, RFIDAdmin)
+
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(CookieCornerTransaction, CookieCornerTransactionAdmin)
 admin.site.register(ActivityTransaction, ActivityTransactionAdmin)
 admin.site.register(AlexiaTransaction, AlexiaTransactionAdmin)
 admin.site.register(ContributionTransaction, ContributionTransactionAdmin)
+admin.site.register(CookieCornerTransaction, CookieCornerTransactionAdmin)
+admin.site.register(CustomTransaction, CustomTransactionAdmin)
 admin.site.register(DebtCollectionTransaction, DebtCollectionTransactionAdmin)
 admin.site.register(ReversalTransaction, ReversalTransactionAdmin)
-admin.site.register(CustomTransaction, CustomTransactionAdmin)
+admin.site.register(SettlementExtraBalanceTransaction, SettlementExtraBalanceTransactionAdmin)
+admin.site.register(SettlementManualPaymentTransaction, SettlementManualPaymentTransactionAdmin)
+
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(LedgerAccount, LedgerAccountAdmin)
 admin.site.register(Article, ArticleAdmin)
-admin.site.register(AuthorizationType, AuthorizationTypeAdmin)
-admin.site.register(Authorization, AuthorizationAdmin)
-admin.site.register(Amendment, AmendmentAdmin)
-admin.site.register(DebtCollectionAssignment, DebtCollectionAssignmentAdmin)
-admin.site.register(DebtCollectionBatch, DebtCollectionBatchAdmin)
-admin.site.register(DebtCollectionInstruction, DebtCollectionInstructionAdmin)
-admin.site.register(Reversal, ReversalAdmin)
-admin.site.register(PaymentMethod, PaymentMethodAdmin)
+
 admin.site.register(DiscountPeriod, DiscountPeriodAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(DiscountCredit, DiscountCreditAdmin)
 admin.site.register(PrintLogEntry, PrintLogAdmin)
 admin.site.register(Declaration, DeclarationAdmin)
+
+admin.site.register(AuthorizationType, AuthorizationTypeAdmin)
+admin.site.register(Authorization, AuthorizationAdmin)
+admin.site.register(Amendment, AmendmentAdmin)
+
+admin.site.register(DebtCollectionAssignment, DebtCollectionAssignmentAdmin)
+admin.site.register(DebtCollectionBatch, DebtCollectionBatchAdmin)
+admin.site.register(DebtCollectionInstruction, DebtCollectionInstructionAdmin)
+admin.site.register(Reversal, ReversalAdmin)
+
+admin.site.register(PaymentMethod, PaymentMethodAdmin)
+admin.site.register(ManualPaymentSettlement, ManualPaymentSettlementAdmin)

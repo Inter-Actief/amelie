@@ -328,8 +328,8 @@ class Command(DevelopmentOnlyCommand):
             baker.make('members.StudyPeriod', student=s, begin=gen_date_before_today)
         # 10 Persons with expired memberships (old members) and Students and StudyPeriods
         self.stdout.write("- 10 persons with expired memberships (old members), students and study periods...")
-        students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=10)
-        for student in students:
+        expired_students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=10)
+        for student in expired_students:
             ms = baker.make('members.Membership',
                        member=student,
                        year=current_association_year()-1,
@@ -353,9 +353,11 @@ class Command(DevelopmentOnlyCommand):
         self.stdout.write("- 50 payments for half of the students and half of the employees...")
         random.shuffle(students)
         half_students = students[:40]
+        random.shuffle(expired_students)
+        half_expired_students = expired_students[:10]
         random.shuffle(employees)
         half_employees = employees[:10]
-        for person in half_students + half_employees:
+        for person in half_students + half_expired_students + half_employees:
             # Mark membership as paid
             m: Membership = person.membership_set.first()
             m.mark_as_paid(payment_method=random.choice(payment_methods))

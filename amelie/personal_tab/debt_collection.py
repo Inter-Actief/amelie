@@ -1,5 +1,4 @@
 import datetime
-from datetime import timezone as tz
 
 from django.db import transaction
 from django.db.models import Sum, Q
@@ -7,7 +6,7 @@ from django.template.defaultfilters import date as _date
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
-from amelie.members.models import Person, Membership
+from amelie.members.models import Person
 from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
     DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
 from amelie.tools.encodings import normalize_to_ascii

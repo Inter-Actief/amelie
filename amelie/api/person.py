@@ -8,7 +8,6 @@ from django.conf import settings
 
 from amelie.api.api import api_server
 from amelie.api.decorators import auth_required
-from amelie.members.models import Person
 
 
 @api_server.register_procedure(name='getUserId', auth=auth_required(), context_target='ctx')

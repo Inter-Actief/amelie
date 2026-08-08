@@ -1048,7 +1048,11 @@ class Membership(models.Model):
         """
         from amelie.personal_tab.models import ContributionTransaction  # Avoid circular import
         if date is None:
-            date = timezone.now()
+            # Today if the membership is for a current or past association year, 07-01-year if it is in the future.
+            if self.year <= current_association_year():
+                date = timezone.now()
+            else:
+                date = timezone.make_aware(datetime.datetime(year=self.year, month=7, day=1))
         if not self.contributiontransaction_set.exists() and self.type.price != 0:
             with translation.override(self.member.preferred_language):
                 ct = ContributionTransaction(

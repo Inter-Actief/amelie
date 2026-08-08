@@ -45,7 +45,7 @@ def create_settlement_for_transactions(ManualPaymentSettlement, SettlementManual
     if total_transactions_price != 0:
         settlement_transaction = SettlementManualPaymentTransaction(
             date=payment_datetime, price=-total_transactions_price, person=person,
-            description=description[:200], settlement=settlement
+            description=description[:200], settlement=settlement, added_by=created_by
         )
         settlement_transaction.save()
         # Register this manual payment as the payment transaction for the settlement

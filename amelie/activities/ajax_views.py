@@ -3,15 +3,12 @@ from typing import Optional, Dict
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils import translation
-from django.utils.translation import gettext as _
 from django.views.generic import DetailView, FormView
 
 from amelie.activities.forms import ActivityManualPaymentForm
 from amelie.activities.views import ActivityDetailView
 from amelie.calendar.models import Participation
 from amelie.members.models import Person
-from amelie.personal_tab.models import ManualPaymentSettlement
 from amelie.tools.mixins import RequireAjaxMixin, RequireCommitteeMixin
 
 
