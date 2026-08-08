@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-25 21:27+0200\n"
+"POT-Creation-Date: 2026-08-08 15:25+0200\n"
 "PO-Revision-Date: 2026-07-15 19:51+0000\n"
 "Last-Translator: Lars Kruitwagen <kruitwagenly@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -208,10 +208,9 @@ msgstr "Sla de wachtlijst over en schrijf direct in"
 #: amelie/activities/templates/activity_enrollment_overview.html:183
 #: amelie/activities/templates/activity_enrollment_print.html:69
 #: amelie/members/models.py:821 amelie/members/models.py:1078
-#: amelie/personal_tab/forms.py:50 amelie/personal_tab/models.py:132
+#: amelie/personal_tab/forms.py:51 amelie/personal_tab/models.py:132
 #: amelie/personal_tab/models.py:295
 #: amelie/personal_tab/templates/authorization/view.html:139
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:16
 #: amelie/personal_tab/templates/debt_collection/instruction_view.html:70
 #: amelie/personal_tab/templates/debt_collection/person_instructions.html:17
 #: amelie/personal_tab/templates/debt_collection/process_batch.html:52
@@ -1015,6 +1014,7 @@ msgstr "Opslaan en inschrijfopties toevoegen"
 #: amelie/members/templates/person_payment.html:15
 #: amelie/members/templates/preregistration_resend_confirm.html:42
 #: amelie/personal_tab/templates/authorization/amendment_delete.html:16
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:38
 #: amelie/personal_tab/templates/debt_collection/instruction_reversal_delete.html:16
 #: amelie/personal_tab/templates/pos/register_external_card.html:40
 #: amelie/personal_tab/templates/pos/scan_external_card.html:27
@@ -1342,8 +1342,8 @@ msgstr "Metadata"
 #: amelie/education/templates/education_event_overview.html:65
 #: amelie/members/models.py:1076
 #: amelie/members/templates/statistics/overview.html:15
-#: amelie/personal_tab/forms.py:34 amelie/personal_tab/forms.py:42
-#: amelie/personal_tab/forms.py:91 amelie/personal_tab/forms.py:108
+#: amelie/personal_tab/forms.py:35 amelie/personal_tab/forms.py:43
+#: amelie/personal_tab/forms.py:92 amelie/personal_tab/forms.py:109
 #: amelie/personal_tab/models.py:131
 #: amelie/personal_tab/templates/authorization/view.html:66
 #: amelie/personal_tab/templates/debt_collection/instruction_view.html:122
@@ -1669,7 +1669,7 @@ msgstr "Begindatum/tijd"
 #: amelie/activities/templates/activities/eventdesk/message_list.html:103
 #: amelie/data_export/templates/data_export/dataexport_detail.html:89
 #: amelie/members/templates/registration_check.html:100
-#: amelie/personal_tab/forms.py:149
+#: amelie/personal_tab/forms.py:150
 #: amelie/personal_tab/templates/debt_collection/process_batch.html:36
 #: amelie/personal_tab/templates/debt_collection/view.html:80
 #: amelie/personal_tab/templates/info/rfid_cards.html:14
@@ -2223,7 +2223,7 @@ msgstr "Gerecht"
 #: amelie/activities/templates/activity_enrollment_print.html:69
 #: amelie/members/templates/statistics/overview.html:35
 #: amelie/members/templates/statistics/overview.html:124
-#: amelie/personal_tab/forms.py:427 amelie/personal_tab/models.py:210
+#: amelie/personal_tab/forms.py:428 amelie/personal_tab/models.py:210
 #: amelie/personal_tab/templates/lists/cookie_corner_transactions.html:12
 #: amelie/personal_tab/templates/pos/success.html:35
 #: amelie/personal_tab/templates/statistics/statistics.html:57
@@ -2382,7 +2382,7 @@ msgstr "Oude activiteiten"
 #: amelie/members/templates/query.html:54
 #: amelie/members/templates/query.html:67
 #: amelie/members/templates/registration_check.html:21
-#: amelie/personal_tab/forms.py:147
+#: amelie/personal_tab/forms.py:148
 #: amelie/personal_tab/templates/authorization/list.html:52
 msgid "Search"
 msgstr "Zoek"
@@ -3123,12 +3123,12 @@ msgstr "Geen activiteit gevonden of je hebt een ongeldige activiteit-id meegegev
 msgid "Invalid activity ID"
 msgstr "Ongeldige activiteit-id."
 
-#: amelie/activities/views.py:1496 amelie/personal_tab/views.py:1581
+#: amelie/activities/views.py:1496 amelie/personal_tab/views.py:1626
 msgid "Could not create data export, because an unknown data-exporttype is provided."
 msgstr "Kon geen data-export maken, omdat er een onbekend data-exporttype is opegeven."
 
 #: amelie/activities/views.py:1503 amelie/members/query_views.py:241
-#: amelie/personal_tab/views.py:1588
+#: amelie/personal_tab/views.py:1633
 msgid "Could not create data export, because something went wrong while saving information about the export."
 msgstr "Kon geen data-export maken, omdat er iets mis ging bij het opslaan van gegevens over de data-export."
 
@@ -3350,7 +3350,7 @@ msgstr "Machtiging"
 #: amelie/members/models.py:1286
 #: amelie/members/templates/committee_edit_members.html:33
 #: amelie/members/templates/committee_edit_single_member.html:28
-#: amelie/personal_tab/forms.py:138 amelie/personal_tab/forms.py:192
+#: amelie/personal_tab/forms.py:139 amelie/personal_tab/forms.py:193
 #: amelie/personal_tab/models.py:133 amelie/personal_tab/models.py:380
 #: amelie/personal_tab/templates/authorization/view.html:21
 #: amelie/personal_tab/templates/debt_collection/instruction_view.html:23
@@ -3372,7 +3372,7 @@ msgstr "Persoon"
 
 #: amelie/calendar/models.py:32 amelie/education/models.py:254
 #: amelie/education/models.py:290 amelie/education/templates/complaint.html:107
-#: amelie/members/models.py:1289 amelie/personal_tab/forms.py:117
+#: amelie/members/models.py:1289 amelie/personal_tab/forms.py:118
 #: amelie/personal_tab/templates/authorization/view.html:70
 #: amelie/personal_tab/templates/debt_collection/instruction_view.html:138
 #: amelie/personal_tab/templates/transactions/activity_transaction_detail.html:29
@@ -3458,7 +3458,7 @@ msgstr "Deze tekst kan gebruikt worden door het bestuur voor promotie, bijvoorbe
 #: amelie/members/models.py:820 amelie/members/models.py:849
 #: amelie/oauth/templates/oauth_access_request.mail:12
 #: amelie/oauth/templates/request_oauth_sent.html:23
-#: amelie/personal_tab/forms.py:51 amelie/personal_tab/forms.py:435
+#: amelie/personal_tab/forms.py:52 amelie/personal_tab/forms.py:436
 #: amelie/personal_tab/models.py:134
 #: amelie/personal_tab/templates/authorization/view.html:137
 #: amelie/personal_tab/templates/debt_collection/instruction_view.html:66
@@ -3493,7 +3493,7 @@ msgid "Participants"
 msgstr "Deelnemers"
 
 #: amelie/calendar/models.py:117 amelie/files/models.py:149
-#: amelie/personal_tab/forms.py:440 amelie/tools/pdf.py:574
+#: amelie/personal_tab/forms.py:441 amelie/tools/pdf.py:574
 msgid "Attachments"
 msgstr "Bijlagen"
 
@@ -4186,7 +4186,7 @@ msgstr "E-mailadres"
 #: amelie/companies/templates/companies/company_banners.html:100
 #: amelie/companies/templates/companies/company_form.html:50
 #: amelie/members/models.py:102 amelie/members/models.py:824
-#: amelie/personal_tab/forms.py:134
+#: amelie/personal_tab/forms.py:135
 #: templates/health_check/partial_celery_tables.html:10
 msgid "Active"
 msgstr "Actief"
@@ -4244,7 +4244,7 @@ msgstr "Het e-mailadres %(email)s wordt gebruikt door de volgende mappings:"
 #: amelie/claudia/templates/claudia/timeline_list.html:19
 #: amelie/members/forms.py:296 amelie/members/models.py:68
 #: amelie/members/models.py:93 amelie/members/models.py:984
-#: amelie/personal_tab/forms.py:140
+#: amelie/personal_tab/forms.py:141
 msgid "Type"
 msgstr "Type"
 
@@ -4794,11 +4794,11 @@ msgstr "Company Corner bedrijf of naam/website verplicht."
 msgid "Activity's \"visible from\" date is later than its \"visible until\" date"
 msgstr "Activiteit zichtbaarheid \"vanaf\" datum is later dan de \"tot\" datum"
 
-#: amelie/companies/forms.py:139 amelie/personal_tab/forms.py:181
+#: amelie/companies/forms.py:139 amelie/personal_tab/forms.py:182
 msgid "Beginning:"
 msgstr "Begin:"
 
-#: amelie/companies/forms.py:140 amelie/personal_tab/forms.py:182
+#: amelie/companies/forms.py:140 amelie/personal_tab/forms.py:183
 msgid "End (till)"
 msgstr "Einde (tot):"
 
@@ -5668,7 +5668,6 @@ msgstr "Categorienaam (gelokaliseerd voor gebruiker)"
 #: amelie/education/models.py:31 amelie/members/forms.py:630
 #: amelie/members/models.py:1123 amelie/personal_tab/models.py:293
 #: amelie/personal_tab/models.py:350
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:14
 #: amelie/personal_tab/templates/statistics/statistics.html:54
 msgid "Category"
 msgstr "Categorie"
@@ -6953,7 +6952,7 @@ msgstr "Machtigingssoort is verplicht."
 msgid "An IBAN is required."
 msgstr "IBAN is verplicht."
 
-#: amelie/members/forms.py:376 amelie/personal_tab/forms.py:192
+#: amelie/members/forms.py:376 amelie/personal_tab/forms.py:193
 msgid "Choose a name from the suggestions."
 msgstr "Kies een naam uit de suggesties."
 
@@ -6991,8 +6990,8 @@ msgstr "Medewerker met dit medewerkersnummer bestaat al."
 #: amelie/members/templates/includes/registration/data_overview_external.html:62
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:94
 #: amelie/members/templates/includes/registration/data_overview_general.html:71
-#: amelie/personal_tab/forms.py:111 amelie/personal_tab/forms.py:142
-#: amelie/personal_tab/forms.py:416 amelie/personal_tab/forms.py:421
+#: amelie/personal_tab/forms.py:112 amelie/personal_tab/forms.py:143
+#: amelie/personal_tab/forms.py:417 amelie/personal_tab/forms.py:422
 #: amelie/personal_tab/models.py:503 amelie/personal_tab/models.py:1028
 #: amelie/personal_tab/templates/authorization/view.html:33
 #: amelie/tools/pdf.py:412 amelie/tools/pdf.py:550
@@ -7005,7 +7004,7 @@ msgstr "IBAN"
 #: amelie/members/templates/includes/registration/data_overview_external.html:65
 #: amelie/members/templates/includes/registration/data_overview_freshmen.html:97
 #: amelie/members/templates/includes/registration/data_overview_general.html:74
-#: amelie/personal_tab/forms.py:114 amelie/personal_tab/forms.py:143
+#: amelie/personal_tab/forms.py:115 amelie/personal_tab/forms.py:144
 #: amelie/personal_tab/models.py:506
 #: amelie/personal_tab/templates/authorization/view.html:37
 #: amelie/tools/pdf.py:414
@@ -7703,7 +7702,7 @@ msgstr "Het e-mailadres van een commissie mag alleen maar verwijzen naar een Int
 #: amelie/members/templates/includes/person_function_table.html:7
 #: amelie/members/templates/person_edit_functions.html:16
 #: amelie/members/templates/statistics/overview.html:123
-#: amelie/personal_tab/forms.py:220 amelie/personal_tab/forms.py:404
+#: amelie/personal_tab/forms.py:221 amelie/personal_tab/forms.py:405
 #: amelie/statistics/templates/statistics.html:58 amelie/tools/pdf.py:548
 msgid "Committee"
 msgstr "Commissie"
@@ -7888,7 +7887,7 @@ msgstr "Ongeldig template"
 msgid "Include people on the waiting list"
 msgstr "Ook mensen op de wachtlijst"
 
-#: amelie/members/query_views.py:155 amelie/personal_tab/views.py:1961
+#: amelie/members/query_views.py:155 amelie/personal_tab/views.py:2006
 msgid "The mails are now being sent one by one. This happens in a background process and might take a while."
 msgstr "De mails worden nu een voor een verstuurd. Dit gebeurt in een achtergrondproces en kan even duren."
 
@@ -8020,7 +8019,7 @@ msgstr ""
 #: amelie/members/templates/person_edit_functions.html:18
 #: amelie/members/templates/person_edit_study.html:18
 #: amelie/members/templates/person_mandate.html:42
-#: amelie/personal_tab/forms.py:144
+#: amelie/personal_tab/forms.py:145
 #: amelie/personal_tab/templates/authorization/list.html:70
 #: amelie/personal_tab/templates/authorization/view.html:45
 #: amelie/personal_tab/templates/info/account_information.html:16
@@ -8035,7 +8034,7 @@ msgstr "Begindatum"
 #: amelie/members/templates/person_edit_functions.html:19
 #: amelie/members/templates/person_edit_study.html:19
 #: amelie/members/templates/person_mandate.html:43
-#: amelie/personal_tab/forms.py:145
+#: amelie/personal_tab/forms.py:146
 #: amelie/personal_tab/templates/authorization/list.html:71
 #: amelie/personal_tab/templates/authorization/view.html:49
 #: amelie/personal_tab/templates/info/account_information.html:17
@@ -8427,7 +8426,7 @@ msgstr "Contactgegevens"
 #: amelie/members/templates/includes/registration/authorizations.html:4
 #: amelie/members/templates/person.html:26
 #: amelie/members/templates/registration_check.html:73
-#: amelie/personal_tab/forms.py:172
+#: amelie/personal_tab/forms.py:173
 #: amelie/personal_tab/templates/authorization/list.html:4
 #: amelie/personal_tab/templates/authorization/list.html:58
 #: amelie/personal_tab/templates/cookie_corner_overview.html:21
@@ -9594,7 +9593,7 @@ msgstr ""
 
 #: amelie/members/templates/person_edit_mandate.html:27
 #: amelie/members/templates/person_new_mandate.html:8
-#: amelie/personal_tab/forms.py:114
+#: amelie/personal_tab/forms.py:115
 msgid "BIC is not required for a Dutch IBAN"
 msgstr "BIC is niet vereist bij een Nederlands IBAN."
 
@@ -9716,7 +9715,7 @@ msgid "Add mandate"
 msgstr "Voeg machtiging toe"
 
 #: amelie/members/templates/person_mandate.html:37
-#: amelie/personal_tab/forms.py:139
+#: amelie/personal_tab/forms.py:140
 #: amelie/personal_tab/templates/authorization/list.html:66
 #: amelie/personal_tab/templates/authorization/view.html:134
 #: amelie/personal_tab/templates/debt_collection/process_batch.html:47
@@ -9728,7 +9727,7 @@ msgstr "Kenmerk"
 
 #: amelie/members/templates/person_mandate.html:38
 #: amelie/members/templates/person_membership.html:46
-#: amelie/personal_tab/forms.py:151
+#: amelie/personal_tab/forms.py:152
 #: amelie/personal_tab/templates/authorization/list.html:67
 #: amelie/personal_tab/templates/authorization/view.html:17
 #: amelie/personal_tab/templates/info/account_information.html:13
@@ -9743,7 +9742,7 @@ msgid "IBAN/BIC"
 msgstr "IBAN/BIC"
 
 #: amelie/members/templates/person_mandate.html:40
-#: amelie/personal_tab/forms.py:141
+#: amelie/personal_tab/forms.py:142
 #: amelie/personal_tab/templates/authorization/view.html:41
 #: amelie/personal_tab/templates/info/account_information.html:15
 #: amelie/tools/pdf.py:393
@@ -10866,53 +10865,53 @@ msgstr "Je hebt de volgende informatie ingevoerd"
 msgid "Application Name"
 msgstr "Applicatienaam"
 
-#: amelie/personal_tab/debt_collection.py:100
+#: amelie/personal_tab/debt_collection.py:99
 #, python-brace-format
 msgid "Contribution Inter-Actief {membership_year} {membership_type} {name} Questions? Email treasurer@inter-actief.net"
 msgstr "Contributie Inter-Actief {membership_year} {membership_type} {name} Voor vragen bel 053-489 3756"
 
-#: amelie/personal_tab/debt_collection.py:159
+#: amelie/personal_tab/debt_collection.py:158
 #, python-brace-format
 msgid "Direct withdrawal of contribution {date}"
 msgstr "Incasso contributie {date}"
 
-#: amelie/personal_tab/debt_collection.py:160
+#: amelie/personal_tab/debt_collection.py:159
 #, python-brace-format
 msgid "Contribution {membership_type} ({begin_year}/{end_year})"
 msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
 
-#: amelie/personal_tab/debt_collection.py:223
+#: amelie/personal_tab/debt_collection.py:222
 #, python-brace-format
 msgid "Personal tab Inter-Actief till {date} {name} Questions? Email treasurer@inter-actief.net"
 msgstr "Streeplijst Inter-Actief tot {date} {name} Vragen? E-mail treasurer@inter-actief.net"
 
-#: amelie/personal_tab/debt_collection.py:288
+#: amelie/personal_tab/debt_collection.py:287
 #, python-brace-format
 msgid "Direct withdrawal personal tab {date}"
 msgstr "Incasso streeplijst {date}"
 
-#: amelie/personal_tab/debt_collection.py:316
+#: amelie/personal_tab/debt_collection.py:315
 #, python-brace-format
 msgid "Reversal of direct withdrawal {date}"
 msgstr "Terugboeking incasso {date}"
 
-#: amelie/personal_tab/debt_collection.py:328
+#: amelie/personal_tab/debt_collection.py:327
 #, python-brace-format
 msgid "Reversal contribution {membership_type} ({start_year}/{end_year})"
 msgstr "Terugboeking contributie {membership_type} ({start_year}/{end_year})"
 
-#: amelie/personal_tab/forms.py:55
+#: amelie/personal_tab/forms.py:56
 msgid "Description for within Inter-Actief"
 msgstr "Omschrijving voor Inter-Actief"
 
-#: amelie/personal_tab/forms.py:56
+#: amelie/personal_tab/forms.py:57
 #: amelie/personal_tab/templates/debt_collection/instruction_view.html:62
 #: amelie/personal_tab/templates/debt_collection/process_batch.html:20
 #: amelie/personal_tab/templates/debt_collection/view.html:60
 msgid "Date of execution"
 msgstr "Uitvoerdatum"
 
-#: amelie/personal_tab/forms.py:57
+#: amelie/personal_tab/forms.py:58
 #: amelie/personal_tab/templates/balance/balance.html:29
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:39
 #: amelie/personal_tab/templates/lists/transactions_totals.html:21
@@ -10921,203 +10920,203 @@ msgstr "Uitvoerdatum"
 msgid "Personal tab"
 msgstr "Streeplijst"
 
-#: amelie/personal_tab/forms.py:58
+#: amelie/personal_tab/forms.py:59
 msgid "Transactions until"
 msgstr "Transacties tot"
 
-#: amelie/personal_tab/forms.py:59
+#: amelie/personal_tab/forms.py:60
 #: amelie/personal_tab/templates/statistics/statistics.html:279
 msgid "Membership fee"
 msgstr "Contributie"
 
-#: amelie/personal_tab/forms.py:60
+#: amelie/personal_tab/forms.py:61
 msgid "Membership fee years"
 msgstr "Contributiejaren"
 
-#: amelie/personal_tab/forms.py:76
+#: amelie/personal_tab/forms.py:77
 msgid "Date of execution is too soon"
 msgstr "Uitvoerdatum is te vroeg"
 
-#: amelie/personal_tab/forms.py:78
+#: amelie/personal_tab/forms.py:79
 msgid "Date of execution cannot be during the weekend"
 msgstr "Uitvoerdatum kan niet in het weekend vallen"
 
-#: amelie/personal_tab/forms.py:86
+#: amelie/personal_tab/forms.py:87
 msgid "Please select at least one year for the contribution debt collection."
 msgstr "Selecteer ten minste 1 jaar voor de incassopoging voor contributie."
 
-#: amelie/personal_tab/forms.py:118 amelie/personal_tab/models.py:687
+#: amelie/personal_tab/forms.py:119 amelie/personal_tab/models.py:687
 msgid "Short description of the reason for the amendment"
 msgstr "Korte omschrijving reden van amendement"
 
-#: amelie/personal_tab/forms.py:133
+#: amelie/personal_tab/forms.py:134
 msgid "Not signed"
 msgstr "Niet getekend"
 
-#: amelie/personal_tab/forms.py:135
+#: amelie/personal_tab/forms.py:136
 msgid "Ended"
 msgstr "Beëindigd"
 
-#: amelie/personal_tab/forms.py:153
+#: amelie/personal_tab/forms.py:154
 msgid "Sort by"
 msgstr "Sorteer op"
 
-#: amelie/personal_tab/forms.py:154
+#: amelie/personal_tab/forms.py:155
 msgid "Sort in reverse"
 msgstr "Sorteer omgekeerd"
 
-#: amelie/personal_tab/forms.py:183
+#: amelie/personal_tab/forms.py:184
 msgid "Tables:"
 msgstr "Tabellen:"
 
-#: amelie/personal_tab/forms.py:191
+#: amelie/personal_tab/forms.py:192
 msgid "Find person"
 msgstr "Persoon zoeken"
 
-#: amelie/personal_tab/forms.py:201
+#: amelie/personal_tab/forms.py:202
 msgid "-- No printers available --"
 msgstr "-- Geen printers beschikbaar --"
 
-#: amelie/personal_tab/forms.py:207
+#: amelie/personal_tab/forms.py:208
 msgid "PDF Document"
 msgstr "PDF-document"
 
-#: amelie/personal_tab/forms.py:208
+#: amelie/personal_tab/forms.py:209
 msgid "Select a PDF document to print"
 msgstr "Selecteer een PDF-document om te printen"
 
-#: amelie/personal_tab/forms.py:212
+#: amelie/personal_tab/forms.py:213
 msgid "Printer"
 msgstr "Printer"
 
-#: amelie/personal_tab/forms.py:214
+#: amelie/personal_tab/forms.py:215
 msgid "Select the printer to use for printing"
 msgstr "Selecteer de printer die je wilt gebruiken om te printen"
 
-#: amelie/personal_tab/forms.py:218
+#: amelie/personal_tab/forms.py:219
 msgid "-- Pay via personal tab --"
 msgstr "-- Betalen via streeplijst --"
 
-#: amelie/personal_tab/forms.py:221
+#: amelie/personal_tab/forms.py:222
 msgid "Select a committee for free printing, or leave blank to pay for printing"
 msgstr "Selecteer een commissie om gratis te printen, of laat leeg om te betalen voor het printen"
 
-#: amelie/personal_tab/forms.py:225
+#: amelie/personal_tab/forms.py:226
 msgid "Copies"
 msgstr "Kopieën"
 
-#: amelie/personal_tab/forms.py:226
+#: amelie/personal_tab/forms.py:227
 msgid "Number of copies to print"
 msgstr "Aantal kopieën om te printen"
 
-#: amelie/personal_tab/forms.py:232
+#: amelie/personal_tab/forms.py:233
 msgid "Dual-sided printing"
 msgstr "Dubbelzijdig printen"
 
-#: amelie/personal_tab/forms.py:233
+#: amelie/personal_tab/forms.py:234
 msgid "Print both sides of the page. Leave unchecked for single-sided printing."
 msgstr "Print aan beide zijden van de pagina. Laat uitgevinkt voor enkelzijdig printen."
 
-#: amelie/personal_tab/forms.py:246
+#: amelie/personal_tab/forms.py:247
 #: amelie/personal_tab/templates/print/form.html:173
 msgid "Please select a PDF file."
 msgstr "Selecteer a.u.b. een PDF-bestand."
 
-#: amelie/personal_tab/forms.py:250
+#: amelie/personal_tab/forms.py:251
 msgid "Only PDF files are allowed."
 msgstr "Alleen PDF-bestanden zijn toegestaan."
 
-#: amelie/personal_tab/forms.py:255
+#: amelie/personal_tab/forms.py:256
 msgid "File size cannot exceed 50MB."
 msgstr "Bestand mag maximaal 50MB groot zijn."
 
-#: amelie/personal_tab/forms.py:266
+#: amelie/personal_tab/forms.py:267
 msgid "You are not a member of the committee you want to print for."
 msgstr "Je bent geen lid van de commissie waarvoor je probeert te printen."
 
-#: amelie/personal_tab/forms.py:270
+#: amelie/personal_tab/forms.py:271
 msgid "You do not have an active consumption mandate or are not a member anymore, so we cannot add the costs for this print to your personal tab. Contact the board for help."
 msgstr "Je hebt geen actieve streeplijstmachtiging of je bent geen lid meer, dus we kunnen de kosten van deze printopdracht niet van je streeplijst afschrijven. Neem contact op met het bestuur voor hulp."
 
-#: amelie/personal_tab/forms.py:330
+#: amelie/personal_tab/forms.py:331
 msgid "Printing article not found. Please contact the WWW committee."
 msgstr "Printartikel niet gevonden. Neem a.u.b. contact op met de WWW-commissie."
 
-#: amelie/personal_tab/forms.py:381
+#: amelie/personal_tab/forms.py:382
 msgid "My committees"
 msgstr "Mijn commissies"
 
-#: amelie/personal_tab/forms.py:385
+#: amelie/personal_tab/forms.py:386
 msgid "Other committees"
 msgstr "Andere commissies"
 
-#: amelie/personal_tab/forms.py:402
+#: amelie/personal_tab/forms.py:403
 msgid "-- No Committee --"
 msgstr "-- Geen commissie --"
 
-#: amelie/personal_tab/forms.py:405
+#: amelie/personal_tab/forms.py:406
 msgid "Select a committee for which this declaration is, or leave blank and specify in the description."
 msgstr "Selecteer een commissie waar deze declaratie voor is, of laat het leeg en leg uit waar het voor is in de omschrijving."
 
-#: amelie/personal_tab/forms.py:410 amelie/tools/pdf.py:568
+#: amelie/personal_tab/forms.py:411 amelie/tools/pdf.py:568
 msgid "Payment Method"
 msgstr "Betalingsmethode"
 
-#: amelie/personal_tab/forms.py:411
+#: amelie/personal_tab/forms.py:412
 msgid "Select how you paid for the expense."
 msgstr "Selecteer hoe je hebt betaald voor de uitgave."
 
-#: amelie/personal_tab/forms.py:417
+#: amelie/personal_tab/forms.py:418
 msgid "Select your IBAN for payment."
 msgstr "Selecteer je IBAN voor betaling."
 
-#: amelie/personal_tab/forms.py:422
+#: amelie/personal_tab/forms.py:423
 msgid "Fill in your IBAN if it is not listed above."
 msgstr "Vul je IBAN in als deze niet hierboven staat."
 
-#: amelie/personal_tab/forms.py:428
+#: amelie/personal_tab/forms.py:429
 msgid "Enter the amount of your declaration in euro's."
 msgstr "Vul het bedrag in van je declaratie, in euros."
 
-#: amelie/personal_tab/forms.py:436
+#: amelie/personal_tab/forms.py:437
 msgid "Enter the description for your declaration."
 msgstr "Vul een omschrijving in voor je declaratie."
 
-#: amelie/personal_tab/forms.py:442
+#: amelie/personal_tab/forms.py:443
 msgid "Select documents to attach to the declaration."
 msgstr "Selecteer documenten om toe te voegen aan de declaratie."
 
-#: amelie/personal_tab/forms.py:458
+#: amelie/personal_tab/forms.py:459
 msgid "-- Other --"
 msgstr "-- Anders --"
 
-#: amelie/personal_tab/forms.py:468
+#: amelie/personal_tab/forms.py:469
 #, python-brace-format
 msgid "You can upload a maximum of {max_files} files."
 msgstr "Je kunt maximaal {max_files} bestanden uploaden."
 
-#: amelie/personal_tab/forms.py:474
+#: amelie/personal_tab/forms.py:475
 #, python-brace-format
 msgid "The total file size cannot exceed {max_size} MB."
 msgstr "De totale bestandsgrootte mag maximaal %(max_size)s MB zijn."
 
-#: amelie/personal_tab/forms.py:490
+#: amelie/personal_tab/forms.py:491
 msgid "Please select either an IBAN from the list or enter a custom IBAN, not both."
 msgstr "Selecteer ofwel een IBAN uit de lijst, of vul er zelf een in, niet beide."
 
-#: amelie/personal_tab/forms.py:496
+#: amelie/personal_tab/forms.py:497
 msgid "Please select an IBAN from the list or enter a custom IBAN."
 msgstr "Selecteer een IBAN uit de lijst, of vul zelf een IBAN in."
 
-#: amelie/personal_tab/forms.py:501
+#: amelie/personal_tab/forms.py:502
 msgid "The amount cannot be zero."
 msgstr "Het bedrag kan niet nul zijn."
 
-#: amelie/personal_tab/forms.py:506
+#: amelie/personal_tab/forms.py:507
 msgid "The amount must be a positive number."
 msgstr "Het bedrag moet positief zijn."
 
-#: amelie/personal_tab/forms.py:511
+#: amelie/personal_tab/forms.py:512
 msgid "Please provide a description for your declaration."
 msgstr "Vul een omschrijving in voor je declaratie."
 
@@ -11208,7 +11207,6 @@ msgstr "Transactie"
 
 #: amelie/personal_tab/models.py:148
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:33
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:4
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:4
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:9
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:28
@@ -11227,7 +11225,8 @@ msgid "More sign up options"
 msgstr "Met inschrijfopties"
 
 #: amelie/personal_tab/models.py:209 amelie/personal_tab/models.py:311
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:15
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:21
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:64
 #: amelie/personal_tab/templates/lists/cookie_corner_transactions.html:11
 #: amelie/personal_tab/templates/statistics/statistics.html:55
 #: amelie/personal_tab/templates/statistics/statistics.html:143
@@ -11254,7 +11253,8 @@ msgid "Image"
 msgstr "Afbeelding"
 
 #: amelie/personal_tab/models.py:298
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:17
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:23
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:66
 #: amelie/personal_tab/templates/lists/cookie_corner_transactions.html:15
 #: amelie/personal_tab/templates/lists/transactions.html:13
 #: amelie/personal_tab/templates/lists/transactions_totals.html:27
@@ -12069,6 +12069,42 @@ msgstr "Saldo"
 msgid "Select a period and click Balance."
 msgstr "Selecteer een periode en klik op Balans."
 
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:6
+#, fuzzy
+#| msgid "articles"
+msgid "Edit article"
+msgstr "artikelen"
+
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:8
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:20
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:33
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:12
+#, fuzzy
+#| msgid "Article"
+msgid "Add article"
+msgstr "Artikel"
+
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:16
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                                %(time)s ago\n"
+#| "                            "
+msgid ""
+"\n"
+"                        Edit %(name)s\n"
+"                    "
+msgstr ""
+"\n"
+"                                %(time)s geleden\n"
+"                            "
+
+#: amelie/personal_tab/templates/cookie_corner_article_form.html:31
+#, fuzzy
+#| msgid "Save page"
+msgid "Save changes"
+msgstr "Pagina opslaan"
+
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:4
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:9
 #, python-format
@@ -12157,7 +12193,8 @@ msgid "Personal overview"
 msgstr "Persoonlijk overzicht"
 
 #: amelie/personal_tab/templates/cookie_corner_overview.html:16
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:8
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:4
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:9
 msgid "Price list"
 msgstr "Prijslijst"
 
@@ -12179,9 +12216,46 @@ msgstr "Incasso-opdrachten  (SEPA)"
 msgid "Unpaid memberships"
 msgstr "Onbetaalde lidmaatschappen"
 
-#: amelie/personal_tab/templates/cookie_corner_price_list.html:18
-msgid "kCal/euro"
-msgstr "kCal/euro"
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:22
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:65
+#, fuzzy
+#| msgid "Price"
+msgid "Price (€)"
+msgstr "Prijs"
+
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:24
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:67
+#, fuzzy
+#| msgid "kCal"
+msgid "kCal/€"
+msgstr "kCal"
+
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:57
+#, fuzzy
+#| msgid "news articles"
+msgid "Inactive articles"
+msgstr "nieuwsartikelen"
+
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:82
+#, fuzzy
+#| msgid "reversal"
+msgid "never"
+msgstr "terugboeking"
+
+#: amelie/personal_tab/templates/cookie_corner_price_list.html:83
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                                                (&euro; %(per_page_cost)s per page)\n"
+#| "                                            "
+msgid ""
+"\n"
+"                                                (last used: %(last_used_date)s)\n"
+"                                            "
+msgstr ""
+"\n"
+"                                                (&euro; %(per_page_cost)s per pagina)\n"
+"                                            "
 
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:21
 #: amelie/personal_tab/templates/cookie_corner_transactions_form.html:21
@@ -13655,88 +13729,88 @@ msgstr "Uitschrijven {activity}"
 msgid "Sale {category}::{article}"
 msgstr "Verkoop {category}::{article}"
 
-#: amelie/personal_tab/views.py:498 amelie/personal_tab/views.py:971
-#: amelie/personal_tab/views.py:1002 amelie/personal_tab/views.py:1112
+#: amelie/personal_tab/views.py:543 amelie/personal_tab/views.py:1016
+#: amelie/personal_tab/views.py:1047 amelie/personal_tab/views.py:1157
 msgid "Invalid date`"
 msgstr "Ongeldige datum"
 
-#: amelie/personal_tab/views.py:546 amelie/personal_tab/views.py:554
-#: amelie/personal_tab/views.py:584 amelie/personal_tab/views.py:593
+#: amelie/personal_tab/views.py:591 amelie/personal_tab/views.py:599
+#: amelie/personal_tab/views.py:629 amelie/personal_tab/views.py:638
 msgid "No members were selected."
 msgstr "Er zijn geen leden geselecteerd."
 
-#: amelie/personal_tab/views.py:570
+#: amelie/personal_tab/views.py:615
 msgid "The membership fees have been forgiven."
 msgstr "De contributie is kwijtgescholden."
 
-#: amelie/personal_tab/views.py:676 amelie/personal_tab/views.py:1867
+#: amelie/personal_tab/views.py:721 amelie/personal_tab/views.py:1912
 msgid "The e-mails are now being sent one by one. This happens in a background process, so it may take a while."
 msgstr "De e-mails worden nu een voor een verstuurd. Dit gebeurt in een achtergrondproces en kan even duren."
 
-#: amelie/personal_tab/views.py:785
+#: amelie/personal_tab/views.py:830
 msgid "Transaction not editable."
 msgstr "Transactie niet te wijzigen"
 
-#: amelie/personal_tab/views.py:810
+#: amelie/personal_tab/views.py:855
 #, python-brace-format
 msgid "The transaction '{transaction}' has been successfully deleted."
 msgstr "De transactie '{transaction}' is met success verwijderd."
 
-#: amelie/personal_tab/views.py:817
+#: amelie/personal_tab/views.py:862
 msgid "Transaction not deletable."
 msgstr "Transactie niet te verwijderen"
 
-#: amelie/personal_tab/views.py:905 amelie/personal_tab/views.py:1069
+#: amelie/personal_tab/views.py:950 amelie/personal_tab/views.py:1114
 msgid "Invalid date"
 msgstr "Ongeldige datum"
 
-#: amelie/personal_tab/views.py:1066
+#: amelie/personal_tab/views.py:1111
 msgid "Invalid statistics list"
 msgstr "Ongeldige statistiekenlijst"
 
-#: amelie/personal_tab/views.py:1301
+#: amelie/personal_tab/views.py:1346
 msgid "End inactive mandates."
 msgstr "Inactieve machtigingen beëindigd."
 
-#: amelie/personal_tab/views.py:1356
+#: amelie/personal_tab/views.py:1401
 msgid "This mandate is terminated, so an amendment cannot be made"
 msgstr "Deze machtiging is beëindigd, dus er kan geen amendenemt worden aangemaakt"
 
-#: amelie/personal_tab/views.py:1359
+#: amelie/personal_tab/views.py:1404
 msgid "This mandate is not signed, so an amendment cannot be made"
 msgstr "Deze machtiging is niet getekend, dus er kan geen amendenemt worden aangemaakt"
 
-#: amelie/personal_tab/views.py:1362
+#: amelie/personal_tab/views.py:1407
 msgid "This mandate already has an ongoing amendment"
 msgstr "Deze machtiging heeft al een amendement in behandeling"
 
-#: amelie/personal_tab/views.py:1389 amelie/personal_tab/views.py:1425
+#: amelie/personal_tab/views.py:1434 amelie/personal_tab/views.py:1470
 msgid "This amendment does not belong to this authorization"
 msgstr "Dit amendement hoort niet bij deze machtiging"
 
-#: amelie/personal_tab/views.py:1392 amelie/personal_tab/views.py:1428
+#: amelie/personal_tab/views.py:1437 amelie/personal_tab/views.py:1473
 msgid "This amendment is not editable"
 msgstr "Dit amendement kan niet worden aangepast"
 
-#: amelie/personal_tab/views.py:1628
+#: amelie/personal_tab/views.py:1673
 msgid "Reversal already exists"
 msgstr "Terugboeking bestaat al"
 
-#: amelie/personal_tab/views.py:1654 amelie/personal_tab/views.py:1686
+#: amelie/personal_tab/views.py:1699 amelie/personal_tab/views.py:1731
 msgid "Reversal does not exist"
 msgstr "Terugboeking bestaat niet"
 
-#: amelie/personal_tab/views.py:1843 amelie/personal_tab/views.py:1937
+#: amelie/personal_tab/views.py:1888 amelie/personal_tab/views.py:1982
 #: amelie/room_duty/templates/room_duty/pool/persons_change.html:52
 #: amelie/room_duty/templates/room_duty/table/change_persons.html:52
 msgid "Found nobody."
 msgstr "Geen personen gevonden."
 
-#: amelie/personal_tab/views.py:2274
+#: amelie/personal_tab/views.py:2319
 msgid "Declaration was submitted successfully."
 msgstr "Declaratie is succesvol verstuurd."
 
-#: amelie/personal_tab/views.py:2279
+#: amelie/personal_tab/views.py:2324
 #, python-brace-format
 msgid "Error while submitting declaration: {ex}"
 msgstr "Fout bij het versturen van de declaratie: {ex}"
@@ -16481,55 +16555,3 @@ msgstr "Log uit en ga terug"
 #: templates/slider.html:7
 msgid "Add photos"
 msgstr "Foto's toevoegen"
-
-#~ msgid "Educational bouquet"
-#~ msgstr "Onderwijsbloemetje"
-
-#~ msgid "Export list of direct withdrawals"
-#~ msgstr "Incassolijst exporteren"
-
-#~ msgid "Select a period and click export."
-#~ msgstr "Selecteer een periode en klik op exporteren."
-
-#~ msgid "Export"
-#~ msgstr "Exporteren"
-
-#~ msgid "Deprecated pages"
-#~ msgstr "Verouderde pagina's"
-
-#~ msgid "Export list of direct withdrawals (ClieOp)"
-#~ msgstr "Incassolijst exporteren (ClieOp)"
-
-#~ msgid "Number negative balance"
-#~ msgstr "Aantal negatief saldo:"
-
-#~ msgid "Number exported:"
-#~ msgstr "Aantal geëxporteerd:"
-
-#~ msgid "Export to CSV"
-#~ msgstr "CSV exporteren"
-
-#~ msgid "has a negative balance"
-#~ msgstr "heeft een negatief saldo"
-
-#~ msgid "People with a negative balnce will NOT be exported."
-#~ msgstr "Personen met negative saldo worden NIET geëxporteerd."
-
-#~ msgid "No people with a negative balance."
-#~ msgstr "Geen personen met negatief saldo."
-
-#~ msgid "Exam credit"
-#~ msgstr "Tentamenkoeken"
-
-#, python-format
-#~ msgid ""
-#~ "\n"
-#~ "                    Because you have submitted an exam paper, you may spend %(credit)s on consumptions.\n"
-#~ "                "
-#~ msgstr ""
-#~ "\n"
-#~ "                    Omdat je tentamens hebt ingeleverd, mag je nog voor %(credit)s aan consumpties kopen.\n"
-#~ "                "
-
-#~ msgid "You have no exam credit."
-#~ msgstr "Je hebt geen tentamenkoekentegoed."
