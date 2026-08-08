@@ -17,7 +17,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import get_language, gettext_lazy as _l
 from django.db import transaction
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q, Count, Subquery, OuterRef
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
@@ -105,7 +105,37 @@ def price_list(request):
         category.update({'articles': articles})
         categories.append(category)
 
-    return render(request, 'cookie_corner_price_list.html', {'categories': categories})
+    inactive_products_categories = []
+    if request.is_board:
+        all_categories_queryset = Category.objects.all()
+        if get_language() == 'en':
+            all_categories_queryset = all_categories_queryset.order_by('order', 'name_en')
+
+        for category_obj in all_categories_queryset:
+            category = {'id': category_obj.id, 'name': category_obj.name}
+            inactive_articles_queryset = category_obj.article_set.filter(is_available=False).annotate(
+                last_used=Subquery(CookieCornerTransaction.objects.filter(
+                    article=OuterRef("id"),
+                ).order_by("-date").values('date')[:1])
+            ).order_by('-last_used')
+
+            if get_language() == 'en':
+                inactive_articles_queryset = inactive_articles_queryset.order_by('name_en')
+
+            articles = []
+            for article in inactive_articles_queryset:
+                kcal_per_euro = article.kcal // article.price if article.kcal is not None and article.price else None
+                last_used_transaction = article.cookiecornertransaction_set.order_by('date').last()
+                last_used = None
+                if last_used_transaction:
+                    last_used = last_used_transaction.date
+                articles.append({'article': article, 'kcal_per_euro': kcal_per_euro})
+            category.update({'articles': articles})
+            inactive_products_categories.append(category)
+
+    return render(request, 'cookie_corner_price_list.html', {
+        'categories': categories, 'inactive_products_categories': inactive_products_categories
+    })
 
 class ArticleCreate(RequireBoardMixin, CreateView):
     model = Article
