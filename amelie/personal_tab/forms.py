@@ -19,8 +19,9 @@ from amelie.members.models import Membership, Person, Committee
 from amelie.members.forms import clean_iban_and_bic
 from amelie.personal_tab.transactions import cookie_corner_sale
 from amelie.personal_tab import statistics
-from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, Declaration, RFIDCard, Reversal, AuthorizationType, \
-    DebtCollectionBatch, Authorization
+from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, Declaration, RFIDCard, Reversal, \
+    AuthorizationType, \
+    DebtCollectionBatch, Authorization, Article, Category
 from amelie.tools.http import get_client_ips
 from amelie.tools.ipp_printer import IPPPrinter
 from amelie.tools.widgets import DateSelector, DateTimeSelector, MemberSelect
@@ -559,3 +560,24 @@ class DeclarationForm(forms.Form):
                                     headers={'Reply-To': settings.TREASURER_EMAIL}, attachments=attachments))
 
         task.send()
+
+class ArticleForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = [
+            "name_nl",
+            "name_en",
+            "category",
+            "ledger_account",
+            "price",
+            "is_available",
+            "image",
+            "kcal",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["category"].queryset = Category.objects.filter(
+            is_available=True
+        )

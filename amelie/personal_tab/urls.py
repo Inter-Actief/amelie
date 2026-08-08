@@ -15,6 +15,8 @@ urlpatterns = [
     path('', views.overview, name='overview'),
 
     path('price_list/', views.price_list, name='price_list'),
+    path('price_list/articles/new', views.ArticleCreate.as_view(), name='price_list_article_new'),
+    path('price_list/articles/<int:pk>/edit', views.ArticleUpdate.as_view(), name='price_list_article_edit'),
 
     # Short URL to a person's own dashboard
     path('me/', views.my_dashboard, name='my_dashboard'),
