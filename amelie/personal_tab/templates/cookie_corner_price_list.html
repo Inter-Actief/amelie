@@ -1,32 +1,45 @@
 {% extends "basis.html" %}
 {% load i18n %}
 
-{% block titel %}{% trans 'Transactions' %}{% endblock titel %}
+{% block titel %}{% trans 'Price list' %}{% endblock titel %}
 
 {% block content %}
     <div class="col-xs-12"><div class="ia">
-        <h2>{% trans 'Price list' %}</h2>
+        <h2 class="h2-with-buttons">
+            <span>{% trans "Price list" %}</span>
+            {% if request.is_board %}
+                <a class="looks-like-a-button" href="{% url 'personal_tab:price_list_article_new' %}">
+                    {% trans "Add article" %}
+                </a>
+            {% endif %}
+        </h2>
         <div class="content">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>{% trans 'Category' %}</th>
                             <th>{% trans 'Article' %}</th>
-                            <th class="align-right">{% trans 'Price' %}</th>
+                            <th class="align-right">{% trans 'Price (€)' %}</th>
                             <th class="align-right">{% trans 'kCal' %}</th>
-                            <th class="align-right">{% trans 'kCal/euro' %}</th>
+                            <th class="align-right">{% trans 'kCal/€' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for cat in categories %}
                             <tr>
-                                <td colspan="5"><h3>{{ cat.name }}</h3></td>
+                                <td colspan="4"><h3>{{ cat.name }}</h3></td>
                             </tr>
                             {% for article in cat.articles %}
                                 <tr>
-                                    <td></td>
-                                    <td>{{ article.article.name }}</td>
+                                    <td>
+                                        {% if request.is_board %}
+                                        <a href="{% url 'personal_tab:price_list_article_edit' pk=article.article.pk %}">
+                                            {{ article.article.name }}
+                                        </a>
+                                        {% else %}
+                                            {{ article.article.name }}
+                                        {% endif %}
+                                    </td>
                                     <td class="align-right">{{ article.article.price }}</td>
                                     <td class="align-right">{{ article.article.kcal|default_if_none:"-" }} </td>
                                     <td class="align-right">{{ article.kcal_per_euro|default_if_none:"-" }}</td>
@@ -38,4 +51,50 @@
             </div>
         </div>
     </div></div>
+    {% if request.is_board %}
+        <div class="col-xs-12"><div class="ia">
+            <h2 id="inactive_articles" class="expand h2-with-buttons" data-target="expand_inactive_articles">
+                {% trans "Inactive articles" %}
+            </h2>
+            <div hidden id="expand_inactive_articles" class="content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Article' %}</th>
+                                <th class="align-right">{% trans 'Price (€)' %}</th>
+                                <th class="align-right">{% trans 'kCal' %}</th>
+                                <th class="align-right">{% trans 'kCal/€' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in inactive_products_categories %}
+                                {% if cat.articles %}
+                                <tr>
+                                    <td colspan="4"><h3>{{ cat.name }}</h3></td>
+                                </tr>
+                                {% for article in cat.articles %}
+                                    <tr>
+                                        <td>
+                                            <a style="color: gray !important;" href="{% url 'personal_tab:price_list_article_edit' pk=article.article.pk %}">
+                                                {{ article.article.name }}
+                                            </a>
+                                            {% trans 'never' as never_str %}
+                                            <small>{% blocktrans with last_used_date=article.article.last_used|date:"Y-m-d"|default:never_str %}
+                                                (last used: {{ last_used_date }})
+                                            {% endblocktrans %}</small>
+                                        </td>
+                                        <td class="align-right">{{ article.article.price }}</td>
+                                        <td class="align-right">{{ article.article.kcal|default_if_none:"-" }} </td>
+                                        <td class="align-right">{{ article.kcal_per_euro|default_if_none:"-" }}</td>
+                                    </tr>
+                                {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div></div>
+    {% endif %}
 {% endblock content %}

@@ -16,16 +16,16 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import gettext_lazy as _l
 from django.db import transaction
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q, Count, Subquery, OuterRef
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden, HttpResponseNotAllowed
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import formats, timezone, translation
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _l
 from django.utils.translation import gettext as _, get_language
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.views.generic.edit import FormView
@@ -38,18 +38,16 @@ from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
     DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, \
-    AuthorizationSelectForm, \
-    StatisticsForm, DeclarationForm, ManualPaymentSettlementForm, ManualPaymentTransactionFormSet
-from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, \
-    generate_contribution_instructions, filter_contribution_instructions, save_contribution_instructions, \
-    generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
+    AuthorizationSelectForm, StatisticsForm, DeclarationForm, ManualPaymentSettlementForm, \
+    ManualPaymentTransactionFormSet, ArticleForm
+from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
+    save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
 from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, \
-    ActivityTransaction, \
-    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, \
-    DiscountCredit, \
-    DebtCollectionInstruction, ReversalTransaction, ManualPaymentSettlement, SettlementManualPaymentTransaction, \
-    SettlementExtraBalanceTransaction, DebtCollectionTransaction, ContributionTransaction, PaymentMethod
+    ActivityTransaction, CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, \
+    DebtCollectionBatch, DiscountCredit, DebtCollectionInstruction, ReversalTransaction, ManualPaymentSettlement, \
+    SettlementManualPaymentTransaction, SettlementExtraBalanceTransaction, DebtCollectionTransaction, \
+    ContributionTransaction, PaymentMethod, Article
 from amelie.personal_tab.statistics import get_functions, statistics_totals
 from amelie.personal_tab.transactions import exam_cookie_discount, \
     exam_cookie_credit as transactions_exam_cookie_credit, add_exam_cookie_credit
@@ -107,8 +105,49 @@ def price_list(request):
         category.update({'articles': articles})
         categories.append(category)
 
-    return render(request, 'cookie_corner_price_list.html', {'categories': categories})
+    inactive_products_categories = []
+    if request.is_board:
+        all_categories_queryset = Category.objects.all()
+        if get_language() == 'en':
+            all_categories_queryset = all_categories_queryset.order_by('order', 'name_en')
 
+        for category_obj in all_categories_queryset:
+            category = {'id': category_obj.id, 'name': category_obj.name}
+            inactive_articles_queryset = category_obj.article_set.filter(is_available=False).annotate(
+                last_used=Subquery(CookieCornerTransaction.objects.filter(
+                    article=OuterRef("id"),
+                ).order_by("-date").values('date')[:1])
+            ).order_by('-last_used')
+
+            if get_language() == 'en':
+                inactive_articles_queryset = inactive_articles_queryset.order_by('name_en')
+
+            articles = []
+            for article in inactive_articles_queryset:
+                kcal_per_euro = article.kcal // article.price if article.kcal is not None and article.price else None
+                last_used_transaction = article.cookiecornertransaction_set.order_by('date').last()
+                last_used = None
+                if last_used_transaction:
+                    last_used = last_used_transaction.date
+                articles.append({'article': article, 'kcal_per_euro': kcal_per_euro})
+            category.update({'articles': articles})
+            inactive_products_categories.append(category)
+
+    return render(request, 'cookie_corner_price_list.html', {
+        'categories': categories, 'inactive_products_categories': inactive_products_categories
+    })
+
+class ArticleCreate(RequireBoardMixin, CreateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = "cookie_corner_article_form.html"
+    success_url = reverse_lazy('personal_tab:price_list')
+
+class ArticleUpdate(RequireBoardMixin, UpdateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = "cookie_corner_article_form.html"
+    success_url = reverse_lazy('personal_tab:price_list')
 
 def generate_overview(request, person, date_from=None, date_to=None):
     """

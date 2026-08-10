@@ -37,7 +37,7 @@ dependencies = [
     "django-formtools>=2.4,<2.8",
     "django-betterforms>=3.0.0,<3.1",
     "django-auditlog>=3.4.1,<3.5",
-    "django-oauth-toolkit>=1.7.1,<3.3",
+    "django-oauth-toolkit>=1.7.1,<3.4",
     "django-cors-headers>=3.13.0,<4.10",
     "django-colorfield",
     "django-environ>=0.13.0,<0.15",
@@ -55,7 +55,7 @@ dependencies = [
     # GraphQL API
     "graphene-django",
     "django-graphql-jwt",
-    "django-filter>=25.2,<26",
+    "django-filter>=25.2,<27",
     "graphene-django-extras",
 
     # Used for stripping Markdown notations and indexing the IA Summary website.
@@ -71,7 +71,7 @@ dependencies = [
     "mysqlclient>=2.2.8",
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
-    "Pillow>=12.1.1,<12.3",
+    "Pillow>=12.1.1,<12.4",
     "python-gitlab>=8.1.0,<8.5",
     "python-dateutil>=2.9.0,<2.10",
 
@@ -100,7 +100,7 @@ dependencies = [
 
     # Google API Client
     "google-api-python-client>=2.192.0,<3",
-    "google-auth>=2.49.1,<2.54",
+    "google-auth>=2.49.1,<2.57",
     "pyOpenSSL>=26.0.0,<26.4.0",
 
     # Development
