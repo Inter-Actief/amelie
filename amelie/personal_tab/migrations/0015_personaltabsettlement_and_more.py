@@ -189,7 +189,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('members', '0023_documenso_id_signed_document'),
-        ('personal_tab', '0013_authorization_documenso_id_and_more'),
+        ('personal_tab', '0014_pendingregistertoken'),
     ]
 
     operations = [
