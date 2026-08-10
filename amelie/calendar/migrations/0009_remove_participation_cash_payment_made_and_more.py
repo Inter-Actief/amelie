@@ -200,7 +200,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('calendar', '0008_alter_event_participants'),
-        ('personal_tab', '0014_personaltabsettlement_and_more'),
+        ('personal_tab', '0015_personaltabsettlement_and_more'),
         ('activities', '0013_activity_enrollment_private')
     ]
 

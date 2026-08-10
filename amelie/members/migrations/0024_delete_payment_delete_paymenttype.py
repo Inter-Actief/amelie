@@ -213,7 +213,7 @@ def forwards(apps, schema_editor):
                 if hasattr(membership, 'payment') and membership.payment.payment_type != authorization_payment_type:
                     unpaid_transactions = membership.contributiontransaction_set.filter(price__gt=0, settlement=None)
                     if unpaid_transactions.exists():
-                        # Must exist due to being created in migration personal_tab.0014_personaltabsettlement_and_more
+                        # Must exist due to being created in migration personal_tab.0015_personaltabsettlement_and_more
                         payment_method = PaymentMethod.objects.get(name_en=membership.payment.payment_type.name)
                         if membership.payment.date:
                             transaction_date = datetime.datetime.combine(
@@ -283,7 +283,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('members', '0023_documenso_id_signed_document'),
-        ('personal_tab', '0014_personaltabsettlement_and_more'),
+        ('personal_tab', '0015_personaltabsettlement_and_more'),
     ]
 
     operations = [
