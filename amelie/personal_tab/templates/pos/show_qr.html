@@ -6,9 +6,15 @@
         <div id="header">
             <div id="header-logo"></div>
             <div id="header-logout-button">
-                <a href="{% url 'personal_tab:pos_logout' %}">
-                    <span id="scan-header">{% trans 'Return to home' %}</span>
-                </a>
+                {% if register_mode %}
+                    <a href="{% url 'personal_tab:register_logout' %}">
+                        <span id="scan-header">{% trans 'Return to home' %}</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'personal_tab:pos_logout' %}">
+                        <span id="scan-header">{% trans 'Return to home' %}</span>
+                    </a>
+                {% endif %}
             </div>
             {% if beta_mode %}<div id="beta-warning">{% trans 'THIS COOKIE CORNER IS RUNNING IN BETA MODE. PLEASE DO NOT BUY ANYTHING.' %}</div>{% endif %}
         </div>
@@ -45,10 +51,18 @@
 
 {% block javascript_pre %}
     <script type="text/javascript">
-        var logoutURL = "{% url 'personal_tab:pos_logout' %}";
-        var tokenCheckURL = null;
-        {% if token %}
-        tokenCheckURL = "{% url 'personal_tab:pos_check' uuid=token.token %}";
+        {% if register_mode %}
+            var logoutURL = "{% url 'personal_tab:register_logout' %}";
+            var tokenCheckURL = null;
+            {% if token %}
+            tokenCheckURL = "{% url 'personal_tab:register_check' uuid=token.token %}";
+            {% endif %}
+        {% else %}
+            var logoutURL = "{% url 'personal_tab:pos_logout' %}";
+            var tokenCheckURL = null;
+            {% if token %}
+            tokenCheckURL = "{% url 'personal_tab:pos_check' uuid=token.token %}";
+            {% endif %}
         {% endif %}
     </script>
 {% endblock %}

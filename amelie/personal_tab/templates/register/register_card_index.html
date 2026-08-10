@@ -3,34 +3,65 @@
 
 {% block titel %}{% trans 'Register an RFID card' %}{% endblock titel %}
 
+{% block head %}
+    <script type="text/javascript">
+        Settings = {
+            onopen: function (event) {
+                console.log('Connected with websocket!');
+                Display.set('{% trans 'Please scan your card now...' %}');
+            },
+            onerror: function (event) {
+                console.log('Failed to connect with websocket, warning user.');
+                Display.set('{% trans 'Connection with NFC-reader failed.' %}');
+            },
+            onmessage: function (event) {
+                var rfid = JSON.parse(event.data);
+                Settings.action(rfid);
+            },
+            action: function (rfid) {
+                console.log('Received action!');
+                try {
+                    rfid_string = rfid_to_identifier(rfid);
+                    Display.set('{% trans 'Scanned card, please wait...' %}');
+                    sumbit_form(rfid_string);
+                } catch (err) {
+                    if (err.message === "atqa/sak combination unknown"){
+                        Display.set('{% trans 'Card type is unknown. Please use normal RFID cards like your college card or public transport card.' %}');
+                    }else {
+                        Display.set('{% trans 'Error, could not scan card.' %}');
+                    }
+                    console.log("Error: "+err.message);
+                }
+            }
+        }
+        window.onload = function() {
+            let params = new URLSearchParams(document.location.search);
+            let tag = params.get("tag");
+            if (tag && typeof tag == "string") {
+                 Display.set('{% trans 'Received card, please wait...' %}');
+                 sumbit_form(tag);
+            }
+        }
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/juliana_rfid.js"></script>
+{% endblock %}
+
 {% block content %}
     <div class="col-xs-12"><div class="ia">
         <h2>{% trans 'Register an RFID card' %}</h2>
         <div class="content">
-            <h3>{% trans 'Log in to register a card' %}</h3>
+            <h3 id="display">{% trans 'Connecting to card reader...' %}</h3>
 
-            <p>{% trans 'You can log on with your student account (for example: s0123456) or your Inter-<em>Actief</em> account.' %}</p>
-
-            <form class="big" method="post" action="">
-
-                <div id="login_elements">
-                    {% csrf_token %}
-                    <div class="form-row">
-                        <label for="id_username">{% trans 'Username' %}:</label>
-                        <input type="text" name="username" value="" autofocus="" required="" maxlength="254" id="id_username">
-                    </div>
-                    <div class="form-row">
-                        <label for="id_password">{% trans 'Password' %}:</label>
-                        <input type="password" name="password" required="" id="id_password">
-                    </div>
-
-                    <div class="buttons">
-                        <input type="submit" value="{% trans 'Log in' %}">
-                    </div>
-                </div>
+             <form id="rfid-form" method="post" action="{% url 'personal_tab:register_process' %}">
+                {% csrf_token %}
+                <input name="tag" id="rfid-form-tag" type="hidden" value="">
             </form>
-
-            <div class="clearfix"></div>
+            <p>
+                {% blocktrans %}
+                    By registering your card, you can use it to make purchases in the Cookie Corner or at our drinks.
+                {% endblocktrans %}
+            </p>
+{#            <p><a class="looks-like-a-button" href="{% url "personal_tab:register_index" %}">{% trans 'Go back' %}</a></p>#}
         </div>
     </div></div>
 {% endblock content %}

@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
-from amelie.personal_tab import pos_views, views, register, print_views
+from amelie.personal_tab import pos_views, views, register_views, print_views
 from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
@@ -125,8 +125,12 @@ urlpatterns = [
     path('pos/scan_external/', pos_views.PosScanExternalCardView.as_view(), name='pos_scan_external'),
 
     # RFID card registration views
-    path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
-    path('register/scan/', register.CardRegistrationScan.as_view(), name='register_scan'),
+    path('register/', register_views.CardRegistrationIndex.as_view(), name='register_index'),
+    path('register/process_rfid/', register_views.RegisterProcessRFIDView.as_view(), name='register_process'),
+    path('register/user_logout/', register_views.RegisterLogoutView.as_view(), name='register_logout'),
+    path('register/qr/', register_views.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
+    path('register/verify/<uuid:uuid>/', register_views.RegisterVerifyTokenView.as_view(), name='register_verify'),
+    path('register/login_check/<uuid:uuid>/', register_views.RegisterCheckLoginAjaxView.as_view(), name='register_check'),
 
     # Document printing views
     path('print/', print_views.PrintIndexView.as_view(), name='print_index'),
