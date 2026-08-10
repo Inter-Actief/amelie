@@ -74,8 +74,7 @@ def generate_contribution_instructions(years):
 
     The DebtCollectionInstruction objects that are returned are not saved yet.
     """
-    memberships = Membership.objects.filter(Q(ended__gt=datetime.date.today()) | Q(ended__isnull=True),
-                                            payment__isnull=True, type__price__gt=0, year__in=years)
+    memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year__in=years)
     
     result = {
         'ongoing_frst': [],

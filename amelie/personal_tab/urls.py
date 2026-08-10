@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
-from amelie.personal_tab import pos_views, views, register, print_views
+from amelie.personal_tab import pos_views, views, register_views, print_views
 from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
@@ -15,6 +15,8 @@ urlpatterns = [
     path('', views.overview, name='overview'),
 
     path('price_list/', views.price_list, name='price_list'),
+    path('price_list/articles/new', views.ArticleCreate.as_view(), name='price_list_article_new'),
+    path('price_list/articles/<int:pk>/edit', views.ArticleUpdate.as_view(), name='price_list_article_edit'),
 
     # Short URL to a person's own dashboard
     path('me/', views.my_dashboard, name='my_dashboard'),
@@ -70,10 +72,6 @@ urlpatterns = [
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),
 
-    path('export/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/csv/', views.export_csv, name='export_csv'),
-
     path('statistics/', views.statistics_form, name='statistics_form'),
     path('statistics/<int:date_from>/<int:date_to>/<str:checkboxes>/', views.statistics, name='statistics'),
 
@@ -127,8 +125,12 @@ urlpatterns = [
     path('pos/scan_external/', pos_views.PosScanExternalCardView.as_view(), name='pos_scan_external'),
 
     # RFID card registration views
-    path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
-    path('register/scan/', register.CardRegistrationScan.as_view(), name='register_scan'),
+    path('register/', register_views.CardRegistrationIndex.as_view(), name='register_index'),
+    path('register/process_rfid/', register_views.RegisterProcessRFIDView.as_view(), name='register_process'),
+    path('register/user_logout/', register_views.RegisterLogoutView.as_view(), name='register_logout'),
+    path('register/qr/', register_views.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
+    path('register/verify/<uuid:uuid>/', register_views.RegisterVerifyTokenView.as_view(), name='register_verify'),
+    path('register/login_check/<uuid:uuid>/', register_views.RegisterCheckLoginAjaxView.as_view(), name='register_check'),
 
     # Document printing views
     path('print/', print_views.PrintIndexView.as_view(), name='print_index'),

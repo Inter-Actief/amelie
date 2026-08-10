@@ -1,23 +1,23 @@
 # coding=utf-8
-import csv
 import datetime
 from datetime import timezone as tz
 import logging
 from decimal import Decimal
 import itertools
 import traceback
+import operator
+from functools import reduce
 
 import django.conf
-import operator
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import get_language, gettext_lazy as _l  
+from django.utils.translation import get_language, gettext_lazy as _l
 from django.db import transaction
-from django.db.models import Sum, Q, Count
+from django.db.models import Sum, Q, Count, Subquery, OuterRef
 from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect, HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
@@ -25,10 +25,10 @@ from django.utils import formats, timezone
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, get_language
+from django.views.generic import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.edit import FormView
-from functools import reduce
 
 from amelie.calendar.models import Event
 from amelie.members.models import MembershipType, Payment, PaymentType, Person, Membership
@@ -37,14 +37,17 @@ from amelie.settings.generic import DATE_PRE_SEPA_AUTHORIZATIONS
 from amelie.personal_tab.alexia import get_alexia, parse_datetime
 from amelie.personal_tab.helpers import kcal_equivalent
 from amelie.personal_tab.forms import CookieCornerTransactionForm, CustomTransactionForm, ExamCookieCreditForm, \
-    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, AuthorizationSelectForm, \
-    StatisticsForm, DeclarationForm
+    DebtCollectionForm, ReversalForm, SearchAuthorizationForm, AmendmentForm, DebtCollectionBatchForm, \
+    AuthorizationSelectForm, \
+    StatisticsForm, DeclarationForm, ArticleForm
 from amelie.personal_tab.debt_collection import delete_amendment, delete_reversal, edit_amendment, edit_reversal, generate_contribution_instructions, filter_contribution_instructions, \
     save_contribution_instructions, generate_cookie_corner_instructions, filter_cookie_corner_instructions, save_cookie_corner_instructions, \
     process_reversal, process_amendment
-from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, ActivityTransaction, \
-    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, DiscountCredit, \
-    DebtCollectionInstruction, ReversalTransaction
+from amelie.personal_tab.models import Amendment, Category, Declaration, Transaction, CookieCornerTransaction, \
+    ActivityTransaction, \
+    CustomTransaction, AlexiaTransaction, RFIDCard, Authorization, DebtCollectionAssignment, DebtCollectionBatch, \
+    DiscountCredit, \
+    DebtCollectionInstruction, ReversalTransaction, Article
 from amelie.personal_tab.statistics import get_functions, statistics_totals
 from amelie.personal_tab.transactions import exam_cookie_discount, \
     exam_cookie_credit as transactions_exam_cookie_credit, add_exam_cookie_credit
@@ -102,12 +105,53 @@ def price_list(request):
         category.update({'articles': articles})
         categories.append(category)
 
-    return render(request, 'price_list.html', {'categories': categories})
+    inactive_products_categories = []
+    if request.is_board:
+        all_categories_queryset = Category.objects.all()
+        if get_language() == 'en':
+            all_categories_queryset = all_categories_queryset.order_by('order', 'name_en')
 
+        for category_obj in all_categories_queryset:
+            category = {'id': category_obj.id, 'name': category_obj.name}
+            inactive_articles_queryset = category_obj.article_set.filter(is_available=False).annotate(
+                last_used=Subquery(CookieCornerTransaction.objects.filter(
+                    article=OuterRef("id"),
+                ).order_by("-date").values('date')[:1])
+            ).order_by('-last_used')
 
-def generate_overview_new(request, person, date_from=None, date_to=None):
+            if get_language() == 'en':
+                inactive_articles_queryset = inactive_articles_queryset.order_by('name_en')
+
+            articles = []
+            for article in inactive_articles_queryset:
+                kcal_per_euro = article.kcal // article.price if article.kcal is not None and article.price else None
+                last_used_transaction = article.cookiecornertransaction_set.order_by('date').last()
+                last_used = None
+                if last_used_transaction:
+                    last_used = last_used_transaction.date
+                articles.append({'article': article, 'kcal_per_euro': kcal_per_euro})
+            category.update({'articles': articles})
+            inactive_products_categories.append(category)
+
+    return render(request, 'cookie_corner_price_list.html', {
+        'categories': categories, 'inactive_products_categories': inactive_products_categories
+    })
+
+class ArticleCreate(RequireBoardMixin, CreateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = "cookie_corner_article_form.html"
+    success_url = reverse_lazy('personal_tab:price_list')
+
+class ArticleUpdate(RequireBoardMixin, UpdateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = "cookie_corner_article_form.html"
+    success_url = reverse_lazy('personal_tab:price_list')
+
+def generate_overview(request, person, date_from=None, date_to=None):
     """
-    New method to generate a transaction overview based on DateTimes instead of Dates.
+    Method to generate a transaction overview based on DateTimes.
     """
     view_name = request.resolver_match.view_name
 
@@ -251,7 +295,7 @@ def generate_overview_new(request, person, date_from=None, date_to=None):
     form = PeriodTimeForm(initial={'datetime_from': date_from, 'datetime_to': date_to})
 
     # Done!
-    return render(request, 'cookie_corner_transactions_new.html', {
+    return render(request, 'cookie_corner_transactions.html', {
         'person': person,
         'form': form,
         'date_from': date_from,
@@ -402,7 +446,7 @@ def generate_overview_exam_cookie_credit(request, person, date_from=None, date_t
     form = PeriodTimeForm(initial={'datetime_from': date_from, 'datetime_to': date_to})
 
     # Done!
-    return render(request, 'cookie_corner_exam_cookie_credit.html', {
+    return render(request, 'exam_cookie_credit/overview.html', {
         'view_name': view_name,
         'form': form,
         'person': person,
@@ -469,7 +513,7 @@ def transaction_form(request):
             start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
             end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
             return HttpResponseRedirect(reverse('personal_tab:transactions', args=[_urlize(start), _urlize(end)]))
-        
+
         else:
             return render(request, 'cookie_corner_transactions_form.html', {
                 'form': form,
@@ -497,8 +541,8 @@ def transaction_overview(request, date_from, date_to):
         end = _parsedatetime(date_to)
     except ValueError:
         raise Http404(_('Invalid date`'))
-    
-    return generate_overview_new(request, None, start, end)
+
+    return generate_overview(request, None, start, end)
 
 
 @require_board
@@ -521,26 +565,26 @@ def unpaid_memberships(request, year=None):
             for membership_type in membership_types:
                 totals[year_total['year']][0][membership_type[0]] = unpaid_memberships.filter(type=membership_type[1], year=year_total['year']).count()
 
-        return render(request, 'unpaid_memberships.html', {'totals': totals, 'membership_types': membership_types})
-    
+        return render(request, 'unpaid_memberships/overview.html', {'totals': totals, 'membership_types': membership_types})
+
 
     # If a year is given, show the unpaid memberships for that year, grouped by membership type
     unpaid_memberships = Membership.objects.filter(payment__isnull=True, type__price__gt=0, year=year).select_related('member').order_by('type', 'member__first_name')
-    
+
     grouped = {}
     for membership in unpaid_memberships:
         membership_type = (membership.type.name, membership.type.pk)
         if membership_type not in grouped:
             grouped[membership_type] = []
         grouped[membership_type].append(membership)
-    
-    return render(request, 'unpaid_memberships_year.html', {'unpaid_memberships': grouped, 'year': year})
+
+    return render(request, 'unpaid_memberships/year_overview.html', {'unpaid_memberships': grouped, 'year': year})
 
 
 @require_board
 def unpaid_memberships_forgive(request, year):
     """Forgive the membership fee of persons that were selected in the unpaid memberships overview."""
-    
+
     # Get the selected memberships from the URL parameters
     selected_memberships = request.GET.get('memberships')
     if not selected_memberships:
@@ -554,7 +598,7 @@ def unpaid_memberships_forgive(request, year):
     if not memberships:
         messages.error(request, _("No members were selected."))
         return redirect('personal_tab:unpaid_memberships_year', year)
-    
+
     total_price = sum((membership.type.price for membership in memberships), Decimal('0.00'))
 
     if request.method == "POST":
@@ -575,7 +619,7 @@ def unpaid_memberships_forgive(request, year):
 
     else:
         # Show confirmation page
-        return render(request, 'unpaid_memberships_forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year, 'total_price': total_price})
+        return render(request, 'unpaid_memberships/forgive.html', {'memberships': memberships, 'membership_pks': [m.pk for m in memberships], 'year': year})
 
 @require_board
 def unpaid_memberships_mailing(request, year):
@@ -623,7 +667,7 @@ Je kunt de contributie betalen door dit bedrag over te maken naar:
  * Bedrag: € {{{{membership.price}}}}
 
 Cash of PIN betaling is ook mogelijk door fysiek langs te komen bij de verenigingskamer.
- 
+
 Met vriendelijke groet,
 
 {}
@@ -719,12 +763,12 @@ class TransactionSecurityMixin(RequirePersonMixin):
 
 class ActivityTransactionDetail(TransactionSecurityMixin, DetailView):
     model = ActivityTransaction
-    template_name = 'cookie_corner/activity_transaction_detail.html'
+    template_name = 'transactions/activity_transaction_detail.html'
 
 
 class AlexiaTransactionDetail(TransactionSecurityMixin, DetailView):
     model = AlexiaTransaction
-    template_name = 'cookie_corner/alexia_transaction_detail.html'
+    template_name = 'transactions/alexia_transaction_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(AlexiaTransactionDetail, self).get_context_data(**kwargs)
@@ -749,17 +793,17 @@ class AlexiaTransactionDetail(TransactionSecurityMixin, DetailView):
 
 class CookieCornerTransactionDetail(TransactionSecurityMixin, DetailView):
     model = CookieCornerTransaction
-    template_name = 'cookie_corner/cookie_corner_transaction_detail.html'
+    template_name = 'transactions/cookie_corner_transaction_detail.html'
 
 
 class ReversalTransactionDetail(TransactionSecurityMixin, DetailView):
     model = ReversalTransaction
-    template_name = 'cookie_corner/reversal_transaction_detail.html'
+    template_name = 'transactions/reversal_transaction_detail.html'
 
 
 class TransactionDetail(TransactionSecurityMixin, DetailView):
     model = Transaction
-    template_name = 'cookie_corner/transaction_detail.html'
+    template_name = 'transactions/transaction_detail.html'
 
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -780,7 +824,7 @@ class TransactionDetail(TransactionSecurityMixin, DetailView):
 class CustomTransactionUpdate(RequireBoardMixin, UpdateView):
     model = CustomTransaction
     form_class = CustomTransactionForm
-    template_name = 'cookie_corner/transaction_form.html'
+    template_name = 'transactions/transaction_form.html'
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -797,7 +841,7 @@ class CookieCornerTransactionUpdate(CustomTransactionUpdate):
 
 class CustomTransactionDelete(RequireBoardMixin, DeleteView):
     model = CustomTransaction
-    template_name = 'cookie_corner/transaction_delete.html'
+    template_name = 'transactions/transaction_delete.html'
 
     def get_success_url(self):
         return reverse('personal_tab:dashboard', kwargs={'pk': self.object.person.pk, 'slug': self.object.person.slug})
@@ -808,7 +852,7 @@ class CustomTransactionDelete(RequireBoardMixin, DeleteView):
             object = self.get_object()
             if object.discount:
                 object.discount.delete()
-                
+
             delete = super(CustomTransactionDelete, self).delete(self.request)
             messages.success(self.request, _("The transaction '{transaction}' has been successfully deleted.")
                             .format(transaction=self.object))
@@ -898,7 +942,7 @@ def person_transactions(request, pk, slug, date_from=None, date_to=None):
 
     if not date_from:
         # No period given
-        return generate_overview_new(request, person)
+        return generate_overview(request, person)
 
     # Construct data
     try:
@@ -907,7 +951,7 @@ def person_transactions(request, pk, slug, date_from=None, date_to=None):
     except ValueError:
         raise Http404(_('Invalid date'))
 
-    return generate_overview_new(request, person, start, end)
+    return generate_overview(request, person, start, end)
 
 
 @require_board
@@ -931,7 +975,7 @@ def person_new_transaction(request, person_id, slug, transaction_type):
             return HttpResponseRedirect(reverse('personal_tab:dashboard', args=[person.pk, person.slug]))
 
     # Done!
-    return render(request, 'cookie_corner/transaction_form.html', {
+    return render(request, 'transactions/transaction_form.html', {
         'transaction_type': transaction_type,
         'form': form
     })
@@ -943,7 +987,7 @@ def person_debt_collection_instructions(request, person_id, slug):
     debt_collection_instructions = DebtCollectionInstruction.objects.filter(authorization__person=person)
 
     # Done
-    return render(request, 'cookie_corner_person_debt_collection_instructions.html', {
+    return render(request, 'debt_collection/person_instructions.html', {
         'person': person,
         'debt_collection_instructions': debt_collection_instructions
     })
@@ -1022,7 +1066,7 @@ def person_exam_cookie_credit_new(request, person_id, slug):
             return HttpResponseRedirect(reverse('personal_tab:dashboard', args=[person.pk, person.slug]))
 
     # Done
-    return render(request, 'cookie_corner_exam_cookie_credit_add.html', {
+    return render(request, 'exam_cookie_credit/add.html', {
         'person': person,
         'form': form
     })
@@ -1040,12 +1084,12 @@ def statistics_form(request):
                 'date_to': _urlize(end),
                 'checkboxes': '-'.join(form.cleaned_data['checkboxes'])}))
         else:
-            return render(request, 'cookie_corner_statistics_form.html', {'form': form})
+            return render(request, 'statistics/statistics_form.html', {'form': form})
     else:
         end_date = timezone.datetime(timezone.now().year, timezone.now().month, 1)
         begin_date = end_date - timezone.timedelta(days=1)
         begin_date = begin_date.replace(day=1)
-        return render(request, 'cookie_corner_statistics_form.html', {
+        return render(request, 'statistics/statistics_form.html', {
             'form': StatisticsForm(initial={
                 'start_date': begin_date,
                 'end_date': end_date,
@@ -1085,7 +1129,7 @@ def statistics(request, date_from, date_to, checkboxes):
     if 't' in choices:
         tables['t'] = statistics_totals(start, end, tables)
 
-    return render(request, 'cookie_corner_statistics.html', {
+    return render(request, 'statistics/statistics.html', {
         'form': form, 'tables': tables, 'start': start, 'end': end,
         'total': 0, 'start_url': date_from, 'end_url': date_to
     })
@@ -1104,7 +1148,7 @@ def balance(request, dt_str=False):
     # Redirect to form if no date given
     if not dt_str:
         form = DateTimeForm()
-        return render(request, 'cookie_corner_balance_form.html', {
+        return render(request, 'balance/balance_form.html', {
             'form': form,
         })
 
@@ -1176,7 +1220,7 @@ def balance(request, dt_str=False):
     exam_cookie_former_member_sum = sum([x[1] for x in exam_cookie_former_member_totals])
 
 
-    return render(request, 'cookie_corner_balance_form.html', {
+    return render(request, 'balance/balance_form.html', {
         'form': form,
 
         'all_transactions_sum': all_transactions_sum,
@@ -1197,108 +1241,6 @@ def balance(request, dt_str=False):
 
 
 @require_board
-def export(request, date_from=False, date_to=False):
-    """Export debt collection list over a certain period."""
-
-    # TODO: Remove this export because it is not used any more and not compliant with GDPR.
-    # Redirect to a page based on GET (handy for links)
-    if request.method == 'POST':
-        form = PeriodTimeForm(request.POST)
-        if form.is_valid():
-            start = form.cleaned_data['datetime_from'].astimezone(tz.utc)
-            end = form.cleaned_data['datetime_to'].astimezone(tz.utc)
-            return HttpResponseRedirect(reverse('personal_tab:export', args=[_urlize(start), _urlize(end)]))
-
-    # Redirect to form if no date given
-    if not date_from:
-        form = PeriodTimeForm()
-        return render(request, 'cookie_corner_export_form.html', {
-            'form': form
-        })
-
-    # Construct data
-    try:
-        start = _parsedatetime(date_from)
-        end = _parsedatetime(date_to)
-    except ValueError:
-        raise Http404(_('Invalid date`'))
-    form = PeriodTimeForm(initial={'datetime_from': start, 'datetime_to': end})
-
-    start_url = _urlize(start)
-    end_url = _urlize(end)
-
-    # Filter transactions
-    rows = export_filter(start, end)
-    total = 0
-
-    # Calculate totals
-    for row in rows['good']:
-        total += row['sum']
-
-    # Done
-    amount_rows = len(rows['good'])
-    return render(request, 'cookie_corner_export_form.html', {
-        'form': form,
-        'start': start,
-        'end': end,
-        'start_url': start_url,
-        'end_url': end_url,
-        'rows': rows,
-        'total': total,
-        'amount_rows': amount_rows
-    })
-
-
-@require_board
-def export_csv(request, date_from, date_to):
-    try:
-        start = _parsedatetime(date_from)
-        end = _parsedatetime(date_to)
-    except ValueError:
-        raise Http404(_('Invalid date`'))
-    rows = export_filter(start, end)
-
-    response = HttpResponse(content_type='text/csv; charset=utf-8')
-    # Use .txt. Excel 2007 forces the wrong character encoding (not UTF-8) with .csv
-    response['Content-Disposition'] = 'attachment; filename=amelie-cookie-corner-%s-to-%s.txt' % (
-        _urlize(start), _urlize(end))
-
-    writer = csv.writer(response, dialect=csv.excel)
-    writer.writerow(['Name', 'Amount', 'City', 'Payment reference', 'Description 2', 'Description 3', 'Description 4'])
-
-    period = 'from ' + start.strftime("%Y-%m-%d") + ' to ' + end.strftime("%Y-%m-%d")
-
-    for row in rows['good']:
-        person = row['person']
-        writer.writerow([mark_safe(str(person)), row['sumf'], person.city, 'Debt collection cookie corner', period,
-               'For questions email treasurer@inter-actief.net', ''])
-
-    return response
-
-
-def export_filter(begin, end):
-    all_transactions = Transaction.objects.filter(date__gte=begin, date__lt=end)
-
-    # Do not use order, so distinct works properly. See Django manual.
-    persons = all_transactions.filter(person__isnull=False).order_by('person').distinct().values('person')
-    result = {'good': [], 'negative': []}
-
-    for p in persons:
-        person = Person.objects.get(id=p['person'])
-        if not person.has_mandate_consumptions():
-            continue
-        price = all_transactions.filter(person=person).aggregate(Sum('price'))['price__sum']
-        rij = {'person': person, 'sum': price, 'sumf': ("%.2f" % price).replace('.', ',')}
-
-        if price < 0:
-            result['negative'].append(rij)
-        elif price > 0:
-            result['good'].append(rij)
-
-    return result
-
-
-@require_board
 def activity_transactions(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     transactions = ActivityTransaction.objects.filter(event=event).select_related('person', 'event')
@@ -1307,7 +1249,7 @@ def activity_transactions(request, event_id):
     totals = transactions.aggregate(Sum('price'))['price__sum'] or 0
 
     # Done
-    return render(request, 'cookie_corner_activity_transactions.html', {
+    return render(request, 'transactions/activity_transactions.html', {
         'event': event,
         'transactions': transactions,
         'totals': totals
@@ -1363,7 +1305,7 @@ def authorization_list(request):
     # Date on which old (pre-SEPA) authorizations are registered
     date_old_authorizations = DATE_PRE_SEPA_AUTHORIZATIONS
 
-    return render(request, 'cookie_corner_authorization_list.html', {
+    return render(request, 'authorization/list.html', {
         'form': form,
         'authorizations': authorizations,
         'query': query,
@@ -1377,7 +1319,7 @@ class AuthorizationTerminateView(RequireBoardMixin, FormView):
     """
     form_class = AuthorizationSelectForm
     success_url = reverse_lazy('personal_tab:overview')
-    template_name = 'cookie_corner/authorization_terminate.html'
+    template_name = 'authorization/terminate.html'
 
     def __init__(self, **kwargs):
         super(AuthorizationTerminateView, self).__init__(**kwargs)
@@ -1417,7 +1359,7 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
     """
     form_class = AuthorizationSelectForm
     success_url = reverse_lazy('personal_tab:overview')
-    template_name = 'cookie_corner/authorization_anonymize.html'
+    template_name = 'authorization/anonymize.html'
 
     def __init__(self, **kwargs):
         super(AuthorizationAnonymizeView, self).__init__(**kwargs)
@@ -1443,7 +1385,7 @@ class AuthorizationAnonymizeView(RequireBoardMixin, FormView):
             # Anonimize authorization
             authorization.anonymize()
 
-        return render(self.request, "cookie_corner/authorization_anonymize_success.html", {
+        return render(self.request, "authorization/anonymize_success.html", {
             'authorizations': to_anonymize,
         })
 
@@ -1478,7 +1420,7 @@ def authorization_amendment(request, authorization_id):
     else:
         form = AmendmentForm()
 
-    return render(request, 'cookie_corner_authorization_amendment.html', {
+    return render(request, 'authorization/amendment.html', {
         'form': form,
         'authorization': authorization
     })
@@ -1513,7 +1455,7 @@ def authorization_amendment_edit(request, authorization_id, amendment_id):
             'reason': amendment.reason,
         })
 
-    return render(request, 'cookie_corner_authorization_amendment.html', {
+    return render(request, 'authorization/amendment.html', {
         'form': form,
         'object': amendment,
         'authorization': authorization
@@ -1536,14 +1478,14 @@ def authorization_amendment_delete(request, authorization_id, amendment_id):
         delete_amendment(amendment)
         return redirect(authorization)
 
-    return render(request, 'cookie_corner_authorization_amendment_delete.html', {
+    return render(request, 'authorization/amendment_delete.html', {
         'authorization': authorization
     })
 
 
 @require_board
 def debt_collection_list(request):
-    return render(request, 'cookie_corner_debt_collection_list.html', {
+    return render(request, 'debt_collection/list.html', {
         'assignments': DebtCollectionAssignment.objects.all()
     })
 
@@ -1653,10 +1595,10 @@ def debt_collection_new(request):
         date_text = formats.date_format(end_date)
         form = DebtCollectionForm(minimal_execution_date,
                                   initial={'description': 'Cookie corner until {}'.format(date_text),
-                                           'contribution': False, 'cookie_corner': True, 'end': end_date, 
+                                           'contribution': False, 'cookie_corner': True, 'end': end_date,
                                            'contribution_years': current_association_year()})
 
-    return render(request, 'cookie_corner_debt_collection_new.html', {
+    return render(request, 'debt_collection/new.html', {
         'form': form,
         'minimal_execution_date': minimal_execution_date,
         'contribution_instructions': contribution_instructions,
@@ -1692,12 +1634,12 @@ def debt_collection_view(request, id):
             messages.warning(request, _(
                 "Could not create data export, because something went wrong while saving information about the export."
             ))
-            return render(request, 'cookie_corner_debt_collection_view.html', locals())
+            return render(request, 'debt_collection/view.html', locals())
 
     else:
         export_form = ExportForm(rows=1)
         export_form.fields['export_details'].initial = str(assignment)
-        return render(request, 'cookie_corner_debt_collection_view.html', locals())
+        return render(request, 'debt_collection/view.html', locals())
 
 
 def debt_collection_export(request, id):
@@ -1720,7 +1662,7 @@ def debt_collection_instruction_view(request, id):
     instruction = get_object_or_404(DebtCollectionInstruction, id=id)
     if not request.is_board and request.person != instruction.authorization.person:
         raise PermissionDenied
-    return render(request, 'cookie_corner_debt_collection_instruction_view.html', {
+    return render(request, 'debt_collection/instruction_view.html', {
         'instruction': instruction
     })
 
@@ -1743,7 +1685,7 @@ def debt_collection_instruction_reversal(request, id):
     else:
         form = ReversalForm()
 
-    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+    return render(request, 'debt_collection/instruction_reversal.html', {
         'form': form,
         'instruction': instruction
     })
@@ -1775,7 +1717,7 @@ def debt_collection_instruction_reversal_edit(request, id):
     else:
         form = ReversalForm(instance=reversal)
 
-    return render(request, 'cookie_corner_debt_collection_instruction_reversal.html', {
+    return render(request, 'debt_collection/instruction_reversal.html', {
         'form': form,
         'instruction': instruction
     })
@@ -1794,7 +1736,7 @@ def debt_collection_instruction_reversal_delete(request, id):
         delete_reversal(reversal)
         return redirect(instruction)
 
-    return render(request, 'cookie_corner_debt_collection_instruction_reversal_delete.html', {
+    return render(request, 'debt_collection/instruction_reversal_delete.html', {
         'instruction': instruction
     })
 
@@ -1812,7 +1754,7 @@ def debt_collection_mailing(request, assignment_id):
         authorization__authorization_type__contribution=False
     ).exists()
 
-    return render(request, 'cookie_corner_debt_collection_mailing.html', {
+    return render(request, 'debt_collection/mailing.html', {
         'assignment': assignment,
         'has_contribution': has_contribution,
         'has_cookie_corner': has_cookie_corner
@@ -1830,7 +1772,7 @@ def process_batch(request, id):
     else:
         form = DebtCollectionBatchForm(instance=batch)
 
-    return render(request, 'cookie_corner_process_batch.html', {
+    return render(request, 'debt_collection/process_batch.html', {
         'form': form,
         'batch': batch,
     })
@@ -2083,7 +2025,7 @@ Treasurer'''.format(name_treasurer),
 
 @require_board
 def authorization_view(request, authorization_id):
-    return render(request, 'cookie_corner_authorization_view.html', {
+    return render(request, 'authorization/view.html', {
         'authorization': get_object_or_404(Authorization, id=authorization_id)
     })
 
@@ -2121,7 +2063,7 @@ def cookie_corner_wrapped_main(request, year=None):
 
     if len(transactions) == 0:
         # No transactions found, display the no transactions page
-        return render(request, 'wrapped_no_transactions.html', {
+        return render(request, 'wrapped/wrapped_no_transactions.html', {
             'year': COOKIE_CORNER_WRAPPED_YEAR,
             'transaction_years': transaction_years,
         })
@@ -2172,7 +2114,7 @@ def cookie_corner_wrapped_main(request, year=None):
             products_grouped_by_count[article]["count"] += amount
         else:
             products_grouped_by_count[article] = {"count": amount}
-    
+
     products_grouped_by_count = sorted(products_grouped_by_count.items(), key=lambda x:x[1]["count"])
 
     products_grouped_by_count.reverse()
@@ -2214,7 +2156,7 @@ def cookie_corner_wrapped_main(request, year=None):
 
     drinks_total = sum(d['total_price'] for d in drink_spend_most)
 
-    return render(request, 'wrapped.html', {
+    return render(request, 'wrapped/wrapped.html', {
         'year': COOKIE_CORNER_WRAPPED_YEAR,
         'transaction_years': transaction_years,
         'first_transaction_of_the_year': first_transaction_of_the_year,
@@ -2259,7 +2201,7 @@ def cookie_corner_wrapped_global(request, year=None):
 
     if len(transactions) == 0:
         # No transactions found, display the no transactions page
-        return render(request, 'wrapped_no_transactions.html', {
+        return render(request, 'wrapped/wrapped_no_transactions.html', {
             'year': COOKIE_CORNER_WRAPPED_YEAR,
             'transaction_years': transaction_years,
         })
@@ -2332,7 +2274,7 @@ def cookie_corner_wrapped_global(request, year=None):
 
     drinks_total = sum(d['total_price'] for d in drink_spend_most)
 
-    return render(request, 'wrapped.html', {
+    return render(request, 'wrapped/wrapped.html', {
         'global': True,
         'year': COOKIE_CORNER_WRAPPED_YEAR,
         'transaction_years': transaction_years,
@@ -2351,15 +2293,15 @@ def cookie_corner_wrapped_global(request, year=None):
 
 
 class DeclarationView(RequirePersonMixin, FormView):
-    """ 
+    """
     Form view for submitting a declarations via the website.
-    
+
     Only available to logged in (former) members.
     """
 
     form_class = DeclarationForm
     success_url = reverse_lazy('personal_tab:declaration_view')
-    template_name = 'declaration_form.html'
+    template_name = 'declaration/declaration_form.html'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -2377,7 +2319,7 @@ class DeclarationView(RequirePersonMixin, FormView):
         try:
             form.save(request=self.request)
             messages.success(self.request, _("Declaration was submitted successfully."))
-            
+
         except Exception as e:
             trace = traceback.format_exc()
             logging.error(f"Error while submitting declaration: {str(e.__class__.__name__)} - {trace}")
@@ -2387,9 +2329,9 @@ class DeclarationView(RequirePersonMixin, FormView):
 
 @require_board
 def declaration_pdf(request, declaration_id):
-    """ 
+    """
     View for generating the PDF of a declaration.
-    
+
     Only available to board members.
     """
     declaration = get_object_or_404(Declaration, id=declaration_id)

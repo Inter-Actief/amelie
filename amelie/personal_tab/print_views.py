@@ -52,7 +52,7 @@ class PrintIndexView(RequirePersonalTabAuthorizationOrActiveMemberMixin, FormVie
     """
     form_class = PrintDocumentForm
     success_url = reverse_lazy('personal_tab:print_index')
-    template_name = 'print_form.html'
+    template_name = 'print/form.html'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -84,7 +84,7 @@ class PrintIndexView(RequirePersonalTabAuthorizationOrActiveMemberMixin, FormVie
 
 class PrintRefundConfirmView(RequireBoardMixin, DeleteView):
     model = PrintLogEntry
-    template_name = 'print_refund.html'
+    template_name = 'print/refund.html'
     success_url = reverse_lazy('personal_tab:print_log')
 
     def get_object(self, *args, **kwargs):
@@ -118,7 +118,7 @@ class PrintRefundConfirmView(RequireBoardMixin, DeleteView):
 
 class PrintLogView(RequireBoardMixin, ListView):
     model = PrintLogEntry
-    template_name = 'print_log_list.html'
+    template_name = 'print/log_list.html'
     paginate_by = 30
     ordering = ['-timestamp']  # Most recent first
     context_object_name = 'print_logs'
