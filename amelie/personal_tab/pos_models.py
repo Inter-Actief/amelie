@@ -45,3 +45,31 @@ class PendingPosToken(models.Model):
         img_txt = base64.b64encode(img.getvalue())
         img.close()
         return (bytes("data:image/jpeg;base64,".encode()) + img_txt).decode()
+
+
+class PendingRegisterToken(models.Model):
+
+    token = Char32UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, blank=True, null=True, related_name='pending_register_login_tokens', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(editable=False)
+
+    def save(self, *args, **kwargs):
+        '''On create, update creation timestamp'''
+        # Override save method because then we use the timezone-aware version of datetime.now()
+        # See https://stackoverflow.com/questions/1737017/django-auto-now-and-auto-now-add/1737078#1737078
+        if not self.created_at:
+            self.created_at = timezone.now()
+        return super(PendingRegisterToken, self).save(*args, **kwargs)
+
+    def get_url(self):
+        redirect_url = reverse('personal_tab:register_verify', kwargs={'uuid': str(self.token)})
+        return urljoin(settings.ABSOLUTE_PATH_TO_SITE, redirect_url)
+
+    def png_image(self):
+        qr = qrcode.make(self.get_url())
+        img = io.BytesIO()
+        qr.save(img)
+        img_txt = base64.b64encode(img.getvalue())
+        img.close()
+        return (bytes("data:image/jpeg;base64,".encode()) + img_txt).decode()
+
