@@ -22,6 +22,7 @@ from amelie.files.models import Attachment
 from amelie.calendar.managers import EventManager
 from amelie.calendar.models import Event, Participation
 from amelie.members.models import Person
+from amelie.personal_tab import transactions
 from amelie.tools.discord import send_discord, send_discord_presave
 from amelie.tools.managers import SubclassManager
 
@@ -70,7 +71,10 @@ class Activity(Event):
     photos = models.ManyToManyField(Attachment, blank=True, related_name='foto_set')
     components = models.ManyToManyField('self', blank=True)
 
-    price = models.DecimalField(default="0.00", max_digits=8, decimal_places=2, verbose_name=_l('price'), help_text=_l("Enrolled participants will be emailed when you change the price."))
+    price = models.DecimalField(
+        default="0.00", max_digits=8, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name=_l('price'), help_text=_l("Enrolled participants will be emailed when you change the price.")
+    )
     can_unenroll = models.BooleanField(default=True, verbose_name=_l('can unenroll'))
 
     image_icon = models.ImageField(upload_to='activities/icon/', max_length=255, null=True, blank=True, verbose_name=_l('icon'), help_text=_l('Image of 175 by 275 pixels.'))
@@ -183,7 +187,7 @@ class Activity(Event):
         a discount.
         """
         # Trivial check
-        if self.price != 0:
+        if self.price != Decimal("0.00"):
             return True
 
         # Check every option
@@ -327,7 +331,6 @@ class Activity(Event):
             activity_send_enrollmentmail(new_participation, from_waiting_list=True)
             new_participation.waiting_list = False
             new_participation.save()
-            from amelie.personal_tab import transactions
             transactions.add_participation(new_participation, added_by=new_participation.added_by)
             new_participants.append(new_participation)
         return new_participants
@@ -341,7 +344,6 @@ class Activity(Event):
         :type actor: Person
         """
         # Undo transactions and remove participations
-        from amelie.personal_tab import transactions
         for participation in self.participation_set.all():
             # If necessary, compensate the person for the enrollment costs.
             with translation.override(participation.person.preferred_language):
@@ -410,6 +412,10 @@ class Enrollmentoption(models.Model):
     def has_extra_costs(self):
         return False
 
+    def get_min_max_extra_costs(self) -> Tuple[Decimal, Decimal]:
+        """Gets the minimum possible costs and maximum possible costs for this option."""
+        return Decimal('0.00'), Decimal('0.00')
+
     def as_leaf_class(self, enforce_content_type=None):
         if enforce_content_type is not None:
             content_type = enforce_content_type
@@ -457,6 +463,12 @@ class EnrollmentoptionCheckbox(Enrollmentoption):
     def has_extra_costs(self):
         return bool(self.price_extra)
 
+    def get_min_max_extra_costs(self) -> Tuple[Decimal, Decimal]:
+        if self.has_extra_costs():
+            return min(self.price_extra, Decimal('0.00')), max(self.price_extra, Decimal('0.00'))
+        else:
+            return super().get_min_max_extra_costs()
+
     def has_limit(self):
         return self.maximum != 0
 
@@ -484,6 +496,15 @@ class EnrollmentoptionNumeric(Enrollmentoption):
     def has_extra_costs(self):
         return bool(self.price_extra)
 
+    def get_min_max_extra_costs(self) -> Tuple[Decimal, Decimal]:
+        if self.has_extra_costs():
+            # 9999 is a highball estimate that should not be reached in normal use, because 'infinite' is hard to work with.
+            max_choice_amount = (self.maximum_per_person or self.maximum or 9999)
+            largest_extra_price = self.price_extra * max_choice_amount
+            return min(largest_extra_price, Decimal('0.00')), max(largest_extra_price, Decimal('0.00'))
+        else:
+            return super().get_min_max_extra_costs()
+
     def has_limit(self):
         return self.maximum != 0
 
@@ -507,6 +528,13 @@ class EnrollmentoptionSelectbox(Enrollmentoption):
 
     def has_extra_costs(self):
         return any([selectboxoption.price_extra for selectboxoption in self.selectboxoption_set.all()])
+
+    def get_min_max_extra_costs(self) -> Tuple[Decimal, Decimal]:
+        if self.has_extra_costs():
+            possible_prices = [selectboxoption.price_extra for selectboxoption in self.selectboxoption_set.all()]
+            return min(min(possible_prices), Decimal('0.00')), max(max(possible_prices), Decimal('0.00'))
+        else:
+            return super().get_min_max_extra_costs()
 
 
 class SelectboxOption(models.Model):

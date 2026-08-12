@@ -786,7 +786,6 @@ def activity_signup_revoke(activity_id: int, ctx: RpcRequestContext = None, **kw
     )
 
     # If necessary, compensate the person for the enrollment costs.
-    from amelie.personal_tab import transactions
     transactions.remove_participation(participation)
 
     # Delete the participation

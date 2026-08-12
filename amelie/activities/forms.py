@@ -70,8 +70,11 @@ class ActivityForm(forms.ModelForm):
         if not self.cleaned_data.get('price', None):
             self.cleaned_data['price'] = 0
 
+        if self.cleaned_data["price"] < Decimal("0.00") and self.cleaned_data["enrollment"]:
+            raise forms.ValidationError(_l("Website enrolment must have a positive price. Either turn off the ability to enrol or increase the cost of the activity."))
+
         if self.cleaned_data["price"] > settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE and self.cleaned_data["enrollment"]:
-            raise forms.ValidationError(_l("Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity.").format(settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE))
+            raise forms.ValidationError(_l("Website enrollment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity.").format(settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE))
 
         if self.cleaned_data["enrollment"]:
             if not self.cleaned_data.get('enrollment_begin', None):

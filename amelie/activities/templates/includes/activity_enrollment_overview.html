@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 {% block head %}
@@ -168,12 +169,13 @@
                             {% endfor %}
                             <td>
                                 {% if participation.is_free %}
-                                    <i>{% trans 'n.a. (free)' %}</i>
+                                    <i>{% trans 'N/A (free)' %}</i>
                                 {% else %}
                                     {% if participation.person.has_mandate_activities %}
                                         <span class="icon icon-creditcards">{% trans 'To be debited' %}</span>
                                     {% else %}
-                                        <span class="icon icon-cross">{% trans 'Needs manual payment' %}</span>
+                                        <span class="icon icon-cross">{% trans 'Needs manual payment' %}</span><br/>
+                                        <span class="small">{% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Open amount: &euro;&nbsp;{{ costs }}{% endblocktrans %}</span>
                                     {% endif %}
                                 {% endif %}
                             </td>

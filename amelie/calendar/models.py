@@ -66,7 +66,7 @@ class Participation(models.Model):
             # but they should all be compensated by a negative ActivityTransaction, thus they can be ignored.
 
             # Newest (by creation date) positive (or 0) price transaction
-            current_transaction = self.activitytransaction_set.filter(price__gte=0).order_by('-added_on').first()
+            current_transaction = self.activitytransaction_set.filter(price__gte=0).order_by('-added_on', '-pk').first()
             if current_transaction is not None:
                 return current_transaction.is_paid()
             else:
@@ -86,8 +86,8 @@ class Participation(models.Model):
         if self.is_free():
             return 'free', None
 
-        current_transaction = self.activitytransaction_set.filter(price__gte=0).order_by('-added_on').first()
-        return get_transaction_payment_status(transaction=current_transaction, mandate_type='activities')
+        current_transaction = self.activitytransaction_set.filter(price__gte=0).order_by('-added_on', '-pk').first()
+        return get_transaction_payment_status(_transaction=current_transaction, mandate_type='activities')
 
     def calculate_costs(self) -> Tuple[Decimal, bool]:
         from amelie.activities.models import Activity
@@ -106,6 +106,17 @@ class Participation(models.Model):
         total_costs = activity.price + sum(prices_extra)
         return total_costs, len(prices_extra) > 0
 
+    @property
+    def unpaid_transactions(self):
+        return [t for t in self.activitytransaction_set.all() if not t.is_paid()]
+
+    @property
+    def to_be_paid_costs(self):
+        """
+        Calculate the open costs for this participation, considering all transactions that relate to it.
+        """
+        return sum(t.price for t in self.unpaid_transactions) or Decimal("0.00")
+
     @transaction.atomic
     def mark_as_paid(self, payment_method, actor: Optional[Person] = None):
         """
@@ -115,7 +126,7 @@ class Participation(models.Model):
         from amelie.personal_tab.models import ManualPaymentSettlement
 
         # Get the ActivityTransaction(s) for this Participation that still need to be paid
-        ats = [t for t in self.activitytransaction_set.all() if not t.is_paid()]
+        ats = self.unpaid_transactions
         if not ats:
             return None
 

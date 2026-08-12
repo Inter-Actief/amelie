@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 <table class="table" data-toggle="table" data-sort-name="order">
     <thead>
@@ -61,10 +62,12 @@
                     {% if request.is_board or is_roomduty %}
                         <td>
                             {% if participation.is_free %}
-                                <i>{% trans 'n.a. (free)' %}</i>
+                                <i>{% trans 'N/A (free)' %}</i>
                                 &nbsp;
                                 {% if participation.activitytransaction_set.exists %}
-                                    <span class="icon icon-error" title="{% trans 'For some reason this free participation has payments! This should not happen.' %}"></span>
+                                    {% if participation.unpaid_transactions|length != 0 %}
+                                        <span class="icon icon-error" title="{% trans 'For some reason this free participation has unpaid payments! This should not happen.' %}"></span>
+                                    {% endif %}
                                     <a title="{% trans 'Inspect payments' %}"
                                        href="{% url 'activities:activity_participation_payments' obj.id participation.id %}"
                                        class="icon icon-zoom js-load-block" data-container="enrollment_overview">
@@ -115,7 +118,7 @@
                                         </small>
                                     {% elif details.0 == 'unpaid' and details.1 == None %}
                                         <br /><small class="icon scaled-icon icon-coins">
-                                            {% trans 'Needs manual payment' %}
+                                            {% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Needs manual payment (&euro;&nbsp;{{ costs }}){% endblocktrans %}
                                         </small>
                                     {% endif %}
                                     {% if details.0 == 'unpaid' and details.1 == None %}
@@ -131,7 +134,7 @@
                     {% elif is_committee %}
                         <td>
                             {% if participation.is_free %}
-                                <i>{% trans 'n.a. (free)' %}</i>
+                                <i>{% trans 'N/A (free)' %}</i>
                             {% else %}
                                 {% with participation.payment_details as details %}
                                     {% if participation.is_paid %}
@@ -145,7 +148,7 @@
                                         <span class="icon icon-cross">{% trans 'Not paid yet' %}</span>
                                         {% if details.0 == 'unpaid' and details.1 == None %}
                                             <br /><small class="icon scaled-icon icon-coins">
-                                                {% trans 'Needs manual payment' %}
+                                                {% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Needs manual payment (&euro;&nbsp;{{ costs }}){% endblocktrans %}
                                             </small>
                                         {% endif %}
                                     {% endif %}

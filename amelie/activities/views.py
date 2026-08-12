@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured, ValidationError
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.forms import Form
 from django.urls import reverse, reverse_lazy
@@ -47,6 +47,7 @@ from amelie.calendar.models import Participation, Event
 from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import ActivityMailingForm
+from amelie.personal_tab import transactions
 from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
 from amelie.tools.const import TaskPriority
@@ -56,6 +57,7 @@ from amelie.tools.calendar import ical_calendar
 from amelie.tools.mixins import RequireActiveMemberMixin, DeleteMessageMixin, PassesTestMixin, RequireBoardMixin, \
     RequireCommitteeMixin, RequireMemberMixin
 from amelie.tools.paginator import RangedPaginator
+
 
 logger = logging.getLogger(__name__)
 
@@ -402,7 +404,7 @@ class BaseActivityEnrollmentView(RequireMemberMixin, FormView):
             self.person: Person = request.person
 
         # Indirect action is only allowed by board members or roomduty members
-        is_roomduty = request.person.is_room_duty()
+        is_roomduty = hasattr(request, 'person') and request.person.is_room_duty()
         if self.indirect and not (self.activity.can_edit(request.person) or is_roomduty):
             messages.error(request, self.indirect_permisison_error_msg())
             return redirect(self.activity)
@@ -560,7 +562,6 @@ class ActivityEnrollView(BaseActivityEnrollmentView):
             return render(self.request, "activity_enrollment_mandate.html", {'activity': self.activity})
 
         if price and (force_skip_waiting_list or not self.activity.enrollment_full):
-            from amelie.personal_tab import transactions
             transactions.add_participation(participation=participation, added_by=self.request.person)
 
         # Maybe send a notification e-mail to the person and set a status message in the request.
@@ -597,7 +598,6 @@ class ActivityUnenrollView(BaseActivityEnrollmentView):
         Participation.objects.select_for_update().get(pk=participation.pk)
 
         # If necessary, compensate the person for the enrollment costs.
-        from amelie.personal_tab import transactions
         transactions.remove_participation(participation)
 
         # Delete the participation
@@ -688,7 +688,6 @@ class ActivityEditEnrollView(BaseActivityEnrollmentView):
 
     @transaction.atomic
     def form_valid(self, form):
-        from amelie.personal_tab import transactions
         # It is important to NOT delete the Participation, because the person's spot in the activity
         # or on the waiting list could be given away to the next waiting list entry.
         # So we need to update the enrollment options of the participation in-place
@@ -710,7 +709,10 @@ class ActivityEditEnrollView(BaseActivityEnrollmentView):
                 answer.save()
                 subform.save_m2m()
 
-        if not participation.waiting_list:
+        # If this is a regular Participation (not waiting list) and it has costs after editing, we need to (re-)add
+        # the transaction to update the costs on the personal tab
+        price, with_enrollmentoptions = participation.calculate_costs()
+        if price and not participation.waiting_list:
             # If this is a regular Participation (not waiting list), we need to re-add
             # the transaction to update the costs on the personal tab
             transactions.add_participation(participation, added_by=self.request.person, is_edited_participation=True)
@@ -1157,6 +1159,18 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
         old_obj = self.get_object()
         new_obj = form.instance
 
+        # The total possible activity price may not be negative, or it will interfere with the payment processing.
+        # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
+        # we raise a validation error.
+        activity_base_price = new_obj.price
+        enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in new_obj.enrollmentoption_set.all())
+        if activity_base_price + enrollment_options_min_prices < 0:
+            form.add_error('price', ValidationError(
+                _("Editing the activity price to this value would make the minimum possible price for this activity negative! "
+                  "This is not allowed. Please modify the pricing and limits of the enrollment options first.")
+            ))
+            return self.form_invalid(form)
+
         # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
         response = super().form_valid(form)
 
@@ -1176,7 +1190,6 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
 
         if old_obj is not None and needs_new_transactions:
             # Undo and create new transactions
-            from amelie.personal_tab import transactions
             for participation in old_obj.participation_set.all():
                 # Note - reason text is max 200 chars!
                 reason = _("Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
@@ -1249,11 +1262,26 @@ class EnrollmentoptionCreateView(ActivitySecurityMixin, CreateView):
         return ENROLLMENTOPTION_FORM_TYPES.get(self.model, None)
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.activity = self.get_activity()
+        self.object: Enrollmentoption = form.save(commit=False)
         self.object.content_type = ContentType.objects.get_for_model(self.model)
+        activity = self.get_activity()
 
-        return super(EnrollmentoptionCreateView, self).form_valid(form)
+        # The total possible activity price may not be negative, or it will interfere with the payment processing.
+        # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
+        # we raise a validation error.
+        activity_base_price = activity.price
+        existing_enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in activity.enrollmentoption_set.all())
+        new_option_min_price = self.object.get_min_max_extra_costs()[0]
+        if activity_base_price + existing_enrollment_options_min_prices + new_option_min_price < 0:
+            form.add_error(None, ValidationError(
+                _("Adding this option would make the minimum possible price for this activity negative! This is not "
+                  "allowed. Please modify the pricing or limits of this or other enrollment options first.")
+            ))
+            return self.form_invalid(form)
+
+        self.object.activity = activity
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
     def get(self, request, *args, **kwargs):
         activity_ins = self.get_activity()
@@ -1290,7 +1318,20 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
             raise Exception("Updating requires a person")
 
         old_obj = self.get_object()
-        new_obj = form.instance
+        new_obj: Enrollmentoption = form.instance
+
+        # The total possible activity price may not be negative, or it will interfere with the payment processing.
+        # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
+        # we raise a validation error.
+        activity_base_price = old_obj.activity.price
+        existing_enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in old_obj.activity.enrollmentoption_set.all() if o != old_obj)
+        new_option_min_price = new_obj.get_min_max_extra_costs()[0]
+        if activity_base_price + existing_enrollment_options_min_prices + new_option_min_price < 0:
+            form.add_error(None, ValidationError(
+                _("Editing this option in this way would make the minimum possible price for this activity negative! "
+                  "This is not allowed. Please modify the pricing or limits of this or other enrollment options first.")
+            ))
+            return self.form_invalid(form)
 
         # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
         response = super().form_valid(form)
@@ -1307,7 +1348,6 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
 
         if old_obj is not None and needs_new_transactions:
             # Undo and create new transactions
-            from amelie.personal_tab import transactions
             for participation in old_obj.activity.participation_set.all():
                 # Note - reason text is max 200 chars!
                 reason = _("An enrollment option for activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
@@ -1448,6 +1488,7 @@ class DataExport(PassesTestMixin, View):
 
         participation_set = obj.confirmed_participations.order_by('person__first_name')
         number_participants = obj.confirmed_participants.count() if obj.confirmed_participants else 0
+        print_date = timezone.now()
         return render(request, "activity_enrollment_print.html", locals())
 
     @staticmethod

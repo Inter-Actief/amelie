@@ -69,7 +69,7 @@
                         </td>
                         <td>
                             {% if membership.is_free %}
-                                <i>{% trans 'n.a.' %}</i>
+                                <i>{% trans 'N/A' %}</i>
                                 &nbsp;
                                 {% if membership.contributiontransaction_set.exists %}
                                     <span class="icon icon-error" title="{% trans 'For some reason this free membership has payments! This should not happen.' %}"></span>

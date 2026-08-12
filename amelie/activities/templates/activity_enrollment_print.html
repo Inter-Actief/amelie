@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 <style>
@@ -13,6 +14,11 @@
         border: 1px solid #999;
     }
 </style>
+
+<h3>
+    {% blocktrans with name=obj.summary date=obj.begin|date:"Y-m-d" %}Enrollments for {{ name }} ({{ date }}){% endblocktrans %}<br/>
+    <span style="font-size: initial; font-weight: initial;">{% blocktrans with date=print_date|date:"Y-m-d H:i" %}(printed on {{ date }}){% endblocktrans %}</span>
+</h3>
 
 <p> {% trans 'This enrollment list contains personal data. Please do not leave this lying around somewhere and make sure that it is destroyed after use. If you find this list somewhere, please give it to the board of Inter-Actief.' %}</p>
 
@@ -46,25 +52,24 @@
                     {% endfor %}
                     <td>
                         {% if participation.is_free %}
-                            <i>{% trans 'n.a. (free)' %}</i>
+                            <i>{% trans 'N/A (free)' %}</i>
                         {% else %}
                             {% with participation.payment_details as details %}
-                                <span>
                                 {% if participation.is_paid %}
-                                    {% trans 'Paid' %}
+                                    <span>{% trans 'Paid' %}</span>
                                 {# Cannot use brackets in jinja templates, so we need to list the same block twice. #}
                                 {% elif details.0 == 'unpaid' and details.1 != None %}
-                                    {% trans 'To be debited' %}
+                                    <span>{% trans 'To be debited' %}</span>
                                 {% elif details.0 == 'reversed' %}
-                                    {% trans 'To be debited' %}
+                                    <span>{% trans 'To be debited' %}</span>
                                 {% else %}
                                     {% if details.0 == 'unpaid' and details.1 == None %}
-                                        <img src="{{ STATIC_URL }}img/icons/error.png" title="{{ participation.remark}}" /> {% trans 'Needs manual payment' %}
+                                        <span><img src="{{ STATIC_URL }}img/icons/error.png" title="{{ participation.remark}}" /> {% trans 'Needs manual payment' %}</span>
                                     {% else %}
-                                        <img src="{{ STATIC_URL }}img/icons/error.png" title="{{ participation.remark}}" /> {% trans 'Not paid yet' %}
+                                        <span><img src="{{ STATIC_URL }}img/icons/error.png" title="{{ participation.remark}}" /> {% trans 'Not paid yet' %}</span>
                                     {% endif %}
+                                    <br /><span>{% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Open amount: &euro;&nbsp;{{ costs }}{% endblocktrans %}</span>
                                 {% endif %}
-                                </span>
                             {% endwith %}
                         {% endif %}
                     </td>

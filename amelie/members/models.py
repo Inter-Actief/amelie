@@ -1039,7 +1039,7 @@ class Membership(models.Model):
             return 'free', None
 
         current_transaction = self.payment_transaction()
-        return get_transaction_payment_status(transaction=current_transaction, mandate_type='contribution')
+        return get_transaction_payment_status(_transaction=current_transaction, mandate_type='contribution')
 
     @transaction.atomic
     def create_contribution_transaction(self, date: Optional[datetime.datetime] = None):

@@ -78,6 +78,8 @@ DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 MEMBERS_EARLY_TERMINATION_PAYMENT_METHOD_ID = 10
 # The ID of the personal_tab.PaymentMethod object representing a Forgiven payment (no payment needed).
 MEMBERS_FORGIVEN_PAYMENT_METHOD_ID = 12
+# The ID of the personal_tab.PaymentMethod object representing an Internal settlement (no payment needed).
+INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID = 14
 
 # The LDAP host that is used to verify login attempts in the LDAP authentication module
 LDAP_HOST = 'hexia.ia.utwente.nl'

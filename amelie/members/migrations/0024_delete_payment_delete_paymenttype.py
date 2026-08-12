@@ -124,7 +124,7 @@ def forwards(apps, schema_editor):
     num_left_unpaid = 0
     created_internal_settlements = 0
     try:
-        authorization_payment_type = PaymentType.objects.get(pk=4)  # Annual authorization
+        authorization_payment_type = PaymentType.objects.get(name="Annual authorization")  # Annual authorization
     except PaymentType.DoesNotExist:
         authorization_payment_type = None
     for i, membership in enumerate(Membership.objects.all().order_by('pk')):
