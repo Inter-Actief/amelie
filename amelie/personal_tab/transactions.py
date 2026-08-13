@@ -17,7 +17,7 @@ from amelie.tools.logic import current_academic_year_strict, current_association
 
 
 @transaction.atomic
-def participation_transaction(participation, reason, cancel=False, added_by=None):
+def participation_transaction(participation, reason, cancel=False, added_by=None, date_override=None):
     """
     Helper function that adds an ActivityTransaction.
 
@@ -25,12 +25,20 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
     reason:         Reason/description of this transaction
     cancel:         If True, make a compensation for the participation. This requires the participation.pk != None.
     added_by:       Who created the transaction.
+    date_override:  Use this date for the transactions if it is given
     """
 
-    # Take the beginning date/time as the date of the transaction, unless this moment has already passed. Jelte 2013-09-25
-    date = max(participation.event.begin, timezone.now())
+    if date_override is not None:
+        date = date_override
+    else:
+        # Take the beginning date/time as the date of the transaction, unless this moment has already passed. Jelte 2013-09-25
+        date = max(participation.event.begin, timezone.now())
 
     if cancel:
+        # If the participation was free, there will not be a transaction to compensate.
+        if participation.is_free():
+            return
+
         # The latest (by creation time) positive ActivityTransaction for this participation should be compensated
         old_transactions = ActivityTransaction.objects.filter(
             participation=participation, event=participation.event, person=participation.person,
@@ -53,6 +61,11 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
             with_enrollment_options=old_transaction.with_enrollment_options, added_by=added_by
         )
 
+        # If the old transaction was already settled, we can't create a settlement for it as it would overwrite
+        # the old settlement. So instead we just leave the negative transaction unsettled so it can be counted later.
+        if old_transaction.settlement is not None:
+            return
+
         # Create a settlement to pay the old transaction by cancelling it out against the new reversal transaction.
         payment_method = PaymentMethod.objects.get(pk=settings.INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID)
         # Translate the description to the user's preferred language
@@ -70,6 +83,9 @@ def participation_transaction(participation, reason, cancel=False, added_by=None
                 created_by=added_by,
             )
     else:
+        # If the participation is free, don't add a transaction.
+        if participation.is_free():
+            return
         price, with_enrollment_options = participation.calculate_costs()
         # Create regular activity transaction
         ActivityTransaction.objects.create(

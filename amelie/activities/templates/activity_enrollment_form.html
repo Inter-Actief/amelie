@@ -106,6 +106,13 @@
                         {% trans '<b>Warning:</b> some of these options may cost extra!' %}
                     </p>
 
+                    <!-- Cross-form errors -->
+                    {% if form.non_field_errors %}
+                        <p>
+                            {{ form.non_field_errors }}
+                        </p>
+                    {% endif %}
+
                     {% for form_id, subform in form.forms.items %}
                         {% if subform.enrollmentoption_type == 'EnrollmentoptionQuestion' %}
                             {% include "forms/enrollmentoption_question_answer.html" with form=subform %}

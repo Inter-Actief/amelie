@@ -1,13 +1,6 @@
 {% load i18n %}
 
-<p>
-	<!-- Errors -->
-	{% if form.non_field_errors %}
-		<span>
-			{{ form.non_field_errors }}
-		</span>
-	{% endif %}
-
+<div>
 	<!-- Title -->
 	<h3>
 		{{ form.enrollmentoption.title }}
@@ -17,7 +10,17 @@
 		{% endif %}
 	</h3>
 
-	<!-- Veld -->
+	<!-- Errors -->
+	{% if form.non_field_errors %}
+		<span>
+			{{ form.non_field_errors }}
+		</span>
+	{% endif %}
+    {% if form.answer.errors %}
+        <p>{{ form.answer.errors }}</p>
+    {% endif %}
+
+	<!-- Field -->
 	<span>
 		{{ form.answer }}
 	</span>
@@ -26,4 +29,4 @@
 	{% for field in form.hidden_fields %}
 		{{ field }}
 	{% endfor %}
-</p>
+</div>

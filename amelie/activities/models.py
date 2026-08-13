@@ -499,7 +499,7 @@ class EnrollmentoptionNumeric(Enrollmentoption):
     def get_min_max_extra_costs(self) -> Tuple[Decimal, Decimal]:
         if self.has_extra_costs():
             # 9999 is a highball estimate that should not be reached in normal use, because 'infinite' is hard to work with.
-            max_choice_amount = (self.maximum_per_person or self.maximum or 9999)
+            max_choice_amount = min(self.maximum_per_person or 9999, self.maximum or 9999, 9999)
             largest_extra_price = self.price_extra * max_choice_amount
             return min(largest_extra_price, Decimal('0.00')), max(largest_extra_price, Decimal('0.00'))
         else:

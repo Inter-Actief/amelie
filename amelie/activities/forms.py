@@ -1,4 +1,3 @@
-import logging
 from datetime import timedelta
 from decimal import Decimal
 from typing import OrderedDict, Optional, Tuple, List
@@ -9,6 +8,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from django.core.validators import FileExtensionValidator
+from django.db.models import Sum
 from django.forms import widgets, SplitDateTimeField
 from django.utils import formats, timezone
 from django.utils.translation import gettext_lazy as _l
@@ -121,6 +121,35 @@ class EnrollmentoptionNumericForm(forms.ModelForm):
         model = EnrollmentoptionNumeric
         fields = ["title", "price_extra", "maximum", "maximum_per_person"]
 
+    def clean_maximum(self):
+        data = self.cleaned_data['maximum']
+        # Check if the sum of current enrollment answers does not exceed the (potentially updated) maximum
+        if self.instance.pk:
+            current_enrollment_count = self.instance.enrollmentoptionanswer_set.aggregate(
+                Sum('enrollmentoptionnumericanswer__answer')
+            ).get('enrollmentoptionnumericanswer__answer__sum')
+            if current_enrollment_count is not None and current_enrollment_count > data:
+                self.add_error(
+                    'maximum',
+                    _l("The amount of current enrollments for this option would exceed the new maximum amount. "
+                      "Please unenroll or edit the affected people first, or modify the maximum for this option.")
+                )
+        return data
+
+    def clean_maximum_per_person(self):
+        data = self.cleaned_data['maximum_per_person']
+        # Check if none of the current enrollment answers exceed the (potentially updated) maximum per person.
+        if self.instance.pk:
+            for answer in self.instance.enrollmentoptionanswer_set.all():
+                if answer.enrollmentoptionnumericanswer.answer > data:
+                    self.add_error(
+                        'maximum_per_person',
+                        _l("The selected amount of (at least) one of the current enrollments for this option exceeds "
+                           "the new maximum amount per person. Please unenroll or edit the affected people first, "
+                           "or modify the maximum for this option.")
+                    )
+        return data
+
 
 class EnrollmentoptionFoodForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -196,10 +225,27 @@ class EnrollmentoptionNumericAnswerForm(EnrollmentoptionAnswerForm):
         max_per_person = self.enrollmentoption.maximum_per_person if self.enrollmentoption.maximum_per_person > 0 else None
         if not data:
             data = 0
+        if data < 0:
+            self.add_error('answer', _l("Sorry, but the amount must be a positive number!"))
         if max_per_person is not None and data > max_per_person:
             self.add_error('answer', _l("Sorry, but you cannot exceed the maximum amount per person!"))
-        if data > 0 and not self.enrollmentoption.spots_left():
+
+        # Check the number of spots left, taking into account any spots that this enrollment might have already had
+        # before (in case the enrollment is being edited, which is when the self.instance.pk is set)
+        previous_spot_count = 0
+        if self.instance.pk:
+            previous_spot_count = self.instance.answer
+
+        num_spots_left = self.enrollmentoption.count_spots_left()
+        if num_spots_left is not None:
+            # Adding the previous spots to the available spots makes sure the person can reduce their
+            # amount without having to completely clear and re-claim them.
+            num_spots_left += previous_spot_count
+        if data > 0 and num_spots_left == 0:
+            self.add_error('answer', _l("Sorry, but there are no spots left!"))
+        elif data > 0 and (num_spots_left is not None and num_spots_left < data):
             self.add_error('answer', _l("Sorry, but there are not enough spots left!"))
+
         return data
 
     class Meta:
@@ -299,7 +345,6 @@ class ActivityEnrollmentOptionsForm(MultiForm):
         # Extra per-form kwargs are stored in the initial values for the forms, which also includes a nested 'initial' key for the actual initial values.
         fkwargs['initial'] = None
         fkwargs.update(**self.initials.get(key, {}))
-        logging.error(f"Form {key} - args {args}, fkwargs {fkwargs}")  # TODO REMOVE
         return args, fkwargs
 
     def get_costs(self) -> Tuple[Decimal, Decimal, bool]:

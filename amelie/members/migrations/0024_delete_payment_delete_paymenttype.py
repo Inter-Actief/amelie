@@ -276,7 +276,7 @@ def forwards(apps, schema_editor):
                         num_left_unpaid += 1
                 else:
                     num_left_unpaid += 1
-    logger.info(f'- [DONE] Created {num_cts_created} ContributionTransactions, {num_settlements_created} settlements, settled {created_internal_settlements} reversals and left {num_left_unpaid} memberships unpaid.')
+    logger.info(f'- [DONE] Created {num_cts_created} ContributionTransactions, {num_settlements_created} settlements, settled {created_internal_settlements} reversals and left {num_left_unpaid} memberships untouched.')
 
 
 class Migration(migrations.Migration):

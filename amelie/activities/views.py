@@ -28,6 +28,7 @@ from django.utils import timezone
 from django.utils import translation
 from urllib.parse import quote
 from django.utils.safestring import mark_safe
+from django.utils.timezone import get_current_timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, DetailView
@@ -48,7 +49,6 @@ from amelie.members.forms import PersonSearchForm
 from amelie.members.models import Person, Photographer
 from amelie.members.query_forms import ActivityMailingForm
 from amelie.personal_tab import transactions
-from amelie.personal_tab.models import ActivityTransaction
 from amelie.tools import amelie_messages, types
 from amelie.tools.const import TaskPriority
 from amelie.tools.decorators import require_committee
@@ -526,50 +526,62 @@ class ActivityEnrollView(BaseActivityEnrollmentView):
         else:
             return super().get(*args, **kwargs)
 
-    @transaction.atomic
     def form_valid(self, form):
-        # Check if the enrollment was indirect and the option to skip the waiting list for this enrollment was selected.
-        force_skip_waiting_list = self.indirect and form.cleaned_data.get('indirect', {}).get('waiting_list', None) == "skip"
+        try:
+            with transaction.atomic():
+                # Check if the enrollment was indirect and the option to skip the waiting list for this enrollment was selected.
+                force_skip_waiting_list = self.indirect and form.cleaned_data.get('indirect', {}).get('waiting_list', None) == "skip"
 
-        # Enroll the person
-        participation = Participation(
-            person=self.person,
-            event=self.activity,
-            added_by=self.request.person,
-            waiting_list=(self.activity.enrollment_full and not force_skip_waiting_list)
-        )
+                # Enroll the person
+                participation = Participation(
+                    person=self.person,
+                    event=self.activity,
+                    added_by=self.request.person,
+                    waiting_list=(self.activity.enrollment_full and not force_skip_waiting_list)
+                )
 
-        if self.indirect:
-            participation.remark = 'Indirect enrollment.'
+                if self.indirect:
+                    participation.remark = 'Indirect enrollment.'
 
-        participation.save()
+                participation.save()
 
-        # Save enrollment option answers
-        for subform_id, subform in form.forms.items():
-            if isinstance(subform, EnrollmentoptionAnswerForm):
-                answer = subform.save(commit=False)
-                answer.enrollment = participation
-                answer.save()
-                subform.save_m2m()
+                # Save enrollment option answers
+                for subform_id, subform in form.forms.items():
+                    if isinstance(subform, EnrollmentoptionAnswerForm):
+                        answer = subform.save(commit=False)
+                        answer.enrollment = participation
+                        answer.save()
+                        subform.save_m2m()
 
-        # Create personal tab transaction (if the activity is paid)
-        price, with_enrollmentoptions = participation.calculate_costs()
+                # Create personal tab transaction (if the activity is paid)
+                price, with_enrollmentoptions = participation.calculate_costs()
 
-        # Sanity check to disallow self-enrollment for options that cost money
-        if price and not self.indirect and not self.person.has_mandate_activities():
-            # Remember to delete the participation we created!
-            participation.delete()
-            return render(self.request, "activity_enrollment_mandate.html", {'activity': self.activity})
+                if price < 0:
+                    # The enrollment costs become negative with this change, that's not OK, abort!!!
+                    raise ValidationError(
+                        _("Your changes would make the costs of your participation negative! "
+                          "Unfortunately that's not allowed, so the change was blocked. "
+                          "Please contact the board or the organizing committee if you think this is a mistake.")
+                    )
 
-        if price and (force_skip_waiting_list or not self.activity.enrollment_full):
-            transactions.add_participation(participation=participation, added_by=self.request.person)
+                # Sanity check to disallow self-enrollment for options that cost money
+                if price and not self.indirect and not self.person.has_mandate_activities():
+                    # Remember to delete the participation we created!
+                    participation.delete()
+                    return render(self.request, "activity_enrollment_mandate.html", {'activity': self.activity})
 
-        # Maybe send a notification e-mail to the person and set a status message in the request.
-        self.send_enrollment_mail(participation=participation)
-        self.set_enrolled_status_message(participation=participation)
+                if price and (force_skip_waiting_list or not self.activity.enrollment_full):
+                    transactions.add_participation(participation=participation, added_by=self.request.person)
 
-        # Redirect back to the activity details
-        return redirect(self.activity)
+                # Maybe send a notification e-mail to the person and set a status message in the request.
+                self.send_enrollment_mail(participation=participation)
+                self.set_enrolled_status_message(participation=participation)
+
+                # Redirect back to the activity details
+                return redirect(self.activity)
+        except ValidationError as e:
+            form.add_crossform_error(e)
+            return self.form_invalid(form)
 
 
 class ActivityUnenrollView(BaseActivityEnrollmentView):
@@ -686,39 +698,50 @@ class ActivityEditEnrollView(BaseActivityEnrollmentView):
                 msg = _('You are now enrolled for {activity}.')
             messages.success(self.request, msg.format(activity=self.activity))
 
-    @transaction.atomic
     def form_valid(self, form):
-        # It is important to NOT delete the Participation, because the person's spot in the activity
-        # or on the waiting list could be given away to the next waiting list entry.
-        # So we need to update the enrollment options of the participation in-place
+        try:
+            with transaction.atomic():
+                # It is important to NOT delete the Participation, because the person's spot in the activity
+                # or on the waiting list could be given away to the next waiting list entry.
+                # So we need to update the enrollment options of the participation in-place
 
-        participation: Optional[Participation] = form.participation
-        if participation is None:
-            raise ValueError(_("Participation not found while editing enrollment."))
+                participation: Optional[Participation] = form.participation
+                if participation is None:
+                    raise ValueError(_("Participation not found while editing enrollment."))
 
-        if not participation.waiting_list:
-            # If this is a regular Participation (not waiting list), we need to remove the old transaction from
-            # their personal tab to not charge them twice and to be able to re-add the updated costs later
-            transactions.remove_participation(participation, added_by=self.request.person, is_edited_participation=True)
+                if not participation.waiting_list:
+                    # If this is a regular Participation (not waiting list), we need to remove the old transaction from
+                    # their personal tab to not charge them twice and to be able to re-add the updated costs later
+                    transactions.remove_participation(participation, added_by=self.request.person, is_edited_participation=True)
 
-        # Save enrollment option answers
-        for subform_id, subform in form.forms.items():
-            if isinstance(subform, EnrollmentoptionAnswerForm):
-                answer = subform.save(commit=False)
-                answer.enrollment = participation
-                answer.save()
-                subform.save_m2m()
+                # Save enrollment option answers
+                for subform_id, subform in form.forms.items():
+                    if isinstance(subform, EnrollmentoptionAnswerForm):
+                        answer = subform.save(commit=False)
+                        answer.enrollment = participation
+                        answer.save()
+                        subform.save_m2m()
 
-        # If this is a regular Participation (not waiting list) and it has costs after editing, we need to (re-)add
-        # the transaction to update the costs on the personal tab
-        price, with_enrollmentoptions = participation.calculate_costs()
-        if price and not participation.waiting_list:
-            # If this is a regular Participation (not waiting list), we need to re-add
-            # the transaction to update the costs on the personal tab
-            transactions.add_participation(participation, added_by=self.request.person, is_edited_participation=True)
+                # If this is a regular Participation (not waiting list) and it has costs after editing, we need to (re-)add
+                # the transaction to update the costs on the personal tab
+                price, with_enrollmentoptions = participation.calculate_costs()
+                if price < 0:
+                    # The enrollment costs become negative with this change, that's not OK, abort!!!
+                    raise ValidationError(
+                        _("Your changes would make the costs of your participation negative! "
+                          "Unfortunately that's not allowed, so the change was blocked. "
+                          "Please contact the board or the organizing committee if you think this is a mistake.")
+                    )
+                if price and not participation.waiting_list:
+                    # If this is a regular Participation (not waiting list), we need to re-add
+                    # the transaction to update the costs on the personal tab
+                    transactions.add_participation(participation, added_by=self.request.person, is_edited_participation=True)
 
-        # Redirect back to the activity details
-        return redirect(self.activity)
+                # Redirect back to the activity details
+                return redirect(self.activity)
+        except ValidationError as e:
+            form.add_crossform_error(e)
+            return self.form_invalid(form)
 
 
 def activity_random_photo(request, pk, *args, **kwargs):
@@ -1150,72 +1173,90 @@ class ActivityUpdateView(ActivitySecurityMixin, ActivityEditMixin, UpdateView):
     form_class = ActivityForm
 
     def form_valid(self, form):
-        # If the date or price has changed, we have to update any existing transactions to the new activity date/price.
-        # The existing transactions are refunded and will be re-created on the same date.
-        person = self.request.person
-        if person is None:
-            raise Exception("Updating requires a person")
+        try:
+            with transaction.atomic():
+                # If the date or price has changed, we have to update any existing transactions to the new activity date/price.
+                # The existing transactions are refunded and will be re-created on the same date.
+                person = self.request.person
+                if person is None:
+                    raise Exception("Updating requires a person")
 
-        old_obj = self.get_object()
-        new_obj = form.instance
+                old_obj = self.get_object()
+                new_obj = form.instance
 
-        # The total possible activity price may not be negative, or it will interfere with the payment processing.
-        # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
-        # we raise a validation error.
-        activity_base_price = new_obj.price
-        enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in new_obj.enrollmentoption_set.all())
-        if activity_base_price + enrollment_options_min_prices < 0:
-            form.add_error('price', ValidationError(
-                _("Editing the activity price to this value would make the minimum possible price for this activity negative! "
-                  "This is not allowed. Please modify the pricing and limits of the enrollment options first.")
-            ))
+                # The total possible activity price may not be negative, or it will interfere with the payment processing.
+                # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
+                # we raise a validation error.
+                activity_base_price = new_obj.price
+                enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in new_obj.enrollmentoption_set.all())
+                if activity_base_price + enrollment_options_min_prices < 0:
+                    raise ValidationError(
+                        _("Editing the activity price to this value would make the minimum possible price for this activity negative! "
+                          "This is not allowed. Please modify the pricing and limits of the activity or the enrollment options first.")
+                    )
+
+                # Determine if any activity fields that have an impact on the participation transactions have been changed
+                needs_new_transactions = False
+                needs_price_change_mail = False
+                change_reasons = []
+                # If the activity start date is moved to a different day, the transactions need to be moved to the new date.
+                old_date = old_obj.begin.astimezone(get_current_timezone())
+                new_date = form.cleaned_data['begin'].astimezone(get_current_timezone())
+                if new_date.date() != old_date.date():
+                    needs_new_transactions = True
+                    change_reasons.append(_("start date was changed"))
+
+                # If the activity price is changed, the transactions need to be recreated with the new price
+                if form.cleaned_data['price'] != old_obj.price:
+                    needs_new_transactions = True
+                    needs_price_change_mail = True
+                    change_reasons.append(_("price was changed"))
+
+                if needs_new_transactions:
+                    # Undo any old transactions _before_ the updated price is saved (so the calculations use the old pricing)
+                    for participation in old_obj.participation_set.all():
+                        # Note - reason text is max 200 chars!
+                        reason = _("Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
+                            activity=str(old_obj)[:90], change_reasons=", ".join(change_reasons)
+                        )
+                        transactions.participation_transaction(
+                            participation,
+                            reason=reason,
+                            cancel=True, added_by=person
+                        )
+
+                # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
+                response = super().form_valid(form)
+
+                if needs_new_transactions:
+                    # Create new transactions if necessary
+                    for participation in old_obj.participation_set.all():
+                        price, with_enrollment_options = participation.calculate_costs()
+                        if price < 0:
+                            # One of the current enrollment costs becomes negative with this change, abort!!!
+                            raise ValidationError(
+                                _("Editing the activity in this way would make the costs of (at least) one of the "
+                                  "current enrollments negative! This is not allowed. Please unenroll the affected "
+                                  "people, or modify the pricing and limits of the activity or the enrollment options first.")
+                            )
+                        # Note - reason text is max 200 chars!
+                        reason = _("Activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
+                            activity=str(new_obj.summary)[:90], change_reasons=", ".join(change_reasons)
+                        )
+                        transactions.participation_transaction(
+                            participation,
+                            reason=reason,
+                            added_by=person,
+                            date_override=new_obj.begin
+                        )
+
+                if needs_price_change_mail:
+                    activity_send_price_change_mail(old_obj, new_obj)
+
+                return response
+        except ValidationError as e:
+            form.add_error('price', e)
             return self.form_invalid(form)
-
-        # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
-        response = super().form_valid(form)
-
-        # Determine if any activity fields that have an impact on the participation transactions have been changed
-        needs_new_transactions = False
-        change_reasons = []
-        # If the activity start date is moved to a different day, the transactions need to be moved to the new date.
-        if form.cleaned_data['begin'].date() != old_obj.begin.date():
-            needs_new_transactions = True
-            change_reasons.append(_("start date was changed"))
-
-        # If the activity price is changed, the transactions need to be recreated with the new price
-        if form.cleaned_data['price'] != old_obj.price:
-            needs_new_transactions = True
-            change_reasons.append(_("price was changed"))
-            activity_send_price_change_mail(old_obj, new_obj)
-
-        if old_obj is not None and needs_new_transactions:
-            # Undo and create new transactions
-            for participation in old_obj.participation_set.all():
-                # Note - reason text is max 200 chars!
-                reason = _("Activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
-                    activity=str(old_obj)[:90], change_reasons=", ".join(change_reasons)
-                )
-                transactions.participation_transaction(
-                    participation,
-                    reason=reason,
-                    cancel=True, added_by=person
-                )
-
-                # Create a new transaction
-                price, with_enrollment_options = participation.calculate_costs()
-                # Note - reason text is max 200 chars!
-                reason = _("Activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
-                    activity=str(new_obj.summary)[:90], change_reasons=", ".join(change_reasons)
-                )
-
-                # Can't use transactions.participation_transaction because we need to override the date.
-                t = ActivityTransaction(price=price, description=reason,
-                                        participation=participation, event=old_obj,
-                                        person=participation.person, date=new_obj.begin,
-                                        with_enrollment_options=with_enrollment_options, added_by=person)
-                t.save()
-
-        return response
 
 
 class EnrollmentoptionListView(ActivitySecurityMixin, TemplateView):
@@ -1311,69 +1352,83 @@ class EnrollmentoptionUpdateView(ActivitySecurityMixin, UpdateView):
         return self.get_object().activity
 
     def form_valid(self, form):
-        # If the price has changed, we have to update any existing transactions to the new activity price.
-        # The existing transactions are refunded and will be re-created on the same date.
-        person = self.request.person
-        if person is None:
-            raise Exception("Updating requires a person")
+        try:
+            with transaction.atomic():  # This definitely needs rolling back if any ValidationErrors occur.
+                # If the price has changed, we have to update any existing transactions to the new activity price.
+                # The existing transactions are refunded and will be re-created on the same date.
+                person = self.request.person
+                if person is None:
+                    raise Exception("Updating requires a person")
 
-        old_obj = self.get_object()
-        new_obj: Enrollmentoption = form.instance
+                old_obj = self.get_object()
+                new_obj: Enrollmentoption = form.instance
 
-        # The total possible activity price may not be negative, or it will interfere with the payment processing.
-        # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
-        # we raise a validation error.
-        activity_base_price = old_obj.activity.price
-        existing_enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in old_obj.activity.enrollmentoption_set.all() if o != old_obj)
-        new_option_min_price = new_obj.get_min_max_extra_costs()[0]
-        if activity_base_price + existing_enrollment_options_min_prices + new_option_min_price < 0:
-            form.add_error(None, ValidationError(
-                _("Editing this option in this way would make the minimum possible price for this activity negative! "
-                  "This is not allowed. Please modify the pricing or limits of this or other enrollment options first.")
-            ))
+                # The total possible activity price may not be negative, or it will interfere with the payment processing.
+                # So, if the base activity cost, plus the costs of all negatively priced enrollment options, is lower than 0,
+                # we raise a validation error.
+                activity_base_price = old_obj.activity.price
+                existing_enrollment_options_min_prices = sum(o.get_min_max_extra_costs()[0] for o in old_obj.activity.enrollmentoption_set.all() if o != old_obj)
+                new_option_min_price = new_obj.get_min_max_extra_costs()[0]
+                if activity_base_price + existing_enrollment_options_min_prices + new_option_min_price < 0:
+                    raise ValidationError(
+                        _("Editing this option in this way would make the minimum possible price for this activity negative! "
+                          "This is not allowed. Please modify the pricing or limits of this or other enrollment options first.")
+                    )
+
+                # Determine if any activity fields that have an impact on the participation transactions have been changed
+                needs_new_transactions = False
+                change_reasons = []
+                # If the enrollment option price is changed, the transactions need to be recreated with the new price
+                if "price_extra" in form.cleaned_data and form.cleaned_data["price_extra"] != old_obj.price_extra:
+                    needs_new_transactions = True
+                    change_reasons.append(_("enrollment option price was changed"))
+
+                if needs_new_transactions:
+                    # Undo any old transactions _before_ the updated price is saved (so the calculations use the old pricing)
+                    for participation in old_obj.activity.participation_set.all():
+                        # Note - reason text is max 200 chars!
+                        reason = _("An enrollment option for activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
+                            activity=str(old_obj.activity)[:80], change_reasons=", ".join(change_reasons)
+                        )
+                        transactions.participation_transaction(
+                            participation,
+                            reason=reason,
+                            cancel=True, added_by=person
+                        )
+
+                # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
+                response = super().form_valid(form)
+
+                if needs_new_transactions:
+                    # Create new transactions if necessary
+                    for participation in old_obj.activity.participation_set.all():
+                        price, with_enrollment_options = participation.calculate_costs()
+                        if price < 0:
+                            # One of the current enrollment costs becomes negative with this change, abort!!!
+                            raise ValidationError(
+                                _("Editing this option in this way would make the costs of (at least) one of the current enrollments negative! "
+                                  "This is not allowed. Please unenroll the affected people, or modify the pricing or limits of this "
+                                  "or other enrollment options first.")
+                            )
+                        # Note - reason text is max 200 chars!
+                        reason = _("An enrollment option for activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
+                            activity=str(new_obj.activity.summary)[:80], change_reasons=", ".join(change_reasons)
+                        )
+                        transactions.participation_transaction(
+                            participation,
+                            reason=reason,
+                            added_by=person,
+                            date_override=new_obj.activity.begin
+                        )
+
+                    # Send price update mail
+                    activity_send_enrollment_option_price_change_mail(old_obj, new_obj)
+
+                return response
+        except ValidationError as e:
+            form.add_error(None, e)
             return self.form_invalid(form)
 
-        # Save changes to the parent activity so new transactions are calculated correctly in case of a new price/date
-        response = super().form_valid(form)
-
-         # Determine if any activity fields that have an impact on the participation transactions have been changed
-        needs_new_transactions = False
-        change_reasons = []
-
-        # If the enrollment option price is changed, the transactions need to be recreated with the new price
-        if "price_extra" in form.cleaned_data and form.cleaned_data["price_extra"] != old_obj.price_extra:
-            needs_new_transactions = True
-            change_reasons.append(_("enrollment option price was changed"))
-            activity_send_enrollment_option_price_change_mail(old_obj, new_obj)
-
-        if old_obj is not None and needs_new_transactions:
-            # Undo and create new transactions
-            for participation in old_obj.activity.participation_set.all():
-                # Note - reason text is max 200 chars!
-                reason = _("An enrollment option for activity '{activity}' was changed (reversal of old transaction) ({change_reasons})").format(
-                    activity=str(old_obj.activity)[:80], change_reasons=", ".join(change_reasons)
-                )
-                transactions.participation_transaction(
-                    participation,
-                    reason=reason,
-                    cancel=True, added_by=person
-                )
-
-                # Create a new transaction
-                price, with_enrollment_options = participation.calculate_costs()
-                # Note - reason text is max 200 chars!
-                reason = _("An enrollment option for activity '{activity}' was changed (addition of new transaction) ({change_reasons})").format(
-                    activity=str(new_obj.activity.summary)[:80], change_reasons=", ".join(change_reasons)
-                )
-
-                # Can't use transactions.participation_transaction because we need to override the date.
-                t = ActivityTransaction(price=price, description=reason,
-                                        participation=participation, event=old_obj.activity,
-                                        person=participation.person, date=new_obj.activity.begin,
-                                        with_enrollment_options=with_enrollment_options, added_by=person)
-                t.save()
-
-        return response
 
     def get_form_class(self):
         """

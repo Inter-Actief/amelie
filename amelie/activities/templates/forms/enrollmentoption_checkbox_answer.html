@@ -1,19 +1,23 @@
 {% load i18n %}
 
-<p>
-	<!-- Fouten -->
+<div>
+
+	<!-- Title -->
+	<h3>
+		{{ form.enrollmentoption.title }}
+	</h3>
+
+	<!-- Errors -->
 	{% if form.non_field_errors %}
 		<span>
 			{{ form.non_field_errors }}
 		</span>
 	{% endif %}
+    {% if form.answer.errors %}
+        <p>{{ form.answer.errors }}</p>
+    {% endif %}
 
-	<!-- Titel -->
-	<h3>
-		{{ form.enrollmentoption.title }}
-	</h3>
-
-	<!-- Veld -->
+	<!-- Field -->
 	<span {% if form.enrollmentoption.price_extra != 0 %}data-price_extra="{{ form.enrollmentoption.price_extra|stringformat:".2f" }}"{% endif %}>
 		{{ form.answer }} {% trans 'Yes' %}
 
@@ -33,4 +37,4 @@
 	{% for field in form.hidden_fields %}
 		{{ field }}
 	{% endfor %}
-</p>
+</div>

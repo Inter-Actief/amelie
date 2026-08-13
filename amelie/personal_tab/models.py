@@ -148,7 +148,7 @@ class Transaction(models.Model):
     added_by = models.ForeignKey(Person, verbose_name=_l('Added by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
 
     class Meta:
-        ordering = ['-date', '-added_on']
+        ordering = ['-date', '-added_on', '-pk']
         verbose_name = _l('Transaction')
         verbose_name_plural = _l("Transactions")
 
