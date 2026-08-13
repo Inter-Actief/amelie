@@ -358,4 +358,10 @@ class Migration(migrations.Migration):
         # Create a manual payment settlement for any transactions before the SEPA debt collections came into effect.
         # (2013-10-30, 23:00:00, tz.utc)
         migrations.RunPython(create_manual_batch_for_pre_sepa_transactions_forwards),
+
+        # Edit ordering on Transactions so even if added on date is identical, newest transaction by PK is still shown first.
+        migrations.AlterModelOptions(
+            name='transaction',
+            options={'ordering': ['-date', '-added_on', '-pk'], 'verbose_name': 'Transaction', 'verbose_name_plural': 'Transactions'},
+        ),
     ]
