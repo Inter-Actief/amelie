@@ -1191,6 +1191,9 @@ class ManualPaymentSettlement(PersonalTabSettlement):
 
             # Save the settlement reference in all transactions
             for t in transactions:
+                if t.settlement is not None:
+                    # The ValueError breaks the atomic transaction, which reverts any previous DB changes.
+                    raise ValueError(f"Transaction '{t}' has already been settled, cannot settle it again!")
                 t.settlement = settlement
                 t.save()
 
