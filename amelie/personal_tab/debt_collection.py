@@ -6,9 +6,9 @@ from django.template.defaultfilters import date as _date
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
 
-from amelie.members.models import Person
+from amelie.members.models import Person, Membership
 from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
-    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment
+    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment, BadBIC
 from amelie.tools.encodings import normalize_to_ascii
 
 
@@ -321,6 +321,16 @@ def process_reversal(reversal, actor):
                                       description=ct.description, membership=ct.membership)
         cct.save()
 
+    # If the reversal reason is DNOR, the BIC of the authorization must be added to the Bad BIC list
+    if reversal.reason == Reversal.ReversalReasons.DNOR:
+        bad_bic = BadBIC.objects.filter(bic=instruction.authorization.bic).first()
+        if bad_bic:
+            bad_bic.update_reversals()
+        else:
+            BadBIC.objects.create(
+                bic=instruction.authorization.bic, first_reversal=reversal, last_reversal=reversal
+            )
+
 
 def edit_reversal(reversal, actor):
     """
@@ -334,6 +344,11 @@ def edit_reversal(reversal, actor):
     rt.date = reversal_datetime
     rt.added_by = actor
     rt.save()
+
+    # Update any BadBic objects with this BIC or this reversal as their first/last reversal
+    bad_bics = list(BadBIC.objects.filter(Q(bic=reversal.instruction.authorization.bic) | Q(first_reversal=reversal) | Q(last_reversal=reversal)))
+    for bad_bic in bad_bics:
+        bad_bic.update_reversals()
 
 
 @transaction.atomic
@@ -360,6 +375,12 @@ def delete_reversal(reversal):
 
     # Then, delete the ReversalTransaction that re-incurred the costs of the original direct debit to the personal tab.
     rt.delete()
+
+    # If the reversal reason was DNOR, the BadBIC with this BIC should be re-checked if it exists
+    if reversal.reason == Reversal.ReversalReasons.DNOR:
+        bad_bic = BadBIC.objects.filter(bic=reversal.instruction.authorization.bic).first()
+        if bad_bic:
+            bad_bic.update_reversals()
 
     # Finally, delete the entire Reversal.
     reversal.delete()

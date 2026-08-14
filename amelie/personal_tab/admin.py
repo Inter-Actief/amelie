@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.contrib import admin
 
-from amelie.personal_tab.models import Declaration, DiscountPeriod, Discount, DiscountCredit, Transaction, \
+from amelie.personal_tab.models import BadBIC, Declaration, DiscountPeriod, Discount, DiscountCredit, Transaction, \
     CustomTransaction, ActivityTransaction, CookieCornerTransaction, AlexiaTransaction, ContributionTransaction, \
     Article, Category, RFIDCard, AuthorizationType, Authorization, Amendment, DebtCollectionAssignment, \
     DebtCollectionBatch, \
@@ -368,6 +368,12 @@ class ReversalAdmin(admin.ModelAdmin):
         return False
 
 
+class BadBICAdmin(admin.ModelAdmin):
+    list_display = ('id', 'bic', 'date_added', 'last_reversal', 'first_reversal')
+    search_fields = ['bic']
+    ordering = ['bic']
+
+
 class PaymentMethodAdmin(admin.ModelAdmin):
     list_display = ('id', 'name_nl', 'name_en', 'description_nl', 'description_en', 'visible', 'visible_memberships', 'visible_activities', 'frontend_icon_display')
     list_filter = ('visible', 'visible_memberships', 'visible_activities')
@@ -491,6 +497,7 @@ admin.site.register(DebtCollectionAssignment, DebtCollectionAssignmentAdmin)
 admin.site.register(DebtCollectionBatch, DebtCollectionBatchAdmin)
 admin.site.register(DebtCollectionInstruction, DebtCollectionInstructionAdmin)
 admin.site.register(Reversal, ReversalAdmin)
+admin.site.register(BadBIC, BadBICAdmin)
 
 admin.site.register(PaymentMethod, PaymentMethodAdmin)
 admin.site.register(ManualPaymentSettlement, ManualPaymentSettlementAdmin)

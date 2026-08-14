@@ -1318,6 +1318,49 @@ class ReversalTransaction(Transaction):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
 
 
+class BadBIC(models.Model):
+    """
+    A known bad SEPA BIC of a bank that is in the SDD Core list but does not in practice accept direct debits
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+
+    bic = BICField(verbose_name=_l('BIC'), unique=True)
+    date_added = models.DateTimeField(verbose_name=_l('Date added'), auto_now_add=True)
+    first_reversal = models.ForeignKey(Reversal, verbose_name=_l("First reversal"), related_name='+', null=True, on_delete=models.SET_NULL)
+    last_reversal = models.ForeignKey(Reversal, verbose_name=_l("Last reversal"), related_name='+', null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.bic
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_reversals()
+
+    def update_reversals(self):
+        # Update the first and last reversal for this BadBIC
+        self.first_reversal = Reversal.objects.filter(
+            instruction__authorization__bic=self.bic,
+            reason=Reversal.ReversalReasons.DNOR
+        ).order_by('date').first()
+        self.last_reversal = Reversal.objects.filter(
+            instruction__authorization__bic=self.bic,
+            reason=Reversal.ReversalReasons.DNOR
+        ).order_by('date').last()
+
+        # If both first and last are None (no reversals any more for this BIC), self-destruct.
+        if self.first_reversal is None and self.last_reversal is None:
+            self.delete()
+        else:
+            self.save()
+
+    class Meta:
+        ordering = ['bic']
+        verbose_name = _l('known bad BIC')
+        verbose_name_plural = _l('known bad BICs')
+
+
 def get_sentinel_person() -> Person:
     return Person.objects.get(pk=settings.ANONIMIZATION_SENTINEL_PERSON_ID)
 
