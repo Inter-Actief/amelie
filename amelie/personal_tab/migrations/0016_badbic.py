@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('personal_tab', '0013_authorization_documenso_id_and_more'),
+        ('personal_tab', '0015_personaltabsettlement_and_more'),
     ]
 
     operations = [
