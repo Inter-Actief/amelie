@@ -599,7 +599,15 @@ PERSONAL_TAB_PRINTERS = {
 
 # Declaration Settings
 DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
+DECLARATION_EMAIL_COMMITTEE_OVERRIDE = {
+    "SocCie": "SocCie Declarations <socciedecla@inter-actief.net>",
+    "Kick-IT": "Kick-IT Declarations <kick-it.decla@inter-actief.net>",
+}
 TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
+TREASURER_EMAIL_COMMITTEE_OVERRIDE = {
+    "SocCie": "Sociëteitscommissie <soccie@inter-actief.net>",
+    "Kick-IT": "Kick-IT <kick-it@inter-actief.net>",
+}
 PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB total, because email size limit is 25 MB
 PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
 
