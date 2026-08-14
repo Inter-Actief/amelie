@@ -72,7 +72,7 @@ dependencies = [
 
     # Pillow requires libjpeg-dev zlib1g-dev (on Debian)
     "Pillow>=12.1.1,<12.4",
-    "python-gitlab>=8.1.0,<8.5",
+    "python-gitlab>=8.1.0,<8.6",
     "python-dateutil>=2.9.0,<2.10",
 
     # python-ldap requires libldap-dev libsasl2-dev (on Debian) to build
@@ -101,21 +101,21 @@ dependencies = [
     # Google API Client
     "google-api-python-client>=2.192.0,<3",
     "google-auth>=2.49.1,<2.57",
-    "pyOpenSSL>=26.0.0,<26.4.0",
+    "pyOpenSSL>=26.0.0,<26.5.0",
 
     # Development
     "django-debug-toolbar>=3.7,<7.1",
     "django-rosetta>=0.10.3,<0.11",
     "docutils>=0.19,<0.23",
     "pyinotify",
-    "model_bakery>=1.23.3,<1.24",
+    "model_bakery>=1.23.3,<1.25",
     "django-silk>=5.5.0,<5.6",
 
     # Single Sign On - OIDC Client
     "mozilla-django-oidc>=5.0.2,<5.1",
 
     # Sentry error logging
-    "sentry-sdk>=2.54.0,<2.65",
+    "sentry-sdk>=2.54.0,<2.67",
 
     # Health checks for Django
     "django-health-check[psutil,celery,rabbitmq,redis]>=4.0,<4.5",

@@ -618,6 +618,8 @@ def unpaid_memberships_forgive(request, year):
         messages.error(request, _("No members were selected."))
         return redirect('personal_tab:unpaid_memberships_year', year)
 
+    total_price = sum((membership.type.price for membership in memberships), Decimal('0.00'))
+
     if request.method == "POST":
         if 'confirm' in request.POST:
             with transaction.atomic():
