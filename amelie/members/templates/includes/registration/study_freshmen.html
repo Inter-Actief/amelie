@@ -31,6 +31,11 @@
             <!-- Student number -->
             <div class="form-group">
                 {{ wizard.form.student_number.errors }}
+                {% if debug %}
+                    <ul class="ia_messages"><li class="info">
+                        {% trans 'Hey there developer! Here are some random unused student numbers for you to use:' %}&nbsp;<span class="monospace-text-bordered">{{ wizard.form.get_random_student_numbers|join:", " }}</span>
+                    </li></ul>
+                {% endif %}
                 <label class="col-sm-3 col-md-2 control-label">{% trans 'Student number' %} <span class="form-required">*</span></label>
                 <div class="col-sm-9 col-md-10">
                     <div class="form-inline">

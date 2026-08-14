@@ -1,6 +1,7 @@
 import datetime
 import getpass
 import io
+import math
 import os
 import random
 import uuid
@@ -274,6 +275,10 @@ class Command(DevelopmentOnlyCommand):
         # The Personal Tab default settings require that at least 3 discount periods exist
         baker.make('personal_tab.DiscountPeriod', _quantity=3)
 
+        # Create a few PaymentMethods for the Personal Tab
+        self.stdout.write("- 4 payment methods...")
+        payment_methods = baker.make('personal_tab.PaymentMethod', _quantity=4)
+
         # The SEPA authorizations require that an AuthorizationType exists for Contribution and for other stuff
         if not AuthorizationType.objects.filter(active=True, contribution=True).exists():
             AuthorizationType.objects.create(name_nl="Contributie", name_en="Contribution",
@@ -309,48 +314,53 @@ class Command(DevelopmentOnlyCommand):
         # 10 Preferences
         self.stdout.write("- 10 preferences...")
         baker.make('members.Preference', _quantity=10)
-        # 2 PaymentTypes
-        self.stdout.write("- 2 payment types...")
-        baker.make('members.PaymentType', _quantity=2)
         # 80 Persons with Memberships and Students and StudyPeriods
         self.stdout.write("- 80 persons with memberships, students and study periods...")
         students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=80)
         for student in students:
-            baker.make('members.Membership',
+            ms = baker.make('members.Membership',
                        member=student,
                        year=current_association_year(),
                        ended=None)
+            for m in ms:
+                m.create_contribution_transaction()
             s = baker.make('members.Student', person=student)
             baker.make('members.StudyPeriod', student=s, begin=gen_date_before_today)
         # 10 Persons with expired memberships (old members) and Students and StudyPeriods
         self.stdout.write("- 10 persons with expired memberships (old members), students and study periods...")
-        students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=10)
-        for student in students:
-            baker.make('members.Membership',
+        expired_students = baker.make(PERSON_MODEL_STRING, user=None, _quantity=10)
+        for student in expired_students:
+            ms = baker.make('members.Membership',
                        member=student,
                        year=current_association_year()-1,
                        ended=None)
+            for m in ms:
+                m.create_contribution_transaction()
             s = baker.make('members.Student', person=student)
             baker.make('members.StudyPeriod', student=s, begin=gen_date_before_today)
         # 20 Persons with Memberships and Employees
         self.stdout.write("- 20 persons with memberships and employees...")
         employees = baker.make(PERSON_MODEL_STRING, user=None, _quantity=20)
         for employee in employees:
-            baker.make('members.Membership',
+            ms = baker.make('members.Membership',
                        member=employee,
                        year=current_association_year(),
                        ended=None)
+            for m in ms:
+                m.create_contribution_transaction()
             baker.make('members.Employee', person=employee, end=None)
         # 50 Payments (half of students and half of employees)
         self.stdout.write("- 50 payments for half of the students and half of the employees...")
         random.shuffle(students)
         half_students = students[:40]
+        random.shuffle(expired_students)
+        half_expired_students = expired_students[:10]
         random.shuffle(employees)
         half_employees = employees[:10]
-        for person in half_students + half_employees:
-            baker.make('members.Payment',
-                       membership=person.membership_set.first(),
-                       amount=person.membership_set.first().type.price)
+        for person in half_students + half_expired_students + half_employees:
+            # Mark membership as paid
+            m: Membership = person.membership_set.first()
+            m.mark_as_paid(payment_method=random.choice(payment_methods))
         # 2 CommitteeCategories
         self.stdout.write("- 2 committee categories...")
         baker.make('members.CommitteeCategory', _quantity=2)
@@ -379,7 +389,7 @@ class Command(DevelopmentOnlyCommand):
                    _quantity=20)
         # 20 activities with unlimited enrollments between three weeks ago and three weeks from now,
         # with between 0 and 10 enrollments
-        self.stdout.write("- 20 activities with unlimited enrollments and 0 to 10 enrollments, "
+        self.stdout.write("- 20 activities with unlimited enrollments and 0 to 10 enrollments (of which about half are paid), "
                           "between 3 weeks ago and 3 weeks from now...")
         as_unlimited_enroll = baker.make(ACTIVITY_MODEL_STRING,
                                          begin=gen_datetime_between(
@@ -403,10 +413,16 @@ class Command(DevelopmentOnlyCommand):
         for activity in as_unlimited_enroll:
             num_enrollments = random.randint(0, 10)
             if num_enrollments != 0:
-                baker.make('calendar.Participation', event=activity, _quantity=num_enrollments)
+                participations = baker.make('calendar.Participation', event=activity, _quantity=num_enrollments)
+                # Mark about half of the participations as paid
+                random.shuffle(participations)
+                half_participations = participations[:math.ceil(num_enrollments/2)]
+                for participation in half_participations:
+                    # Mark participation as paid
+                    participation.mark_as_paid(payment_method=random.choice(payment_methods))
         # 20 activities with limited enrollments between three weeks ago and three weeks from now,
-        # with between 0 and 10 enrollments
-        self.stdout.write("- 20 activities with limited enrollments and 0 to 10 enrollments, "
+        # with between 0 and 10 enrollments (of which about half are paid)
+        self.stdout.write("- 20 activities with limited enrollments and 0 to 10 enrollments (of which about half are paid), "
                           "between 3 weeks ago and 3 weeks from now...")
         as_limited_enroll = baker.make(ACTIVITY_MODEL_STRING,
                                        begin=gen_datetime_between(
@@ -431,8 +447,16 @@ class Command(DevelopmentOnlyCommand):
         for activity in as_limited_enroll:
             num_enrollments = random.randint(0, 10)
             if num_enrollments != 0:
-                baker.make('calendar.Participation', event=activity, _quantity=num_enrollments)
+                participations = baker.make('calendar.Participation', event=activity, _quantity=num_enrollments)
+                # Mark about half of the participations as paid
+                random.shuffle(participations)
+                half_participations = participations[:math.ceil(num_enrollments/2)]
+                for participation in half_participations:
+                    # Mark participation as paid
+                    participation.mark_as_paid(payment_method=random.choice(payment_methods))
+
         # TODO: Enrollment options
+
         # Add between 1 and 30 pictures to the 20 limited enrollment activities
         self.stdout.write("- Between 1 and 30 pictures for the 20 limited enrollment activities...")
         attachment_recipe = Recipe('files.Attachment', _create_files=True, file=gen_image_by_dimensions(800, 600),

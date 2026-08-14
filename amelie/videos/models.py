@@ -59,7 +59,7 @@ class BaseVideo(models.Model):
     @property
     def embed_url(self):
         if hasattr(self, 'youtubevideo'):
-            return f"https://youtube-nocookie.com/embed/{self.video_id}"
+            return f"https://www.youtube-nocookie.com/embed/{self.video_id}"
         elif hasattr(self, 'streamingiavideo'):
             return f"{settings.STREAMING_BASE_URL}/play/{self.video_id}?embedded=True&autoplay=False"
         elif hasattr(self, 'peertubeiavideo'):

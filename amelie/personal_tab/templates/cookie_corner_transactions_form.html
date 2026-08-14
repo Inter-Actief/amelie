@@ -1,0 +1,26 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Transactions' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>
+            {% trans 'Transactions' %}
+
+            {% if person %}
+                {% trans 'from' %} {{ person }}
+            {% endif %}
+        </h2>
+
+        <div class="content">
+            <form class="big" method="post">
+                {% csrf_token %}
+                {{ form }}
+
+                <input type="submit" value="{% trans 'Show overview' %}" />
+            </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

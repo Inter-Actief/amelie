@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 {% if transactions %}
@@ -10,40 +11,19 @@
                     <th>{% trans 'Person' %}</th>
                     <th>{% trans 'Description' %}</th>
                     <th class="align-right">{% trans 'Price' %}</th>
-                    <th class="align-right">{% trans 'kCal' %}</th>
+                    {% if not hide_kcal %}<th class="align-right">{% trans 'kCal' %}</th>{% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for transaction in transactions %}
-                    <tr>
-                        <td>{{ transaction.date|date:"d F Y" }}</td>
-                        <td>{{ transaction.date|date:"G:i"}}</td>
-                        <td>
-                            {% if transaction.person %}
-                                {% if request.is_board %}
-                                    <a href="{% url 'personal_tab:dashboard' transaction.person.pk transaction.person.slug  %}">{{ transaction.person }}</a>
-                                {% else %}
-                                    {{ transaction.person }}
-                                {% endif %}
-                            {% else %}
-                                &mdash;
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ transaction.get_absolute_url }}">
-                                {{ transaction.description }}
-                            </a>
-                        </td>
-                        <td class="align-right">{{ transaction.price }}</td>
-                        <td class="align-right">{{ transaction.cookiecornertransaction.kcal|default:"&mdash;" }}</td>
-                    </tr>
+                    {% include 'lists/transaction_row.html' with transaction=transaction hide_kcal=hide_kcal %}
                 {% endfor %}
                 {% if total %}
-                    <tr>
+                    <tr class="text-bold">
                         <td colspan="3"></td>
                         <td>{% trans 'Total' %}</td>
-                        <td class="align-right">{{ totals }}</td>
-                        <td class="align-right">{{ kcal_totals }}</td>
+                        <td class="align-right">&euro;&nbsp;{{ totals|intcomma }}</td>
+                        {% if not hide_kcal %}<td class="align-right">{{ kcal_totals }}</td>{% endif %}
                     </tr>
                 {% endif %}
             </tbody>

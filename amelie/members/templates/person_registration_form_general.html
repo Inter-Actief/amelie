@@ -6,7 +6,7 @@
 {% endblock titel %}
 
 {% block content %}
-    <form action="" method="post" xmlns="http://www.w3.org/1999/html" enctype="multipart/form-data">
+    <form id="registrationForm" action="" method="post" xmlns="http://www.w3.org/1999/html" enctype="multipart/form-data">
         {% csrf_token %}
         {% include 'includes/registration/introduction.html' %}
 

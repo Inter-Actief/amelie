@@ -7,12 +7,14 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.urls import reverse_lazy
+from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic import FormView, ListView, DeleteView
 from pyipp import IPPConnectionError
 
 from amelie.personal_tab.forms import PrintDocumentForm
-from amelie.personal_tab.models import PrintLogEntry, Article, CustomTransaction
+from amelie.personal_tab.models import CookieCornerTransaction, PrintLogEntry, Article, PaymentMethod, \
+    ManualPaymentSettlement
 from amelie.tools.decorators import require_superuser
 from amelie.tools.mixins import RequirePersonalTabAuthorizationOrActiveMemberMixin, RequireBoardMixin
 
@@ -52,7 +54,7 @@ class PrintIndexView(RequirePersonalTabAuthorizationOrActiveMemberMixin, FormVie
     """
     form_class = PrintDocumentForm
     success_url = reverse_lazy('personal_tab:print_index')
-    template_name = 'print_form.html'
+    template_name = 'print/form.html'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -84,7 +86,7 @@ class PrintIndexView(RequirePersonalTabAuthorizationOrActiveMemberMixin, FormVie
 
 class PrintRefundConfirmView(RequireBoardMixin, DeleteView):
     model = PrintLogEntry
-    template_name = 'print_refund.html'
+    template_name = 'print/refund.html'
     success_url = reverse_lazy('personal_tab:print_log')
 
     def get_object(self, *args, **kwargs):
@@ -95,12 +97,32 @@ class PrintRefundConfirmView(RequireBoardMixin, DeleteView):
 
     def _refund_transaction(self):
         old_transaction = self.object.transaction
-        CustomTransaction.objects.create(
-            person=old_transaction.person,
-            added_by=self.request.user.person,
-            description=_("Refund for print, transaction #{tid}").format(tid=old_transaction.id),
-            price=-old_transaction.price,
-        )
+        person = old_transaction.person
+        # Translate the description to the user's preferred language
+        with translation.override(person.preferred_language):
+            refund_description = _("Refund for print, transaction #{tid}").format(tid=old_transaction.id)
+
+            # Create a negative transaction to refund the costs
+            refund_transaction = CookieCornerTransaction.objects.create(
+                price=-old_transaction.price, person=person,
+                description=refund_description,
+                article=old_transaction.article, amount=old_transaction.amount, added_by=self.request.user.person
+            )
+
+            # If the old transaction was already settled, we can't create a settlement for it as it would overwrite
+            # the old settlement. So instead we just leave the negative transaction unsettled so it can be counted later.
+            if old_transaction.settlement is None:
+                # Create a settlement to pay the old transaction by cancelling it out against the new transaction.
+                payment_method = PaymentMethod.objects.get(pk=settings.INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID)
+                ManualPaymentSettlement.create_for_transactions(
+                    transactions=[old_transaction, refund_transaction],
+                    payment_method=payment_method,
+                    person=person,
+                    settlement_description=refund_description,
+                    payment_description=refund_description,
+                    created_by=self.request.user.person,
+                )
+
         self.object.transaction = None
         self.object.save()
         messages.success(self.request, _("Print by {person} was refunded successfully.").format(person=self.object.actor))
@@ -118,7 +140,7 @@ class PrintRefundConfirmView(RequireBoardMixin, DeleteView):
 
 class PrintLogView(RequireBoardMixin, ListView):
     model = PrintLogEntry
-    template_name = 'print_log_list.html'
+    template_name = 'print/log_list.html'
     paginate_by = 30
     ordering = ['-timestamp']  # Most recent first
     context_object_name = 'print_logs'

@@ -2,7 +2,6 @@
 
 {% if obj.enrollment_open and not obj.oauth_application %}
     {% if not obj.enrollment_full %}
-
         <p>
             {% if request.person %}
                 {# Begin of logged in user #}
@@ -23,6 +22,11 @@
                         {%  endblocktrans %}
                     {% endif %}
                 {% endif %}
+                {% if obj.enrollment_private %}
+                    {% blocktrans %}
+                        Enrollments for this activity are private.
+                    {% endblocktrans %}
+                {% endif %}
             {% else %}
                 {# Begin of guest user, don't display sign-up numbers #}
                 {% if obj.places_available == 1 %}
@@ -39,7 +43,8 @@
                     {% endblocktrans %}
                 {% endif %}
             {% endif %}
-
+        </p>
+        <p>
             {% if obj.places_available == None %}
                 {# Some shared text between logged in and logged out #}
                 {% blocktrans %}
@@ -113,15 +118,14 @@
             {% endif %}
 
             {% if obj.can_unenroll or request.person in obj.waiting_participants %}
-                <form method="post" action="{% url 'activities:unenrollment_self' obj.id %}">
-                    {% csrf_token %}
-                    <p>
-                        <input type="submit" value="{% if request.person in obj.waiting_participants %}{% trans 'Deregister from waiting list'  %}{% else %}{% trans 'Deregister' %}{% endif %}" />
-                        {% if has_enrollment_options %}
-                        <a class="looks-like-a-button" href="{% url 'activities:editenrollment_self' obj.id %}">{% trans 'Edit enrollment' %}</a>
-                        {% endif %}
-                    </p>
-                </form>
+                <p>
+                    <a class="looks-like-a-button" href="{% url 'activities:unenrollment' obj.id %}">
+                        {% if request.person in obj.waiting_participants %}{% trans 'Deregister from waiting list'  %}{% else %}{% trans 'Deregister' %}{% endif %}
+                    </a>
+                    {% if has_enrollment_options %}
+                    <a class="looks-like-a-button" href="{% url 'activities:editenrollment' obj.id %}">{% trans 'Edit enrollment' %}</a>
+                    {% endif %}
+                </p>
                 <p>
                     {% blocktrans with date=obj.enrollment_end|date:"d F Y" time=obj.enrollment_end|date:"H:i" %}
                         You can reverse your enrollment till {{ date }} at {{ time }}.
@@ -138,7 +142,6 @@
                     You are not enrolled in this activity yet.
                 {% endblocktrans %}
             </p>
-
 
             {%  if not obj.can_unenroll and obj.enrollment_open %}
                 <p class="icon icon-error">
@@ -158,12 +161,11 @@
                 </p>
 	        {% endif %}
             {% if obj.enrollment_open %}
-                    <form method="post" action="{% url 'activities:enrollment' obj.id %}">
-                        {% csrf_token %}
-                        <p>
-                            <input type="submit" value="{% if obj.enrollment_full %}{% trans 'Place on waiting list' %}{% else %}{% trans 'Enroll' %}{% endif %}" />
-                        </p>
-                    </form>
+                <p>
+                    <a class="looks-like-a-button" href="{% url 'activities:enrollment' obj.id %}">
+                        {% if obj.enrollment_full %}{% trans 'Place on waiting list' %}{% else %}{% trans 'Enroll' %}{% endif %}
+                    </a>
+                </p>
             {% endif %}
         {% endif %}
     {% else %}

@@ -1,26 +1,36 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import logging
 import uuid
 
 import os
+from decimal import Decimal
+from io import BytesIO
+from typing import Optional
 from colorfield.fields import ColorField
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, MaxValueValidator, \
     MinValueValidator
 from django.db import models, transaction
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum
 from django.db.models.signals import post_save, m2m_changed
 from django.template.defaultfilters import slugify
 from django.urls import reverse
+from django.utils import translation, timezone
 from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
+from documenso_sdk import EnvelopeDistributeResponse
 
 from amelie.claudia.mappable import Mappable
 from amelie.claudia.tools import is_verifiable, verify_instance
 from amelie.members.managers import PersonManager, CommitteeManager
+from amelie.tools.documenso import retrieve_documents, AMELIE_REFERENCE_REGEX
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.logic import current_association_year
 from amelie.tools.validators import CheckDigitValidator
@@ -424,10 +434,11 @@ class Person(models.Model, Mappable):
     is_active_member.boolean = True
 
     def is_member_strict(self):
-        member = self.membership_set.filter(Q(type__price=0) | Q(payment__isnull=False),
-                                            year=current_association_year())
-        member = member.filter(models.Q(ended__isnull=True) | models.Q(ended__gt=datetime.date.today()))
-        return member.count() > 0
+        memberships = self.membership_set.filter(
+            Q(ended__isnull=True) | Q(ended__gt=datetime.date.today()),
+            year=current_association_year()
+        )
+        return any(m.type.price == 0 or m.is_paid() for m in memberships)
 
     is_member_strict.boolean = True
 
@@ -496,6 +507,10 @@ class Person(models.Model, Mappable):
         else:
             return ' '.join([first_name, self.last_name])
 
+    def public_enrollment_name(self, has_preference=None):
+        """Returns the first name plus last letter of the surname."""
+        return f"{self.first_name} {self.last_name[:1]}."
+
     def initials_last_name(self):
         """
         Gives the initials and last name of this person.
@@ -552,14 +567,18 @@ class Person(models.Model, Mappable):
         except Preference.DoesNotExist:
             return default
 
-    def has_mandate(self, mandate_type):
+    def has_mandate(self, mandate_type=None):
         """
-        Returns if this person has an active mandate for the requested mandate type.
+        Returns the active mandates for the requested mandate type.
+        If no mandate_type is given, returns all active mandates.
 
         Mandate type can be: contribution, consumptions, activities, or other_payments
 
         See amelie.personal_tab.models.AuthorizationType
         """
+        if not mandate_type:
+            return self.authorization_set.filter(is_signed=True, end_date__isnull=True)
+
         kwargs = {'authorization_type__%s' % mandate_type: True}
         return self.authorization_set.filter(is_signed=True,
                                              end_date__isnull=True, **kwargs)
@@ -587,6 +606,16 @@ class Person(models.Model, Mappable):
         Returns if this person has an active mandate for other payments.
         """
         return self.has_mandate('other_payments')
+
+    def unpaid_transactions(self, transaction_type: Optional[str] = None):
+        if not transaction_type:
+            return self.transaction_set.filter(settlement=None)
+        if transaction_type not in ['activity', 'alexia', 'contribution', 'cookiecorner', 'custom', 'reversal']:
+            raise ValueError(_('Invalid transaction type'))
+        return self.transaction_set.filter(**{f'{transaction_type}transaction__isnull': False, f'{transaction_type}transaction__settlement': None})
+
+    def unpaid_transactions_total_cost(self, transaction_type: Optional[str] = None) -> Decimal:
+        return self.unpaid_transactions(transaction_type=transaction_type).aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
 
     def oauth_consumer_set(self):
         consumers = {}
@@ -708,6 +737,92 @@ class Person(models.Model, Mappable):
                         'account please use firstname.lastname@gapps.inter-actief.nl as an alternative.'
                     )})
 
+    def send_signature_request(self, membership: 'Membership') -> Optional[EnvelopeDistributeResponse]:
+        """
+        Sends a signature request for the enrollment form of this person, for the given membership.
+        """
+        from amelie.tools.documenso import create_enrollment_documents, send_document
+        response = create_enrollment_documents(person=self, membership=membership)
+        # Save the documenso ID to the membership and the authorizations
+        with transaction.atomic():
+            membership.documenso_id = response.id
+            membership.save()
+            for authorization in self.authorization_set.all():
+                authorization.documenso_id = response.id
+                authorization.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(response.id)
+        else:
+            return None
+
+    """
+    Document type for regular memberships in the digital signatures application
+
+    This is not quite the right place for this constant, but a regular enrollment doesn't really have
+    its own model, unlike Memberships, Authorizations, and UnverifiedEnrollments.
+    So, this is probably as good a place to put it as anywhere else.
+    """
+    DOCUMENT_TYPE_ID = 'ENR'
+
+    @staticmethod
+    @transaction.atomic()
+    def process_member_enrollment_signed_document(documenso_id: str):
+        """
+        Retrieves the signed Documenso document for the regular enrollment of a person
+        and saves it into the membership and authorizations.
+
+        This is not quite the right place for this method, but a regular enrollment doesn't really have
+        its own model, unlike Memberships, Authorizations, and UnverifiedEnrollments.
+        So, this is probably as good a place to put it as anywhere else.
+        """
+        from amelie.personal_tab.models import Authorization
+
+        if not documenso_id:
+            raise ValueError(_l("Documenso ID was not given. Can't do anything."))
+
+        # Retrieve the document and save it to the database
+        documents, envelope_info = retrieve_documents(documenso_id)
+
+        # Parse the external ID
+        external_match = AMELIE_REFERENCE_REGEX.match(envelope_info.external_id)
+        if not external_match:
+            raise ValueError("Processing member enrollment documents has an unknown external ID, ignoring. "
+                            f"(externalId='{envelope_info.external_id}', envelopeId='{envelope_info.id}')")
+        external_id_parts = external_match.groupdict()
+        membership_id = external_id_parts.get('id')
+        authorization_ids = external_id_parts.get('ids', "")
+        authorization_ids_split = authorization_ids.split(",") if authorization_ids else []
+
+        # Check if we have enough documents
+        if len(documents) > len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too much! Trying to continue anyway."
+            )
+        if len(documents) < len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too little! Can't continue processing."
+            )
+            raise ValueError(f"Received too few documents from Documenso to process DID {documenso_id}, Membership#{membership_id} with Authorization(s)#{authorization_ids}")
+
+        # Save document in Membership
+        try:
+            membership = Membership.objects.get(documenso_id=documenso_id, pk=membership_id)
+            membership.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+            membership.save()
+        except Membership.DoesNotExist:
+            raise ValueError(f"Membership with ID {membership_id} and documenso ID {documenso_id} does not exist")
+
+        # Save documents in Authorization(s)
+        for i, authorization_id in enumerate(authorization_ids_split, start=1):
+            try:
+                authorization = Authorization.objects.get(documenso_id=documenso_id, pk=authorization_id)
+                authorization.signed_document = ContentFile(content=documents[i].data, name=documents[i].filename)
+                authorization.is_signed = True  # Activates the mandate for use
+                authorization.save()
+            except Authorization.DoesNotExist:
+                raise ValueError(f"Authorization with ID {authorization_id} and documenso ID {documenso_id} does not exist")
+
 
 class MembershipType(models.Model):
     """
@@ -738,22 +853,6 @@ class MembershipType(models.Model):
 
     def __str__(self):
         return '{} (€{})'.format(self.name, self.price)
-
-class PaymentType(models.Model):
-    """
-    e.g. Cash or Debit transaction
-    """
-    name = models.CharField(max_length=20, unique=True, verbose_name=_l('Name'))
-    description = models.TextField(verbose_name=_l('Description'))
-    visible = models.BooleanField(default=True, verbose_name=_l('Visible'))
-
-    class Meta(object):
-        ordering = ['description']
-        verbose_name = _l('way of payment')
-        verbose_name_plural = _l('ways of payment')
-
-    def __str__(self):
-        return '%s' % self.description
 
 
 class Student(models.Model):
@@ -874,11 +973,19 @@ class Membership(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
+    """Document type for identification in the digital signatures application"""
+    DOCUMENT_TYPE_ID = 'MEM'
+
+
     member = models.ForeignKey(Person, verbose_name=_l('Member'), on_delete=models.PROTECT)
     type = models.ForeignKey(MembershipType, verbose_name=_l('Type'), on_delete=models.PROTECT)
     year = models.PositiveIntegerField(verbose_name=_l('Year'))
     ended = models.DateField(null=True, blank=True, verbose_name=_l('Ended preliminary'))
     verified_on = models.DateField(null=True, blank=True, verbose_name=_l('Verified on'))
+
+    # Document signature fields
+    documenso_id = models.CharField(verbose_name=_l('Documenso ID'), max_length=255, blank=True, null=True)
+    signed_document = models.FileField(verbose_name=_l('Signed document'), blank=True, null=True)
 
     class Meta(object):
         ordering = ['member', 'year']
@@ -888,11 +995,106 @@ class Membership(models.Model):
     def __str__(self):
         return '%s (%s, %s)' % (self.member, self.year, self.type)
 
-    def is_paid(self):
-        try:
-            return self.payment
-        except Payment.DoesNotExist:
-            return self.type.price == 0
+    def get_as_pdf(self) -> bytes:
+        from amelie.tools.pdf import pdf_membership_form
+        buffer = BytesIO()
+        pdf_membership_form(buffer, self.member, self)
+        pdf = buffer.getvalue()
+        return pdf
+
+    def is_free(self) -> bool:
+        """
+        Returns if this membership is free and thus requires no payment.
+        """
+        return self.type.price == 0
+
+    def is_paid(self) -> bool:
+        """
+        A membership is paid if it costs nothing, or if all ContributionTransactions that exist for it are paid.
+        """
+        if self.is_free():
+            return True
+        else:
+            # ContributionTransactions are created when the membership is created but also when the
+            # direct debit collection is reversed. So you can have multiple, that all need to be paid.
+            return self.contributiontransaction_set.exists() and all(t.is_paid() for t in self.contributiontransaction_set.all())
+
+    def payment_transaction(self):
+        """
+        Returns the most recently created ContributionTransaction for this membership.
+        """
+        return self.contributiontransaction_set.order_by('-pk').first()
+
+    def payment_details(self):
+        """
+        Returns information on how this membership was paid or how it might probably be paid in the future.
+        Used mainly on the membership details tab to quickly show the payment status and method of a Membership.
+
+        If the membership is free, it returns ('free', None).
+        Else, see the docstring of `personal_tab.transactions.get_transaction_payment_status`.
+        """
+        from amelie.personal_tab.transactions import get_transaction_payment_status  # Avoid circular import
+        # If the participation is free, it returns None.
+        if self.is_free():
+            return 'free', None
+
+        current_transaction = self.payment_transaction()
+        return get_transaction_payment_status(_transaction=current_transaction, mandate_type='contribution')
+
+    @transaction.atomic
+    def create_contribution_transaction(self, date: Optional[datetime.datetime] = None):
+        """
+        Create a ContributionTransaction if none exist and if the member needs to pay for this membership.
+        """
+        from amelie.personal_tab.models import ContributionTransaction  # Avoid circular import
+        if date is None:
+            # Today if the membership is for a current or past association year, 07-01-year if it is in the future.
+            if self.year <= current_association_year():
+                date = timezone.now()
+            else:
+                date = timezone.make_aware(datetime.datetime(year=self.year, month=7, day=1))
+        if not self.contributiontransaction_set.exists() and self.type.price != 0:
+            with translation.override(self.member.preferred_language):
+                ct = ContributionTransaction(
+                    date=date, price=self.type.price, person=self.member, membership=self, settlement=None,
+                    description=_('Contribution {membership_type} ({begin_year}/{end_year})').format(
+                        membership_type=self.type.name,
+                        begin_year=self.year,
+                        end_year=(self.year + 1)
+                    )
+                )
+                ct.save()
+                return ct
+        return None
+
+    @transaction.atomic
+    def mark_as_paid(self, payment_method, actor: Optional[Person] = None):
+        """
+        Mark any unpaid ContributionTransaction(s) for this membership as paid, with the given payment method.
+        """
+        # Avoid circular import
+        from amelie.personal_tab.models import ManualPaymentSettlement
+
+        # Get the ContributionTransaction(s) for this Membership that still need to be paid
+        cts = [t for t in self.contributiontransaction_set.all() if not t.is_paid()]
+        if not cts:
+            return None
+
+        # Override language to get the description strings in the person's preferred language
+        with translation.override(self.member.preferred_language):
+            # Create a ManualPayment settlement with the given payment method to mark the contribution transaction as paid.
+            description = _("Payment for contribution {membership_type} ({begin_year}/{end_year})").format(
+                membership_type=self.type.name, begin_year=self.year, end_year=(self.year + 1)
+            )
+            settlement = ManualPaymentSettlement.create_for_transactions(
+                transactions=cts,
+                payment_method=payment_method,
+                person=self.member,
+                settlement_description=description,
+                payment_description=description,
+                created_by=actor
+            )
+        return settlement
 
     def is_verified(self):
         if self.type.needs_verification and self.member.membership_set.filter(ended__isnull=True, year=current_association_year()+1).count() == 0:
@@ -903,25 +1105,51 @@ class Membership(models.Model):
         self.verified_on = datetime.date.today()
         self.save()
 
-class Payment(models.Model):
-    """
-    Payment of a Membership.
-    Please note that processing properties of this model may be subject to privacy regulations. Refer to
-    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
-    """
-    date = models.DateField(null=True, verbose_name=_l('Date'))
-    payment_type = models.ForeignKey(PaymentType, verbose_name=_l('Payment'), on_delete=models.PROTECT)
-    amount = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_l('Price'))
+    @property
+    def is_paper_membership(self):
+        """Returns whether this membership was probably signed on paper."""
+        # Memberships only have a year, no creation date, so let's use September (just after the freshman introduction) as a guide date
+        return datetime.date(self.year, 9, 1) < settings.DATE_PRE_DIGITAL_FORMS
 
-    membership = models.OneToOneField(Membership, verbose_name=_l('Membership'), on_delete=models.PROTECT)
+    def needs_signature(self):
+        """
+        A membership only needs a signature if this is the first membership that the member has.
+        """
+        first_membership =  self.member.membership_set.order_by('year').first()
+        if not first_membership:
+            # No memberships exist in the DB, but we are a Membership, so this is probably the first (unsaved) membership.
+            return True
+        # If this is the first membership the user has, it needs to be signed.
+        return first_membership.pk == self.pk
 
-    class Meta(object):
-        ordering = ['date']
-        verbose_name = _l('payment')
-        verbose_name_plural = _l('payments')
+    def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
+        from amelie.tools.documenso import create_membership_document, send_document
+        response = create_membership_document(self)
+        # Save the documenso ID
+        self.documenso_id = response.id
+        self.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(self.documenso_id)
+        else:
+            return None
 
-    def __str__(self):
-        return '%s (%.2f)' % (self.membership, self.amount)
+    def process_signed_document(self):
+        if not self.documenso_id:
+            raise ValueError(_l("Documenso ID is not set. No documents are due to be signed."))
+        # Retrieve the document and save it to the database
+        from amelie.tools.documenso import retrieve_documents
+        documents, unused = retrieve_documents(self.documenso_id)
+        if len(documents) > 1:
+            logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
+        self.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+        self.save()
+
+    def documenso_url(self):
+        if self.documenso_id is not None:
+            return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
+        else:
+            return "#"
 
 
 class CommitteeCategory(models.Model):
@@ -1148,6 +1376,9 @@ class Function(models.Model):
 
 
 class UnverifiedEnrollment(models.Model):
+    """Document type for identification in the digital signatures application"""
+    DOCUMENT_TYPE_ID = 'UEN'
+
     # Person details
     first_name = models.CharField(max_length=50, verbose_name=_l('First name'))
     last_name_prefix = models.CharField(max_length=25, blank=True, verbose_name=_l('Last name pre-fix'))
@@ -1194,13 +1425,25 @@ class UnverifiedEnrollment(models.Model):
     dogroup = models.ForeignKey(DogroupGeneration, null=True, blank=True, verbose_name=_l('Dogroup'),
                                 on_delete=models.SET_NULL)
 
+    # Document signature fields
+    documenso_id = models.CharField(verbose_name=_l('Documenso ID'), max_length=255, blank=True, null=True)
+
+
     def __str__(self):
         return "Unverified enrollment for '{} {}' of dogroup '{}'".format(self.first_name, self.last_name, self.dogroup)
 
     @transaction.atomic
-    def activate_registration(self):
-        # Import is here because of a circular import between members and personal_tab
-        from amelie.personal_tab.models import Authorization, AuthorizationType
+    def activate_registration(self) -> Person:
+        """
+        Create a Person, Student, Membership, etc. using the data from the UnverifiedEnrollment,
+        then transfer the wanted authorizations to that person.
+
+        NOTE: Does not delete the pre-enrollment! This needs to be done manually
+              because it can't be done in the same database transaction.
+        """
+
+        # Import is here because of a circular import
+        from amelie.members.views import send_new_member_email
 
         # Construct the Person object
         person = Person(
@@ -1231,34 +1474,11 @@ class UnverifiedEnrollment(models.Model):
         person.preferences.set(self.preferences.all())
         person.save()
 
-        # Add contribution authorization if wanted
-        if self.authorization_contribution:
-            contribution_authorization = Authorization(
-                authorization_type=AuthorizationType.objects.get(active=True, contribution=True),
-                person=person,
-                iban=self.iban,
-                bic=self.bic,
-                account_holder_name=person.initials_last_name(),
-                start_date=self.authorization_date
-            )
-            contribution_authorization.save()
-
-        # Add other authorization if wanted
-        if self.authorization_other:
-            authorization_other = Authorization(
-                authorization_type=AuthorizationType.objects.get(active=True, consumptions=True,
-                                                                 activities=True, other_payments=True),
-                person=person,
-                iban=self.iban,
-                bic=self.bic,
-                account_holder_name=person.initials_last_name(),
-                start_date=self.authorization_date)
-            authorization_other.save()
-
-        # Add membership details
+        # Add membership details and create a transaction for it if necessary
         membership = Membership(member=person, type=self.membership_type,
-                                year=current_association_year())
+                                year=self.membership_year)
         membership.save()
+        membership.create_contribution_transaction()
 
         # Add student details
         student = Student(person=person, number=self.student_number)
@@ -1271,7 +1491,13 @@ class UnverifiedEnrollment(models.Model):
                                        dogroup=self.dogroup)
             study_period.save()
 
-        self.delete()
+        # Add authorizations and activate them.
+        for authorization in self.authorizations.all():
+            authorization.person = person
+            authorization.is_signed = True
+            authorization.save()
+
+        send_new_member_email(person)
 
         return person
 
@@ -1313,6 +1539,92 @@ class UnverifiedEnrollment(models.Model):
         if not self.first_name and self.initials:
             first_name = self.initials
         return ', '.join([self.last_name, first_name])
+
+    def get_as_pdf(self):
+        from amelie.tools.pdf import pdf_membership_form
+        buffer = BytesIO()
+        pdf_membership_form(buffer, self, self.membership_type)
+        pdf = buffer.getvalue()
+        return pdf
+
+    def send_signature_request(self) -> Optional[EnvelopeDistributeResponse]:
+        """
+        Sends a signature request for the enrollment form of this unverified enrollment.
+        """
+        from amelie.tools.documenso import create_enrollment_documents, send_document
+        response = create_enrollment_documents(person=self, membership=self.membership_type)
+        # Save the documenso ID to the membership and the authorizations
+        with transaction.atomic():
+            self.documenso_id = response.id
+            self.save()
+            for authorization in self.authorizations.all():
+                authorization.documenso_id = response.id
+                authorization.save()
+        if settings.DOCUMENSO_SETTINGS.get("ENABLE_SEND", False):
+            # Tell Documenso to send the document
+            return send_document(response.id)
+        else:
+            return None
+
+    @transaction.atomic()
+    def process_signed_document(self):
+        # Import is here because of a circular import between members and personal_tab
+        from amelie.personal_tab.models import Authorization
+
+        if not self.documenso_id:
+            raise ValueError(_l("Documenso ID is not set. No documents are due to be signed."))
+        # Retrieve the document and save it to the database
+        from amelie.tools.documenso import retrieve_documents
+        documents, envelope_info = retrieve_documents(self.documenso_id)
+
+        # Parse the external ID
+        external_match = AMELIE_REFERENCE_REGEX.match(envelope_info.external_id)
+        if not external_match:
+            raise ValueError("Processing member enrollment documents has an unknown external ID, ignoring. "
+                            f"(externalId='{envelope_info.external_id}', envelopeId='{envelope_info.id}')")
+        external_id_parts = external_match.groupdict()
+        membership_id = external_id_parts.get('id')
+        authorization_ids = external_id_parts.get('ids', "")
+        authorization_ids_split = authorization_ids.split(",") if authorization_ids else []
+
+        # Check if we have enough documents
+        if len(documents) > len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too much! Trying to continue anyway."
+            )
+        if len(documents) < len(authorization_ids_split) + 1:  # Number of authorizations + 1 membership
+            logging.getLogger(__name__).warning(
+                f"Retrieved {len(documents)} documents from Documenso for Membership#{membership_id} with Authorization(s)#{authorization_ids}, which is too little! Can't continue processing."
+            )
+            raise ValueError(
+                f"Received too few documents from Documenso to process DID {self.documenso_id}, Membership#{membership_id} with Authorization(s)#{authorization_ids}")
+
+        # Activate the membership
+        person = self.activate_registration()
+
+        # Save document in Membership
+        try:
+            membership = Membership.objects.get(member=person, type=self.membership_type, year=self.membership_year)
+            membership.signed_document = ContentFile(content=documents[0].data, name=documents[0].filename)
+            membership.save()
+        except Membership.DoesNotExist:
+            raise ValueError(f"Membership with ID {membership_id} and documenso ID {self.documenso_id} does not exist")
+
+        # Save documents in Authorization(s)
+        for i, authorization_id in enumerate(authorization_ids_split, start=1):
+            try:
+                authorization = Authorization.objects.get(documenso_id=self.documenso_id, pk=authorization_id)
+                authorization.signed_document = ContentFile(content=documents[i].data, name=documents[i].filename)
+                authorization.save()
+            except Authorization.DoesNotExist:
+                raise ValueError(f"Authorization with ID {authorization_id} and documenso ID {self.documenso_id} does not exist")
+
+    def documenso_url(self):
+        if self.documenso_id is not None:
+            return f"{settings.DOCUMENSO_SETTINGS['WEB_BASE']}/documents/{self.documenso_id}"
+        else:
+            return "#"
+
 
 
 #

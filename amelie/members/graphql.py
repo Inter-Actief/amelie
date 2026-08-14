@@ -31,6 +31,18 @@ class FunctionType(DjangoObjectType):
     def resolve_is_current_member(obj: Function, info):
         return obj.end is None and obj.committee.abolished is None
 
+@check_authorization
+class PhotographerType(DjangoObjectType):
+    public_fields = ["name"]
+    class Meta:
+        model = Photographer
+        description = "The photographer of an attachment"
+        fields = ["name"]
+        
+    name = graphene.String(description=_("Photographer name"))
+    
+    def resolve_name(obj: Photographer, info):
+        return str(obj)
 
 @check_authorization
 class PhotographerType(DjangoObjectType):

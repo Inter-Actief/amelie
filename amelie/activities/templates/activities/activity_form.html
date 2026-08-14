@@ -118,7 +118,7 @@
                 <h2>{% trans 'Enrollment' %}</h2>
 
                 <div class="content">
-                    {% fieldset enrollment,enrollment_begin,enrollment_end,maximum,waiting_list_locked,price,can_unenroll,callback_url,callback_secret_key,facebook_event_id,oauth_application as form_description from form %}
+                    {% fieldset enrollment,enrollment_begin,enrollment_end,enrollment_private,maximum,waiting_list_locked,price,can_unenroll,callback_url,callback_secret_key,facebook_event_id,oauth_application as form_description from form %}
                     {{ form_description }}
                 </div>
             </div>

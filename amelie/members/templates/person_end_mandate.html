@@ -2,7 +2,7 @@
 <div class="content">
     <h3 class="legend">{% trans 'End mandate' %}</h3>
 
-    <form action="{% url 'members:person_mandate_end' obj.id  mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
+    <form id="endMandateForm" action="{% url 'members:person_mandate_end' obj.id  mandate.id %}" method="post" class="js-ajax-form" data-container="person_mandate">
         {% csrf_token %}
         {{ form }}
 
@@ -12,6 +12,12 @@
             </a>
 
             <input type="submit" name="end" value="{% trans 'Save' %}" />
+            <script type="text/javascript">
+                // Disable submit button after one click.
+                $('#endMandateForm').one('submit', function () {
+                    $(this).find('input[type="submit"]').attr('disabled', 'disabled');
+                });
+            </script>
         </div>
     </form>
 </div>

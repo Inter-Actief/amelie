@@ -51,10 +51,15 @@ def pdf_membership_form(file, person, membership):
 
 
 def pdf_authorization_form(file, authorization):
-    with translation.override(authorization.person.preferred_language):
+    # authorization param can be an Authorization object for regular authorizations, or
+    # a tuple of (Authorization, UnverifiedEnrollment) for authorizations linked to unverified enrollments.
+    if isinstance(authorization, tuple):
+        person = authorization[1]
+    else:
+        person = authorization.person
+    with translation.override(person.preferred_language):
         c = canvas.Canvas(file, pagesize=A4)
         c.setTitle(_("Mandate form"))
-
         pdf_authorization_page(c, authorization)
         c.save()
 
@@ -140,7 +145,7 @@ def pdf_membership_page(c, person, membership, signing_date=None):
             h -= 15
             c.drawString(25, h, _("Student number"))
     elif isinstance(person, UnverifiedEnrollment):
-        # authorization is a tuple of (Authorization, UnverifiedEnrollment), always a student
+        # person is an UnverifiedEnrollment, which is always a student
         c.drawString(25, h, _("Course"))
         h -= 15
         c.drawString(25, h, _("Student number"))
@@ -195,7 +200,7 @@ def pdf_membership_page(c, person, membership, signing_date=None):
     h -= 15
     if person.postal_code_parents is None:
         postal_code_parents = ''
-    else: 
+    else:
         postal_code_parents = person.postal_code_parents
 
     if person.city_parents is None:
@@ -262,16 +267,6 @@ def pdf_membership_page(c, person, membership, signing_date=None):
 
     h -= 20
 
-    c.setFont("Helvetica", 12)
-    # signature
-    if signing_date is not None:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': signing_date})
-    else:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': timezone.now().strftime('%d-%m-%Y')})
-
-    h -= 60
-    c.line(25, h, 290, h)
-
     # student number barcode
     try:
         student_number = None
@@ -284,19 +279,23 @@ def pdf_membership_page(c, person, membership, signing_date=None):
             from reportlab.graphics.barcode import code128
 
             barcode = code128.Code128(str(student_number), barHeight=90, barWidth=2)
-            barcode.drawOn(c, 15, 50)
+            barcode.drawOn(c, 325, 25)
     except Person.student.RelatedObjectDoesNotExist:
         pass
 
-    c.setFont("Helvetica", 9)
-    c.drawString(305, 170, _("Stamp IA if paid:"))
+    # signature box, always at static position for digital signature.
+    c.setFont("Helvetica", 12)
+    if signing_date is not None:
+        c.drawString(25, 145, _("Signature on %(date)s:") % {'date': signing_date.strftime('%d-%m-%Y')})
+    else:
+        c.drawString(25, 145, _("Signature:"))
 
     p = c.beginPath()
-    p.moveTo(300, 180)
-    p.lineTo(550, 180)
-    p.lineTo(550, 50)
-    p.lineTo(300, 50)
-    p.lineTo(300, 180)
+    p.moveTo(25, 135)
+    p.lineTo(275, 135)
+    p.lineTo(275, 25)
+    p.lineTo(25, 25)
+    p.lineTo(25, 135)
     c.setDash([], 0)
     c.drawPath(p)
 
@@ -463,19 +462,177 @@ def pdf_authorization_page(c, authorization, signing_date=None):
         if authorization[0].bic:
             c.drawString(160, h, authorization[0].bic)
 
-    # signature
-    h -= 37
-    c.drawString(25, h, _(u"By signing this form, undersigned agrees with the arrangement as described above."))
-    h -= 17
+    # signature box, always at static position for digital signature.
+    c.setFont("Helvetica", 12)
+    c.drawString(25, 170, _("By signing this form, undersigned agrees with the arrangement as described above."))
     if signing_date is not None:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': signing_date})
+        c.drawString(25, 145, _("Signature on %(date)s:") % {'date': signing_date.strftime('%d-%m-%Y')})
     else:
-        c.drawString(25, h, _("Signed in Enschede on %(datum)s:") % {'datum': timezone.now().strftime('%d-%m-%Y')})
+        c.drawString(25, 145, _("Signature:"))
+
     p = c.beginPath()
-    h -= 70
+    p.moveTo(25, 135)
+    p.lineTo(275, 135)
+    p.lineTo(275, 25)
+    p.lineTo(25, 25)
+    p.lineTo(25, 135)
+    c.setDash([], 0)
+    c.drawPath(p)
+
+
+    c.showPage()
+
+
+def pdf_declaration_form(file, declaration):
+    with translation.override(declaration.person.preferred_language):
+        c = canvas.Canvas(file, pagesize=A4)
+        pdf_declaration_page(c, declaration)
+        c.save()
+
+
+def pdf_declaration_page(c, declaration):
+    """
+    Generates a PDF page for the given declaration.
+    """
+
+    c.setTitle(_("Expense claim"))
+
+    width, height = A4
+
+    c.setFont("Helvetica-Bold", 34)
+    c.drawString(25, height - 60, _("Expense claim"))
+
+    # Inter-Actief logo
+    # Original: 1198*226
+    c.drawInlineImage(Image.open('%s/amelie/style/static/img/pdf/inter-actief.png' % settings.BASE_PATH),
+                      x=width - 25 - 240,
+                      y=height - 25 - 45,
+                      width=240,
+                      height=45)
+
+    h = height - 80
+
+    c.setFont("Helvetica", 12)
+    text = _("This expense claim form has been automatically generated by Amélie.")
+    style = getSampleStyleSheet()['BodyText']
+    style.fontSize = 12
+    style.leading = 17
+    p = Paragraph(text, style)
+    ww, hw = p.wrap(width - 50, 100)
+    p.drawOn(c, 25, h - hw - 3)
+    h -= hw
+    h -= 10
+
+    h -= 15
+    c.drawString(25, h, _("The following expense claim was submitted via the website."))
+    h -= 30
+
+    p = c.beginPath()
     c.setLineWidth(1)
     p.moveTo(25, h)
-    p.lineTo(290, h)
+    p.lineTo(570, h)
     c.drawPath(p)
+    h -= 40
+
+
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(25, h, _("Details of the claimant:"))
+    h -= 10
+
+    reset_height = h
+
+    c.setFont("Helvetica-Bold", 12)
+    h -= 25
+    c.drawString(25, h, _("Name"))
+    h -= 25
+    c.drawString(25, h, _("Committee"))
+    h -= 25
+    c.drawString(25, h, _("IBAN"))
+    h -= 25
+
+
+    p = c.beginPath()
+    c.setLineWidth(1)
+    p.moveTo(25, h)
+    p.lineTo(570, h)
+    c.drawPath(p)
+    h -= 40
+
+
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(25, h, _("Details of the declaration:"))
+    h -= 10
+
+    c.setFont("Helvetica-Bold", 12)
+    h -= 25
+    c.drawString(25, h, _("Payment Method"))
+    h -= 25
+    c.drawString(25, h, _("Amount"))
+    h -= 25
+    c.drawString(25, h, _("Submission date"))
+    h -= 25
+    c.drawString(25, h, _("Attachments"))
+
+    # Depends on the number of document (names), different height is added
+    if (declaration.get_document_names()):
+        for doc_name in declaration.get_document_names():
+            h -= 12
+        h -= 12
+    else:
+        h -= 25
+
+    c.drawString(25, h, _("Description"))
+    
+    # Reset height
+    h = reset_height
+
+    # data
+    c.setFont("Helvetica", 12)
+
+    data_left = 240
+
+    h -= 25
+    c.drawString(data_left, h, declaration.person.full_name())
+    h -= 25
+    c.drawString(data_left, h, declaration.get_committee())
+    h -= 25
+    c.drawString(data_left, h, declaration.get_iban())
+    h -= 25
+
+
+    h -= 50
+    
+    h -= 25
+    c.drawString(data_left, h, declaration.get_payment_method())
+    h -= 25
+    c.drawString(data_left, h, '€ %s' % (declaration.amount))
+    h -= 25
+    c.drawString(data_left, h, declaration.submission_date.strftime('%d-%m-%Y'))
+    
+
+    # Adding document names in smaller text in a for loop
+    if (declaration.get_document_names()):
+        h -= 13
+        c.setFont("Helvetica", 10)
+        for doc_name in declaration.get_document_names():
+            h -= 12
+            c.drawString(data_left, h, doc_name)
+    else:
+        h -= 25
+        c.drawString(data_left, h, "No documents attached")
+
+    h -= 15
+
+
+    # Adding the description that wraps
+    d_style = getSampleStyleSheet()['BodyText']
+    d_style.fontName = 'Helvetica'
+    d_style.fontSize = 12
+    d_style.leading = 14
+    d_style.wordWrap = 'LTR'
+    d_p = Paragraph(force_str(declaration.description), d_style)
+    w_available = width - data_left - 25
+    d_width, d_height = d_p.wrap(w_available, h)
+    d_p.drawOn(c, data_left, h - d_height + 2)
 
     c.showPage()

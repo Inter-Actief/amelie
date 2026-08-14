@@ -1,23 +1,31 @@
+import logging
 from datetime import date
 
 import re
+from typing import Optional, Dict
 
 from django.conf import settings
-from django.contrib import messages
+from django.db import transaction
 from django.forms.models import inlineformset_factory
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.http import JsonResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import slugify
+from django.urls import reverse
+from django.utils import translation
+from django.utils.translation import gettext as _
+from django.views.generic import FormView, TemplateView
+from documenso_sdk import DocumensoError
 
 from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm, MembershipForm, \
-    MandateEndForm, MandateForm, EmployeeForm, PersonPaymentForm, PersonStudyForm, PersonPreferencesForm, \
-    SaveNewFirstModelFormSet, StudentForm
-from amelie.members.models import Payment, Committee, Function, Membership, Employee, Person, Student, \
+    MandateEndForm, MandateForm, EmployeeForm, PersonStudyForm, PersonPreferencesForm, \
+    SaveNewFirstModelFormSet, StudentForm, SignatureRequestForm, MembershipManualPaymentForm
+from amelie.members.models import Committee, Function, Membership, Employee, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
 from amelie.members.query_views import filter_member_list_public
-from amelie.personal_tab.models import Authorization
+from amelie.personal_tab.models import Authorization, ManualPaymentSettlement, PaymentMethod, BadBIC
 from amelie.personal_tab.pos_views import require_cookie_corner_pos
 from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
+from amelie.tools.mixins import RequireCommitteeMixin, RequireAjaxMixin
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):
@@ -115,24 +123,49 @@ def person_study_new(request, id):
 
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
-def person_payments(request, id, membership):
-    obj = get_object_or_404(Person, id=id)
+def person_membership_payments(request, id, membership):
+    """
+    Shows a table of ContributionTransasctions for this membership, and their payment states.
+    """
+    person = get_object_or_404(Person, id=id)
     membership = get_object_or_404(Membership, id=membership)
-    if request.method == "GET":
-        if 'original' in request.GET:
-            return render(request, "person_membership.html", locals())
-        form = PersonPaymentForm()
-        return render(request, "person_payment.html", locals())
-    elif request.method == "POST":
-        form = PersonPaymentForm(request.POST)
-        if form.is_valid():
-            payment = Payment(membership=membership, payment_type=form.cleaned_data['method'],
-                               amount=membership.type.price, date=form.cleaned_data["date"])
-            payment.save()
-            return render(request, "person_membership.html", locals())
+    transactions = membership.contributiontransaction_set.all()
+    context = {
+        'person': person,
+        'membership': membership,
+        'transactions': transactions,
+        'status_msg': request.GET.get('msg')
+    }
+    return render(request, "person_membership_payments.html", context)
+
+
+class MembershipCreatePaymentView(RequireAjaxMixin, RequireCommitteeMixin, FormView):
+    template_name = "person_membership_create_payment.html"
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = MembershipManualPaymentForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['id'])
+        context['membership'] = get_object_or_404(Membership, id=self.kwargs['membership'])
+        context['transactions'] = [t for t in context['membership'].contributiontransaction_set.all() if not t.is_paid()]
+        context['transactions_total'] = sum(t.price for t in context['transactions'])
+        return context
+
+    def get_success_url(self, query: Optional[Dict] = None):
+        return reverse('members:person_membership_payments', kwargs={
+            'id': self.kwargs['id'], 'membership': self.kwargs['membership']
+        }, query=query)
+
+    def form_valid(self, form):
+        # Get the transactions that need to be paid.
+        membership = get_object_or_404(Membership, id=self.kwargs['membership'])
+        payment_method = form.cleaned_data['payment_method']
+        settlement = membership.mark_as_paid(payment_method=payment_method, actor=self.request.person)
+        if settlement:
+            return HttpResponseRedirect(self.get_success_url(query={'msg': 'created'}))
         else:
-            response = render(request, "person_payment.html", locals())
-            return response
+            return HttpResponseRedirect(self.get_success_url(query={'msg': 'no_transactions'}))
 
 
 @require_ajax
@@ -149,9 +182,12 @@ def person_membership_new(request, id):
     if request.method == "POST":
         form = MembershipForm(request.POST)
         if form.is_valid():
-            membership = form.save(commit=False)
-            membership.member = obj
-            membership.save()
+            with transaction.atomic():
+                # Save the membership and create a ContributionTransaction on the person's tab.
+                membership = form.save(commit=False)
+                membership.member = obj
+                membership.save()
+                membership.create_contribution_transaction()
             return render(request, "person_membership.html", locals())
         else:
             response = render(request, "person_new_membership.html", locals())
@@ -164,23 +200,98 @@ def person_membership_new(request, id):
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_membership_end(request, id):
-    obj = get_object_or_404(Person, id=id)
+    obj: Person = get_object_or_404(Person, id=id)
+    membership: Membership = obj.membership_set.latest('year', 'pk')
     if request.method == "POST":
-        form = MembershipEndForm(request.POST, instance=obj.membership_set.latest('year'))
-        if form.is_valid():
-            form.save()
-            return render(request, "person_membership.html", locals())
-        else:
-            response = render(request, "person_end_membership.html", locals())
-            return response
+        form = MembershipEndForm(request.POST, instance=membership)
+        with transaction.atomic():
+            if form.is_valid():
+                if form.cleaned_data['payment_needed'] == False and not membership.is_paid():
+                    # If payment is no longer needed and payment does not exist yet, create a settlement for all open
+                    # ContributionTransactions of this membership, with payment method "Early termination" (configured in settings)
+                    transactions = [t for t in membership.contributiontransaction_set.all() if not t.is_paid()]
+                    payment_method = PaymentMethod.objects.get(pk=settings.MEMBERS_EARLY_TERMINATION_PAYMENT_METHOD_ID)
+
+                    # Create a ManualPaymentSettlement with the selected payment method
+                    if transactions:
+                        # Translate the description to the user's preferred language
+                        with translation.override(membership.member.preferred_language):
+                            settlement_description = _(
+                                "Early termination of membership {membership_type} ({begin_year}/{end_year})").format(
+                                membership_type=membership.type.name,
+                                begin_year=membership.year,
+                                end_year=(membership.year + 1)
+                            )
+                            ManualPaymentSettlement.create_for_transactions(
+                                transactions=transactions,
+                                payment_method=payment_method,
+                                person=membership.member,
+                                settlement_description=settlement_description,
+                                payment_description=settlement_description,
+                                created_by=request.person,
+                            )
+                    else:
+                        raise ValueError(f"Tried to create early termination payment for unpaid membership {membership.pk} but no transactions exist!")
+                form.save()
+                return render(request, "person_membership.html", locals())
+            else:
+                response = render(request, "person_end_membership.html", locals())
+                return response
     else:
-        form = MembershipEndForm(instance=obj.membership_set.latest('year'))
+        form = MembershipEndForm(instance=membership)
         return render(request, "person_end_membership.html", locals())
+
+
+class MembershipSignatureView(RequireCommitteeMixin, FormView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = SignatureRequestForm
+    template_name = "person_membership_sign.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        context['membership'] = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=context['person'])
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, send the form to Documenso for signing, and then
+        render the regular membership section with a success message option.
+        """
+        person = get_object_or_404(Person, id=self.kwargs['person_id'])
+        membership = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=person)
+        try:
+            membership.send_signature_request()
+            return person_membership(self.request, self.kwargs['person_id'], option="sign_request_sent")
+        except DocumensoError as e:
+            logging.exception(
+                f"Failed to send membership signature request for Person#{person.pk}, Membership#{membership.pk}",
+                exc_info=e
+            )
+            return person_membership(self.request, self.kwargs['person_id'], option="sign_request_error")
+
+
+class MembershipRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    template_name = "person_membership_retrieve_signed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        membership = get_object_or_404(Membership, id=self.kwargs['membership_id'], member=context['person'])
+        context['membership'] = membership
+        try:
+            membership.process_signed_document()
+            context['success'] = True
+        except (ValueError, DocumensoError) as e:
+            context['success'] = False
+            context['error_msg'] = str(e)
+        return context
 
 
 @require_ajax
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
-def person_mandate(request, id):
+def person_mandate(request, id, option=None):
     obj = get_object_or_404(Person, id=id)
     return render(request, "person_mandate.html", locals())
 
@@ -191,11 +302,20 @@ def person_mandate_new(request, id):
     obj = get_object_or_404(Person, id=id)
     if request.method == "POST":
         form = MandateForm(request.POST)
+
         if form.is_valid():
-            mandate = form.save(commit=False)
+            # If the filled BIC is in the Bad BIC list, ask for a confirmation.
+            if BadBIC.objects.filter(bic=form.cleaned_data['bic']).exists():
+                if 'confirm' not in request.POST:
+                    return render(request, "person_confirm_mandate.html", locals())
+
+            mandate: Authorization = form.save(commit=False)
             mandate.person = obj
             mandate.save()
-            return render(request, "person_mandate.html", locals())
+            if form.cleaned_data.get('send_signature_request'):
+                mandate.send_signature_request()  # Send signature request for the new mandate
+                return person_mandate(request, id=id, option="added_and_sign_request_sent")
+            return person_mandate(request, id=id, option="added")
         else:
             response = render(request, "person_new_mandate.html", locals())
             return response
@@ -209,9 +329,14 @@ def person_mandate_new(request, id):
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_mandate_activate(request, id, mandate):
     obj = get_object_or_404(Person, id=id)
-    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
-                                end_date__isnull=True, is_signed=False)
-    if request.method == "POST":
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj, end_date__isnull=True, is_signed=False)
+
+    # If there is already an active mandate of this type, we cannot activate this one
+    existing_mandates_of_type = obj.authorization_set.filter(is_signed=True, end_date__isnull=True, authorization_type=mandate.authorization_type)
+    if existing_mandates_of_type.exists():
+        return render(request, "person_existing_mandate.html", locals())
+
+    elif request.method == "POST":
         if 'activate' in request.POST:
             mandate.is_signed = True
             mandate.save()
@@ -240,6 +365,87 @@ def person_mandate_end(request, id, mandate):
     else:
         form = MandateEndForm(instance=mandate, initial={'end_date': date.today()})
         return render(request, "person_end_mandate.html", locals())
+
+class MandateSignatureView(RequireCommitteeMixin, FormView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    form_class = SignatureRequestForm
+    template_name = "person_mandate_sign.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        context['mandate'] = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        return context
+
+    def form_valid(self, form):
+        """
+        If the form is valid, send the form to Documenso for signing, and then
+        render the regular membership section with a success message option.
+        """
+        person = get_object_or_404(Person, id=self.kwargs['person_id'])
+        mandate = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        try:
+            mandate.send_signature_request()
+            return person_mandate(self.request, id=self.kwargs['person_id'], option="sign_request_sent")
+        except DocumensoError as e:
+            logging.exception(
+                f"Failed to send mandate signature request for Person#{person.pk}, Authorization#{mandate.pk}",
+                exc_info=e
+            )
+            return person_mandate(self.request, id=self.kwargs['person_id'], option="sign_request_error")
+
+
+class MandateRetrieveSignedDocumentView(RequireCommitteeMixin, TemplateView):
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+    template_name = "person_mandate_retrieve_signed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = get_object_or_404(Person, id=self.kwargs['person_id'])
+        mandate = get_object_or_404(Authorization, id=self.kwargs['mandate_id'])
+        context['mandate'] = mandate
+        try:
+            mandate.process_signed_document()
+            context['success'] = True
+        except (ValueError, DocumensoError) as e:
+            context['success'] = False
+            context['error_msg'] = str(e)
+        return context
+
+
+@require_ajax
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def person_mandate_edit(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
+                                end_date__isnull=True, is_signed=False)
+    if request.method == "POST":
+        form = MandateForm(request.POST, instance=mandate)
+        if form.is_valid():
+            mandate = form.save(commit=False)
+            mandate.person = obj
+            mandate.save()
+            return render(request, "person_mandate.html", locals())
+        else:
+            response = render(request, "person_edit_mandate.html", locals())
+            return response
+    else:
+        form = MandateForm(instance=mandate)
+        return render(request, "person_edit_mandate.html", locals())
+
+
+@require_ajax
+@require_committee(settings.ROOM_DUTY_ABBREVIATION)
+def person_mandate_delete(request, id, mandate):
+    obj = get_object_or_404(Person, id=id)
+    mandate = get_object_or_404(Authorization, id=mandate, person=obj,
+                                end_date__isnull=True, is_signed=False)
+    if request.method == "POST":
+        if 'delete' in request.POST:
+            mandate.delete()
+        return render(request, "person_mandate.html", locals())
+    else:
+        return render(request, "person_delete_mandate.html", locals())
 
 
 @require_ajax

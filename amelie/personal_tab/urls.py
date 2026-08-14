@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
-from amelie.personal_tab import pos_views, views, register, print_views
+from amelie.personal_tab import pos_views, views, register_views, print_views
 from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
@@ -15,12 +15,16 @@ urlpatterns = [
     path('', views.overview, name='overview'),
 
     path('price_list/', views.price_list, name='price_list'),
+    path('price_list/articles/new', views.ArticleCreate.as_view(), name='price_list_article_new'),
+    path('price_list/articles/<int:pk>/edit', views.ArticleUpdate.as_view(), name='price_list_article_edit'),
 
     # Short URL to a person's own dashboard
     path('me/', views.my_dashboard, name='my_dashboard'),
 
-    path('transactions/', views.transaction_overview, name='transactions'),
+    path('transactions/', views.transaction_form, name='transactions'),
+    path('transactions/unpaid/', views.UnpaidTransactionsListView.as_view(), name='unpaid_transactions_list'),
     path('transactions/<int:date_from>/<int:date_to>/', views.transaction_overview, name='transactions'),
+
     path('transactions/activity/<int:pk>/', ActivityTransactionDetail.as_view(), name='activity_transaction_detail'),
     path('transactions/alexia/<int:pk>/', AlexiaTransactionDetail.as_view(), name='alexia_transaction_detail'),
     path('transactions/cookie_corner/<int:pk>/', CookieCornerTransactionDetail.as_view(),
@@ -30,9 +34,14 @@ urlpatterns = [
     path('transactions/cookie_corner/<int:pk>/delete/', CookieCornerTransactionDelete.as_view(),
         name='cookie_corner_transaction_delete'),
 
-    path('wrapped', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
+    path('unpaid_memberships/', views.unpaid_memberships, name='unpaid_memberships'),
+    path('unpaid_memberships/<int:year>/', views.unpaid_memberships_year, name='unpaid_memberships_year'),
+    path('unpaid_memberships/<int:year>/mailing/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
+    path('unpaid_memberships/<int:year>/forgive/', views.unpaid_memberships_forgive, name='unpaid_memberships_forgive'),
+
+    path('wrapped/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped'),
     path('wrapped/<int:year>/', views.cookie_corner_wrapped_main, name='cookie_corner_wrapped_year'),
-    path('wrapped_global', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global'),
+    path('wrapped_global/', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global'),
     path('wrapped_global/<int:year>/', views.cookie_corner_wrapped_global, name='cookie_corner_wrapped_global_year'),
 
     path('transactions/reversal/<int:pk>/', ReversalTransactionDetail.as_view(), name='reversal_transaction_detail'),
@@ -46,8 +55,8 @@ urlpatterns = [
 
     path('person/<int:pk>/<slug:slug>/', views.dashboard, name='dashboard'),
     path('person/<int:pk>/<slug:slug>/transactions/', views.person_transactions, name='person_transactions'),
-    path('person/<int:pk>/<slug:slug>/transactions/<int:date_from>/<int:date_to>/',
-        views.person_transactions, name='person_transactions'),
+    path('person/<int:pk>/<slug:slug>/transactions/<int:date_from>/<int:date_to>/', views.person_transactions, name='person_transactions'),
+    path('person/<int:pk>/<slug:slug>/transactions/unpaid/', views.person_transactions_unpaid, name='person_transactions_unpaid'),
 
     path('person/<int:person_id>/<slug:slug>/new/<str:transaction_type>/', views.person_new_transaction,
         name='person_new_transaction'),
@@ -61,12 +70,14 @@ urlpatterns = [
     path('person/<int:person_id>/<slug:slug>/exam_cookie_credit/new/', views.person_exam_cookie_credit_new,
         name='person_exam_cookie_credit_new'),
 
+    path('manual_payments/', views.ManualPaymentsListView.as_view(), name='manual_payments_list'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/', views.person_manual_payments, name='person_manual_payments'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/new/', views.CreateManualPaymentSettlementView.as_view(), name='person_manual_payment_new'),
+    path('manual_payments/<int:id>/', views.manual_payment_settlement_view, name='manual_payment_settlement_view'),
+    path('manual_payments/<int:pk>/delete/', views.DeleteManualPaymentSettlementView.as_view(), name='manual_payment_settlement_delete'),
+
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),
-
-    path('export/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/csv/', views.export_csv, name='export_csv'),
 
     path('statistics/', views.statistics_form, name='statistics_form'),
     path('statistics/<int:date_from>/<int:date_to>/<str:checkboxes>/', views.statistics, name='statistics'),
@@ -88,8 +99,13 @@ urlpatterns = [
 
     path('debt_collection_instruction/<int:id>/', views.debt_collection_instruction_view,
         name='debt_collection_instruction_view'),
+
     path('debt_collection_instruction/<int:id>/reversal/', views.debt_collection_instruction_reversal,
         name='debt_collection_instruction_reversal'),
+    path('debt_collection_instruction/<int:id>/reversal/edit/', views.debt_collection_instruction_reversal_edit,
+        name='debt_collection_instruction_reversal_edit'),
+    path('debt_collection_instruction/<int:id>/reversal/delete/', views.debt_collection_instruction_reversal_delete,
+        name='debt_collection_instruction_reversal_delete'),
 
     path('batch/<int:id>/', views.process_batch, name='process_batch'),
 
@@ -97,6 +113,10 @@ urlpatterns = [
     path('authorization/<int:authorization_id>/', views.authorization_view, name='authorization_view'),
     path('authorization/<int:authorization_id>/amendement/', views.authorization_amendment,
         name='authorization_amendment'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/edit/', views.authorization_amendment_edit,
+        name='authorization_amendment_edit'),
+    path('authorization/<int:authorization_id>/amendement/<int:amendment_id>/delete/', views.authorization_amendment_delete,
+        name='authorization_amendment_delete'),
     path('authorization/terminate/', AuthorizationTerminateView.as_view(), name='authorization_terminate'),
     path('authorization/anonymize/', AuthorizationAnonymizeView.as_view(), name='authorization_anonymize'),
 
@@ -112,14 +132,22 @@ urlpatterns = [
     path('pos/scan_external/', pos_views.PosScanExternalCardView.as_view(), name='pos_scan_external'),
 
     # RFID card registration views
-    path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
-    path('register/scan/', register.CardRegistrationScan.as_view(), name='register_scan'),
+    path('register/', register_views.CardRegistrationIndex.as_view(), name='register_index'),
+    path('register/process_rfid/', register_views.RegisterProcessRFIDView.as_view(), name='register_process'),
+    path('register/user_logout/', register_views.RegisterLogoutView.as_view(), name='register_logout'),
+    path('register/qr/', register_views.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
+    path('register/verify/<uuid:uuid>/', register_views.RegisterVerifyTokenView.as_view(), name='register_verify'),
+    path('register/login_check/<uuid:uuid>/', register_views.RegisterCheckLoginAjaxView.as_view(), name='register_check'),
 
     # Document printing views
     path('print/', print_views.PrintIndexView.as_view(), name='print_index'),
     path('print/refund/<int:pk>/', print_views.PrintRefundConfirmView.as_view(), name='print_refund'),
     path('print/log/', print_views.PrintLogView.as_view(), name='print_log'),
     path('print/status/<str:printer_key>/', print_views.printer_status, name='printer_status'),
+
+    # Declaration views
+    path('declaration/', views.DeclarationView.as_view(), name='declaration_view'),
+    path('declaration/<int:declaration_id>/', views.declaration_pdf, name='declaration_pdf'),
 
     # Redirects for old Dutch URL's that people might have bookmarked
     path('mijn/', RedirectView.as_view(url=reverse_lazy("personal_tab:my_dashboard"), permanent=True)),

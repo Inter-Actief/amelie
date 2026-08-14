@@ -1,0 +1,169 @@
+{% load i18n %}
+
+<div class="col-xs-12"><div class="ia">
+    <h2>
+        {% trans 'Result' %}
+    </h2>
+
+    <div class="content">
+        <table>
+            <tbody>
+                <tr>
+                    <th>{% trans 'Balance date:' %}</th>
+                    <td>{{ dt|date:"DATETIME_FORMAT" }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Total costs' %}</th>
+                    <td class="align-right">{{ all_transactions_sum }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Exam credits' %}</th>
+                    <td class="align-right">{{ exam_cookie_sum }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="ia">
+    <h2>{% trans 'Personal tab' %}</h2>
+    <div class="content">
+        {% if former_member_totals %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Former Member' %}</th>
+                            <th class="align-right">{% trans 'Balance' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for former_member, total in former_member_totals %}
+                    <tr class="important">
+                        <td>
+                            <a href="{{ former_member.get_absolute_url }}">
+                                {{ former_member }}
+                            </a>
+                            &nbsp;
+                            <a title="{% blocktrans with name=former_member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                               href="{% url 'personal_tab:dashboard' former_member.pk former_member.slug  %}">
+                                <span class="icon personal_tab"></span>
+                            </a>
+                        </td>
+                        <td class="align-right">{{ total|stringformat:".2f" }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="important">
+                        <td><b>{% trans 'Total' %}</b></td>
+                        <td class="align-right"><b>{{ former_member_sum|stringformat:".2f" }}</b></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Member' %}</th>
+                        <th class="align-right">{% trans 'Balance' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for member, total in member_totals %}
+                <tr class="important">
+                    <td>
+                        <a href="{{ member.get_absolute_url }}">
+                            {{ member }}
+                        </a>
+                        &nbsp;
+                        <a title="{% blocktrans with name=member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                           href="{% url 'personal_tab:dashboard' member.pk member.slug  %}">
+                            <span class="icon personal_tab"></span>
+                        </a>
+                    </td>
+                    <td class="align-right">{{ total|stringformat:".2f" }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="important">
+                    <td><b>{% trans 'Total' %}</b></td>
+                    <td class="align-right"><b>{{ member_sum|stringformat:".2f" }}</b></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div></div>
+
+<div class="col-xs-12"><div class="edu">
+    <h2>{% trans 'Exam credits' %}</h2>
+    <div class="content">
+        {% if exam_cookie_former_member_totals %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Former Member' %}</th>
+                            <th class="align-right">{% trans 'Balance' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for former_member, total in exam_cookie_former_member_totals %}
+                            <tr class="important">
+                                <td>
+                                    <a href="{{ former_member.get_absolute_url }}">
+                                        {{ former_member }}
+                                    </a>
+                                    &nbsp;
+                                    <a title="{% blocktrans with name=former_member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                       href="{% url 'personal_tab:dashboard' former_member.pk former_member.slug  %}">
+                                        <span class="icon personal_tab"></span>
+                                    </a>
+                                </td>
+                                <td class="align-right">{{ total|stringformat:".2f" }}</td>
+                            </tr>
+                        {% endfor %}
+                        <tr class="important">
+                            <td><b>{% trans 'Total' %}</b></td>
+                            <td class="align-right"><b>{{ exam_cookie_former_member_sum|stringformat:".2f" }}</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'Member' %}</th>
+                        <th class="align-right">{% trans 'Balance' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member, total in exam_cookie_member_totals %}
+                        <tr class="important">
+                            <td>
+                                <a href="{{ member.get_absolute_url }}">
+                                    {{ member }}
+                                </a>
+                                &nbsp;
+                                <a title="{% blocktrans with name=member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                   href="{% url 'personal_tab:dashboard' member.pk member.slug  %}">
+                                    <span class="icon personal_tab"></span>
+                                </a>
+                            </td>
+                            <td class="align-right">{{ total|stringformat:".2f" }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="important">
+                        <td><b>{% trans 'Total' %}</b></td>
+                        <td class="align-right"><b>{{ exam_cookie_member_sum|stringformat:".2f" }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div></div>
+

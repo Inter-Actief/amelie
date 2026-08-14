@@ -1,7 +1,7 @@
 import graphene
-from django_filters import FilterSet
+from django_filters import FilterSet, BooleanFilter
 from django.utils.translation import gettext_lazy as _
-from docutils.nodes import description
+from django.db.models import Count
 from graphene_django import DjangoObjectType
 
 from amelie.activities.models import Activity, ActivityLabel
@@ -12,6 +12,8 @@ from amelie.graphql.pagination.connection_field import DjangoPaginationConnectio
 
 
 class ActivityFilterSet(FilterSet):
+    has_photos = BooleanFilter(method='filter_has_photos', label=_('Has photos'))
+
     class Meta:
         model = Activity
         fields = {
@@ -21,6 +23,12 @@ class ActivityFilterSet(FilterSet):
             'end': ("gt", "lt", "exact"),
             'dutch_activity': ("exact", ),
         }
+
+    def filter_has_photos(self, queryset, name, value):
+        """Filter activities with 1 or more photos."""
+        if value:
+            return queryset.annotate(photos_count=Count('photos')).filter(photos_count__gte=1)
+        return queryset
 
 
 @check_authorization
@@ -98,10 +106,10 @@ class ActivityType(EventType):
         return self.get_calendar_url()
 
     def resolve_enrollment_open(self: Activity, info):
-        return self.enrollment_open()
+        return self.enrollment_open
 
     def resolve_enrollment_closed(self: Activity, info):
-        return self.enrollment_closed()
+        return self.enrollment_closed
 
     def resolve_can_edit(self: Activity, info):
         if is_logged_in(info):
@@ -109,16 +117,16 @@ class ActivityType(EventType):
         return False
 
     def resolve_enrollment_full(self: Activity, info):
-        return self.enrollment_full()
+        return self.enrollment_full
 
     def resolve_enrollment_almost_full(self: Activity, info):
-        return self.enrollment_almost_full()
+        return self.enrollment_almost_full
 
     def resolve_has_enrollment_option(self: Activity, info):
-        return self.has_enrollmentoptions()
+        return self.has_enrollmentoptions
 
     def resolve_has_costs(self: Activity, info):
-        return self.has_costs()
+        return self.has_costs
 
 
 @check_authorization

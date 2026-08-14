@@ -1,0 +1,188 @@
+{% extends "basis.html" %}
+{% load unpaid_transaction_helpers %}
+{% load humanize %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Unpaid transactions - Page {{ page }}/{{ total }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Unpaid transactions - Page {{ page }}/{{ total }}{% endblocktrans %}</h2>
+        <div class="content">
+            <p>{% trans 'These are people with transactions that have not been paid for.' %}</p>
+
+            {% if filter_no_mandate %}<p class="icon icon-information">
+                {% if filter_mandate_type %}
+                    {% blocktrans with filtered_type=filter_mandate_type %}
+                        Only people without a mandate of type '{{ filtered_type }}' are shown.
+                    {% endblocktrans %}
+                {% else %}
+                    {% trans 'Only people without a mandate are shown.' %}
+                {% endif %}
+            </p>{% endif %}
+
+            {% if filter_only_mandate %}<p class="icon icon-information">
+                {% if filter_mandate_type %}
+                    {% blocktrans with filtered_type=filter_mandate_type %}
+                        Only people with a mandate of type 'filtered_type' are shown.
+                    {% endblocktrans %}
+                {% else %}
+                    {% trans 'Only people with a mandate are shown.' %}
+                {% endif %}
+            </p>{% endif %}
+
+            {% if filter_transactions %}<p class="icon icon-information">
+                {% blocktrans with filtered_type=filter_transactions %}
+                    Only transactions of type '{{ filter_transactions }}' are shown.
+                {% endblocktrans %}
+            </p>{% endif %}
+
+            <p>{% trans 'Each person can be expanded to view details about the individual transactions.' %}</p>
+
+            <table>
+                <tr>
+                    <th>{% trans 'Total number of people' %}</th>
+                    <td>{{ person_count|default_if_none:0 }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Total number of transactions' %}</th>
+                    <td>{{ transaction_count|default_if_none:0 }}</td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Total sum of unpaid costs' %}</th>
+                    <td>&euro;&nbsp;{{ total_costs|default_if_none:0|intcomma }}</td>
+                </tr>
+            </table>
+
+            <h3 style="margin-bottom: 0;">{% trans 'Filter options' %}</h3>
+            <table>
+                <tr>
+                    <th>{% trans 'Only people with:' %}</th>
+                    <td>
+                        <a class="looks-like-a-button success-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_only_mandate=True filter_no_mandate=None filter_mandate_type='contribution' %}">{% trans 'Contribution mandate' %}</a>
+                        <a class="looks-like-a-button success-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_only_mandate=True filter_no_mandate=None filter_mandate_type='consumptions' %}">{% trans 'Consumption mandate' %}</a>
+                        <a class="looks-like-a-button success-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_only_mandate=True filter_no_mandate=None filter_mandate_type=None %}">{% trans 'Any mandate' %}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Only people <b>without</b>:' %}</th>
+                    <td>
+                        <a class="looks-like-a-button danger-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_only_mandate=None filter_no_mandate=True filter_mandate_type='contribution' %}">{% trans 'Contribution mandate' %}</a>
+                        <a class="looks-like-a-button danger-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_only_mandate=None filter_no_mandate=True filter_mandate_type='consumptions' %}">{% trans 'Consumption mandate' %}</a>
+                        <a class="looks-like-a-button danger-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_only_mandate=None filter_no_mandate=True filter_mandate_type=None %}">{% trans 'Any mandate' %}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{% trans 'Only transactions of type:' %}</th>
+                    <td>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_transactions='contribution' %}">{% trans 'Contribution transactions' %}</a>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_transactions='activity' %}">{% trans 'Activity transactions' %}</a>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_transactions='cookiecorner' %}">{% trans 'Cookie corner transactions' %}</a>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_transactions='alexia' %}">{% trans 'Alexia transactions' %}</a>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_transactions='custom' %}">{% trans 'Custom transactions' %}</a>
+                        <a class="looks-like-a-button" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_transactions='reversal' %}">{% trans 'Reversal transactions' %}</a>
+                    </td>
+                </tr>
+            </table>
+            {% if filter_no_mandate or filter_only_mandate or filter_transactions %}
+                <a class="looks-like-a-button icon icon-cross" href="{% url 'personal_tab:unpaid_transactions_list' %}{% querystring page=None filter_no_mandate=None filter_only_mandate=None filter_mandate_type=None filter_transactions=None %}">{% trans 'Clear filters' %}</a>
+            {% endif %}
+
+            <a href='#' class="looks-like-a-button" id="expand_all">{% trans 'Toggle expand/collapse all' %}</a>
+
+            {% querystring page=None as qstring %}
+            {% include 'paginator.html' with page=page_obj query=qstring|slice:'1:' %}
+        </div>
+    </div></div>
+
+    {% if page_obj.object_list %}
+        {% for person in page_obj.object_list.select_related %}
+            <div class="col-xs-12"><div class="ia">
+                <h2 class="expand" data-target="person_{{ person.pk }}">
+                    {% with unpaid_transactions=person|unpaid_transactions_of_type:filter_transactions unpaid_costs=person|unpaid_transactions_total_cost_of_type:filter_transactions %}
+                        {% blocktrans with name=person.incomplete_name num_transactions=unpaid_transactions.count total_cost=unpaid_costs|intcomma %}
+                            {{ name }} - ({{ num_transactions }}) - &euro;&nbsp;{{ total_cost }}
+                        {% endblocktrans %}
+                    {% endwith %}
+                </h2>
+                <div class="content">
+                    <div id="person_{{ person.pk }}" hidden>
+                        <p>
+                            <a class="looks-like-a-button icon personal_tab" href="{% url 'personal_tab:dashboard' person.pk person.slug %}" target="_blank">
+                                {% blocktrans with name=person.first_name %}Go to {{ name }}'s personal tab (opens new tab){% endblocktrans %}
+                            </a>
+                            <a class="looks-like-a-button icon icon-page_add" href="{% url 'personal_tab:person_manual_payment_new' person_id=person.pk slug=person.slug %}" target="_blank">
+                                {% trans 'Create settlement (opens new tab)' %}
+                            </a>
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans 'Date' %}</th>
+                                        <th>{% trans 'Description' %}</th>
+                                        <th class="align-right">{% trans 'Price' %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in person|unpaid_transactions_of_type:filter_transactions %}
+                                    <tr>
+                                        <td>
+                                            {{ transaction.date }}
+                                        </td>
+                                        <td>
+                                            <a href="{{ transaction.get_absolute_url }}">
+                                                {{ transaction.description }}
+                                            </a>
+                                        </td>
+                                        <td class="align-right">{{ transaction.price|intcomma }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-bold align-right">{% trans 'Total' %}</td>
+                                        <td class="text-bold align-right">&euro;&nbsp;{{ person|unpaid_transactions_total_cost_of_type:filter_transactions|intcomma }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+        {% endfor %}
+    {% else %}
+        <div class="col-xs-12"><div class="ia">
+            <h2>{% trans 'No unpaid transactions' %}</h2>
+            <div class="content">
+                <p>{% trans 'There are no people with unpaid transactions! Woah! 🎉🎉🎉' %}</p>
+            </div>
+        </div></div>
+    {% endif %}
+
+    <script type="text/javascript">
+
+        $("#expand_all").click(function(e) {
+            e.preventDefault();
+
+            $('.expand').each((i, expand) => {
+                // Check for target
+                if (expand.dataset.target == undefined) {
+                    console.log("No target to expand!");
+                    return false;
+                }
+
+                var container = "#" + expand.dataset.target;
+                $(container).slideToggle(500, function() {
+                    // Animation complete, set the right classes
+                    {#expand.classList.add("expanded");#}
+                    {#expand.classList.remove("collapsed");#}
+                    $(this).not(":visible").each(function() { expand.classList.remove("expanded"); expand.classList.add("collapsed"); });
+                    $(this).not(":hidden").each(function() { expand.classList.add("expanded"); expand.classList.remove("collapsed"); });
+                    // Stop animation when clicked more than once
+                    $(this).stop(true);
+                });
+            });
+        });
+
+    </script>
+{% endblock content %}

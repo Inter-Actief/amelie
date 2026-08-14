@@ -74,6 +74,13 @@ POOL_CATEGORY = "Pools"
 # The direct debit debtor ID of Inter-Actief that needs to be printed on the autorization forms
 DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 
+# The ID of the personal_tab.PaymentMethod object representing an early termination (no payment needed).
+MEMBERS_EARLY_TERMINATION_PAYMENT_METHOD_ID = 10
+# The ID of the personal_tab.PaymentMethod object representing a Forgiven payment (no payment needed).
+MEMBERS_FORGIVEN_PAYMENT_METHOD_ID = 12
+# The ID of the personal_tab.PaymentMethod object representing an Internal settlement (no payment needed).
+INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID = 14
+
 # The LDAP host that is used to verify login attempts in the LDAP authentication module
 LDAP_HOST = 'hexia.ia.utwente.nl'
 
@@ -411,6 +418,7 @@ GRAPHQL_JWT = {
     'JWT_ALGORITHM': "RS256",
     'JWT_PUBLIC_KEY': "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtAj6EjQ4jYb7n2ipgHHX3EMegOyFMovsTAKOuPKslh5eeckU2aq0Qp/YAGRzXu6HxBXMJ5hFuDE8HgxIS5ZRBxR5AbEpO7YnvpH8CY9jUyFc7caR0L+QmugG649jy8NmkhiFvanKy1AY3DPXwfQS75D4QTrDis4viYF2xn1QAnOzTdtfe3srz2uYk/dAguj2lffAeZ0OoQ20sejO+TGHQeOpXTR7Vk16CPu89JhjWcpnhLWSkBgvwuLrg+3XoMlPum9cSHaIhc9BX1hbqt351XVMZbk8Ui4Kv6elJyMQEklPMDQhPiCCDMTXa51nqyAPkJUceA1IXkP3t1x0HBFkOwIDAQAB\n-----END PUBLIC KEY-----".encode('ascii'),
     'JWT_VERIFY': True,
+    'JWT_AUDIENCE': 'amelink-beta',
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_ALLOW_REFRESH': False,
     'JWT_PAYLOAD_GET_USERNAME_HANDLER': get_username_from_jwt_payload,
@@ -449,9 +457,10 @@ MODERNRPC_HANDLERS = [
 # API documentation strings are formatted with markdown
 MODERNRPC_DOC_FORMAT = 'markdown'
 
-# Settings regarding direct debits
+# Settings regarding personal tab
 PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal('30.00')  # Maximum price of an activity
 PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE = True  # Allow the committee to enroll people that pay with their authorization
+PERSONAL_TAB_MINIMUM_BALANCE_REMINDER = Decimal('5.00')  # Minimum balance above which people without authorization get monthly reminders to pay their open balance
 
 # Base path to the website. To be used when the django 'build_absolute_url()' does not work correctly.
 ABSOLUTE_PATH_TO_SITE = "https://staging.ia.utwente.nl"
@@ -472,74 +481,96 @@ COOKIE_CORNER_FREE_COOKIE_DISCOUNT_LIMIT = 0  # Limit for the free cookie action
 
 COOKIE_CORNER_WRAPPED_YEAR = datetime.date.today().year - 1
 
-# Conversion table from IBAN bank code to BIC
+# Conversion table from IBAN bank code to BIC for Dutch BICs
+# Source: https://www.betaalvereniging.nl/en/knowledge-base/iban-and-bic/bic-code/
 COOKIE_CORNER_BANK_CODES = {
     'ABNA': 'ABNANL2A',
+    'ABNC': 'ABNCNL2A',
+    'ADYB': 'ADYBNL2A',
     'AEGO': 'AEGONL2U',
-    'ANAA': 'ANAANL21',
+    'AINH': 'AINHNL22',
     'ANDL': 'ANDLNL2A',
     'ARBN': 'ARBNNL22',
     'ARSN': 'ARSNNL21',
     'ASNB': 'ASNBNL21',
-    'ATBA': 'ATBANL2A',
-    'BCDM': 'BCDMNL22',
     'BCIT': 'BCITNL2A',
+    'BARC': 'BARCNL22',
     'BICK': 'BICKNL2A',
     'BINK': 'BINKNL21',
+    'BITS': 'BITSNL2A',
     'BKCH': 'BKCHNL2R',
     'BKMG': 'BKMGNL2A',
     'BLGW': 'BLGWNL21',
-    'BMEU': 'BMEUNL21',
+    'BNDA': 'BNDANL2A',
     'BNGH': 'BNGHNL2G',
     'BNPA': 'BNPANL2A',
     'BOFA': 'BOFANLNX',
     'BOFS': 'BOFSNL21002',
     'BOTK': 'BOTKNL2X',
     'BUNQ': 'BUNQNL2A',
+    'BUKK': 'BUKKNL22',
+    'BUNQ': 'BUNQNL2A',
+    'BUUT': 'BUUTNL2A',
     'CHAS': 'CHASNL2X',
     'CITC': 'CITCNL2A',
     'CITI': 'CITINL2X',
+    'CLRB': 'CLRBNL2A',
     'COBA': 'COBANL2X',
-    'DEUT': 'DEUTNL2N',
+    'CCBV': 'CCBVNL2A',
+    'CEPA': 'CEPANL2A',
+    'DELE': 'DELENL22',
+    'DEUT': 'DEUTNL2A',
     'DHBN': 'DHBNNL2R',
-    'DLBK': 'DLBKNL2A',
     'DNIB': 'DNIBNL2G',
+    'EBPB': 'EBPBNL22',
+    'EBUR': 'EBURNL21',
     'FBHL': 'FBHLNL2A',
     'FLOR': 'FLORNL2A',
-    'FRGH': 'FRGHNL21',
-    'FTSB': 'ABNANL2A',
+    'FNOM': 'FNOMNL22',
+    'FRNX': 'FRNXNL2A',
+    'FROM': 'FROMNL2A',
     'FVLB': 'FVLBNL22',
+    'FXBB': 'FXBBNL22',
     'GILL': 'GILLNL2A',
     'HAND': 'HANDNL2A',
-    'HHBA': 'HHBANL22',
+    'HIFX': 'HIFXNL2A',
+    'HUSH': 'HUSHNL2A',
     'HSBC': 'HSBCNL2A',
+    'ICBC': 'ICBCNL2A',
     'ICBK': 'ICBKNL2A',
+    'ICEP': 'ICEPNL21',
     'INGB': 'INGBNL2A',
-    'INSI': 'INSINL2A',
+    'ISAE': 'ISAENL2A',
     'ISBK': 'ISBKNL2A',
     'KABA': 'KABANL2A',
-    'KASA': 'KASANL2A',
     'KNAB': 'KNABNL2H',
     'KOEX': 'KOEXNL2A',
     'KRED': 'KREDNL2X',
-    'LOCY': 'LOCYNL2A',
     'LOYD': 'LOYDNL2A',
     'LPLN': 'LPLNNL2F',
     'MHCB': 'MHCBNL2A',
+    'MODR': 'MODRNL22',
+    'MLLE': 'MLLENL2A',
     'NNBA': 'NNBANL2G',
     'NWAB': 'NWABNL2G',
+    'PANX': 'PANXNL22',
     'PCBC': 'PCBCNL2A',
+    'PNOW': 'PNOWNL2A',
     'RABO': 'RABONL2U',
-    'RBOS': 'RBOSNL2A',
-    'RBRB': 'RBRBNL21',
+    'SBOS': 'SBOSNL2A',
     'SNSB': 'SNSBNL2A',
+    'RBRB': 'RBRBNL21',
+    'REVO': 'REVONL22',
     'SOGE': 'SOGENL2A',
-    'STAL': 'STALNL2G',
-    'TEBU': 'TEBUNL2A',
+    'SWNB': 'SWNBNL22',
+    'TRBK': 'TRBKNL2A',
     'TRIO': 'TRIONL2U',
-    'UBSW': 'UBSWNL2A',
     'UGBI': 'UGBINL2A',
     'VOWA': 'VOWANL21',
+    'VTPS': 'VTPSNL2R',
+    'VVID': 'VVIDNL22',
+    'WOFT': 'WOFTNL22',
+    'YOUR': 'YOURNL2A',
     'ZWLB': 'ZWLBNL21'
 }
 
@@ -564,6 +595,60 @@ PERSONAL_TAB_PRINTERS = {
     #         "multiple_document_handling": "separate-documents-collated-copies",
     #     },
     # }
+}
+
+# Declaration Settings
+DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
+DECLARATION_EMAIL_COMMITTEE_OVERRIDE = {
+    "SocCie": "SocCie Declarations <socciedecla@inter-actief.net>",
+    "Kick-IT": "Kick-IT Declarations <kick-it.decla@inter-actief.net>",
+}
+TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
+TREASURER_EMAIL_COMMITTEE_OVERRIDE = {
+    "SocCie": "Sociëteitscommissie <soccie@inter-actief.net>",
+    "Kick-IT": "Kick-IT <kick-it@inter-actief.net>",
+}
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB total, because email size limit is 25 MB
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
+
+# Documenso signing server for membership and authorization forms.
+# API_BASE should have no trailing slash.
+DOCUMENSO_SETTINGS = {
+    "API_BASE": "https://sign.ia.utwente.nl/api/v2",
+    "API_KEY": None,
+    "WEB_BASE": "https://sign.ia.utwente.nl/t/ictsv-inter-actief",
+    # Part of the e-mail subjects that indicates the source of the e-mails. Can be used to indicate a beta/staging server
+    "EMAIL_SUBJECT_TAG": "Inter-Actief",
+    # List of IP addresses that are allowed to call the webhook.
+    "ALLOWED_WEBHOOK_IPS": [],
+    # The secret string Documenso will send in the X-Documenso-Secret header when it calls our webhook.
+    "WEBHOOK_SECRET": "",
+    # If True, will instruct Documenso to actually send e-mails. Otherwise, the documents will stay as drafts. Can be useful for debug environments.
+    "ENABLE_SEND": False,
+    "DOCUMENT_SETTINGS": {
+        # Singular membership forms, manually sent from member page.
+        "MEMBERSHIP": {
+            # Contacts that should receive the fully signed document of a certain type when a signature is requested. List of tuples of (name, email).
+            # i.e. "CC_CONTACTS": [("Board Inter-Actief", "board@inter-actief.net")],
+            "CC_CONTACTS": [],
+            # Reply-to address that is added to the mail. If the member clicks Reply in their mail client, the mail will be sent here.
+            "REPLY_TO": "board@inter-actief.net",
+            # Folder IDs per type of document that needs to be stored. Will be placed in the root folder if set to None.
+            "DOCUMENSO_FOLDER_ID": None
+        },
+        # Singular mandate forms, manually sent from member page.
+        "AUTHORIZATION": {
+            "CC_CONTACTS": [],
+            "REPLY_TO": "board@inter-actief.net",
+            "DOCUMENSO_FOLDER_ID": None
+        },
+        # Complete enrollment documents (membership + mandates), automatically sent when new members enroll.
+        "ENROLLMENT": {
+            "CC_CONTACTS": [],
+            "REPLY_TO": "board@inter-actief.net",
+            "DOCUMENSO_FOLDER_ID": None
+        }
+    }
 }
 
 # Celery task scheduler settings
@@ -801,6 +886,8 @@ CSRF_FAILURE_VIEW = 'amelie.views.csrf_failure'
 
 # Date on which old (pre-SEPA) authorizations are registered
 DATE_PRE_SEPA_AUTHORIZATIONS = date(2009, 11, 1)
+# Date before which old paper (pre-digital) memberships and authorizations were used
+DATE_PRE_DIGITAL_FORMS = date(2026, 8, 1)
 
 # Which runner to use to run the django tests
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'

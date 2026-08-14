@@ -1,0 +1,84 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Manual payments - Page {{ page }}/{{ total }}{% endblocktrans %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12"><div class="ia">
+        <h2>{% blocktrans with page=page_obj.number total=page_obj.paginator.num_pages %}Manual payments - Page {{ page }}/{{ total }}{% endblocktrans %}</h2>
+        <div class="content">
+
+            <p>
+                {% blocktrans %}
+                    These are payments that people made manually directly to the association, for example, by cash or by PIN.
+                    A manual payment can pay for transactions that were made against their personal tab, or it can add
+                    a negative amount to their personal tab to create a credit they can use for activities.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Click on a payment description to view details about which transactions the manual payment paid for,
+                    and if there was any extra money deposited.
+                {% endblocktrans %}
+            </p>
+
+
+            <p>
+                {% blocktrans %}
+                    To create a manual payment, go to the person's personal tab overview
+                    and click on the "Add manual payment" button in the relevant block.
+                {% endblocktrans %}
+            </p>
+
+            {% include 'paginator.html' with page=page_obj %}
+
+            {% if page_obj.object_list %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Date' %}</th>
+                                <th>{% trans 'Person' %}</th>
+                                <th>{% trans 'Description' %}</th>
+                                <th>{% trans 'Payment method' %}</th>
+                                <th class="align-right">{% trans 'Price' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for manual_payment in page_obj.object_list.select_related %}
+                            <tr>
+                                <td>
+                                    {{ manual_payment.payment_date }}
+                                </td>
+                                <td>
+                                    <a href="{{ manual_payment.person.get_absolute_url }}">
+                                        {{ manual_payment.person }}
+                                    </a>
+                                    &nbsp;
+                                    <a title="{% blocktrans with name=manual_payment.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                       href="{% url 'personal_tab:dashboard' manual_payment.person.pk manual_payment.person.slug  %}">
+                                        <span class="icon personal_tab"></span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ manual_payment.get_absolute_url }}">
+                                        {{ manual_payment.description }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ manual_payment.payment_method.name }}
+                                </td>
+                                <td class="align-right">&euro;&nbsp;{{ manual_payment.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="icon warning">{% trans "No manual payments have been found." %}</p>
+            {% endif %}
+
+            {% include 'paginator.html' with page=page_obj %}
+        </div>
+    </div></div>
+{% endblock content %}

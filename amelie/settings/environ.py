@@ -240,7 +240,7 @@ OIDC_RP_CLIENT_SECRET = env("OIDC_RP_CLIENT_SECRET", default="")
 # These limit which JWT tokens are accepted. If not set, this allows any JWT token issued by our Keycloak to access the API.
 # Also need to add the AUTHENTICATION_BACKEND: 'graphql_jwt.backends.JSONWebTokenBackend' to activate these settings.
 GRAPHQL_JWT['JWT_ALGORITHM'] = env("GRAPHQL_JWT_ALGORITHM", default="RS256")
-GRAPHQL_JWT['JWT_AUDIENCE'] = env("GRAPHQL_JWT_AUDIENCE", default="amelink-prod")
+GRAPHQL_JWT['JWT_AUDIENCE'] = env.list("GRAPHQL_JWT_AUDIENCE", default=["amelink-prod"])
 GRAPHQL_JWT['JWT_ISSUER'] = env("GRAPHQL_JWT_ISSUER", default="https://auth.ia.utwente.nl/realms/inter-actief")
 GRAPHQL_JWT['JWT_PUBLIC_KEY'] = env("GRAPHQL_JWT_PUBLIC_KEY", default=GRAPHQL_JWT.get('JWT_PUBLIC_KEY', None))
 GRAPHQL_JWT['JWT_VERIFY'] = env.bool("GRAPHQL_JWT_VERIFY", default=True)
@@ -400,6 +400,17 @@ CLAUDIA_KANIDM["API_KEY"] = env("CLAUDIA_KANIDM_API_KEY", default=None)
 MINECRAFT_WHITELIST_API_CONFIG['api_key'] = env("MINECRAFT_WHITELIST_API_KEY", default=None)
 MINECRAFT_WHITELIST_API_CONFIG['allowed_ips'] = env.list("MINECRAFT_WHITELIST_API_ALLOWED_IPS", default=[])
 
+# Documenso signing server for membership and authorization forms.
+DOCUMENSO_SETTINGS['API_BASE'] = env("DOCUMENSO_API_BASE", default=DOCUMENSO_SETTINGS.get('API_BASE', None))
+DOCUMENSO_SETTINGS['API_KEY'] = env("DOCUMENSO_API_KEY", default=None)
+DOCUMENSO_SETTINGS['WEB_BASE'] = env("DOCUMENSO_WEB_BASE", default=DOCUMENSO_SETTINGS.get('WEB_BASE', None))
+DOCUMENSO_SETTINGS["EMAIL_SUBJECT_TAG"] = env("DOCUMENSO_EMAIL_SUBJECT_TAG", default=DOCUMENSO_SETTINGS.get("EMAIL_SUBJECT_TAG", "Inter-Actief"))
+DOCUMENSO_SETTINGS['ALLOWED_WEBHOOK_IPS'] = env.list("DOCUMENSO_ALLOWED_WEBHOOK_IPS", default=[])
+DOCUMENSO_SETTINGS['WEBHOOK_SECRET'] = env("DOCUMENSO_WEBHOOK_SECRET", default=None)
+DOCUMENSO_SETTINGS['ENABLE_SEND'] = env.bool("DOCUMENSO_ENABLE_SEND", default=False)
+DOCUMENSO_SETTINGS['DOCUMENT_SETTINGS']['MEMBERSHIP']['DOCUMENSO_FOLDER_ID'] = env("DOCUMENSO_MEMBERSHIP_FOLDER_ID", default=None)
+DOCUMENSO_SETTINGS['DOCUMENT_SETTINGS']['AUTHORIZATION']['DOCUMENSO_FOLDER_ID'] = env("DOCUMENSO_AUTHORIZATION_FOLDER_ID", default=None)
+DOCUMENSO_SETTINGS['DOCUMENT_SETTINGS']['ENROLLMENT']['DOCUMENSO_FOLDER_ID'] = env("DOCUMENSO_ENROLLMENT_FOLDER_ID", default=None)
 
 ###
 #  Alexia settings
@@ -511,6 +522,24 @@ for i in range(1, 6):
                 "multiple_document_handling": env(f"PERSONAL_TAB_PRINTER_{i}_MULTIPLE_DOCUMENT_HANDLING", default="separate-documents-collated-copies"),
             },
         }
+
+
+
+###
+# Declaration Settings
+###
+
+# Maximum file size for declarations
+PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = env.int("PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE", default=PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE)
+
+# Maximum number of files for declarations
+PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = env.int("PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT", default=PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT)
+
+# E-mail addresses for declarations including committees with separate bookkeepings
+DECLARATION_EMAIL = env("DECLARATION_EMAIL", default=DECLARATION_EMAIL)
+
+# E-mail address of the Treasurer
+TREASURER_EMAIL = env("TREASURER_EMAIL", default=TREASURER_EMAIL)
 
 ###
 #  Amelie-specific settings

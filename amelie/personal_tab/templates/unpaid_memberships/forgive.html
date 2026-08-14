@@ -1,0 +1,63 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Forgive Unpaid Memberships' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'Forgive Unpaid Memberships' %} </h2>
+            <div class="content">
+                <h3 class="legend">{% trans 'You are about to forgive the membership fee of the following persons:' %}</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Current Member?' %}</th>
+                            <th>{% trans 'Year' %}</th>
+                            <th>{% trans 'Price' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membership in memberships %}
+                        <tr>
+                            <td class="align-left">
+                                <a href="{{ membership.member.get_absolute_url }}">
+                                    {{ membership.member }}
+                                </a>
+                                &nbsp;
+                                <a title="{% blocktrans with name=membership.member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                   href="{% url 'personal_tab:dashboard' membership.member.pk membership.member.slug  %}">
+                                    <span class="icon personal_tab"></span>
+                                </a>
+                            </td>
+                            <td class="align-right">
+                                {% if membership.member.is_member %}
+                                {% trans 'Yes' %}
+                                {% else %}
+                                {% trans 'No' %}
+                                {% endif %}
+                            </td>
+                            <td class="align-right">{{ membership.year }}</td>
+                            <td class="align-right">&euro; {{ membership.type.price }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td class="align-left" colspan="3"><b>Total</b></td>
+                            <td class="align-right"><b>&euro; {{ total_price }}</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <form action="{% url 'personal_tab:unpaid_memberships_forgive' year %}?memberships={{ membership_pks|join:','|urlencode }}" method="post">                    {% csrf_token %}
+                    <div class="buttons">
+                        <a href="{% url 'personal_tab:unpaid_memberships_year' year %}" class="looks-like-a-button danger-button">
+                            {% trans 'Cancel' %}
+                        </a>
+                        <input type="submit" name="confirm" value="{% trans 'Confirm' %}" class="success-button" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

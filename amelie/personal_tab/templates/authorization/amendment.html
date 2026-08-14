@@ -1,0 +1,37 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Add amendment' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12">
+        <div class="ia">
+            {% if object %}
+                <h2>{% blocktrans %}Edit amendment '{{ object }}'{% endblocktrans %}</h2>
+            {% else %}
+                <h2>{% trans 'Add amendment' %}</h2>
+            {% endif %}
+
+            <div class="content">
+                <p class="icon warning">
+                    {% if object %}
+                        {% blocktrans with authorization=authorization url=authorization.get_absolute_url %}
+                            With this form, you can edit the amendment to the <a href="{{ url }}">{{ authorization }}</a> authorization.
+                        {% endblocktrans %}
+                    {% else %}
+                    {% blocktrans with authorization=authorization url=authorization.get_absolute_url %}
+                        With this form, you can add an amendment to the <a href="{{ url }}">{{ authorization }}</a> authorization.
+                    {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <form class="big" action="" method="post">
+                    {{ form }}
+                    {% csrf_token %}
+                    <div class="buttons">
+                        <input type="submit" name="save" value="{% trans 'Save' %}" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

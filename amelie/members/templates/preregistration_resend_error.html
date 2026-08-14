@@ -1,0 +1,18 @@
+{% extends "basis.html" %}
+{% load i18n %}
+
+{% block titel %}{% trans 'Pre-enrollment' %} - {% trans 'Error sending signature request' %}{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><div class="ia">
+        <h2>{% trans 'Error sending signature request' %}</h2>
+        <div class="content">
+            <p>
+                {% trans "There was an error while sending the digital signature request. Please contact the WWW." %}
+            </p>
+            <div class="buttons">
+                <a class="looks-like-a-button" href="{% url 'members:preregistration_status' %}">{% trans 'Return to overview' %}</a>
+            </div>
+        </div>
+    </div></div>
+{% endblock content %}

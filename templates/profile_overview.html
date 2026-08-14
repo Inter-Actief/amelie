@@ -58,11 +58,17 @@
                     {% endblocktrans %}
                 </p>
 
-                {% if membership.is_paid %}
+                {% if membership.is_free %}
+                    <p class="icon pos">{% blocktrans %}
+                        Your membership type does not require payment.
+                    {% endblocktrans %}</p>
+                {% elif membership.is_paid %}
                     <p class="icon paid">
-                        {% blocktrans with payment_type=membership.payment.payment_type.name date=membership.payment.date|date:"j b Y"|default:"?" %}
-                            Your membership fees have been paid through {{ payment_type }} on {{ date }}.
-                        {% endblocktrans %}
+                        {% with details=membership.payment_details %}
+                            {% blocktrans with icon=details.1.payment_method.icon_name|default:"wand" method=details.1.payment_method.name|default:"?" date=details.1.payment_date|date:"j b Y"|default:"?" %}
+                                Your membership fees have been paid through <span class="icon icon-{{ icon }}">{{ method }} on {{ date }}</span>.
+                            {% endblocktrans %}
+                        {% endwith %}
                     </p>
                 {% else %}
                     <p class="icon unpaid">

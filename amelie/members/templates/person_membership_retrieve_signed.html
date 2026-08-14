@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="content">
+    <h3 class="legend">{% trans 'Retrieve signed document from Documenso' %}</h3>
+
+    {% if success %}
+        <p>{% trans 'The following document was successfully retrieved from Documenso and saved to the membership:' %}</p>
+        <table>
+            <tr>
+                <th>{% trans 'Filename' %}</th>
+                <td>{{ membership.signed_document.name }}</td>
+            </tr>
+        </table>
+    {% else %}
+        <p>{% trans 'Could not retrieve any document from Documenso. The error received was:' %}</p>
+        <p>{{ error_msg }}</p>
+    {% endif %}
+    <a href="{% url 'members:person_membership' person.id %}" class="looks-like-a-button js-load-block" data-container="person_membership">
+        {% trans 'Return' %}
+    </a>
+</div>

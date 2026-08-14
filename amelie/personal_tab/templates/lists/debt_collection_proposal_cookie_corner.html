@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 {% if rows %}
@@ -8,7 +9,7 @@
                     {% if enabled %}<th>{% trans 'Collect' %}</th>{% endif %}
                     <th>{% trans 'Person' %}</th>
                     <th>{% trans 'Mandate' %}</th>
-                    <th class="number">{% trans 'Price' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,30 +25,41 @@
                         <a href="{{ row.person.get_absolute_url }}">
                             {{ row.person }}
                         </a>
+                        &nbsp;
+                        <a title="{% blocktrans with name=row.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                           href="{% url 'personal_tab:dashboard' row.person.pk row.person.slug  %}">
+                            <span class="icon personal_tab"></span>
+                        </a>
                     </td>
                     <td>
-                        <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
+                        {% if row.authorization %}
+                            <a href="{{ row.authorization.get_absolute_url }}">{{ row.authorization }}</a>
+                        {% else %}
+                            &mdash;
+                        {% endif %}
                         {% if row.instruction.amendment %}
                             (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
                         {% endif %}
                     </td>
-                    <td class="number">{{ row.sumf }}</td>
+                    <td class="align-right">&euro;&nbsp;{{ row.sum|intcomma }}</td>
                 </tr>
-                <tr>
-                    <td colspan="{% if enabled %}4{% else %}3{% endif %}">
-                        {{ row.instruction.description }}
-                    </td>
-                </tr>
+                {% if row.instruction.description %}
+                    <tr>
+                        <td colspan="{% if enabled %}4{% else %}3{% endif %}">
+                            {{ row.instruction.description }}
+                        </td>
+                    </tr>
+                {% endif %}
             {% endfor %}
             </tbody>
             <tfoot>
-                <tr>
+                <tr class="text-bold">
                     {% if enabled %}
                         <td></td>
                     {% endif %}
                     <td>{% trans 'Total' %}</td>
                     <td></td>
-                    <td class="number">{{ total }}</td>
+                    <td class="align-right">&euro;&nbsp;{{ total|intcomma }}</td>
                 </tr>
             </tfoot>
         </table>

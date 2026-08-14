@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n transaction_link %}
 
 {% if rows %}
@@ -21,8 +22,11 @@
                     <th class="align-right">{% trans 'Personal tab' %}</th>
                     <th class="align-right">{% trans 'Activities' %}</th>
                     <th class="align-right">{% trans 'Alexia' %}</th>
+                    <th class="align-right">{% trans 'Contribution' %}</th>
                     <th class="align-right">{% trans 'Other' %}</th>
                     <th class="align-right">{% trans 'Total' %}</th>
+                    <th></th>
+                    <th class="align-right">{% trans 'Payments' %}</th>
                     <th></th>
                     <th class="align-right">{% trans 'kCal' %}</th>
                 </tr>
@@ -42,21 +46,29 @@
                             {% if overview_type == 'total' %}
                                 <a href="{% transaction_link row.start_url row.end_url %}">{{ row.date.year }}</a>
                             {% endif %}
+
+                            {% if row.date > date_now %}
+                                &nbsp;<small class="icon scaled-icon icon-asterisk_yellow" title="{% trans 'This date is in the future' %}"></small>
+                            {% endif %}
                         </td>
                         {% for amount in row.amounts %}
                             <td class="align-right">
-                                {{ amount }}
+                                &euro;&nbsp;{{ amount|intcomma }}
                             </td>
                         {% endfor %}
+                        <td></td>
+                        <td class="align-right">&euro;&nbsp;{{ row.payment_totals|intcomma }}</td>
                         <td></td>
                         <td class="align-right"> {{ row.kcal_total }} </td>
                     </tr>
                 {% endfor %}
-                <tr>
+                <tr class="text-bold">
                     <td>{% trans 'Total' %}</td>
                     {% for total in totals %}
-                        <td class="align-right">{{ total }}</td>
+                        <td class="align-right">&euro;&nbsp;{{ total|intcomma }}</td>
                     {% endfor %}
+                    <td></td>
+                    <td class="align-right">&euro;&nbsp;{{ payment_totals|intcomma }}</td>
                     <td></td>
                     <td class="align-right">{{ kcal_totals }}</td>
                 </tr>
