@@ -74,6 +74,13 @@ POOL_CATEGORY = "Pools"
 # The direct debit debtor ID of Inter-Actief that needs to be printed on the autorization forms
 DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 
+# The ID of the personal_tab.PaymentMethod object representing an early termination (no payment needed).
+MEMBERS_EARLY_TERMINATION_PAYMENT_METHOD_ID = 10
+# The ID of the personal_tab.PaymentMethod object representing a Forgiven payment (no payment needed).
+MEMBERS_FORGIVEN_PAYMENT_METHOD_ID = 12
+# The ID of the personal_tab.PaymentMethod object representing an Internal settlement (no payment needed).
+INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID = 14
+
 # The LDAP host that is used to verify login attempts in the LDAP authentication module
 LDAP_HOST = 'hexia.ia.utwente.nl'
 
@@ -450,9 +457,10 @@ MODERNRPC_HANDLERS = [
 # API documentation strings are formatted with markdown
 MODERNRPC_DOC_FORMAT = 'markdown'
 
-# Settings regarding direct debits
+# Settings regarding personal tab
 PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE = Decimal('30.00')  # Maximum price of an activity
 PERSONAL_TAB_COMMITTEE_CAN_AUTHORIZE = True  # Allow the committee to enroll people that pay with their authorization
+PERSONAL_TAB_MINIMUM_BALANCE_REMINDER = Decimal('5.00')  # Minimum balance above which people without authorization get monthly reminders to pay their open balance
 
 # Base path to the website. To be used when the django 'build_absolute_url()' does not work correctly.
 ABSOLUTE_PATH_TO_SITE = "https://staging.ia.utwente.nl"
@@ -591,7 +599,15 @@ PERSONAL_TAB_PRINTERS = {
 
 # Declaration Settings
 DECLARATION_EMAIL = 'Declarations <decla@inter-actief.net>'
+DECLARATION_EMAIL_COMMITTEE_OVERRIDE = {
+    "SocCie": "SocCie Declarations <socciedecla@inter-actief.net>",
+    "Kick-IT": "Kick-IT Declarations <kick-it.decla@inter-actief.net>",
+}
 TREASURER_EMAIL = 'Penningmeester Inter-Actief <penningmeester@inter-actief.net>'
+TREASURER_EMAIL_COMMITTEE_OVERRIDE = {
+    "SocCie": "Sociëteitscommissie <soccie@inter-actief.net>",
+    "Kick-IT": "Kick-IT <kick-it@inter-actief.net>",
+}
 PERSONAL_TAB_DECLARATION_MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB total, because email size limit is 25 MB
 PERSONAL_TAB_DECLARATION_MAX_FILE_AMOUNT = 10
 

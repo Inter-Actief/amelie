@@ -120,7 +120,6 @@ html, body {
 /* Beta warning */
 #beta-warning {
     display: block;
-    /*display: none;  !* TODO: Remove *!*/
     position: absolute;
     bottom: 6vh;
     right: 6vw;

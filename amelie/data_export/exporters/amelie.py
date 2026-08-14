@@ -8,7 +8,8 @@ from zipfile import ZipFile
 from amelie.claudia.models import Mapping, Timeline, Event as ClaudiaEvent
 from amelie.data_export.exporters.exporter import DataExporter
 from amelie.personal_tab.models import ReversalTransaction, DebtCollectionTransaction, CustomTransaction, \
-    CookieCornerTransaction, ContributionTransaction, AlexiaTransaction, ActivityTransaction
+    CookieCornerTransaction, ContributionTransaction, AlexiaTransaction, ActivityTransaction, \
+    SettlementManualPaymentTransaction, SettlementExtraBalanceTransaction, ManualPaymentSettlement
 
 
 class AmelieDataExporter(DataExporter):
@@ -126,10 +127,30 @@ class AmelieDataExporter(DataExporter):
         for enrollment in person_enrollments:
             enrollment_data = {
                 'remark': str(enrollment.remark),
-                'payment_method': str(enrollment.get_payment_method_display()),
                 'enrollment_time': str(enrollment.added_on),
                 'enrollment_options': [],
+                'payment': {}
             }
+            if enrollment.is_paid():
+                # Payment details
+                payment_status, payment_details = enrollment.payment_details()
+                payment_method = None
+                if payment_status == "reversed" or (payment_status == "paid" and payment_details.settlement_type == "INSTR"):
+                    payment_method = {
+                        "name": "Direct debit",
+                        "date": payment_details.batch.execution_date,
+                        "amount": payment_details.amount
+                    }
+                elif payment_status == "paid" and payment_details.settlement_type == "MANUAL":
+                    payment_method = {
+                        "name": payment_details.payment_method.name,
+                        "date": payment_details.payment_date,
+                        "amount": payment_details.amount
+                    }
+                enrollment_data['payment'] = {
+                    'status': payment_status,
+                    'method': payment_method
+                }
             if hasattr(enrollment, 'event'):
                 enrollment_data['event'] = "{} ({} - {})".format(enrollment.event.summary, enrollment.event.begin,
                                                                  enrollment.event.end)
@@ -255,13 +276,27 @@ class AmelieDataExporter(DataExporter):
                 'membership_type': str(membership.type),
                 'year': membership.year,
                 'ended_prematurely_on': str(membership.ended) if membership.ended else None,
-                'payment': None,
+                'payment': {}
             }
-            if hasattr(membership, 'payment') and membership.payment:
+            if membership.is_paid():
+                # Payment details
+                payment_status, payment_details = membership.payment_details()
+                payment_method = None
+                if payment_status == "reversed" or (payment_status == "paid" and payment_details.settlement_type == "INSTR"):
+                    payment_method = {
+                        "name": "Direct debit",
+                        "date": payment_details.batch.execution_date,
+                        "amount": payment_details.amount
+                    }
+                elif payment_status == "paid" and payment_details.settlement_type == "MANUAL":
+                    payment_method = {
+                        "name": payment_details.payment_method.name,
+                        "date": payment_details.payment_date,
+                        "amount": payment_details.amount
+                    }
                 membership_data['payment'] = {
-                    'date': str(membership.payment.date),
-                    'payment_type': str(membership.payment.payment_type),
-                    'price': str(membership.payment.amount)
+                    'status': payment_status,
+                    'method': payment_method
                 }
             person_memberships.append(membership_data)
         member_data['memberships'] = person_memberships
@@ -376,7 +411,7 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                     'event': str(transaction.event),
                     'participation': str(transaction.participation),
@@ -387,7 +422,7 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                     'alexia_id': transaction.transaction_id,
                 } for transaction in AlexiaTransaction.objects.filter(person=person)],
@@ -396,7 +431,7 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                     'membership': str(transaction.membership)
                 } for transaction in ContributionTransaction.objects.filter(person=person)],
@@ -405,7 +440,7 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                     'article': str(transaction.article),
                     'amount': str(transaction.amount),
@@ -415,7 +450,7 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                 } for transaction in CustomTransaction.objects.filter(person=person)],
                 'debt_collection_transactions': [{
@@ -423,7 +458,7 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                 } for transaction in DebtCollectionTransaction.objects.filter(person=person)],
                 'reversal_transactions': [{
@@ -431,10 +466,26 @@ class AmelieDataExporter(DataExporter):
                     'price': str(transaction.price),
                     'description': str(transaction.description),
                     'discount': str(transaction.discount) if transaction.discount else None,
-                    'debt_collection': str(transaction.debt_collection) if transaction.debt_collection else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
                     'added_on': str(transaction.added_on),
                     'reversal': str(transaction.reversal),
                 } for transaction in ReversalTransaction.objects.filter(person=person)],
+                'manual_payment_transactions': [{
+                    'date': str(transaction.date),
+                    'price': str(transaction.price),
+                    'description': str(transaction.description),
+                    'discount': str(transaction.discount) if transaction.discount else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
+                    'added_on': str(transaction.added_on),
+                } for transaction in SettlementManualPaymentTransaction.objects.filter(person=person)],
+                'extra_balance_transactions': [{
+                    'date': str(transaction.date),
+                    'price': str(transaction.price),
+                    'description': str(transaction.description),
+                    'discount': str(transaction.discount) if transaction.discount else None,
+                    'settlement': str(transaction.settlement) if transaction.settlement else None,
+                    'added_on': str(transaction.added_on),
+                } for transaction in SettlementExtraBalanceTransaction.objects.filter(person=person)],
             },
             'rfid_cards': [{
                 'code': str(card),
@@ -478,6 +529,12 @@ class AmelieDataExporter(DataExporter):
                     } if hasattr(instruction, 'reversal') else None,
                 } for instruction in authorization.instructions.all()],
             } for authorization in person.authorization_set.all()],
+            'manual_payment_settlements': [{
+                'reference': str(manual_payment.payment_reference()),
+                'description': str(manual_payment.description),
+                'amount': str(manual_payment.amount),
+                'payment_date': str(manual_payment.payment_date),
+            } for manual_payment in  ManualPaymentSettlement.objects.filter(person=person)],
         }
 
         return personal_tab_data, []

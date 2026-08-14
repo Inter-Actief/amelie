@@ -12,7 +12,7 @@ class BaseUrlsTestCase(UrlsTestCase):
         'education:complaint_new',
         'education:course_new',
 
-        'education:bouquet',
+        'education:cake',
 
         'education:category_new',
 

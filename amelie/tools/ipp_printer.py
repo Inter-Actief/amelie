@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from pyipp import IPP
-from pyipp.enums import IppOperation
+from pyipp.enums import IppOperation, IppPrintQuality
 
 from amelie.tools.asyncio import get_event_loop
 
@@ -212,7 +212,6 @@ class IPPPrinter:
                 "job-name": f"Amelie Print - {job_name}",
             },
             "job-attributes-tag": {
-                "media": self.printer_info['settings']['media_format'],
                 "multiple-document-handling": self.printer_info['settings']['multiple_document_handling'],
                 "copies": num_copies,
                 "sides": "two-sided-long-edge" if dual_sided else "one-sided",

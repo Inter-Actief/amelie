@@ -2,7 +2,7 @@ from django.urls import path, re_path
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
-from amelie.personal_tab import pos_views, views, register, print_views
+from amelie.personal_tab import pos_views, views, register_views, print_views
 from amelie.personal_tab.views import ActivityTransactionDetail, \
     AlexiaTransactionDetail, CookieCornerTransactionDetail, \
     ReversalTransactionDetail, TransactionDetail, AuthorizationTerminateView, \
@@ -15,11 +15,14 @@ urlpatterns = [
     path('', views.overview, name='overview'),
 
     path('price_list/', views.price_list, name='price_list'),
+    path('price_list/articles/new', views.ArticleCreate.as_view(), name='price_list_article_new'),
+    path('price_list/articles/<int:pk>/edit', views.ArticleUpdate.as_view(), name='price_list_article_edit'),
 
     # Short URL to a person's own dashboard
     path('me/', views.my_dashboard, name='my_dashboard'),
 
     path('transactions/', views.transaction_form, name='transactions'),
+    path('transactions/unpaid/', views.UnpaidTransactionsListView.as_view(), name='unpaid_transactions_list'),
     path('transactions/<int:date_from>/<int:date_to>/', views.transaction_overview, name='transactions'),
 
     path('transactions/activity/<int:pk>/', ActivityTransactionDetail.as_view(), name='activity_transaction_detail'),
@@ -32,7 +35,7 @@ urlpatterns = [
         name='cookie_corner_transaction_delete'),
 
     path('unpaid_memberships/', views.unpaid_memberships, name='unpaid_memberships'),
-    path('unpaid_memberships/<int:year>/', views.unpaid_memberships, name='unpaid_memberships_year'),
+    path('unpaid_memberships/<int:year>/', views.unpaid_memberships_year, name='unpaid_memberships_year'),
     path('unpaid_memberships/<int:year>/mailing/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
     path('unpaid_memberships/<int:year>/forgive/', views.unpaid_memberships_forgive, name='unpaid_memberships_forgive'),
 
@@ -52,8 +55,8 @@ urlpatterns = [
 
     path('person/<int:pk>/<slug:slug>/', views.dashboard, name='dashboard'),
     path('person/<int:pk>/<slug:slug>/transactions/', views.person_transactions, name='person_transactions'),
-    path('person/<int:pk>/<slug:slug>/transactions/<int:date_from>/<int:date_to>/',
-        views.person_transactions, name='person_transactions'),
+    path('person/<int:pk>/<slug:slug>/transactions/<int:date_from>/<int:date_to>/', views.person_transactions, name='person_transactions'),
+    path('person/<int:pk>/<slug:slug>/transactions/unpaid/', views.person_transactions_unpaid, name='person_transactions_unpaid'),
 
     path('person/<int:person_id>/<slug:slug>/new/<str:transaction_type>/', views.person_new_transaction,
         name='person_new_transaction'),
@@ -67,12 +70,14 @@ urlpatterns = [
     path('person/<int:person_id>/<slug:slug>/exam_cookie_credit/new/', views.person_exam_cookie_credit_new,
         name='person_exam_cookie_credit_new'),
 
+    path('manual_payments/', views.ManualPaymentsListView.as_view(), name='manual_payments_list'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/', views.person_manual_payments, name='person_manual_payments'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/new/', views.CreateManualPaymentSettlementView.as_view(), name='person_manual_payment_new'),
+    path('manual_payments/<int:id>/', views.manual_payment_settlement_view, name='manual_payment_settlement_view'),
+    path('manual_payments/<int:pk>/delete/', views.DeleteManualPaymentSettlementView.as_view(), name='manual_payment_settlement_delete'),
+
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),
-
-    path('export/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/', views.export, name='export'),
-    path('export/<int:date_from>/<int:date_to>/csv/', views.export_csv, name='export_csv'),
 
     path('statistics/', views.statistics_form, name='statistics_form'),
     path('statistics/<int:date_from>/<int:date_to>/<str:checkboxes>/', views.statistics, name='statistics'),
@@ -127,8 +132,12 @@ urlpatterns = [
     path('pos/scan_external/', pos_views.PosScanExternalCardView.as_view(), name='pos_scan_external'),
 
     # RFID card registration views
-    path('register/', register.CardRegistrationIndex.as_view(), name='register_index'),
-    path('register/scan/', register.CardRegistrationScan.as_view(), name='register_scan'),
+    path('register/', register_views.CardRegistrationIndex.as_view(), name='register_index'),
+    path('register/process_rfid/', register_views.RegisterProcessRFIDView.as_view(), name='register_process'),
+    path('register/user_logout/', register_views.RegisterLogoutView.as_view(), name='register_logout'),
+    path('register/qr/', register_views.RegisterGenerateQRView.as_view(), name='register_generate_qr'),
+    path('register/verify/<uuid:uuid>/', register_views.RegisterVerifyTokenView.as_view(), name='register_verify'),
+    path('register/login_check/<uuid:uuid>/', register_views.RegisterCheckLoginAjaxView.as_view(), name='register_check'),
 
     # Document printing views
     path('print/', print_views.PrintIndexView.as_view(), name='print_index'),

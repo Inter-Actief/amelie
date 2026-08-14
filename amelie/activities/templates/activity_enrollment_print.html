@@ -1,59 +1,76 @@
+{% load humanize %}
 {% load i18n %}
 
-{% block head %}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-table.min.css" media="all"/>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-table.min.js"></script>
-
-    <script>
-    function htmlSorter(a, b) {
-        var a = $(a).text();
-        var b = $(b).text();
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
+<style>
+    table {
+        border: 2px solid #000;
+        border-spacing: 0;
     }
-    </script>
-{% endblock head %}
+    tr {
+        text-align: left;
+    }
+    td, th {
+        padding: 4px;
+        border: 1px solid #999;
+    }
+</style>
 
-<p class="icon icon-error"> {% trans 'This enrollment list contains personal data. Please do not leave this lying around somewhere and make sure that it is destroyed after use. If you find this list somewhere, please give it to the board of Inter-Actief.' %}</p>
+<h3>
+    {% blocktrans with name=obj.summary date=obj.begin|date:"Y-m-d" %}Enrollments for {{ name }} ({{ date }}){% endblocktrans %}<br/>
+    <span style="font-size: initial; font-weight: initial;">{% blocktrans with date=print_date|date:"Y-m-d H:i" %}(printed on {{ date }}){% endblocktrans %}</span>
+</h3>
+
+<p> {% trans 'This enrollment list contains personal data. Please do not leave this lying around somewhere and make sure that it is destroyed after use. If you find this list somewhere, please give it to the board of Inter-Actief.' %}</p>
 
 <p>
     {% trans 'Number of participants' %} {{ number_participants }}
 </p>
 
 <div class="table-responsive">
-    <table class="table" data-toggle="table" data-sort-name="order">
+    <table class="table">
         <thead>
             <tr>
+                <th style="text-align: center; min-width: 30px;">&checkmark;</th>
                 <th data-sortable="true" data-field="name">
                     {% trans 'Name' %}
                 </th>
-
                 {% for enrollmentoption in obj.enrollmentoption_set.all %}
                     <th>{{ enrollmentoption.title }}</th>
                 {% endfor %}
-
-                <th>{% trans 'Method of payment' %}</th>
-
-                <th></th>
+                <th>{% trans 'Payment' %}</th>
             </tr>
         </thead>
         <tbody>
             {% for participation in participation_set %}
                 <tr>
+                    <td></td>
                     <td>
                         {{ participation.person.incomplete_name }}
                     </td>
                     {% for answer in participation.enrollmentoptionanswer_set.all %}
                         <td>{{ answer.display_answer }}</td>
                     {% endfor %}
-                    <td>{{ participation.get_payment_method_display }}</td>
                     <td>
-                        <a href="{% url 'activities:unenrollment' obj.id participation.person.id %}">
-                            {% trans 'Deregister' %}
-                        </a>
-                        {% if participation.remark %}
-                            <img src="{{ STATIC_URL }}img/icons/information.png" title="{{ participation.remark}}" />
+                        {% if participation.is_free %}
+                            <i>{% trans 'N/A (free)' %}</i>
+                        {% else %}
+                            {% with participation.payment_details as details %}
+                                {% if participation.is_paid %}
+                                    <span>{% trans 'Paid' %}</span>
+                                {# Cannot use brackets in jinja templates, so we need to list the same block twice. #}
+                                {% elif details.0 == 'unpaid' and details.1 != None %}
+                                    <span>{% trans 'To be debited' %}</span>
+                                {% elif details.0 == 'reversed' %}
+                                    <span>{% trans 'To be debited' %}</span>
+                                {% else %}
+                                    {% if details.0 == 'unpaid' and details.1 == None %}
+                                        <span><img src="{{ STATIC_URL }}img/icons/error.png" title="{{ participation.remark}}" /> {% trans 'Needs manual payment' %}</span>
+                                    {% else %}
+                                        <span><img src="{{ STATIC_URL }}img/icons/error.png" title="{{ participation.remark}}" /> {% trans 'Not paid yet' %}</span>
+                                    {% endif %}
+                                    <br /><span>{% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Open amount: &euro;&nbsp;{{ costs }}{% endblocktrans %}</span>
+                                {% endif %}
+                            {% endwith %}
                         {% endif %}
                     </td>
                 </tr>
@@ -74,21 +91,3 @@
     </table>
 </div>
 {% endif %}
-
-<p>
-    {% if request.is_board or not obj.enrollment_full %}
-		<a href="{% url 'activities:enrollment_person_search' obj.id %}" class="looks-like-a-button">
-            {% trans 'Enroll people' %}
-        </a>
-    {% endif %}
-
-    {% if number_participants %}
-        <a href="{% url 'activities:mailing' obj.id %}" class="looks-like-a-button">
-            {% trans 'Send mailing' %}
-        </a>
-    {% endif %}
-
-    {% if request.is_board %}
-        <a href="{% url 'personal_tab:event' obj.id %}" class="looks-like-a-button">{% trans 'View transactions' %}</a>
-    {% endif %}
-</p>

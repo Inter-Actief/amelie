@@ -50,6 +50,7 @@ class PersonRecipient(Recipient):
 
         super(PersonRecipient, self).__init__(tos, context, headers, ccs, bccs, language, attachments)
 
+
 class ActiveMemberRecipient(Recipient):
     def __init__(self, recipient, context=None, headers=None, ccs=None, bccs=None, attachments=None):
         """
