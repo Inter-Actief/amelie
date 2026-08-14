@@ -34,9 +34,13 @@
                                 {% endif %}
                             </td>
                             <td class="align-right">{{ membership.year }}</td>
-                            <td class="align-right">{{ membership.type.price }}</td>
+                            <td class="align-right">&euro; {{ membership.type.price }}</td>
                         </tr>
                         {% endfor %}
+                        <tr>
+                            <td class="align-left" colspan="3"><b>Total</b></td>
+                            <td class="align-right"><b>&euro; {{ total_price }}</b></td>
+                        </tr>
                     </tbody>
                 </table>
 
