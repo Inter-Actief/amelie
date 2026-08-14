@@ -1,15 +1,8 @@
 {% load i18n %}
 
-<p>
-	<!-- Errors -->
-	{% if form.non_field_errors %}
-		<span>
-			{{ form.non_field_errors }}
-		</span>
-	{% endif %}
+<div>
 
 	<!-- Title -->
-  {{ form.dishprice.errors }}
 	<h3>
 		{{ form.enrollmentoption.title }}
 
@@ -18,7 +11,17 @@
 		{% endif %}
 	</h3>
 
-	<!-- Veld -->
+	<!-- Errors -->
+	{% if form.non_field_errors %}
+		<span>
+			{{ form.non_field_errors }}
+		</span>
+	{% endif %}
+    {% if form.dishprice.errors %}
+        <p>{{ form.dishprice.errors }}</p>
+    {% endif %}
+
+	<!-- Field -->
 	<span>
         <select id="{{ form.dishprice.id_for_label }}" name="{{ form.dishprice.html_name}}">
         {% if not form.enrollmentoption.required %}
@@ -43,4 +46,4 @@
 	{% for field in form.hidden_fields %}
 		{{ field }}
 	{% endfor %}
-</p>
+</div>

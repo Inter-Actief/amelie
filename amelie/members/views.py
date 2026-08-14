@@ -6,7 +6,6 @@ import logging
 import uuid
 
 from datetime import date
-from datetime import timezone as tz
 from decimal import Decimal
 from functools import lru_cache
 from io import BytesIO
@@ -32,7 +31,7 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidde
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone, translation
 from django.utils.translation import gettext as _
-from django.views.generic.edit import DeleteView, FormView
+from django.views.generic.edit import FormView
 
 from amelie.claudia.models import Mapping, ExtraPerson
 from amelie.iamailer import MailTask
@@ -44,7 +43,7 @@ from amelie.members.forms import PersonDataForm, StudentNumberForm, \
     RegistrationFormStepPersonalPreferences, RegistrationFormStepFinalCheck, RegistrationFormStepGeneralStudyDetails, \
     RegistrationFormStepFreshmenMembershipDetails, RegistrationFormStepEmployeeDetails, \
     RegistrationFormPersonalDetailsEmployee, RegistrationFormStepEmployeeMembershipDetails, PreRegistrationPrintAllForm
-from amelie.members.models import Payment, PaymentType, Committee, Function, Membership, MembershipType, Employee, \
+from amelie.members.models import Committee, Function, Membership, MembershipType, Employee, \
     Person, Student, Study, StudyPeriod, Preference, PreferenceCategory, UnverifiedEnrollment, Dogroup, \
     DogroupGeneration
 from amelie.personal_tab.forms import RFIDCardForm
@@ -54,7 +53,7 @@ from amelie.tools.decorators import require_board, require_superuser, require_li
 from amelie.tools.encodings import normalize_to_ascii
 from amelie.tools.http import HttpResponseSendfile, HttpJSONResponse, is_allowed_ip
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year, association_year
-from amelie.tools.mixins import DeleteMessageMixin, RequireBoardMixin, RequireCommitteeMixin, RequireAllowlistedIPMixin
+from amelie.tools.mixins import RequireCommitteeMixin, RequireAllowlistedIPMixin
 from amelie.tools.mail import PersonRecipient
 from amelie.tools.pdf import pdf_separator_page, pdf_membership_page, pdf_authorization_page
 
@@ -288,26 +287,6 @@ def statistics(request):
     return render(request, 'statistics/overview.html', locals())
 
 
-@require_board
-def payment_statistics(request, start_year=2012):
-    rows = []
-    payment_types = PaymentType.objects.all()
-    membership_types = MembershipType.objects.all()
-    for mtype in membership_types:
-        cells = [mtype, ]
-        count = 0
-        for ptype in payment_types:
-            memberships = Membership.objects.filter(year=start_year, payment__payment_type=ptype, type=mtype)
-            mcount = memberships.count()
-            count += mcount
-            cells.append(mcount)
-        cells.append(count)
-        rows.append(cells)
-    ziprows = zip(*rows)
-    totalcells = map(sum, list(zip(*rows))[1:])
-    return render(request, 'statistics/payments.html', locals())
-
-
 @require_committee(settings.ROOM_DUTY_ABBREVIATION)
 def person_view(request, id, slug):
     obj = get_object_or_404(Person, id=id, slug=slug)
@@ -353,10 +332,7 @@ def _person_can_be_anonymized(person):
                                                  "({year}/{next_year} {type}).".format(
                 year=membership.year, next_year=membership.year + 1, type=membership.type
             )))
-    # Date where new SEPA authorizations came into effect.
-    begin = datetime.datetime(2013, 10, 30, 23, 00, 00, tzinfo=tz.utc)
-    personal_tab_credit = Transaction.objects.filter(person=person, date__gte=begin).aggregate(Sum('price'))[
-        'price__sum'] or Decimal('0.00')
+    personal_tab_credit = Transaction.objects.filter(person=person).aggregate(Sum('price'))['price__sum'] or Decimal('0.00')
     if personal_tab_credit != 0:
         unable_to_anonymize_reasons.append(_("This person still has an outstanding balance on their personal tab."))
 
@@ -577,10 +553,11 @@ class RegisterNewGeneralWizardView(RequireCommitteeMixin, SessionWizardView):
                 start_date=date.today())
             authorization_other.save()
 
-        # Add membership details
+        # Add membership details and create a transaction for it if necessary
         membership = Membership(member=person, type=cleaned_data['membership'],
                                 year=current_association_year())
         membership.save()
+        membership.create_contribution_transaction()
 
         # Add student details
         student = Student(person=person, number=cleaned_data['student_number'])
@@ -692,10 +669,11 @@ class RegisterNewExternalWizardView(RequireCommitteeMixin, SessionWizardView):
                 start_date=date.today())
             authorization_other.save()
 
-        # Add membership details
+        # Add membership details and create a transaction for it if necessary
         membership = Membership(member=person, type=MembershipType.objects.get(name_en='Primary yearlong'),
                                 year=current_association_year())
         membership.save()
+        membership.create_contribution_transaction()
 
         # Create user for logging in
         person.get_or_create_user(f"e{person.pk}")
@@ -805,10 +783,11 @@ class RegisterNewEmployeeWizardView(RequireCommitteeMixin, SessionWizardView):
                 start_date=date.today())
             authorization_other.save()
 
-        # Add membership details
+        # Add membership details and create a transaction for it if necessary
         membership = Membership(member=person, type=cleaned_data['membership'],
                                 year=current_association_year())
         membership.save()
+        membership.create_contribution_transaction()
 
         # Add employee details
         employee = Employee(person=person, number=cleaned_data['employee_number'])
@@ -923,10 +902,11 @@ class RegisterNewFreshmanWizardView(RequireCommitteeMixin, SessionWizardView):
                 start_date=date.today())
             authorization_other.save()
 
-        # Add membership details
+        # Add membership details and create a transaction for it if necessary
         membership = Membership(member=person, type=cleaned_data['membership'],
                                 year=current_association_year())
         membership.save()
+        membership.create_contribution_transaction()
 
         # Add student details
         student = Student(person=person, number=cleaned_data['student_number'])
@@ -1662,27 +1642,6 @@ def books_list(request):
 
     return render(request, 'books_list.html', {'student_numbers_bit': student_numbers_bit,
                                                'student_numbers_other': student_numbers_other, })
-
-
-class PaymentDeleteView(RequireBoardMixin, DeleteMessageMixin, DeleteView):
-    model = Payment
-    template_name = "members/payment_confirm_delete.html"
-
-    def get_object(self, queryset=None):
-        payment = super(PaymentDeleteView, self).get_object()
-        # You are not allowed to delete 'zero'-memberships manually
-        if payment.amount == 0.0:
-            raise PermissionDenied(_("You are not allowed to manually delete the payments of free memberships."))
-        # You are not allowed to delete payments that are (currently) debited manually
-        if payment.membership.contributiontransaction_set.count() > 0:
-            raise PermissionDenied(_("You are not allowed to delete payments that are already (being) debited."))
-        return payment
-
-    def get_delete_message(self):
-        return _('Payment %(object)s has been removed' % {'object': self.get_object()})
-
-    def get_success_url(self):
-        return self.object.membership.member.get_absolute_url()
 
 
 class DoGroupTreeView(TemplateView):

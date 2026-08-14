@@ -1,0 +1,198 @@
+{% load humanize %}
+{% load i18n %}
+<table class="table" data-toggle="table" data-sort-name="order">
+    <thead>
+        <tr>
+            {% if request.is_board or is_committee or is_roomduty %}
+                <th class="col-seq" data-sortable="true" data-field="order">
+                    {% trans 'Sequence' %}
+                </th>
+                    <th data-sortable="true" data-field="name">
+                        {% trans 'Name' %}
+                    </th>
+            {% else %}
+                <th>
+                    {% trans 'Name' %}
+                </th>
+            {% endif %}
+
+            {% if request.is_board or is_committee or is_roomduty %}
+                {% for enrollmentoption in obj.enrollmentoption_set.all %}
+                    <th>{{ enrollmentoption.title }}</th>
+                {% endfor %}
+
+                <th>{% trans 'Payment' %}</th>
+            {% endif %}
+
+            {% if request.is_board %}
+                <th></th>
+                <th></th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {# confirmed_participation_set will be filtered with only underage participants if this is given in the query parameter #}
+        {# The table for committee, roomduty and board #}
+        {% if request.is_board or is_committee or is_roomduty %}
+            {% for participation in confirmed_participation_set %}
+            <tr>
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+                    <td>
+                        {% if request.is_board %}
+                            <a href="{% url 'members:person_view' participation.person.pk participation.person.slug %}">{{ participation.person.incomplete_name }}</a>
+                            {% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
+                        {% elif deanonymise %}
+                            {{ participation.person.incomplete_name }}{% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
+                        {% elif not obj.enrollment_private  %}
+                            {% if participation in public_participation_set %}
+                                {{ participation.person.public_enrollment_name }}
+                            {% else %}
+                                <i>{% trans 'Anonymous' %}</i>
+                            {% endif %}
+                            {% if participation in confirmed_participation_set_turns_18_during_event %}<img class="icon icon-cake" title="{% trans 'This participant turns 18 during the activity!' %}" />{% endif %}
+                        {% else %}
+                            {% trans 'Anonymous' %}
+                        {% endif %}
+                    </td>
+                    {% for answer in participation.enrollmentoptionanswer_set.all %}
+                        <td>{{ answer.display_answer }}</td>
+                    {% endfor %}
+                    {% if request.is_board or is_roomduty %}
+                        <td>
+                            {% if participation.is_free %}
+                                <i>{% trans 'N/A (free)' %}</i>
+                                &nbsp;
+                                {% if participation.activitytransaction_set.exists %}
+                                    {% if participation.unpaid_transactions|length != 0 %}
+                                        <span class="icon icon-error" title="{% trans 'For some reason this free participation has unpaid payments! This should not happen.' %}"></span>
+                                    {% endif %}
+                                    <a title="{% trans 'Inspect payments' %}"
+                                       href="{% url 'activities:activity_participation_payments' obj.id participation.id %}"
+                                       class="icon icon-zoom js-load-block" data-container="enrollment_overview">
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                {% with participation.payment_details as details %}
+                                    {% if participation.is_paid %}
+                                        <span class="icon icon-accept">{% trans 'Paid' %}</span>
+                                    {% else %}
+                                        {# Cannot use brackets in jinja templates, so we need to list the same block twice. #}
+                                        {% if details.0 == 'unpaid' and details.1 != None %}
+                                            <span class="icon icon-creditcards">{% trans 'To be debited' %}</span>
+                                        {% elif details.0 == 'reversed' %}
+                                            <span class="icon icon-creditcards">{% trans 'To be debited' %}</span>
+                                        {% else %}
+                                            <span class="icon icon-cross">{% trans 'Not paid yet' %}</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    &nbsp;
+                                    <a title="{% trans 'Inspect payments' %}"
+                                       href="{% url 'activities:activity_participation_payments' obj.id participation.id %}"
+                                       class="icon icon-zoom js-load-block" data-container="enrollment_overview">
+                                    </a>
+                                    {% if details.0 == 'no_transaction' %}
+                                        <br /><small class="icon scaled-icon icon-error">{% trans 'No transaction! Contact the WWW.' %}</small>
+                                    {% elif details.0 == 'paid' %}
+                                        {% if details.1.settlement_type == "INSTR" %}
+                                            <br /><small class="icon scaled-icon icon-creditcards">
+                                                {% blocktrans with date=details.1.batch.execution_date|date:"Y-m-d" %}
+                                                    Debited on {{ date }}
+                                                {% endblocktrans %}
+                                            </small>
+                                        {% elif details.1.settlement_type == "MANUAL" %}
+                                            <br /><small class="icon scaled-icon icon-{{ details.1.payment_method.icon_name }}">
+                                                {% blocktrans with method=details.1.payment_method.name date=details.1.payment_date|date:"Y-m-d" %}
+                                                    {{ method }} on {{ date }}
+                                                {% endblocktrans %}
+                                            </small>
+                                        {% else %}
+                                            <br /><small class="icon scaled-icon icon-error">
+                                                {% trans 'Unknown payment! Contact the WWW.' %}
+                                            </small>
+                                        {% endif %}
+                                    {% elif details.0 == 'reversed' %}
+                                        <br /><small class="icon scaled-icon icon-arrow_undo">
+                                            {% trans 'Previous attempt was reversed' %}
+                                        </small>
+                                    {% elif details.0 == 'unpaid' and details.1 == None %}
+                                        <br /><small class="icon scaled-icon icon-coins">
+                                            {% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Needs manual payment (&euro;&nbsp;{{ costs }}){% endblocktrans %}
+                                        </small>
+                                    {% endif %}
+                                    {% if details.0 == 'unpaid' and details.1 == None %}
+                                         <br /><a class="looks-like-a-button js-load-block"
+                                                  href="{% url 'activities:activity_participation_create_payment' activity_id=obj.id pk=participation.id %}"
+                                                  data-container="enrollment_overview">
+                                            {% trans 'Enter manual payment' %}
+                                        </a>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </td>
+                    {% elif is_committee %}
+                        <td>
+                            {% if participation.is_free %}
+                                <i>{% trans 'N/A (free)' %}</i>
+                            {% else %}
+                                {% with participation.payment_details as details %}
+                                    {% if participation.is_paid %}
+                                        <span class="icon icon-accept">{% trans 'Paid' %}</span>
+                                    {# Cannot use brackets in jinja templates, so we need to list the same block twice. #}
+                                    {% elif details.0 == 'unpaid' and details.1 != None %}
+                                        <span class="icon icon-creditcards">{% trans 'To be debited' %}</span>
+                                    {% elif details.0 == 'reversed' %}
+                                        <span class="icon icon-creditcards">{% trans 'To be debited' %}</span>
+                                    {% else %}
+                                        <span class="icon icon-cross">{% trans 'Not paid yet' %}</span>
+                                        {% if details.0 == 'unpaid' and details.1 == None %}
+                                            <br /><small class="icon scaled-icon icon-coins">
+                                                {% blocktrans with costs=participation.to_be_paid_costs|intcomma %}Needs manual payment (&euro;&nbsp;{{ costs }}){% endblocktrans %}
+                                            </small>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% if request.is_board %}
+                        <td>
+                            <a href="{% url 'activities:editenrollment_person' obj.id participation.person.id %}">
+                                {% trans 'Edit enrollment' %}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'activities:unenrollment_person' obj.id participation.person.id %}">
+                                {% trans 'Deregister' %}
+                            </a>
+                            {% if participation.remark %}
+                                <img src="{{ STATIC_URL }}img/icons/information.png" title="{{ participation.remark }}" />
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% else %}
+            {# The table for normal members #}
+            {% for participation in public_participation_set %}
+                <tr>
+                    <td>
+                        {{ participation.person.public_enrollment_name }}
+                    </td>
+                </tr>
+            {% endfor %}
+             <tr>
+                 <td>
+                    <i>
+                      {% blocktranslate count count=anonymous_count %}
+                        ...and <b>{{ count }}</b> Anonymous member.
+                      {% plural %}
+                        ...and <b>{{ count }}</b> Anonymous members.
+                      {% endblocktranslate %}
+                    </i>
+                 </td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
