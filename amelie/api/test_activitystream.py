@@ -290,7 +290,7 @@ class ActivitySignupTest(APITestCase):
         for option in self.activity.enrollmentoption_set.all():
             option.delete()
 
-        self.send_and_compare_request_error('activitySignup', [self.activity.pk, 0.00, []], 'invalidToken', -32603)
+        self.send_and_compare_request_error('activitySignup', [self.activity.pk, 0.00, []], 'invalidToken', -32098)
 
     def test_free(self):
         # Clear options
