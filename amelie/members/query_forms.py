@@ -41,7 +41,7 @@ class QueryForm(forms.Form):
 
     member = forms.BooleanField(required=False, label=_l('Return former members'))
     old_member = forms.BooleanField(required=False, label=_l('Only return former members'))
-    paid = forms.BooleanField(required=False, label=_l('Has not paid yet'))
+    unpaid = forms.BooleanField(required=False, label=_l('Has not paid yet'))
     member_in_year = forms.MultipleChoiceField(required=False, label=_l('Was a member in one of these years'))
 
     study = forms.ModelChoiceField(Study.objects.all(), required=False)
@@ -191,8 +191,10 @@ class QueryForm(forms.Form):
             persons = persons.exclude(membership__in=Membership.objects.filter(
                 Q(ended__gt=date.today()) | Q(ended__isnull=True), year=current_association_year()))
 
-        if cleaned_data['paid']:
-            memberships = memberships.filter(type__price__gt=0, payment__isnull=True)
+        if cleaned_data['unpaid']:
+            # Usually payment of a transaction cannot be determined with a filter, but only with the `.is_paid()` method.
+            # This shortcut works here because a new ContributionTransaction (without a settlement) is created each time a payment is reversed.
+            memberships = memberships.filter(type__price__gt=0, contributiontransaction__settlement__isnull=True)
 
         if cleaned_data['membership']:
             memberships = memberships.filter(type__in=cleaned_data['membership'])

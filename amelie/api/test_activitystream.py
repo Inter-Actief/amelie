@@ -104,10 +104,10 @@ def _activity_data_detailed(activity, authenticated=False, signedup=False):
         "signupStart": activity.enrollment_begin.isoformat() if activity.enrollment_begin else None,
         "signupStop": activity.enrollment_end.isoformat() if activity.enrollment_end else None,
         "signedUp": signedup,
-        "resignAvailable": activity.enrollment and activity.enrollment_open() and activity.can_unenroll,
-        "signupAvailable": activity.enrollment and activity.enrollment_open()
-                           and not activity.enrollment_full(),
-        "signupWaitinglist": activity.enrollment_full(),
+        "resignAvailable": activity.enrollment and activity.enrollment_open and activity.can_unenroll,
+        "signupAvailable": activity.enrollment and activity.enrollment_open
+                           and not activity.enrollment_full,
+        "signupWaitinglist": activity.enrollment_full,
         "price": activity.price,
     }
 

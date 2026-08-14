@@ -124,6 +124,10 @@ class TestCase(TransactionTestCase, testcases.TestCase):
         username1 = 'testuser'
         username2 = 'testuser2'
 
+        # Membership type
+        membership_type = MembershipType(name_nl='Test membership', price=13.37)
+        membership_type.save()
+
         data['password1'] = 'testuser13475'
         data['password2'] = 'testuser23475'
 
@@ -135,6 +139,9 @@ class TestCase(TransactionTestCase, testcases.TestCase):
                                   account_name=data['user1'].username)
         data['person1'].save()
 
+        data['membership1'] = Membership(member=data['person1'], type=membership_type, year=current_association_year())
+        data['membership1'].save()
+
         data['user2'] = User(username=username2, first_name='Test2', last_name='Client', email='test2@example.com')
         data['user2'].set_password(data['password2'])
         data['user2'].save()
@@ -142,6 +149,9 @@ class TestCase(TransactionTestCase, testcases.TestCase):
         data['person2'] = Person(first_name='Test2', last_name='Client', gender=Person.GenderTypes.MAN, user=data['user2'],
                                   account_name=data['user2'].username)
         data['person2'].save()
+
+        data['membership2'] = Membership(member=data['person2'], type=membership_type, year=current_association_year())
+        data['membership2'].save()
 
         # Committee
         data['committee1'] = Committee(name='Committee 1', abbreviation='Com1')

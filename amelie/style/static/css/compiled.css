@@ -10310,6 +10310,9 @@ fieldset[disabled] .datepicker table tr td span.active.disabled:hover.focus {
   background-repeat: no-repeat;
   line-height: 1.5;
 }
+.icon.scaled-icon {
+  background-size: contain;
+}
 .icon[type="button"],
 .icon[type="submit"],
 .icon.looks-like-a-button {
@@ -10324,6 +10327,9 @@ fieldset[disabled] .datepicker table tr td span.active.disabled:hover.focus {
   min-height: 16px;
   background-repeat: no-repeat;
   line-height: 1.5;
+}
+.news-pinned.scaled-icon {
+  background-size: contain;
 }
 .news-pinned[type="button"],
 .news-pinned[type="submit"],
@@ -10564,6 +10570,39 @@ li.courses-soon {
 .icon-enroll {
   background: transparent url("/static/img/icons/calendar_add.png") no-repeat;
 }
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+.text-justify {
+  text-align: justify;
+}
+.text-nowrap {
+  white-space: nowrap;
+}
+.text-lowercase {
+  text-transform: lowercase;
+}
+.text-uppercase {
+  text-transform: uppercase;
+}
+.text-capitalize {
+  text-transform: capitalize;
+}
+.text-bold {
+  font-weight: bold;
+}
+.text-italics {
+  font-style: italic;
+}
+.text-underline {
+  text-decoration: underline;
+}
 .hidden {
   display: none;
 }
@@ -10710,6 +10749,9 @@ li.courses-soon {
   color: #FFFFFF;
   font-weight: bold;
 }
+.ia th.secondary {
+  background: #2450A8;
+}
 .ia .zebra thead tr th {
   color: #FFFFFF;
   background-color: #1d428a;
@@ -10807,6 +10849,9 @@ li.courses-soon {
   color: #FFFFFF;
   font-weight: bold;
 }
+.current th.secondary {
+  background: #099A2B;
+}
 .current .zebra thead tr th {
   color: #FFFFFF;
   background-color: #077821;
@@ -10903,6 +10948,9 @@ li.courses-soon {
   background: #B8231F;
   color: #FFFFFF;
   font-weight: bold;
+}
+.edu th.secondary {
+  background: #DC332E;
 }
 .edu .zebra thead tr th {
   color: #FFFFFF;
@@ -11193,6 +11241,9 @@ a.looks-like-a-button.obscure {
   margin-bottom: 6px;
   padding: 6px 6px 6px 28px !important;
   border: 2px solid;
+}
+.ia_messages li.scaled-icon {
+  background-size: contain;
 }
 .ia_messages li[type="button"],
 .ia_messages li[type="submit"],
@@ -11652,6 +11703,9 @@ p {
   line-height: 1.35em;
   margin: 10px 0;
   word-wrap: break-word;
+}
+p.large-text {
+  font-size: 125%;
 }
 p.serial {
   padding: 0 5px;
@@ -12298,6 +12352,9 @@ table.totals tr:nth-last-child(2) td {
   line-height: 1.5;
   background: transparent url("/static/img/icons/email.png") no-repeat;
 }
+.claudia-email.scaled-icon {
+  background-size: contain;
+}
 .claudia-email[type="button"],
 .claudia-email[type="submit"],
 .claudia-email.looks-like-a-button {
@@ -12311,6 +12368,9 @@ table.totals tr:nth-last-child(2) td {
   background-repeat: no-repeat;
   line-height: 1.5;
   background: transparent url("/static/img/icons/email_go.png") no-repeat;
+}
+.claudia-alias.scaled-icon {
+  background-size: contain;
 }
 .claudia-alias[type="button"],
 .claudia-alias[type="submit"],
@@ -12326,6 +12386,9 @@ table.totals tr:nth-last-child(2) td {
   line-height: 1.5;
   background: transparent url("/static/img/icons/vcard.png") no-repeat;
 }
+.claudia-account.scaled-icon {
+  background-size: contain;
+}
 .claudia-account[type="button"],
 .claudia-account[type="submit"],
 .claudia-account.looks-like-a-button {
@@ -12339,6 +12402,9 @@ table.totals tr:nth-last-child(2) td {
   background-repeat: no-repeat;
   line-height: 1.5;
   background: transparent url("/static/img/icons/exclamation.png") no-repeat;
+}
+.claudia-error.scaled-icon {
+  background-size: contain;
 }
 .claudia-error[type="button"],
 .claudia-error[type="submit"],
@@ -12355,6 +12421,9 @@ table.totals tr:nth-last-child(2) td {
   background: transparent url("/static/img/icons/status_offline.png") no-repeat;
   color: gray !important;
 }
+.claudia-nomapping.scaled-icon {
+  background-size: contain;
+}
 .claudia-nomapping[type="button"],
 .claudia-nomapping[type="submit"],
 .claudia-nomapping.looks-like-a-button {
@@ -12368,6 +12437,9 @@ table.totals tr:nth-last-child(2) td {
   background-repeat: no-repeat;
   line-height: 1.5;
   background: transparent url("/static/img/icons/user.png") no-repeat;
+}
+.claudia-AmeliePerson.scaled-icon {
+  background-size: contain;
 }
 .claudia-AmeliePerson[type="button"],
 .claudia-AmeliePerson[type="submit"],
@@ -12383,6 +12455,9 @@ table.totals tr:nth-last-child(2) td {
   line-height: 1.5;
   background: transparent url("/static/img/icons/group.png") no-repeat;
 }
+.claudia-AmelieGroup.scaled-icon {
+  background-size: contain;
+}
 .claudia-AmelieGroup[type="button"],
 .claudia-AmelieGroup[type="submit"],
 .claudia-AmelieGroup.looks-like-a-button {
@@ -12396,6 +12471,9 @@ table.totals tr:nth-last-child(2) td {
   background-repeat: no-repeat;
   line-height: 1.5;
   background: transparent url("/static/img/icons/group_link.png") no-repeat;
+}
+.claudia-AmelieDoGroup.scaled-icon {
+  background-size: contain;
 }
 .claudia-AmelieDoGroup[type="button"],
 .claudia-AmelieDoGroup[type="submit"],
@@ -12411,6 +12489,9 @@ table.totals tr:nth-last-child(2) td {
   line-height: 1.5;
   background: transparent url("/static/img/icons/group_add.png") no-repeat;
 }
+.claudia-ExtraGroup.scaled-icon {
+  background-size: contain;
+}
 .claudia-ExtraGroup[type="button"],
 .claudia-ExtraGroup[type="submit"],
 .claudia-ExtraGroup.looks-like-a-button {
@@ -12424,6 +12505,9 @@ table.totals tr:nth-last-child(2) td {
   background-repeat: no-repeat;
   line-height: 1.5;
   background: transparent url("/static/img/icons/user_add.png") no-repeat;
+}
+.claudia-ExtraPerson.scaled-icon {
+  background-size: contain;
 }
 .claudia-ExtraPerson[type="button"],
 .claudia-ExtraPerson[type="submit"],
@@ -12439,6 +12523,9 @@ table.totals tr:nth-last-child(2) td {
   line-height: 1.5;
   background: transparent url("/static/img/icons/folder_user.png") no-repeat;
 }
+.claudia-SharedDrive.scaled-icon {
+  background-size: contain;
+}
 .claudia-SharedDrive[type="button"],
 .claudia-SharedDrive[type="submit"],
 .claudia-SharedDrive.looks-like-a-button {
@@ -12453,6 +12540,9 @@ table.totals tr:nth-last-child(2) td {
   line-height: 1.5;
   background: transparent url("/static/img/icons/email_go.png") no-repeat;
 }
+.claudia-AliasGroup.scaled-icon {
+  background-size: contain;
+}
 .claudia-AliasGroup[type="button"],
 .claudia-AliasGroup[type="submit"],
 .claudia-AliasGroup.looks-like-a-button {
@@ -12466,6 +12556,9 @@ table.totals tr:nth-last-child(2) td {
   background-repeat: no-repeat;
   line-height: 1.5;
   background: transparent url("/static/img/icons/email.png") no-repeat;
+}
+.claudia-Contact.scaled-icon {
+  background-size: contain;
 }
 .claudia-Contact[type="button"],
 .claudia-Contact[type="submit"],

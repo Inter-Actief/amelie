@@ -1,28 +1,33 @@
 # -*- coding: UTF-8 -*-
 import datetime
+import decimal
 import logging
-from io import BytesIO
-from typing import Optional
+from decimal import Decimal
+from typing import Optional, Iterable, Tuple
 
 from io import BytesIO
 import json
 
 from django.conf import settings
+from django.contrib import admin
 from django.core.files.base import ContentFile
+from django.templatetags.static import static
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.core.validators import RegexValidator
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.signals import pre_save, post_save, post_delete
-from django.utils import timezone
-from django.utils.translation import get_language, gettext_lazy as _l, gettext
+from django.utils import timezone, translation
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language, gettext as _, gettext_lazy as _l
 from documenso_sdk import EnvelopeDistributeResponse
 from localflavor.generic.models import BICField, IBANField
 
 from amelie.claudia.tools import verify_instance
 from amelie.members.models import Person, Membership, Committee
 from amelie.personal_tab.managers import AuthorizationManager, DebtCollectionInstructionManager
+from amelie.tools.logic import current_association_year
 
 
 class DiscountPeriod(models.Model):
@@ -121,8 +126,8 @@ class Transaction(models.Model):
     price:              The price that this transaction is for.
     person:             The person this transaction is for.
     description:        The description of this transaction.
-    discount:           Links to the Discount object in which this credit is used.
-    debt_collection:    Links to the Debt Collection Entry on which this transaction was collected.
+    discount:           Links to the Discount object in which credit was used to pay for (part of) this transaction.
+    settlement:         Links to the Personal Tab Settlement with which this transaction was settled.
 
     added_on:           The date and time on which this object was created.
     added_by:           The person that created this object.
@@ -134,8 +139,8 @@ class Transaction(models.Model):
     description = models.CharField(max_length=200, blank=True, verbose_name=_l('Description'))
     discount = models.OneToOneField(Discount, blank=True, null=True, default=None, verbose_name=_l('discount'), on_delete=models.SET_NULL)
 
-    debt_collection = models.ForeignKey('DebtCollectionInstruction', verbose_name=_l('Direct withdrawal'), blank=True, null=True,
-                                        related_name="transactions", on_delete=models.PROTECT)
+    settlement = models.ForeignKey('PersonalTabSettlement', verbose_name=_l('Settlement'), blank=True, null=True,
+                                   related_name="transactions", on_delete=models.PROTECT)
 
     added_on = models.DateTimeField(verbose_name=_l('Added on'), auto_now_add=True)
 
@@ -143,7 +148,7 @@ class Transaction(models.Model):
     added_by = models.ForeignKey(Person, verbose_name=_l('Added by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
 
     class Meta:
-        ordering = ['-date', '-added_on']
+        ordering = ['-date', '-added_on', '-pk']
         verbose_name = _l('Transaction')
         verbose_name_plural = _l("Transactions")
 
@@ -152,6 +157,37 @@ class Transaction(models.Model):
 
     def __str__(self):
         return '{} ({})'.format(self.description, self.price)
+
+    @property
+    def transaction_type(self):
+        if hasattr(self, 'activitytransaction'):
+            return "activitytransaction", _l("Activity Transaction")
+        elif hasattr(self, 'alexiatransaction'):
+            return "alexiatransaction", _l("Alexia Transaction")
+        elif hasattr(self, 'contributiontransaction'):
+            return "contributiontransaction", _l("Contribution Transaction")
+        elif hasattr(self, 'cookiecornertransaction'):
+            return "cookiecornertransaction", _l("Cookie Corner Transaction")
+        elif hasattr(self, 'customtransaction'):
+            return "customtransaction", _l("Custom Transaction")
+        elif hasattr(self, 'debtcollectiontransaction'):
+            return "debtcollectiontransaction", _l("Debt Collection Transaction")
+        elif hasattr(self, 'reversaltransaction'):
+            return "reversaltransaction", _l("Reversal Transaction")
+        elif hasattr(self, 'settlementextrabalancetransaction'):
+            return "settlementextrabalancetransaction", _l("Extra Balance Transaction")
+        elif hasattr(self, 'settlementmanualpaymenttransaction'):
+            return "settlementmanualpaymenttransaction", _l("Manual Payment Transaction")
+        else:
+            return None
+
+    @property
+    def price_cents(self):
+        return (self.price * 100).quantize(Decimal("0"), decimal.ROUND_HALF_UP)
+
+    def is_paid(self):
+        # A transaction is paid if a settlement exists, and that settlement is also paid.
+        return self.settlement.is_paid() if self.settlement else False
 
     @property
     def editable(self):
@@ -166,7 +202,7 @@ class CustomTransaction(Transaction):
     """
     @property
     def editable(self):
-        return not self.debt_collection
+        return not self.settlement
 
 
 class ActivityTransaction(Transaction):
@@ -218,7 +254,7 @@ class CookieCornerTransaction(Transaction):
 
     @property
     def editable(self):
-        return not self.debt_collection
+        return not self.settlement
 
 
 class AlexiaTransaction(Transaction):
@@ -633,10 +669,10 @@ class Authorization(models.Model):
 
     def process_signed_document(self):
         if not self.documenso_id:
-            raise ValueError(gettext("Documenso ID is not set. No documents are due to be signed."))
+            raise ValueError(_l("Documenso ID is not set. No documents are due to be signed."))
         # Retrieve the document and save it to the database
         from amelie.tools.documenso import retrieve_documents
-        documents, _ = retrieve_documents(self.documenso_id)
+        documents, unused = retrieve_documents(self.documenso_id)
         if len(documents) > 1:
             logging.getLogger(__name__).warning(f"Received multiple documents from Documenso for {self}. Only saving the first one.")
 
@@ -805,7 +841,59 @@ class DebtCollectionBatch(models.Model):
         verbose_name_plural = _l('direct withdrawal-batches')
 
 
-class DebtCollectionInstruction(models.Model):
+class PersonalTabSettlement(models.Model):
+    """
+    Base class to represent a payment to settle the personal tab balance.
+
+    This can either represent a DebtCollectionInstruction, or a ManualPaymentSettlement.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+    """Description rule."""
+    description = models.CharField(max_length=140, verbose_name=_l('description'), validators=[SEPA_CHAR_VALIDATOR])
+
+    """Amount of the settlement. (Either to be collected via debit, or paid manually.)"""
+    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('amount'))
+
+    @property
+    def settlement_type(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.settlement_type
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.settlement_type
+        raise NotImplementedError("Base class Personal tab settlement has no settlement type.")
+
+    def is_paid(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.is_paid()
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.is_paid()
+        raise NotImplementedError("Base class Personal tab settlement cannot be paid.")
+
+    def __str__(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.__str__()
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.__str__()
+        if self.id:
+            return f'Personal tab settlement #{self.id}'
+        return 'Personal tab settlement (new)'
+
+    def get_absolute_url(self):
+        if hasattr(self, 'debtcollectioninstruction'):
+            return self.debtcollectioninstruction.get_absolute_url()
+        elif hasattr(self, 'manualpaymentsettlement'):
+            return self.manualpaymentsettlement.get_absolute_url()
+        raise NotImplementedError("Base class Personal tab settlement has no detail view.")
+
+    class Meta:
+        ordering = ['pk']
+        verbose_name = _l('personal tab settlement')
+        verbose_name_plural = _l('personal tab settlements')
+
+
+class DebtCollectionInstruction(PersonalTabSettlement):
     """
     Instruction to collect some amount from a certain account.
 
@@ -829,22 +917,25 @@ class DebtCollectionInstruction(models.Model):
     """End-to-end-id. This will be passed on to the cashed (the person paying)."""
     end_to_end_id = models.CharField(max_length=35, verbose_name=_l('end-to-end-id'), validators=[SEPA_CHAR_VALIDATOR])
 
-    """Description rule."""
-    description = models.CharField(max_length=140, verbose_name=_l('description'), validators=[SEPA_CHAR_VALIDATOR])
-
-    """Amount to be collected."""
-    amount = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_l('amount'))
-
     """An amendment given with this instruction."""
     amendment = models.OneToOneField(Amendment, related_name='instruction', on_delete=models.PROTECT,
                                      verbose_name=_l('amendment'), null=True, blank=True)
 
     objects = DebtCollectionInstructionManager()
 
+    @property
+    def settlement_type(self):
+        return "INSTR"
+
+    def is_paid(self):
+        # A debt collection is paid if there is no reversal for it, or if the reversal is also paid.
+        return self.reversal.is_paid() if hasattr(self, 'reversal') else True
+
     def debt_collection_reference(self):
-        """Returns the debt collection reference with prefix."""
+        """Returns the debt collection reference with a prefix."""
         if self.id:
             return '%s%08d' % (DebtCollectionInstruction.PREFIX, self.id)
+        return None
 
     def __str__(self):
         return self.debt_collection_reference() or 'New debt collection instruction'
@@ -858,6 +949,281 @@ class DebtCollectionInstruction(models.Model):
         verbose_name_plural = _l('direct withdrawal-instructions')
 
 
+class PaymentMethod(models.Model):
+    """
+    Payment method used for a manual payment.
+    """
+    name_nl = models.CharField(max_length=20, unique=True, verbose_name=_l('Name (NL)'))
+    name_en = models.CharField(max_length=20, unique=True, verbose_name=_l('Name (EN)'))
+    description_nl = models.TextField(verbose_name=_l('Description (NL)'))
+    description_en = models.TextField(verbose_name=_l('Description (EN)'))
+    visible = models.BooleanField(default=True, verbose_name=_l('Visible'), help_text=_l("This payment method will be visible when creating a manual payment directly in someone's personal tab."))
+    visible_memberships = models.BooleanField(default=True, verbose_name=_l('Visible for memberships'), help_text=_('This payment method will be visible when privileged members enter a manual payment for a membership.'))
+    visible_activities = models.BooleanField(default=True, verbose_name=_l('Visible for activities'), help_text=_('This payment method will be visible when privileged members enter a manual payment for an activity.'))
+    frontend_icon_name = models.CharField(max_length=20, blank=True, null=True, verbose_name=_l('Icon name for frontend'))
+
+    class Meta(object):
+        ordering = ['name_en', 'name_nl']
+        verbose_name = _l('payment method')
+        verbose_name_plural = _l('payment methods')
+
+    def __str__(self):
+        return f"{self.name} - {self.description}"
+
+    @property
+    def name(self):
+        language = get_language()
+
+        if language == "en" and self.name_en:
+            return self.name_en
+        else:
+            return self.name_nl
+
+    @property
+    def description(self):
+        language = get_language()
+
+        if language == "en" and self.description_en:
+            return self.description_en
+        else:
+            return self.description_nl
+
+    @property
+    def icon_name(self):
+        return self.frontend_icon_name or 'wand'
+
+    @admin.display(description=_l("Frontend Icon"))
+    @mark_safe
+    def frontend_icon_display(self):
+        if self.frontend_icon_name:
+            static_path = static(f"img/icons/{self.frontend_icon_name}.png")
+            return f'<img src="{static_path}" alt="{self.frontend_icon_name}" />'
+        return "&mdash;"
+
+
+class SettlementManualPaymentTransaction(Transaction):
+    """
+    Transaction for an executed manual payment or refund of some amount to/from the personal tab balance.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+    pass
+
+
+class SettlementExtraBalanceTransaction(Transaction):
+    """
+    Transaction representing any extra balance that was left over after a manual settlement.
+    Can only be created from extra deposited money in a ManualPaymentSettlement.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+    pass
+
+
+class ManualPaymentSettlement(PersonalTabSettlement):
+    """
+    Record of a manual payment to settle a personal tab balance.
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+
+    """Prefix for payment reference."""
+    PREFIX = 'IA-MANUAL-'
+
+    """The date on which this manualpayment was made."""
+    payment_date = models.DateField(verbose_name=_l('payment date'))
+
+    """Person that the settlement relates to."""
+    person = models.ForeignKey(Person, verbose_name=_l('person'), null=True, blank=True, on_delete=models.PROTECT)
+
+    """Payment method"""
+    payment_method = models.ForeignKey(PaymentMethod, verbose_name=_l('Payment method'), on_delete=models.PROTECT)
+
+    """Person that created the manual payment settlement."""
+    created_by = models.ForeignKey(Person, verbose_name=_l('Created by'), blank=True, null=True, related_name="+", on_delete=models.PROTECT)
+    # '+' related_name makes sure no reverse relation is added to Person
+
+    """The SettlementManualPaymentTransaction that was created in this settlement."""
+    manual_payment_transaction = models.OneToOneField(SettlementManualPaymentTransaction, on_delete=models.RESTRICT, related_name='manual_settlement', blank=True, null=True)
+
+    """The SettlementExtraBalanceTransaction that was created in this settlement."""
+    extra_balance_transaction = models.OneToOneField(SettlementExtraBalanceTransaction, on_delete=models.RESTRICT, related_name='manual_settlement', blank=True, null=True)
+
+    class Meta:
+        ordering = ['-payment_date', '-person', '-id']
+        verbose_name = _l('manual payment settlement')
+        verbose_name_plural = _l('manual payment settlements')
+
+    @property
+    def settlement_type(self):
+        return "MANUAL"
+
+    def is_paid(self):
+        # A manual payment settlement is considered to always be paid when it is created.
+        return True
+
+    def payment_reference(self):
+        """Returns the payment reference with a prefix."""
+        if self.id:
+            return '%s%08d' % (ManualPaymentSettlement.PREFIX, self.id)
+        return None
+
+    def __str__(self):
+        return self.payment_reference() or 'New manual payment settlement'
+
+    def get_absolute_url(self):
+        return reverse('personal_tab:manual_payment_settlement_view', args=(), kwargs={'id': self.id, })
+
+    def deletion_possible(self) -> Tuple[bool, str]:
+        """
+        Deletion is possible if:
+        - The settlement payment date falls in the current association year
+        - The SettlementExtraBalanceTransaction is not settled in any other settlement.
+
+        - The sum of the transactions (excluding the SettlementManualPaymentTransaction) should equal negative the SettlementManualPaymentTransaction price.
+        - The settlement amount should equal the SettlementManualPaymentTransaction price plus the SettlementExtraBalanceTransaction price.
+        """
+        # General limitation to avoid creating inconsistencies in closed book years.
+        # - The settlement was created in the current association year
+        if current_association_year(dt=self.payment_date) != current_association_year():
+            return False, _("Manual settlements can only be deleted in the same association year as they were paid in.")
+
+        # Get some info for the next few checks
+        manual_payment_transaction = self.manual_payment_transaction
+        manual_payment_transaction_price = manual_payment_transaction.price if manual_payment_transaction else Decimal("0.00")
+        extra_balance_transaction = self.extra_balance_transaction
+        extra_balance_transaction_price = extra_balance_transaction.price if extra_balance_transaction else Decimal("0.00")
+        transactions = self.transactions.all()
+        if manual_payment_transaction:
+            transactions = transactions.exclude(pk=manual_payment_transaction.pk)
+        transactions_sum =  (transactions.aggregate(total=Sum('price'))['total'] or Decimal("0.00"))
+
+        # General limitation to avoid creating inconsistencies in other settlements.
+        # - The SettlementExtraBalanceTransaction is not settled in any other settlement.
+        if extra_balance_transaction and extra_balance_transaction.settlement is not None:
+            return False, _("The extra balance that was created in this settlement was already used elsewhere.")
+
+        # Sanity checks to avoid creating an inconsistent state after deletion (in the case of any weird settlements):
+        # - The sum of the transactions (excluding the SettlementManualPaymentTransaction) should equal negative the SettlementManualPaymentTransaction price.
+        if transactions_sum != -manual_payment_transaction_price:
+            return False, _("The total sum of the transactions ({transactions_sum}) does not inversely equal the linked manual payment's amount ({manual_amount}).").format(
+                transactions_sum=transactions_sum, manual_amount=manual_payment_transaction_price,
+            )
+        # - The settlement amount should equal the SettlementManualPaymentTransaction price plus the SettlementExtraBalanceTransaction price.
+        if self.amount != -(manual_payment_transaction_price + extra_balance_transaction_price):
+            return False, _("The settlement's amount ({settlement_amount}) does not inversely equal the manual payment's amount and the extra balance ({manual_amount} + {extra_balance} = {total}).").format(
+                settlement_amount=self.amount,
+                manual_amount=manual_payment_transaction_price,
+                extra_balance=extra_balance_transaction_price,
+                total=(manual_payment_transaction_price + extra_balance_transaction_price)
+            )
+
+        return True, ""
+
+    @classmethod
+    def create_for_transactions(
+        cls, transactions: Iterable[Transaction], payment_method: PaymentMethod, person: Person,
+        settlement_description: str, payment_description: Optional[str] = None, leftover_balance_description: Optional[str] = None,
+        paid_amount: Optional[Decimal] = None, payment_datetime: Optional[datetime.datetime] = None,
+        created_by: Optional[Person] = None
+    ) -> Optional['ManualPaymentSettlement']:
+        """
+        Create a manual personal tab settlement.
+
+        :param transactions: The list of transactions that will be settled by this settlement. Can be an empty list.
+        :param payment_method: The PaymentMethod that was used for the payment.
+        :param person: The Person that this settlement is for.
+        :param settlement_description: A description used for the settlement as a whole.
+        :param paid_amount: Optional. The total amount paid by the person (as Decimal) (can be negative for a refund
+                            or 0 for an internal settlement with the personal tab balance).
+                            Will equal the sum of transactions if None.
+        :param payment_description: Optional. The description that is used for the transaction representing the amount paid.
+        :param leftover_balance_description: Optional. The description that is used for the transaction representing
+                                             any leftover (extra) balance after settling the transactions.
+        :param payment_datetime: The datetime of the settlement and transactions (current datetime is used if None).
+        :param created_by: Optional. The person that created the settlement, for auditing reasons.
+        :return: The ManualPaymentSettlement object that was created or `None` if no object was created.
+        """
+        with transaction.atomic():
+            # Get the current datetime if none was given
+            if payment_datetime is None:
+                payment_datetime = timezone.now()
+
+            # If no transactions are given and no paid amount is given or the paid amount is 0, the settlement is useless. Cancel creation.
+            if not transactions and (paid_amount is None or paid_amount == 0):
+                return None
+
+            # Calculate the total settlement amount
+            total_transaction_price = sum(t.price for t in transactions) or Decimal("0.00")
+            if paid_amount is None:
+                paid_amount = total_transaction_price
+            leftover_balance_amount =  total_transaction_price - paid_amount
+
+            # Get the default descriptions if none were given
+            payment_date = payment_datetime.date()
+            with translation.override(person.preferred_language):
+                if payment_description is None:
+                    if paid_amount > 0:
+                        payment_description = _("Deposit to personal tab balance on {date} for {name}").format(
+                            date=payment_date, name=person.incomplete_name()
+                        )
+                    else:
+                        payment_description = _("Refund of personal tab balance on {date} for {name}").format(
+                            date=payment_date, name=person.incomplete_name()
+                        )
+                if leftover_balance_description is None:
+                    leftover_balance_description = _("Leftover balance after settlement on {date} for {name}").format(
+                        date=payment_date, name=person.incomplete_name()
+                    )
+
+            # Create a ManualPayment settlement with the given payment method.
+            settlement = ManualPaymentSettlement.objects.create(
+                payment_date=payment_datetime.date(),
+                payment_method=payment_method,
+                description=settlement_description[:140],
+                person=person,
+                created_by=created_by,
+                amount=paid_amount,
+            )
+
+            # Save the settlement reference in all transactions
+            for t in transactions:
+                if t.settlement is not None:
+                    # The ValueError breaks the atomic transaction, which reverts any previous DB changes.
+                    raise ValueError(f"Transaction '{t}' has already been settled, cannot settle it again!")
+                t.settlement = settlement
+                t.save()
+
+            # If transactions were settled, create a SettlementManualPaymentTransaction to
+            # register the amount of money added/removed from the balance.
+            if total_transaction_price != 0:
+                payment_transaction = SettlementManualPaymentTransaction(
+                    date=payment_datetime, price=-total_transaction_price, person=person,
+                    description=payment_description[:200], settlement=settlement, added_by=created_by
+                )
+                payment_transaction.save()
+                settlement.manual_payment_transaction = payment_transaction
+                settlement.save()
+
+            # If there is an amount of leftover balance that needs to be kept, create a
+            # SettlementExtraBalanceTransaction to register the open balance as an unpaid transaction.
+            if leftover_balance_amount != 0:
+                leftover_balance_transaction = SettlementExtraBalanceTransaction(
+                    date=payment_datetime, price=leftover_balance_amount, person=person,
+                    description=leftover_balance_description[:200],
+                    settlement=None,  # Leaves it as unpaid so it can be used.
+                    added_by=created_by
+                )
+                leftover_balance_transaction.save()
+                settlement.extra_balance_transaction = leftover_balance_transaction
+                settlement.save()
+
+        return settlement
+
+
 class Reversal(models.Model):
     """
     Reversal of an already collected amount.
@@ -865,7 +1231,6 @@ class Reversal(models.Model):
     Please note that processing properties of this model may be subject to privacy regulations. Refer to
     https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
     """
-
 
     class ReversalReasons(models.TextChoices):
         """Possible reasons for reversals"""
@@ -917,6 +1282,10 @@ class Reversal(models.Model):
     def __str__(self):
         return _l('Debit reversal %s') % self.instruction.debt_collection_reference()
 
+    def is_paid(self):
+        # A reversal is paid when the related ReversalTransaction is paid.
+        return self.transaction.is_paid()
+
     class Meta:
         ordering = ['date']
         verbose_name = _l('debit reversal')
@@ -947,6 +1316,49 @@ class ReversalTransaction(Transaction):
 
     def get_absolute_url(self):
         return reverse('personal_tab:reversal_transaction_detail', args=[self.pk])
+
+
+class BadBIC(models.Model):
+    """
+    A known bad SEPA BIC of a bank that is in the SDD Core list but does not in practice accept direct debits
+
+    Please note that processing properties of this model may be subject to privacy regulations. Refer to
+    https://privacy.ia.utwente.nl/ and check whether processing the property is allowed for your purpose.
+    """
+
+    bic = BICField(verbose_name=_l('BIC'), unique=True)
+    date_added = models.DateTimeField(verbose_name=_l('Date added'), auto_now_add=True)
+    first_reversal = models.ForeignKey(Reversal, verbose_name=_l("First reversal"), related_name='+', null=True, on_delete=models.SET_NULL)
+    last_reversal = models.ForeignKey(Reversal, verbose_name=_l("Last reversal"), related_name='+', null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.bic
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_reversals()
+
+    def update_reversals(self):
+        # Update the first and last reversal for this BadBIC
+        self.first_reversal = Reversal.objects.filter(
+            instruction__authorization__bic=self.bic,
+            reason=Reversal.ReversalReasons.DNOR
+        ).order_by('date').first()
+        self.last_reversal = Reversal.objects.filter(
+            instruction__authorization__bic=self.bic,
+            reason=Reversal.ReversalReasons.DNOR
+        ).order_by('date').last()
+
+        # If both first and last are None (no reversals any more for this BIC), self-destruct.
+        if self.first_reversal is None and self.last_reversal is None:
+            self.delete()
+        else:
+            self.save()
+
+    class Meta:
+        ordering = ['bic']
+        verbose_name = _l('known bad BIC')
+        verbose_name_plural = _l('known bad BICs')
 
 
 def get_sentinel_person() -> Person:

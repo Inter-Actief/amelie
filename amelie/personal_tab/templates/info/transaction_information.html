@@ -1,5 +1,9 @@
 {% load i18n %}
 <tr>
+    <th>{% trans 'Transaction type' %}</th>
+    <td>{{ object.transaction_type.1 }}</td>
+</tr>
+<tr>
     <th>{% trans 'Date' %}</th>
     <td>{{ object.date }}</td>
 </tr>
@@ -9,19 +13,12 @@
 </tr>
 <tr>
     <th>{% trans 'Price' %}</th>
-    <td class="align-right">{{ object.price }}</td>
+    <td class="align-right">&euro;&nbsp;{{ object.price }}</td>
 </tr>
 <tr>
-    <th>{% trans 'Direct withdrawal' %}</th>
+    <th>{% trans 'Settled in' %}</th>
     <td>
-        {% if object.debt_collection %}
-            <a href="{{ object.debt_collection.get_absolute_url }}">
-                {{ object.debt_collection }}
-            </a><br />
-            <span class="small">{{ object.debt_collection.batch.execution_date }}</span>
-        {% else %}
-            &mdash;
-        {% endif %}
+        {% include 'info/transaction_settlement_info.html' with settlement=object.settlement %}
     </td>
 </tr>
 {% if object.discount %}
@@ -39,7 +36,14 @@
         <th>{% trans 'Person' %}</th>
         <td>
             {% if object.person %}
-                <a href="{% url 'personal_tab:dashboard' object.person.pk object.person.slug  %}">{{ object.person }}</a>
+                <a href="{{ object.person.get_absolute_url }}">
+                    {{ object.person }}
+                </a>
+                &nbsp;
+                <a title="{% blocktrans with name=object.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                   href="{% url 'personal_tab:dashboard' object.person.pk object.person.slug  %}">
+                    <span class="icon personal_tab"></span>
+                </a>
             {% else %}
                 &mdash;
             {% endif %}
@@ -53,4 +57,76 @@
         <th>{% trans 'Added by' %}</th>
         <td>{{ object.added_by|default:"&mdash;" }}</td>
     </tr>
+    {% if object.transaction_type.0 == "activitytransaction" %}
+        <tr>
+            <th>{% trans 'Activities' %}</th>
+            <td>
+                {% if object.activitytransaction.event %}
+                    {% if request.is_board %}
+                        <a href="{% url 'personal_tab:event' event_id=object.activitytransaction.event.id %}">{{ object.activitytransaction.event.summary }}</a>
+                    {% else %}
+                        <a href="{{ object.activitytransaction.event.get_absolute_url }}">{{ object.activitytransaction.event.summary }}</a>
+                    {% endif %}
+                {% else %}
+                    {% trans 'Deleted event' %}
+                {% endif %}
+            </td>
+        </tr>
+        {% if object.activitytransaction.participation.remark %}
+            <tr>
+                <th>{% trans 'Remarks' %}</th>
+                <td>{{ object.activitytransaction.participation.remark }}</td>
+            </tr>
+        {% endif %}
+    {% elif object.transaction_type.0 == "alexiatransaction" %}
+        <tr>
+            <th>{% trans 'Transaction number Alexia' %}</th>
+            <td class="align-right">{{ object.alexiatransaction.transaction_id }}</td>
+        </tr>
+    {% elif object.transaction_type.0 == "cookiecornertransaction" %}
+        <tr>
+            <th>{% trans 'Article' %}</th>
+            <td>{{ object.cookiecornertransaction.article|default:"&mdash;" }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'Amount' %}</th>
+            <td class="align-right">{{ object.cookiecornertransaction.amount }}</td>
+        </tr>
+        <tr>
+            <th>{% trans 'kCal' %}</th>
+            <td class="align-right">{{ object.cookiecornertransaction.kcal|default_if_none:"&mdash;" }}</td>
+        </tr>
+    {% elif object.transaction_type.0 == "contributiontransaction" %}
+        <tr>
+            <th>{% trans 'Membership' %}</th>
+            <td>{% with membership=object.contributiontransaction.membership %}
+                {{ membership.type.name }} ({{ membership.year }}/{{ membership.year|add:'1' }})
+            {% endwith %}</td>
+        </tr>
+    {% elif object.transaction_type.0 == "reversaltransaction" %}
+        <tr>
+            <th>{% trans 'Reversed collection' %}</th>
+            <td>
+                <a href="{{ object.reversaltransaction.reversal.instruction.get_absolute_url }}">
+                    {{ object.reversaltransaction.reversal.instruction }}
+                </a><br />
+                <span class="small">{{ object.reversaltransaction.reversal.instruction.batch.execution_date }}</span>
+            </td>
+        </tr>
+        <tr>
+            <th>{% trans 'Reason' %}</th>
+            <td>{{ object.reversaltransaction.reversal.get_reason_display }}</td>
+        </tr>
+    {% elif object.transaction_type.0 == "settlementextrabalancetransaction" or object.transaction_type.0 == "settlementmanualpaymenttransaction" %}
+        <tr>
+            <th>{% trans 'Originated in' %}</th>
+            <td>
+                {% if object.transaction_type.0 == "settlementextrabalancetransaction" %}
+                    {% include 'info/transaction_settlement_info.html' with settlement=object.settlementextrabalancetransaction.manual_settlement %}
+                {% else %}
+                    {% include 'info/transaction_settlement_info.html' with settlement=object.settlementmanualpaymenttransaction.manual_settlement %}
+                {% endif %}
+            </td>
+        </tr>
+    {% endif %}
 {% endif %}

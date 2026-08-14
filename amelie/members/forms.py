@@ -22,10 +22,10 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 
 from amelie.tools.const import TaskPriority
 from amelie.iamailer.mailtask import MailTask, Recipient
-from amelie.members.models import Department, PaymentType, Committee, CommitteeCategory, DogroupGeneration, \
+from amelie.members.models import Department, Committee, CommitteeCategory, DogroupGeneration, \
     Function, Membership, MembershipType, Employee, Person, Student, Study, StudyPeriod, Preference, \
     LANGUAGE_CHOICES, UnverifiedEnrollment
-from amelie.personal_tab.models import Authorization, AuthorizationType
+from amelie.personal_tab.models import Authorization, AuthorizationType, PaymentMethod, BadBIC
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
 from amelie.tools.validators import CheckDigitValidator
 from amelie.tools.widgets import DateSelector, MemberSelect
@@ -286,11 +286,6 @@ class PersonStudyForm(forms.ModelForm):
         fields = ("study", "begin", "dogroup",)
 
 
-class PersonPaymentForm(forms.Form):
-    date = forms.DateField(initial=datetime.date.today())
-    method = forms.ModelChoiceField(PaymentType.objects.filter(visible=True))
-
-
 class MembershipForm(forms.ModelForm):
     year = forms.IntegerField(initial=current_association_year, widget=widgets.RadioSelect())
     type = forms.ModelChoiceField(MembershipType.objects.filter(active=True), label=_l('Type'))
@@ -303,6 +298,13 @@ class MembershipForm(forms.ModelForm):
         super(MembershipForm, self).__init__(*args, **kwargs)
         self.fields['year'].widget.choices = ((current_association_year(), _l('Current association year')),
                                               (current_association_year() + 1, _l('Upcoming association year')),)
+
+
+class MembershipManualPaymentForm(forms.Form):
+    payment_method = forms.ModelChoiceField(
+        queryset=PaymentMethod.objects.filter(visible_memberships=True),
+        label=_l('Payment method')
+    )
 
 
 class MembershipEndForm(forms.ModelForm):
@@ -323,6 +325,7 @@ class MembershipEndForm(forms.ModelForm):
         self.fields['ended'].widget.choices = ((date.today(), _l('Immediately')),
                                                (date(current_association_year() + 1, 7, 1),
                                                 _l('At the end of the association year')),)
+
 
 class SignatureRequestForm(forms.Form):
     send_check = forms.BooleanField(label=_l('Send the signature request'), required=True)
@@ -356,7 +359,7 @@ class MandateForm(forms.ModelForm):
         if not cleaned_data['iban']:
             raise forms.ValidationError(_l('An IBAN is required.'))
 
-        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
+        cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'), ignore_bad_bic=True)
 
         return cleaned_data
 
@@ -660,7 +663,7 @@ class StudentNumberForm(forms.Form):
         return self.cleaned_data["student_number"]
 
 
-def clean_iban_and_bic(iban, bic):
+def clean_iban_and_bic(iban, bic, ignore_bad_bic=False):
     iban = str(iban).strip()
     bic = str(bic).strip()
 
@@ -676,10 +679,12 @@ def clean_iban_and_bic(iban, bic):
             raise forms.ValidationError(_l('BIC has to be entered for foreign bankaccounts.'))
         elif iban[4:8] in settings.COOKIE_CORNER_BANK_CODES:
             bic = settings.COOKIE_CORNER_BANK_CODES[iban[4:8]]
-            # BIC is known, so cleaning is done
-            return iban, bic
         else:
             raise forms.ValidationError(_l('BIC could not be generated, please enter it yourself.'))
+
+    # If the BIC is in the Bad BICs list, and it can't be ignored, do not accept it.
+    if not ignore_bad_bic and BadBIC.objects.filter(bic=bic).exists():
+        raise forms.ValidationError(_l('The bank associated with your BIC does not accept SEPA Direct Debits.'))
 
     if bic[4:6] != iban[:2]:
         raise forms.ValidationError(_l('The BIC country does not match the IBAN country.'))
@@ -711,5 +716,5 @@ def clean_iban_and_bic(iban, bic):
         raise IOError(u"Reading file at {} failed (run 'python manage.py update_bic_csv' to create it if it does not exist): {}"
                         .format(os.path.join(settings.MEDIA_ROOT, 'data/bic_list.csv'), e))
 
-    # If the BIC is not in the list, the BIC is not from a SEPA country
-    raise forms.ValidationError(_l("BIC is not from a SEPA country"))
+    # If the BIC is not in the list, the BIC bank does not accept SEPA Direct Debits
+    raise forms.ValidationError(_l("The bank associated with your BIC does not accept SEPA Direct Debits."))
