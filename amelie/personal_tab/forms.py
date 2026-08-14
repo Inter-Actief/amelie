@@ -481,7 +481,7 @@ class DeclarationForm(forms.Form):
     )
     bookkeeping = MyBookkeepingChoiceField(
         queryset=Committee.objects.filter(abbreviation__in=settings.DECLARATION_EMAIL_COMMITTEE_OVERRIDE),
-        empty_label=("Inter-Actief"),
+        empty_label=_l("Inter-Actief"),
         required=False,
         label=_l('Bookkeeping'),
         help_text=_l('Select the bookkeeping where the declaration should be sent.\nIf you do not know what this means, do not change it.')
@@ -587,7 +587,12 @@ class DeclarationForm(forms.Form):
         )
 
         # Set the declaration email to committee email if a different bookkeeping was selected, otherwise normal declaration email
-        email_to = settings.DECLARATION_EMAIL_COMMITTEE_OVERRIDE.get(bookkeeping.abbreviation) if bookkeeping else settings.DECLARATION_EMAIL
+        if bookkeeping:
+            email_to = settings.DECLARATION_EMAIL_COMMITTEE_OVERRIDE.get(bookkeeping.abbreviation, settings.DECLARATION_EMAIL)
+            reply_to = settings.TREASURER_EMAIL_COMMITTEE_OVERRIDE.get(bookkeeping.abbreviation, settings.TREASURER_EMAIL)
+        else:
+            email_to = settings.DECLARATION_EMAIL
+            reply_to = settings.TREASURER_EMAIL
 
         # Prepare context for the email
         context = {'declaration': declaration}
@@ -606,7 +611,7 @@ class DeclarationForm(forms.Form):
         task.add_recipient(Recipient(tos=[email_to],
                                      ccs=[person.email_address],
                                      context=context,
-                                     headers={'Reply-To': settings.TREASURER_EMAIL}, 
+                                     headers={'Reply-To': reply_to},
                                      attachments=attachments))
 
         task.send()

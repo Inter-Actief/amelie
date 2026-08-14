@@ -7,8 +7,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('members', '0023_documenso_id_signed_document'),
-        ('personal_tab', '0013_authorization_documenso_id_and_more'),
+        ('members', '0024_delete_payment_delete_paymenttype'),
+        ('personal_tab', '0016_badbic'),
     ]
 
     operations = [
