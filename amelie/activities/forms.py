@@ -1,9 +1,14 @@
 from datetime import timedelta
+from decimal import Decimal
+from typing import OrderedDict, Optional, Tuple, List
 
+from betterforms.multiform import MultiForm
 from django import forms
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from django.core.validators import FileExtensionValidator
+from django.db.models import Sum
 from django.forms import widgets, SplitDateTimeField
 from django.utils import formats, timezone
 from django.utils.translation import gettext_lazy as _l
@@ -11,44 +16,16 @@ from django.utils.translation import gettext_lazy as _l
 from amelie.activities.models import Activity, EnrollmentoptionQuestion, \
     EnrollmentoptionCheckbox, EnrollmentoptionCheckboxAnswer, \
     EnrollmentoptionQuestionAnswer, EnrollmentoptionFood, \
-    EnrollmentoptionFoodAnswer, Restaurant, EnrollmentoptionNumericAnswer, EnrollmentoptionNumeric, ActivityLabel
-from amelie.style.forms import inject_style
+    EnrollmentoptionFoodAnswer, Restaurant, EnrollmentoptionNumericAnswer, EnrollmentoptionNumeric, ActivityLabel, \
+    EnrollmentoptionAnswer
 from amelie.calendar.models import Participation
 from amelie.members.models import Person, Committee
+from amelie.personal_tab.models import PaymentMethod
 from amelie.tools.forms import MultipleFileField
 from amelie.tools.widgets import DateTimeSelector, DateTimeSelectorWithToday
 
 
-class PaymentForm(forms.Form):
-    method = forms.ChoiceField(
-        choices=[
-            ('', ''),
-            (Participation.PaymentMethodChoices.CASH.value,
-             Participation.PaymentMethodChoices.CASH.label),
-        ],
-        label=_l('Method of payment'))
-
-    def __init__(self, mandate=False, waiting_list=False, board=False, *args, **kwargs):
-        super(PaymentForm, self).__init__(*args, **kwargs)
-
-        if mandate:
-            choices = self.fields['method'].choices
-            choices.append((Participation.PaymentMethodChoices.AUTHORIZATION.value,
-                            Participation.PaymentMethodChoices.AUTHORIZATION.label))
-            self.fields['method'].choices = choices
-
-        if waiting_list:
-            self.fields['waiting_list'] = forms.ChoiceField(choices=[
-                ('Wait', _l("Place on bottom of waiting list")),
-            ], label=_l("Waiting list action"))
-            if board:
-                choices = self.fields['waiting_list'].choices
-                choices.append(('Skip', _l("Skip waiting list and enroll immediately")))
-                self.fields['waiting_list'].choices = choices
-
-
 class ActivityForm(forms.ModelForm):
-
     price = forms.DecimalField(required=False, initial="0.00", min_value=0, decimal_places=2, label=_l('Price'), help_text=_l('Enrolled participants will be emailed when you change the price.'))
 
     class Meta:
@@ -93,8 +70,11 @@ class ActivityForm(forms.ModelForm):
         if not self.cleaned_data.get('price', None):
             self.cleaned_data['price'] = 0
 
+        if self.cleaned_data["price"] < Decimal("0.00") and self.cleaned_data["enrollment"]:
+            raise forms.ValidationError(_l("Website enrolment must have a positive price. Either turn off the ability to enrol or increase the cost of the activity."))
+
         if self.cleaned_data["price"] > settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE and self.cleaned_data["enrollment"]:
-            raise forms.ValidationError(_l("Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity.").format(settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE))
+            raise forms.ValidationError(_l("Website enrollment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity.").format(settings.PERSONAL_TAB_MAXIMUM_ACTIVITY_PRICE))
 
         if self.cleaned_data["enrollment"]:
             if not self.cleaned_data.get('enrollment_begin', None):
@@ -110,9 +90,18 @@ class ActivityForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class ActivityModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "%s (%s)" % (obj.summary, formats.date_format(obj.begin))
+class IndirectEnrollmentForm(forms.Form):
+    def __init__(self, waiting_list=False, board=False, *args, **kwargs):
+        super(IndirectEnrollmentForm, self).__init__(*args, **kwargs)
+
+        if waiting_list:
+            self.fields['waiting_list'] = forms.ChoiceField(choices=[
+                ('wait', _l("Place on bottom of waiting list")),
+            ], label=_l("Waiting list action"))
+            if board:
+                choices = self.fields['waiting_list'].choices
+                choices.append(('skip', _l("Skip waiting list and enroll immediately")))
+                self.fields['waiting_list'].choices = choices
 
 
 class EnrollmentoptionQuestionForm(forms.ModelForm):
@@ -131,6 +120,35 @@ class EnrollmentoptionNumericForm(forms.ModelForm):
     class Meta:
         model = EnrollmentoptionNumeric
         fields = ["title", "price_extra", "maximum", "maximum_per_person"]
+
+    def clean_maximum(self):
+        data = self.cleaned_data['maximum']
+        # Check if the sum of current enrollment answers does not exceed the (potentially updated) maximum
+        if self.instance.pk:
+            current_enrollment_count = self.instance.enrollmentoptionanswer_set.aggregate(
+                Sum('enrollmentoptionnumericanswer__answer')
+            ).get('enrollmentoptionnumericanswer__answer__sum')
+            if current_enrollment_count is not None and current_enrollment_count > data:
+                self.add_error(
+                    'maximum',
+                    _l("The amount of current enrollments for this option would exceed the new maximum amount. "
+                      "Please unenroll or edit the affected people first, or modify the maximum for this option.")
+                )
+        return data
+
+    def clean_maximum_per_person(self):
+        data = self.cleaned_data['maximum_per_person']
+        # Check if none of the current enrollment answers exceed the (potentially updated) maximum per person.
+        if self.instance.pk:
+            for answer in self.instance.enrollmentoptionanswer_set.all():
+                if answer.enrollmentoptionnumericanswer.answer > data:
+                    self.add_error(
+                        'maximum_per_person',
+                        _l("The selected amount of (at least) one of the current enrollments for this option exceeds "
+                           "the new maximum amount per person. Please unenroll or edit the affected people first, "
+                           "or modify the maximum for this option.")
+                    )
+        return data
 
 
 class EnrollmentoptionFoodForm(forms.ModelForm):
@@ -207,10 +225,27 @@ class EnrollmentoptionNumericAnswerForm(EnrollmentoptionAnswerForm):
         max_per_person = self.enrollmentoption.maximum_per_person if self.enrollmentoption.maximum_per_person > 0 else None
         if not data:
             data = 0
+        if data < 0:
+            self.add_error('answer', _l("Sorry, but the amount must be a positive number!"))
         if max_per_person is not None and data > max_per_person:
             self.add_error('answer', _l("Sorry, but you cannot exceed the maximum amount per person!"))
-        if data > 0 and not self.enrollmentoption.spots_left():
+
+        # Check the number of spots left, taking into account any spots that this enrollment might have already had
+        # before (in case the enrollment is being edited, which is when the self.instance.pk is set)
+        previous_spot_count = 0
+        if self.instance.pk:
+            previous_spot_count = self.instance.answer
+
+        num_spots_left = self.enrollmentoption.count_spots_left()
+        if num_spots_left is not None:
+            # Adding the previous spots to the available spots makes sure the person can reduce their
+            # amount without having to completely clear and re-claim them.
+            num_spots_left += previous_spot_count
+        if data > 0 and num_spots_left == 0:
+            self.add_error('answer', _l("Sorry, but there are no spots left!"))
+        elif data > 0 and (num_spots_left is not None and num_spots_left < data):
             self.add_error('answer', _l("Sorry, but there are not enough spots left!"))
+
         return data
 
     class Meta:
@@ -226,6 +261,110 @@ class EnrollmentoptionFoodAnswerForm(EnrollmentoptionAnswerForm):
     class Meta:
         model = EnrollmentoptionFoodAnswer
         fields = ("dishprice",)
+
+
+ENROLLMENTOPTION_FORM_TYPES = {
+    EnrollmentoptionQuestion: EnrollmentoptionQuestionForm,
+    EnrollmentoptionCheckbox: EnrollmentoptionCheckboxForm,
+    EnrollmentoptionFood: EnrollmentoptionFoodForm,
+    EnrollmentoptionNumeric: EnrollmentoptionNumericForm,
+}
+
+
+class ActivityEnrollmentOptionsForm(MultiForm):
+    ENROLLMENTOPTION_ANSWER_TYPES = {
+        EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswer,
+        EnrollmentoptionCheckbox: EnrollmentoptionCheckboxAnswer,
+        EnrollmentoptionFood: EnrollmentoptionFoodAnswer,
+        EnrollmentoptionNumeric: EnrollmentoptionNumericAnswer,
+    }
+
+    ENROLLMENTOPTIONANSWER_FORM_TYPES = {
+        EnrollmentoptionQuestion: EnrollmentoptionQuestionAnswerForm,
+        EnrollmentoptionCheckbox: EnrollmentoptionCheckboxAnswerForm,
+        EnrollmentoptionFood: EnrollmentoptionFoodAnswerForm,
+        EnrollmentoptionNumeric: EnrollmentoptionNumericAnswerForm,
+    }
+
+    form_classes = OrderedDict([])
+
+    def __init__(self, activity: Activity, *args, participation: Optional[Participation] = None, add_indirect_form: bool = False, **kwargs):
+        # Built the forms for the enrollment options
+        self.form_classes = OrderedDict([])
+        self.activity = activity
+        self.participation = participation
+
+        initials = kwargs.get('initial', {})  # Reference to add the EnrollmentOptionForm initial data to.
+
+        if add_indirect_form:
+            self.form_classes['indirect'] = IndirectEnrollmentForm
+
+        for enrollmentoption in activity.enrollmentoption_set.all():
+            prefix = 'enrollmentoption_{}'.format(enrollmentoption.pk)
+
+            answer_type: type[EnrollmentoptionAnswer] = ActivityEnrollmentOptionsForm.ENROLLMENTOPTION_ANSWER_TYPES[enrollmentoption.content_type.model_class()]
+            content_type = ContentType.objects.get_for_model(answer_type)
+
+            # Try to resolve the instance to an actual object if the person is enrolled for the activity
+            instance: EnrollmentoptionAnswer = answer_type(enrollmentoption=enrollmentoption, content_type=content_type)
+            if participation is not None:
+                try:
+                    instance: EnrollmentoptionAnswer = answer_type.objects.get(
+                        enrollment=participation,
+                        enrollmentoption=enrollmentoption,
+                        content_type=content_type
+                    )
+                except EnrollmentoptionAnswer.DoesNotExist:
+                    pass
+
+            form_type: type[EnrollmentoptionAnswerForm] = ActivityEnrollmentOptionsForm.ENROLLMENTOPTIONANSWER_FORM_TYPES[enrollmentoption.content_type.model_class()]
+
+            # Make sure that if someone adjusts their enrollment, and they have a spot with a limited capacity,
+            # they can still keep their spot.
+            checked = False
+            if instance.pk:
+                if form_type == EnrollmentoptionCheckboxAnswerForm:
+                    instance: EnrollmentoptionCheckboxAnswer
+                    checked = instance.answer
+                elif form_type == EnrollmentoptionNumericAnswerForm:
+                    instance: EnrollmentoptionNumericAnswer
+                    checked = instance.answer > 0
+
+            # Add the enrollment option form to the MultiForm
+            self.form_classes[prefix] = form_type
+            initials[prefix] = {
+                'enrollmentoption': enrollmentoption,
+                'checked': checked,
+                'prefix': prefix,
+                'instance': instance
+            }
+        super().__init__(*args, **kwargs)
+
+    def get_form_args_kwargs(self, key, args, kwargs):
+        args, fkwargs = super().get_form_args_kwargs(key=key, args=args, kwargs=kwargs)
+        # Extra per-form kwargs are stored in the initial values for the forms, which also includes a nested 'initial' key for the actual initial values.
+        fkwargs['initial'] = None
+        fkwargs.update(**self.initials.get(key, {}))
+        return args, fkwargs
+
+    def get_costs(self) -> Tuple[Decimal, Decimal, bool]:
+        if not self.is_valid():
+            raise ValueError("Cannot calculate costs. The forms are not valid.")
+        answers = [f.save(commit=False) for f in self.forms.values() if isinstance(f, EnrollmentoptionAnswerForm)]
+        prices_extra: List[Decimal] = [enrollment_option_answer.get_price_extra() for enrollment_option_answer in answers]
+        return self.activity.price, Decimal(sum(prices_extra)), len(prices_extra) > 0
+
+
+class ActivityManualPaymentForm(forms.Form):
+    payment_method = forms.ModelChoiceField(
+        queryset=PaymentMethod.objects.filter(visible_activities=True),
+        label=_l('Payment method')
+    )
+
+
+class ActivityModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s (%s)" % (obj.summary, formats.date_format(obj.begin))
 
 
 class PhotoCheckboxSelectMultiple(widgets.CheckboxSelectMultiple):
@@ -286,6 +425,3 @@ class EventDeskActivityMatchForm(forms.Form):
     def __init__(self, activities, *args, **kwargs):
         super(EventDeskActivityMatchForm, self).__init__(*args, **kwargs)
         self.fields['activity'].queryset = activities
-
-
-inject_style(ActivityForm, PaymentForm, PhotoUploadForm, EventDeskActivityMatchForm)

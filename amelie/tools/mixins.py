@@ -19,7 +19,7 @@ from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Committee, DogroupGeneration
 from amelie.tools.logic import current_association_year
-from amelie.tools.http import get_client_ips, is_allowed_ip, HttpJSONResponse
+from amelie.tools.http import is_allowed_ip, HttpJSONResponse
 
 
 class PassesTestMixin(object):
@@ -88,6 +88,12 @@ class PassesTestAsyncMixin(object):
             else:
                 return await super(PassesTestAsyncMixin, self).dispatch(request, *args, **kwargs)
 
+
+class RequireAjaxMixin(PassesTestMixin):
+    reason = _l('AJAX request required')
+
+    def test_requirement(self, request):
+        return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 class RequirePersonMixin(PassesTestMixin):
     needs_login = True

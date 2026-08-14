@@ -45,8 +45,14 @@
                 <h3>{% trans 'Alexia' %}</h3>
                 {% include "lists/alexia_transactions.html" with transactions=all_transactions.2 totals=totals.2 %}
 
+                <h3>{% trans 'Contribution' %}</h3>
+                {% include "lists/contribution_transactions.html" with transactions=all_transactions.3 totals=totals.3 %}
+
                 <h3>{% trans 'Other' %}</h3>
-                {% include "lists/custom_transactions.html" with transactions=all_transactions.3 totals=totals.3 %}
+                {% include "lists/custom_transactions.html" with transactions=all_transactions.4 totals=totals.4 %}
+
+                <h3>{% trans 'Payments' %}</h3>
+                {% include "lists/payment_transactions.html" with transactions=payment_transactions totals=payment_totals %}
             {% else %}
                 {% include "lists/transactions_totals.html" %}
             {% endif %}

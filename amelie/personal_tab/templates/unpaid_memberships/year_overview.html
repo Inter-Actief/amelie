@@ -4,20 +4,20 @@
 {% block titel %}{% trans 'Unpaid Memberships' %} {{ year }}{% endblock titel %}
 
 {% block content %}
-<div class="col-xs-20">
-    <div class="ia">
-        <h2>{% trans 'Unpaid Memberships' %} {{ year }}</h2>
-        <div class="content">
-            <p class="icon warning">
-                {% trans 'Use these buttons to send a mailing or forgive the membership fee of the selected members.' %}
-            </p>
-            <div class="buttons">
-                <a href="{% url 'personal_tab:unpaid_memberships_mailing' year %}" onclick="this.href=getMembershipsURI(this);" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
-                <a href="{% url 'personal_tab:unpaid_memberships_forgive' year %}" onclick="this.href=getMembershipsURI(this);" class="looks-like-a-button icon icon-money">{% trans 'Forgive membership fee' %}</a>
+    <div>
+        <div class="ia">
+            <h2>{% trans 'Unpaid Memberships' %} {{ year }}</h2>
+            <div class="content">
+                <p class="icon warning">
+                    {% trans 'Use these buttons to send a mailing or forgive the membership fee of the selected members.' %}
+                </p>
+                <div class="buttons">
+                    <a href="{% url 'personal_tab:unpaid_memberships_mailing' year %}" onclick="this.href=getMembershipsURI(this);" class="looks-like-a-button icon icon-email">{% trans 'Send mailing' %}</a>
+                    <a href="{% url 'personal_tab:unpaid_memberships_forgive' year %}" onclick="this.href=getMembershipsURI(this);" class="looks-like-a-button icon icon-money">{% trans 'Forgive membership fee' %}</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
     {% for membership_type, membership_list in unpaid_memberships.items %}
     <div class="col-xs-12">
         <div class="ia">
@@ -35,15 +35,20 @@
                             <th>{% trans 'Price' %}</th>
                         </tr>
                     </thead>
-                    <tbody>  
+                    <tbody>
                         {% for membership in membership_list %}
                         <tr>
                             <td>
                                 <input type="checkbox" name="type-{{ membership_type.1 }}" value="{{ membership.pk }}"/>
                             </td>
                             <td class="align-left">
-                                <a href="{% url 'members:person_view' membership.member.pk membership.member.slug %}">
-                                    {{ membership.member.incomplete_name }}
+                                <a href="{{ membership.member.get_absolute_url }}">
+                                    {{ membership.member }}
+                                </a>
+                                &nbsp;
+                                <a title="{% blocktrans with name=membership.member.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                                   href="{% url 'personal_tab:dashboard' membership.member.pk membership.member.slug  %}">
+                                    <span class="icon personal_tab"></span>
                                 </a>
                             </td>
                             <td class="align-right">
@@ -80,7 +85,16 @@
                     </table>
                 </div>
                 <br>
-            </div>  
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-xs-12">
+        <div class="ia">
+            <h2>{% trans 'No unpaid memberships' %}</h2>
+            <div class="content">
+                <p>{% trans 'There are no unpaid memberships in this year! Woah! 🎉🎉🎉' %}</p>
+            </div>
         </div>
     </div>
     {% endfor %}
@@ -106,4 +120,3 @@
         }
     </script>
     {% endblock content %}
-    

@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load i18n %}
 
 {% if rows %}
@@ -9,7 +10,7 @@
                     <th>{% trans 'Person' %}</th>
                     <th>{% trans 'Membership type' %}</th>
                     <th>{% trans 'Mandate' %}</th>
-                    <th class="number">{% trans 'Price' %}</th>
+                    <th class="align-right">{% trans 'Price' %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -18,22 +19,31 @@
                     {% if enabled %}
                         <td>
                             <input type="checkbox" checked="checked"
-                                name="contribution_{{ row.membership.id }}" value="true"/>
+                                name="contribution_{{ row.transaction.membership.id }}" value="true"/>
                         </td>
                     {% endif %}
                     <td>
                         <a href="{{ row.person.get_absolute_url }}">
                             {{ row.person }}
                         </a>
+                        &nbsp;
+                        <a title="{% blocktrans with name=row.person.first_name %}Go to {{ name }}'s personal tab{% endblocktrans %}"
+                           href="{% url 'personal_tab:dashboard' row.person.pk row.person.slug  %}">
+                            <span class="icon personal_tab"></span>
+                        </a>
                     </td>
-                    <td>{{ row.membership.type }}</td>
+                    <td>{{ row.transaction.membership.type }}</td>
                     <td>
-                        <a href="{{ row.instruction.authorization.get_absolute_url }}">{{ row.instruction.authorization }}</a>
+                        {% if row.instruction.authorization %}
+                            <a href="{{ row.instruction.authorization.get_absolute_url }}">{{ row.instruction.authorization }}</a>
+                        {% else %}
+                            &mdash;
+                        {% endif %}
                         {% if row.instruction.amendment %}
                             (<abbr title="{% trans 'amendment' %}">{% trans 'A ' context 'amendment abbr' %}</abbr>)
                         {% endif %}
                     </td>
-                    <td class="number">{{ row.sumf }}</td>
+                    <td class="align-right">&euro;&nbsp;{{ row.sum|intcomma }}</td>
                 </tr>
                 <tr>
                     <td colspan="{% if enabled %}5{% else %}4{% endif %}">
@@ -43,14 +53,14 @@
             {% endfor %}
             </tbody>
             <tfoot>
-                <tr>
+                <tr class="text-bold">
                     {% if enabled %}
                         <td></td>
                     {% endif %}
                     <td>{% trans 'Total' %}</td>
                     <td></td>
                     <td></td>
-                    <td class="number">{{ total }}</td>
+                    <td class="align-right">&euro;&nbsp;{{ total|intcomma }}</td>
                 </tr>
             </tfoot>
         </table>

@@ -20,6 +20,7 @@ MOFILE_PATH = './locale/nl/LC_MESSAGES/django.mo'
 REGEX_MSGID = re.compile(r'(?P<files>(#.*\n)+)msgid +(?P<text>(".*"\n)+)')
 REGEX_IGNORED = [
     re.compile(r'{% +blocktrans.*?%}.+?{% +endblocktrans +%}'),
+    re.compile(r'{% +blocktranslate.*?%}.+?{% +endblocktranslate +%}'),
     re.compile(r'{% +comment.*?%}.+?{% +endcomment +%}'), re.compile(r'<!--.*?-->'),
     re.compile(r'<script.+?</script>'), re.compile(r'<style.+?</style>'), re.compile(r'{[{%#].+?[}%#]}'),
     re.compile(r'<input[^>]*?type="(?:input|submit|text)"value=(?:\'(?:\'[^>]*?>)?|"(?:"[^>]*?>)?)'),
@@ -39,7 +40,8 @@ IGNORED_WORDS = [
     "\\bEUR\\b", "\\b-\\b", "\\bI\\.C\\.T\\.S\\.V\\.\\b", "\\bInter-\\b", "\\bActief\\b",
     "\\+53 489 3756", "contact@inter-actief\\.net",
     "https://ictsv\\.nl/wa", "https://ictsv\\.nl/discord", "@inter\\.actief",
-    "https://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/", "\\*", "#"
+    "https://www\\.linkedin\\.com/company/i\\.c\\.t\\.s\\.v\\.-inter-actief/", "\\*", "#",
+    "&euro;", "&nbsp;", "&euro;&nbsp;"
 ]
 
 

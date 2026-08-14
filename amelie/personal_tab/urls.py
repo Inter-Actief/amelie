@@ -22,6 +22,7 @@ urlpatterns = [
     path('me/', views.my_dashboard, name='my_dashboard'),
 
     path('transactions/', views.transaction_form, name='transactions'),
+    path('transactions/unpaid/', views.UnpaidTransactionsListView.as_view(), name='unpaid_transactions_list'),
     path('transactions/<int:date_from>/<int:date_to>/', views.transaction_overview, name='transactions'),
 
     path('transactions/activity/<int:pk>/', ActivityTransactionDetail.as_view(), name='activity_transaction_detail'),
@@ -34,7 +35,7 @@ urlpatterns = [
         name='cookie_corner_transaction_delete'),
 
     path('unpaid_memberships/', views.unpaid_memberships, name='unpaid_memberships'),
-    path('unpaid_memberships/<int:year>/', views.unpaid_memberships, name='unpaid_memberships_year'),
+    path('unpaid_memberships/<int:year>/', views.unpaid_memberships_year, name='unpaid_memberships_year'),
     path('unpaid_memberships/<int:year>/mailing/', views.unpaid_memberships_mailing, name='unpaid_memberships_mailing'),
     path('unpaid_memberships/<int:year>/forgive/', views.unpaid_memberships_forgive, name='unpaid_memberships_forgive'),
 
@@ -54,8 +55,8 @@ urlpatterns = [
 
     path('person/<int:pk>/<slug:slug>/', views.dashboard, name='dashboard'),
     path('person/<int:pk>/<slug:slug>/transactions/', views.person_transactions, name='person_transactions'),
-    path('person/<int:pk>/<slug:slug>/transactions/<int:date_from>/<int:date_to>/',
-        views.person_transactions, name='person_transactions'),
+    path('person/<int:pk>/<slug:slug>/transactions/<int:date_from>/<int:date_to>/', views.person_transactions, name='person_transactions'),
+    path('person/<int:pk>/<slug:slug>/transactions/unpaid/', views.person_transactions_unpaid, name='person_transactions_unpaid'),
 
     path('person/<int:person_id>/<slug:slug>/new/<str:transaction_type>/', views.person_new_transaction,
         name='person_new_transaction'),
@@ -68,6 +69,12 @@ urlpatterns = [
         views.person_exam_cookie_credit, name='person_exam_cookie_credit'),
     path('person/<int:person_id>/<slug:slug>/exam_cookie_credit/new/', views.person_exam_cookie_credit_new,
         name='person_exam_cookie_credit_new'),
+
+    path('manual_payments/', views.ManualPaymentsListView.as_view(), name='manual_payments_list'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/', views.person_manual_payments, name='person_manual_payments'),
+    path('person/<int:person_id>/<slug:slug>/manual_payments/new/', views.CreateManualPaymentSettlementView.as_view(), name='person_manual_payment_new'),
+    path('manual_payments/<int:id>/', views.manual_payment_settlement_view, name='manual_payment_settlement_view'),
+    path('manual_payments/<int:pk>/delete/', views.DeleteManualPaymentSettlementView.as_view(), name='manual_payment_settlement_delete'),
 
     path('rfid/<int:rfid_id>/edit/<str:status>/', views.rfid_change_status, name='rfid_change_status'),
     path('rfid/<int:rfid_id>/remove/', views.rfid_remove, name='rfid_remove'),

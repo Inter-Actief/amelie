@@ -21,7 +21,7 @@
                     <tr>
                         <td class="align-right">
                             <a href="{% url 'personal_tab:unpaid_memberships_year' year %}">
-                                {{ year }}
+                                {{ year }}/{{ year|add:1 }}
                             </a>
                         </td>
                         {% for type, count in tuple.0.items %}
@@ -37,6 +37,6 @@
 
             </tbody>
         </table>
-        </div>  
+        </div>
     </div></div>
 {% endblock content %}

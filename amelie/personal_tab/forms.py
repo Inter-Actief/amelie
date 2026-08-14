@@ -10,9 +10,8 @@ from localflavor.generic.forms import BICFormField, IBANFormField
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Exists, OuterRef, TextChoices
+from django.db.models import TextChoices
 from django.utils import timezone
-from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _l
 
 from amelie.members.models import Membership, Person, Committee
@@ -20,8 +19,7 @@ from amelie.members.forms import clean_iban_and_bic
 from amelie.personal_tab.transactions import cookie_corner_sale
 from amelie.personal_tab import statistics
 from amelie.personal_tab.models import CustomTransaction, CookieCornerTransaction, Declaration, RFIDCard, Reversal, \
-    AuthorizationType, \
-    DebtCollectionBatch, Authorization, Article, Category
+    AuthorizationType, DebtCollectionBatch, Authorization, ManualPaymentSettlement, PaymentMethod, Article, Category
 from amelie.tools.http import get_client_ips
 from amelie.tools.ipp_printer import IPPPrinter
 from amelie.tools.widgets import DateSelector, DateTimeSelector, MemberSelect
@@ -66,8 +64,7 @@ class DebtCollectionForm(forms.Form):
         self.fields['execution_date'].initial = minimal_execution_date
         # Select the years with unpaid memberships to show
         contribution_years = Membership.objects.filter(
-            payment__isnull=True,
-            type__price__gt=0
+            contributiontransaction__settlement=None, type__price__gt=0
         ).distinct().order_by('-year').values_list('year', flat=True)
         self.fields['contribution_years'].choices = [(year, "{}-{}".format(year, year+1)) for year in contribution_years]
 
@@ -127,6 +124,40 @@ class AmendmentForm(forms.Form):
         cleaned_data['iban'], cleaned_data['bic'] = clean_iban_and_bic(cleaned_data.get('iban'), cleaned_data.get('bic'))
 
         return cleaned_data
+
+
+class ManualPaymentSettlementForm(forms.ModelForm):
+    payment_date = forms.DateField(label=_l('Payment date'), widget=DateSelector, initial=timezone.now)
+    payment_method = forms.ModelChoiceField(PaymentMethod.objects.filter(visible=True), label=_l('Payment method'), required=True)
+    paid_amount = forms.DecimalField(
+        max_digits=5, decimal_places=2, label=_l('Paid amount'), initial=0,
+        help_text=_l("The amount that was paid in this settlement. Can be different from the amount that needs to be paid, "
+                     "can even be negative (if money was paid out by the association). "
+                     "Useful if, say, the transactions add up to 9 euro, you can enter a payment of 10 euro, "
+                     "which leaves 1 euro extra as balance on the person's personal tab."))
+
+    class Meta:
+        model = ManualPaymentSettlement
+        fields = ('payment_date', 'payment_method')
+
+    def __init__(self, person: Person, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.person = person
+
+
+class ManualPaymentTransactionForm(forms.Form):
+    id = forms.IntegerField()
+    include = forms.BooleanField(initial=False, required=False)
+
+    def __init__(self, *args, initial=None, **kwargs):
+        # initial = {'transaction': t, 'include': False}
+        if initial is not None:
+            self.transaction = initial.pop('transaction')
+            initial['id'] = self.transaction.id
+        super().__init__(*args, **kwargs)
+
+
+ManualPaymentTransactionFormSet = forms.formset_factory(ManualPaymentTransactionForm, extra=0)
 
 
 class SearchAuthorizationForm(forms.Form):
