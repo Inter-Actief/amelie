@@ -25,7 +25,7 @@ authors = [
 requires-python = ">= 3.12"
 
 dependencies = [
-    "setuptools>=82.0.0",
+    "setuptools>=84.0.0",
 
     "Django>=6.0.3,<7.0",
     "importlib-metadata>=1.4.0,<10.0",
