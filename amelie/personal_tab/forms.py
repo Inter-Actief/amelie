@@ -5,6 +5,7 @@ import traceback
 from typing import Optional, List
 
 from django.forms.models import ModelChoiceIterator
+from django.utils.timezone import get_current_timezone
 from localflavor.generic.forms import BICFormField, IBANFormField
 
 from django import forms
@@ -595,7 +596,11 @@ class DeclarationForm(forms.Form):
             reply_to = settings.TREASURER_EMAIL
 
         # Prepare context for the email
-        context = {'declaration': declaration}
+        context = {
+            'declaration': declaration,
+            'submitter_name': person.incomplete_name(),
+            'submission_date': declaration.submission_date.astimezone(get_current_timezone())
+        }
 
         # Generate PDF of the declaration form and add it to the attachments
         pdf = declaration.get_pdf()

@@ -1,4 +1,4 @@
-{% load attach i18n only subject absolute_url htmlify%}{% comment %} Whitespace IS important in this file {% endcomment %}{% comment %} Copy of email_basic, because the logo must be removed. This is to prevent the logo from being saved in the bookkeeping for every declaration. {% endcomment %}{% subject %}{% blocktrans %}Declaration submitted via Amélie{% endblocktrans %}{% endsubject %}{% onlyhtml %}
+{% load attach i18n only subject absolute_url htmlify%}{% comment %} Whitespace IS important in this file {% endcomment %}{% comment %} Copy of email_basic, because the logo must be removed. This is to prevent the logo from being saved in the bookkeeping for every declaration. {% endcomment %}{% subject %}{% blocktrans with name=submitter_name date=submission_date|date:"Y-m-d H:i" %}Declaration submitted via Amélie by {{name}} on {{date}}{% endblocktrans %}{% endsubject %}{% onlyhtml %}
 <html>
 	<body>
 
