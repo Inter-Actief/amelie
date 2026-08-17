@@ -1,0 +1,59 @@
+{% extends "basis.html" %}
+{% load i18n form_stylish %}
+
+{% block titel %}
+    {% trans 'Enrollment status' %}
+{% endblock titel %}
+
+{% block content %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="ia">
+            <h2>{% trans 'Enrollment status' %}</h2>
+            <div class="content">
+                <p>
+                    {% trans 'These are the new members this association year, per do-group. These memberships are already activated.' %}
+                </p>
+                <p>
+                    {% url 'members:preregistration_status' as pre_enrollment_url %}
+                    {% blocktrans with url=pre_enrollment_url %}
+                        To view unactivated memberships, check the current <a href="{{ url }}">pre-enrollment status</a> instead.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% regroup memberships by member.dogroup as memberships_by_dogroup %}
+
+    {% for dogroup in memberships_by_dogroup %}
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="ia">
+                <h2>{{ dogroup.grouper }} - {% blocktrans with len=dogroup.list|length %}{{ len }} member(s){% endblocktrans %}</h2>
+                <div class="content">
+                    <table class="borderless full-width">
+                        {% for enrollment in dogroup.list %}
+                        <tr>
+                            <td style="word-break: break-word">
+                                <a href="{{ enrollment.member.get_absolute_url }}" target="_blank">{{ enrollment.member.incomplete_name }}</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td class="align-right"><i>{% trans 'No members' %}</i></td></tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="ia">
+                <h2>{% trans 'No enrollments' %}</h2>
+                <div class="content">
+                    <p>
+                        {% trans 'There have not been any enrollments this year yet.' %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock content %}

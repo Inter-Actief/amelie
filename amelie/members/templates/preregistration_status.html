@@ -23,7 +23,15 @@
                     {% trans 'These are the current pre-enrollments that are not activated yet, per do-group.' %}
                 </p>
                 <p>
-                    {% trans 'If the member has signed their membership and authorization forms, the membership and any authorizations should automatically get activated and it will disappear from this list.' %}<br/>
+                    {% trans 'If the member has signed their membership and authorization forms, the membership and any authorizations should automatically get activated and it will disappear from this list.' %}
+                </p>
+                <p>
+                    {% url 'members:registration_status' as enrollment_url %}
+                    {% blocktrans with url=enrollment_url %}
+                        To view already activated memberships from this academic year, check the current <a href="{{ url }}">enrollment status</a> instead.
+                    {% endblocktrans %}
+                </p>
+                <p>
                     {% trans 'You can (re-)print the forms for that member by clicking the "Print" (<i class="icon icon-printer"></i>) button.' %}
                     {% if request.is_board %}
                         {% trans 'Additionally, as a board member, you can view the state of the signature requests (<i class="icon icon-page_find"></i>), and attempt re-download of the signed forms (<i class="icon icon-arrow_down"></i>) or even re-send them (<i class="icon icon-pencil_delete"></i>) if it failed for whatever reason.' %}
@@ -103,7 +111,7 @@
                 <h2>{% trans 'No pre-enrollments' %}</h2>
                 <div class="content">
                     <p>
-                        {% trans 'There are currently no pre-enrollments.' %}
+                        {% trans 'There are currently no pending pre-enrollments.' %}
                     </p>
                 </div>
             </div>

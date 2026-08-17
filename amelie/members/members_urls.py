@@ -55,6 +55,7 @@ urlpatterns = [
     path('preregistration/', views.PreRegistrationStatus.as_view(), name='preregistration_status'),
     path('preregistration/print/', views.PreRegistrationPrintAll.as_view(), name='preregistration_print_all'),
     path('preregistration/print/dogroup/', views.PreRegistrationPrintDogroup.as_view(), name='preregistration_print_dogroup'),
+    path('registration/', views.RegistrationStatus.as_view(), name='registration_status'),
 
     path('registration_form/<int:user>/<int:membership>/', views.registration_form, name='registration_form'),
     path('membership_form/<int:user>/<int:membership>/', views.membership_form, name='membership_form'),

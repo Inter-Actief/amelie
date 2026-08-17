@@ -428,6 +428,14 @@ class Person(models.Model, Mappable):
     def is_student(self):
         return hasattr(self, 'student')
 
+    @property
+    def dogroup(self):
+        if self.is_student():
+            for period in self.student.studyperiod_set.all().order_by('-begin'):
+                if period.dogroup:
+                    return period.dogroup
+        return None
+
     def is_active_member(self):
         return self.function_set.filter(end__isnull=True, committee__abolished__isnull=True).exists()
 
@@ -523,6 +531,12 @@ class Person(models.Model, Mappable):
             return ' '.join([first_name, self.last_name_prefix, self.last_name])
         else:
             return ' '.join([first_name, self.last_name])
+
+    def sortable_name(self):
+        first_name = self.first_name
+        if not self.first_name and self.initials:
+            first_name = self.initials
+        return ', '.join([self.last_name, first_name])
 
     def current_committees(self):
         """

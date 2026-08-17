@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest, ImproperlyConfigured
-from django.db.models import Q, Sum, Max, F
+from django.db.models import Q, Sum, Max, F, Count
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -1065,6 +1065,26 @@ class PreRegisterNewFreshmanWizardView(SessionWizardView):
 
 class PreRegistrationCompleteView(TemplateView):
     template_name = "person_registration_form_preregister_complete.html"
+
+
+class RegistrationStatus(RequireCommitteeMixin, TemplateView):
+    template_name = "registration_status.html"
+    abbreviation = settings.ROOM_DUTY_ABBREVIATION
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.error_msg = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        memberships = Membership.objects.filter(
+            year=current_association_year()
+        ).annotate(membership_count=Count('member__membership')).filter(
+            membership_count=1
+        )
+        memberships = sorted(memberships, key=lambda x: str(x.member.dogroup) + " " + str(x.member.sortable_name()))
+        context['memberships'] = memberships
+        return context
 
 
 class PreRegistrationStatus(RequireCommitteeMixin, TemplateView):
