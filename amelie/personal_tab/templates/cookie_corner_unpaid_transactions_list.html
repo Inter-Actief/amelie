@@ -24,7 +24,7 @@
             {% if filter_only_mandate %}<p class="icon icon-information">
                 {% if filter_mandate_type %}
                     {% blocktrans with filtered_type=filter_mandate_type %}
-                        Only people with a mandate of type 'filtered_type' are shown.
+                        Only people with a mandate of type '{{ filtered_type }}' are shown.
                     {% endblocktrans %}
                 {% else %}
                     {% trans 'Only people with a mandate are shown.' %}

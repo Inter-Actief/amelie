@@ -958,8 +958,8 @@ class PaymentMethod(models.Model):
     description_nl = models.TextField(verbose_name=_l('Description (NL)'))
     description_en = models.TextField(verbose_name=_l('Description (EN)'))
     visible = models.BooleanField(default=True, verbose_name=_l('Visible'), help_text=_l("This payment method will be visible when creating a manual payment directly in someone's personal tab."))
-    visible_memberships = models.BooleanField(default=True, verbose_name=_l('Visible for memberships'), help_text=_('This payment method will be visible when privileged members enter a manual payment for a membership.'))
-    visible_activities = models.BooleanField(default=True, verbose_name=_l('Visible for activities'), help_text=_('This payment method will be visible when privileged members enter a manual payment for an activity.'))
+    visible_memberships = models.BooleanField(default=True, verbose_name=_l('Visible for memberships'), help_text=_l('This payment method will be visible when privileged members enter a manual payment for a membership.'))
+    visible_activities = models.BooleanField(default=True, verbose_name=_l('Visible for activities'), help_text=_l('This payment method will be visible when privileged members enter a manual payment for an activity.'))
     frontend_icon_name = models.CharField(max_length=20, blank=True, null=True, verbose_name=_l('Icon name for frontend'))
 
     class Meta(object):
