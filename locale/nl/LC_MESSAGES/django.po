@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-17 14:55+0200\n"
-"PO-Revision-Date: 2026-08-08 13:42+0000\n"
+"PO-Revision-Date: 2026-08-17 14:58+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.8\n"
+"X-Generator: Weblate 2026.8.1\n"
 "Used command: ./manage.py makemessages -e py,html,txt,mail\n"
 "X-Translated-Using: django-rosetta 0.9.9\n"
 
@@ -236,16 +236,13 @@ msgid "Enrolled participants will be emailed when you change the price."
 msgstr "Ingeschreven deelnemers zullen een e-mail ontvangen als je de prijs aanpast."
 
 #: amelie/activities/forms.py:74
-#, fuzzy
-#| msgid "Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity."
 msgid "Website enrolment must have a positive price. Either turn off the ability to enrol or increase the cost of the activity."
-msgstr "Inschrijving via de website heeft een maximum van {0} euro. Of schakel de inschrijfoptie uit, of verlaag de prijs van de activiteit!"
+msgstr "Inschrijving via de website moet een positief bedrag kosten. Schakel ofwel de inschrijfoptie uit, of verhoog de prijs van de activiteit!"
 
 #: amelie/activities/forms.py:77
-#, fuzzy, python-brace-format
-#| msgid "Website enrolment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity."
+#, python-brace-format
 msgid "Website enrollment has a maximum of {0} euro. Either turn off the ability to enrol or decrease the cost of the activity."
-msgstr "Inschrijving via de website heeft een maximum van {0} euro. Of schakel de inschrijfoptie uit, of verlaag de prijs van de activiteit!"
+msgstr "Inschrijving via de website heeft een maximum van {0} euro. Schakel ofwel de inschrijfoptie uit, of verlaag de prijs van de activiteit!"
 
 #: amelie/activities/forms.py:81 amelie/activities/models.py:103
 msgid "There is no enrollment start date entered."
@@ -273,31 +270,27 @@ msgstr "Sla de wachtlijst over en schrijf direct in"
 
 #: amelie/activities/forms.py:134
 msgid "The amount of current enrollments for this option would exceed the new maximum amount. Please unenroll or edit the affected people first, or modify the maximum for this option."
-msgstr ""
+msgstr "Het aantal huidige inschrijvingen voor deze optie zou hoger zijn dan het nieuwe maximumaantal. Schrijf a.u.b. eerst mensen uit, of pas het maximum voor deze optie aan."
 
 #: amelie/activities/forms.py:147
 msgid "The selected amount of (at least) one of the current enrollments for this option exceeds the new maximum amount per person. Please unenroll or edit the affected people first, or modify the maximum for this option."
-msgstr ""
+msgstr "Het geselecteerde aantal van (ten minste) een van de huidige inschrijvingen voor deze optie is hoger dan het nieuwe maximumaantal per persoon. Schrijf a.u.b. eerst mensen uit, pas hun inschrijving aan, of pas het maximum per persoon voor deze optie aan."
 
 #: amelie/activities/forms.py:207
 msgid "Sorry, but the last spot has been claimed already!"
 msgstr "Sorry, maar de laatste plek is al vergeven!"
 
 #: amelie/activities/forms.py:229
-#, fuzzy
-#| msgid "The amount must be a positive number."
 msgid "Sorry, but the amount must be a positive number!"
-msgstr "Het bedrag moet positief zijn."
+msgstr "Sorry, maar het bedrag moet positief zijn!"
 
 #: amelie/activities/forms.py:231
 msgid "Sorry, but you cannot exceed the maximum amount per person!"
 msgstr "Sorry, maar je kunt niet over het aantal stuks per persoon!"
 
 #: amelie/activities/forms.py:245
-#, fuzzy
-#| msgid "Sorry, but there are not enough spots left!"
 msgid "Sorry, but there are no spots left!"
-msgstr "Sorry, maar er zijn niet genoeg plekken over!"
+msgstr "Sorry, maar er zijn geen plekken over!"
 
 #: amelie/activities/forms.py:247
 msgid "Sorry, but there are not enough spots left!"
@@ -310,10 +303,8 @@ msgstr "Sorry, maar er zijn niet genoeg plekken over!"
 #: amelie/personal_tab/templates/info/payments.html:79
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:29
 #: amelie/personal_tab/templates/lists/payment_transactions.html:13
-#, fuzzy
-#| msgid "Payment Method"
 msgid "Payment method"
-msgstr "Betalingsmethode"
+msgstr "Betaalmethode"
 
 #: amelie/activities/forms.py:375
 msgid "Photographer"
@@ -544,10 +535,9 @@ msgid "Facebook event id, numerical value in the facebook event url."
 msgstr "Facebook event id, numerieke waarde in de facebook event url."
 
 #: amelie/activities/models.py:243
-#, fuzzy, python-brace-format
-#| msgid "Unenrollment for {activity} is not possible."
+#, python-brace-format
 msgid "Enrollment for {activity} is not possible."
-msgstr "Uitschrijven voor {activity} is niet mogelijk."
+msgstr "Inschrijven voor {activity} is niet mogelijk."
 
 #: amelie/activities/models.py:247
 #, python-brace-format
@@ -600,14 +590,12 @@ msgid "The unenrollment term for {activity} has already passed."
 msgstr "De uitschrijfperiode voor {activity} is al voorbij."
 
 #: amelie/activities/models.py:350
-#, fuzzy
-#| msgid "Activities iCal feed"
 msgid "Activity was cancelled"
-msgstr "Activiteiten iCal-feed"
+msgstr "Activiteit is geannuleerd"
 
 #: amelie/activities/models.py:365
 msgid "Activity has already started, it cannot be canceled any more."
-msgstr ""
+msgstr "Activiteit is al begonnen, en kan niet meer worden geannuleerd."
 
 #: amelie/activities/models.py:394
 #: amelie/activities/templates/activities/enrollmentoption_list.html:41
@@ -828,10 +816,9 @@ msgid "{0:.1f}% certain"
 msgstr "{0:.1f}% zeker"
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:3
-#, fuzzy, python-format
-#| msgid "Cancellation of "
+#, python-format
 msgid "Cancellation of %(activity)s"
-msgstr "Annulering van "
+msgstr "Annulering van %(activity)s"
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:4
 #: amelie/claudia/templates/claudia/account_deleted.mail:5
@@ -840,30 +827,26 @@ msgid "Dear %(name)s,"
 msgstr "Beste %(name)s,"
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:5
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "You receive this email because you were enrolled for %(summary)s. This activity has been cancelled.\n"
+#, python-format
 msgid ""
 "\n"
 "You receive this email because you were enrolled for %(activity)s. This activity has been cancelled.\n"
 msgstr ""
 "\n"
-"Je ontvangt deze e-mail omdat je bent ingeschreven voor %(summary)s. Deze activiteit is geannuleerd.\n"
+"Je ontvangt deze e-mail omdat je bent ingeschreven voor %(activity)s. Deze activiteit is geannuleerd.\n"
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:8
-#, fuzzy, python-format
-#| msgid "The total costs are %(costs)s euro. Payment method: %(paymentmethod)s."
+#, python-format
 msgid "The total costs were %(costs)s euro."
-msgstr "De kosten zijn totaal %(costs)s euro. Betaalwijze: %(paymentmethod)s."
+msgstr "De kosten waren totaal %(costs)s euro."
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:9
 msgid "These costs will be refunded on your personal tab."
-msgstr ""
+msgstr "Deze kosten zullen worden teruggeboekt op je streeplijstsaldo."
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:10
 msgid "If you already paid for this activity, please come by the association room or contact the treasurer to re-collect your payment. If you had not paid yet you do not need to do anything."
-msgstr ""
+msgstr "Als je al betaald had voor deze activiteit, kom dan langs de verenigingskamer of neem contact op met de penningmeester om je betaling terug te krijgen. Als je nog niet had betaald dan hoef je niks te doen."
 
 #: amelie/activities/templates/activities/activity_cancelled.mail:11
 #: amelie/activities/templates/activities/activity_cancelled_from_waiting_list.mail:7
@@ -941,20 +924,19 @@ msgstr "Je ontvangt deze e-mail omdat je bent ingeschreven voor %(summary)s. Dez
 
 #: amelie/activities/templates/activities/activity_enrolled.mail:9
 #: amelie/activities/templates/activities/activity_enrolled_from_waiting_list.mail:9
-#, fuzzy, python-format
-#| msgid "The total costs are %(costs)s euro. Payment method: %(paymentmethod)s."
+#, python-format
 msgid "The total costs are %(costs)s euro."
-msgstr "De kosten zijn totaal %(costs)s euro. Betaalwijze: %(paymentmethod)s."
+msgstr "De kosten zijn totaal %(costs)s euro."
 
 #: amelie/activities/templates/activities/activity_enrolled.mail:10
 #: amelie/activities/templates/activities/activity_enrolled_from_waiting_list.mail:10
 msgid "These costs will be debited from your bank account via your direct debit mandate."
-msgstr ""
+msgstr "Deze kosten zullen worden afgeschreven van je bankrekening via je incassomachtiging."
 
 #: amelie/activities/templates/activities/activity_enrolled.mail:10
 #: amelie/activities/templates/activities/activity_enrolled_from_waiting_list.mail:10
 msgid "These costs will need to be paid manually by you, either at the activity or at the board."
-msgstr ""
+msgstr "Deze kosten zullen door jou handmatig betaald moeten worden, ofwel bij de activiteit of bij het bestuur."
 
 #: amelie/activities/templates/activities/activity_enrolled.mail:12
 #: amelie/activities/templates/activities/activity_enrolled_from_waiting_list.mail:12
@@ -2028,10 +2010,8 @@ msgstr "Data-exportstatistieken"
 
 #: amelie/activities/templates/activity_confirm_cancellation.html:4
 #: amelie/activities/templates/activity_confirm_cancellation.html:8
-#, fuzzy
-#| msgid "Confirmation cancel"
 msgid "Confirmation undo cancel"
-msgstr "Bevestig verwijdering"
+msgstr "Bevestig ongedaan maken van annulering"
 
 #: amelie/activities/templates/activity_confirm_cancellation.html:4
 #: amelie/activities/templates/activity_confirm_cancellation.html:8
@@ -2039,36 +2019,30 @@ msgid "Confirmation cancel"
 msgstr "Bevestig verwijdering"
 
 #: amelie/activities/templates/activity_confirm_cancellation.html:12
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Are you sure you want to cancel %(obj)s?\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                    Are you sure you want to undo the cancelation of %(obj)s?\n"
 "                "
 msgstr ""
 "\n"
-"Weet je zeker dat je %(obj)s wilt annuleren?"
+"                    Weet je zeker dat je het annuleren van %(obj)s ongedaan wilt maken?\n"
+"                "
 
 #: amelie/activities/templates/activity_confirm_cancellation.html:16
 msgid "The event will be available again, but enrollments will stay closed and need to be manually re-opened."
-msgstr ""
+msgstr "De activiteit zal weer beschikbaar zijn, maar de inschrijving zal dicht blijven en zal handmatig opnieuw geopend moeten worden."
 
 #: amelie/activities/templates/activity_confirm_cancellation.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Are you sure you want to cancel %(obj)s?\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                    Are you sure you want to cancel %(obj)s?\n"
 "                "
 msgstr ""
 "\n"
-"Weet je zeker dat je %(obj)s wilt annuleren?"
+"                    Weet je zeker dat je %(obj)s wilt annuleren?\n"
+"                "
 
 #: amelie/activities/templates/activity_confirm_cancellation.html:23
 msgid "All enrollments will be cancelled, the transactions will be undone, and all the participants will receive an email."
@@ -2108,178 +2082,135 @@ msgid "Confirmation unenrollment"
 msgstr "Bevestiging uitschrijving"
 
 #: amelie/activities/templates/activity_confirm_unenrollment.html:12
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Are you sure you want to unenroll %(person)s for %(obj)s?\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                    Are you sure you want to unenroll %(person)s for %(obj)s?\n"
 "                "
 msgstr ""
 "\n"
-"Weet je zeker dat je %(person)s wil uitschrijven voor %(obj)s?"
+"                    Weet je zeker dat je %(person)s wil uitschrijven voor %(obj)s?\n"
+"                "
 
 #: amelie/activities/templates/activity_confirm_unenrollment.html:16
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Are you sure you want to unenroll %(person)s for %(obj)s?\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                    Are you sure you want to unenroll for %(obj)s?\n"
 "                "
 msgstr ""
 "\n"
-"Weet je zeker dat je %(person)s wil uitschrijven voor %(obj)s?"
+"                    Weet je zeker dat je je wilt uitschrijven voor %(obj)s?\n"
+"                "
 
 #: amelie/activities/templates/activity_enrollment_form.html:7
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                Update enrollment of %(person)s for %(summary)s\n"
 "            "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                Inschrijving van %(person)s voor %(summary)s aanpassen\n"
+"            "
 
 #: amelie/activities/templates/activity_enrollment_form.html:11
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Add credit for %(person)s.\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                Update enrollment for %(summary)s\n"
 "            "
 msgstr ""
 "\n"
-"Tentamenkoekentegoed toevoegen voor %(person)s"
+"                Inschrijving voor %(summary)s aanpassen\n"
+"            "
 
 #: amelie/activities/templates/activity_enrollment_form.html:17
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                Enroll %(person)s for %(summary)s\n"
 "            "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                %(person)s inschrijven voor %(summary)s\n"
+"            "
 
 #: amelie/activities/templates/activity_enrollment_form.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                Enroll for %(summary)s\n"
 "            "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                Inschrijven voor %(summary)s\n"
+"            "
 
 #: amelie/activities/templates/activity_enrollment_form.html:35
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            Last %(count)s transactions\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                            Update enrollment of %(person)s for %(summary)s\n"
 "                        "
 msgstr ""
 "\n"
-"Laatste %(count)s toegevoegde transacties."
+"                            Inschrijving van %(person)s voor %(summary)s aanpassen\n"
+"                        "
 
 #: amelie/activities/templates/activity_enrollment_form.html:39
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            1 person signed up.\n"
-#| "                        "
-#| msgid_plural ""
-#| "\n"
-#| "                            %(sign_ups)s people signed up.\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                            Update enrollment for %(summary)s\n"
 "                        "
 msgstr ""
 "\n"
-"                            1 persoon is ingeschreven.\n"
+"                            Inschrijving voor %(summary)s aanpassen\n"
 "                        "
 
 #: amelie/activities/templates/activity_enrollment_form.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                            Enroll %(person)s for %(summary)s\n"
 "                        "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                            %(person)s inschrijven voor %(summary)s\n"
+"                        "
 
 #: amelie/activities/templates/activity_enrollment_form.html:49
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                %(time)s ago\n"
-#| "                            "
+#, python-format
 msgid ""
 "\n"
 "                            Enroll for %(summary)s\n"
 "                        "
 msgstr ""
 "\n"
-"                                %(time)s geleden\n"
-"                            "
+"                            Inschrijven voor %(summary)s\n"
+"                        "
 
 #: amelie/activities/templates/activity_enrollment_form.html:60
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "\t\t\t\t\t\t \tWith this form, you will enroll %(name)s for the activity.\n"
-#| "\t\t\t\t\t\t"
+#, python-format
 msgid ""
 "\n"
 "\t\t\t\t\t\t \tWith this form, you will update the enrollment of %(name)s for the activity.\n"
 "\t\t\t\t\t\t"
 msgstr ""
 "\n"
-"Met dit formulier schrijf je %(name)s in voor de activiteit."
+"\t\t\t\t\t\t \tMet dit formulier pas je de inschrijving voor de activiteit van %(name)s aan.\n"
+"\t\t\t\t\t\t"
 
 #: amelie/activities/templates/activity_enrollment_form.html:64
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\t\t\t\t\t\t \tClick \"Enroll\" below this form to confirm your enrollment.\n"
-#| "\t\t\t\t\t\t"
 msgid ""
 "\n"
 "\t\t\t\t\t\t \tClick \"Update\" below this form to save the changes to your enrollment.\n"
 "\t\t\t\t\t\t"
 msgstr ""
 "\n"
-"Klik onderaan dit formulier op inschrijven om je inschrijving te bevestigen."
+"\t\t\t\t\t\t \tKlik onderaan dit formulier op \"Aanpassen\" om de wijzigingen aan je inschrijving op te slaan.\n"
+"\t\t\t\t\t\t"
 
 #: amelie/activities/templates/activity_enrollment_form.html:70
 #, python-format
@@ -2305,10 +2236,8 @@ msgid "The enrollment fee is"
 msgstr "De inschrijfkosten bedragen"
 
 #: amelie/activities/templates/activity_enrollment_form.html:88
-#, fuzzy
-#| msgid "Unfortunately, there are no more openings. You will be enrolled on the waiting list."
 msgid "There are no more openings. The person will be enrolled on the waiting list unless you override this."
-msgstr "Helaas, maar er is geen beschikbare plek meer. Je kunt je wel inschrijven op de wachtlijst."
+msgstr "Er is geen beschikbare plek meer. De persoon zal worden ingeschreven op de wachtlijst, tenzij je dit aanpast."
 
 #: amelie/activities/templates/activity_enrollment_form.html:90
 msgid "Unfortunately, there are no more openings. You will be enrolled on the waiting list."
@@ -2316,39 +2245,33 @@ msgstr "Helaas, maar er is geen beschikbare plek meer. Je kunt je wel inschrijve
 
 #: amelie/activities/templates/activity_enrollment_form.html:103
 msgid "The activity has a few enrollment options. Please fill these out before you enroll."
-msgstr ""
+msgstr "De activiteit heeft een aantal inschrijfopties. Vul deze in voordat je jezelf inschrijft."
 
 #: amelie/activities/templates/activity_enrollment_form.html:106
 msgid "<b>Warning:</b> some of these options may cost extra!"
-msgstr ""
+msgstr "<b>Let op:</b> sommige van deze opties kunnen extra kosten!"
 
 #: amelie/activities/templates/activity_enrollment_form.html:144
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            It is assumed that %(name)s has given their permission to be enrolled.\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                                It is assumed that %(name)s has given their permission for their enrollment to be modified.\n"
 "                            "
 msgstr ""
 "\n"
-"Er wordt vanuit gegaan dat %(name)s toestemming heeft gegeven om zich te laten inschrijven."
+"                                Er wordt vanuit gegaan dat %(name)s toestemming heeft gegeven om hun inschrijving aan te passen.\n"
+"                            "
 
 #: amelie/activities/templates/activity_enrollment_form.html:148
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            It is assumed that %(name)s has given their permission to be enrolled.\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                                It is assumed that %(name)s has given their permission to be enrolled.\n"
 "                            "
 msgstr ""
 "\n"
-"Er wordt vanuit gegaan dat %(name)s toestemming heeft gegeven om zich te laten inschrijven."
+"                                Er wordt vanuit gegaan dat %(name)s toestemming heeft gegeven om zich te laten inschrijven.\n"
+"                            "
 
 #: amelie/activities/templates/activity_enrollment_form.html:159
 msgid ""
@@ -2406,12 +2329,7 @@ msgid "Total"
 msgstr "Totaal"
 
 #: amelie/activities/templates/activity_enrollment_form.html:175
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                If your print is for a committee, select it in the form above.\n"
-#| "                                In that case the print will be free.\n"
-#| "                            "
+#, python-format
 msgid ""
 "\n"
 "                                    The costs will be deducted from %(name)s's personal tab\n"
@@ -2419,18 +2337,11 @@ msgid ""
 "                                "
 msgstr ""
 "\n"
-"                                Als je print voor een commissie, selecteer die dan in het bovenstaande formulier.\n"
-"In dat geval zal de print gratis zijn.\n"
-"                            "
+"                                    Deze kosten worden afgeschreven van %(name)s's streeplijst en zullen betaald worden via automatische incasso.\n"
+"                                "
 
 #: amelie/activities/templates/activity_enrollment_form.html:182
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                <b>Warning:</b> This activity already has participants.\n"
-#| "                                It is therefore impossible to add or alter options for enrollment.\n"
-#| "                                Changing prices and/or texts will only influence people who have yet to enroll!\n"
-#| "                            "
+#, python-format
 msgid ""
 "\n"
 "                                    %(name)s has no direct debit mandate for activities.\n"
@@ -2439,7 +2350,10 @@ msgid ""
 "                                "
 msgstr ""
 "\n"
-"<b>Let op:</b> Activiteit heeft al deelnemers. Het is daarom niet mogelijk inschrijfopties toe te voegen of te verwijderen. Wijzigen van prijzen en/of hebben alleen invloed op de mensen die zich nog gaan inschrijven!"
+"                                    %(name)s heeft geen incassomachtiging voor activiteiten. \n"
+"De kosten zullen van diens streeplijstsaldo afgeschreven worden \n"
+"en moeten handmatig betaald worden, ofwel bij de activiteit of bij het bestuur.\n"
+"                                "
 
 #: amelie/activities/templates/activity_enrollment_form.html:193
 msgid "Update"
@@ -2472,13 +2386,6 @@ msgstr ""
 "Inschrijven voor %(name)s"
 
 #: amelie/activities/templates/activity_enrollment_mandate.html:20
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\t\t\t\t \tUnfortunately, you cannot enroll for this activity, because it has an entrance fee, and you have\n"
-#| "                    not signed a direct debit mandate for consumptions and activities. Without this authorization, we\n"
-#| "                    can not withdraw money from your account. Please ask the board for a mandate form.\n"
-#| "\t\t\t\t"
 msgid ""
 "\n"
 "\t\t\t\t \tUnfortunately, you cannot enroll for this activity, because it has an entrance fee, or you have\n"
@@ -2488,18 +2395,12 @@ msgid ""
 "\t\t\t\t"
 msgstr ""
 "\n"
-"Je kunt je helaas niet inschrijven voor deze activiteit omdat aan deze activiteit kosten verbonden\n"
-"zijn en je geen machtiging getekend hebt inzake consumpties en activiteiten. Zonder deze machtiging\n"
-"is het niet mogelijk om eventuele kosten af te schrijven. Vraag bij het bestuur om een\n"
-"machtigingsformulier."
+"\t\t\t\t \tJe kunt je helaas niet inschrijven voor deze activiteit omdat aan deze activiteit kosten verbonden zijn, \n"
+"of je hebt een betaalde inschrijfoptie gekozen. Je hebt geen machtiging getekend voor consumpties en activiteiten. \n"
+"Zonder deze machtiging is het niet mogelijk om eventuele kosten af te schrijven. Vraag bij het bestuur om een machtigingsformulier.\n"
+"\t\t\t\t"
 
 #: amelie/activities/templates/activity_enrollment_mandate.html:29
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\t\t        Would you prefer not to sign a direct debit mandate? Please contact the board or organizing committee\n"
-#| "                and pay in cash.\n"
-#| "\t\t    "
 msgid ""
 "\n"
 "\t\t        Would you prefer not to sign a direct debit mandate? Please contact the board or organizing\n"
@@ -2507,7 +2408,7 @@ msgid ""
 "\t\t    "
 msgstr ""
 "\n"
-"\t\t        Liever geen machtiging tekenen? Neem dan contact op met het bestuur of de organiserende commissie en betaal contant.\n"
+"\t\t        Liever geen machtiging tekenen? Neem dan contact op met het bestuur of de organiserende commissie om te kijken of het mogelijk is om contant of met PIN te betalen voor deze activiteit.\n"
 "\t\t    "
 
 #: amelie/activities/templates/activity_enrollment_person_search.html:10
@@ -2531,16 +2432,14 @@ msgstr ""
 "Persoon inschrijven voor %(name)s"
 
 #: amelie/activities/templates/activity_enrollment_print.html:19
-#, fuzzy, python-format
-#| msgid "Enrollment for courses starts"
+#, python-format
 msgid "Enrollments for %(name)s (%(date)s)"
-msgstr "Inschrijving vakken start"
+msgstr "Inschrijvingen voor %(name) (%(date)s)"
 
 #: amelie/activities/templates/activity_enrollment_print.html:20
-#, fuzzy, python-format
-#| msgid "Signature on %(date)s:"
+#, python-format
 msgid "(printed on %(date)s)"
-msgstr "Was getekend op %(datum)s:"
+msgstr "(geprint op %(date)s)"
 
 #: amelie/activities/templates/activity_enrollment_print.html:23
 msgid "This enrollment list contains personal data. Please do not leave this lying around somewhere and make sure that it is destroyed after use. If you find this list somewhere, please give it to the board of Inter-Actief."
@@ -2561,7 +2460,7 @@ msgstr "Betaling"
 #: amelie/activities/templates/includes/activity_participants_table.html:65
 #: amelie/activities/templates/includes/activity_participants_table.html:137
 msgid "N/A (free)"
-msgstr ""
+msgstr "n.v.t. (gratis)"
 
 #: amelie/activities/templates/activity_enrollment_print.html:59
 #: amelie/activities/templates/includes/activity_participants_table.html:79
@@ -2570,7 +2469,7 @@ msgstr ""
 #: amelie/members/templates/person_membership.html:84
 #: amelie/members/templates/person_membership_payments.html:25
 msgid "Paid"
-msgstr ""
+msgstr "Betaald"
 
 #: amelie/activities/templates/activity_enrollment_print.html:62
 #: amelie/activities/templates/activity_enrollment_print.html:64
@@ -2582,15 +2481,13 @@ msgstr ""
 #: amelie/members/templates/person_membership.html:88
 #: amelie/members/templates/person_membership.html:90
 msgid "To be debited"
-msgstr ""
+msgstr "Nog te incasseren"
 
 #: amelie/activities/templates/activity_enrollment_print.html:67
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:177
 #: amelie/members/templates/person_membership.html:127
-#, fuzzy
-#| msgid "No payment"
 msgid "Needs manual payment"
-msgstr "Geen betaling"
+msgstr "Handmatige betaling vereist"
 
 #: amelie/activities/templates/activity_enrollment_print.html:69
 #: amelie/activities/templates/includes/activity_participants_table.html:87
@@ -2598,16 +2495,14 @@ msgstr "Geen betaling"
 #: amelie/activities/templates/includes/activity_participation_payments.html:27
 #: amelie/members/templates/person_membership.html:92
 #: amelie/members/templates/person_membership_payments.html:27
-#, fuzzy
-#| msgid "Has not paid yet"
 msgid "Not paid yet"
-msgstr "Heeft nog niet betaald"
+msgstr "Nog niet betaald"
 
 #: amelie/activities/templates/activity_enrollment_print.html:71
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:178
 #, python-format
 msgid "Open amount: &euro;&nbsp;%(costs)s"
-msgstr ""
+msgstr "Open bedrag: &euro;&nbsp;%(costs)s"
 
 #: amelie/activities/templates/activity_enrollment_print.html:83
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:80
@@ -3233,89 +3128,67 @@ msgstr "Deze deelnemer wordt 18 tijdens de activiteit!"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:69
 msgid "For some reason this free participation has unpaid payments! This should not happen."
-msgstr ""
+msgstr "Om de een of andere reden heeft deze gratis inschrijving onbetaalde transacties! Dit zou niet mogen gebeuren."
 
 #: amelie/activities/templates/includes/activity_participants_table.html:71
 #: amelie/activities/templates/includes/activity_participants_table.html:91
 #: amelie/members/templates/person_membership.html:76
 #: amelie/members/templates/person_membership.html:96
-#, fuzzy
-#| msgid "Execute payment"
 msgid "Inspect payments"
-msgstr "Betaling invoeren"
+msgstr "Betalingen bekijken"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:96
 #: amelie/members/templates/person_membership.html:101
-#, fuzzy
-#| msgid "No transactions on personal tab."
 msgid "No transaction! Contact the WWW."
-msgstr "Geen streeplijsttransacties."
+msgstr "Geen transactie! Neem contact op met de WWW."
 
 #: amelie/activities/templates/includes/activity_participants_table.html:100
 #: amelie/members/templates/person_membership.html:105
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                                (last used: %(last_used_date)s)\n"
-#| "                                            "
+#, python-format
 msgid ""
 "\n"
 "                                                    Debited on %(date)s\n"
 "                                                "
 msgstr ""
 "\n"
-"                                                (laatst gebruikt: %(last_used_date)s)\n"
-"                                            "
+"                                                    Afgeschreven op %(date)s\n"
+"                                                "
 
 #: amelie/activities/templates/includes/activity_participants_table.html:106
 #: amelie/members/templates/person_membership.html:111
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                                                (last used: %(last_used_date)s)\n"
-#| "                                            "
+#, python-format
 msgid ""
 "\n"
 "                                                    %(method)s on %(date)s\n"
 "                                                "
 msgstr ""
 "\n"
-"                                                (laatst gebruikt: %(last_used_date)s)\n"
-"                                            "
+"                                                    (%(method)s op %(date)s)\n"
+"                                                "
 
 #: amelie/activities/templates/includes/activity_participants_table.html:112
 #: amelie/members/templates/person_membership.html:117
 msgid "Unknown payment! Contact the WWW."
-msgstr ""
+msgstr "Onbekende betaling! Neem contact op met de WWW."
 
 #: amelie/activities/templates/includes/activity_participants_table.html:117
 #: amelie/members/templates/person_membership.html:122
 msgid "Previous attempt was reversed"
-msgstr ""
+msgstr "Vorige poging is teruggeboekt"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:121
 #: amelie/activities/templates/includes/activity_participants_table.html:151
 #, python-format
 msgid "Needs manual payment (&euro;&nbsp;%(costs)s)"
-msgstr ""
+msgstr "Handmatige betaling vereist (&euro;&nbsp;%(costs)s)"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:128
 #: amelie/members/templates/person_membership.html:135
-#, fuzzy
-#| msgid "Confirmation payment"
 msgid "Enter manual payment"
-msgstr "Bevestigen betaling"
+msgstr "Handmatige betaling invoeren"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:188
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            ...and <b>%(count)s</b> Anonymous member.\n"
-#| "                          "
-#| msgid_plural ""
-#| "\n"
-#| "                            ...and <b>%(count)s</b> Anonymous members.\n"
-#| "                          "
+#, python-format
 msgid ""
 "\n"
 "                        ...and <b>%(count)s</b> Anonymous member.\n"
@@ -3326,33 +3199,28 @@ msgid_plural ""
 "                      "
 msgstr[0] ""
 "\n"
-"                            ...en <b>%(count)s</b> Anoniem lid.\n"
-"                          "
+"                        ...en <b>%(count)s</b> Anoniem lid.\n"
+"                      "
 msgstr[1] ""
 "\n"
-"                            ...en <b>%(count)s</b> Anonieme leden.\n"
-"                          "
+"                        ...en <b>%(count)s</b> Anonieme leden.\n"
+"                      "
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:5
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Add credit for %(person)s.\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            Create manual payment for %(participation)s\n"
 "        "
 msgstr ""
 "\n"
-"Tentamenkoekentegoed toevoegen voor %(person)s"
+"            Handmatige betaling aanmaken voor %(participation)s\n"
+"        "
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:10
 #: amelie/members/templates/person_membership_create_payment.html:10
-#, fuzzy
-#| msgid "You are on the waiting list for this event with the following options:"
 msgid "You are creating a manual payment that will cover the following transactions:"
-msgstr "Je hebt je ingeschreven voor deze activiteit op de wachtlijst met de volgende inschrijfopties:"
+msgstr "Je maakt een handmatige betaling aan voor de volgende transacties:"
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:16
 #: amelie/activities/templates/includes/activity_participation_payments.html:35
@@ -3424,65 +3292,54 @@ msgstr "Omschrijving"
 #: amelie/activities/templates/includes/activity_participation_payments.html:48
 #: amelie/members/templates/person_membership_create_payment.html:28
 #: amelie/members/templates/person_membership_payments.html:48
-#, fuzzy
-#| msgid "Print membership forms (opens in new tab)"
 msgid "Transaction details (opens in new tab)"
-msgstr "Lidmaatschapsformulieren printen (opent in nieuwe tab)"
+msgstr "Transactiedetails (opent nieuw tabblad)"
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:39
 #: amelie/members/templates/person_membership_create_payment.html:39
 msgid "No transactions found. This is probably wrong! Please contact the WWW."
-msgstr ""
+msgstr "Geen transacties gevonden. Dit klopt waarschijnlijk niet! Neem contact op met de WWW."
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:52
 #: amelie/members/templates/person_membership_create_payment.html:52
 msgid "Please select the payment method that was used for the payment."
-msgstr ""
+msgstr "Selecteer de betaalmethode die gebruikt is voor de betaling."
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:63
 #: amelie/members/templates/person_membership_create_payment.html:63
-#, fuzzy
-#| msgid "Create page"
 msgid "Create payment"
-msgstr "Pagina aanmaken"
+msgstr "Betaling toevoegen"
 
 #: amelie/activities/templates/includes/activity_participation_payments.html:8
 #: amelie/members/templates/person_membership_payments.html:8
 msgid "Payment created. Please check the transactions below for correctness."
-msgstr ""
+msgstr "Betaling aangemaakt. Controleer onderstaande transacties op juistheid."
 
 #: amelie/activities/templates/includes/activity_participation_payments.html:14
 #: amelie/members/templates/person_membership_payments.html:14
-#, fuzzy
-#| msgid "Invalid action. Please try again."
 msgid "No unpaid transactions found. Please re-check and try again."
-msgstr "Ongeldige actie. Probeer het opnieuw."
+msgstr "Geen onbetaalde transacties gevonden. Controleer en probeer het opnieuw."
 
 #: amelie/activities/templates/includes/activity_participation_payments.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Add credit for %(person)s.\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            Payments for %(participation)s\n"
 "        "
 msgstr ""
 "\n"
-"Tentamenkoekentegoed toevoegen voor %(person)s"
+"            Betalingen voor %(participation)s\n"
+"        "
 
 #: amelie/activities/templates/includes/activity_participation_payments.html:38
 #: amelie/members/templates/person_membership_payments.html:38
 #: amelie/personal_tab/templates/info/transaction_information.html:19
-#, fuzzy
-#| msgid "Stay logged in"
 msgid "Settled in"
-msgstr "Blijf ingelogd"
+msgstr "Afgehandeld in"
 
 #: amelie/activities/templates/includes/activity_participation_payments.html:62
 msgid "No transactions found. If this is a paid activity, this is probably wrong! Please contact the WWW."
-msgstr ""
+msgstr "Geen transacties gevonden! Als dit een betaalde activiteit is dan klopt dit waarschijnlijk niet! Neem dan contact op met de WWW."
 
 #: amelie/activities/templates/includes/activity_participation_payments.html:70
 #: amelie/members/templates/person_mandate_retrieve_signed.html:18
@@ -3653,38 +3510,31 @@ msgid "We were unable to cancel {obj}, since it has already started."
 msgstr "Het annuleren van {obj} is niet meer mogelijk, omdat deze al is begonnen."
 
 #: amelie/activities/views.py:387
-#, fuzzy
-#| msgid "You are not allowed to edit this activity"
 msgid "You are not allowed to access this activity page for other people."
-msgstr "Je mag deze activiteit niet bewerken"
+msgstr "Je hebt geen toegang tot deze activiteitenpagina voor andere personen."
 
 #: amelie/activities/views.py:390
 msgid "Not implemented on base enrollment view."
-msgstr ""
+msgstr "Niet geimplementeerd voor de basis inschrijvingsview."
 
 #: amelie/activities/views.py:452
-#, fuzzy
-#| msgid "You are not allowed to edit this activity"
 msgid "You are not allowed to enroll other people for this activity."
-msgstr "Je mag deze activiteit niet bewerken"
+msgstr "Je hebt geen toegang om andere personen in te schrijven voor deze activiteit."
 
 #: amelie/activities/views.py:493 amelie/activities/views.py:690
-#, fuzzy, python-brace-format
-#| msgid "{person} is now enrolled for {waiting_list} {activity}."
+#, python-brace-format
 msgid "{person} is now enrolled for the waitinglist of {activity}."
-msgstr "{person} is nu ingeschreven voor {waiting_list} {activity}."
+msgstr "{person} is nu ingeschreven voor de wachtlijst van {activity}."
 
 #: amelie/activities/views.py:495 amelie/activities/views.py:692
-#, fuzzy, python-brace-format
-#| msgid "{person} is now unenrolled for {activity}."
+#, python-brace-format
 msgid "{person} is now enrolled for {activity}."
-msgstr "{person} is nu uitgeschreven voor {activity}."
+msgstr "{person} is nu ingeschreven voor {activity}."
 
 #: amelie/activities/views.py:499 amelie/activities/views.py:696
-#, fuzzy, python-brace-format
-#| msgid "You are now enrolled for {waiting_list} {activity}."
+#, python-brace-format
 msgid "You are now enrolled for the waitinglist of {activity}."
-msgstr "Je bent nu ingeschreven voor {waiting_list} {activity}."
+msgstr "Je bent nu ingeschreven op de wachtlijst voor {activity}."
 
 #: amelie/activities/views.py:501 amelie/activities/views.py:698
 #, python-brace-format
@@ -3693,13 +3543,11 @@ msgstr "Je bent nu ingeschreven voor {activity}."
 
 #: amelie/activities/views.py:562 amelie/activities/views.py:731
 msgid "Your changes would make the costs of your participation negative! Unfortunately that's not allowed, so the change was blocked. Please contact the board or the organizing committee if you think this is a mistake."
-msgstr ""
+msgstr "Je wijzigingen zouden de kosten van je inschrijving negatief maken! Helaas is dat niet toegestaan, dus de wijziging is geblokkeerd. Neem a.u.b. contact op met het bestuur of de organiserende commissie als je denkt dat dit een fout is."
 
 #: amelie/activities/views.py:598
-#, fuzzy
-#| msgid "You are not allowed to edit this activity"
 msgid "You are not allowed to unenroll other people for this activity."
-msgstr "Je mag deze activiteit niet bewerken"
+msgstr "Je hebt geen toegang om andere personen uit te schrijven voor deze activiteit."
 
 #: amelie/activities/views.py:620
 #, python-brace-format
@@ -3717,14 +3565,12 @@ msgid "{person} has been promoted from the waiting list for {activity}."
 msgstr "{person} is gepromoveerd van de wachtlijst naar bevestigde deelname voor {activity}."
 
 #: amelie/activities/views.py:651
-#, fuzzy
-#| msgid "You are not allowed to edit this activity"
 msgid "You are not allowed to edit enrollments of other people for this activity."
-msgstr "Je mag deze activiteit niet bewerken"
+msgstr "Je hebt geen toegang om inschrijvingen van andere personen aan te passen voor deze activiteit."
 
 #: amelie/activities/views.py:710
 msgid "Participation not found while editing enrollment."
-msgstr ""
+msgstr "Deelname niet gevonden tijdens aanpassen van inschrijving."
 
 #: amelie/activities/views.py:757 amelie/activities/views.py:1045
 msgid "No photo"
@@ -3765,7 +3611,7 @@ msgstr "Je hebt geen Nederlandse samenvatting/omschrijving ingevuld."
 
 #: amelie/activities/views.py:1194
 msgid "Editing the activity price to this value would make the minimum possible price for this activity negative! This is not allowed. Please modify the pricing and limits of the activity or the enrollment options first."
-msgstr ""
+msgstr "Het aanpassen van de prijs van de activiteit zou ervoor zorgen dat de minimaal mogelijke prijs van deze activiteit negatief wordt! Dit is niet toegestaan. Pas a.u.b. eerst de prijs of limieten van de activiteit of de inschrijfopties aan."
 
 #: amelie/activities/views.py:1207
 msgid "start date was changed"
@@ -3782,7 +3628,7 @@ msgstr "Activiteit '{activity}' is aangepast (terugboeken van oude transactie) (
 
 #: amelie/activities/views.py:1238
 msgid "Editing the activity in this way would make the costs of (at least) one of the current enrollments negative! This is not allowed. Please unenroll the affected people, or modify the pricing and limits of the activity or the enrollment options first."
-msgstr ""
+msgstr "Het aanpassen van de activiteit op deze manier zou ervoor zorgen dat de kosten van (ten minste) een van de huidige inschrijvingen van deze activiteit negatief wordt! Dit is niet toegestaan. Schrijf de betrokken mensen eerst uit, of pas eerst de prijs of limieten van de activiteit of de inschrijfopties aan."
 
 #: amelie/activities/views.py:1243
 #, python-brace-format
@@ -3791,7 +3637,7 @@ msgstr "Activiteit '{activity}' is aangepast (toevoegen van nieuwe transactie) (
 
 #: amelie/activities/views.py:1318
 msgid "Adding this option would make the minimum possible price for this activity negative! This is not allowed. Please modify the pricing or limits of this or other enrollment options first."
-msgstr ""
+msgstr "Het toevoegen van deze optie zou ervoor zorgen dat de minimaal mogelijke prijs van deze activiteit negatief wordt! Dit is niet toegestaan. Pas a.u.b. eerst de prijs of limieten van deze of andere inschrijfopties aan."
 
 #: amelie/activities/views.py:1332 amelie/activities/views.py:1342
 msgid "This activity already has enrollments, therefore options can no longer be added!"
@@ -3799,7 +3645,7 @@ msgstr "Deze activiteit heeft inschrijvingen, er kunnen geen opties toegevoegd w
 
 #: amelie/activities/views.py:1374
 msgid "Editing this option in this way would make the minimum possible price for this activity negative! This is not allowed. Please modify the pricing or limits of this or other enrollment options first."
-msgstr ""
+msgstr "Het aanpassen van deze optie op deze manier zou ervoor zorgen dat de minimaal mogelijke prijs van deze activiteit negatief wordt! Dit is niet toegestaan. Pas a.u.b. eerst de prijs of limieten van deze of andere inschrijfopties aan."
 
 #: amelie/activities/views.py:1384
 msgid "enrollment option price was changed"
@@ -3812,7 +3658,7 @@ msgstr "Een inschrijfoptie voor activiteit '{activity}' is aangepast (terugboeke
 
 #: amelie/activities/views.py:1409
 msgid "Editing this option in this way would make the costs of (at least) one of the current enrollments negative! This is not allowed. Please unenroll the affected people, or modify the pricing or limits of this or other enrollment options first."
-msgstr ""
+msgstr "Het aanpassen van deze optie op deze manier zou ervoor zorgen dat de kosten van (ten minste) een van de huidige inschrijvingen van deze activiteit negatief wordt! Dit is niet toegestaan. Schrijf de betrokken mensen eerst uit, of pas eerst de prijs of limieten van deze of andere inschrijfopties aan."
 
 #: amelie/activities/views.py:1414
 #, python-brace-format
@@ -4035,12 +3881,12 @@ msgstr "Een korte beschrijving van deze activiteit (altijd in het Engels)."
 #: amelie/calendar/migrations/0009_remove_participation_cash_payment_made_and_more.py:170
 #, python-brace-format
 msgid "Manual payment required for enrollment to {event} on {date} (migrated)"
-msgstr ""
+msgstr "Handmatige betaling vereist voor inschrijving voor {event} op {date} (gemigreerd)"
 
 #: amelie/calendar/migrations/0009_remove_participation_cash_payment_made_and_more.py:190
 #, python-brace-format
 msgid "Manual payment for enrollment to {event} on {date} (migrated)"
-msgstr ""
+msgstr "Handmatige betaling voor inschrijving voor {event} op {date} (gemigreerd)"
 
 #: amelie/calendar/models.py:30 amelie/data_export/models.py:31
 #: amelie/education/models.py:289 amelie/members/forms.py:378
@@ -4111,7 +3957,7 @@ msgstr "verwijderde activiteit"
 #: amelie/calendar/models.py:136
 #, python-brace-format
 msgid "Payment for enrollment to {event} on {date}"
-msgstr ""
+msgstr "Betaling voor inschrijving voor {event} op {date}"
 
 #: amelie/calendar/models.py:170 amelie/education/models.py:134
 #: amelie/room_duty/models.py:40 amelie/room_duty/models.py:109
@@ -7437,10 +7283,9 @@ msgstr ""
 "en %(error_count)s niet geaccepteerd."
 
 #: amelie/members/ajax_views.py:220
-#, fuzzy, python-brace-format
-#| msgid "Contribution {membership_type} ({begin_year}/{end_year})"
+#, python-brace-format
 msgid "Early termination of membership {membership_type} ({begin_year}/{end_year})"
-msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
+msgstr "Voortijdige beëindiging van lidmaatschap {membership_type} ({begin_year}/{end_year})"
 
 #: amelie/members/forms.py:36 amelie/members/models.py:324
 #: amelie/members/models.py:1401
@@ -7704,7 +7549,7 @@ msgstr "Kon BIC niet automatisch bepalen, vul deze alsjeblieft zelf in."
 
 #: amelie/members/forms.py:687 amelie/members/forms.py:720
 msgid "The bank associated with your BIC does not accept SEPA Direct Debits."
-msgstr ""
+msgstr "De bank die bij de ingevulde BIC hoort accepteert geen SEPA-incasso's."
 
 #: amelie/members/forms.py:690
 msgid "The BIC country does not match the IBAN country."
@@ -7745,22 +7590,19 @@ msgid "Contribution {membership_type} ({begin_year}/{end_year})"
 msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
 
 #: amelie/members/migrations/0024_delete_payment_delete_paymenttype.py:202
-#, fuzzy, python-brace-format
-#| msgid "Contribution {membership_type} ({begin_year}/{end_year})"
+#, python-brace-format
 msgid "Internal settlement for reversed contribution {membership_type} ({begin_year}/{end_year}) (migrated)"
-msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
+msgstr "Interne verrekening voor teruggeboekte contributie {membership_type} ({begin_year}/{end_year}) (gemigreerd)"
 
 #: amelie/members/migrations/0024_delete_payment_delete_paymenttype.py:234
-#, fuzzy, python-brace-format
-#| msgid "Contribution {membership_type} ({begin_year}/{end_year})"
+#, python-brace-format
 msgid "Manual payment for contribution {membership_type} ({begin_year}/{end_year}) (migrated)"
-msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
+msgstr "Handmatige betaling voor contributie {membership_type} ({begin_year}/{end_year}) (gemigreerd)"
 
 #: amelie/members/migrations/0024_delete_payment_delete_paymenttype.py:266
-#, fuzzy, python-brace-format
-#| msgid "Contribution {membership_type} ({begin_year}/{end_year})"
+#, python-brace-format
 msgid "Pre-SEPA payment for contribution {membership_type} ({begin_year}/{end_year}) (migrated)"
-msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
+msgstr "Pre-SEPA-betaling voor contributie {membership_type} ({begin_year}/{end_year}) (gemigreerd)"
 
 #: amelie/members/models.py:47 amelie/members/models.py:68
 #: amelie/members/models.py:93 amelie/members/models.py:1197
@@ -8147,10 +7989,8 @@ msgid "people"
 msgstr "personen"
 
 #: amelie/members/models.py:628
-#, fuzzy
-#| msgid "Add transaction"
 msgid "Invalid transaction type"
-msgstr "Transactie toevoegen"
+msgstr "Ongeldige transactiesoort"
 
 #: amelie/members/models.py:750
 msgid "Your email address is not to point to an Inter-Actief server. If you have a Google Apps account please use firstname.lastname@gapps.inter-actief.nl as an alternative."
@@ -8259,10 +8099,9 @@ msgid "memberships"
 msgstr "lidmaatschappen"
 
 #: amelie/members/models.py:1100
-#, fuzzy, python-brace-format
-#| msgid "Contribution {membership_type} ({begin_year}/{end_year})"
+#, python-brace-format
 msgid "Payment for contribution {membership_type} ({begin_year}/{end_year})"
-msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
+msgstr "Betaling voor contributie {membership_type} ({begin_year}/{end_year})"
 
 #: amelie/members/models.py:1153 amelie/members/models.py:1589
 #: amelie/personal_tab/models.py:672
@@ -9146,10 +8985,8 @@ msgid "Your IBAN bank account number. For example \"<b>NL18ABNA0484869868</b>\".
 msgstr "Je IBAN-bankrekeningnummer. Bijvoorbeeld \"<b>NL18ABNA0484869868</b>\"."
 
 #: amelie/members/templates/includes/registration/authorizations.html:71
-#, fuzzy
-#| msgid "Your BIC-code. <b>Not required for Dutch bank accounts</b>. For example \"<b>ABNANL2A</b>\". Find your BIC by <a href=\"https://www.ibancalculator.com/blz.html\" target=\"_blank\">clicking here</a> (opens in new tab)."
 msgid "Your BIC-code. <b>Not required for Dutch bank accounts</b>. For example \"<b>ABNANL2A</b>\". Find your BIC by <a href=\"https://www.ibancalculator.com/iban_validieren.html\" target=\"_blank\">clicking here</a> (opens in new tab)."
-msgstr "Je BIC-code. <b>Niet vereist voor Nederlandse rekeningnummers</b>. Bijvoorbeeld \"<b>ABNANL2A</b>\". Vind je BIC door <a href=\"https://www.ibancalculator.com/blz.html\" target=\"_blank\">hier te klikken</a> (opent in nieuwe tab)."
+msgstr "Je BIC-code. <b>Niet vereist voor Nederlandse rekeningnummers</b>. Bijvoorbeeld \"<b>ABNANL2A</b>\". Vind je BIC door <a href=\"https://www.ibancalculator.com/iban_validieren.html\" target=\"_blank\">hier te klikken</a> (opent nieuw tabblad)."
 
 #: amelie/members/templates/includes/registration/contact_member.html:6
 msgid "Where can we reach you?"
@@ -10142,7 +9979,7 @@ msgstr "Terug naar deze persoon."
 
 #: amelie/members/templates/person_confirm_mandate.html:3
 msgid "Confirm BIC for mandate"
-msgstr ""
+msgstr "Bevestig BIC voor machtiging"
 
 #: amelie/members/templates/person_confirm_mandate.html:12
 #, python-format
@@ -10152,6 +9989,10 @@ msgid ""
 "            Are you sure you want to add a mandate with the following IBAN: <b>%(iban)s</b> and BIC: <b>%(bic)s</b>?\n"
 "        "
 msgstr ""
+"\n"
+"            De BIC van deze machtiging staat op de lijst van bij ons bekende BICs van banken die geen SEPA Incasso's ondersteunen.\n"
+"Weet je zeker dat je een machtiging met het volgende IBAN: <b>%(iban)s</b> en BIC: <b>%(bic)s</b> wilt toevoegen?\n"
+"        "
 
 #: amelie/members/templates/person_confirm_mandate.html:17
 msgid ""
@@ -10159,6 +10000,9 @@ msgid ""
 "            <b>Only do this if you are sure that this bank accepts SEPA Direct Debits.</b>\n"
 "        "
 msgstr ""
+"\n"
+"            <b>Doe dit alleen als je zeker weet dat deze bank SEPA Direct Debits ondersteunt.</b>\n"
+"        "
 
 #: amelie/members/templates/person_confirm_mandate.html:26
 #: amelie/personal_tab/templates/unpaid_memberships/forgive.html:57
@@ -10613,7 +10457,7 @@ msgstr "Collegejaar"
 
 #: amelie/members/templates/person_membership.html:47
 msgid "Paid?"
-msgstr ""
+msgstr "Betaald?"
 
 #: amelie/members/templates/person_membership.html:63
 #, python-format
@@ -10622,11 +10466,11 @@ msgstr "Beëindigd per %(ended)s"
 
 #: amelie/members/templates/person_membership.html:72
 msgid "N/A"
-msgstr ""
+msgstr "n.v.t."
 
 #: amelie/members/templates/person_membership.html:75
 msgid "For some reason this free membership has payments! This should not happen."
-msgstr ""
+msgstr "Om de een of andere reden heeft dit gratis lidmaatschap betalingen! Dit zou niet mogen gebeuren."
 
 #: amelie/members/templates/person_membership.html:143
 msgid "Download PDF form"
@@ -10649,38 +10493,30 @@ msgid "Terminate membership"
 msgstr "Einde lidmaatschap"
 
 #: amelie/members/templates/person_membership_create_payment.html:5
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Do you want to add %(member)s to %(group)s?\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            Create manual payment for %(membership)s of %(person)s\n"
 "        "
 msgstr ""
 "\n"
-"                Wil je %(member)s toevoegen aan %(group)s?\n"
-"            "
+"            Handmatige betaling aanmaken voor %(membership)s van %(person)s\n"
+"        "
 
 #: amelie/members/templates/person_membership_payments.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Do you want to remove %(member)s from %(group)s?\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "            Payments for %(membership)s %(year_1)s/%(year_2)s\n"
 "        "
 msgstr ""
 "\n"
-"                Wil je %(member)s verwijderen uit %(group)s?\n"
-"            "
+"            Betalingen voor %(membership)s %(year_1)s/%(year_2)s\n"
+"        "
 
 #: amelie/members/templates/person_membership_payments.html:62
 msgid "No transactions found. If this is a paid membership, this is probably wrong! Please contact the WWW."
-msgstr ""
+msgstr "Geen transacties gevonden. Als dit een betaald lidmaatschap is dan klopt dit waarschijnlijk niet! Neem dan contact op met de WWW."
 
 #: amelie/members/templates/person_membership_retrieve_signed.html:6
 msgid "The following document was successfully retrieved from Documenso and saved to the membership:"
@@ -10963,19 +10799,15 @@ msgid "If the member has signed their membership and authorization forms, the me
 msgstr "Als het lid hun lidmaatschaps- en machtigingsformulieren heeft ondertekend, dan zal het lidmaatschap en de eventuele machtigingen automatisch worden geactiveerd, en zal het lid verdwijnen uit deze lijst."
 
 #: amelie/members/templates/preregistration_status.html:30
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            With this form, you can edit the amendment to the <a href=\"%(url)s\">%(authorization)s</a> authorization.\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                        To view already activated memberships from this academic year, check the current <a href=\"%(url)s\">enrollment status</a> instead.\n"
 "                    "
 msgstr ""
 "\n"
-"                            Met dit formulier kun je een amendement aanpassen voor machtiging <a href=\"%(url)s\">%(authorization)s</a>.\n"
-"                        "
+"                        Om lidmaatschappen uit dit academisch jaar te bekijken die al geactiveerd zijn, bekijk je de huidige <a href=\"%(url)s\">inschrijvingsstatus</a>.\n"
+"                    "
 
 #: amelie/members/templates/preregistration_status.html:35
 msgid "You can (re-)print the forms for that member by clicking the \"Print\" (<i class=\"icon icon-printer\"></i>) button."
@@ -11008,7 +10840,7 @@ msgstr "%(len)s inschrijving(en)"
 
 #: amelie/members/templates/preregistration_status.html:81
 msgid "Print membership forms (opens in new tab)"
-msgstr "Lidmaatschapsformulieren printen (opent in nieuwe tab)"
+msgstr "Lidmaatschapsformulieren printen (opent nieuw tabblad)"
 
 #: amelie/members/templates/preregistration_status.html:88
 msgid "A signature request for this membership is in progress. Click to open the request in Documenso"
@@ -11032,10 +10864,8 @@ msgid "No pre-enrollments"
 msgstr "Geen voorinschrijvingen"
 
 #: amelie/members/templates/preregistration_status.html:114
-#, fuzzy
-#| msgid "There are currently no pre-enrollments."
 msgid "There are currently no pending pre-enrollments."
-msgstr "Er zijn momenteel geen voorinschrijvingen."
+msgstr "Er zijn momenteel geen openstaande voorinschrijvingen."
 
 #: amelie/members/templates/query.html:5 amelie/members/templates/query.html:63
 msgid "Search for members"
@@ -11110,47 +10940,36 @@ msgstr "Er zijn geen rfid-kaarten geregistreerd."
 
 #: amelie/members/templates/registration_status.html:5
 #: amelie/members/templates/registration_status.html:11
-#, fuzzy
-#| msgid "enrollment start"
 msgid "Enrollment status"
-msgstr "inschrijving start"
+msgstr "inschrijvingsstatus"
 
 #: amelie/members/templates/registration_status.html:14
 msgid "These are the new members this association year, per do-group. These memberships are already activated."
-msgstr ""
+msgstr "Dit zijn de nieuwe leden in dit verenigingsjaar, per doegroep. Deze lidmaatschappen zijn al geactiveerd."
 
 #: amelie/members/templates/registration_status.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        For this activity, there are %(places)s places left.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                        To view unactivated memberships, check the current <a href=\"%(url)s\">pre-enrollment status</a> instead.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Voor deze activiteit zijn er nog %(places)s plaatsen beschikbaar.\n"
+"                        Om lidmaatschappen te bekijken die nog niet zijn geactiveerd, bekijk je de huidige <a href=\"%(url)s\">voorinschrijvingsstatus</a>.\n"
 "                    "
 
 #: amelie/members/templates/registration_status.html:31
-#, fuzzy, python-format
-#| msgid "%(len)s enrollment(s)"
+#, python-format
 msgid "%(len)s member(s)"
-msgstr "%(len)s inschrijving(en)"
+msgstr "%(len)s lid/leden"
 
 #: amelie/members/templates/registration_status.html:50
-#, fuzzy
-#| msgid "No pre-enrollments"
 msgid "No enrollments"
-msgstr "Geen voorinschrijvingen"
+msgstr "Geen inschrijvingen"
 
 #: amelie/members/templates/registration_status.html:53
-#, fuzzy
-#| msgid "There is no enrollment start date entered."
 msgid "There have not been any enrollments this year yet."
-msgstr "Er is geen inschrijfstartdatum opgegeven."
+msgstr "Er zijn nog geen inschrijvingen geweest in dit jaar."
 
 #: amelie/members/templates/statistics/overview.html:5
 msgid "Member statistics"
@@ -11684,20 +11503,16 @@ msgid "Short description of the reason for the amendment"
 msgstr "Korte omschrijving reden van amendement"
 
 #: amelie/personal_tab/forms.py:131
-#, fuzzy
-#| msgid "Payment"
 msgid "Payment date"
-msgstr "Betaling"
+msgstr "Betaaldatum"
 
 #: amelie/personal_tab/forms.py:134
-#, fuzzy
-#| msgid "amount"
 msgid "Paid amount"
-msgstr "bedrag"
+msgstr "Betaald bedrag"
 
 #: amelie/personal_tab/forms.py:135
 msgid "The amount that was paid in this settlement. Can be different from the amount that needs to be paid, can even be negative (if money was paid out by the association). Useful if, say, the transactions add up to 9 euro, you can enter a payment of 10 euro, which leaves 1 euro extra as balance on the person's personal tab."
-msgstr ""
+msgstr "Het bedrag dat is betaald in deze schikking. Kan anders zijn dan het te betalen bedrag, kan zelfs negatief zijn (als de vereniging geld heeft betaald). Handig als, zeg, de transacties totaal 9 euro zijn, kan je een betaling van 10 euro invoeren zodat er 1 euro extra saldo op de streeplijst van de persoon terecht komt."
 
 #: amelie/personal_tab/forms.py:166
 msgid "Not signed"
@@ -11837,20 +11652,20 @@ msgid "Select documents to attach to the declaration."
 msgstr "Selecteer documenten om toe te voegen aan de declaratie."
 
 #: amelie/personal_tab/forms.py:485
-#, fuzzy
-#| msgid "Is Inter-Actief"
 msgid "Inter-Actief"
-msgstr "Is Inter-Actief"
+msgstr "Inter-Actief"
 
 #: amelie/personal_tab/forms.py:487
 msgid "Bookkeeping"
-msgstr ""
+msgstr "Boekhouding"
 
 #: amelie/personal_tab/forms.py:488
 msgid ""
 "Select the bookkeeping where the declaration should be sent.\n"
 "If you do not know what this means, do not change it."
 msgstr ""
+"Kies de boekhouding waar de declaratie naartoe gestuurd moet worden.\n"
+"Als je niet weet wat dit betekent, verander het dan niet."
 
 #: amelie/personal_tab/forms.py:505
 msgid "-- Other --"
@@ -11889,7 +11704,7 @@ msgstr "Vul een omschrijving in voor je declaratie."
 #: amelie/personal_tab/migrations/0015_personaltabsettlement_and_more.py:175
 #, python-brace-format
 msgid "Settlement for transactions handled before SEPA debits were introduced - {person_name}"
-msgstr ""
+msgstr "Schikking voor transacties afgehandeld voor introductie SEPA-machtigingen - {person_name}"
 
 #: amelie/personal_tab/models.py:34 amelie/personal_tab/models.py:752
 msgid "begin"
@@ -11959,17 +11774,15 @@ msgstr "toegevoegd door"
 
 #: amelie/personal_tab/models.py:109
 msgid "Discount balance"
-msgstr "Kortingstegoeden"
+msgstr "Kortingstegoed"
 
 #: amelie/personal_tab/models.py:110
 msgid "discount balances"
 msgstr "kortingstegoeden"
 
 #: amelie/personal_tab/models.py:142
-#, fuzzy
-#| msgid "pre-settlement"
 msgid "Settlement"
-msgstr "pre-settlement"
+msgstr "Schikking"
 
 #: amelie/personal_tab/models.py:152
 #: amelie/personal_tab/templates/print/refund.html:48
@@ -11992,58 +11805,40 @@ msgid "Transactions"
 msgstr "Transacties"
 
 #: amelie/personal_tab/models.py:164 amelie/personal_tab/views.py:1008
-#, fuzzy
-#| msgid "No activity transactions."
 msgid "Activity Transaction"
-msgstr "Geen activiteittransacties."
+msgstr "Activiteittransactie"
 
 #: amelie/personal_tab/models.py:166 amelie/personal_tab/views.py:1009
-#, fuzzy
-#| msgid "Alexia transactions"
 msgid "Alexia Transaction"
-msgstr "Alexiatransacties"
+msgstr "Alexiatransactie"
 
 #: amelie/personal_tab/models.py:168 amelie/personal_tab/views.py:1010
-#, fuzzy
-#| msgid "Contribution transactions"
 msgid "Contribution Transaction"
-msgstr "Contributietransacties"
+msgstr "Contributietransactie"
 
 #: amelie/personal_tab/models.py:170 amelie/personal_tab/views.py:1007
-#, fuzzy
-#| msgid "Cookie Corner Login"
 msgid "Cookie Corner Transaction"
-msgstr "Cookie Corner Login"
+msgstr "Cookie Corner transactie"
 
 #: amelie/personal_tab/models.py:172 amelie/personal_tab/views.py:1011
-#, fuzzy
-#| msgid "Custom transactions"
 msgid "Custom Transaction"
-msgstr "Overige transacties"
+msgstr "Overige transactie"
 
 #: amelie/personal_tab/models.py:174 amelie/personal_tab/views.py:1015
-#, fuzzy
-#| msgid "Delete transaction"
 msgid "Debt Collection Transaction"
-msgstr "Verwijder transactie"
+msgstr "Incassotransactie"
 
 #: amelie/personal_tab/models.py:176 amelie/personal_tab/views.py:1016
-#, fuzzy
-#| msgid "Transaction"
 msgid "Reversal Transaction"
-msgstr "Transactie"
+msgstr "Terugboekingstransactie"
 
 #: amelie/personal_tab/models.py:178 amelie/personal_tab/views.py:1018
-#, fuzzy
-#| msgid "Balance transaction"
 msgid "Extra Balance Transaction"
-msgstr "Tegoedtransacties"
+msgstr "Extra saldotransactie"
 
 #: amelie/personal_tab/models.py:180 amelie/personal_tab/views.py:1017
-#, fuzzy
-#| msgid "Balance transaction"
 msgid "Manual Payment Transaction"
-msgstr "Tegoedtransacties"
+msgstr "Handmatige betalingstransactie"
 
 #: amelie/personal_tab/models.py:228
 #: amelie/personal_tab/templates/lists/activity_transactions.html:14
@@ -12337,16 +12132,12 @@ msgid "direct withdrawal-batches"
 msgstr "incasso-batches"
 
 #: amelie/personal_tab/models.py:892
-#, fuzzy
-#| msgid "Personal tab statistics"
 msgid "personal tab settlement"
-msgstr "Streeplijststatistieken"
+msgstr "Streeplijstschikking"
 
 #: amelie/personal_tab/models.py:893
-#, fuzzy
-#| msgid "Personal tab statistics"
 msgid "personal tab settlements"
-msgstr "Streeplijststatistieken"
+msgstr "Streeplijstschikkingen"
 
 #: amelie/personal_tab/models.py:911
 msgid "batch"
@@ -12369,130 +12160,106 @@ msgid "direct withdrawal-instructions"
 msgstr "incasso-instructies"
 
 #: amelie/personal_tab/models.py:956
-#, fuzzy
-#| msgid "Name (en)"
 msgid "Name (NL)"
-msgstr "Naam (en)"
+msgstr "Naam (NL)"
 
 #: amelie/personal_tab/models.py:957
-#, fuzzy
-#| msgid "Name (en)"
 msgid "Name (EN)"
-msgstr "Naam (en)"
+msgstr "Naam (EN)"
 
 #: amelie/personal_tab/models.py:958
-#, fuzzy
-#| msgid "Description (en)"
 msgid "Description (NL)"
-msgstr "Omschrijving (en)"
+msgstr "Omschrijving (NL)"
 
 #: amelie/personal_tab/models.py:959
-#, fuzzy
-#| msgid "Description (en)"
 msgid "Description (EN)"
-msgstr "Omschrijving (en)"
+msgstr "Omschrijving (EN)"
 
 #: amelie/personal_tab/models.py:960
 msgid "This payment method will be visible when creating a manual payment directly in someone's personal tab."
-msgstr ""
+msgstr "Deze betaalmethode zal zichtbaar zijn tijdens het maken van een handmatige betaling direct in iemand's streeplijst."
 
 #: amelie/personal_tab/models.py:961
-#, fuzzy
-#| msgid "No membership"
 msgid "Visible for memberships"
-msgstr "Geen lidmaatschap"
+msgstr "Zichtbaar voor lidmaatschappen"
 
 #: amelie/personal_tab/models.py:961
 msgid "This payment method will be visible when privileged members enter a manual payment for a membership."
-msgstr ""
+msgstr "Deze betaalmethode zal zichtbaar zijn als bevoegde leden een handmatige betaling voor een lidmaatschap invoeren."
 
 #: amelie/personal_tab/models.py:962
-#, fuzzy
-#| msgid "iCal all activities"
 msgid "Visible for activities"
-msgstr "iCal alle activiteiten"
+msgstr "Zichtbaar voor activiteiten"
 
 #: amelie/personal_tab/models.py:962
 msgid "This payment method will be visible when privileged members enter a manual payment for an activity."
-msgstr ""
+msgstr "Deze betaalmethode zal zichtbaar zijn als bevoegde leden een handmatige betaling voor een activiteit invoeren."
 
 #: amelie/personal_tab/models.py:963
 msgid "Icon name for frontend"
-msgstr ""
+msgstr "Naam van icoon voor de frontend"
 
 #: amelie/personal_tab/models.py:967
-#, fuzzy
-#| msgid "Payment Method"
 msgid "payment method"
-msgstr "Betalingsmethode"
+msgstr "betaalmethode"
 
 #: amelie/personal_tab/models.py:968
-#, fuzzy
-#| msgid "Payment Method"
 msgid "payment methods"
-msgstr "Betalingsmethode"
+msgstr "betaalmethodes"
 
 #: amelie/personal_tab/models.py:995
 msgid "Frontend Icon"
-msgstr ""
+msgstr "Icoon in frontend"
 
 #: amelie/personal_tab/models.py:1037
-#, fuzzy
-#| msgid "payment"
 msgid "payment date"
-msgstr "betaling"
+msgstr "betaaldatum"
 
 #: amelie/personal_tab/models.py:1046
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:58
-#, fuzzy
-#| msgid "Created on"
 msgid "Created by"
-msgstr "Aangemaakt op"
+msgstr "Aangemaakt door"
 
 #: amelie/personal_tab/models.py:1057
-#, fuzzy
-#| msgid "pre-settlement"
 msgid "manual payment settlement"
-msgstr "pre-settlement"
+msgstr "schikking voor handmatige betaling"
 
 #: amelie/personal_tab/models.py:1058
-#, fuzzy
-#| msgid "pre-settlement"
 msgid "manual payment settlements"
-msgstr "pre-settlement"
+msgstr "schikkingen voor handmatige betaling"
 
 #: amelie/personal_tab/models.py:1092
 msgid "Manual settlements can only be deleted in the same association year as they were paid in."
-msgstr ""
+msgstr "Handmatige schikkingen kunnen alleen worden verwijderd in hetzelfde verenigingsjaar waarin ze zijn betaald."
 
 #: amelie/personal_tab/models.py:1107
 msgid "The extra balance that was created in this settlement was already used elsewhere."
-msgstr ""
+msgstr "Het extra saldo dat in deze schikking is aangemaakt is al ergens anders voor gebruikt."
 
 #: amelie/personal_tab/models.py:1112
 #, python-brace-format
 msgid "The total sum of the transactions ({transactions_sum}) does not inversely equal the linked manual payment's amount ({manual_amount})."
-msgstr ""
+msgstr "De totaalsom van de transacties ({transactions_sum}) is niet omgekeerd hetzelfde als het bedrag van de gekoppelde handmatige betaling ({manual_amount})."
 
 #: amelie/personal_tab/models.py:1117
 #, python-brace-format
 msgid "The settlement's amount ({settlement_amount}) does not inversely equal the manual payment's amount and the extra balance ({manual_amount} + {extra_balance} = {total})."
-msgstr ""
+msgstr "Het bedrag van de schikking ({settlement_amount}) is niet omgekeerd hetzelfde als het bedrag van de handmatige betaling en het extra saldo ({manual_amount} + {extra_balance} = {total})."
 
 #: amelie/personal_tab/models.py:1170
 #, python-brace-format
 msgid "Deposit to personal tab balance on {date} for {name}"
-msgstr ""
+msgstr "Bijschrijving op streeplijstsaldo op {date} voor {name}"
 
 #: amelie/personal_tab/models.py:1174
 #, python-brace-format
 msgid "Refund of personal tab balance on {date} for {name}"
-msgstr ""
+msgstr "Terugbetaling van streeplijstsaldo op {date} voor {name}"
 
 #: amelie/personal_tab/models.py:1178
 #, python-brace-format
 msgid "Leftover balance after settlement on {date} for {name}"
-msgstr ""
+msgstr "Overgebleven saldo na schikking op {date} voor {name}"
 
 #: amelie/personal_tab/models.py:1268
 msgid "instruction"
@@ -12532,32 +12299,24 @@ msgid "reversal"
 msgstr "terugboeking"
 
 #: amelie/personal_tab/models.py:1330
-#, fuzzy
-#| msgid "Date last used"
 msgid "Date added"
-msgstr "Datum laatst gebruikt"
+msgstr "Datum toegevoegd"
 
 #: amelie/personal_tab/models.py:1331
-#, fuzzy
-#| msgid "Edit reversal"
 msgid "First reversal"
-msgstr "Terugboeking wijzigen"
+msgstr "Eerste terugboeking"
 
 #: amelie/personal_tab/models.py:1332
-#, fuzzy
-#| msgid "Insert reversal"
 msgid "Last reversal"
-msgstr "Terugboeking invoeren"
+msgstr "Laatste terugboeking"
 
 #: amelie/personal_tab/models.py:1360
-#, fuzzy
-#| msgid "unknown id"
 msgid "known bad BIC"
-msgstr "unknown id"
+msgstr "bekende foute BIC"
 
 #: amelie/personal_tab/models.py:1361
 msgid "known bad BICs"
-msgstr ""
+msgstr "bekende foute BICs"
 
 #: amelie/personal_tab/models.py:1374
 #: amelie/personal_tab/templates/print/log_list.html:30
@@ -12601,7 +12360,7 @@ msgstr "voor persoonlijk gebruik"
 
 #: amelie/personal_tab/models.py:1456
 msgid "bookkeeping"
-msgstr ""
+msgstr "boekhouding"
 
 #: amelie/personal_tab/pos_models.py:21
 msgid "Login token"
@@ -12718,8 +12477,6 @@ msgstr "Er is een onbekende fout opgetreden, probeer het opnieuw!"
 
 #: amelie/personal_tab/pos_views.py:311
 #: amelie/personal_tab/register_views.py:233
-#, fuzzy
-#| msgid "The login code is invalid or expired, please try again!."
 msgid "The login code is invalid or expired, please try again!"
 msgstr "Deze logincode is ongeldig of verlopen, probeer het opnieuw!"
 
@@ -12808,16 +12565,12 @@ msgid "Print by {person} was refunded successfully."
 msgstr "Print van {person} is succesvol terugbetaald."
 
 #: amelie/personal_tab/register_views.py:81
-#, fuzzy
-#| msgid "This card is already registered."
 msgid "This card has already been registered."
 msgstr "Deze kaart is al geregistreerd."
 
 #: amelie/personal_tab/register_views.py:165
-#, fuzzy
-#| msgid "Card is registered."
 msgid "Card successfully registered."
-msgstr "Kaart is geregistreerd."
+msgstr "Kaart succesvol geregistreerd."
 
 #: amelie/personal_tab/statistics.py:280
 msgid "{} ledger statistics"
@@ -12835,7 +12588,7 @@ msgstr "Streeplijststatistieken"
 #: amelie/personal_tab/templates/balance/balance_form.html:9
 #: amelie/personal_tab/templates/statistics/statistics.html:96
 msgid "Personal tab balance"
-msgstr "Streeplijst totalen"
+msgstr "Streeplijstsaldo"
 
 #: amelie/personal_tab/statistics.py:290
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:81
@@ -12981,10 +12734,9 @@ msgstr "Persoon/rekeninghouder"
 #: amelie/personal_tab/templates/print/log_list.html:56
 #: amelie/personal_tab/templates/unpaid_memberships/forgive.html:29
 #: amelie/personal_tab/templates/unpaid_memberships/year_overview.html:49
-#, fuzzy, python-format
-#| msgid "No transactions on personal tab."
+#, python-format
 msgid "Go to %(name)s's personal tab"
-msgstr "Geen streeplijsttransacties."
+msgstr "Ga naar %(name)'s streeplijst."
 
 #: amelie/personal_tab/templates/authorization/list.html:108
 #: amelie/personal_tab/templates/info/account_information.html:40
@@ -13150,15 +12902,15 @@ msgid "Cookie and candy list of %(person)s"
 msgstr "Streeplijst van %(person)s"
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:13
-#, fuzzy, python-format
-#| msgid "Your current balance is &euro; %(curr_balance)s. Including future transactions that will be &euro; %(all_balance)s."
+#, python-format
 msgid ""
 "\n"
 "                Your current balance is <b>&euro; %(curr_balance)s</b>. Including future transactions that will be <b>&euro; %(all_balance)s</b>.\n"
 "            "
 msgstr ""
-"Je huidige streeplijstsaldo is &euro; %(curr_balance)s,\n"
-"                met toekomstige transacties meegerekend is dat &euro; %(all_balance)s."
+"\n"
+"                Je huidige streeplijstsaldo is <b>&euro; %(curr_balance)s<b>. Met toekomstige transacties meegerekend is dat <b>&euro; %(all_balance)s</b>.\n"
+"            "
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:17
 msgid ""
@@ -13167,6 +12919,10 @@ msgid ""
 "                If you do not have a mandate, you can settle any outstanding balance with a manual payment. To arrange such a payment, please contact the board.\n"
 "            "
 msgstr ""
+"\n"
+"                Als je een incassomachtiging hebt getekend, dan wordt het saldo normaliter verrekend door deze periodiek te incasseren van je bankrekening. \n"
+"Als je geen machtiging hebt getekend, dan kan je het openstaande saldo handmatig betalen. Om een betaling te doen neem je contact op met het bestuur.\n"
+"            "
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:24
 #, python-format
@@ -13213,10 +12969,8 @@ msgstr "Eerdere transacties"
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:60
 #: amelie/personal_tab/templates/cookie_corner_overview.html:30
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:54
-#, fuzzy
-#| msgid "Usage transactions"
 msgid "Unpaid transactions"
-msgstr "Verbruiktransacties"
+msgstr "Onbetaalde transacties"
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:63
 msgid "History of exam credit"
@@ -13229,10 +12983,8 @@ msgid "Cookie Corner Wrapped"
 msgstr "Cookie Corner Wrapped"
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:72
-#, fuzzy
-#| msgid "Board tasks"
 msgid "Board tasks:"
-msgstr "Bestuurstaken"
+msgstr "Bestuurstaken:"
 
 #: amelie/personal_tab/templates/cookie_corner_dashboard.html:74
 msgid "Add transaction to personal tab"
@@ -13251,17 +13003,15 @@ msgstr "Tentamenkoekentegoed toevoegen"
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:4
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:8
 msgid "Manual Payment Settlement"
-msgstr ""
+msgstr "Schikking voor Handmatige Betaling"
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:14
 msgid "Reference of manual payment"
-msgstr ""
+msgstr "Referentie van handmatige betaling"
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:37
-#, fuzzy
-#| msgid "way of payment"
 msgid "Date of payment"
-msgstr "betalingswijze"
+msgstr "Betaaldatum"
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:41
 msgid "Method of payment"
@@ -13270,16 +13020,14 @@ msgstr "Betaalwijze"
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:79
 #: amelie/personal_tab/templates/cookie_corner_manual_payment_settlement_view.html:84
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_confirm_delete.html:4
-#, fuzzy
-#| msgid "Delete payment"
 msgid "Delete manual payment"
-msgstr "Verwijder betaling"
+msgstr "Verwijder handmatige betaling"
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payments_list.html:4
 #: amelie/personal_tab/templates/cookie_corner_manual_payments_list.html:8
 #, python-format
 msgid "Manual payments - Page %(page)s/%(total)s"
-msgstr ""
+msgstr "Handmatige betalingen - Pagina %(page)s/%(total)s"
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payments_list.html:12
 msgid ""
@@ -13289,6 +13037,11 @@ msgid ""
 "                    a negative amount to their personal tab to create a credit they can use for activities.\n"
 "                "
 msgstr ""
+"\n"
+"                    Dit zijn betalingen die mensen handmatig hebben gedaan direct aan de vereniging, bijvoorbeeld contant of met PIN. \n"
+"Een handmatige betaling kan betalen voor transacties die tegen de streeplijst van een persoon zijn gedaan, of het kan \n"
+"een negatief bedrag toevoegen aan de streeplijst om zo een krediet te maken die gebruikt kan worden voor activiteiten.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payments_list.html:19
 msgid ""
@@ -13297,6 +13050,9 @@ msgid ""
 "                    and if there was any extra money deposited.\n"
 "                "
 msgstr ""
+"\n"
+"                    Klik op een betalingsbeschrijving om details te bekijken over voor welke transacties de handmatige betaling heeft betaald, en of er extra geld is bijgeschreven.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payments_list.html:27
 msgid ""
@@ -13305,13 +13061,15 @@ msgid ""
 "                    and click on the \"Add manual payment\" button in the relevant block.\n"
 "                "
 msgstr ""
+"\n"
+"                    Om een handmatige betaling aan te maken, ga je naar het streeplijstoverzicht van de persoon \n"
+"en klik je op de knop \"Handmatige betaling toevoegen\" in het relevante blok.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_manual_payments_list.html:78
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payments.html:42
-#, fuzzy
-#| msgid "No amendments have been found."
 msgid "No manual payments have been found."
-msgstr "Er zijn geen amendementen gevonden."
+msgstr "Er zijn geen handmatige betalingen gevonden."
 
 #: amelie/personal_tab/templates/cookie_corner_overview.html:13
 msgid "Personal overview"
@@ -13339,20 +13097,17 @@ msgstr "Incasso-opdrachten  (SEPA)"
 
 #: amelie/personal_tab/templates/cookie_corner_overview.html:28
 #: amelie/personal_tab/templates/info/payments.html:59
-#, fuzzy
-#| msgid "payments"
 msgid "Manual payments"
-msgstr "betalingen"
+msgstr "Handmatige betalingen"
 
 #: amelie/personal_tab/templates/cookie_corner_overview.html:29
 msgid "Unpaid memberships"
 msgstr "Onbetaalde lidmaatschappen"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_confirm_delete.html:8
-#, fuzzy, python-format
-#| msgid "Delete transaction '%(object)s'"
+#, python-format
 msgid "Delete manual payment '%(object)s'"
-msgstr "Verwijder transactie '%(object)s'"
+msgstr "Verwijder handmatige betaling '%(object)s'"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_confirm_delete.html:11
 #: amelie/personal_tab/templates/transactions/transaction_delete.html:11
@@ -13366,16 +13121,14 @@ msgstr ""
 "Weet je zeker dat je '%(object)s' van %(person)s wilt verwijderen?"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:4
-#, fuzzy, python-format
-#| msgid "Direct debit for %(person)s"
+#, python-format
 msgid "Create manual payment for %(person)s"
-msgstr "Incasso's voor %(person)s"
+msgstr "Handmatige betaling toevoegen voor %(person)s"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:9
-#, fuzzy, python-format
-#| msgid "Direct debit for %(person)s"
+#, python-format
 msgid "New manual payment for %(person)s"
-msgstr "Incasso's voor %(person)s"
+msgstr "Nieuwe handmatige betaling voor %(person)s"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:14
 #: amelie/personal_tab/templates/transactions/transaction_form.html:20
@@ -13388,107 +13141,80 @@ msgid "You are now adding a transaction in the category \"Other\""
 msgstr "Je voegt nu een overige transactie toe"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:32
-#, fuzzy
-#| msgid "Total cost"
 msgid "Total of selected"
-msgstr "Totaalbedrag"
+msgstr "Totaal van geselecteerd"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:33
 msgid "Amount being paid"
-msgstr ""
+msgstr "Bedrag dat wordt betaald"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:34
-#, fuzzy
-#| msgid "Personal tab balance"
 msgid "Personal tab balance before payment"
-msgstr "Streeplijst totalen"
+msgstr "Streeplijstsaldo voor betaling"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:35
-#, fuzzy
-#| msgid "Personal tab balance"
 msgid "Personal tab balance after payment"
-msgstr "Streeplijst totalen"
+msgstr "Streeplijstsaldo na betaling"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:38
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:40
-#, fuzzy
-#| msgid "Today:"
 msgid "Today"
-msgstr "Vandaag:"
+msgstr "Vandaag"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:39
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:41
 msgid "Including future"
-msgstr ""
+msgstr "Inclusief toekomstig"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:56
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                    One other person has filled in their availability.\n"
-#| "                "
-#| msgid_plural ""
-#| "\n"
-#| "                    %(count)s others have filled in their availability.\n"
-#| "                "
 msgid ""
 "\n"
 "                    Please select the transactions that will be marked as paid with this settlement.\n"
 "                "
 msgstr ""
 "\n"
-"Een persoon heeft al zijn beschikbaarheid aangegeven."
+"                    Selecteer a.u.b. de transacties die als betaald zullen worden gemarkeerd met deze schikking.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:59
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                    You are not enrolled in this activity yet.\n"
-#| "                "
 msgid ""
 "\n"
 "                    Rows marked in green are transactions that have a date in the future.\n"
 "                "
 msgstr ""
 "\n"
-"Je doet nog niet mee met deze activiteit."
+"                    Rijen gemarkeerd met groen zijn transacties met een datum in de toekomst.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:66
 msgid "There were errors while submitting the form."
-msgstr ""
+msgstr "Er zijn fouten gevonden tijdens het opsturen van het formulier."
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:76
-#, fuzzy
-#| msgid "For more information, see:"
 msgid "For more errors, see below."
-msgstr "Zie voor meer informatie"
+msgstr "Zie hieronder voor meer fouten."
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:79
 msgid "See below for the errors."
-msgstr ""
+msgstr "Zie de fouten hieronder"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:87
 msgid "Include?"
-msgstr ""
+msgstr "Meenemen?"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:90
-#, fuzzy
-#| msgid "ID"
 msgid "#ID"
-msgstr "ID"
+msgstr "#ID"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payment_create.html:121
-#, fuzzy
-#| msgid "No transactions found"
 msgid "No unpaid transactions found!"
-msgstr "Geen transacties gevonden"
+msgstr "Geen onbetaalde transacties gevonden!"
 
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payments.html:4
 #: amelie/personal_tab/templates/cookie_corner_person_manual_payments.html:8
-#, fuzzy, python-format
-#| msgid "Direct debit for %(person)s"
+#, python-format
 msgid "Manual payments for %(person)s"
-msgstr "Incasso's voor %(person)s"
+msgstr "Handmatige betalingen voor %(person)s"
 
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:22
 #: amelie/personal_tab/templates/cookie_corner_price_list.html:65
@@ -13539,10 +13265,8 @@ msgstr "Alexia"
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:48
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:70
 #: amelie/personal_tab/templates/lists/transactions_totals.html:25
-#, fuzzy
-#| msgid "instruction"
 msgid "Contribution"
-msgstr "instructie"
+msgstr "Contributie"
 
 #: amelie/personal_tab/templates/cookie_corner_transactions.html:54
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:45
@@ -13553,48 +13277,39 @@ msgid "Payments"
 msgstr "Betalingen"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:5
-#, fuzzy
-#| msgid "Transactions"
 msgid "Unpaid Transactions"
-msgstr "Transacties"
+msgstr "Onbetaalde transacties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:9
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "          No transactions found\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "            Unpaid Transactions for %(name)s\n"
 "        "
 msgstr ""
 "\n"
-"Geen transacties gevonden"
+"            Onbetaalde Transacties voor %(name)s\n"
+"        "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:15
-#, fuzzy, python-format
-#| msgid "Your current balance is &euro; %(curr_balance)s. Including future transactions that will be &euro; %(all_balance)s."
+#, python-format
 msgid ""
 "\n"
 "                    Your current balance is <b>&euro; %(curr_balance)s</b>. Including future transactions that will be <b>&euro; %(all_balance)s</b>.\n"
 "                "
 msgstr ""
-"Je huidige streeplijstsaldo is &euro; %(curr_balance)s,\n"
-"                met toekomstige transacties meegerekend is dat &euro; %(all_balance)s."
+"\n"
+"                    Je huidige streeplijstsaldo is <b>&euro; %(curr_balance)s</b>. Met toekomstige transacties meegerekend is dat <b>&euro; %(all_balance)s</b>.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:18
-#, fuzzy
-#| msgid "Blame overview"
 msgid "Back to overview"
-msgstr "Blame-overzicht"
+msgstr "Terug naar overzicht"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:26
 #: amelie/personal_tab/templates/info/transaction_information.html:3
-#, fuzzy
-#| msgid "Transaction"
 msgid "Transaction type"
-msgstr "Transactie"
+msgstr "Transactiesoort"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:39
 #: amelie/personal_tab/templates/lists/transactions_categorized.html:30
@@ -13603,207 +13318,157 @@ msgid "Subtotal"
 msgstr "Subtotaal"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:57
-#, fuzzy
-#| msgid "Transactions"
 msgid "Transactions per type"
-msgstr "Transacties"
+msgstr "Transacties per soort"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions.html:59
-#, fuzzy
-#| msgid "No transactions have been found"
 msgid "No unpaid transactions have been found"
-msgstr "Er zijn geen transacties gevonden."
+msgstr "Er zijn geen onbetaalde transacties gevonden"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:6
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:10
 #, python-format
 msgid "Unpaid transactions - Page %(page)s/%(total)s"
-msgstr ""
+msgstr "Onbetaalde transacties - Pagina %(page)s/%(total)s"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:12
-#, fuzzy
-#| msgid "There are people whose mandate has ended."
 msgid "These are people with transactions that have not been paid for."
-msgstr "Er zijn personen met een beëindigde machtiging."
+msgstr "Dit zijn mensen met transacties die nog niet betaald zijn."
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:16
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        Your membership type is %(type)s.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                        Only people without a mandate of type '%(filtered_type)s' are shown.\n"
 "                    "
 msgstr ""
 "\n"
-"Je lidmaatschapstype is %(type)s."
+"                        Alleen mensen zonder een machtiging van soort '%(filtered_type)s' worden getoond.\n"
+"                    "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:20
-#, fuzzy
-#| msgid "Only activities that you are allowed to edit are shown."
 msgid "Only people without a mandate are shown."
-msgstr "Alleen activiteiten die jij mag aanpassen worden getoond."
+msgstr "Alleen mensen zonder machtiging worden getoond."
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:26
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        The following people have uploaded a new profile picture.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Only people with a mandate of type 'filtered_type' are shown.\n"
 "                    "
 msgstr ""
 "\n"
-"                        De volgende personen hebben een nieuwe profielfoto geupload.\n"
+"                        Alleen mensen met een machtiging van soort 'filtered_type' worden getoond.\n"
 "                    "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:30
-#, fuzzy
-#| msgid "Only activities in the future are shown."
 msgid "Only people with a mandate are shown."
-msgstr "Alleen activiteiten in de toekomst worden getoond."
+msgstr "Alleen mensen met een machtiging worden getoond."
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:35
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        Last %(amount)s added transactions.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                    Only transactions of type '%(filter_transactions)s' are shown.\n"
 "                "
 msgstr ""
 "\n"
-"Laatste %(amount)s toegevoegde transacties."
+"                    Alleen transacties van soort '%(filter_transactions)s' worden getoond.\n"
+"                "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:40
 msgid "Each person can be expanded to view details about the individual transactions."
-msgstr ""
+msgstr "Elke persoon kan worden uitgeklapt om details over de individuele transacties te bekijken."
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:44
 msgid "Total number of people"
-msgstr ""
+msgstr "Totaal aantal personen"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:48
-#, fuzzy
-#| msgid "Number of transactions"
 msgid "Total number of transactions"
-msgstr "Aantal transacties"
+msgstr "Totaal aantal transacties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:52
-#, fuzzy
-#| msgid "Total costs"
 msgid "Total sum of unpaid costs"
-msgstr "Totaal bedrag"
+msgstr "Totaalbedrag onbetaalde kosten"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:57
-#, fuzzy
-#| msgid "Sister associations"
 msgid "Filter options"
-msgstr "Zusterverenigingen"
+msgstr "Filteropties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:60
-#, fuzzy
-#| msgid "Enroll people"
 msgid "Only people with:"
-msgstr "Personen inschrijven"
+msgstr "Alleen mensen met:"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:62
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:70
-#, fuzzy
-#| msgid "Contribution transactions"
 msgid "Contribution mandate"
-msgstr "Contributietransacties"
+msgstr "Contributiemachtiging"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:63
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:71
-#, fuzzy
-#| msgid "Existing mandate"
 msgid "Consumption mandate"
-msgstr "Bestaande machtiging"
+msgstr "Consumptiemachtiging"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:64
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:72
-#, fuzzy
-#| msgid "End mandate"
 msgid "Any mandate"
-msgstr "Machtiging beëindigen"
+msgstr "Elk soort machtiging"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:68
 msgid "Only people <b>without</b>:"
-msgstr ""
+msgstr "Alleen mensen <b>zonder</b>:"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:76
-#, fuzzy
-#| msgid "Last transaction of the year: "
 msgid "Only transactions of type:"
-msgstr "Laatste transactie van het jaar: "
+msgstr "Alleen transacties van soort:"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:79
-#, fuzzy
-#| msgid "No activity transactions."
 msgid "Activity transactions"
-msgstr "Geen activiteittransacties."
+msgstr "Activiteittransacties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:80
-#, fuzzy
-#| msgid "No other transactions."
 msgid "Cookie corner transactions"
-msgstr "Geen overige transacties."
+msgstr "Cookie corner transacties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:83
-#, fuzzy
-#| msgid "Usage transactions"
 msgid "Reversal transactions"
-msgstr "Verbruiktransacties"
+msgstr "Terugboekingstransacties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:88
-#, fuzzy
-#| msgid " files."
 msgid "Clear filters"
-msgstr " bestanden."
+msgstr "Filters weghalen"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:91
 msgid "Toggle expand/collapse all"
-msgstr ""
+msgstr "Alles uit-/samenvouwen"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:103
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            Last %(count)s transactions\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                            %(name)s - (%(num_transactions)s) - &euro;&nbsp;%(total_cost)s\n"
 "                        "
 msgstr ""
 "\n"
-"Laatste %(count)s toegevoegde transacties."
+"                            %(name)s - (%(num_transactions)s) - &euro;&nbsp;%(total_cost)s\n"
+"                        "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:112
 #, python-format
 msgid "Go to %(name)s's personal tab (opens new tab)"
-msgstr ""
+msgstr "Ga naar %(name)s's streeplijst (opent nieuw tabblad)"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:115
 msgid "Create settlement (opens new tab)"
-msgstr ""
+msgstr "Schikking toevoegen (opent nieuw tabblad)"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:155
-#, fuzzy
-#| msgid "No transactions"
 msgid "No unpaid transactions"
-msgstr "Geen transacties"
+msgstr "Geen onbetaalde transacties"
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:157
 msgid "There are no people with unpaid transactions! Woah! 🎉🎉🎉"
-msgstr ""
+msgstr "Er zijn geen mensen met onbetaalde transacties! Wow! 🎉🎉🎉"
 
 #: amelie/personal_tab/templates/debt_collection/instruction_reversal.html:4
 #: amelie/personal_tab/templates/debt_collection/instruction_reversal.html:8
@@ -14058,10 +13723,9 @@ msgid "No batches have been found."
 msgstr "Er zijn geen batches gevonden."
 
 #: amelie/personal_tab/templates/declaration/declaration.mail:3
-#, fuzzy, python-format
-#| msgid "Declaration submitted via Amélie"
+#, python-format
 msgid "Declaration submitted via Amélie by %(name)s on %(date)s"
-msgstr "Declaratie verstuurd via Amélie"
+msgstr "Declaratie verstuurd via Amélie door %(name)s op %(date)s"
 
 #: amelie/personal_tab/templates/declaration/declaration.mail:24
 msgid " I.C.T.S.V. Inter-<i>Actief</i>"
@@ -14215,7 +13879,7 @@ msgstr ""
 
 #: amelie/personal_tab/templates/exam_cookie_credit/overview.html:30
 msgid "Balance transaction"
-msgstr "Tegoedtransacties"
+msgstr "Saldotransactie"
 
 #: amelie/personal_tab/templates/exam_cookie_credit/overview.html:33
 msgid "Usage transactions"
@@ -14244,11 +13908,6 @@ msgid "Direct debits"
 msgstr "Incasso's"
 
 #: amelie/personal_tab/templates/info/payments.html:11
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                    Last %(amount)s executed or planned direct debits.\n"
-#| "                "
 msgid ""
 "\n"
 "                        Your most recently executed or planned direct debit.\n"
@@ -14259,10 +13918,12 @@ msgid_plural ""
 "                    "
 msgstr[0] ""
 "\n"
-"Laatste %(amount)s uitgevoerde of geplande incasso's."
+"                        Je meest recent uitgevoerde of geplande incasso.\n"
+"                    "
 msgstr[1] ""
 "\n"
-"Laatste %(amount)s uitgevoerde of geplande incasso's."
+"                        Je meest recent uitgevoerde of geplande incasso's.\n"
+"                    "
 
 #: amelie/personal_tab/templates/info/payments.html:42
 msgid "There are no direct debits executed or planned yet."
@@ -14273,17 +13934,10 @@ msgid "View all direct debits."
 msgstr "Alle incasso's bekijken"
 
 #: amelie/personal_tab/templates/info/payments.html:62
-#, fuzzy
-#| msgid "Add amendment"
 msgid "Add manual payment"
-msgstr "Amendement invoeren"
+msgstr "Handmatige betaling toevoegen"
 
 #: amelie/personal_tab/templates/info/payments.html:67
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        Your membership type is %(type)s.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Your most recent manual payment.\n"
@@ -14294,20 +13948,20 @@ msgid_plural ""
 "                    "
 msgstr[0] ""
 "\n"
-"Je lidmaatschapstype is %(type)s."
+"                        Je meest recente handmatige betaling.\n"
+"                    "
 msgstr[1] ""
 "\n"
-"Je lidmaatschapstype is %(type)s."
+"                        Je meest recente handmatige betalingen.\n"
+"                    "
 
 #: amelie/personal_tab/templates/info/payments.html:100
-#, fuzzy
-#| msgid "There are no contacts yet."
 msgid "There are no manual payments yet."
-msgstr "Er zijn nog geen contacten."
+msgstr "Er zijn nog geen handmatige betalingen."
 
 #: amelie/personal_tab/templates/info/payments.html:110
 msgid "View all manual payments."
-msgstr ""
+msgstr "Alle handmatige betalingen laten zien."
 
 #: amelie/personal_tab/templates/info/rfid_cards.html:13
 msgid "Type of card"
@@ -14350,68 +14004,53 @@ msgid "Reversed collection"
 msgstr "Teruggeboekte incasso"
 
 #: amelie/personal_tab/templates/info/transaction_information.html:122
-#, fuzzy
-#| msgid "Original"
 msgid "Originated in"
-msgstr "Origineel"
+msgstr "Ontstaan in"
 
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:3
-#, fuzzy
-#| msgid "Print membership forms (opens in new tab)"
 msgid "Show settlement details (opens in new tab)"
-msgstr "Lidmaatschapsformulieren printen (opent in nieuwe tab)"
+msgstr "Schikkingsdetails laten zien (opent nieuw tabblad)"
 
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:9
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Add credit for %(person)s.\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                Direct debit on %(date)s\n"
 "            "
 msgstr ""
 "\n"
-"Tentamenkoekentegoed toevoegen voor %(person)s"
+"                Incasso op %(date)s\n"
+"            "
 
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:17
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                    Reversal on %(date)s\n"
 "                "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                    Terugboeking op %(date)s\n"
+"                "
 
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:24
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                    Enroll person for %(name)s\n"
-#| "                "
+#, python-format
 msgid ""
 "\n"
 "                Manual payment on %(date)s\n"
 "            "
 msgstr ""
 "\n"
-"Persoon inschrijven voor %(name)s"
+"                Handmatige betaling op %(date)s\n"
+"            "
 
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:35
-#, fuzzy
-#| msgid "No payment"
 msgid "UNKNOWN payment!"
-msgstr "Geen betaling"
+msgstr "ONBEKENDE betaling!"
 
 #: amelie/personal_tab/templates/info/transaction_settlement_info.html:40
 msgid "Unpaid!"
-msgstr ""
+msgstr "Niet betaald!"
 
 #: amelie/personal_tab/templates/lists/activity_transactions.html:10
 msgid "Added"
@@ -14443,10 +14082,8 @@ msgid "No mandates have been found."
 msgstr "Er zijn geen machtigingen gevonden."
 
 #: amelie/personal_tab/templates/lists/contribution_transactions.html:58
-#, fuzzy
-#| msgid "Contribution transactions"
 msgid "No contribution transactions."
-msgstr "Contributietransacties"
+msgstr "Geen contributietransacties."
 
 #: amelie/personal_tab/templates/lists/cookie_corner_transactions.html:65
 msgid "No transactions on personal tab."
@@ -14499,60 +14136,49 @@ msgid "No transactions"
 msgstr "Geen transacties"
 
 #: amelie/personal_tab/templates/lists/payment_transactions.html:44
-#, fuzzy
-#| msgid "Direct debits"
 msgid "Direct debit"
-msgstr "Incasso's"
+msgstr "Incasso"
 
 #: amelie/personal_tab/templates/lists/payment_transactions.html:46
-#, fuzzy
-#| msgid "Reversal of direct withdrawal {date}"
 msgid "Reversal of direct debit"
-msgstr "Terugboeking incasso {date}"
+msgstr "Terugboeking incasso"
 
 #: amelie/personal_tab/templates/lists/payment_transactions.html:78
-#, fuzzy
-#| msgid "No payment"
 msgid "No payments."
-msgstr "Geen betaling"
+msgstr "Geen betalingen."
 
 #: amelie/personal_tab/templates/lists/transactions_totals.html:51
 msgid "This date is in the future"
-msgstr ""
+msgstr "Deze datum is in de toekomst"
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:4
 msgid "[Inter-Actief] Reminder of open balance on your personal tab"
-msgstr ""
+msgstr "[Inter-Actief] Herinnering openstaand streeplijstsaldo"
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:8
 msgid "This e-mail serves as a reminder that you have an open balance on your personal tab that needs to be paid."
-msgstr ""
+msgstr "Deze e-mail dient als herinnering dat je nog een open saldo hebt op je streeplijst, die nog betaald moet worden."
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:10
 msgid "Because you do not have an active, signed mandate for consumptions, we cannot collect this money from your bank automatically, so you will need to pay manually. Please visit the association room or contact the board to pay the balance by cash, bank transfer or PIN."
-msgstr ""
+msgstr "Omdat je geen actieve, ondertekende machtiging hebt voor consumpties, kunnen we niet automatisch geld van je bankrenening incasseren, en zul je handmatig moeten betalen. Kom een keer langs in de verenigingskamer of neem contact op met het bestuur om je saldo contant, via bankoverschrijving of met PIN te betalen."
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:12
 #, python-format
 msgid "Your open balance is %(costs)s euro. This consists of %(num_unpaid)s transactions."
-msgstr ""
+msgstr "Je openstaande saldo is %(costs)s euro. Dit bestaat uit %(num_unpaid)s transacties."
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:14
 #, python-format
 msgid "To view more details about the balance and the unpaid transactions, you can view your <a href=\"%(link)s\">unpaid transaction overview</a>."
-msgstr ""
+msgstr "Om meer details te zien over je saldo en de onbetaalde transacties, kan je je eigen <a href=\"%(link)s\">onbetaalde transactieoverzicht</a> bekijken."
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:15
 #, python-format
 msgid "To view more details about the balance and the unpaid transactions, you can view your unpaid transaction overview at %(link)s"
-msgstr ""
+msgstr "Om meer details te zien over je saldo en de onbetaalde transacties, kan je je eigen onbetaalde transactieoverzicht bekijken op %(link)s"
 
 #: amelie/personal_tab/templates/personal_tab/balance_reminder.mail:19
-#, fuzzy
-#| msgid ""
-#| "Kind regards,\n"
-#| "\n"
-#| "The board of Inter-Actief"
 msgid ""
 "Kind regards,\n"
 "\n"
@@ -14560,7 +14186,7 @@ msgid ""
 msgstr ""
 "Met vriendelijke groet,\n"
 "\n"
-"Het bestuur van Inter-Actief"
+"De penningmeester van Inter-Actief"
 
 #: amelie/personal_tab/templates/pos/base.html:6
 msgid "Inter-/Actief/ Cookie Corner Point of Sale"
@@ -15064,28 +14690,22 @@ msgid "Error, could not scan card."
 msgstr "Error, kon kaart niet scannen."
 
 #: amelie/personal_tab/templates/register/register_card_index.html:41
-#, fuzzy
-#| msgid "Scanned card, please wait..."
 msgid "Received card, please wait..."
-msgstr "Kaart gescand, een moment geduld aub..."
+msgstr "Kaart ontvangen, een moment geduld aub..."
 
 #: amelie/personal_tab/templates/register/register_card_index.html:53
 msgid "Connecting to card reader..."
 msgstr "Verbinden met kaartlezer..."
 
 #: amelie/personal_tab/templates/register/register_card_index.html:60
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        Are you sure you want to remove the alias %(object)s?\n"
-#| "                    "
 msgid ""
 "\n"
 "                    By registering your card, you can use it to make purchases in the Cookie Corner or at our drinks.\n"
 "                "
 msgstr ""
 "\n"
-"Weet je zeker dat je alias %(object)s wilt verwijderen?"
+"                    Door je kaart te registreren kan je deze gebruikem om aankopen te doen in de Cookie Corner of op onze borrels.\n"
+"                "
 
 #: amelie/personal_tab/templates/statistics/statistics.html:23
 msgid "End date (till)"
@@ -15122,8 +14742,6 @@ msgid "Question"
 msgstr "Vraag"
 
 #: amelie/personal_tab/templates/transactions/activity_transaction_detail.html:27
-#, fuzzy
-#| msgid "Respons"
 msgid "Response"
 msgstr "Antwoord"
 
@@ -15199,10 +14817,8 @@ msgid "Price Total"
 msgstr "Totaalprijs"
 
 #: amelie/personal_tab/templates/unpaid_memberships/year_overview.html:12
-#, fuzzy
-#| msgid "You are about to forgive the membership fee of the following persons:"
 msgid "Use these buttons to send a mailing or forgive the membership fee of the selected members."
-msgstr "Je staat op het punt de contributie kwijt te schelden voor de volgende personen:"
+msgstr "Gebruik deze knoppen om een mailing te versturen of om de contributie kwijt te schelden voor de geselecteerde personen."
 
 #: amelie/personal_tab/templates/unpaid_memberships/year_overview.html:16
 msgid "Forgive membership fee"
@@ -15213,14 +14829,12 @@ msgid "Debit Refused?"
 msgstr "Incasso geweigerd?"
 
 #: amelie/personal_tab/templates/unpaid_memberships/year_overview.html:94
-#, fuzzy
-#| msgid "Unpaid memberships"
 msgid "No unpaid memberships"
-msgstr "Onbetaalde lidmaatschappen"
+msgstr "Geen onbetaalde lidmaatschappen"
 
 #: amelie/personal_tab/templates/unpaid_memberships/year_overview.html:96
 msgid "There are no unpaid memberships in this year! Woah! 🎉🎉🎉"
-msgstr ""
+msgstr "Er zijn geen onbetaalde lidmaatschappen in dit jaar! Wow! 🎉🎉🎉"
 
 #: amelie/personal_tab/templates/wrapped/wrapped.html:4
 #: amelie/personal_tab/templates/wrapped/wrapped.html:10
@@ -15404,10 +15018,9 @@ msgid "Look back on a different year?"
 msgstr "Een ander jaar terugkijken?"
 
 #: amelie/personal_tab/transactions.py:74
-#, fuzzy, python-brace-format
-#| msgid "Edit enrollment options for %(activity)s"
+#, python-brace-format
 msgid "Settlement of previous costs for {activity}"
-msgstr "Inschrijfopties voor %(activity)s wijzigen"
+msgstr "Schikking van vorige kosten van {activity}"
 
 #: amelie/personal_tab/transactions.py:105
 #, python-brace-format
@@ -15446,16 +15059,14 @@ msgid "No members were selected."
 msgstr "Er zijn geen leden geselecteerd."
 
 #: amelie/personal_tab/views.py:643
-#, fuzzy, python-brace-format
-#| msgid "Contribution {membership_type} ({begin_year}/{end_year})"
+#, python-brace-format
 msgid "Forgiven membership costs for {membership_type} ({begin_year}/{end_year})"
-msgstr "Contributie {membership_type} ({begin_year}/{end_year})"
+msgstr "Kwijtgescholden lidmaatschapskosten voor {membership_type} ({begin_year}/{end_year})"
 
 #: amelie/personal_tab/views.py:660
-#, fuzzy, python-brace-format
-#| msgid "The membership fees have been forgiven."
+#, python-brace-format
 msgid "The membership fees for {amount} memberships have been forgiven."
-msgstr "De contributie is kwijtgescholden."
+msgstr "De contributie voor {amount} lidmaatschappen is kwijtgescholden."
 
 #: amelie/personal_tab/views.py:766 amelie/personal_tab/views.py:2323
 msgid "The e-mails are now being sent one by one. This happens in a background process, so it may take a while."
@@ -15479,64 +15090,54 @@ msgid "Invalid date"
 msgstr "Ongeldige datum"
 
 #: amelie/personal_tab/views.py:1203
-#, fuzzy
-#| msgid "Personal tab statistics"
 msgid "Personal tab transactions in this settlement"
-msgstr "Streeplijststatistieken"
+msgstr "Streeplijsttransacties in deze schikking"
 
 #: amelie/personal_tab/views.py:1211
-#, fuzzy
-#| msgid "No other transactions."
 msgid "Payment for the transactions above"
-msgstr "Geen overige transacties."
+msgstr "Betaling voor bovenstaande transacties"
 
 #: amelie/personal_tab/views.py:1219
-#, fuzzy
-#| msgid "Transactions from personal tab:"
 msgid "Residual balance debited from personal tab"
-msgstr "Transacties uit koekenkast:"
+msgstr "Overgebleven saldo afgeschreven van streeplijst"
 
 #: amelie/personal_tab/views.py:1221
-#, fuzzy
-#| msgid "Add transaction to personal tab"
 msgid "Residual balance credited to personal tab"
-msgstr "Streeplijsttransactie toevoegen"
+msgstr "Overgebleven saldo bijgeschreven op streeplijst"
 
 #: amelie/personal_tab/views.py:1281
 #, python-brace-format
 msgid "Manual payment '{payment}' of '{person}' deleted."
-msgstr ""
+msgstr "Handmatige betaling '{payment}' van '{person}' is verwijderd."
 
 #: amelie/personal_tab/views.py:1363
 #, python-brace-format
 msgid "Personal tab settlement on {date} for {name}"
-msgstr ""
+msgstr "Streeplijstschikking op {date} voor {name}"
 
 #: amelie/personal_tab/views.py:1368
-#, fuzzy, python-brace-format
-#| msgid "Mandate form #{id} for {name}"
+#, python-brace-format
 msgid "Refund on {date} for {name}"
-msgstr "Machtigingsformulier #{id} voor {name}"
+msgstr "Terugbetaling op {date} voor {name}"
 
 #: amelie/personal_tab/views.py:1373
-#, fuzzy, python-brace-format
-#| msgid "Mandate form #{id} for {name}"
+#, python-brace-format
 msgid "Manual payment on {date} for {name}"
-msgstr "Machtigingsformulier #{id} voor {name}"
+msgstr "Handmatige betaling op {date} voor {name}"
 
 #: amelie/personal_tab/views.py:1379
 #, python-brace-format
 msgid "Debit from personal tab balance on {date} for {name}"
-msgstr ""
+msgstr "Afschrijving van streeplijstsaldo op {date} voor {name}"
 
 #: amelie/personal_tab/views.py:1384
 #, python-brace-format
 msgid "Credit to personal tab balance on {date} for {name}"
-msgstr ""
+msgstr "Tegoed op streeplijstsaldo op {date} voor {name}"
 
 #: amelie/personal_tab/views.py:1404
 msgid "No settlement was created because no transactions were selected and no amount was paid."
-msgstr ""
+msgstr "Er is geen schikking aangemaakt omdat er geen transacties zijn geselecteerd, en er is geen bedrag betaald."
 
 #: amelie/personal_tab/views.py:1525
 msgid "Invalid statistics list"
@@ -18018,32 +17619,25 @@ msgstr ""
 "Je lidmaatschapstype is %(type)s."
 
 #: templates/profile_overview.html:62
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        Your membership type is %(type)s.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        Your membership type does not require payment.\n"
 "                    "
 msgstr ""
 "\n"
-"Je lidmaatschapstype is %(type)s."
+"                        Je lidmaatschapstype heeft geen betaling nodig.\n"
+"                    "
 
 #: templates/profile_overview.html:68
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                            Your membership fees have been paid through %(payment_type)s on %(date)s.\n"
-#| "                        "
+#, python-format
 msgid ""
 "\n"
 "                                Your membership fees have been paid through <span class=\"icon icon-%(icon)s\">%(method)s on %(date)s</span>.\n"
 "                            "
 msgstr ""
 "\n"
-"Je lidmaatschap is betaald via %(payment_type)s op %(date)s."
+"                                Je lidmaatschap is betaald via <span class=\"icon icon=%(icon)s\">%(method)s op %(date)s</span>.\n"
+"                            "
 
 #: templates/profile_overview.html:75
 msgid ""
