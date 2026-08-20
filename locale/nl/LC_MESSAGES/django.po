@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-20 12:08+0200\n"
+"POT-Creation-Date: 2026-08-20 12:13+0200\n"
 "PO-Revision-Date: 2026-08-17 19:55+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -3236,8 +3236,7 @@ msgstr ""
 "        "
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:10
-#: amelie/members/templates/person_membership_create_payment.html:10
-msgid "The following transactions for this membership have already been settled. They will not be included in the payment:"
+msgid "The following transactions for this participation have already been settled. They will not be included in the payment:"
 msgstr ""
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:15
@@ -10531,6 +10530,10 @@ msgstr ""
 "\n"
 "            Handmatige betaling aanmaken voor %(membership)s van %(person)s\n"
 "        "
+
+#: amelie/members/templates/person_membership_create_payment.html:10
+msgid "The following transactions for this membership have already been settled. They will not be included in the payment:"
+msgstr ""
 
 #: amelie/members/templates/person_membership_payments.html:20
 #, python-format
