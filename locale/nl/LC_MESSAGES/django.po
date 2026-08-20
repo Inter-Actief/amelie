@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-20 12:13+0200\n"
-"PO-Revision-Date: 2026-08-17 19:55+0000\n"
+"PO-Revision-Date: 2026-08-20 10:17+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
 "Language: nl\n"
@@ -3183,14 +3183,12 @@ msgstr "Vorige poging is teruggeboekt"
 #: amelie/activities/templates/includes/activity_participants_table.html:121
 #: amelie/members/templates/person_membership.html:126
 msgid "Because this transaction was reversed, we can't create a payment for it here (the reversal might have included other transactions). To mark this as paid, create a payment manually in the person's personal tab."
-msgstr ""
+msgstr "Omdat deze transactie is teruggeboekt, kunnen we er hier geen betaling voor aanmaken (de terugboeking kan andere transacties bevatten). Om dit te betalen, maak je een handmatige betaling aan in de streeplijst van de persoon."
 
 #: amelie/activities/templates/includes/activity_participants_table.html:122
 #: amelie/members/templates/person_membership.html:127
-#, fuzzy
-#| msgid "Create manual payment for %(person)s"
 msgid "Cannot create manual payment here"
-msgstr "Handmatige betaling toevoegen voor %(person)s"
+msgstr "Kan hier geen betaling maken"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:128
 #: amelie/activities/templates/includes/activity_participants_table.html:165
@@ -3237,7 +3235,7 @@ msgstr ""
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:10
 msgid "The following transactions for this participation have already been settled. They will not be included in the payment:"
-msgstr ""
+msgstr "De volgende transacties voor deze deelname zijn al verrekend. Deze zullen niet worden meegenomen in de betaling:"
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:15
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:52
@@ -10533,7 +10531,7 @@ msgstr ""
 
 #: amelie/members/templates/person_membership_create_payment.html:10
 msgid "The following transactions for this membership have already been settled. They will not be included in the payment:"
-msgstr ""
+msgstr "De volgende transacties voor dit lidmaatschap zijn al verrekend. Deze zullen niet worden meegenomen in de betaling:"
 
 #: amelie/members/templates/person_membership_payments.html:20
 #, python-format
@@ -13383,18 +13381,14 @@ msgid "Only people without a mandate are shown."
 msgstr "Alleen mensen zonder machtiging worden getoond."
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                        Only people without a mandate of type '%(filtered_type)s' are shown.\n"
-#| "                    "
+#, python-format
 msgid ""
 "\n"
 "                        Only people with a mandate of type '%(filtered_type)s' are shown.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Alleen mensen zonder een machtiging van soort '%(filtered_type)s' worden getoond.\n"
+"                        Alleen mensen met een machtiging van soort '%(filtered_type)s' worden getoond.\n"
 "                    "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:30
