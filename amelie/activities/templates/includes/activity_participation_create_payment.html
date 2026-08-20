@@ -6,6 +6,42 @@
             Create manual payment for {{ participation }}
         {% endblocktrans %}
     </h3>
+    {% if settled_transactions %}
+    <p>{% trans 'The following transactions for this membership have already been settled. They will not be included in the payment:' %}</p>
+    <div class="table-responsive">
+        <table class="person_table table">
+            <thead>
+                <tr>
+                    <th>{% trans 'Timestamp' %}</th>
+                    <th>{% trans 'Description' %}</th>
+                    <th>{% trans 'Amount' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in settled_transactions %}
+                    <tr>
+                        <td>
+                            {{ transaction.date|date:"d-m-Y H:i" }}
+                        </td>
+                        <td>
+                            <a title="{% trans 'Transaction details (opens in new tab)' %}" href="{{ transaction.get_absolute_url }}" target="_blank">
+                                {{ transaction.description }}
+                            </a>
+                        </td>
+                        <td>
+                            &euro;&nbsp;{{ transaction.price|intcomma }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td class="text-bold">{% trans 'Total' %}</td>
+                    <td class="text-bold">&euro;&nbsp;{{ settled_transactions_total|intcomma }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 
     <p>{% trans 'You are creating a manual payment that will cover the following transactions:' %}</p>
 

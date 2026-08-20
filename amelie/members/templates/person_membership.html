@@ -121,6 +121,13 @@
                                         <br /><small class="icon scaled-icon icon-arrow_undo">
                                             {% trans 'Previous attempt was reversed' %}
                                         </small>
+                                        {% if request.is_board %}
+                                            <br /><small class="icon scaled-icon icon-cross">
+                                                <abbr title="{% trans "Because this transaction was reversed, we can't create a payment for it here (the reversal might have included other transactions). To mark this as paid, create a payment manually in the person's personal tab." %}">
+                                                    {% trans 'Cannot create manual payment here' %}
+                                                </abbr>
+                                            </small>
+                                        {% endif %}
                                     {% elif details.0 == 'unpaid' %}
                                         {% if details.1 == None %}
                                             <br /><small class="icon scaled-icon icon-coins">
@@ -129,6 +136,13 @@
                                         {% endif %}
                                     {% endif %}
                                     {% if details.0 == 'unpaid' and details.1 == None %}
+                                         <br /><a class="looks-like-a-button js-load-block"
+                                                  href="{% url 'members:person_membership_create_payment' id=obj.id membership=membership.id %}"
+                                                  data-container="person_membership">
+                                            {% trans 'Enter manual payment' %}
+                                        </a>
+                                    {% endif %}
+                                    {% if request.is_board and details.0 == 'unpaid' and details.1 != None %}
                                          <br /><a class="looks-like-a-button js-load-block"
                                                   href="{% url 'members:person_membership_create_payment' id=obj.id membership=membership.id %}"
                                                   data-container="person_membership">

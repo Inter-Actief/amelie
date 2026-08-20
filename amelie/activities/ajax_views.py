@@ -39,8 +39,10 @@ class ActivityParticipationCreatePaymentView(RequireAjaxMixin, RequireCommitteeM
         context = super().get_context_data(**kwargs)
         request_person: Optional[Person] = self.request.person if hasattr(self.request, 'person') else None
         context['object'] = Participation.objects.get(pk=self.kwargs['pk'])
-        context['transactions'] = [t for t in context['object'].activitytransaction_set.all() if not t.is_paid()]
+        context['transactions'] = [t for t in context['object'].activitytransaction_set.filter(settlement=None)]
         context['transactions_total'] = sum(t.price for t in context['transactions'])
+        context['settled_transactions'] = [t for t in context['object'].activitytransaction_set.exclude(settlement=None)]
+        context['settled_transactions_total'] = sum(t.price for t in context['settled_transactions'])
         context['is_roomduty'] = request_person and request_person.is_room_duty()
         context['is_committee'] = request_person and context['object'].event.organizer in request_person.current_committees().all()
         return context

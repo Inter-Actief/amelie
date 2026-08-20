@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-17 14:55+0200\n"
+"POT-Creation-Date: 2026-08-20 12:08+0200\n"
 "PO-Revision-Date: 2026-08-17 19:55+0000\n"
 "Last-Translator: Kevin Alberts <albertskja@inter-actief.net>\n"
 "Language-Team: Dutch <https://weblate.ia.utwente.nl/projects/amelie/amelie/nl/>\n"
@@ -343,8 +343,8 @@ msgstr "Achternaam"
 #: amelie/activities/templates/activity_list.html:115
 #: amelie/activities/templates/activity_old.html:4
 #: amelie/activities/templates/activity_old.html:34
-#: amelie/calendar/models.py:31 amelie/calendar/models.py:209
-#: amelie/calendar/models.py:210
+#: amelie/calendar/models.py:31 amelie/calendar/models.py:213
+#: amelie/calendar/models.py:214
 #: amelie/companies/templates/companies/company_event_list.html:4
 #: amelie/companies/templates/companies/company_event_old.html:34
 #: amelie/personal_tab/models.py:225 amelie/personal_tab/statistics.py:289
@@ -360,7 +360,7 @@ msgstr "Achternaam"
 msgid "Activities"
 msgstr "Activiteiten"
 
-#: amelie/activities/forms.py:383 amelie/calendar/models.py:192
+#: amelie/activities/forms.py:383 amelie/calendar/models.py:196
 #: amelie/education/models.py:258 amelie/education/models.py:286
 #: amelie/education/templates/education_event_overview.html:18
 #: amelie/oauth/forms.py:11 amelie/videos/models.py:20
@@ -1111,7 +1111,7 @@ msgstr "Opslaan en inschrijfopties toevoegen"
 #: amelie/activities/templates/activities/activity_form.html:107
 #: amelie/activities/templates/activities/enrollmentoption_confirm_delete.html:21
 #: amelie/activities/templates/activity_enrollment_form.html:194
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:60
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:96
 #: amelie/claudia/templates/accounts/mailing_alias.html:18
 #: amelie/claudia/templates/claudia/extrapersonalalias_delete.html:21
 #: amelie/companies/templates/companies/company_event_form.html:111
@@ -1135,7 +1135,7 @@ msgstr "Opslaan en inschrijfopties toevoegen"
 #: amelie/members/templates/person_end_membership.html:21
 #: amelie/members/templates/person_existing_mandate.html:17
 #: amelie/members/templates/person_mandate_sign.html:48
-#: amelie/members/templates/person_membership_create_payment.html:60
+#: amelie/members/templates/person_membership_create_payment.html:96
 #: amelie/members/templates/person_membership_sign.html:48
 #: amelie/members/templates/person_new_mandate.html:11
 #: amelie/members/templates/person_new_membership.html:11
@@ -1851,7 +1851,7 @@ msgstr "Start/eindtijd"
 
 #: amelie/activities/templates/activities/eventdesk/message_list.html:153
 #: amelie/activities/templates/activities/eventdesk/message_list.html:194
-#: amelie/calendar/models.py:189
+#: amelie/calendar/models.py:193
 msgid "Location"
 msgstr "Locatie"
 
@@ -1935,7 +1935,7 @@ msgstr "Wijzig inschrijfopties"
 msgid "Undo event cancellation"
 msgstr "Maak annuleren van evenement ongedaan"
 
-#: amelie/activities/templates/activity.html:45 amelie/calendar/models.py:200
+#: amelie/activities/templates/activity.html:45 amelie/calendar/models.py:204
 msgid "Cancel event"
 msgstr "Annuleer evenement"
 
@@ -2289,8 +2289,10 @@ msgstr ""
 #: amelie/activities/templates/activity_enrollment_form.html:168
 #: amelie/activities/templates/activity_enrollment_print.html:90
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:89
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:45
-#: amelie/members/templates/person_membership_create_payment.html:45
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:38
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:81
+#: amelie/members/templates/person_membership_create_payment.html:38
+#: amelie/members/templates/person_membership_create_payment.html:81
 #: amelie/members/templates/statistics/overview.html:44
 #: amelie/members/templates/statistics/overview.html:133
 #: amelie/personal_tab/templates/balance/balance.html:57
@@ -2458,13 +2460,13 @@ msgstr "Betaling"
 #: amelie/activities/templates/activity_enrollment_print.html:55
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:172
 #: amelie/activities/templates/includes/activity_participants_table.html:65
-#: amelie/activities/templates/includes/activity_participants_table.html:137
+#: amelie/activities/templates/includes/activity_participants_table.html:151
 msgid "N/A (free)"
 msgstr "n.v.t. (gratis)"
 
 #: amelie/activities/templates/activity_enrollment_print.html:59
 #: amelie/activities/templates/includes/activity_participants_table.html:79
-#: amelie/activities/templates/includes/activity_participants_table.html:141
+#: amelie/activities/templates/includes/activity_participants_table.html:155
 #: amelie/activities/templates/includes/activity_participation_payments.html:25
 #: amelie/members/templates/person_membership.html:84
 #: amelie/members/templates/person_membership_payments.html:25
@@ -2476,8 +2478,8 @@ msgstr "Betaald"
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:175
 #: amelie/activities/templates/includes/activity_participants_table.html:83
 #: amelie/activities/templates/includes/activity_participants_table.html:85
-#: amelie/activities/templates/includes/activity_participants_table.html:144
-#: amelie/activities/templates/includes/activity_participants_table.html:146
+#: amelie/activities/templates/includes/activity_participants_table.html:158
+#: amelie/activities/templates/includes/activity_participants_table.html:160
 #: amelie/members/templates/person_membership.html:88
 #: amelie/members/templates/person_membership.html:90
 msgid "To be debited"
@@ -2485,13 +2487,13 @@ msgstr "Nog te incasseren"
 
 #: amelie/activities/templates/activity_enrollment_print.html:67
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:177
-#: amelie/members/templates/person_membership.html:127
+#: amelie/members/templates/person_membership.html:134
 msgid "Needs manual payment"
 msgstr "Handmatige betaling vereist"
 
 #: amelie/activities/templates/activity_enrollment_print.html:69
 #: amelie/activities/templates/includes/activity_participants_table.html:87
-#: amelie/activities/templates/includes/activity_participants_table.html:148
+#: amelie/activities/templates/includes/activity_participants_table.html:162
 #: amelie/activities/templates/includes/activity_participation_payments.html:27
 #: amelie/members/templates/person_membership.html:92
 #: amelie/members/templates/person_membership_payments.html:27
@@ -2516,9 +2518,11 @@ msgstr "Gerecht"
 
 #: amelie/activities/templates/activity_enrollment_print.html:86
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:83
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:18
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:17
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:54
 #: amelie/activities/templates/includes/activity_participation_payments.html:37
-#: amelie/members/templates/person_membership_create_payment.html:18
+#: amelie/members/templates/person_membership_create_payment.html:17
+#: amelie/members/templates/person_membership_create_payment.html:54
 #: amelie/members/templates/person_membership_payments.html:37
 #: amelie/members/templates/statistics/overview.html:35
 #: amelie/members/templates/statistics/overview.html:124
@@ -2573,7 +2577,7 @@ msgstr "iCal-document met activiteit"
 #: amelie/activities/templates/activity_list.html:70
 #: amelie/activities/templates/activity_list.html:71
 #: amelie/activities/templates/activity_list.html:127
-#: amelie/calendar/models.py:194
+#: amelie/calendar/models.py:198
 #: amelie/companies/templates/companies/company_event_list.html:36
 #: amelie/companies/templates/companies/company_event_list.html:86
 #: templates/frontpage.html:28 templates/frontpage.html:29
@@ -2921,13 +2925,13 @@ msgstr "Uitschrijven van de wachtlijst"
 
 #: amelie/activities/templates/includes/activity_enrollment.html:123
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:190
-#: amelie/activities/templates/includes/activity_participants_table.html:167
+#: amelie/activities/templates/includes/activity_participants_table.html:181
 msgid "Deregister"
 msgstr "Uitschrijven"
 
 #: amelie/activities/templates/includes/activity_enrollment.html:126
 #: amelie/activities/templates/includes/activity_enrollment_overview.html:185
-#: amelie/activities/templates/includes/activity_participants_table.html:162
+#: amelie/activities/templates/includes/activity_participants_table.html:176
 msgid "Edit enrollment"
 msgstr "Inschrijving aanpassen"
 
@@ -3177,17 +3181,31 @@ msgid "Previous attempt was reversed"
 msgstr "Vorige poging is teruggeboekt"
 
 #: amelie/activities/templates/includes/activity_participants_table.html:121
-#: amelie/activities/templates/includes/activity_participants_table.html:151
+#: amelie/members/templates/person_membership.html:126
+msgid "Because this transaction was reversed, we can't create a payment for it here (the reversal might have included other transactions). To mark this as paid, create a payment manually in the person's personal tab."
+msgstr ""
+
+#: amelie/activities/templates/includes/activity_participants_table.html:122
+#: amelie/members/templates/person_membership.html:127
+#, fuzzy
+#| msgid "Create manual payment for %(person)s"
+msgid "Cannot create manual payment here"
+msgstr "Handmatige betaling toevoegen voor %(person)s"
+
+#: amelie/activities/templates/includes/activity_participants_table.html:128
+#: amelie/activities/templates/includes/activity_participants_table.html:165
 #, python-format
 msgid "Needs manual payment (&euro;&nbsp;%(costs)s)"
 msgstr "Handmatige betaling vereist (&euro;&nbsp;%(costs)s)"
 
-#: amelie/activities/templates/includes/activity_participants_table.html:128
-#: amelie/members/templates/person_membership.html:135
+#: amelie/activities/templates/includes/activity_participants_table.html:135
+#: amelie/activities/templates/includes/activity_participants_table.html:142
+#: amelie/members/templates/person_membership.html:142
+#: amelie/members/templates/person_membership.html:149
 msgid "Enter manual payment"
 msgstr "Handmatige betaling invoeren"
 
-#: amelie/activities/templates/includes/activity_participants_table.html:188
+#: amelie/activities/templates/includes/activity_participants_table.html:202
 #, python-format
 msgid ""
 "\n"
@@ -3219,15 +3237,17 @@ msgstr ""
 
 #: amelie/activities/templates/includes/activity_participation_create_payment.html:10
 #: amelie/members/templates/person_membership_create_payment.html:10
-msgid "You are creating a manual payment that will cover the following transactions:"
-msgstr "Je maakt een handmatige betaling aan voor de volgende transacties:"
+msgid "The following transactions for this membership have already been settled. They will not be included in the payment:"
+msgstr ""
 
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:16
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:15
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:52
 #: amelie/activities/templates/includes/activity_participation_payments.html:35
 #: amelie/blame/templates/blame/blame_changelog.html:25
 #: amelie/blame/templates/blame/blame_detail.html:29
 #: amelie/blame/templates/blame/model_overview.html:21
-#: amelie/members/templates/person_membership_create_payment.html:16
+#: amelie/members/templates/person_membership_create_payment.html:15
+#: amelie/members/templates/person_membership_create_payment.html:52
 #: amelie/members/templates/person_membership_payments.html:35
 #: amelie/personal_tab/templates/print/log_list.html:29
 #: amelie/personal_tab/templates/print/refund.html:14 amelie/tools/models.py:46
@@ -3235,9 +3255,10 @@ msgstr "Je maakt een handmatige betaling aan voor de volgende transacties:"
 msgid "Timestamp"
 msgstr "Tijdstempel"
 
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:17
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:16
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:53
 #: amelie/activities/templates/includes/activity_participation_payments.html:36
-#: amelie/calendar/models.py:185
+#: amelie/calendar/models.py:189
 #: amelie/claudia/templates/claudia/aliasgroup_list.html:23
 #: amelie/claudia/templates/claudia/contact_list.html:22
 #: amelie/claudia/templates/claudia/email_detail.html:18
@@ -3253,7 +3274,8 @@ msgstr "Tijdstempel"
 #: amelie/companies/templates/companies/company_event_form.html:87
 #: amelie/education/templates/education_event_form.html:50
 #: amelie/members/models.py:847
-#: amelie/members/templates/person_membership_create_payment.html:17
+#: amelie/members/templates/person_membership_create_payment.html:16
+#: amelie/members/templates/person_membership_create_payment.html:53
 #: amelie/members/templates/person_membership_payments.html:36
 #: amelie/oauth/templates/oauth_access_request.mail:12
 #: amelie/oauth/templates/request_oauth_sent.html:23
@@ -3288,25 +3310,32 @@ msgstr "Tijdstempel"
 msgid "Description"
 msgstr "Omschrijving"
 
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:28
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:27
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:64
 #: amelie/activities/templates/includes/activity_participation_payments.html:48
-#: amelie/members/templates/person_membership_create_payment.html:28
+#: amelie/members/templates/person_membership_create_payment.html:27
+#: amelie/members/templates/person_membership_create_payment.html:64
 #: amelie/members/templates/person_membership_payments.html:48
 msgid "Transaction details (opens in new tab)"
 msgstr "Transactiedetails (opent nieuw tabblad)"
 
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:39
-#: amelie/members/templates/person_membership_create_payment.html:39
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:46
+#: amelie/members/templates/person_membership_create_payment.html:46
+msgid "You are creating a manual payment that will cover the following transactions:"
+msgstr "Je maakt een handmatige betaling aan voor de volgende transacties:"
+
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:75
+#: amelie/members/templates/person_membership_create_payment.html:75
 msgid "No transactions found. This is probably wrong! Please contact the WWW."
 msgstr "Geen transacties gevonden. Dit klopt waarschijnlijk niet! Neem contact op met de WWW."
 
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:52
-#: amelie/members/templates/person_membership_create_payment.html:52
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:88
+#: amelie/members/templates/person_membership_create_payment.html:88
 msgid "Please select the payment method that was used for the payment."
 msgstr "Selecteer de betaalmethode die gebruikt is voor de betaling."
 
-#: amelie/activities/templates/includes/activity_participation_create_payment.html:63
-#: amelie/members/templates/person_membership_create_payment.html:63
+#: amelie/activities/templates/includes/activity_participation_create_payment.html:99
+#: amelie/members/templates/person_membership_create_payment.html:99
 msgid "Create payment"
 msgstr "Betaling toevoegen"
 
@@ -3954,72 +3983,72 @@ msgstr "Deelnames"
 msgid "deleted activity"
 msgstr "verwijderde activiteit"
 
-#: amelie/calendar/models.py:136
+#: amelie/calendar/models.py:140
 #, python-brace-format
 msgid "Payment for enrollment to {event} on {date}"
 msgstr "Betaling voor inschrijving voor {event} op {date}"
 
-#: amelie/calendar/models.py:170 amelie/education/models.py:134
+#: amelie/calendar/models.py:174 amelie/education/models.py:134
 #: amelie/room_duty/models.py:40 amelie/room_duty/models.py:109
 #: amelie/room_duty/models.py:206
 msgid "Starts"
 msgstr "Begint"
 
-#: amelie/calendar/models.py:171 amelie/education/models.py:135
+#: amelie/calendar/models.py:175 amelie/education/models.py:135
 #: amelie/room_duty/models.py:110 amelie/room_duty/models.py:207
 msgid "Ends"
 msgstr "Eindigt"
 
-#: amelie/calendar/models.py:172
+#: amelie/calendar/models.py:176
 msgid "All day"
 msgstr "Hele dag"
 
-#: amelie/calendar/models.py:174 amelie/education/models.py:253
+#: amelie/calendar/models.py:178 amelie/education/models.py:253
 msgid "Summary"
 msgstr "Samenvatting"
 
-#: amelie/calendar/models.py:175
+#: amelie/calendar/models.py:179
 msgid "Summary (en)"
 msgstr "Samenvatting (en)"
 
-#: amelie/calendar/models.py:177 amelie/calendar/models.py:180
+#: amelie/calendar/models.py:181 amelie/calendar/models.py:184
 msgid "Short promotional message"
 msgstr "Korte promotietekst"
 
-#: amelie/calendar/models.py:178 amelie/calendar/models.py:182
+#: amelie/calendar/models.py:182 amelie/calendar/models.py:186
 msgid "This text can be used by the board for promotion, for example on our socials or in our weekmail. Let it be a teaser, so people would want to read your full activity description."
 msgstr "Deze tekst kan gebruikt worden door het bestuur voor promotie, bijvoorbeeld op onze social media kanalen of in onze weekmail. Laat het een teaser zijn, zodat mensen die geïnteresseerd zijn jouw volledige beschrijving willen lezen."
 
-#: amelie/calendar/models.py:186
+#: amelie/calendar/models.py:190
 msgid "Description (en)"
 msgstr "Omschrijving (en)"
 
-#: amelie/calendar/models.py:188
+#: amelie/calendar/models.py:192
 msgid "Organizer"
 msgstr "Organisator"
 
-#: amelie/calendar/models.py:191
+#: amelie/calendar/models.py:195
 msgid "Participants"
 msgstr "Deelnemers"
 
-#: amelie/calendar/models.py:193 amelie/files/models.py:149
+#: amelie/calendar/models.py:197 amelie/files/models.py:149
 #: amelie/personal_tab/forms.py:479 amelie/tools/pdf.py:574
 msgid "Attachments"
 msgstr "Bijlagen"
 
-#: amelie/calendar/models.py:196
+#: amelie/calendar/models.py:200
 msgid "Callback URL"
 msgstr "Callback URL"
 
-#: amelie/calendar/models.py:197
+#: amelie/calendar/models.py:201
 msgid "URL has to start with https://"
 msgstr "URL moet met https:// beginnen"
 
-#: amelie/calendar/models.py:201
+#: amelie/calendar/models.py:205
 msgid "Whether this event is cancelled, only cancel when needed. Participants will receive an email notification!"
 msgstr "Of dit evenement geannuleerd is, annuleer deze alleen wanneer nodig is. Deelnemers ontvangen hiervan een email!"
 
-#: amelie/calendar/models.py:272 amelie/education/models.py:160
+#: amelie/calendar/models.py:276 amelie/education/models.py:160
 #: amelie/room_duty/models.py:122
 msgid "Start may not be after of simultaneous to end."
 msgstr "Begin kan niet na het einde voorkomen of gelijk zijn aan het einde."
@@ -7282,7 +7311,7 @@ msgstr ""
 "Er zijn %(mail_count)s berichten verstuurd. Hiervan zijn er %(sent_count)s geaccepteerd\n"
 "en %(error_count)s niet geaccepteerd."
 
-#: amelie/members/ajax_views.py:220
+#: amelie/members/ajax_views.py:222
 #, python-brace-format
 msgid "Early termination of membership {membership_type} ({begin_year}/{end_year})"
 msgstr "Voortijdige beëindiging van lidmaatschap {membership_type} ({begin_year}/{end_year})"
@@ -10305,7 +10334,7 @@ msgid "View signature"
 msgstr "Handtekening tonen"
 
 #: amelie/members/templates/person_mandate.html:94
-#: amelie/members/templates/person_membership.html:149
+#: amelie/members/templates/person_membership.html:163
 #: amelie/members/templates/preregistration_resend_confirm.html:4
 #: amelie/members/templates/preregistration_resend_confirm.html:8
 #: amelie/members/templates/preregistration_status.html:84
@@ -10318,7 +10347,7 @@ msgstr "Handtekening opnieuw aanvragen"
 
 #: amelie/members/templates/person_mandate.html:96
 #: amelie/members/templates/person_mandate_sign.html:3
-#: amelie/members/templates/person_membership.html:151
+#: amelie/members/templates/person_membership.html:165
 #: amelie/members/templates/person_membership_sign.html:3
 msgid "Send digital signature request"
 msgstr "Verstuur digitaal ondertekeningsverzoek"
@@ -10336,7 +10365,7 @@ msgid "View in sign tool"
 msgstr "Tonen in ondertekeningstool"
 
 #: amelie/members/templates/person_mandate.html:102
-#: amelie/members/templates/person_membership.html:157
+#: amelie/members/templates/person_membership.html:171
 #: amelie/members/templates/preregistration_status.html:90
 msgid "Try to retrieve signed file from Documenso"
 msgstr "Probeer het ondertekende document op te halen uit Documenso"
@@ -10423,7 +10452,7 @@ msgstr ""
 "%(obj)s is geen lid."
 
 #: amelie/members/templates/person_membership.html:21
-#: amelie/members/templates/person_membership.html:179
+#: amelie/members/templates/person_membership.html:193
 msgid "Add membership"
 msgstr "Voeg lidmaatschap toe"
 
@@ -10472,23 +10501,23 @@ msgstr "n.v.t."
 msgid "For some reason this free membership has payments! This should not happen."
 msgstr "Om de een of andere reden heeft dit gratis lidmaatschap betalingen! Dit zou niet mogen gebeuren."
 
-#: amelie/members/templates/person_membership.html:143
+#: amelie/members/templates/person_membership.html:157
 msgid "Download PDF form"
 msgstr "Download PDF-formulier"
 
-#: amelie/members/templates/person_membership.html:145
+#: amelie/members/templates/person_membership.html:159
 msgid "View signed member form"
 msgstr "Ondertekend lidmaatschapsformulier tonen"
 
-#: amelie/members/templates/person_membership.html:156
+#: amelie/members/templates/person_membership.html:170
 msgid "A signature request for this membership is in progress. Click to open the request in Documenso."
 msgstr "Een ondertekeningsverzoek voor deze machtiging is in behandeling. Klik om het verzoek te openen in Documenso."
 
-#: amelie/members/templates/person_membership.html:160
+#: amelie/members/templates/person_membership.html:174
 msgid "This membership was created before we introduced digital signatures. Its signed copy may be in the physical folders."
 msgstr "Dit lidmaatschap is aangemaakt voordat we digitale handtekeningen hebben geintroduceerd. Het ondertekende exemplaar bevindt zich mogelijk in de fysieke mappen."
 
-#: amelie/members/templates/person_membership.html:175
+#: amelie/members/templates/person_membership.html:189
 msgid "Terminate membership"
 msgstr "Einde lidmaatschap"
 
@@ -13351,13 +13380,18 @@ msgid "Only people without a mandate are shown."
 msgstr "Alleen mensen zonder machtiging worden getoond."
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:26
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        Only people without a mandate of type '%(filtered_type)s' are shown.\n"
+#| "                    "
 msgid ""
 "\n"
-"                        Only people with a mandate of type 'filtered_type' are shown.\n"
+"                        Only people with a mandate of type '%(filtered_type)s' are shown.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Alleen mensen met een machtiging van soort 'filtered_type' worden getoond.\n"
+"                        Alleen mensen zonder een machtiging van soort '%(filtered_type)s' worden getoond.\n"
 "                    "
 
 #: amelie/personal_tab/templates/cookie_corner_unpaid_transactions_list.html:30

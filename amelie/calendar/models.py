@@ -111,6 +111,10 @@ class Participation(models.Model):
         return [t for t in self.activitytransaction_set.all() if not t.is_paid()]
 
     @property
+    def unsettled_transactions(self):
+        return [t for t in self.activitytransaction_set.filter(settlement=None)]
+
+    @property
     def to_be_paid_costs(self):
         """
         Calculate the open costs for this participation, considering all transactions that relate to it.
@@ -126,7 +130,7 @@ class Participation(models.Model):
         from amelie.personal_tab.models import ManualPaymentSettlement
 
         # Get the ActivityTransaction(s) for this Participation that still need to be paid
-        ats = self.unpaid_transactions
+        ats = self.unsettled_transactions
         if not ats:
             return None
 

@@ -1090,7 +1090,7 @@ class Membership(models.Model):
         from amelie.personal_tab.models import ManualPaymentSettlement
 
         # Get the ContributionTransaction(s) for this Membership that still need to be paid
-        cts = [t for t in self.contributiontransaction_set.all() if not t.is_paid()]
+        cts = [t for t in self.contributiontransaction_set.filter(settlement=None)]
         if not cts:
             return None
 

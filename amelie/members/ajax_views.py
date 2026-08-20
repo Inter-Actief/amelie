@@ -148,8 +148,10 @@ class MembershipCreatePaymentView(RequireAjaxMixin, RequireCommitteeMixin, FormV
         context = super().get_context_data(**kwargs)
         context['person'] = get_object_or_404(Person, id=self.kwargs['id'])
         context['membership'] = get_object_or_404(Membership, id=self.kwargs['membership'])
-        context['transactions'] = [t for t in context['membership'].contributiontransaction_set.all() if not t.is_paid()]
+        context['transactions'] = [t for t in context['membership'].contributiontransaction_set.filter(settlement=None)]
         context['transactions_total'] = sum(t.price for t in context['transactions'])
+        context['settled_transactions'] = [t for t in context['membership'].contributiontransaction_set.exclude(settlement=None)]
+        context['settled_transactions_total'] = sum(t.price for t in context['settled_transactions'])
         return context
 
     def get_success_url(self, query: Optional[Dict] = None):
