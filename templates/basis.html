@@ -54,7 +54,7 @@
             <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/lustrum-matrix.css" />
         {% endif %}
 
-        {% if request.person.is_candidate_board %}
+        {% if request.person.is_candidate_board and not request.person.is_board %}
             {% compress css %}
             {% now "H:i" as t %}
             {% if t <= "06:00" %}
