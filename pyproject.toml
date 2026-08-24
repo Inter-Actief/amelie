@@ -32,7 +32,7 @@ dependencies = [
     "django-celery-results>=2.6,<2.7",
 
     "django-compressor>=4.1,<4.7",
-    "django-localflavor>=5.0,<5.1",
+    "django-localflavor>=5.0,<5.2",
     "django-extensions>=3.2.1,<4.2",
     "django-formtools>=2.4,<2.8",
     "django-betterforms>=3.0.0,<3.1",
