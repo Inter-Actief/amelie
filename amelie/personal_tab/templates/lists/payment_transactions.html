@@ -44,9 +44,9 @@
                                     {% trans 'Direct debit' %}
                                 {% elif transaction|get_class == "ReversalTransaction" %}
                                     {% trans 'Reversal of direct debit' %}
-                                {% elif transaction|get_class == "ExtraManualPaymentTransaction" %}
+                                {% elif transaction|get_class == "SettlementExtraBalanceTransaction" %}
                                     {{ transaction.settlement.manualpaymentsettlement.payment_method.name|default:_("Unknown") }}
-                                {% elif transaction|get_class == "ManualPaymentSettlementTransaction" %}
+                                {% elif transaction|get_class == "SettlementManualPaymentTransaction" %}
                                     {{ transaction.settlement.manualpaymentsettlement.payment_method.name|default:_("Unknown") }}
                                 {% else %}
                                     {% trans 'Unknown' %}
