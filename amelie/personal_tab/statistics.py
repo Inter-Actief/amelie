@@ -1,6 +1,8 @@
 from decimal import Decimal
+from typing import Dict, Set
 
-from django.db.models import Count, Sum
+from django.conf import settings
+from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncDay
 from django.utils.translation import gettext_lazy as _l
 
@@ -8,7 +10,7 @@ from amelie.calendar.models import Event
 from amelie.members.models import MembershipType
 from amelie.personal_tab.models import Discount, DiscountPeriod, CustomTransaction, DiscountCredit, \
     ContributionTransaction, AlexiaTransaction, ActivityTransaction, \
-    CookieCornerTransaction, LedgerAccount, Category, Article
+    CookieCornerTransaction, LedgerAccount, Category, Article, PaymentMethod
 
 
 def statistics_totals(start, end, tables):
@@ -170,37 +172,97 @@ def statistics_activities_total(start, end):
 
 
 def statistics_contribution_transactions(start, end):
-    contribution_transactions = ContributionTransaction.objects.filter(date__gte=start, date__lt=end)
-    contribution_sum = contribution_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
+    # Contribution transactions are a bit special. The ContributionTransaction is made when the membership is created,
+    # but in this view we are interested in which memberships were paid in the selected period.
+    # So, we need to look at the dates of the DebtCollectionInstructions and the ManualPaymentSettlements instead.
+
+    # We want to view the amounts for memberships that were paid with a mandate, manually, or forgiven.
+    # - Transactions paid with a mandate have a DebtCollectionInstruction OR are negative and have a ManualPaymentSettlement.
+    # - Transactions that were forgiven are positive and will have a ManualPaymentSettlements with the payment method "Forgiven" or "Early termination"
+    # - Transactions paid manually are positive and will have a ManualPaymentSettlements with any payment method that is not "Forgiven" or "Early termination"
+    pm_forgiven = PaymentMethod.objects.get(pk=settings.MEMBERS_FORGIVEN_PAYMENT_METHOD_ID)
+    pm_early_termination = PaymentMethod.objects.get(pk=settings.MEMBERS_EARLY_TERMINATION_PAYMENT_METHOD_ID)
+
+    mandate_transactions = ContributionTransaction.objects.filter(
+        Q(
+            settlement__debtcollectioninstruction__batch__execution_date__gte=start,
+            settlement__debtcollectioninstruction__batch__execution_date__lt=end
+        ) | Q(
+            price__lt=Decimal("0.00"),
+            settlement__manualpaymentsettlement__payment_date__gte=start,
+            settlement__manualpaymentsettlement__payment_date__lt=end,
+        )
+    ).distinct()
+    forgiven_transactions = ContributionTransaction.objects.filter(
+        price__gte=Decimal("0.00"),
+        settlement__manualpaymentsettlement__payment_date__gte=start,
+        settlement__manualpaymentsettlement__payment_date__lt=end,
+        settlement__manualpaymentsettlement__payment_method__in=[pm_forgiven, pm_early_termination]
+    ).distinct()
+    manual_transactions = ContributionTransaction.objects.filter(
+        price__gte=Decimal("0.00"),
+        settlement__manualpaymentsettlement__payment_date__gte=start,
+        settlement__manualpaymentsettlement__payment_date__lt=end
+    ).exclude(
+        settlement__manualpaymentsettlement__payment_method__in=[pm_forgiven, pm_early_termination]
+    ).distinct()
+    transaction_sums = {
+        'mandate': mandate_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00"),
+        'forgiven': forgiven_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00"),
+        'manual': manual_transactions.aggregate(Sum('price'))['price__sum'] or Decimal("0.00")
+    }
 
     # Do not use order, so that values works well. See Django manual.
-    sum_per_membership_type = contribution_transactions.order_by().values('membership__type').annotate(Sum('price'))
-    sum_per_membership_type_dict = {x['membership__type']: x['price__sum'] for x in sum_per_membership_type}
+    membership_types: Set[MembershipType] = set(x['membership__type'] for x in ContributionTransaction.objects.all().values('membership__type').distinct())
+    sum_per_membership_type_dict: Dict[MembershipType, dict] = {mtype: {} for mtype in membership_types}
+    for x in mandate_transactions.order_by().values('membership__type').annotate(Sum('price')):
+        sum_per_membership_type_dict[x['membership__type']].update({'mandate': x['price__sum'] or Decimal("0.00")})
+    for x in forgiven_transactions.order_by().values('membership__type').annotate(Sum('price')):
+        sum_per_membership_type_dict[x['membership__type']].update({'forgiven': x['price__sum'] or Decimal("0.00")})
+    for x in manual_transactions.order_by().values('membership__type').annotate(Sum('price')):
+        sum_per_membership_type_dict[x['membership__type']].update({'manual': x['price__sum'] or Decimal("0.00")})
 
     # Count positive and negative transactions
-    positive_transactions_per_membership_type = contribution_transactions.filter(price__gt=0).order_by().values(
-        'membership__type').annotate(Count('price'))
-    positive_transactions_per_membership_type_dict = {x['membership__type']: x['price__count'] or 0
-                                                      for x in positive_transactions_per_membership_type}
-    negative_transactions_per_membership_type = contribution_transactions.filter(price__lt=0).order_by().values(
-        'membership__type').annotate(Count('price'))
-    negative_transactions_per_membership_type_dict = {x['membership__type']: x['price__count'] or 0
-                                                      for x in negative_transactions_per_membership_type}
+    positive_transactions_per_membership_type_dict: Dict[MembershipType, dict] = {mtype: {} for mtype in membership_types}
+    for x in mandate_transactions.filter(price__gt=0).order_by().values('membership__type').annotate(Count('price')):
+        positive_transactions_per_membership_type_dict[x['membership__type']].update({'mandate': x['price__count'] or 0})
+    for x in forgiven_transactions.filter(price__gt=0).order_by().values('membership__type').annotate(Count('price')):
+        positive_transactions_per_membership_type_dict[x['membership__type']].update({'forgiven': x['price__count'] or 0})
+    for x in manual_transactions.filter(price__gt=0).order_by().values('membership__type').annotate(Count('price')):
+        positive_transactions_per_membership_type_dict[x['membership__type']].update({'manual': x['price__count'] or 0})
+
+    negative_transactions_per_membership_type_dict: Dict[MembershipType, dict] = {mtype: {} for mtype in membership_types}
+    for x in mandate_transactions.filter(price__lt=0).order_by().values('membership__type').annotate(Count('price')):
+        negative_transactions_per_membership_type_dict[x['membership__type']].update({'mandate': x['price__count'] or 0})
+    for x in forgiven_transactions.filter(price__lt=0).order_by().values('membership__type').annotate(Count('price')):
+        negative_transactions_per_membership_type_dict[x['membership__type']].update({'forgiven': x['price__count'] or 0})
+    for x in manual_transactions.filter(price__lt=0).order_by().values('membership__type').annotate(Count('price')):
+        negative_transactions_per_membership_type_dict[x['membership__type']].update({'manual': x['price__count'] or 0})
 
     types = MembershipType.objects.filter(pk__in=sum_per_membership_type_dict.keys())
 
     type_totals = []
 
     for membership_type in types:
-        if sum_per_membership_type_dict[membership_type.pk]:
-            positive_transactions = positive_transactions_per_membership_type_dict.get(membership_type.pk, 0)
-            negative_transactions = negative_transactions_per_membership_type_dict.get(membership_type.pk, 0)
-            type_totals.append({
-                'membership_type': membership_type,
-                'amount': positive_transactions - negative_transactions,
-                'total': sum_per_membership_type_dict[membership_type.pk]
-            })
-    return {'rows': type_totals, 'sum': contribution_sum}
+        sums_of_type = sum_per_membership_type_dict[membership_type.pk]
+        positives_of_type = positive_transactions_per_membership_type_dict.get(membership_type.pk, {})
+        negatives_of_type = negative_transactions_per_membership_type_dict.get(membership_type.pk, {})
+        if all(v == 0 for v in positives_of_type.values()) and all(v == 0 for v in negatives_of_type.values()):
+            # No transactions for this membership type, skip adding to table
+            continue
+        type_totals.append({
+            'membership_type': membership_type,
+            'counts': {
+                k: positives_of_type.get(k, 0) - negatives_of_type.get(k, 0)
+                for k in set(positives_of_type.keys()).union(set(negatives_of_type.keys()))
+            },
+            'totals': sums_of_type
+        })
+    return {
+        'rows': type_totals,
+        'sums': transaction_sums,
+        'sum': sum(x for x in transaction_sums.values()),
+    }
 
 
 def statistics_contribution_transactions_total(start, end):

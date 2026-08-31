@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Sum, Q
 from django.template.defaultfilters import date as _date
@@ -8,7 +9,8 @@ from django.utils.translation import gettext as _
 
 from amelie.members.models import Person, Membership
 from amelie.personal_tab.models import Transaction, DebtCollectionInstruction, DebtCollectionBatch, \
-    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment, BadBIC
+    DebtCollectionTransaction, ContributionTransaction, ReversalTransaction, Reversal, Amendment, BadBIC, PaymentMethod, \
+    ManualPaymentSettlement
 from amelie.tools.encodings import normalize_to_ascii
 
 
@@ -313,13 +315,31 @@ def process_reversal(reversal, actor):
         #       albertskja - 2026-07-22
 
         # Create a ContributionTransaction to reverse the original transaction which was marked paid in the debt collection instruction
-        cct = ContributionTransaction(date=reversal_datetime, price=-ct.price, person=ct.person,
-                                      description=description, membership=ct.membership)
-        cct.save()
+        neg_cct = ContributionTransaction(date=reversal_datetime, price=-ct.price, person=ct.person,
+                                          description=description, membership=ct.membership)
+        neg_cct.save()
         # And create another ContributionTransaction to mark that the contribution still needs to be paid.
-        cct = ContributionTransaction(date=reversal_datetime, price=ct.price, person=ct.person,
-                                      description=ct.description, membership=ct.membership)
-        cct.save()
+        pos_cct = ContributionTransaction(date=reversal_datetime, price=ct.price, person=ct.person,
+                                          description=ct.description, membership=ct.membership)
+        pos_cct.save()
+
+        # Create a settlement to cancel out the ReversalTransaction against the negative ContributionTransaction.
+        payment_method = PaymentMethod.objects.get(pk=settings.INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID)
+        # Translate the description to the user's preferred language
+        with translation.override(ct.person.preferred_language):
+            settlement_description = _(
+                "Internal settlement for reversed contribution {membership_type} ({start_year}/{end_year})").format(
+                membership_type=ct.membership.type.name, start_year=ct.membership.year,
+                end_year=ct.membership.year + 1
+            )
+            ManualPaymentSettlement.create_for_transactions(
+                transactions=[rt, neg_cct],
+                payment_method=payment_method,
+                person=ct.person,
+                settlement_description=settlement_description,
+                payment_description=settlement_description,
+                created_by=actor,
+            )
 
     # If the reversal reason is DNOR, the BIC of the authorization must be added to the Bad BIC list
     if reversal.reason == Reversal.ReversalReasons.DNOR:
@@ -361,6 +381,19 @@ def delete_reversal(reversal):
     # TODO: This next bit is a bit convoluted, but we need to clean up what we did in `process_reversal`.
     #       Maybe another refactor step is necessary to get rid of all of this hassle with ContributionTransactions.
     #       albertskja - 2026-07-22
+
+    # If the reversaltransaction was settled with a ManualPaymentSettlement, and the only other transaction in
+    # that settlement was a negative contributiontransaction for the same membership, on the same date,
+    # delete the settlement so the transactions can be deleted as well.
+    reversal_ct = ContributionTransaction.objects.filter(settlement=reversal.instruction, price__gt=0).first()
+    if reversal_ct is not None and rt.settlement is not None and hasattr(rt.settlement, 'manualpaymentsettlement'):
+        mps: ManualPaymentSettlement = rt.settlement.manualpaymentsettlement
+        if mps.transactions.count() == 2 and mps.transactions.filter(price=-rt.price, date=rt.date, person=reversal_ct.person, contributiontransaction__membership=reversal_ct.membership).exists():
+            # First, unlink transactions in the settlement from the settlement to avoid triggering PROTECT on delete
+            for t in mps.transactions.all():
+                t.settlement = None
+                t.save()
+            mps.delete()
 
     # If there were any (positive) contribution transactions in the original instruction, we need to delete the
     # contribution transactions that were created to reverse that payment and re-incur it. We assume that
