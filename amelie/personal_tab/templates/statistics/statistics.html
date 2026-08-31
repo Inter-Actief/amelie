@@ -292,9 +292,9 @@
                                 {% for row in tables.c.rows %}
                                     <tr>
                                         <td>{{ row.membership_type }}</td>
-                                        <td class="align-right"><small>({% blocktrans with c=row.counts.mandate|default:0 %}{{ c }}x{% endblocktrans %})</small>&nbsp;&euro;&nbsp;{{ row.totals.mandate|intcomma|default:'-' }}</td>
-                                        <td class="align-right"><small>({% blocktrans with c=row.counts.manual|default:0 %}{{ c }}x{% endblocktrans %})</small>&nbsp;&euro;&nbsp;{{ row.totals.manual|intcomma|default:'-' }}</td>
-                                        <td class="align-right"><small>({% blocktrans with c=row.counts.forgiven|default:0 %}{{ c }}x{% endblocktrans %})</small>&nbsp;&euro;&nbsp;{{ row.totals.forgiven|intcomma|default:'-' }}</td>
+                                        <td class="align-right"><small>{% blocktrans with pos_c=row.positive_counts.mandate|default:0 neg_c=row.negative_counts.mandate|default:0 %}(+{{ pos_c }}, -{{ neg_c }}){% endblocktrans %}</small>&nbsp;&euro;&nbsp;{{ row.totals.mandate|intcomma|default:'-' }}</td>
+                                        <td class="align-right"><small>{% blocktrans with pos_c=row.positive_counts.manual|default:0 neg_c=row.negative_counts.manual|default:0 %}(+{{ pos_c }}, -{{ neg_c }}){% endblocktrans %}</small>&nbsp;&euro;&nbsp;{{ row.totals.manual|intcomma|default:'-' }}</td>
+                                        <td class="align-right"><small>{% blocktrans with pos_c=row.positive_counts.forgiven|default:0 neg_c=row.negative_counts.forgiven|default:0 %}(+{{ pos_c }}, -{{ neg_c }}){% endblocktrans %}</small>&nbsp;&euro;&nbsp;{{ row.totals.forgiven|intcomma|default:'-' }}</td>
                                     </tr>
                                 {% endfor %}
                                 <tr class="text-bold">

@@ -252,10 +252,8 @@ def statistics_contribution_transactions(start, end):
             continue
         type_totals.append({
             'membership_type': membership_type,
-            'counts': {
-                k: positives_of_type.get(k, 0) - negatives_of_type.get(k, 0)
-                for k in set(positives_of_type.keys()).union(set(negatives_of_type.keys()))
-            },
+            'positive_counts': positives_of_type,
+            'negative_counts': negatives_of_type,
             'totals': sums_of_type
         })
     return {
