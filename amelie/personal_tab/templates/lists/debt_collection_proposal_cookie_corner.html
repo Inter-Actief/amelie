@@ -49,19 +49,14 @@
                     </td>
                     <td class="align-right">&euro;&nbsp;{{ row.sum|intcomma }}</td>
                 </tr>
-                <tr>
-                    <td colspan="{% if enabled %}4{% else %}3{% endif %}">
-                        {% if not row.above_maximum %}
+                {% if row.instruction.description %}
+                    <tr>
+                        <td colspan="{% if enabled %}4{% else %}3{% endif %}">
+                            {% if not row.above_maximum %}
                             {{ row.instruction.description }}
                         {% else %}
                             <b>{% blocktrans with maximum=maximum_debit_amount|floatformat:2 %}This person's balance is higher than &euro; {{ maximum }}, so they cannot be debited.{% endblocktrans %}</b>
                         {% endif %}
-                    </td>
-                </tr>
-                {% if row.instruction.description %}
-                    <tr>
-                        <td colspan="{% if enabled %}4{% else %}3{% endif %}">
-                            {{ row.instruction.description }}
                         </td>
                     </tr>
                 {% endif %}
