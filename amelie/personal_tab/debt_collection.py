@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import transaction
+from django.conf import settings
 from django.db.models import Sum, Q
 from django.template.defaultfilters import date as _date
 from django.utils import timezone, translation
@@ -188,9 +189,10 @@ def generate_cookie_corner_instructions(end_date):
         person = Person.objects.get(id=p['person'])
         transactions = all_transactions.filter(person=person)
         price = transactions.aggregate(Sum('price'))['price__sum']
+        above_maximum = False
 
         if price == 0:
-            continue
+            continue 
 
         authorization = authorization_cookie_corner(person)
         instruction = None
@@ -211,13 +213,17 @@ def generate_cookie_corner_instructions(end_date):
                 instruction = DebtCollectionInstruction(amount=price, authorization=authorization,
                                                         description=description,
                                                         amendment=authorization.next_amendment())
+            
+            if price > settings.MAXIMUM_DIRECT_DEBIT_AMOUNT:
+                above_maximum = True
 
         row = {
             'person': person,
             'authorization': authorization,
             'sum': price,
             'instruction': instruction,
-            'transactions': transactions
+            'transactions': transactions,
+            'above_maximum': above_maximum,
         }
 
         if price < 0:
