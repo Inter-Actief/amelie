@@ -276,29 +276,36 @@
         {% if tables.c %}
             <div class="col-xs-12">
                 <div class="ia">
-                    <h2>{% trans 'Membership fee' %}</h2>
+                    <h2>{% trans 'Paid membership fees' %}</h2>
                     <div class="content">
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                 <tr>
                                     <th>{% trans 'Membership type' %}</th>
-                                    <th class="align-right">{% trans 'Amount' %}</th>
-                                    <th class="align-right">{% trans 'Price' %}</th>
+                                    <th class="align-right">{% trans 'Paid by mandate' %}</th>
+                                    <th class="align-right">{% trans 'Paid manually' %}</th>
+                                    <th class="align-right">{% trans 'Forgiven / early termination' %}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for row in tables.c.rows %}
                                     <tr>
                                         <td>{{ row.membership_type }}</td>
-                                        <td class="align-right">{{ row.amount }}</td>
-                                        <td class="align-right">&euro;&nbsp;{{ row.total|intcomma }}</td>
+                                        <td class="align-right"><small>{% blocktrans with pos_c=row.positive_counts.mandate|default:0 neg_c=row.negative_counts.mandate|default:0 %}(+{{ pos_c }}, -{{ neg_c }}){% endblocktrans %}</small>&nbsp;&euro;&nbsp;{{ row.totals.mandate|intcomma|default:'-' }}</td>
+                                        <td class="align-right"><small>{% blocktrans with pos_c=row.positive_counts.manual|default:0 neg_c=row.negative_counts.manual|default:0 %}(+{{ pos_c }}, -{{ neg_c }}){% endblocktrans %}</small>&nbsp;&euro;&nbsp;{{ row.totals.manual|intcomma|default:'-' }}</td>
+                                        <td class="align-right"><small>{% blocktrans with pos_c=row.positive_counts.forgiven|default:0 neg_c=row.negative_counts.forgiven|default:0 %}(+{{ pos_c }}, -{{ neg_c }}){% endblocktrans %}</small>&nbsp;&euro;&nbsp;{{ row.totals.forgiven|intcomma|default:'-' }}</td>
                                     </tr>
                                 {% endfor %}
                                 <tr class="text-bold">
                                     <td>{% trans 'Total' %}</td>
-                                    <td class="align-right"></td>
-                                    <td class="align-right">&euro;&nbsp;{{ tables.c.sum|intcomma }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ tables.c.sums.mandate|intcomma }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ tables.c.sums.manual|intcomma }}</td>
+                                    <td class="align-right">&euro;&nbsp;{{ tables.c.sums.forgiven|intcomma }}</td>
+                                </tr>
+                                <tr class="text-bold">
+                                    <td>{% trans 'Full total' %}</td>
+                                    <td colspan="3" class="align-right">&euro;&nbsp;{{ tables.c.sum|intcomma }}</td>
                                 </tr>
                                 </tbody>
                             </table>
