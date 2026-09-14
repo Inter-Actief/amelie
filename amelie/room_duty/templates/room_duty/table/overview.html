@@ -90,7 +90,7 @@
             <a href="{% url 'room_duty:table_print' table.pk %}" class="looks-like-a-button float-right no-margin">{% trans "Print" %}</a>
         </h2>
         <div class="content">
-            <form method="post">
+            <form method="post" style="overflow: auto">
                 {% csrf_token %}
                 <a href="{% url 'room_duty:table_fill' table.pk %}" class="looks-like-a-button">{% trans "Fill in" %}</a>
                 <label for="edit-participants"><a class="looks-like-a-button">{% blocktrans %}Toggle assignment{% endblocktrans %}</a></label>
@@ -151,7 +151,7 @@
 
     <div class="ia">
         <h2>{% trans 'Statistics' %}</h2>
-        <div class="content">
+        <div class="content" style="overflow: auto">
             <table>
                 <tr>
                     <th><!-- Dummy --></th>

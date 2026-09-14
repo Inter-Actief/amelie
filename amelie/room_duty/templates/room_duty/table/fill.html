@@ -12,7 +12,7 @@
             {% for error in form.non_field_errors %}
                 {{ error|safe }}
             {% endfor %}
-            <form method="post">
+            <form method="post" style="overflow: auto">
                 {% csrf_token %}
                 <table>
                     <tr>
