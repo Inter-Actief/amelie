@@ -95,55 +95,57 @@
                 <a href="{% url 'room_duty:table_fill' table.pk %}" class="looks-like-a-button">{% trans "Fill in" %}</a>
                 <label for="edit-participants"><a class="looks-like-a-button">{% blocktrans %}Toggle assignment{% endblocktrans %}</a></label>
                 <input id="edit-participants" type="checkbox" style="display: none">
-                <table>
-                    <tr id="row-names">
-                        <th>{% trans "Begin" %}</th>
-                        <th>{% trans "End" %}</th>
-                        <th>{% trans "Assignment" %}</th>
-                        {% for person in table.persons %}
-                            <th data-person="{{ person.pk }}">{{ person.first_name }}</th>
-                        {% endfor %}
-                    </tr>
-                    {% for room_duty in room_duties %}
-                        {% with room_duty.begin|timezone:"Europe/Amsterdam" as rd_begin %}
-                        <tr class="room-duty room-duty-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}"
-                            data-morning="{% if rd_begin.hour < 12 %}1{% else %}0{% endif %}"
-                            data-duration="{{ room_duty.duration|escapejs }}">
-                            <td style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.begin|date:"D d/m H:i" }}</td>
-                            <td style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.end|date:"D d/m H:i" }}</td>
-                            <td class="division" style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.participant_names|join:", " }}</td>
-                            {% for availability, checkbox in room_duty.template_data %}
-                                <td class="availability
-                                           {{ availability.css_class }}
-                                           {% if availability.hungover %}room-duty-hungover{% endif %}"
-                                    data-person="{{ checkbox.data.value }}">
-
-                                    {{ checkbox.tag }}
-                                    {{ checkbox.tag.errors }}
-
-                                    {% if availability == None %}
-                                        -
-                                    {% else %}
-                                        {{ availability.availability }}{% if availability.hungover %}B{% endif %}
-                                        {% if availability.comments %}
-                                            <span class="icon icon-comment"
-                                                  onclick="alert('{{ availability.comments|escapejs }}');"
-                                                  title="{{ availability.comments }}">
-                                            </span>
-                                        {% endif %}
-                                    {% endif %}
-                                </td>
+                <div class="table-responsive">
+                    <table>
+                        <tr id="row-names">
+                            <th>{% trans "Begin" %}</th>
+                            <th>{% trans "End" %}</th>
+                            <th>{% trans "Assignment" %}</th>
+                            {% for person in table.persons %}
+                                <th data-person="{{ person.pk }}">{{ person.first_name }}</th>
                             {% endfor %}
                         </tr>
-                        {% endwith %}
-                    {% endfor %}
-                    <tr id="row-schema">
-                        <td colspan="3">{% trans 'Total' %}</td>
-                        {% for person in table.persons %}
-                            <td class="statistic" data-person="{{ person.pk }}">{{ person.room_duty_stats_table.total|escapejs }}</td>
+                        {% for room_duty in room_duties %}
+                            {% with room_duty.begin|timezone:"Europe/Amsterdam" as rd_begin %}
+                            <tr class="room-duty room-duty-weekday-{{ room_duty.begin.weekday|divisibleby:"2"|yesno:"even,odd" }}"
+                                data-morning="{% if rd_begin.hour < 12 %}1{% else %}0{% endif %}"
+                                data-duration="{{ room_duty.duration|escapejs }}">
+                                <td style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.begin|date:"D d/m H:i" }}</td>
+                                <td style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.end|date:"D d/m H:i" }}</td>
+                                <td class="division" style="{% if request.person in room_duty.participant_set.all %}font-weight:bold;{% endif %}">{{ room_duty.participant_names|join:", " }}</td>
+                                {% for availability, checkbox in room_duty.template_data %}
+                                    <td class="availability
+                                               {{ availability.css_class }}
+                                               {% if availability.hungover %}room-duty-hungover{% endif %}"
+                                        data-person="{{ checkbox.data.value }}">
+
+                                        {{ checkbox.tag }}
+                                        {{ checkbox.tag.errors }}
+
+                                        {% if availability == None %}
+                                            -
+                                        {% else %}
+                                            {{ availability.availability }}{% if availability.hungover %}B{% endif %}
+                                            {% if availability.comments %}
+                                                <span class="icon icon-comment"
+                                                      onclick="alert('{{ availability.comments|escapejs }}');"
+                                                      title="{{ availability.comments }}">
+                                                </span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                            {% endwith %}
                         {% endfor %}
-                    </tr>
-                </table>
+                        <tr id="row-schema">
+                            <td colspan="3">{% trans 'Total' %}</td>
+                            {% for person in table.persons %}
+                                <td class="statistic" data-person="{{ person.pk }}">{{ person.room_duty_stats_table.total|escapejs }}</td>
+                            {% endfor %}
+                        </tr>
+                    </table>
+                </div>
                 <input type="submit" value="{% trans 'Save' %}">
             </form>
         </div>
@@ -152,32 +154,34 @@
     <div class="ia">
         <h2>{% trans 'Statistics' %}</h2>
         <div class="content">
-            <table>
-                <tr>
-                    <th><!-- Dummy --></th>
-                    {% for person in table.persons %}
-                        <th>{{ person.first_name }}</th>
-                    {% endfor %}
-                </tr>
-                <tr id="row-morning">
-                    <td>{% trans 'Morning office duties' %}</td>
-                    {% for person in table.persons %}
-                        <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.morning }}">{{ person.room_duty_stats.morning|escapejs }}</td>
-                    {% endfor %}
-                </tr>
-                <tr id="row-afternoon">
-                    <td>{% trans 'Afternoon office duties' %}</td>
-                    {% for person in table.persons %}
-                        <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.afternoon }}">{{ person.room_duty_stats.afternoon|escapejs }}</td>
-                    {% endfor %}
-                </tr>
-                <tr id="row-total">
-                    <td>{% trans 'Total' %}</td>
-                    {% for person in table.persons %}
-                        <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.total }}">{{ person.room_duty_stats.total|escapejs }}</td>
-                    {% endfor %}
-                </tr>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <tr>
+                        <th><!-- Dummy --></th>
+                        {% for person in table.persons %}
+                            <th>{{ person.first_name }}</th>
+                        {% endfor %}
+                    </tr>
+                    <tr id="row-morning">
+                        <td>{% trans 'Morning office duties' %}</td>
+                        {% for person in table.persons %}
+                            <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.morning }}">{{ person.room_duty_stats.morning|escapejs }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr id="row-afternoon">
+                        <td>{% trans 'Afternoon office duties' %}</td>
+                        {% for person in table.persons %}
+                            <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.afternoon }}">{{ person.room_duty_stats.afternoon|escapejs }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr id="row-total">
+                        <td>{% trans 'Total' %}</td>
+                        {% for person in table.persons %}
+                            <td class="statistic" data-person="{{ person.pk }}" data-base="{{ person.room_duty_stats_base.total }}">{{ person.room_duty_stats.total|escapejs }}</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}
