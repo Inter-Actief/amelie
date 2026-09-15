@@ -171,6 +171,8 @@ def save_contribution_instructions(rows, batch):
 
 def generate_cookie_corner_instructions(end_date):
     all_transactions = Transaction.objects.filter(settlement=None, date__lt=end_date)
+    # Explicitly exclude any ContributionTransactions, those are handled by `generate_contribution_instructions`.
+    all_transactions = all_transactions.exclude(contributiontransaction__isnull=False)
 
     # Order only by person, so distinct works as intended. See Django manual.
     people = all_transactions.filter(person__isnull=False).order_by('person').distinct().values('person')
