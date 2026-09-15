@@ -7,7 +7,7 @@ import itertools
 import traceback
 import operator
 from functools import reduce
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import django.conf
 from django.conf import settings
@@ -1343,6 +1343,7 @@ class CreateManualPaymentSettlementView(CreateView):
     def form_valid(self, form: ManualPaymentSettlementForm, transaction_formset):
         payment_date: datetime.date = form.cleaned_data.get('payment_date')
         payment_method: PaymentMethod = form.cleaned_data.get('payment_method')
+        settlement_description: Optional[str] = form.cleaned_data.get('description')
         paid_amount: Decimal = form.cleaned_data.get('paid_amount') or Decimal("0.00")
 
         # Get datetime for settlement and transactions
@@ -1358,11 +1359,16 @@ class CreateManualPaymentSettlementView(CreateView):
         total_transaction_price = sum(t.price for t in transactions) or Decimal("0.00")
         extra_amount = paid_amount - total_transaction_price
 
+        # Check - Internal settlement payment type may only be used if the sum of the settlement is 0
+        if payment_method.pk == settings.INTERNAL_SETTLEMENT_PAYMENT_METHOD_ID and total_transaction_price != Decimal("0.00"):
+            raise ValidationError(_("The payment type 'Internal settlement' may only be used if the sum of transactions being settled is 0.00."))
+
         # Get description strings in the person's preferred language
         with translation.override(self.person.preferred_language):
-            settlement_description = _("Personal tab settlement on {date} for {name}").format(
-                date=payment_date, name=self.person.incomplete_name()
-            )
+            if not settlement_description:
+                settlement_description = _("Personal tab settlement on {date} for {name}").format(
+                    date=payment_date, name=self.person.incomplete_name()
+                )
             if paid_amount < 0:
                 # Negative payment, money goes from association to person
                 payment_description = _("Refund on {date} for {name}").format(

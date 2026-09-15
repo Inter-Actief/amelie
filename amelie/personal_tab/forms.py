@@ -136,10 +136,14 @@ class ManualPaymentSettlementForm(forms.ModelForm):
                      "can even be negative (if money was paid out by the association). "
                      "Useful if, say, the transactions add up to 9 euro, you can enter a payment of 10 euro, "
                      "which leaves 1 euro extra as balance on the person's personal tab."))
+    description = forms.CharField(max_length=140, label=_l('Description'), required=False, help_text=_l(
+        "Description for this settlement. Optional. "
+        "If not filled in, the default value of 'Personal tab settlement on $date for $name' will be used."
+    ))
 
     class Meta:
         model = ManualPaymentSettlement
-        fields = ('payment_date', 'payment_method')
+        fields = ('payment_date', 'payment_method', 'description')
 
     def __init__(self, person: Person, *args, **kwargs):
         super().__init__(*args, **kwargs)
