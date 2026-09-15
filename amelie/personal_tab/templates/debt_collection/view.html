@@ -102,6 +102,13 @@
                                             <a href="{{ instruction.get_absolute_url }}">
                                                 {{ instruction.debt_collection_reference }}
                                             </a>
+                                            {% if instruction.reversal %}
+                                                &nbsp;
+                                                <a href="{% url 'personal_tab:reversal_transaction_detail' instruction.reversal.transaction.pk %}" target="_blank"
+                                                   title="{% trans 'This instruction was reversed, click to view the reversal transaction in a new tab.' %}">
+                                                <i class="icon icon-arrow_redo"></i>
+                                                </a>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             {% if instruction.authorization.person %}
