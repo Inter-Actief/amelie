@@ -74,6 +74,9 @@ POOL_CATEGORY = "Pools"
 # The direct debit debtor ID of Inter-Actief that needs to be printed on the autorization forms
 DIRECT_DEBIT_DEBTOR_ID = 'NL81ZZZ400749470000'
 
+# The maximum amount Inter-Actief can debit from a person per direct debit
+MAXIMUM_DIRECT_DEBIT_AMOUNT = 250.00
+
 # The ID of the personal_tab.PaymentMethod object representing an early termination (no payment needed).
 MEMBERS_EARLY_TERMINATION_PAYMENT_METHOD_ID = 10
 # The ID of the personal_tab.PaymentMethod object representing a Forgiven payment (no payment needed).
