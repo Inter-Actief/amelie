@@ -43,13 +43,24 @@
 .room-duty-break {
   // none
 }
+.room-duty .icon-comment {
+    padding-left: 24px;
+  }
+
+@media (max-width: 1200px) {
+  .room-duty .icon-comment {
+    padding-left: 36px;
+  }
+}
+
+
 
 #edit-participants:not(:checked) + .table-responsive table input {
-    display: none;
+    visibility: hidden;
 }
 
 #edit-participants:not(:checked) + .table-responsive + input {
-  display: none;
+  visibility: hidden;
 }
 
 .room-duty-weekday-even + .room-duty-weekday-odd,
