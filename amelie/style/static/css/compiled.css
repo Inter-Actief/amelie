@@ -12809,10 +12809,10 @@ table.totals tr:nth-last-child(2) td {
   background-color: #cfcfcf;
   color: black;
 }
-#edit-participants:not(:checked) + table input {
+#edit-participants:not(:checked) + .table-responsive table input {
   display: none;
 }
-#edit-participants:not(:checked) + table + input {
+#edit-participants:not(:checked) + .table-responsive + input {
   display: none;
 }
 .room-duty-weekday-even + .room-duty-weekday-odd,
