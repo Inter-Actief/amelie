@@ -109,7 +109,7 @@ dependencies = [
     "docutils>=0.19,<0.24",
     "pyinotify",
     "model_bakery>=1.23.3,<1.25",
-    "django-silk>=5.5.0,<5.6",
+    "django-silk>=5.5.0,<5.7",
 
     # Single Sign On - OIDC Client
     "mozilla-django-oidc>=5.0.2,<5.1",
