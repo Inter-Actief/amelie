@@ -532,12 +532,15 @@ class ActivityEnrollView(BaseActivityEnrollmentView):
                 # Check if the enrollment was indirect and the option to skip the waiting list for this enrollment was selected.
                 force_skip_waiting_list = self.indirect and form.cleaned_data.get('indirect', {}).get('waiting_list', None) == "skip"
 
+                # Save if the activity is full or not, for the check whether to create transactions or not later on
+                activity_is_full = self.activity.enrollment_full
+
                 # Enroll the person
                 participation = Participation(
                     person=self.person,
                     event=self.activity,
                     added_by=self.request.person,
-                    waiting_list=(self.activity.enrollment_full and not force_skip_waiting_list)
+                    waiting_list=(activity_is_full and not force_skip_waiting_list)
                 )
 
                 if self.indirect:
@@ -570,7 +573,7 @@ class ActivityEnrollView(BaseActivityEnrollmentView):
                     participation.delete()
                     return render(self.request, "activity_enrollment_mandate.html", {'activity': self.activity})
 
-                if price and (force_skip_waiting_list or not self.activity.enrollment_full):
+                if price and (force_skip_waiting_list or not activity_is_full):
                     transactions.add_participation(participation=participation, added_by=self.request.person)
 
                 # Maybe send a notification e-mail to the person and set a status message in the request.
