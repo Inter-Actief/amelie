@@ -556,7 +556,7 @@ class DeclarationForm(forms.Form):
                 _l('The amount must be a positive number.')
             )
 
-        elif description.strip() == '':
+        elif not description or description.strip() == '':
             raise forms.ValidationError(
                 _l('Please provide a description for your declaration.')
             )
