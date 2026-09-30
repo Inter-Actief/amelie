@@ -180,7 +180,7 @@ def generate_overview(request, person, date_from=None, date_to=None):
     overview_type = None
     total = False
     totals = None
-    all_payment_totals = None
+    all_payment_totals = []
     kcal_totals = None
     all_transactions = None
     payment_transactions = None
