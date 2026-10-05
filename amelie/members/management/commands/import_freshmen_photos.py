@@ -45,7 +45,7 @@ class Command(BaseCommand):
                     if not p.picture:
                         new_filename = "{}.{}".format(uuid.uuid4(), f.split('.')[-1])
                         full_new_path = os.path.join(settings.MEDIA_ROOT, "profile_picture", new_filename)
-                        if not commit:
+                        if commit:
                             os.rename(os.path.join(import_directory, f), full_new_path)
                             p.picture = 'profile_picture/{}'.format(os.path.basename(full_new_path))
                             p.save()
