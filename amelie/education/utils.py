@@ -1,4 +1,5 @@
-from urllib.request import urlopen, URLError, HTTPError
+from urllib.request import urlopen
+from urllib.error import HTTPError
 
 from bs4 import BeautifulSoup
 
@@ -26,7 +27,7 @@ def summaries_fetch_data(what, category, filter_):
         data = urlopen(wikiurl, timeout=5).read()
         soup = BeautifulSoup(data, "html.parser")
         courses = [{'name': x.titel.string, 'code': x.vakcode.string, 'url': x.url.string} for x in soup.findAll('vak')]
-    except (URLError, HTTPError):
+    except HTTPError:
         courses = []
 
     return courses
