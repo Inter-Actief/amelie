@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -218,30 +218,30 @@ requires-dist = [
     { name = "django-colorfield" },
     { name = "django-compressor", specifier = ">=4.1,<4.7" },
     { name = "django-cors-headers", specifier = ">=3.13.0,<4.10" },
-    { name = "django-debug-toolbar", specifier = ">=3.7,<7.1" },
+    { name = "django-debug-toolbar", specifier = ">=3.7,<8.1" },
     { name = "django-environ", specifier = ">=0.13.0,<0.15" },
     { name = "django-extensions", specifier = ">=3.2.1,<4.2" },
     { name = "django-filter", specifier = ">=25.2,<27" },
     { name = "django-formtools", specifier = ">=2.4,<2.8" },
     { name = "django-graphql-jwt" },
-    { name = "django-health-check", extras = ["celery", "psutil", "rabbitmq", "redis"], specifier = ">=4.0,<4.5" },
-    { name = "django-localflavor", specifier = ">=5.0,<5.1" },
-    { name = "django-modern-rpc", specifier = ">=2.0.0,<2.1" },
-    { name = "django-oauth-toolkit", specifier = ">=1.7.1,<3.4" },
+    { name = "django-health-check", extras = ["celery", "psutil", "rabbitmq", "redis"], specifier = ">=4.0,<4.6" },
+    { name = "django-localflavor", specifier = ">=5.0,<5.2" },
+    { name = "django-modern-rpc", specifier = ">=2.1.0,<2.2" },
+    { name = "django-oauth-toolkit", specifier = ">=1.7.1,<3.5" },
     { name = "django-rosetta", specifier = ">=0.10.3,<0.11" },
     { name = "django-silk", specifier = ">=5.5.0,<5.6" },
     { name = "django-simple-captcha" },
     { name = "documenso-sdk", specifier = ">=0.6.0" },
-    { name = "docutils", specifier = ">=0.22,<0.23" },
+    { name = "docutils", specifier = ">=0.22,<0.24" },
     { name = "fcm-django", specifier = ">=0.3.11,<1" },
-    { name = "flower", specifier = ">=2.0.1,<2.1" },
+    { name = "flower", specifier = ">=2.0.1,<2.2" },
     { name = "google-api-python-client", specifier = ">=2.192.0,<3" },
-    { name = "google-auth", specifier = ">=2.49.1,<2.57" },
+    { name = "google-auth", specifier = ">=2.49.1,<2.59" },
     { name = "graphene-django" },
     { name = "graphene-django-extras" },
     { name = "html2text", specifier = ">=2020.1.16,<2025.4.16" },
-    { name = "httplib2", specifier = ">=0.20.4,<0.32" },
-    { name = "icalendar", specifier = ">=7.0.3,<7.3" },
+    { name = "httplib2", specifier = ">=0.20.4,<0.33" },
+    { name = "icalendar", specifier = ">=7.0.3,<7.4" },
     { name = "importlib-metadata", specifier = ">=1.4.0,<10.0" },
     { name = "markdown", specifier = ">=3.10.2,<3.11" },
     { name = "mautrix", specifier = ">=0.21.0,<1.0" },
@@ -261,7 +261,7 @@ requires-dist = [
     { name = "raven", specifier = ">=6.10.0,<6.11" },
     { name = "reportlab", specifier = ">=4.4.10" },
     { name = "requests", specifier = ">=2.32,<2.35" },
-    { name = "sentry-sdk", specifier = ">=2.54.0,<2.67" },
+    { name = "sentry-sdk", specifier = ">=2.54.0,<2.70" },
     { name = "setuptools", specifier = ">=84.0.0" },
     { name = "sshpubkeys" },
     { name = "uwsgi", specifier = ">=2.0,<2.1" },
@@ -977,15 +977,15 @@ wheels = [
 
 [[package]]
 name = "django-modern-rpc"
-version = "2.0.0"
+version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "defusedxml" },
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/b9/ece75316067f7c7ecbdb0cac50cea6ba48e6c6a810065fe7df2a81bd18e7/django_modern_rpc-2.0.0.tar.gz", hash = "sha256:b3c80daacad806fcff50447aacf8e70cc91bae5914ec48e9a9ea56bd5a38787e", size = 29583, upload-time = "2025-11-10T11:28:48.814Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/c7/57a3950a031bab10e82319fde3e153090427d2870f419828da877ff6e7bc/django_modern_rpc-2.1.0.tar.gz", hash = "sha256:9809fc634d7489fc9a4fbb4bb7ac3d3c2616ed6741437a2040053c6c95718536", size = 30029, upload-time = "2026-06-05T10:16:51.719Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/a6/0fd8fde626af30c90c7467e698a1a284e1b5feb8588c8a8459429f2a07f6/django_modern_rpc-2.0.0-py3-none-any.whl", hash = "sha256:9dc5af87a21cc94f94060d789f77d522cadb4ec5f3994d9bdd6921ea32b11152", size = 43284, upload-time = "2025-11-10T11:28:47.519Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/21/cb8c1367b381f99b08537057723e1cb951bbf9845d0ddf4112d88d9a9c0e/django_modern_rpc-2.1.0-py3-none-any.whl", hash = "sha256:f2ae474712d54317240450031d8d639402f1acf57796d721c032b76cbbd388d7", size = 43416, upload-time = "2026-06-05T10:16:50.736Z" },
 ]
 
 [[package]]
