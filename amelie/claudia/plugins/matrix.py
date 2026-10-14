@@ -162,7 +162,6 @@ class MatrixPlugin(ClaudiaPlugin):
             kick=50,
             redact=50,
             events={EventType.ROOM_POWER_LEVELS: 100},  # Only allow Admins to change room permissions
-            users={client.mxid: 100}  # Give the bot Admin level
         ))
 
         # Add the newly created space to the general IA space as a child.
