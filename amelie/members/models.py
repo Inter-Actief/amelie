@@ -1382,11 +1382,9 @@ class Function(models.Model):
                     id=self.pk).exists():
                 raise ValidationError(_l("Person is already a member of this committee."))
         else:
-            if not self.end and Function.objects.filter(person=self.person, end=None,
-                                                        committee=self.committee).exists():
+            if hasattr(self, 'person') and hasattr(self, 'committee') and not self.end and \
+                    Function.objects.filter(person=self.person, end=None, committee=self.committee).exists():
                 raise ValidationError(_l("Person is already a member of this committee."))
-
-                # save.alters_data = True  # template security
 
 
 class UnverifiedEnrollment(models.Model):
