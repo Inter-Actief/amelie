@@ -39,6 +39,11 @@ class GlobalIAVariablesMiddleware(MiddlewareMixin):
             if not request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, False):
                 preferred_language = request.person.preferred_language
                 translation.activate(preferred_language)
+        else:
+            # Initialize the request variables anyway to avoid AttributeErrors
+            request.person = None
+            request.is_board = False
+            request.is_education_committee = False
 
 
 class LanguageConfigMiddleware:
