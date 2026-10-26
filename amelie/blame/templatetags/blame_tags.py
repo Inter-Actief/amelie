@@ -96,7 +96,9 @@ def full_classname(obj):
 
 @register.filter()
 def actual(obj):
-    try:
-        return obj.content_type.model_class().objects.get(pk=obj.object_pk)
-    except obj.content_type.model_class().DoesNotExist:
-        return obj.object_repr
+    if obj.content_type.model_class() is not None:
+        try:
+            return obj.content_type.model_class().objects.get(pk=obj.object_pk)
+        except obj.content_type.model_class().DoesNotExist:
+            return obj.object_repr
+    return obj.object_repr
