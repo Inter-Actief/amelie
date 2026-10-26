@@ -350,6 +350,7 @@ class GoogleSuiteAPI:
             logger.warning("Could not add member {} <{}> to group {} <{}> (#{}) - Message: {}".format(
                 member, member.email, group.name, group.email, group.gsuite_id, e
             ))
+            return None
 
     def remove_group_member(self, member: Mapping, group: dict):
         try:

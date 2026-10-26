@@ -220,7 +220,7 @@ class GoogleSuitePlugin(ClaudiaPlugin):
                 if to_add_groups or to_remove_groups:
                     if fix:
                         for group in to_add_groups:
-                            # First check if this group actually exists
+                            # First, check if this group actually exists
                             gs_group = self.google.get_group(group)
                             if not gs_group:
                                 # Let Claudia verify the group if it does not exist
@@ -234,7 +234,7 @@ class GoogleSuitePlugin(ClaudiaPlugin):
                                 # but cannot be deleted by e-mail.
                                 # They can only be deleted by using the unique ID that they get when adding them, so
                                 # we save that as the gsuite ID and use it when deleting it.
-                                if details is not None and (mp.is_contact() or (mp.is_person() and not mp.gsuite_id)):
+                                if details is not None and (mp.is_contact() or (mp.is_person() and not mp.gsuite_id)) and 'id' in details.keys():
                                     mp.gsuite_id = details['id']
                                     mp.save()
                         for group in to_remove_groups:
