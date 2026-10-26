@@ -1349,11 +1349,12 @@ class BadBIC(models.Model):
             reason=Reversal.ReversalReasons.DNOR
         ).order_by('date').last()
 
-        # If both first and last are None (no reversals any more for this BIC), self-destruct.
+        # If both first and last are None (no reversals anymore for this BIC), self-destruct.
         if self.first_reversal is None and self.last_reversal is None:
             self.delete()
         else:
-            self.save()
+            # We use super().save() because otherwise this would cause an infinite loop.
+            super().save()
 
     class Meta:
         ordering = ['bic']
