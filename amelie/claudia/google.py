@@ -486,7 +486,7 @@ class GoogleSuiteAPI:
             if 'enabled' in res:
                 return {
                     "enabled": res['enabled'],
-                    "emailAddress": res['emailAddress']
+                    "emailAddress": res.get('emailAddress', None)
                 }
             else:
                 return {}
