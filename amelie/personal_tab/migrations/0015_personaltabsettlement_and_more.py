@@ -288,6 +288,16 @@ class Migration(migrations.Migration):
 
         # Rename the old DebtCollectionInstruction so the new one can take its name.
         migrations.RenameModel('DebtCollectionInstruction', 'OldDebtCollectionInstruction'),
+        migrations.AlterField(
+            model_name='OldDebtCollectionInstruction',
+            name='authorization',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='instructions', to='personal_tab.Authorization', verbose_name='mandate', db_constraint=False),
+        ),
+        migrations.AlterField(
+            model_name='OldDebtCollectionInstruction',
+            name='authorization',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='instructions', to='personal_tab.Authorization', verbose_name='mandate'),
+        ),
 
         # 4. Create the new DebtCollectionInstruction inheriting from PersonalTabSettlement.
         migrations.CreateModel(
