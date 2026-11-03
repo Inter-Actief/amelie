@@ -51,11 +51,11 @@ var updateClock = function () {
         weekday: "long", year: "numeric", month: "long",
         day: "numeric"
     };
-    date = timeObj.toLocaleDateString("en-US", dateOpts);
+    date = timeObj.toLocaleDateString("en-GB", dateOpts);
     var timeOpts = {
         hour: "2-digit", minute: "2-digit", second: "2-digit"
     };
-    time = timeObj.toLocaleTimeString("en-US", timeOpts);
+    time = timeObj.toLocaleTimeString("en-GB", timeOpts);
     $('.date').text(date);
     $('.time').text(time);
 };
