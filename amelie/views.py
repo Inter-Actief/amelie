@@ -7,7 +7,8 @@ import requests
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest
+from django.contrib import messages
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -188,24 +189,52 @@ def profile_overview(request):
 def profile_actions(request, action, user_id, arg):
     users = get_user_info(request.user.person)
     if user_id not in [x['id'] for x in users]:
-        raise PermissionError("You are not associated with this user.")
-    if action == "unlink_totp":
-        if user_id and arg:
-            unlink_totp(user_id, arg)
-    elif action == "unlink_social":
-        if user_id and arg:
-            unlink_acount(user_id, arg)
-    elif action == "unlink_passkey":
-        if user_id and arg:
-            unlink_passkey(user_id, arg)
-    elif action == "register_totp":
-        if user_id:
-            register_totp(user_id)
-    elif action == "register_passkey":
-        if user_id:
-            register_passkey(user_id)
-    else:
-        raise BadRequest("Unknown action.")
+        raise PermissionDenied("You are not associated with this user.")
+
+    try:
+        if action == "unlink_totp":
+            if user_id and arg:
+                unlink_totp(user_id, arg)
+                messages.success(request, _l("The two-factor authentication (TOTP) device has been removed."))
+        elif action == "unlink_social":
+            if user_id and arg:
+                unlink_acount(user_id, arg)
+                messages.success(request, _l("The account linked with {provider} has been removed.").format(provider=arg))
+        elif action == "unlink_passkey":
+            if user_id and arg:
+                unlink_passkey(user_id, arg)
+                messages.success(request, _l("The passkey has been removed."))
+        elif action == "register_totp":
+            if user_id:
+                register_totp(user_id)
+                messages.success(request, _l(
+                    "An e-mail has been sent with a link to register a new two-factor authentication (TOTP) device. "
+                    "This link is valid for 12 hours."
+                ))
+        elif action == "register_passkey":
+            if user_id:
+                register_passkey(user_id)
+                messages.success(request, _l(
+                    "An e-mail has been sent with a link to register a new passkey. "
+                    "This link is valid for 12 hours."
+                ))
+        else:
+            raise BadRequest("Unknown action.")
+    except BadRequest:
+        raise
+    except PermissionError as e:
+        # For example trying to unlink an account which is not allowed to be unlinked via the website
+        logger.warning(e)
+        messages.error(request, _l(
+            "This action is not allowed here. Please contact the System Administrators if you have questions."
+        ))
+    except (ConnectionError, requests.RequestException) as e:
+        # The Keycloak API could not be reached or returned an unexpected response
+        logger.exception(e)
+        messages.error(request, _l(
+            "Something went wrong while contacting the login system. "
+            "Please try again later or contact the System Administrators if this persists."
+        ))
 
     return redirect("profile_overview")
 
