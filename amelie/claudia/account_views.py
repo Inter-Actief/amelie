@@ -18,6 +18,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from sshpubkeys import SSHKey, InvalidKeyError
 
+from amelie.claudia.forgejo import add_ssh_key
 from amelie.claudia.forms import AccountPasswordForm, AccountConfigureForwardingForm, AccountPasswordResetForm, \
     AccountPasswordResetLinkForm, AccountActivateForm, MailAliasForm, KanidmSudoResetForm
 from amelie.claudia.google import GoogleSuiteAPI
@@ -529,7 +530,13 @@ class KanidmActions(RequireActiveMemberMixin, View):
 
         from amelie.claudia.kanidm import KanidmAPI
         kanidm_api = KanidmAPI()
-        kanidm_person = kanidm_api.get_person(mp.get_kanidm_id())
+
+        username = mp.get_kanidm_id()
+        if not username:
+            messages.error(request, _("Action failed. You don't have an account (yet). Try again later or contact the SysCom if this persists."))
+            return self.do_redirect()
+
+        kanidm_person = kanidm_api.get_person(username)
         if not kanidm_person:
             messages.error(request, _("Action failed. You don't have an account (yet). Try again later or contact the SysCom if this persists."))
             return self.do_redirect()
@@ -573,6 +580,9 @@ class KanidmActions(RequireActiveMemberMixin, View):
                 messages.success(request, _("SSH key with tag '{tag}' added successfully!").format(tag=tag))
             else:
                 messages.error(request, _("Could not add new SSH key. If this persists please contact the SysCom."))
+
+            # Optionally add the SSH key to Forgejo in the background, don't bother if sync fails
+            add_ssh_key(username, tag, pubkey)
         elif action == "delete_ssh_key":
             # Validate entered tag
             tag = request.POST.get('tag')
