@@ -382,6 +382,8 @@ class PhotoUploadForm(forms.Form):
     activity = ActivityModelChoiceField(Activity.objects.none(), label=_l('Activities'))
     public = forms.BooleanField(label=_l('Public'), required=False,
                                 help_text=_l('Photos are also available without logging in'), initial=True)
+    sendEmail = forms.BooleanField(label=_l('Send Email'), required=False,
+                                help_text=_l('Members that attended this event will be notified about the new photos'), initial=False) 
     photos = forms.MultipleChoiceField(widget=PhotoCheckboxSelectMultiple, label=_l('Photos'))
 
     def __init__(self, photos, *args, **kwargs):

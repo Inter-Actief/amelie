@@ -798,6 +798,7 @@ def photo_upload(request):
             last_name_prefix = form.cleaned_data["last_name_prefix"]
             last_name = form.cleaned_data["last_name"]
             public = form.cleaned_data["public"]
+            sendEmail = form.cleaned_data["sendEmail"]
 
             # During field validation, it is checked whether one of those is present
             if first_name and last_name:
@@ -812,7 +813,7 @@ def photo_upload(request):
                 path = os.path.join(folder, photo)
                 shutil.move(path, processing_folder)
 
-            save_args = [processing_folder, form.cleaned_data["photos"], activity, photographer, public]
+            save_args = [processing_folder, form.cleaned_data["photos"], activity, photographer, public, sendEmail]
             save_photos.s(*save_args).set(priority=TaskPriority.HIGH).delay()
             messages.info(request, _("The photos are now being processed in the background."
                                      "Photos will show up on the activity as they are processed, "

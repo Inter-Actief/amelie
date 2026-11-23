@@ -19,7 +19,7 @@
 				<form class="big" action="" method="post">
 					{% csrf_token %}
 
-                    {% fieldset photographer,first_name,last_name_prefix,last_name,activity,public as form_fields from form %}
+                    {% fieldset photographer,first_name,last_name_prefix,last_name,activity,public,sendEmail as form_fields from form %}
                     {{ form_fields }}
 
                     <div class="form-row">

@@ -1,0 +1,13 @@
+{% extends "iamailer/email_basic.mail" %}
+{% load i18n htmlify only %}
+
+{% block subject %}Photos uploaded{% endblock %}
+
+{% block content %}{% htmlify %}Dear {{ first_name }},
+<h1>New photos uploaded!</h1>
+
+
+{{photographer.first_name}} {{photographer.last_name}} has uploaded new photos to the activity {{ activity.activity_label.name_en }}.
+
+Click here to view the photos: {{ activity.get_absolute_url }}{% endhtmlify %}
+{% endblock %}
