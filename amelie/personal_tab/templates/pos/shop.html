@@ -71,7 +71,9 @@
             <div id="sidebar-welcome">
                 <h1>{% trans 'Welcome,' %}</h1>
                 <h2>{{ pos_person.incomplete_name }}</h2>
-                <div id="register-external-card"><a href="{% url 'personal_tab:pos_register_external' %}">{% trans 'Register external card' %}</a></div>
+                {% if pos_person.is_board or pos_person.user.is_superuser %}
+                    <div id="register-external-card"><a href="{% url 'personal_tab:pos_register_external' %}">{% trans 'Register external card' %}</a></div>
+                {% endif %}
             </div>
             <div id="top-five" style="display: flex;">
                 <h3 class="title">{% trans 'Your top 5!' %}</h3>
