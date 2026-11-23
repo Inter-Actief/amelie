@@ -824,6 +824,11 @@ CLAUDIA_KANIDM = {
     "API_KEY": None,
 }
 
+CLAUDIA_FORGEJO = {
+    "API_BASE": "git.ia.utwente.nl",
+    "API_TOKEN": None,
+}
+
 # Claudia's connection details to WESP
 CLAUDIA_WESP = {
     'USER': 'xmlrpcapi@interactief',
