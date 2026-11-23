@@ -518,9 +518,8 @@ class PosRegisterExternalCardView(RequireCookieCornerMixin, CookieCornerBetaMode
 
     def form_valid(self, form):
         # Get the person object that we are registering the card to
-        try:
-            rfid_person = Person.objects.get(id=form.cleaned_data['person'])
-        except Person.DoesNotExist:
+        rfid_person = form.cleaned_data['person']
+        if not rfid_person.pk:
             # ERROR: Person does not exist
             messages.error(self.request, _l("Selected user does not exist, please try again."))
             return redirect("personal_tab:pos_logout")

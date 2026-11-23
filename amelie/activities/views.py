@@ -369,7 +369,7 @@ class ActivityEnrollSearchPersonView(RequireActiveMemberMixin, FormView):
         return super().dispatch(request=request, *args, **kwargs)
 
     def form_valid(self, form):
-        return redirect('activities:enrollment_person', pk=self.activity.id, person_id=form.cleaned_data['person'])
+        return redirect('activities:enrollment_person', pk=self.activity.id, person_id=form.cleaned_data['person'].pk)
 
 
 class BaseActivityEnrollmentView(RequireMemberMixin, FormView):

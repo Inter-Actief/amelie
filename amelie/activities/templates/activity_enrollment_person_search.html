@@ -1,11 +1,6 @@
 {% extends "basis.html" %}
 {% load i18n %}
 
-{% block head %}
-    <script src="{{ STATIC_URL }}js/autocomplete.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
-{% endblock head %}
-
 {% block titel %}
     {% blocktrans with name=activity.summary %}
         Enroll person for {{ name }}
@@ -29,12 +24,9 @@
                     <div class="buttons">
                         <input type="submit" value="{% trans 'Enroll' %}"/>
                     </div>
-
-                    <script type="application/javascript">
-                        enable_autocomplete();
-                    </script>
                 </form>
             </div>
         </div>
     </div>
+    {{ form.media }}
 {% endblock content %}

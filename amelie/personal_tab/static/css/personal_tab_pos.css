@@ -1210,14 +1210,22 @@ html, body {
     display: flex;
 }
 
-.user-register .input-wrapper .autocomplete-input {
+.user-register .input-wrapper autocomplete-select-input input {
+    height: 4vh;
     font-size: 4vh;
     padding: 1vh;
-    margin: 4vh;
+    margin: 2vh;
 }
 
-.user-register label, ul.ui-autocomplete.ui-front {
-   font-size: 3vh;
+.autocomplete-light-box div {
+   font-size: 4vh;
+}
+
+.user-register .input-wrapper autocomplete-select [slot="deck"] [data-value] {
+    height: 4vh;
+    font-size: 4vh;
+    padding: 1vh;
+    margin: 3vh;
 }
 
 #search-buttons {

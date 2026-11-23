@@ -4,6 +4,12 @@
 {% block head %}
     <script src="{{ STATIC_URL }}js/autocomplete.js" type="text/javascript"></script>
     <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
+    <style>
+        autocomplete-select [slot="deck"] [data-value] {
+            margin: 0 !important;
+            height: 26px !important;
+        }
+    </style>
 {% endblock head %}
 
 {% block titel %}
@@ -79,7 +85,5 @@
             </div>
         </div>
     </div>
-    <script type="application/javascript">
-        enable_autocomplete();
-    </script>
+    {{ formset.media }}
 {% endblock content %}

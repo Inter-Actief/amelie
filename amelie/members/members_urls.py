@@ -37,8 +37,9 @@ urlpatterns = [
     path('<int:person_id>/ajax/mandate/retrieve_signed/<int:mandate_id>/', ajax_views.MandateRetrieveSignedDocumentView.as_view(), name='person_mandate_retrieve_signed'),
     path('<int:id>/ajax/functions/', ajax_views.person_functions, name='person_functions'),
 
-    path('ajax/autocomplete/name/', ajax_views.autocomplete_names, name='autocomplete'),
-    path('ajax/autocomplete/cookie_corner/name/', ajax_views.autocomplete_names_cookie_corner, name='autocomplete_cookie_corner'),
+    path('ajax/autocomplete/name/', ajax_views.PersonAutocompleteAjaxView.as_view(), name='autocomplete_members'),
+    path('ajax/autocomplete/cookie_corner/name/', ajax_views.CookieCornerPersonAutocompleteAjaxView.as_view(), name='autocomplete_cookie_corner'),
+
 
     path('userinfo/', views.person_userinfo, name='person_userinfo'),
     path('groupinfo/', views.person_groupinfo, name='person_groupinfo'),

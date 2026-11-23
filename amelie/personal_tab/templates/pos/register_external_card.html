@@ -1,12 +1,6 @@
 {% extends 'pos/base.html' %}
 {% load static i18n md %}
 
-{% block css %}
-    <!-- Autocomplete CSS -->
-    <link type="text/less" rel="stylesheet" href="{{ STATIC_URL }}less/util/autocomplete.less" />
-    <script src="{{ STATIC_URL }}js/less-2.5.3.min.js" type="text/javascript"></script>
-{% endblock %}
-
 {% block content %}
     <div id="container">
         <div id="header">
@@ -53,11 +47,5 @@
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ STATIC_URL }}js/autocomplete_cookie_corner.js" type="text/javascript"></script>
-    <script src="{{ STATIC_URL }}js/jquery-ui.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            enable_autocomplete();
-        });
-    </script>
+    {{ form.media }}
 {% endblock %}

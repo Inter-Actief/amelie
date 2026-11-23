@@ -11,7 +11,7 @@ from functools import reduce
 
 from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.http import HttpResponse, Http404, HttpResponseRedirect, QueryDict
 from django.shortcuts import render, redirect
 from django.template import loader
@@ -70,20 +70,20 @@ def query(request):
     return render(request, 'query.html', locals())
 
 
-def filter_member_list_public(qdict, count=None):
+def filter_member_list_public(qdict, count=None) -> QuerySet[Person]:
     persons = Person.objects.members()
     persons = filter_search_public(qdict, persons)
     return persons[:count] if count else persons
 
 
-def filter_member_list(qdict, count=None):
+def filter_member_list(qdict, count=None) -> QuerySet[Person]:
     search = qdict.get('search', False)
     persons = Person.objects.all()
     persons = filter_search(qdict, persons) if search else filter_query(qdict, persons)
     return persons[:count] if count else persons
 
 
-def filter_search_public(search, persons):
+def filter_search_public(search, persons: QuerySet[Person]) -> QuerySet[Person]:
     """Function that searches in the member database, which is publicly usable (only searches by name)"""
     form = SearchForm(search)
     if form.is_valid():
@@ -91,10 +91,10 @@ def filter_search_public(search, persons):
         slug_qs = reduce(lambda x, y: x & y, [Q(slug__icontains=q) for q in search.split(' ')])
         return persons.filter(slug_qs)
     else:
-        return []
+        return Person.objects.none()
 
 
-def filter_search(search, persons):
+def filter_search(search, persons: QuerySet[Person]) -> QuerySet[Person]:
     """Function that searches in the member database, which does not offer public data! Board only!"""
     form = SearchForm(search)
     if form.is_valid():
@@ -113,7 +113,7 @@ def filter_search(search, persons):
             membership__year=current_association_year()
         ).filter(qs)
     else:
-        return []
+        return Person.objects.none()
 
 
 def filter_query(query_dict, persons):

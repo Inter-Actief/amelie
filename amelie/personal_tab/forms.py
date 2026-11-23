@@ -4,6 +4,7 @@ import json
 import traceback
 from typing import Optional, List
 
+from dal import autocomplete
 from django.forms.models import ModelChoiceIterator
 from django.utils.timezone import get_current_timezone
 from localflavor.generic.forms import BICFormField, IBANFormField
@@ -23,7 +24,7 @@ from amelie.personal_tab.models import CustomTransaction, CookieCornerTransactio
     AuthorizationType, DebtCollectionBatch, Authorization, ManualPaymentSettlement, PaymentMethod, Article, Category
 from amelie.tools.http import get_client_ips
 from amelie.tools.ipp_printer import IPPPrinter
-from amelie.tools.widgets import DateSelector, DateTimeSelector, MemberSelect
+from amelie.tools.widgets import DateSelector, DateTimeSelector
 from amelie.iamailer.mailtask import MailTask, Recipient
 from amelie.tools.const import TaskPriority
 from amelie.tools.forms import MultipleFileField
@@ -225,8 +226,14 @@ class StatisticsForm(forms.Form):
 
 
 class CookieCornerPersonSearchForm(forms.Form):
-    person = forms.IntegerField(widget=MemberSelect(attrs={'autofocus': 'autofocus', 'placeholder': _l('Find person')}),
-                                label=_l('Person'), error_messages={'required': _l('Choose a name from the suggestions.')})
+    person = forms.ModelChoiceField(
+        queryset=Person.objects.members(),
+        widget=autocomplete.ModelAlight(
+            url='members:autocomplete_cookie_corner',
+            attrs={'autofocus': 'autofocus', 'placeholder': _l('Find person')}
+        ),
+        label=_l('Person'), error_messages={'required': _l('Choose a name from the suggestions.')}
+    )
 
 
 def get_printer_choices():

@@ -86,25 +86,3 @@ class SplitDurationWidget(MultiWidget):
                 return ""
 
         return ""
-
-
-class MemberSelect(MultiWidget):
-    def __init__(self, attrs=None, hidden_attrs=None, text_attrs=None):
-        ta = {'class': 'autocomplete-input', 'list': 'autocomplete-datalist'}
-        if text_attrs:
-            ta.update(text_attrs)
-        super().__init__((HiddenInput(attrs=hidden_attrs), TextInput(attrs=ta)), attrs)
-
-    def decompress(self, value):
-        if value:
-            return value, Person.objects.get(id=value).full_name()
-        return None, None
-
-    def format_output(self, rendered_widgets):
-        return '<span class="ui-widget">'+''.join(rendered_widgets) + '</span>'
-
-    def value_from_datadict(self, *args, **kwargs):
-        pid, name = super().value_from_datadict(*args, **kwargs)
-        if pid and name:
-            return pid
-        return None

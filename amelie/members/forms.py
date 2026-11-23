@@ -9,6 +9,7 @@ from difflib import SequenceMatcher
 import re
 
 import requests
+from dal import autocomplete
 from django import forms
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -28,7 +29,7 @@ from amelie.members.models import Department, Committee, CommitteeCategory, Dogr
 from amelie.personal_tab.models import Authorization, AuthorizationType, PaymentMethod, BadBIC
 from amelie.tools.logic import current_academic_year_with_holidays, current_association_year
 from amelie.tools.validators import CheckDigitValidator
-from amelie.tools.widgets import DateSelector, MemberSelect
+from amelie.tools.widgets import DateSelector
 from amelie.tools.encodings import normalize_to_ascii
 
 
@@ -375,8 +376,14 @@ class MandateEndForm(forms.ModelForm):
 
 
 class PersonSearchForm(forms.Form):
-    person = forms.IntegerField(widget=MemberSelect(attrs={'autofocus': 'autofocus'}), label=_l('Person'),
-                                error_messages={'required': _l('Choose a name from the suggestions.')})
+    person = forms.ModelChoiceField(
+        queryset=Person.objects.members(),
+        widget=autocomplete.ModelAlight(
+            url='members:autocomplete_members',
+            attrs={'autofocus': 'autofocus', 'placeholder': _l('Find person')}
+        ),
+        label=_l('Person'), error_messages={'required': _l('Choose a name from the suggestions.')}
+    )
 
 
 class SearchForm(forms.Form):
@@ -621,10 +628,18 @@ class CommitteeMemberForm(forms.ModelForm):
         model = Function
         fields = ["person", "function", 'begin', "end"]
         widgets = {
-            "person": MemberSelect,
             'begin': DateSelector,
             "end": DateSelector,
         }
+
+    person = forms.ModelChoiceField(
+        queryset=Person.objects.members(),
+        widget=autocomplete.ModelAlight(
+            url='members:autocomplete_members',
+            attrs={'autofocus': 'autofocus', 'placeholder': _l('Find person')}
+        ),
+        label=_l('Person'), error_messages={'required': _l('Choose a name from the suggestions.')}
+    )
 
 
 class CommitteeForm(forms.ModelForm):

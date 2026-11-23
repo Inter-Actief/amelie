@@ -123,6 +123,9 @@ dependencies = [
     # Allows for CAPTCHA support in forms
     "django-simple-captcha",
 
+    # Autocomplete for form fields
+    "django-autocomplete-light",
+
     # Verification of uploaded SSH public keys for active members
     "sshpubkeys",
 

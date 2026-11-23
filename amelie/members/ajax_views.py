@@ -2,10 +2,13 @@ import logging
 from datetime import date
 
 import re
+from functools import reduce
 from typing import Optional, Dict
 
+from dal import autocomplete
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.forms.models import inlineformset_factory
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -21,11 +24,10 @@ from amelie.members.forms import CommitteeForm, FunctionForm, MembershipEndForm,
     SaveNewFirstModelFormSet, StudentForm, SignatureRequestForm, MembershipManualPaymentForm
 from amelie.members.models import Committee, Function, Membership, Employee, Person, Student, \
     StudyPeriod, Preference, PreferenceCategory
-from amelie.members.query_views import filter_member_list_public
 from amelie.personal_tab.models import Authorization, ManualPaymentSettlement, PaymentMethod, BadBIC
-from amelie.personal_tab.pos_views import require_cookie_corner_pos
-from amelie.tools.decorators import require_ajax, require_board, require_actief, require_committee
-from amelie.tools.mixins import RequireCommitteeMixin, RequireAjaxMixin
+from amelie.tools.decorators import require_ajax, require_board, require_committee
+from amelie.tools.mixins import RequireCommitteeMixin, RequireAjaxMixin, RequireActiveMemberMixin, \
+    RequireCookieCornerMixin
 
 
 def person_data(request, obj, type, form_type, view_template=None, edit_template=None, *args, **kwargs):
@@ -532,31 +534,22 @@ def committee_data(request, id):
     return render(request, "committee_edit_data.html", locals())
 
 
-SEARCH_REGEX = re.compile(r'^([^()]+)(?:\([^()]\) *)?([^()]+)?$')
-
-
-@require_ajax
-@require_actief
-def autocomplete_names(request):
-    if 'q' in request.GET:
-        search = request.GET['q']
-        match = SEARCH_REGEX.fullmatch(search)
-        if match and match.lastindex == 2:
-            search = ''.join(match.groups())
-        return JsonResponse(
-            {person.id: person.full_name() for person in filter_member_list_public({'search': search}, 5)})
-    return JsonResponse({'names': None})
+class PersonAutocompleteAjaxView(RequireActiveMemberMixin, autocomplete.AlightQuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Person.objects.none()
+        qs = Person.objects.members()
+        if self.q and isinstance(self.q, str):
+            qs = qs.filter(reduce(lambda x, y: x & y, [Q(slug__icontains=q) for q in self.q.split()]))
+        return qs
 
 
 # Endpoint for the cookie corner for autocompletion of members if board is registering an external card
-@require_ajax
-@require_cookie_corner_pos
-def autocomplete_names_cookie_corner(request):
-    if 'q' in request.GET:
-        search = request.GET['q']
-        match = SEARCH_REGEX.fullmatch(search)
-        if match and match.lastindex == 2:
-            search = ''.join(match.groups())
-        return JsonResponse(
-            {person.id: person.full_name() for person in filter_member_list_public({'search': search}, 5)})
-    return JsonResponse({'names': None})
+class CookieCornerPersonAutocompleteAjaxView(RequireCookieCornerMixin, autocomplete.AlightQuerySetView):
+    def get_queryset(self):
+        if not self.request.is_board or not self.request.user.is_superuser:
+            return Person.objects.none()
+        qs = Person.objects.members()
+        if self.q and isinstance(self.q, str):
+            qs = qs.filter(reduce(lambda x, y: x & y, [Q(slug__icontains=q) for q in self.q.split()]))
+        return qs

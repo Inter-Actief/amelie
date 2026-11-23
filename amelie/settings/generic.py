@@ -259,6 +259,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+    'dal',
+    'dal_alight',
     'django.contrib.admin',
     'django.contrib.admindocs',
 
